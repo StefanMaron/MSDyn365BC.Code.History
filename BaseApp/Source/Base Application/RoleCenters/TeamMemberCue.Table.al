@@ -9,6 +9,7 @@ using Microsoft.Projects.TimeSheet;
 table 9042 "Team Member Cue"
 {
     Caption = 'Team Member Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -20,7 +21,7 @@ table 9042 "Team Member Cue"
         {
             CalcFormula = count("Time Sheet Header" where("Open Exists" = filter(= true),
                                                            "Owner User ID" = field("User ID Filter")));
-            Caption = 'Open Time Sheets';
+            Caption = 'Time Sheets In progress';
             FieldClass = FlowField;
         }
         field(3; "Submitted Time Sheets"; Integer)
@@ -49,6 +50,13 @@ table 9042 "Team Member Cue"
             CalcFormula = count("Time Sheet Header" where("Approver User ID" = field("Approve ID Filter"),
                                                            "Submitted Exists" = const(true)));
             Caption = 'Time Sheets to Approve';
+            FieldClass = FlowField;
+        }
+        field(9; "New Time Sheets"; Integer)
+        {
+            CalcFormula = count("Time Sheet Header" where("Lines Exist" = filter(= false),
+                                                           "Owner User ID" = field("User ID Filter")));
+            Caption = 'New Time Sheets';
             FieldClass = FlowField;
         }
         field(28; "User ID Filter"; Code[50])

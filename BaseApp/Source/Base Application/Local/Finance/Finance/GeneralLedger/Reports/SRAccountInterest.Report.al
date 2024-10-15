@@ -163,7 +163,11 @@ report 11529 "SR Account Interest"
 
                 trigger OnAfterGetRecord()
                 begin
+#if not CLEAN24
                     CalcInterest("Posting Date", Amount, "Amount (FCY)");
+#else
+                    CalcInterest("Posting Date", Amount, "Source Currency Amount");
+#endif
                 end;
 
                 trigger OnPreDataItem()

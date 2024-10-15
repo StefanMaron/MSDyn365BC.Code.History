@@ -18,7 +18,6 @@ report 116 Statement
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Customer/Statement.rdlc';
     Caption = 'Statement';
-    WordMergeDataItem = Customer;
 
     dataset
     {
@@ -562,8 +561,8 @@ report 116 Statement
                 CustLedgerEntry: Record "Cust. Ledger Entry";
             begin
                 TempAgingBandBuf.DeleteAll();
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal then
@@ -838,7 +837,7 @@ report 116 Statement
         TempCurrency2: Record Currency temporary;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TempAgingBandBuf: Record "Aging Band Buffer" temporary;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         PeriodLength: DateFormula;

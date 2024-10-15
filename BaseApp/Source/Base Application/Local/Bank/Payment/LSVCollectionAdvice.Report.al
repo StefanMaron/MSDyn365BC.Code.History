@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -323,7 +323,6 @@ report 3010838 "LSV Collection Advice"
         PosCaptionLbl: Label 'Pos.';
         DueCaptionLbl: Label 'Due';
         CashDiscCaptionLbl: Label 'Cash Disc.';
-        TransferCaptionLbl: Label 'Transfer';
         BestregardsCaptionLbl: Label 'Best regards,';
         TotalCollectionCaptionLbl: Label 'Total Collection';
 

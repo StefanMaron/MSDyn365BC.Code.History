@@ -93,7 +93,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesDocuments(LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesDocuments(LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         Customer: Record Customer;
     begin
@@ -107,134 +107,134 @@ codeunit 144082 "Mandatory Fields Tests CH"
         VerifyMandatoryFieldsOnSalesCreditMemo(Customer."No.", LineType, ExpectedMandatory);
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesInvoice(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesInvoice(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SetExternalDocNoMandatory(true);
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
-        SalesInvoice.SalesLines.New;
-        Assert.IsFalse(SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesInvoice.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        SalesInvoice.SalesLines.New();
+        Assert.IsFalse(SalesInvoice.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesInvoice.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesInvoice.SalesLines.Type.SetValue(LineType);
-        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines.Description.ShowMandatory,
+        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines.Description.ShowMandatory(),
           UnexpectedShowMandatoryValueErr);
         if LineType = SalesLine.Type::Item then
-            SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+            SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesInvoice.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesInvoice.OpenNew();
-        Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesInvoice.Close();
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesOrder(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesOrder(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
         SalesOrder: TestPage "Sales Order";
     begin
         SetExternalDocNoMandatory(true);
         SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesOrder."Sell-to Customer Name".SetValue(CustomerNo);
-        SalesOrder.SalesLines.New;
-        Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesOrder.SalesLines."Location Code".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        SalesOrder.SalesLines.New();
+        Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesOrder.SalesLines."Location Code".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         InventorySetup.Get();
         InventorySetup."Location Mandatory" := true;
         InventorySetup.Modify();
         SalesOrder.SalesLines.Type.SetValue(LineType);
         if LineType = SalesLine.Type::Item then
-            SalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Location Code".ShowMandatory, UnexpectedShowMandatoryValueErr);
+            SalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Location Code".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesOrder.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesOrder.OpenNew();
-        Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesOrder.Close();
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesReturnOrder(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesReturnOrder(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         SalesReturnOrder.OpenNew();
-        Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesReturnOrder."Sell-to Customer Name".SetValue(CustomerNo);
-        SalesReturnOrder.SalesLines.New;
+        SalesReturnOrder.SalesLines.New();
         SalesReturnOrder.SalesLines.Type.SetValue("Sales Line Type"::" ");
-        Assert.IsFalse(SalesReturnOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesReturnOrder.SalesLines."No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesReturnOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesReturnOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesReturnOrder.SalesLines.Type.SetValue(LineType);
-        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines."No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         if LineType = SalesLine.Type::Item then
-            SalesReturnOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+            SalesReturnOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesReturnOrder.Close();
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesQuote(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesQuote(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
         SalesQuote.OpenNew();
-        Assert.IsTrue(SalesQuote."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesQuote."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         Customer.Get(CustomerNo);
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
-        SalesQuote.SalesLines.New;
-        Assert.IsFalse(SalesQuote.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesQuote.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        SalesQuote.SalesLines.New();
+        Assert.IsFalse(SalesQuote.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesQuote.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesQuote.SalesLines.Type.SetValue(LineType);
         if LineType = SalesLine.Type::Item then
-            SalesQuote.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines.Description.ShowMandatory,
+            SalesQuote.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines.Description.ShowMandatory(),
           UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesQuote.Close();
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesCreditMemo(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
+    local procedure VerifyMandatoryFieldsOnSalesCreditMemo(CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; ExpectedMandatory: Boolean)
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         SetExternalDocNoMandatory(true);
         SalesCreditMemo.OpenNew();
-        Assert.IsTrue(SalesCreditMemo."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsTrue(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesCreditMemo."Sell-to Customer Name".ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsTrue(SalesCreditMemo."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesCreditMemo."Sell-to Customer Name".SetValue(CustomerNo);
-        SalesCreditMemo.SalesLines.New;
-        Assert.IsFalse(SalesCreditMemo.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        SalesCreditMemo.SalesLines.New();
+        Assert.IsFalse(SalesCreditMemo.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesCreditMemo.SalesLines.Type.SetValue(LineType);
         if LineType = SalesLine.Type::Item then
-            SalesCreditMemo.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
-        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines.Description.ShowMandatory,
+            SalesCreditMemo.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines.Description.ShowMandatory(),
           UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
-        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines.Quantity.ShowMandatory(), UnexpectedShowMandatoryValueErr);
+        Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines."Unit Price".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesCreditMemo.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesCreditMemo.OpenNew();
-        Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
+        Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory(), UnexpectedShowMandatoryValueErr);
         SalesCreditMemo.Close();
     end;
 

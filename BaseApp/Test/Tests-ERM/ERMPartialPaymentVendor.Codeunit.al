@@ -62,7 +62,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := PaymentAmount / NoOfLines;
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor, -InvoiceAmount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor(), -InvoiceAmount);
         CreateDocumentLine(
           GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Payment, GenJournalLine."Account No.", PaymentAmount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
@@ -106,7 +106,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Round((Amount * LibraryRandom.RandInt(99) / 100) / NoOfLines);
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor, -Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor(), -Amount);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Payment, GenJournalLine."Account No.", Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -123,7 +123,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
         // Verify: Verify Remaining Amount using Delta Assert.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -149,7 +149,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Amount / NoOfLines;
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor, -Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Invoice, CreateVendor(), -Amount);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Payment, GenJournalLine."Account No.", Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -193,7 +193,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Round(Amount * (LibraryRandom.RandInt(49) / 100) / NoOfLines);
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Invoice, CreateVendor, -Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Invoice, CreateVendor(), -Amount);
         CreateDocumentLine(
           GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Payment, GenJournalLine."Account No.", Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
@@ -215,7 +215,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
         // Verify: Payment Line Remaining Amount.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -245,7 +245,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         CreateJournalBatchWithAccount(GenJournalBatch);
 
         CreateDocumentLine(
-          GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor, CrMemoAmount);
+          GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor(), CrMemoAmount);
         CreateDocumentLine(
           GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", -RefundAmount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
@@ -288,7 +288,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Round((Amount * LibraryRandom.RandInt(99) / 100) / NoOfLines);
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor, Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor(), Amount);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", -Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -306,7 +306,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
         // Verify: Verify Remaining Amount for all entries.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -332,7 +332,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Amount / NoOfLines;
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor, Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::"Credit Memo", CreateVendor(), Amount);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", -Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -380,7 +380,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationAmount := Round(Amount * (LibraryRandom.RandInt(49) / 100) / NoOfLines);
         CreateJournalBatchWithAccount(GenJournalBatch);
 
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::"Credit Memo", CreateVendor, Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, GenJournalLine."Document Type"::"Credit Memo", CreateVendor(), Amount);
         CreateDocumentLine(
           GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", -Amount);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
@@ -402,7 +402,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
         // Verify: Refund Line Remaining Amount.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -762,7 +762,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     begin
         // 1. Setup: Create and Post Multiple Purchase Invoices.
         Initialize();
-        VendorNo := CreateVendorWithApplyToOldest;
+        VendorNo := CreateVendorWithApplyToOldest();
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do
             // Using RANDOM value for Amount.
             CreateAndPostGeneralLine(
@@ -905,7 +905,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
         SetAppliesToIDInGenJournalLine(GenJournalLine);
         InputCurrencyInGenJournalLine(
-          GenJournalLine, CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction));
+          GenJournalLine, CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction()));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryUtility.GenerateGUID(); // Hack to fix problem with GenerateGUID.
 
@@ -1015,7 +1015,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         // 1. Setup: Create a new Currency with Exchange Rate. Create a new Vendor with Payment Terms having Discount and change Payment
         // Tolerance on Currency. Create a new Gen. Journal Batch with G/L Account.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction);
+        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction());
         CreatePaymentTermsWithDiscount(PaymentTerms);
         ChangePaymentToleranceCurrency(CurrencyCode);
         Currency.Get(CurrencyCode);
@@ -1078,7 +1078,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         // 1. Setup: Create a new Vendor with Payment Terms having Discount. Create a new Currency and setup Tolerance on it.
         // Create a new Gen. Journal Batch with G/L Account.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction);
+        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction());
         CreatePaymentTermsWithDiscount(PaymentTerms);
         ChangePaymentToleranceCurrency(CurrencyCode);
         Currency.Get(CurrencyCode);
@@ -1149,7 +1149,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         // per parameter passed and post it. Create Gen. Journal Line of type Payment/Refund with Currency, where Amount exceeds
         // Tolerance limit.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction);
+        CurrencyCode := CreateCurrencyWithExchange(AmountRoundingPrecision, LibraryUtility.GenerateRandomFraction());
         CreatePaymentTermsWithDiscount(PaymentTerms);
         ChangePaymentToleranceCurrency(CurrencyCode);
         Currency.Get(CurrencyCode);
@@ -1430,8 +1430,8 @@ codeunit 134004 "ERM Partial Payment Vendor"
 
     local procedure CreateJournalBatchWithAccount(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate);
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate());
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -1450,7 +1450,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate());
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
@@ -1464,7 +1464,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccountNo: Code[20];
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindGeneralJournalTemplate());
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,

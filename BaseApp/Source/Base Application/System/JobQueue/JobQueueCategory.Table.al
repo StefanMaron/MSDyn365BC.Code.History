@@ -7,6 +7,7 @@ table 471 "Job Queue Category"
     DrillDownPageID = "Job Queue Category List";
     LookupPageID = "Job Queue Category List";
     Permissions = TableData "Job Queue Category" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

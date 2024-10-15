@@ -389,7 +389,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         // Create Location, Warehouse Employee And Inventory Posting Setup.
         SetupWarehouseLocation(LocationCode, true, RequirePick, true, RequireShipment, UsePutawayWorksheet);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := LibraryRandom.RandDec(20, 2);
 
         case DocumentType of
@@ -532,7 +532,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
 
         // Create Warehouse Receipt And Post Warehouse Receipt.
         TransferHeader.Get(TransferHeaderNo);
-        WarehouseReceiptNo := FindWarehouseReceiptNo;
+        WarehouseReceiptNo := FindWarehouseReceiptNo();
         LibraryWarehouse.CreateWhseReceiptFromTO(TransferHeader);  // Create Warehouse Receipt From Transfer Order.
         PostWarehouseReceipt(WarehouseReceiptNo);
     end;
@@ -592,10 +592,10 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     local procedure FindWarehouseReceiptNo(): Code[10]
     var
         WarehouseSetup: Record "Warehouse Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(WarehouseSetup."Whse. Receipt Nos."));
     end;
 
     local procedure FindWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Code[10]; WhseWorksheetTemplateName: Code[10]; LocationCode: Code[10])

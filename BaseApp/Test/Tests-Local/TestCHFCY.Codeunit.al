@@ -1,8 +1,12 @@
 #if not CLEAN23
+#pragma warning disable AS0072
 codeunit 144054 "Test CH FCY"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -164,9 +168,9 @@ codeunit 144054 "Test CH FCY"
         // [THEN] Message shown: "Exchange Rates have been adjusted."
         // [THEN] Message shown: "If you use foreign currencies in G/L, you have to run the report Adjust Exchange Rates G/L."
         // [THEN] Cust. Ledger Entry Amount and exchange rates are printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', GenJournalLine."Account No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CurrCode_CustLedgEntry', GenJournalLine."Currency Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_CustLedgEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_CustLedgEntry', GenJournalLine.Amount);
@@ -176,7 +180,7 @@ codeunit 144054 "Test CH FCY"
     end;
 
     [Normal]
-    local procedure AdjVATSales(VATCalcType: Option)
+    local procedure AdjVATSales(VATCalcType: Enum "Tax Calculation Type")
     var
         Currency: Record Currency;
         DimensionValue: Record "Dimension Value";
@@ -249,18 +253,8 @@ codeunit 144054 "Test CH FCY"
         AdjVATSales(VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
     end;
 
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesReqPageHandler,PreciseMsgHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure NormalVATSales()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        AdjVATSales(VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-    end;
-
     [Normal]
-    local procedure AdjVATPurchase(VATCalcType: Option)
+    local procedure AdjVATPurchase(VATCalcType: Enum "Tax Calculation Type")
     var
         DimensionValue: Record "Dimension Value";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -320,26 +314,6 @@ codeunit 144054 "Test CH FCY"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReqPageHandler,PreciseMsgHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ReverseVATPurchase()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        AdjVATPurchase(VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesReqPageHandler,PreciseMsgHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure NormalVATPurchase()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        AdjVATPurchase(VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-    end;
-
-    [Test]
     [HandlerFunctions('AdjustExchangeRatesReqPageHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchJournalAndModifiedExchRate()
@@ -351,10 +325,10 @@ codeunit 144054 "Test CH FCY"
 
         // Init
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
 
         // Exercize
-        DocumentNo := CreateAndPostInvoicePurchaseJournal(CreateGLAccountWithFullVAT, CurrencyCode);
+        DocumentNo := CreateAndPostInvoicePurchaseJournal(CreateGLAccountWithFullVAT(), CurrencyCode);
         ModifyExchangeRateAmount(CurrencyCode, false);
         RunAdjustExchangeRates(CurrencyCode, false);
 
@@ -380,7 +354,7 @@ codeunit 144054 "Test CH FCY"
         // [GIVEN] Additional Reporting Currency is 'EUR' with exch.rate = 0.9212
         CurrencyARC.Code := CreateCurrencyWithRelExchangeRates(0.9212);
         LibraryERM.SetAddReportingCurrency(CurrencyARC.Code);
-        UpdateReportingOnGLSetup;
+        UpdateReportingOnGLSetup();
 
         // [GIVEN] Posted Gen. Journal Line in 'USD' with Amount = 23000 and exch. rate = 1.5
         Currency.Code := CreateCurrencyWithRelExchangeRates(0.9212);
@@ -409,7 +383,7 @@ codeunit 144054 "Test CH FCY"
         // [FEATURE] [VAT]
         // [SCENARIO 263230] VAT Exch. Rate Adjustment for FCY entry when ARC has same currency
         Initialize();
-        UpdateReportingOnGLSetup;
+        UpdateReportingOnGLSetup();
         GLRegister.FindLast();
 
         // [GIVEN] Additional Reporting Currency is 'EUR' with exch.rate = 0.9212
@@ -529,7 +503,7 @@ codeunit 144054 "Test CH FCY"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
 
         with CurrencyExchangeRate do begin
@@ -545,7 +519,7 @@ codeunit 144054 "Test CH FCY"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         with CurrencyExchangeRate do begin
             Validate("Exchange Rate Amount", 1);
@@ -568,14 +542,14 @@ codeunit 144054 "Test CH FCY"
             LibraryERM.CreateCurrency(Currency);
 
             Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
-            Validate("Residual Gains Account", CreateGLAccount);
-            Validate("Residual Losses Account", CreateGLAccount);
-            Validate("Realized G/L Gains Account", CreateGLAccount);
-            Validate("Realized G/L Losses Account", CreateGLAccount);
-            Validate("Realized Gains Acc.", CreateGLAccount);
-            Validate("Realized Losses Acc.", CreateGLAccount);
-            Validate("Unrealized Gains Acc.", CreateGLAccount);
-            Validate("Unrealized Losses Acc.", CreateGLAccount);
+            Validate("Residual Gains Account", CreateGLAccount());
+            Validate("Residual Losses Account", CreateGLAccount());
+            Validate("Realized G/L Gains Account", CreateGLAccount());
+            Validate("Realized G/L Losses Account", CreateGLAccount());
+            Validate("Realized Gains Acc.", CreateGLAccount());
+            Validate("Realized Losses Acc.", CreateGLAccount());
+            Validate("Unrealized Gains Acc.", CreateGLAccount());
+            Validate("Unrealized Losses Acc.", CreateGLAccount());
             Modify(true);
 
             exit(Code);
@@ -649,7 +623,7 @@ codeunit 144054 "Test CH FCY"
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        GLAccountCode := CreateGLAccount;
+        GLAccountCode := CreateGLAccount();
 
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
         LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
@@ -684,14 +658,14 @@ codeunit 144054 "Test CH FCY"
 
         AddPurchaseInvJournalLine(
           GenJournalLine, GenJournalBatch, ExtDocNo, CurrencyCode, GenJournalLine."Account Type"::"G/L Account",
-          FindNoVATGLAccount, LibraryRandom.RandDecInRange(100, 1000, 2));
+          FindNoVATGLAccount(), LibraryRandom.RandDecInRange(100, 1000, 2));
         Amount := GenJournalLine.Amount;
         AddPurchaseInvJournalLine(
           GenJournalLine, GenJournalBatch, ExtDocNo, CurrencyCode, GenJournalLine."Account Type"::"G/L Account",
           GLAccountNo, LibraryRandom.RandDecInRange(10, 100, 2));
         AddPurchaseInvJournalLine(
           GenJournalLine, GenJournalBatch, ExtDocNo, CurrencyCode, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, -(Amount + GenJournalLine.Amount));
+          LibraryPurchase.CreateVendorNo(), -(Amount + GenJournalLine.Amount));
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
@@ -705,7 +679,7 @@ codeunit 144054 "Test CH FCY"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LineAmount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LineAmount);
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
@@ -738,7 +712,7 @@ codeunit 144054 "Test CH FCY"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure FindGenJournalTemplateAndBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure FindGenJournalTemplateAndBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     begin
         GenJournalTemplate.SetRange(Type, TemplateType);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
@@ -746,7 +720,7 @@ codeunit 144054 "Test CH FCY"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure AddPurchaseInvJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; ExtDocNo: Code[20]; CurrencyCode: Code[10]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure AddPurchaseInvJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; ExtDocNo: Code[20]; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -758,7 +732,7 @@ codeunit 144054 "Test CH FCY"
         end;
     end;
 
-    local procedure CreateVATPostingSetup(GLAccountCode: Code[20]; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; VATCalculationType: Option; VATPercent: Decimal)
+    local procedure CreateVATPostingSetup(GLAccountCode: Code[20]; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -809,7 +783,7 @@ codeunit 144054 "Test CH FCY"
         CreateGenJournalLine(GenJournalLine, Customer."No.", GLAccount."No.", WorkDate());
     end;
 
-    local procedure SetupVATForFCY(var VATPostingSetup: Record "VAT Posting Setup"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; VATCalcType: Option)
+    local procedure SetupVATForFCY(var VATPostingSetup: Record "VAT Posting Setup"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; VATCalcType: Enum "Tax Calculation Type")
     var
         Currency: Record Currency;
         GLAccount: Record "G/L Account";
@@ -917,9 +891,9 @@ codeunit 144054 "Test CH FCY"
         Assert.RecordCount(VATEntry, 1);
         VATEntry.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('EntryNo_VATEntry', VATEntry."Entry No.");
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.FindCurrentRowValue('PostingDate_VATEntry', Variant);
         Assert.IsTrue(Evaluate(Date, CopyStr(Variant, 1, 10), 9), 'Posting date is not evaluated');
         Assert.AreEqual(VATEntry."Posting Date", Date, VATEntry.FieldName("Posting Date"));
@@ -932,7 +906,7 @@ codeunit 144054 "Test CH FCY"
           'RelationalVATExchRateAmt', CurrencyExchangeRate."Relational VAT Exch. Rate Amt");
 
         GLEntryVATEntryLink.SetRange("VAT Entry No.", VATEntry."Entry No.");
-        Assert.IsTrue(GLEntryVATEntryLink.FindFirst, 'missed link to G/L');
+        Assert.IsTrue(GLEntryVATEntryLink.FindFirst(), 'missed link to G/L');
         GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.");
         GLEntry.TestField("Global Dimension 1 Code", GlobalDimCode[1]);
         GLEntry.TestField("Global Dimension 2 Code", GlobalDimCode[2]);
@@ -980,14 +954,14 @@ codeunit 144054 "Test CH FCY"
     [Scope('OnPrem')]
     procedure PreciseMsgHandler(Msg: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Msg);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Msg);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 
     [RequestPageHandler]
@@ -1004,18 +978,18 @@ codeunit 144054 "Test CH FCY"
         AdjustExchangeRates.AdjCustomers.SetValue(true);
         AdjustExchangeRates.AdjVendors.SetValue(true);
         AdjustExchangeRates.Post.SetValue(true);
-        AdjustExchangeRates.AdjGLAcc.SetValue(LibraryVariableStorage.DequeueBoolean);
+        AdjustExchangeRates.AdjGLAcc.SetValue(LibraryVariableStorage.DequeueBoolean());
         AdjustExchangeRates.AdjVAT.SetValue(true);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     procedure AdjVATExchRatesRPH(var AdjustExchangeRates: TestRequestPage "Adjust Exchange Rates");
     begin
-        AdjustExchangeRates.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        AdjustExchangeRates.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        AdjustExchangeRates.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        AdjustExchangeRates.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        AdjustExchangeRates.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        AdjustExchangeRates.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        AdjustExchangeRates.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        AdjustExchangeRates.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         AdjustExchangeRates.AdjCustomers.SetValue(false);
         AdjustExchangeRates.AdjVendors.SetValue(false);
         AdjustExchangeRates.AdjGLAcc.SetValue(false);

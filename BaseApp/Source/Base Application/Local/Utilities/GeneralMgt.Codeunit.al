@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -51,7 +51,6 @@ codeunit 11501 GeneralMgt
         SourceFile: File;
         TargetFile: File;
         Z: Char;
-        ZT: Text[2];
         FileMgt: Codeunit "File Management";
     begin
         // Removes CR/LF in File. Rename Original file and write again w/o CR/LF.

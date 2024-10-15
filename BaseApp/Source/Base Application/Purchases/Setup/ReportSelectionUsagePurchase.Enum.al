@@ -1,6 +1,8 @@
 namespace Microsoft.Purchases.Setup;
 
+#pragma warning disable AL0659
 enum 347 "Report Selection Usage Purchase"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

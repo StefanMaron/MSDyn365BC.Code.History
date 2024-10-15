@@ -1,9 +1,10 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Projects.RoleCenters;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -16,11 +17,12 @@ permissionset 448 "D365 JOBS, VIEW"
 {
     Assignable = true;
 
-    Caption = 'Dynamics 365 View Jobs';
+    Caption = 'Dynamics 365 View Projects';
     Permissions = tabledata Job = R,
+                  tabledata "Job Archive" = R,
                   tabledata "Job Cue" = R,
                   tabledata "Job Entry No." = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -31,14 +33,16 @@ permissionset 448 "D365 JOBS, VIEW"
                   tabledata "Job Ledger Entry" = R,
                   tabledata "Job Planning Line - Calendar" = R,
                   tabledata "Job Planning Line" = R,
+                  tabledata "Job Planning Line Archive" = R,
                   tabledata "Job Planning Line Invoice" = R,
                   tabledata "Job Posting Buffer" = R,
                   tabledata "Job Posting Group" = R,
                   tabledata "Job Register" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Task" = R,
+                  tabledata "Job Task Archive" = R,
                   tabledata "Job Task Dimension" = R,
                   tabledata "Job Usage Link" = R,
                   tabledata "Job WIP Entry" = R,

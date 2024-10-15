@@ -203,7 +203,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
         CustLedgerEntry.FindLast();
-        CustLedgerEntry.Validate("Pmt. Disc. Tolerance Date", WorkDate + 1);
+        CustLedgerEntry.Validate("Pmt. Disc. Tolerance Date", WorkDate() + 1);
         CustLedgerEntry.Validate("Max. Payment Tolerance", MaxToleranceAmt);
         CustLedgerEntry.Modify(true);
 
@@ -448,7 +448,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         ChangePaymentTolerance.AllCurrencies.SetValue(true); // All currencies.
         ChangePaymentTolerance.PaymentTolerancePct.SetValue(LibraryRandom.RandInt(10));
         ChangePaymentTolerance."Max. Pmt. Tolerance Amount".SetValue(MaxToleranceAmt);
-        ChangePaymentTolerance.OK.Invoke;
+        ChangePaymentTolerance.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -456,7 +456,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
     procedure PmtToleranceWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
         PaymentToleranceWarning.Posting.SetValue(PaymentToleranceWarning.Posting.GetOption(1));
-        PaymentToleranceWarning.Yes.Invoke;
+        PaymentToleranceWarning.Yes().Invoke();
     end;
 
     local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")

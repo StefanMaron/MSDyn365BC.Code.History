@@ -3,7 +3,7 @@ namespace Microsoft.Sales.Pricing;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Pricing.Asset;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -69,7 +69,7 @@ page 7015 "Sales Price Lists"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assign-to Group';
                     Visible = false;
-                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
+                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or projects.';
                 }
                 field(SourceType; CurrRec."Source Type")
                 {
@@ -242,7 +242,7 @@ page 7015 "Sales Price Lists"
         }
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

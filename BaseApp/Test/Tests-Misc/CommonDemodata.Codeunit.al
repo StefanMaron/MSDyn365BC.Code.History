@@ -136,20 +136,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure PaymentMethodsWithUseForInvoicing()
-    var
-        PaymentMethod: Record "Payment Method";
-    begin
-        // [FEATURE] [Invoicing]
-        // [SCENARIO 184609] There should be 3 payment methods with Use for Invoicing = Yes
-        Initialize();
-
-        PaymentMethod.SetRange("Use for Invoicing", true);
-        Assert.RecordCount(PaymentMethod, 5);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure EmailDraftInteractionTemplateCode()
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";

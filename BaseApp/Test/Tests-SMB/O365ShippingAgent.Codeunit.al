@@ -30,18 +30,18 @@ codeunit 138007 "O365 Shipping Agent"
         Initialize();
 
         LibraryInventory.CreateShippingAgent(ShippingAgent);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         // Sales Invoice Is Created
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeaderCopy := SalesHeader;
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesInvoice(SalesHeader, ShippingAgent.Code);
         AddPackageTrackingNumberToSalesInvoice(SalesHeader, PackageTrackingNo);
 
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         PostSalesInvoice(SalesHeader);
 
         // Verify
@@ -75,13 +75,13 @@ codeunit 138007 "O365 Shipping Agent"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeaderCopy := SalesHeader;
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesInvoice(SalesHeader, ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
         AddPackageTrackingNumberToSalesInvoice(SalesHeader, PackageTrackingNo);
 
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         PostSalesInvoice(SalesHeader);
 
         // Verify
@@ -107,19 +107,19 @@ codeunit 138007 "O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesInvoice(SalesHeader, ShippingAgent.Code);
         AddShippingAgentServiceToSalesInvoice(SalesHeader, ShippingAgentServiceCode);
         AddPackageTrackingNumberToSalesInvoice(SalesHeader, PackageTrackingNo);
 
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         PostSalesInvoice(SalesHeader);
 
         // Verify
@@ -143,18 +143,18 @@ codeunit 138007 "O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocumentForCustomerWithShippingAgent(
           SalesHeader, SalesHeader."Document Type"::Invoice, ShippingAgent.Code, ShippingAgentServiceCode);
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         AddPackageTrackingNumberToSalesInvoice(SalesHeader, PackageTrackingNo);
 
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         PostSalesInvoice(SalesHeader);
 
         // Verify
@@ -176,18 +176,18 @@ codeunit 138007 "O365 Shipping Agent"
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
         // Removing lowering of permissions as it is causing test failures in the O365 runs for CA and US
-        // LibraryLowerPermissions.SetSalesDocsCreate;
+        // LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesOrder(SalesHeader, ShippingAgent.Code);
         AddPackageTrackingNumberToSalesOrder(SalesHeader, PackageTrackingNo);
 
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         PostSalesOrder(SalesHeader);
 
         // Verify
@@ -211,18 +211,18 @@ codeunit 138007 "O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        // LibraryLowerPermissions.SetSalesDocsCreate;
+        // LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesOrder(SalesHeader, ShippingAgent.Code);
         AddShippingAgentServiceToSalesOrder(SalesHeader, ShippingAgentServiceCode);
         AddPackageTrackingNumberToSalesOrder(SalesHeader, PackageTrackingNo);
 
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         PostSalesOrder(SalesHeader);
 
         // Verify
@@ -246,17 +246,17 @@ codeunit 138007 "O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocumentForCustomerWithShippingAgent(
           SalesHeader, SalesHeader."Document Type"::Order, ShippingAgent.Code, ShippingAgentServiceCode);
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        // LibraryLowerPermissions.SetSalesDocsCreate;
+        // LibraryLowerPermissions.SetSalesDocsCreate();
         AddPackageTrackingNumberToSalesOrder(SalesHeader, PackageTrackingNo);
 
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         PostSalesOrder(SalesHeader);
 
         // Verify
@@ -283,10 +283,10 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        // LibraryLowerPermissions.SetSalesDocsCreate;
+        // LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesQuote(SalesHeader, ShippingAgent.Code);
 
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         MakeSalesOrderFromSalesQuote(SalesHeader);
 
         // Verify
@@ -316,11 +316,11 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        // LibraryLowerPermissions.SetSalesDocsCreate;
+        // LibraryLowerPermissions.SetSalesDocsCreate();
         AddShippingAgentToSalesQuote(SalesHeader, ShippingAgent.Code);
         AddShippingAgentServiceToSalesQuote(SalesHeader, ShippingAgentServiceCode);
 
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         MakeSalesOrderFromSalesQuote(SalesHeader);
 
         // Verify
@@ -351,7 +351,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesHeaderCopy := SalesHeader;
 
         // Exercise
-        // LibraryLowerPermissions.SetSalesDocsPost;
+        // LibraryLowerPermissions.SetSalesDocsPost();
         MakeSalesOrderFromSalesQuote(SalesHeader);
 
         // Verify
@@ -390,7 +390,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', 0D);
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', 0D);
     end;
 
     local procedure CreateSalesDocumentForCustomerWithShippingAgent(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
@@ -405,80 +405,80 @@ codeunit 138007 "O365 Shipping Agent"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Shipping Agent Code".SetValue(ShippingAgentCode);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure AddShippingAgentToSalesOrder(var SalesHeader: Record "Sales Header"; ShippingAgentCode: Code[10])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Shipping Agent Code".SetValue(ShippingAgentCode);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure AddShippingAgentToSalesQuote(var SalesHeader: Record "Sales Header"; ShippingAgentCode: Code[10])
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Shipping Agent Code".SetValue(ShippingAgentCode);
-        SalesQuote.OK.Invoke;
+        SalesQuote.OK().Invoke();
     end;
 
     local procedure AddShippingAgentServiceToSalesInvoice(var SalesHeader: Record "Sales Header"; ShippingAgentServiceCode: Code[10])
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure AddShippingAgentServiceToSalesOrder(var SalesHeader: Record "Sales Header"; ShippingAgentServiceCode: Code[10])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure AddShippingAgentServiceToSalesQuote(var SalesHeader: Record "Sales Header"; ShippingAgentServiceCode: Code[10])
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        SalesQuote.OK.Invoke;
+        SalesQuote.OK().Invoke();
     end;
 
     local procedure AddPackageTrackingNumberToSalesInvoice(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Package Tracking No.".SetValue(PackageTrackingNo);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure AddPackageTrackingNumberToSalesOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Package Tracking No.".SetValue(PackageTrackingNo);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure CreateCustomerWithShippingAgentService(ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]): Code[20]
@@ -488,11 +488,11 @@ codeunit 138007 "O365 Shipping Agent"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Shipping Agent Code".SetValue(ShippingAgentCode);
         CustomerCard."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         exit(Customer."No.");
     end;
@@ -509,27 +509,27 @@ codeunit 138007 "O365 Shipping Agent"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
     end;
 
     local procedure PostSalesOrder(var SalesHeader: Record "Sales Header")
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
     end;
 
     local procedure MakeSalesOrderFromSalesQuote(SalesHeader: Record "Sales Header")
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
     end;
 
     local procedure VerifyShippingDetailsOnPostedSalesInvoice(SalesHeader: Record "Sales Header"; ShippingAgentCode: Code[10])
@@ -542,10 +542,10 @@ codeunit 138007 "O365 Shipping Agent"
         SalesInvoiceHeader.SetRange("External Document No.", SalesHeader."External Document No.");
         SalesInvoiceHeader.FindLast();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         PostedSalesInvoice."Shipping Agent Code".AssertEquals(ShippingAgentCode);
-        PostedSalesInvoice.OK.Invoke;
+        PostedSalesInvoice.OK().Invoke();
     end;
 
     local procedure VerifySalesShipmentExists(SalesHeader: Record "Sales Header"; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; PackageTrackingNo: Text)
@@ -557,13 +557,13 @@ codeunit 138007 "O365 Shipping Agent"
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesShipmentHeader.FindLast();
 
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
         PostedSalesShipment."External Document No.".AssertEquals(SalesHeader."External Document No.");
         PostedSalesShipment."Shipping Agent Code".AssertEquals(ShippingAgentCode);
         PostedSalesShipment."Shipping Agent Service Code".AssertEquals(ShippingAgentServiceCode);
         PostedSalesShipment."Package Tracking No.".AssertEquals(PackageTrackingNo);
-        PostedSalesShipment.OK.Invoke;
+        PostedSalesShipment.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -584,7 +584,7 @@ codeunit 138007 "O365 Shipping Agent"
     [Scope('OnPrem')]
     procedure SalesOrderPageHandler(var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
     end;
 }
 

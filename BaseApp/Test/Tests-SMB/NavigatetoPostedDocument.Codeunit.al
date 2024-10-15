@@ -31,13 +31,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales invoice, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales invoice
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        PostedSalesInvoice.Trap;
-        SalesInvoice.Post.Invoke;
+        PostedSalesInvoice.Trap();
+        SalesInvoice.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted sales invoice
         PostedSalesInvoice."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
@@ -98,6 +98,7 @@ codeunit 138047 "Navigate to Posted Document"
         NoSeriesLine: Record "No. Series Line";
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        NoSeriesCodeunit: Codeunit "No. Series";
         SalesInvoice: TestPage "Sales Invoice";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         LastNoUsedToRepeat: Code[20];
@@ -110,8 +111,9 @@ codeunit 138047 "Navigate to Posted Document"
         // [GIVEN] Find last No. Series Line for "Invoice Nos.".
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Invoice Nos.");
-        NoSeries.FindNoSeriesLineToShow(NoSeriesLine);
-        LastNoUsedToRepeat := NoSeriesLine.GetLastNoUsed();
+        NoSeriesCodeunit.GetNoSeriesLine(NoSeriesLine, NoSeries.Code, 0D, true);
+        NoSeriesLine.FindLast();
+        LastNoUsedToRepeat := NoSeriesCodeunit.GetLastNoUsed(NoSeries.Code);
 
         // [GIVEN] Create 1st Sales Invoice and post it.
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -158,12 +160,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales invoice, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales invoice
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted sales invoice
     end;
@@ -179,13 +181,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales credit memo, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales credit memo
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        PostedSalesCreditMemo.Trap;
-        SalesCreditMemo.Post.Invoke;
+        PostedSalesCreditMemo.Trap();
+        SalesCreditMemo.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted sales credit memo
         PostedSalesCreditMemo."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
@@ -202,12 +204,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales credit memo, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales credit memo
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Post.Invoke;
+        SalesCreditMemo.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted sales credit memo
     end;
@@ -223,13 +225,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales order, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales order
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        PostedSalesInvoice.Trap;
-        SalesOrder.Post.Invoke;
+        PostedSalesInvoice.Trap();
+        SalesOrder.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted sales invoice
         PostedSalesInvoice."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
@@ -246,12 +248,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales order, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales invoice
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted sales invoice
     end;
@@ -267,13 +269,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales return order, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales return order
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        PostedSalesCreditMemo.Trap;
-        SalesReturnOrder.Post.Invoke;
+        PostedSalesCreditMemo.Trap();
+        SalesReturnOrder.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted sales credit memo
         PostedSalesCreditMemo."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
@@ -290,12 +292,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a sales return order, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the sales return order
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Post.Invoke;
+        SalesReturnOrder.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted sales credit memo
     end;
@@ -311,13 +313,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase invoice, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase invoice
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PostedPurchaseInvoice.Trap;
-        PurchaseInvoice.Post.Invoke;
+        PostedPurchaseInvoice.Trap();
+        PurchaseInvoice.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase invoice
         PostedPurchaseInvoice."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
@@ -334,12 +336,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase invoice, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase invoice
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted purchase invoice
     end;
@@ -355,13 +357,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase credit memo, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase credit memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PostedPurchaseCreditMemo.Trap;
-        PurchaseCreditMemo.Post.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PurchaseCreditMemo.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase credit memo
         PostedPurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
@@ -378,12 +380,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase credit memo, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase credit memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.Post.Invoke;
+        PurchaseCreditMemo.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted purchase credit memo
     end;
@@ -400,13 +402,13 @@ codeunit 138047 "Navigate to Posted Document"
         // [GIVEN] a purchase order, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         ClearTable(DATABASE::"Warehouse Receipt Line");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PostedPurchaseInvoice.Trap;
-        PurchaseOrder.Post.Invoke;
+        PostedPurchaseInvoice.Trap();
+        PurchaseOrder.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase invoice
         PostedPurchaseInvoice."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
@@ -424,12 +426,12 @@ codeunit 138047 "Navigate to Posted Document"
         // [GIVEN] a purchase order, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         ClearTable(DATABASE::"Warehouse Receipt Line");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.Post.Invoke;
+        PurchaseOrder.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted purchase invoice
     end;
@@ -445,13 +447,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase return order, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PostedPurchaseCreditMemo.Trap;
-        PurchaseReturnOrder.Post.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PurchaseReturnOrder.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase credit memo
         PostedPurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
@@ -468,12 +470,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a purchase return order, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the purchase order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.Post.Invoke;
+        PurchaseReturnOrder.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted purchase credit memo
     end;
@@ -489,13 +491,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service invoice, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the service invoice
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
-        PostedServiceInvoice.Trap;
-        ServiceInvoice.Post.Invoke;
+        PostedServiceInvoice.Trap();
+        ServiceInvoice.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted service invoice
         PostedServiceInvoice."Customer No.".AssertEquals(ServiceHeader."Customer No.");
@@ -512,12 +514,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service invoice, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the service invoice
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.Post.Invoke;
+        ServiceInvoice.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted service invoice
     end;
@@ -533,13 +535,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service credit memo, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the service credit memo
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        PostedServiceCreditMemo.Trap;
-        ServiceCreditMemo.Post.Invoke;
+        PostedServiceCreditMemo.Trap();
+        ServiceCreditMemo.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted service credit memo
         PostedServiceCreditMemo."Customer No.".AssertEquals(ServiceHeader."Customer No.");
@@ -556,12 +558,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service credit memo, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the service credit memo
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.Post.Invoke;
+        ServiceCreditMemo.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted service credit memo
     end;
@@ -577,13 +579,13 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service order, and "Confirm After Posting Documents" enabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
-        EnableConfirmAfterPosting;
+        EnableConfirmAfterPosting();
 
         // [WHEN] the user posts the service order
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        PostedServiceInvoice.Trap;
-        ServiceOrder.Post.Invoke;
+        PostedServiceInvoice.Trap();
+        ServiceOrder.Post.Invoke();
 
         // [THEN] the user will get a confirmation dialog to open the posted service invoice
         PostedServiceInvoice."Customer No.".AssertEquals(ServiceHeader."Customer No.");
@@ -600,12 +602,12 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         // [GIVEN] a service order, and "Confirm After Posting Documents" disabled in "My Settings" window
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
-        DisableConfirmAfterPosting;
+        DisableConfirmAfterPosting();
 
         // [WHEN] the user posts the service order
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.Post.Invoke();
 
         // [THEN] the user will not get a confirmation dialog to open the posted service invoice
     end;
@@ -626,7 +628,7 @@ codeunit 138047 "Navigate to Posted Document"
         ClearTable(DATABASE::Resource);
 
         LibraryERMCountryData.CreateVATData();
-        CreateUserPersonalization;
+        CreateUserPersonalization();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -656,15 +658,15 @@ codeunit 138047 "Navigate to Posted Document"
             DATABASE::"Warehouse Receipt Line":
                 WarehouseReceiptLine.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateUserPersonalization()
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if not UserPersonalization.Get(UserSecurityId) then begin
-            UserPersonalization.Validate("User SID", UserSecurityId);
+        if not UserPersonalization.Get(UserSecurityId()) then begin
+            UserPersonalization.Validate("User SID", UserSecurityId());
             UserPersonalization.Insert();
         end;
     end;
@@ -752,7 +754,7 @@ codeunit 138047 "Navigate to Posted Document"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        MyNotifications.FILTER.SetFilter("Notification Id", InstructionMgt.GetOpeningPostedDocumentNotificationId);
+        MyNotifications.FILTER.SetFilter("Notification Id", InstructionMgt.GetOpeningPostedDocumentNotificationId());
         MyNotifications.Enabled.SetValue(EnabledValue);
     end;
 }

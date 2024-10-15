@@ -11,7 +11,7 @@ query 7345 "Avail Qty. (Base) In QC Bins"
     {
         dataitem(Location; Location)
         {
-            DataItemTableFilter = "Directed Put-away and Pick" = CONST(true);
+            DataItemTableFilter = "Directed Put-away and Pick" = const(true);
             dataitem(Warehouse_Entry; "Warehouse Entry")
             {
                 DataItemLink = "Location Code" = Location.Code;
@@ -33,19 +33,19 @@ query 7345 "Avail Qty. (Base) In QC Bins"
                 }
                 column(Sum_Qty_Base; "Qty. (Base)")
                 {
-                    ColumnFilter = Sum_Qty_Base = FILTER(> 0);
+                    ColumnFilter = Sum_Qty_Base = filter(> 0);
                     Method = Sum;
                 }
                 dataitem(Bin_Type; "Bin Type")
                 {
                     DataItemLink = Code = Warehouse_Entry."Bin Type Code";
                     SqlJoinType = InnerJoin;
-                    DataItemTableFilter = Receive = CONST(false), Ship = CONST(false), Pick = CONST(false);
+                    DataItemTableFilter = Receive = const(false), Ship = const(false), Pick = const(false);
                     dataitem(Bin_Content; "Bin Content")
                     {
                         DataItemLink = "Location Code" = Warehouse_Entry."Location Code", "Bin Code" = Warehouse_Entry."Bin Code", "Item No." = Warehouse_Entry."Item No.", "Variant Code" = Warehouse_Entry."Variant Code", "Unit of Measure Code" = Warehouse_Entry."Unit of Measure Code";
                         SqlJoinType = InnerJoin;
-                        DataItemTableFilter = "Block Movement" = FILTER(' ' | Inbound);
+                        DataItemTableFilter = "Block Movement" = filter(' ' | Inbound);
                     }
                 }
             }

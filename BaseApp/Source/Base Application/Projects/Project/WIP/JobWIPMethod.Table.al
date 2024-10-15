@@ -4,9 +4,10 @@ using Microsoft.Projects.Project.Setup;
 
 table 1006 "Job WIP Method"
 {
-    Caption = 'Job WIP Method';
+    Caption = 'Project WIP Method';
     DrillDownPageID = "Job WIP Methods";
     LookupPageID = "Job WIP Methods";
+    DataClassification = CustomerContent;
 
     fields
     {

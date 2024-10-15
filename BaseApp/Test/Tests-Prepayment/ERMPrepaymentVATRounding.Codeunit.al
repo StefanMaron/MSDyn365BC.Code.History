@@ -35,9 +35,9 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         Initialize();
 
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct);
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct());
 
         CreateSalesOrder(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", '', false);
         PrepareSalesOrderLine(SalesLine, SalesHeader."No.", VATPostingSetup."VAT Prod. Posting Group");
@@ -74,9 +74,9 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         Initialize();
 
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct);
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct());
         CreatePurchOrder(PurchHeader, VATPostingSetup."VAT Bus. Posting Group", '', false);
         PreparePurchOrderLine(PurchLine, PurchHeader."No.", VATPostingSetup."VAT Prod. Posting Group");
         PurchPrepmtAccNo := SetPurchPrepmtAccount(PurchLine);
@@ -118,7 +118,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         PostedPrepmtVATAmount: Decimal;
     begin
         Initialize();
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
         PostPrepmtInvForSalesOrderCase258679(SalesHeader);
         PostedPrepmtVATAmount := SumNegativeVATAmount(LastGLRegisterNo);
@@ -138,7 +138,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         PostedPrepmtVATAmount: Decimal;
     begin
         Initialize();
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
         PostPrepmtInvForPurchOrderCase258679(PurchHeader);
         PostedPrepmtVATAmount := SumPositiveVATAmount(LastGLRegisterNo);
@@ -159,7 +159,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         PostedPrepmtVATAmount: Decimal;
     begin
         Initialize();
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
         PostPrepmtInvForSalesOrderCase258679(SalesHeader);
         PostedPrepmtVATAmount := SumNegativeVATAmount(LastGLRegisterNo);
@@ -181,7 +181,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         PostedPrepmtVATAmount: Decimal;
     begin
         Initialize();
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        LastGLRegisterNo := GetLastGLRegisterNo();
 
         PostPrepmtInvForPurchOrderCase258679(PurchHeader);
         PostedPrepmtVATAmount := SumPositiveVATAmount(LastGLRegisterNo);
@@ -227,7 +227,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
 
     local procedure PrepareSetupCase258679(var VATPostingSetup: Record "VAT Posting Setup"; var CurrencyCode: Code[10])
     begin
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct);
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVATPct());
         CurrencyCode := CreateCurrencyExchRate(1.34);
     end;
 
@@ -370,12 +370,12 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [SCENARIO 356261] 100% prepayment Sales Order (in FCY) invoiced twice on different dates produces zero GLEntry "Sales VAT Account" balance.
         Initialize();
         SetGeneralLedgerSetup(true);
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct());
         AmountInclVAT := 733.73;
         NewDate := CalcDate('<1M>', WorkDate());
 
         // [GIVEN] Currency with different Exch. Rates on dates "D1", "D2"
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 4.180095, 4.180095);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewDate, 4.178296, 4.178296);
 
@@ -414,12 +414,12 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         // [SCENARIO 356261] 100% prepayment Purchase Order (in FCY) invoiced twice on different dates produces zero GLEntry "Purchase VAT Account" balance.
         Initialize();
         SetGeneralLedgerSetup(true);
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct());
         AmountInclVAT := 733.73;
         NewDate := CalcDate('<1M>', WorkDate());
 
         // [GIVEN] Currency with different Exch. Rates on dates "D1", "D2"
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 4.180095, 4.180095);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewDate, 4.178296, 4.178296);
 
@@ -1019,8 +1019,8 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         Initialize();
         SetGeneralLedgerSetup(true);
-        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
-        LastGLRegisterNo := GetLastGLRegisterNo;
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct());
+        LastGLRegisterNo := GetLastGLRegisterNo();
     end;
 
     local procedure PrepareExpectedAmounts_TFS229419(var Amount: Decimal; var AmountIncludingVAT: Decimal; var InvDiscountExclVAT: Decimal; var InvDiscountInclVAT: Decimal; var VATAmount: Decimal)
@@ -1145,7 +1145,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         if GenPostingSetup."Sales Prepayments Account" = '' then begin
-            GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+            GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
             GenPostingSetup."Sales Prepayments Account" := GLAccount."No.";
             GenPostingSetup.Modify();
         end else
@@ -1164,7 +1164,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     begin
         GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         if GenPostingSetup."Purch. Prepayments Account" = '' then begin
-            GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+            GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
             GenPostingSetup."Purch. Prepayments Account" := GLAccount."No.";
             GenPostingSetup.Modify();
         end else
@@ -1496,7 +1496,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         with GenJournalLine do begin
             LibraryERM.CreateGeneralJnlLineWithBalAcc(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Payment,
-              AccountType, CVNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentAmount);
+              AccountType, CVNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentAmount);
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", AppliestoDocNo);
             Validate("Currency Code", CurrencyCode);
@@ -1933,7 +1933,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     var
         CurrencyExchRate: Record "Currency Exchange Rate";
     begin
-        LibraryERM.CreateExchRate(CurrencyExchRate, CreateCurrency, WorkDate());
+        LibraryERM.CreateExchRate(CurrencyExchRate, CreateCurrency(), WorkDate());
         with CurrencyExchRate do begin
             Validate("Exchange Rate Amount", ExchRateAmount);
             Validate("Adjustment Exch. Rate Amount", ExchRateAmount);
@@ -2076,7 +2076,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             FindSet();
             repeat
                 Balance += Amount;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

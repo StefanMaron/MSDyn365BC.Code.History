@@ -67,7 +67,7 @@ codeunit 136355 "UT T Job WIP Warning"
     procedure TestCreation()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Validate that the generated Job WIP Entry generates 4 warnings.
         JobWIPWarning.CreateEntries(JobWIPTotal);
@@ -75,7 +75,7 @@ codeunit 136355 "UT T Job WIP Warning"
         JobWIPWarning.SetRange("Job Task No.", JobTask."Job Task No.");
         Assert.AreEqual(4, JobWIPWarning.Count, 'The Job WIP Warning CreatEntries function did not create 4 warning messages.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -83,7 +83,7 @@ codeunit 136355 "UT T Job WIP Warning"
     procedure TestFunctionsDeleteEntries()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Validate that the generated Job WIP Warnings are deleted when the Job WIP Entry is deleted.
         JobWIPWarning.CreateEntries(JobWIPTotal);
@@ -91,7 +91,7 @@ codeunit 136355 "UT T Job WIP Warning"
         JobWIPWarning.SetRange("Job WIP Total Entry No.", JobWIPTotal."Entry No.");
         Assert.IsTrue(JobWIPWarning.IsEmpty, 'The Job WIP Warnings were not deleted when the DeleteEntries function was run.');
 
-        TearDown;
+        TearDown();
     end;
 }
 

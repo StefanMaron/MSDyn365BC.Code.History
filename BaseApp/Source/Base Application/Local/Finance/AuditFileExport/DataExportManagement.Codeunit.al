@@ -55,19 +55,17 @@ codeunit 11000 "Data Export Management"
     var
         DataExportTableRelationPage: Page "Data Export Table Relation";
     begin
-        with DataExportRecordSource do begin
-            if "Relation To Table No." = 0 then
-                Error(RelationsExistErr);
+        if DataExportRecordSource."Relation To Table No." = 0 then
+            Error(RelationsExistErr);
 
-            FilterGroup(2);
-            SetRange("Data Export Code", "Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
-            SetRange("Line No.", "Line No.");
-            FilterGroup(0);
-            Clear(DataExportTableRelationPage);
-            DataExportTableRelationPage.SetTableView(DataExportRecordSource);
-            DataExportTableRelationPage.RunModal();
-        end;
+        DataExportRecordSource.FilterGroup(2);
+        DataExportRecordSource.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+        DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+        DataExportRecordSource.SetRange("Line No.", DataExportRecordSource."Line No.");
+        DataExportRecordSource.FilterGroup(0);
+        Clear(DataExportTableRelationPage);
+        DataExportTableRelationPage.SetTableView(DataExportRecordSource);
+        DataExportTableRelationPage.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -77,84 +75,82 @@ codeunit 11000 "Data Export Management"
         FoundRelation: Boolean;
         Indented: Boolean;
     begin
-        with DataExportRecordSource do begin
-            CalcFields("Table Relation Defined", "Table Name");
-            if "Table Relation Defined" then
-                case true of
-                    OldIndentation < Indentation:
-                        if not Confirm(IndentQst, false, "Table Name") then begin
-                            Indentation := OldIndentation;
-                            exit;
-                        end;
-                    else
-                        if not Confirm(UnindentQst, false, "Table Name") then begin
-                            Indentation := OldIndentation;
-                            exit;
-                        end;
-                end;
-
-            FoundRelation := false;
+        DataExportRecordSource.CalcFields("Table Relation Defined", "Table Name");
+        if DataExportRecordSource."Table Relation Defined" then
             case true of
-                Indentation < 0:
-                    Indentation := 0;
-                Indentation = 0:
-                    begin
-                        FoundRelation := true;
-                        "Relation To Table No." := 0;
-                        "Relation To Line No." := 0;
+                OldIndentation < DataExportRecordSource.Indentation:
+                    if not Confirm(IndentQst, false, DataExportRecordSource."Table Name") then begin
+                        DataExportRecordSource.Indentation := OldIndentation;
+                        exit;
                     end;
-                else begin
-                    RelDataExportRecordSource.Copy(DataExportRecordSource);
-                    if RelDataExportRecordSource.Find('<') then begin
-                        if RelDataExportRecordSource.Indentation >= Indentation - 1 then begin
-                            repeat
-                                if RelDataExportRecordSource.Indentation = Indentation - 1 then begin
-                                    FoundRelation := true;
-                                    "Relation To Table No." := RelDataExportRecordSource."Table No.";
-                                    "Relation To Line No." := RelDataExportRecordSource."Line No.";
-                                end;
-                            until (RelDataExportRecordSource.Next(-1) = 0) or FoundRelation;
-                        end else
-                            Indentation := OldIndentation;
-                    end else
-                        Indentation := OldIndentation
-                end;
+                else
+                    if not Confirm(UnindentQst, false, DataExportRecordSource."Table Name") then begin
+                        DataExportRecordSource.Indentation := OldIndentation;
+                        exit;
+                    end;
             end;
 
-            if FoundRelation then begin
+        FoundRelation := false;
+        case true of
+            DataExportRecordSource.Indentation < 0:
+                DataExportRecordSource.Indentation := 0;
+            DataExportRecordSource.Indentation = 0:
+                begin
+                    FoundRelation := true;
+                    DataExportRecordSource."Relation To Table No." := 0;
+                    DataExportRecordSource."Relation To Line No." := 0;
+                end;
+            else begin
                 RelDataExportRecordSource.Copy(DataExportRecordSource);
-                if RelDataExportRecordSource.Find('>') then begin
-                    if OldIndentation < Indentation then begin
-                        // indent:
+                if RelDataExportRecordSource.Find('<') then begin
+                    if RelDataExportRecordSource.Indentation >= DataExportRecordSource.Indentation - 1 then begin
                         repeat
-                            Indented := false;
-                            if RelDataExportRecordSource.Indentation > OldIndentation then begin
-                                RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + Indentation - OldIndentation;
-                                Indented := true;
-                                RelDataExportRecordSource.Modify();
+                            if RelDataExportRecordSource.Indentation = DataExportRecordSource.Indentation - 1 then begin
+                                FoundRelation := true;
+                                DataExportRecordSource."Relation To Table No." := RelDataExportRecordSource."Table No.";
+                                DataExportRecordSource."Relation To Line No." := RelDataExportRecordSource."Line No.";
                             end;
-                        until (not Indented) or (RelDataExportRecordSource.Next() = 0);
+                        until (RelDataExportRecordSource.Next(-1) = 0) or FoundRelation;
                     end else
-                        // unindent:
-                        repeat
-                            Indented := false;
-                            if RelDataExportRecordSource.Indentation >= OldIndentation then begin
-                                RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + Indentation - OldIndentation;
-                                if RelDataExportRecordSource.Indentation = Indentation then begin
-                                    RelDataExportRecordSource."Relation To Table No." := "Relation To Table No.";
-                                    RelDataExportRecordSource."Relation To Line No." := "Relation To Line No.";
-                                end;
-                                RelDataExportRecordSource.Modify();
-                                Indented := true;
-                            end;
-                        until (not Indented) or (RelDataExportRecordSource.Next() = 0);
-                end;
+                        DataExportRecordSource.Indentation := OldIndentation;
+                end else
+                    DataExportRecordSource.Indentation := OldIndentation
             end;
+        end;
 
-            if FoundRelation then begin
-                Modify();
-                DeleteTableRelation("Data Export Code", "Data Exp. Rec. Type Code", "Table No.");
+        if FoundRelation then begin
+            RelDataExportRecordSource.Copy(DataExportRecordSource);
+            if RelDataExportRecordSource.Find('>') then begin
+                if OldIndentation < DataExportRecordSource.Indentation then begin
+                    // indent:
+                    repeat
+                        Indented := false;
+                        if RelDataExportRecordSource.Indentation > OldIndentation then begin
+                            RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + DataExportRecordSource.Indentation - OldIndentation;
+                            Indented := true;
+                            RelDataExportRecordSource.Modify();
+                        end;
+                    until (not Indented) or (RelDataExportRecordSource.Next() = 0);
+                end else
+                    // unindent:
+                    repeat
+                        Indented := false;
+                        if RelDataExportRecordSource.Indentation >= OldIndentation then begin
+                            RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + DataExportRecordSource.Indentation - OldIndentation;
+                            if RelDataExportRecordSource.Indentation = DataExportRecordSource.Indentation then begin
+                                RelDataExportRecordSource."Relation To Table No." := DataExportRecordSource."Relation To Table No.";
+                                RelDataExportRecordSource."Relation To Line No." := DataExportRecordSource."Relation To Line No.";
+                            end;
+                            RelDataExportRecordSource.Modify();
+                            Indented := true;
+                        end;
+                    until (not Indented) or (RelDataExportRecordSource.Next() = 0);
             end;
+        end;
+
+        if FoundRelation then begin
+            DataExportRecordSource.Modify();
+            DeleteTableRelation(DataExportRecordSource."Data Export Code", DataExportRecordSource."Data Exp. Rec. Type Code", DataExportRecordSource."Table No.");
         end;
     end;
 
@@ -273,12 +269,10 @@ codeunit 11000 "Data Export Management"
 
     local procedure FilterFields(var DataExportRecField: Record "Data Export Record Field"; DataExportRecordSource: Record "Data Export Record Source")
     begin
-        with DataExportRecField do begin
-            SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
-            SetRange("Table No.", DataExportRecordSource."Table No.");
-            SetRange("Source Line No.", DataExportRecordSource."Line No.");
-        end;
+        DataExportRecField.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+        DataExportRecField.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+        DataExportRecField.SetRange("Table No.", DataExportRecordSource."Table No.");
+        DataExportRecField.SetRange("Source Line No.", DataExportRecordSource."Line No.");
     end;
 
     local procedure CollectFieldNumbers(var DataExportRecField: Record "Data Export Record Field"; var TempPKDataExportRecordField: Record "Data Export Record Field" temporary; var TempNonPKDataExportRecordField: Record "Data Export Record Field" temporary)
@@ -288,18 +282,17 @@ codeunit 11000 "Data Export Management"
     begin
         TempPKDataExportRecordField.DeleteAll();
         TempNonPKDataExportRecordField.DeleteAll();
-        with DataExportRecField do
-            if FindSet() then begin
-                RecRef.Open("Table No.");
-                KeyRef := RecRef.KeyIndex(1);
-                repeat
-                    if FieldIsInPrimaryKey("Field No.", KeyRef) then
-                        AddFieldNoToBuffer(TempPKDataExportRecordField, DataExportRecField)
-                    else
-                        AddFieldNoToBuffer(TempNonPKDataExportRecordField, DataExportRecField);
-                until Next() = 0;
-                RecRef.Close();
-            end;
+        if DataExportRecField.FindSet() then begin
+            RecRef.Open(DataExportRecField."Table No.");
+            KeyRef := RecRef.KeyIndex(1);
+            repeat
+                if FieldIsInPrimaryKey(DataExportRecField."Field No.", KeyRef) then
+                    AddFieldNoToBuffer(TempPKDataExportRecordField, DataExportRecField)
+                else
+                    AddFieldNoToBuffer(TempNonPKDataExportRecordField, DataExportRecField);
+            until DataExportRecField.Next() = 0;
+            RecRef.Close();
+        end;
     end;
 
     local procedure FieldIsInPrimaryKey(FieldNumber: Integer; var KeyRef: KeyRef): Boolean
@@ -317,16 +310,14 @@ codeunit 11000 "Data Export Management"
 
     local procedure AddFieldNoToBuffer(var TempDataExportRecordField: Record "Data Export Record Field" temporary; DataExportRecField: Record "Data Export Record Field")
     begin
-        with TempDataExportRecordField do begin
-            Init();
-            "Data Export Code" := DataExportRecField."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecField."Data Exp. Rec. Type Code";
-            "Source Line No." := DataExportRecField."Source Line No.";
-            "Table No." := DataExportRecField."Table No.";
-            "Line No." := DataExportRecField."Line No.";
-            "Field No." := DataExportRecField."Field No.";
-            Insert();
-        end;
+        TempDataExportRecordField.Init();
+        TempDataExportRecordField."Data Export Code" := DataExportRecField."Data Export Code";
+        TempDataExportRecordField."Data Exp. Rec. Type Code" := DataExportRecField."Data Exp. Rec. Type Code";
+        TempDataExportRecordField."Source Line No." := DataExportRecField."Source Line No.";
+        TempDataExportRecordField."Table No." := DataExportRecField."Table No.";
+        TempDataExportRecordField."Line No." := DataExportRecField."Line No.";
+        TempDataExportRecordField."Field No." := DataExportRecField."Field No.";
+        TempDataExportRecordField.Insert();
     end;
 
     local procedure AddFieldsData(var DataExportRecordField: Record "Data Export Record Field"; var TempDataExportRecordField: Record "Data Export Record Field" temporary; FieldTagName: Text; XMLRootNode: DotNet XmlElement)
@@ -396,22 +387,19 @@ codeunit 11000 "Data Export Management"
     begin
         EmptyIndexXMLName := FileMgt.ServerTempFileName('xml');
         EmptyDTDFileName := FileMgt.GetDirectoryName(EmptyIndexXMLName) + '\' + DTDFileName;
-        with File do begin
-            TextMode(true);
+        File.TextMode(true);
 
-            Create(EmptyDTDFileName);
-            Close();
+        File.Create(EmptyDTDFileName);
+        File.Close();
 
-            Create(EmptyIndexXMLName);
-            Write('<?xml version="1.0" encoding="UTF-8" ?>');
-            Write('<!DOCTYPE DataSet SYSTEM "' + DTDFileName + '"><DataSet />');
-            Close();
-
-            // TFS 379960 - We keep XMLDocument.Load(FileName), because the validation against DTD file doesn't work for XmlDocument.Load(XmlTextReader)
-            XMLDocOut.Load(EmptyIndexXMLName);
-            Erase(EmptyIndexXMLName);
-            Erase(EmptyDTDFileName);
-        end;
+        File.Create(EmptyIndexXMLName);
+        File.Write('<?xml version="1.0" encoding="UTF-8" ?>');
+        File.Write('<!DOCTYPE DataSet SYSTEM "' + DTDFileName + '"><DataSet />');
+        File.Close();
+        // TFS 379960 - We keep XMLDocument.Load(FileName), because the validation against DTD file doesn't work for XmlDocument.Load(XmlTextReader)
+        XMLDocOut.Load(EmptyIndexXMLName);
+        Erase(EmptyIndexXMLName);
+        Erase(EmptyDTDFileName);
     end;
 
     local procedure IndexFileName(): Text[30]

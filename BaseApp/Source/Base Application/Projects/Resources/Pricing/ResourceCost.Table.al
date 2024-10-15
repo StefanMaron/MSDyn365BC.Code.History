@@ -6,14 +6,15 @@ using Microsoft.Utilities;
 table 202 "Resource Cost"
 {
     Caption = 'Resource Cost';
-#if not CLEAN21
+#if not CLEAN23
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '24.0';
+    ObsoleteTag = '26.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
+    DataClassification = CustomerContent;
 
     fields
     {

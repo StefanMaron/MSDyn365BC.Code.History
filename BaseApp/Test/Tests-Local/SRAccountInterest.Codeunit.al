@@ -30,7 +30,7 @@ codeunit 144036 "SR Account Interest"
         Amount: Decimal;
     begin
         // Create Customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // Create and Post General Journal Line
@@ -58,7 +58,7 @@ codeunit 144036 "SR Account Interest"
         Amount: Decimal;
     begin
         // Create Customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // Create and Post General Journal Line
@@ -86,7 +86,7 @@ codeunit 144036 "SR Account Interest"
         Amount: Decimal;
     begin
         // Create Vendor
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // Create and Post General Journal Line
@@ -114,7 +114,7 @@ codeunit 144036 "SR Account Interest"
         Amount: Decimal;
     begin
         // Create Bank
-        BankNo := CreateBankAccount;
+        BankNo := CreateBankAccount();
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // Create and Post General Journal Line
@@ -141,7 +141,7 @@ codeunit 144036 "SR Account Interest"
         Amount: Decimal;
     begin
         // Create Customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // Create and Post General Journal Line
@@ -178,7 +178,7 @@ codeunit 144036 "SR Account Interest"
         SRAccountInterest."With Start Balance".SetValue(false);
         SRAccountInterest."Show Interest per Line".SetValue(true);
 
-        SRAccountInterest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRAccountInterest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Normal]
@@ -206,7 +206,7 @@ codeunit 144036 "SR Account Interest"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         DocumentNo: Code[20];
@@ -233,9 +233,9 @@ codeunit 144036 "SR Account Interest"
     begin
         // Verify the XML
 
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
 
         FoundAccountNo := false;
         ExpectedInterestAmount := CalculateExpectedInterestAmount(Amount);
@@ -255,7 +255,7 @@ codeunit 144036 "SR Account Interest"
                 LibraryReportDataset.AssertCurrentRowValueEquals('InterestAmt', ExpectedInterestAmount);
             end;
 
-        until LibraryReportDataset.GetNextRow = false;
+        until LibraryReportDataset.GetNextRow() = false;
 
         Assert.IsTrue(FoundAccountNo, 'The Posted Document No. was not found in Report.');
     end;

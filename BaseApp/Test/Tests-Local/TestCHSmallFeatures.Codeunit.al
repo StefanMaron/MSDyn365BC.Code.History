@@ -45,7 +45,7 @@ codeunit 144058 "Test CH Small Features"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"Sales-Post + Print", SalesHeader);
@@ -164,7 +164,7 @@ codeunit 144058 "Test CH Small Features"
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
@@ -174,9 +174,9 @@ codeunit 144058 "Test CH Small Features"
           Round(SalesLine."Unit Price" * SalesLine.Quantity * (100 - SalesLine."Line Discount %") / 100,
             GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
         LibraryVariableStorage.Enqueue(AmtInclVAT);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // Verify: in the handler.
     end;
@@ -666,7 +666,7 @@ codeunit 144058 "Test CH Small Features"
 
         // [GIVEN] Create Sales Line with Prepayment % = 1.
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Prepayment %", 1);
@@ -705,7 +705,7 @@ codeunit 144058 "Test CH Small Features"
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
@@ -716,7 +716,7 @@ codeunit 144058 "Test CH Small Features"
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
@@ -726,9 +726,9 @@ codeunit 144058 "Test CH Small Features"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
         PurchaseLine.Modify(true);
     end;
@@ -737,9 +737,9 @@ codeunit 144058 "Test CH Small Features"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
         PurchaseLine.Modify(true);
     end;
@@ -804,7 +804,7 @@ codeunit 144058 "Test CH Small Features"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         PaymentTerms: Record "Payment Terms";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         SalespersonPurchaser.Get(SalesHeader."Salesperson Code");
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt1', SalespersonPurchaser.Name);
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt2', SalesHeader."Your Reference");
@@ -830,7 +830,7 @@ codeunit 144058 "Test CH Small Features"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         PaymentTerms: Record "Payment Terms";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         SalespersonPurchaser.Get(PurchaseHeader."Purchaser Code");
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt1', SalespersonPurchaser.Name);
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt2', PurchaseHeader."Your Reference");
@@ -851,7 +851,7 @@ codeunit 144058 "Test CH Small Features"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         PaymentTerms: Record "Payment Terms";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt1', PurchaseHeader."No.");
         LibraryReportDataset.AssertElementTagWithValueExists('HeaderTxt2', PurchaseHeader."Vendor Invoice No.");
         SalespersonPurchaser.Get(PurchaseHeader."Purchaser Code");
@@ -895,84 +895,84 @@ codeunit 144058 "Test CH Small Features"
     [Scope('OnPrem')]
     procedure SalesInvoiceESRRequestPageHandler(var SalesInvoiceESR: TestRequestPage "Sales Invoice ESR")
     begin
-        SalesInvoiceESR.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceESR.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesReturnOrderRequestPageHandler(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesShipmentRequestPageHandler(var SalesShipment: TestRequestPage "Sales - Shipment")
     begin
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderPageHandler(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
     begin
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPickingListPageHandler(var SalesPickingList: TestRequestPage "Sales Picking List")
     begin
-        SalesPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchQuoteRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
     begin
-        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderRequestPageHandler(var "Order": TestRequestPage "Order")
     begin
-        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchInvoiceRequestPageHandler(var PurchaseInvoice: TestRequestPage "Purchase - Invoice")
     begin
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchCreditMemoRequestPageHandler(var PurchaseCreditMemo: TestRequestPage "Purchase - Credit Memo")
     begin
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchReceiptRequestPageHandler(var PurchaseReceipt: TestRequestPage "Purchase - Receipt")
     begin
-        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchBlanketOrderRequestPageHandler(var BlanketPurchaseOrder: TestRequestPage "Blanket Purchase Order")
     begin
-        BlanketPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchReturnOrderRequestPageHandler(var ReturnOrder: TestRequestPage "Return Order")
     begin
-        ReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Scope('OnPrem')]

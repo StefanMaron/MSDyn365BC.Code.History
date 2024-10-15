@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Setup;
 table 11017 "VAT Cipher Code"
 {
     Caption = 'VAT Cipher Code';
+    DataClassification = CustomerContent;
     DrillDownPageID = "VAT Cipher Codes";
     LookupPageID = "VAT Cipher Codes";
 

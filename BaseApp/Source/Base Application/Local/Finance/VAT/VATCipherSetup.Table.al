@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Setup;
 table 11018 "VAT Cipher Setup"
 {
     Caption = 'VAT Cipher Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

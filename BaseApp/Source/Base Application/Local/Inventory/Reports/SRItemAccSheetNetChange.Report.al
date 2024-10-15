@@ -295,44 +295,39 @@ report 11505 "SR Item Acc Sheet Net Change"
         EndBalanceCaptionLbl: Label 'End Balance';
 
     [Scope('OnPrem')]
-    procedure CalcValues(_ItemLedgerEntry: Record "Item Ledger Entry")
+    procedure CalcValues(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ValueEntry: Record "Value Entry";
     begin
-        with _ItemLedgerEntry do begin
-            // Increase / decrease qty.
-            if Quantity > 0 then
-                IncreaseQty := IncreaseQty + Quantity
-            else
-                DecreaseQty := DecreaseQty + Abs(Quantity);
-            Stock := Stock + Quantity;
-
-            // Price per unit and amounts
-            CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
-            if "Invoiced Quantity" <> 0 then begin
-                PricePerUnit := "Sales Amount (Actual)" / "Invoiced Quantity";
-                CostPerUnit := "Cost Amount (Actual)" / "Invoiced Quantity";
-            end;
-
-            // Value posted
-            ValuePosted := 0;
-
-            // ValueEntry.SETCURRENTKEY("Item Ledger Entry No.","Expected Cost","Document No.",
-            // "Partial Revaluation","Entry Type","Variance Type",Adjustment);
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-
-            ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-            ValueEntry.SetRange("Expected Cost", false);
-
-            if ValueEntry.Find('-') then begin
-                repeat
-                    ValuePosted := ValuePosted + ValueEntry."Cost Posted to G/L";
-                until ValueEntry.Next() = 0;
-            end;
-
-            TotalValuePosted := TotalValuePosted + ValuePosted;
-            TotalValueAdjusted := TotalValueAdjusted + "Cost Amount (Actual)";
+        // Increase / decrease qty.
+        if ItemLedgerEntry.Quantity > 0 then
+            IncreaseQty := IncreaseQty + ItemLedgerEntry.Quantity
+        else
+            DecreaseQty := DecreaseQty + Abs(ItemLedgerEntry.Quantity);
+        Stock := Stock + ItemLedgerEntry.Quantity;
+        // Price per unit and amounts
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
+        if ItemLedgerEntry."Invoiced Quantity" <> 0 then begin
+            PricePerUnit := ItemLedgerEntry."Sales Amount (Actual)" / ItemLedgerEntry."Invoiced Quantity";
+            CostPerUnit := ItemLedgerEntry."Cost Amount (Actual)" / ItemLedgerEntry."Invoiced Quantity";
         end;
+        // Value posted
+        ValuePosted := 0;
+        // ValueEntry.SETCURRENTKEY("Item Ledger Entry No.","Expected Cost","Document No.",
+        // "Partial Revaluation","Entry Type","Variance Type",Adjustment);
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ValueEntry.SetRange("Expected Cost", false);
+
+        if ValueEntry.Find('-') then begin
+            repeat
+                ValuePosted := ValuePosted + ValueEntry."Cost Posted to G/L";
+            until ValueEntry.Next() = 0;
+        end;
+
+        TotalValuePosted := TotalValuePosted + ValuePosted;
+        TotalValueAdjusted := TotalValueAdjusted + ItemLedgerEntry."Cost Amount (Actual)";
     end;
 }
 

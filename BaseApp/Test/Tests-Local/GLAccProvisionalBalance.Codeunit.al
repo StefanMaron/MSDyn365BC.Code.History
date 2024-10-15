@@ -280,7 +280,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         // Verify: In the page handler.
     end;
 
-    local procedure CreateAccountsWithBalance(var AccountNo: Code[20]; var BalAccountNo: Code[20]; AccountType: Option; BalAccountType: Option)
+    local procedure CreateAccountsWithBalance(var AccountNo: Code[20]; var BalAccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; BalAccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -297,7 +297,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAccount(AccountType: Option): Code[20]
+    local procedure CreateAccount(AccountType: Enum "Gen. Journal Account Type"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         Customer: Record Customer;
@@ -343,29 +343,47 @@ codeunit 144014 "G/L Acc. Provisional Balance"
     begin
         LibraryERM.FindCurrency(Currency);
         GLAccount.SetFilter("No.", '%1|%2', GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
+#if not CLEAN24
         GLAccount.ModifyAll("Currency Code", Currency.Code);
-
+#else
+        GLAccount.ModifyAll("Source Currency Code", Currency.Code);
+#endif
         GenJournalLine.Validate("Currency Code", Currency.Code);
         GenJournalLine.Modify(true);
     end;
 
-    local procedure GetExpectedValues(var AccountName: Text; var BalanceLCY: Decimal; var BalanceFCY: Decimal; var CurrencyCode: Code[10]; AccountType: Option; AccountNo: Code[20])
+    local procedure GetExpectedValues(var AccountName: Text; var BalanceLCY: Decimal; var BalanceFCY: Decimal; var CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
+#if CLEAN24
+        GLAccountSourceCurrency: Record "G/L Account Source Currency";
+#endif
     begin
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     GLAccount.Get(AccountNo);
+#if not CLEAN24
                     GLAccount.CalcFields(Balance, "Balance (FCY)");
+#else
+                    GLAccount.CalcFields(Balance);
+                    GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
+                    GLAccountSourceCurrency."Currency Code" := GLAccount."Source Currency Code";
+                    GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+#endif
                     AccountName := GLAccount.Name;
                     BalanceLCY := GLAccount.Balance;
-                    BalanceFCY := GLAccount."Balance (FCY)";
+#if not CLEAN24
                     CurrencyCode := GLAccount."Currency Code";
+                    BalanceFCY := GLAccount."Balance (FCY)";
+#else
+                    BalanceFCY := GLAccountSourceCurrency."Source Curr. Balance at Date";
+                    CurrencyCode := GLAccount."Source Currency Code";
+#endif
                 end;
             GenJournalLine."Account Type"::"Bank Account":
                 begin
@@ -393,7 +411,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         end;
     end;
 
-    local procedure CreateUnpostedBatch(var GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateUnpostedBatch(var GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalLine: Record "Gen. Journal Line";
@@ -411,7 +429,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
           LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure GetUnpostedBalance(var NotPostedBalanceLCY: Decimal; var NotPostedBalanceFCY: Decimal; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10])
+    local procedure GetUnpostedBalance(var NotPostedBalanceLCY: Decimal; var NotPostedBalanceFCY: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -470,7 +488,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
           GenJournalLine."Account Type", GenJournalLine."Account No.", BalCurrencyCode);
 
         // Show current journal.
-        GLAccProvisionalBalance."A&ctual Journal".Invoke;
+        GLAccProvisionalBalance."A&ctual Journal".Invoke();
 
         GLAccProvisionalBalance.AccNumber.AssertEquals(GenJournalLine."Account No.");
         GLAccProvisionalBalance.AccName.AssertEquals(ExpAccName);
@@ -490,7 +508,7 @@ codeunit 144014 "G/L Acc. Provisional Balance"
         GLAccProvisionalBalance.BalAccNotPostedFC.AssertEquals(-ExpUnpostedBalAccFCY);
 
         // Show all journals.
-        GLAccProvisionalBalance."&All Journals".Invoke;
+        GLAccProvisionalBalance."&All Journals".Invoke();
         GLAccProvisionalBalance.AccNotPosted.AssertEquals(ExpUnpostedAccLCY);
         GLAccProvisionalBalance.AccNotPostedFC.AssertEquals(ExpUnpostedAccFCY);
         GLAccProvisionalBalance.BalAccNotPosted.AssertEquals(-ExpUnpostedBalAccLCY);

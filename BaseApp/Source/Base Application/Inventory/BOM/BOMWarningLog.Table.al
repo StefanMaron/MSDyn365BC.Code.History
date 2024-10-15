@@ -11,6 +11,7 @@ table 5874 "BOM Warning Log"
 {
     Caption = 'BOM Warning Log';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

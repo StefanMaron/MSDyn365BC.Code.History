@@ -50,63 +50,54 @@ codeunit 7200 "CDS Integration Mgt."
 
     [Scope('Cloud')]
     procedure IsConnectionActive(): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.IsConnectionActive());
     end;
 
     [Scope('Cloud')]
     procedure IsSolutionInstalled(): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.IsSolutionInstalled());
     end;
 
     [Scope('Cloud')]
     procedure IsSolutionInstalled(UniqueName: Text): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.IsSolutionInstalled(UniqueName));
     end;
 
     [Scope('Cloud')]
     procedure GetSolutionVersion(var Version: Text): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.GetSolutionVersion(Version));
     end;
 
     [Scope('Cloud')]
     procedure GetSolutionVersion(UniqueName: Text; var Version: Text): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.GetSolutionVersion(UniqueName, Version));
     end;
 
     [Scope('Cloud')]
     procedure CheckCompanyId(var RecRef: RecordRef): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.CheckCompanyId(RecRef));
     end;
 
     [Scope('Cloud')]
     procedure CheckOwningTeam(var RecRef: RecordRef): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.CheckOwningTeam(RecRef));
     end;
 
     [Scope('Cloud')]
     procedure CheckOwningUser(var RecRef: RecordRef; UserId: Guid): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.CheckOwningUser(RecRef, UserId));
     end;
 
     [Scope('Cloud')]
     procedure CheckOwningUser(var RecRef: RecordRef; UserId: Guid; SkipBusinessUnitCheck: Boolean): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.CheckOwningUser(RecRef, UserId, SkipBusinessUnitCheck));
     end;
@@ -119,35 +110,30 @@ codeunit 7200 "CDS Integration Mgt."
 
     [Scope('Cloud')]
     procedure ResetCompanyId(var RecRef: RecordRef): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.ResetCompanyId(RecRef));
     end;
 
     [Scope('Cloud')]
     procedure SetCompanyId(var RecRef: RecordRef): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.SetCompanyId(RecRef));
     end;
 
     [Scope('Cloud')]
     procedure SetOwningTeam(var RecRef: RecordRef): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.SetOwningTeam(RecRef));
     end;
 
     [Scope('Cloud')]
     procedure SetOwningUser(var RecRef: RecordRef; UserId: Guid): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.SetOwningUser(RecRef, UserId, false));
     end;
 
     [Scope('Cloud')]
     procedure SetOwningUser(var RecRef: RecordRef; UserId: Guid; SkipBusinessUnitCheck: Boolean): Boolean
-    var
     begin
         exit(CDSIntegrationImpl.SetOwningUser(RecRef, UserId, SkipBusinessUnitCheck));
     end;

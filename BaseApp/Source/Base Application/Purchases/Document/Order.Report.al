@@ -1059,8 +1059,8 @@ report 405 "Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
@@ -1188,9 +1188,7 @@ report 405 "Order"
     end;
 
     var
-        Text004: Label 'Order %1', Comment = '%1 = Document No.';
         GLSetup: Record "General Ledger Setup";
-        CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
@@ -1208,7 +1206,7 @@ report 405 "Order"
         PurchSetup: Record "Purchases & Payables Setup";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         PurchPost: Codeunit "Purch.-Post";
@@ -1225,6 +1223,7 @@ report 405 "Order"
         TotalText: Text[50];
         TotalInclVATText: Text[50];
         TotalExclVATText: Text[50];
+        Text004: Label 'Order %1', Comment = '%1 = Document No.';
         MoreLines: Boolean;
         NoOfLoops: Integer;
         CopyText: Text[30];
@@ -1268,7 +1267,6 @@ report 405 "Order"
         PurchLineLineDiscCaptionLbl: Label 'Discount %';
         VATDiscountAmountCaptionLbl: Label 'Payment Discount on VAT';
         LineDimCaptionLbl: Label 'Line Dimensions';
-        PaymentDetailsCaptionLbl: Label 'Payment Details';
         VendNoCaptionLbl: Label 'Vendor No.';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         PrepmtInvBuDescCaptionLbl: Label 'Description';
@@ -1306,6 +1304,7 @@ report 405 "Order"
         TotalPrepmtLineAmount: Decimal;
 
     protected var
+        CompanyInfo: Record "Company Information";
         ArchiveDocument: Boolean;
         LogInteraction: Boolean;
         NoOfCopies: Integer;
@@ -1342,16 +1341,14 @@ report 405 "Order"
 
     local procedure FormatDocumentFields(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetPurchaser(SalesPurchPerson, "Purchaser Code", PurchaserText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, "Prepmt. Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+        FormatDocument.SetTotalLabels(PurchaseHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetPurchaser(SalesPurchPerson, PurchaseHeader."Purchaser Code", PurchaserText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, PurchaseHeader."Payment Terms Code", PurchaseHeader."Language Code");
+        FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, PurchaseHeader."Prepmt. Payment Terms Code", PurchaseHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeader."Shipment Method Code", PurchaseHeader."Language Code");
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        ReferenceText := FormatDocument.SetText(PurchaseHeader."Your Reference" <> '', PurchaseHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(PurchaseHeader."VAT Registration No." <> '', PurchaseHeader.FieldCaption("VAT Registration No."));
     end;
 
     [Scope('OnPrem')]

@@ -119,7 +119,7 @@ codeunit 135547 "Webhook Logs E2E"
 
     local procedure Initialize()
     begin
-        CleanActivityLogs;
+        CleanActivityLogs();
         AddActivityLog('first', 'red');
         AddActivityLog('second', 'yellow');
         AddActivityLog('third', 'green');

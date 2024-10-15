@@ -73,18 +73,16 @@ codeunit 3010541 DtaMgt
     [Scope('OnPrem')]
     procedure CheckSetup()
     begin
-        with DtaSetup do begin
-            SetRange("DTA/EZAG", "DTA/EZAG"::DTA);
-            if FindSet() then
-                repeat
-                    TestField("DTA Customer ID");
-                    TestField("DTA Sender ID");
-                    TestField("DTA Sender Clearing");
-                    TestField("DTA Debit Acc. No.");
-                    TestField("DTA Sender Name");
-                    TestField("DTA Sender City");
-                until Next() = 0;
-        end;
+        DtaSetup.SetRange("DTA/EZAG", DtaSetup."DTA/EZAG"::DTA);
+        if DtaSetup.FindSet() then
+            repeat
+                DtaSetup.TestField("DTA Customer ID");
+                DtaSetup.TestField("DTA Sender ID");
+                DtaSetup.TestField("DTA Sender Clearing");
+                DtaSetup.TestField("DTA Debit Acc. No.");
+                DtaSetup.TestField("DTA Sender Name");
+                DtaSetup.TestField("DTA Sender City");
+            until DtaSetup.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -95,42 +93,38 @@ codeunit 3010541 DtaMgt
     begin
         if CodingLine = '' then
             exit;
+        // CHeck Pmt Method, Amt, RefNo, CheckDig, Clear. Return in VendBank2
+        ProcessCodingLine(CodingLine);
+        // Get Vendor Bank according to ESR/PostAcc/Clearing. Get Vendor No
+        // VB2 Aux. Record für Para. Transfer. Fetched Bank is in Rec VB
+        case VB2."Payment Form" of
+            VB2."Payment Form"::ESR, VB2."Payment Form"::"ESR+":
+                GetVendorBank(VB2, VB2."ESR Account No.", GenJnlLine."Account No.");
+            VB2."Payment Form"::"Post Payment Domestic":
+                GetVendorBank(VB2, VB2."Giro Account No.", GenJnlLine."Account No.");
+            VB2."Payment Form"::"Bank Payment Domestic":
+                GetVendorBank(VB2, VB2."Clearing No.", GenJnlLine."Account No.");
+        end;
+        // Fill in GLL according to coding line and vendor bank
+        GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Vendor);
+        GenJnlLine.Validate("Account No.", VendBank."Vendor No.");
+        GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Invoice);
+        GenJnlLine.Validate("Recipient Bank Account", VendBank.Code);
+        GenJnlLine.Validate("Reference No.", RefNo);
+        // CHeck ref. no. get ext. doc. no
+        GenJnlLine.Validate(Checksum, ChkDig);
+        GenJnlLine.Validate(Amount, -EsrAmt);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", VendBank."Balance Account No.");
 
-        with GenJnlLine do begin
-            // CHeck Pmt Method, Amt, RefNo, CheckDig, Clear. Return in VendBank2
-            ProcessCodingLine(CodingLine);
-
-            // Get Vendor Bank according to ESR/PostAcc/Clearing. Get Vendor No
-            // VB2 Aux. Record für Para. Transfer. Fetched Bank is in Rec VB
-            case VB2."Payment Form" of
-                VB2."Payment Form"::ESR, VB2."Payment Form"::"ESR+":
-                    GetVendorBank(VB2, VB2."ESR Account No.", "Account No.");
-                VB2."Payment Form"::"Post Payment Domestic":
-                    GetVendorBank(VB2, VB2."Giro Account No.", "Account No.");
-                VB2."Payment Form"::"Bank Payment Domestic":
-                    GetVendorBank(VB2, VB2."Clearing No.", "Account No.");
+        if (StrLen(CodingLine) > 12) and not (StrLen(CodingLine) in [22, 39]) then begin
+            Evaluate(ESRTransactionCode, CopyStr(DelChr(CodingLine, '=', '<'), 1, 2));
+            if ESRTransactionCode > 20 then begin
+                GenJnlLine."Currency Code" := 'EUR';
+                GenJnlLine."Currency Factor" := CurrExch.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Currency Code");
+                GenJnlLine.Validate(Amount);
             end;
-
-            // Fill in GLL according to coding line and vendor bank
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", VendBank."Vendor No.");
-            Validate("Document Type", "Document Type"::Invoice);
-            Validate("Recipient Bank Account", VendBank.Code);
-            Validate("Reference No.", RefNo);  // CHeck ref. no. get ext. doc. no
-            Validate(Checksum, ChkDig);
-            Validate(Amount, -EsrAmt);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", VendBank."Balance Account No.");
-
-            if (StrLen(CodingLine) > 12) and not (StrLen(CodingLine) in [22, 39]) then begin
-                Evaluate(ESRTransactionCode, CopyStr(DelChr(CodingLine, '=', '<'), 1, 2));
-                if ESRTransactionCode > 20 then begin
-                    "Currency Code" := 'EUR';
-                    "Currency Factor" := CurrExch.ExchangeRate("Posting Date", "Currency Code");
-                    Validate(Amount);
-                end;
-                CheckEsrCurrency("Currency Code", CodingLine);
-            end;
+            CheckEsrCurrency(GenJnlLine."Currency Code", CodingLine);
         end;
     end;
 
@@ -143,39 +137,36 @@ codeunit 3010541 DtaMgt
         if CodingLine = '' then
             exit;
 
-        with PurchHeader do begin
-            ProcessCodingLine(CodingLine);
-            // Get Vendor Bank
-            case VB2."Payment Form" of
-                VB2."Payment Form"::ESR, VB2."Payment Form"::"ESR+":
-                    GetVendorBank(VB2, VB2."ESR Account No.", "Pay-to Vendor No.");
-                VB2."Payment Form"::"Post Payment Domestic":
-                    GetVendorBank(VB2, VB2."Giro Account No.", "Pay-to Vendor No.");
-                VB2."Payment Form"::"Bank Payment Domestic":
-                    GetVendorBank(VB2, VB2."Clearing No.", "Pay-to Vendor No.");
-            end;
+        ProcessCodingLine(CodingLine);
+        // Get Vendor Bank
+        case VB2."Payment Form" of
+            VB2."Payment Form"::ESR, VB2."Payment Form"::"ESR+":
+                GetVendorBank(VB2, VB2."ESR Account No.", PurchHeader."Pay-to Vendor No.");
+            VB2."Payment Form"::"Post Payment Domestic":
+                GetVendorBank(VB2, VB2."Giro Account No.", PurchHeader."Pay-to Vendor No.");
+            VB2."Payment Form"::"Bank Payment Domestic":
+                GetVendorBank(VB2, VB2."Clearing No.", PurchHeader."Pay-to Vendor No.");
+        end;
+        // Fill in purch header based on codingline and vendor bank
+        if PurchHeader."Buy-from Vendor No." = '' then begin
+            PurchHeader.Validate("Buy-from Vendor No.", VendBank."Vendor No.");
+            Commit();
+        end;
 
-            // Fill in purch header based on codingline and vendor bank
-            if "Buy-from Vendor No." = '' then begin
-                Validate("Buy-from Vendor No.", VendBank."Vendor No.");
-                Commit();
-            end;
+        PurchHeader.Validate("Bank Code", VendBank.Code);
+        PurchHeader.Validate("Reference No.", RefNo);
+        PurchHeader.Validate(Checksum, ChkDig);
+        PurchHeader.Validate("ESR Amount", EsrAmt);
 
-            Validate("Bank Code", VendBank.Code);
-            Validate("Reference No.", RefNo);
-            Validate(Checksum, ChkDig);
-            Validate("ESR Amount", EsrAmt);
-
-            if (StrLen(CodingLine) > 12) and not (StrLen(CodingLine) in [22, 39]) then begin
-                Evaluate(ESRTransactionCode, CopyStr(DelChr(CodingLine, '=', '<'), 1, 2));
-                if ESRTransactionCode > 20 then begin
-                    "Currency Code" := 'EUR';
-                    "Currency Factor" := CurrExch.ExchangeRate("Posting Date", "Currency Code");
-                    CalcFields(Amount);
-                    Validate(Amount);
-                end;
-                CheckEsrCurrency("Currency Code", CodingLine);
+        if (StrLen(CodingLine) > 12) and not (StrLen(CodingLine) in [22, 39]) then begin
+            Evaluate(ESRTransactionCode, CopyStr(DelChr(CodingLine, '=', '<'), 1, 2));
+            if ESRTransactionCode > 20 then begin
+                PurchHeader."Currency Code" := 'EUR';
+                PurchHeader."Currency Factor" := CurrExch.ExchangeRate(PurchHeader."Posting Date", PurchHeader."Currency Code");
+                PurchHeader.CalcFields(Amount);
+                PurchHeader.Validate(Amount);
             end;
+            CheckEsrCurrency(PurchHeader."Currency Code", CodingLine);
         end;
     end;
 
@@ -329,30 +320,26 @@ codeunit 3010541 DtaMgt
     var
         NewRefNo: Text[35];
     begin
-        with GLL do begin
-            if "Reference No." = '' then
-                exit;
+        if GLL."Reference No." = '' then
+            exit;
 
-            if not VendBank.Get("Account No.", "Recipient Bank Account") then
-                Error(Text020Err, "Recipient Bank Account", "Account No.");
+        if not VendBank.Get(GLL."Account No.", GLL."Recipient Bank Account") then
+            Error(Text020Err, GLL."Recipient Bank Account", GLL."Account No.");
+        // Ref. No only for ESR and ESR+
+        if VendBank."Payment Form" > 1 then
+            Error(Text021Err, GLL."Account No.", GLL."Recipient Bank Account", VendBank."Payment Form");
+        // CHeck Digit only for ESR 5/15
+        if (GLL.Checksum <> '') and
+           ((VendBank."Payment Form" <> VendBank."Payment Form"::ESR) or (VendBank."ESR Type" <> VendBank."ESR Type"::"5/15"))
+        then
+            Error(Text023Err);
 
-            // Ref. No only for ESR and ESR+
-            if VendBank."Payment Form" > 1 then
-                Error(Text021Err, "Account No.", "Recipient Bank Account", VendBank."Payment Form");
+        NewRefNo := CheckRefNo(GLL."Reference No.", GLL.Checksum, GLL.Amount);
 
-            // CHeck Digit only for ESR 5/15
-            if (Checksum <> '') and
-               ((VendBank."Payment Form" <> VendBank."Payment Form"::ESR) or (VendBank."ESR Type" <> VendBank."ESR Type"::"5/15"))
-            then
-                Error(Text023Err);
+        if VendBank."Invoice No. Startposition" > 0 then
+            GLL."External Document No." := CopyStr(NewRefNo, VendBank."Invoice No. Startposition", VendBank."Invoice No. Length");
 
-            NewRefNo := CheckRefNo("Reference No.", Checksum, Amount);
-
-            if VendBank."Invoice No. Startposition" > 0 then
-                "External Document No." := CopyStr(NewRefNo, VendBank."Invoice No. Startposition", VendBank."Invoice No. Length");
-
-            "Reference No." := NewRefNo;
-        end;
+        GLL."Reference No." := NewRefNo;
     end;
 
     [Scope('OnPrem')]
@@ -360,30 +347,26 @@ codeunit 3010541 DtaMgt
     var
         NewRefNo: Text[35];
     begin
-        with PurchHead do begin
-            if "Reference No." = '' then
-                exit;
+        if PurchHead."Reference No." = '' then
+            exit;
 
-            if not VendBank.Get("Pay-to Vendor No.", "Bank Code") then
-                Error(Text020Err, "Bank Code", "Pay-to Vendor No.");
+        if not VendBank.Get(PurchHead."Pay-to Vendor No.", PurchHead."Bank Code") then
+            Error(Text020Err, PurchHead."Bank Code", PurchHead."Pay-to Vendor No.");
+        // Ref. No only for ESR and ESR+
+        if VendBank."Payment Form" > 1 then
+            Error(Text024Err, PurchHead."Pay-to Vendor No.", PurchHead."Bank Code", VendBank."Payment Form");
+        // CHeck Digit only for ESR 5/15
+        if (PurchHead.Checksum <> '') and
+           ((VendBank."Payment Form" <> VendBank."Payment Form"::ESR) or (VendBank."ESR Type" <> VendBank."ESR Type"::"5/15"))
+        then
+            Error(Text023Err);
 
-            // Ref. No only for ESR and ESR+
-            if VendBank."Payment Form" > 1 then
-                Error(Text024Err, "Pay-to Vendor No.", "Bank Code", VendBank."Payment Form");
+        NewRefNo := CheckRefNo(PurchHead."Reference No.", PurchHead.Checksum, PurchHead."ESR Amount");
 
-            // CHeck Digit only for ESR 5/15
-            if (Checksum <> '') and
-               ((VendBank."Payment Form" <> VendBank."Payment Form"::ESR) or (VendBank."ESR Type" <> VendBank."ESR Type"::"5/15"))
-            then
-                Error(Text023Err);
+        if VendBank."Invoice No. Startposition" > 0 then
+            PurchHead."Vendor Invoice No." := CopyStr(NewRefNo, VendBank."Invoice No. Startposition", VendBank."Invoice No. Length");
 
-            NewRefNo := CheckRefNo("Reference No.", Checksum, "ESR Amount");
-
-            if VendBank."Invoice No. Startposition" > 0 then
-                "Vendor Invoice No." := CopyStr(NewRefNo, VendBank."Invoice No. Startposition", VendBank."Invoice No. Length");
-
-            "Reference No." := NewRefNo;
-        end;
+        PurchHead."Reference No." := NewRefNo;
     end;
 
     [Scope('OnPrem')]
@@ -546,28 +529,26 @@ codeunit 3010541 DtaMgt
     procedure CheckVenorPost(GLL: Record "Gen. Journal Line")
     begin
         // Ref No found when ESR Invoice posted?
-        with GLL do begin
-            // Reset Wait Flag (for rest payment)
-            ReleaseVendorLedgerEntries(GLL);
+        // Reset Wait Flag (for rest payment)
+        ReleaseVendorLedgerEntries(GLL);
 
-            if ("Account Type" = "Account Type"::Vendor) and
-               ("Reference No." <> '') and
-               ("Document Type" <> "Document Type"::Invoice) and
-               ("Applies-to Doc. No." = '') and ("Applies-to ID" = '')
+        if (GLL."Account Type" = GLL."Account Type"::Vendor) and
+           (GLL."Reference No." <> '') and
+           (GLL."Document Type" <> GLL."Document Type"::Invoice) and
+           (GLL."Applies-to Doc. No." = '') and (GLL."Applies-to ID" = '')
+        then
+            Error(Text071Err, GLL."Account No.", GLL."Document No.");
+
+        if (GLL."Account Type" = GLL."Account Type"::Vendor) and
+           (GLL."Document Type" = GLL."Document Type"::Invoice) and (GLL."Recipient Bank Account" <> '')
+        then begin
+            if not VendBank.Get(GLL."Account No.", GLL."Recipient Bank Account") then
+                Error(Text073Err, GLL."Recipient Bank Account", GLL."Account No.", GLL."Document No.");
+
+            if (VendBank."Payment Form" in [VendBank."Payment Form"::ESR, VendBank."Payment Form"::"ESR+"]) and
+               (GLL."Reference No." = '')
             then
-                Error(Text071Err, "Account No.", "Document No.");
-
-            if ("Account Type" = "Account Type"::Vendor) and
-               ("Document Type" = "Document Type"::Invoice) and ("Recipient Bank Account" <> '')
-            then begin
-                if not VendBank.Get("Account No.", "Recipient Bank Account") then
-                    Error(Text073Err, "Recipient Bank Account", "Account No.", "Document No.");
-
-                if (VendBank."Payment Form" in [VendBank."Payment Form"::ESR, VendBank."Payment Form"::"ESR+"]) and
-                   ("Reference No." = '')
-                then
-                    Error(Text074Err, "Recipient Bank Account", "Account No.", "Document Type", "Document No.", VendBank."Payment Form");
-            end;
+                Error(Text074Err, GLL."Recipient Bank Account", GLL."Account No.", GLL."Document Type", GLL."Document No.", VendBank."Payment Form");
         end;
     end;
 
@@ -678,22 +659,20 @@ codeunit 3010541 DtaMgt
     [Scope('OnPrem')]
     procedure ModifyExRate(GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            GlLine.SetRange("Journal Template Name", "Journal Template Name");
-            GlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-            GlLine.SetRange("Currency Code", "Currency Code");
-            GlLine.SetFilter("Line No.", '<>%1', "Line No.");
-            if GlLine.FindSet() then begin
-                if not Confirm(
-                     Text101Qst,
-                     false, GlLine.Count, "Currency Code")
-                then
-                    exit;
-                repeat
-                    GlLine.Validate("Currency Factor", "Currency Factor");
-                    GlLine.Modify();
-                until GlLine.Next() = 0;
-            end;
+        GlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GlLine.SetRange("Currency Code", GenJnlLine."Currency Code");
+        GlLine.SetFilter("Line No.", '<>%1', GenJnlLine."Line No.");
+        if GlLine.FindSet() then begin
+            if not Confirm(
+                 Text101Qst,
+                 false, GlLine.Count, GenJnlLine."Currency Code")
+            then
+                exit;
+            repeat
+                GlLine.Validate("Currency Factor", GenJnlLine."Currency Factor");
+                GlLine.Modify();
+            until GlLine.Next() = 0;
         end;
     end;
 
@@ -755,86 +734,85 @@ codeunit 3010541 DtaMgt
         if not VendBank.Get(VendorNo, VendBankNo) then
             Error(Text013Err, VendorNo, VendBankNo);
 
-        with VendBank do
-            case "Payment Form" of
-                // ***** ESR & ESR+ *****
-                "Payment Form"::ESR, "Payment Form"::"ESR+":
+        case VendBank."Payment Form" of
+            // ***** ESR & ESR+ *****
+            VendBank."Payment Form"::ESR, VendBank."Payment Form"::"ESR+":
+                if DtaEzag = 'DTA' then
+                    case xISO of
+                        'CHF':
+                            RecordType := 826;
+                        'EUR':
+                            RecordType := 830;
+                        else
+                            Error(Text115Err, VendBank."Payment Form", VendorNo, Amount);
+                    end
+                else
+                    case xISO of
+                        'CHF':
+                            RecordType := 28;
+                        'EUR':
+                            RecordType := 28;
+                        else
+                            Error(Text115Err, VendBank."Payment Form", VendorNo, Amount);
+                    end;
+            // ***** Postzahlung Inland *****
+            VendBank."Payment Form"::"Post Payment Domestic":
+                begin
                     if DtaEzag = 'DTA' then
                         case xISO of
                             'CHF':
-                                RecordType := 826;
+                                RecordType := 827;
                             'EUR':
                                 RecordType := 830;
                             else
-                                Error(Text115Err, "Payment Form", VendorNo, Amount);
+                                Error(Text115Err, VendBank."Payment Form", VendorNo, Amount);
                         end
                     else
-                        case xISO of
-                            'CHF':
-                                RecordType := 28;
-                            'EUR':
-                                RecordType := 28;
-                            else
-                                Error(Text115Err, "Payment Form", VendorNo, Amount);
-                        end;
-                // ***** Postzahlung Inland *****
-                "Payment Form"::"Post Payment Domestic":
-                    begin
-                        if DtaEzag = 'DTA' then
-                            case xISO of
-                                'CHF':
-                                    RecordType := 827;
-                                'EUR':
-                                    RecordType := 830;
-                                else
-                                    Error(Text115Err, "Payment Form", VendorNo, Amount);
-                            end
+                        RecordType := 22;
+                end;
+            // ***** Bankzahlung Inland *****
+            VendBank."Payment Form"::"Bank Payment Domestic":
+                begin
+                    if DtaEzag = 'DTA' then begin
+                        if xISO = 'CHF' then
+                            RecordType := 827
                         else
-                            RecordType := 22;
-                    end;
-                // ***** Bankzahlung Inland *****
-                "Payment Form"::"Bank Payment Domestic":
-                    begin
-                        if DtaEzag = 'DTA' then begin
-                            if xISO = 'CHF' then
-                                RecordType := 827
-                            else
-                                RecordType := 830;
-                        end else
-                            RecordType := 27
-                    end;
-                // ***** Zahlungsanweisung Inland *****
-                "Payment Form"::"Cash Outpayment Order Domestic":
-                    begin
-                        if DtaEzag = 'DTA' then
-                            Error(Text116Err, "Payment Form", VendorNo, VendBankNo);
-                        if not (xISO = 'CHF') then
-                            Error(Text117Err, "Payment Form", VendorNo, Amount);
-                        RecordType := 24
-                    end;
-                // ***** Postzahlung Ausland *****
-                "Payment Form"::"Post Payment Abroad":
-                    begin
-                        if DtaEzag = 'DTA' then
-                            Error(Text116Err, "Payment Form", VendorNo, VendBankNo);
-                        RecordType := 32;
-                    end;
-                // ***** Bankzahlung Ausland & SWIFT-Zahlung Ausland *****
-                "Payment Form"::"Bank Payment Abroad", "Payment Form"::"SWIFT Payment Abroad":
-                    begin
-                        if DtaEzag = 'DTA' then
-                            RecordType := 830
-                        else
-                            RecordType := 37;
-                    end;
-                // ***** Postanweisung Ausland *****
-                "Payment Form"::"Cash Outpayment Order Abroad":
-                    begin
-                        if DtaEzag = 'DTA' then
-                            Error(Text116Err, "Payment Form", VendorNo, VendBankNo);
-                        RecordType := 34;
-                    end;
-            end;
+                            RecordType := 830;
+                    end else
+                        RecordType := 27
+                end;
+            // ***** Zahlungsanweisung Inland *****
+            VendBank."Payment Form"::"Cash Outpayment Order Domestic":
+                begin
+                    if DtaEzag = 'DTA' then
+                        Error(Text116Err, VendBank."Payment Form", VendorNo, VendBankNo);
+                    if not (xISO = 'CHF') then
+                        Error(Text117Err, VendBank."Payment Form", VendorNo, Amount);
+                    RecordType := 24
+                end;
+            // ***** Postzahlung Ausland *****
+            VendBank."Payment Form"::"Post Payment Abroad":
+                begin
+                    if DtaEzag = 'DTA' then
+                        Error(Text116Err, VendBank."Payment Form", VendorNo, VendBankNo);
+                    RecordType := 32;
+                end;
+            // ***** Bankzahlung Ausland & SWIFT-Zahlung Ausland *****
+            VendBank."Payment Form"::"Bank Payment Abroad", VendBank."Payment Form"::"SWIFT Payment Abroad":
+                begin
+                    if DtaEzag = 'DTA' then
+                        RecordType := 830
+                    else
+                        RecordType := 37;
+                end;
+            // ***** Postanweisung Ausland *****
+            VendBank."Payment Form"::"Cash Outpayment Order Abroad":
+                begin
+                    if DtaEzag = 'DTA' then
+                        Error(Text116Err, VendBank."Payment Form", VendorNo, VendBankNo);
+                    RecordType := 34;
+                end;
+        end;
 
         if (VendBank.IBAN <> '') and (RecordType in [827, 830]) then
             RecordType := 836;

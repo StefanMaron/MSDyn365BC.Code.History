@@ -17,6 +17,7 @@ table 5005270 "Delivery Reminder Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Delivery Reminder List";
     LookupPageID = "Delivery Reminder List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -189,30 +190,31 @@ table 5005270 "Delivery Reminder Header"
 
             trigger OnLookup()
             var
+                NoSeries: Codeunit "No. Series";
                 IsHandled: Boolean;
             begin
-                with DeliveryReminderHeader do begin
-                    DeliveryReminderHeader := Rec;
-                    PurchSetup.Get();
-                    IsHandled := false;
-                    OnBeforeLookupIssuingNoSeries(Rec, IsHandled);
-                    if not IsHandled then begin
-                        PurchSetup.TestField("Delivery Reminder Nos.");
-                        PurchSetup.TestField("Issued Delivery Reminder Nos.");
-                        if NoSeriesMgt.LookupSeries(PurchSetup."Issued Delivery Reminder Nos.", "Issuing No. Series") then
-                            Validate("Issuing No. Series");
-                    end;
-                    Rec := DeliveryReminderHeader;
+                DeliveryReminderHeader := Rec;
+                PurchSetup.Get();
+                IsHandled := false;
+                OnBeforeLookupIssuingNoSeries(Rec, IsHandled);
+                if not IsHandled then begin
+                    PurchSetup.TestField("Delivery Reminder Nos.");
+                    PurchSetup.TestField("Issued Delivery Reminder Nos.");
+                    if NoSeries.LookupRelatedNoSeries(PurchSetup."Issued Delivery Reminder Nos.", DeliveryReminderHeader."Issuing No. Series") then
+                        DeliveryReminderHeader.Validate("Issuing No. Series");
                 end;
+                Rec := DeliveryReminderHeader;
             end;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Issuing No. Series" <> '' then begin
                     PurchSetup.Get();
                     PurchSetup.TestField("Delivery Reminder Nos.");
                     PurchSetup.TestField("Issued Delivery Reminder Nos.");
-                    NoSeriesMgt.TestSeries(PurchSetup."Issued Delivery Reminder Nos.", "Issuing No. Series");
+                    NoSeries.TestAreRelated(PurchSetup."Issued Delivery Reminder Nos.", "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -256,6 +258,10 @@ table 5005270 "Delivery Reminder Header"
 
     trigger OnInsert()
     var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         PurchSetup.Get();
@@ -265,17 +271,29 @@ table 5005270 "Delivery Reminder Header"
             if "No." = '' then begin
                 PurchSetup.TestField("Delivery Reminder Nos.");
                 PurchSetup.TestField("Issued Delivery Reminder Nos.");
-                NoSeriesMgt.InitSeries(
-                  PurchSetup."Delivery Reminder Nos.", xRec."No. Series", "Posting Date",
-                  "No.", "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Delivery Reminder Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := PurchSetup."Delivery Reminder Nos.";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Delivery Reminder Nos.", "Posting Date", "No.");
+                end;
+#endif
             end;
             "Posting Description" := StrSubstNo(Text1140000, "No.");
-            if ("No. Series" <> '') and
-               (PurchSetup."Delivery Reminder Nos." = PurchSetup."Issued Delivery Reminder Nos.")
-            then
+            if ("No. Series" <> '') and (PurchSetup."Delivery Reminder Nos." = PurchSetup."Issued Delivery Reminder Nos.") then
                 "Issuing No. Series" := "No. Series"
             else
+#if CLEAN24
+                if NoSeries.IsAutomatic(PurchSetup."Issued Delivery Reminder Nos.") then
+                    "Issuing No. Series" := PurchSetup."Issued Delivery Reminder Nos.";
+#else
                 NoSeriesMgt.SetDefaultSeries("Issuing No. Series", PurchSetup."Issued Delivery Reminder Nos.");
+#endif
         end;
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
@@ -298,34 +316,27 @@ table 5005270 "Delivery Reminder Header"
         DeliveryReminderLevel: Record "Delivery Reminder Level";
         DeliveryReminderCommentLine: Record "Delivery Reminder Comment Line";
         Vend: Record Vendor;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldReminderHeader: Record "Delivery Reminder Header"): Boolean
     var
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
-        with DeliveryReminderHeader do begin
-            DeliveryReminderHeader := Rec;
-            PurchSetup.Get();
-            IsHandled := false;
-            OnBeforeAssistEdit(DeliveryReminderHeader, OldReminderHeader, IsHandled);
-            if not IsHandled then begin
-                PurchSetup.TestField("Delivery Reminder Nos.");
-                PurchSetup.TestField("Issued Delivery Reminder Nos.");
-                if NoSeriesMgt.SelectSeries(
-                     PurchSetup."Delivery Reminder Nos.", OldReminderHeader."No. Series", "No. Series")
-                then begin
-                    PurchSetup.Get();
-                    PurchSetup.TestField("Delivery Reminder Nos.");
-                    PurchSetup.TestField("Issued Delivery Reminder Nos.");
-                    NoSeriesMgt.SetSeries("No.");
-                    Rec := DeliveryReminderHeader;
-                    exit(true);
-                end;
-            end else
+        DeliveryReminderHeader := Rec;
+        PurchSetup.Get();
+        IsHandled := false;
+        OnBeforeAssistEdit(DeliveryReminderHeader, OldReminderHeader, IsHandled);
+        if not IsHandled then begin
+            PurchSetup.TestField("Delivery Reminder Nos.");
+            PurchSetup.TestField("Issued Delivery Reminder Nos.");
+            if NoSeries.LookupRelatedNoSeries(PurchSetup."Delivery Reminder Nos.", OldReminderHeader."No. Series", DeliveryReminderHeader."No. Series") then begin
+                DeliveryReminderHeader."No." := NoSeries.GetNextNo(DeliveryReminderHeader."No. Series");
+                Rec := DeliveryReminderHeader;
                 exit(true);
-        end;
+            end;
+        end else
+            exit(true);
     end;
 
     local procedure GetVend(VendNo: Code[20])

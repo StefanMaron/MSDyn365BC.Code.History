@@ -69,7 +69,7 @@ codeunit 144351 "CH DTA Reports"
           Vendor, VendorBankAccount, GenJournalLineArray, GenJournalBatch, 2, Dates, Amounts, TestOption::"ESR5/15", '', '', false);
 
         // 2A. Exercise: Create Invoices and run the Suggest Vendor Payment report
-        RunDTASuggestVendorPayment(GenJournalBatch, GenJournalLineArray[1]."Account No.", WorkDate(), WorkDate, CalcDate('<+1Y>', WorkDate()), '');
+        RunDTASuggestVendorPayment(GenJournalBatch, GenJournalLineArray[1]."Account No.", WorkDate(), WorkDate(), CalcDate('<+1Y>', WorkDate()), '');
 
         // 3A. Verify: Verify there are no lines in General Journal.
         VerifyGenJournalNoOfLines(GenJournalBatch, 0);
@@ -168,13 +168,13 @@ codeunit 144351 "CH DTA Reports"
             FindSet();
             Assert.AreEqual(Vendor1."No.", "Account No.", GenJournalLineInfoErr);
             Assert.AreEqual(Amount1, Amount, GenJournalLineInfoErr);
-            Next;
+            Next();
             Assert.AreEqual(Vendor2."No.", "Account No.", GenJournalLineInfoErr);
             Assert.AreEqual(Amount2, Amount, GenJournalLineInfoErr);
-            Next;
+            Next();
             Assert.AreEqual(Vendor3."No.", "Account No.", GenJournalLineInfoErr);
             Assert.AreEqual(Amount3, Amount, GenJournalLineInfoErr);
-            Next;
+            Next();
             Assert.AreEqual('G/L Account', Format("Account Type"), GenJournalLineInfoErr);
             Assert.AreEqual(-Amount1 - Amount2 - Amount3, Amount, GenJournalLineInfoErr);
         end;
@@ -292,7 +292,7 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"DTA Payment Journal");
 
         // Verify: Verify Amount in generated XML file.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Amount_GenJournalLine', -GenJournalLineArray[1].Amount);
         LibraryReportDataset.AssertElementWithValueExists('JournalBatchName_GenJournalLine', GenJournalBatch.Name);
         LibraryReportDataset.AssertElementWithValueExists('VendorName', Vendor.Name);
@@ -389,7 +389,7 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"DTA Payment Journal");
 
         // Verify: Verify Amount in generated XML file.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Amount_GenJournalLine', PurchaseLine."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists('JournalBatchName_GenJournalLine', GenJournalBatch.Name);
         LibraryReportDataset.AssertElementWithValueExists('VendorName', Vendor.Name);
@@ -427,7 +427,7 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"DTA Payment Journal");
 
         // Verify: Verify Amount in generated XML file.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Amount_GenJournalLine', PurchaseLine."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists('JournalBatchName_GenJournalLine', GenJournalBatch.Name);
         LibraryReportDataset.AssertElementWithValueExists('VendorName', Vendor.Name);
@@ -496,15 +496,13 @@ codeunit 144351 "CH DTA Reports"
         LibraryDTA.CreateVendorBankAccount(VendorBankAccount, Vendor."No.", TestOption::"Bank Payment Domestic", '');
 
         // 2. Exercise: Change the DTA Line Field
-        with PurchaseHeader do begin
-            Commit();
-            asserterror Validate("Bank Code", VendorBankAccount.Code);
-            Assert.IsTrue(StrPos(GetLastErrorText, Format(BankCodeChangeErr)) > 0, DTABankAccountNotChangeableTxt);
+        Commit();
+        asserterror PurchaseHeader.Validate("Bank Code", VendorBankAccount.Code);
+        Assert.IsTrue(StrPos(GetLastErrorText, Format(BankCodeChangeErr)) > 0, DTABankAccountNotChangeableTxt);
 
-            Validate("Reference No.", '');
-            Validate("Bank Code", VendorBankAccount.Code);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Reference No.", '');
+        PurchaseHeader.Validate("Bank Code", VendorBankAccount.Code);
+        PurchaseHeader.Modify(true);
 
         // Post Puchase Order after creating it.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -517,15 +515,13 @@ codeunit 144351 "CH DTA Reports"
         // 3. Verify: Verify there are 3 lines in General Journal and make sure the posting procedure succeeds.
         VerifyGenJournalNoOfLines(GenJournalBatch, 2);
 
-        with GenJournalLine do begin
-            Init();
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            if FindSet() then
-                repeat
-                    LibraryERM.PostGeneralJnlLine(GenJournalLine);
-                until Next = 0
-        end;
+        GenJournalLine.Init();
+        GenJournalLine.SetRange(GenJournalLine."Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange(GenJournalLine."Journal Batch Name", GenJournalBatch.Name);
+        if GenJournalLine.FindSet() then
+            repeat
+                LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            until GenJournalLine.Next() = 0
     end;
 
     [Test]
@@ -576,12 +572,12 @@ codeunit 144351 "CH DTA Reports"
         RunDTASuggestVendorPayment(GenJournalBatch, GenJournalLineArray[1]."Account No.", Dates[1], Dates[1], Dates[1], '');
 
         // Change Exchange Rate
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal."Currency Code".AssistEdit;
+        PaymentJournal."Currency Code".AssistEdit();
 
         // Verify Balanced (Posting and check lines are posted)
-        PaymentJournal.Post.Invoke;
+        PaymentJournal.Post.Invoke();
         VerifyGenJournalNoOfLines(GenJournalBatch, 0);
     end;
 
@@ -613,8 +609,8 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"Vendor Payment Order");
 
         // Verify Vendor IBAN on the report
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BankAccNo', VendorBankAccount.IBAN);
     end;
 
@@ -646,8 +642,8 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"DTA Payment Order");
 
         // 3. Verify: Verify Amount in generated XML file.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         // Verify company name
         LibraryReportDataset.AssertCurrentRowValueEquals('CompanySetup1', CompanyInformation.Name);
@@ -718,8 +714,8 @@ codeunit 144351 "CH DTA Reports"
         REPORT.Run(REPORT::"EZAG Payment Order");
 
         // 3. Verify: Verify Amount in generated XML file.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         // Verify company name
         LibraryReportDataset.AssertCurrentRowValueEquals('Adr1', CompanyInformation.Name);
@@ -906,7 +902,7 @@ codeunit 144351 "CH DTA Reports"
         for i := 1 to ArrayLen(Amounts) do begin
             LibraryDTA.CreateDTASetup(DTASetup[i], '', false);
             CreateVendorAndPostVendorInvoice(Vendor[i], Amounts[i], DTASetup[i]."Bank Code");
-            RunDTASuggestVendorPayment(GenJournalBatch, Vendor[i]."No.", WorkDate(), WorkDate, WorkDate(), '');
+            RunDTASuggestVendorPayment(GenJournalBatch, Vendor[i]."No.", WorkDate(), WorkDate(), WorkDate(), '');
         end;
 
         // [WHEN] Run report DTA Payment Order
@@ -942,7 +938,7 @@ codeunit 144351 "CH DTA Reports"
         // [GIVEN] "DateInvoice" is a "PI"s Posting Date
         // [GIVEN] "JournalAmount" is the amount of "PI"
         CreateGenJournalLineWithPaymentDiscount(
-          GenJournalLine, GenJournalBatch, DateInvoice, JournalLineAmount, LibraryERM.CreateCurrencyWithRandomExchRates);
+          GenJournalLine, GenJournalBatch, DateInvoice, JournalLineAmount, LibraryERM.CreateCurrencyWithRandomExchRates());
 
         CreateGenJournalBatchType(GenJournalBatch, GenJournalTemplate.Type::Payments);
 
@@ -964,7 +960,6 @@ codeunit 144351 "CH DTA Reports"
         // Clear globals.
 
         // Remove previously created GL lines
-        GenJournalLine.Init();
         GenJournalLine.DeleteAll();
         Clear(LibraryReportValidation);
 
@@ -974,7 +969,7 @@ codeunit 144351 "CH DTA Reports"
 
         CompanyInformation.Get();
 
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
@@ -1021,7 +1016,7 @@ codeunit 144351 "CH DTA Reports"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          Vendor."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          Vendor."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           LineAmount);
 
         with GenJournalLine do begin
@@ -1035,7 +1030,7 @@ codeunit 144351 "CH DTA Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalBatchType(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGenJournalBatchType(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         NoSeries: Record "No. Series";
@@ -1046,7 +1041,7 @@ codeunit 144351 "CH DTA Reports"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID, '');
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID(), '');
         GenJournalBatch.Validate("No. Series", NoSeries.Code);
         GenJournalBatch.Modify(true);
     end;
@@ -1137,7 +1132,7 @@ codeunit 144351 "CH DTA Reports"
             repeat
                 Assert.AreEqual(
                   "Applies-to Doc. No.", "Applies-to Ext. Doc. No.", FieldCaption("Applies-to Ext. Doc. No."));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1160,7 +1155,7 @@ codeunit 144351 "CH DTA Reports"
     var
         i: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for i := 1 to ArrayLen(Amount) do
             LibraryReportValidation.VerifyCellValueOnWorksheet(25 + GetDTAPaymentOrderRowOffset(i), 10, Format(-Amount[i]), Format(i));
     end;
@@ -1183,7 +1178,7 @@ codeunit 144351 "CH DTA Reports"
     [Scope('OnPrem')]
     procedure VendorLedgerEntryPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1191,7 +1186,7 @@ codeunit 144351 "CH DTA Reports"
     procedure VendorLedgerEntryCheckLineAmountPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
         VendorLedgerEntries.Amount.AssertEquals(JournalLineAmount);
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1230,20 +1225,20 @@ codeunit 144351 "CH DTA Reports"
         if Format(DebitToBank) <> '' then
             DTASuggestVendorPayments."ReqFormDebitBank.""Bank Code""".SetValue(DebitToBank);
 
-        DTASuggestVendorPayments.OK.Invoke;
+        DTASuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DTASuggestVendorPaymentsRequestAutoDebitPageHandler(var DTASuggestVendorPayments: TestRequestPage "DTA Suggest Vendor Payments")
     begin
-        DTASuggestVendorPayments."Posting Date".SetValue(LibraryVariableStorage.DequeueDate); // Posting Date
-        DTASuggestVendorPayments."Due Date from".SetValue(LibraryVariableStorage.DequeueDate); // Due Date From
-        DTASuggestVendorPayments."Due Date to".SetValue(LibraryVariableStorage.DequeueDate); // Due Date To
-        DTASuggestVendorPayments."Cash Disc. Date from".SetValue(LibraryVariableStorage.DequeueDate); // Cash Disc. Date from
-        DTASuggestVendorPayments."Cash Disc. Date to".SetValue(LibraryVariableStorage.DequeueDate); // Cash Disc. Date to
-        DTASuggestVendorPayments."Auto. Debit Bank".SetValue(LibraryVariableStorage.DequeueBoolean); // Auto. Debit Bank
-        DTASuggestVendorPayments.OK.Invoke;
+        DTASuggestVendorPayments."Posting Date".SetValue(LibraryVariableStorage.DequeueDate()); // Posting Date
+        DTASuggestVendorPayments."Due Date from".SetValue(LibraryVariableStorage.DequeueDate()); // Due Date From
+        DTASuggestVendorPayments."Due Date to".SetValue(LibraryVariableStorage.DequeueDate()); // Due Date To
+        DTASuggestVendorPayments."Cash Disc. Date from".SetValue(LibraryVariableStorage.DequeueDate()); // Cash Disc. Date from
+        DTASuggestVendorPayments."Cash Disc. Date to".SetValue(LibraryVariableStorage.DequeueDate()); // Cash Disc. Date to
+        DTASuggestVendorPayments."Auto. Debit Bank".SetValue(LibraryVariableStorage.DequeueBoolean()); // Auto. Debit Bank
+        DTASuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1257,22 +1252,22 @@ codeunit 144351 "CH DTA Reports"
         LayoutOption := Layout;
 
         DTAPaymentJournal.Layout.SetValue(LayoutOption);
-        DTAPaymentJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DTAPaymentJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DTAPaymentOrderRequestPageHandler(var DTAPaymentOrder: TestRequestPage "DTA Payment Order")
     begin
-        DTAPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DTAPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DTAPaymentOrderSaveAsExcelPageHandler(var DTAPaymentOrder: TestRequestPage "DTA Payment Order")
     begin
-        LibraryReportValidation.SetFileName(LibraryVariableStorage.DequeueText);
-        DTAPaymentOrder.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryReportValidation.SetFileName(LibraryVariableStorage.DequeueText());
+        DTAPaymentOrder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1283,7 +1278,7 @@ codeunit 144351 "CH DTA Reports"
     begin
         LibraryVariableStorage.Dequeue(BankCode);
         EZAGPaymentOrder."DtaSetup.""Bank Code""".SetValue(BankCode);
-        EZAGPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EZAGPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1291,7 +1286,7 @@ codeunit 144351 "CH DTA Reports"
     procedure ModifyDocumentNumberInputDialogHandler(var ModifyDocumentNumberInput: TestPage "Modify Document Number Input")
     begin
         ModifyDocumentNumberInput.NewDocumentNo.SetValue(TestDocNoTxt);
-        ModifyDocumentNumberInput.OK.Invoke;
+        ModifyDocumentNumberInput.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1303,7 +1298,7 @@ codeunit 144351 "CH DTA Reports"
         LibraryVariableStorage.Dequeue(BatchName);
         VendorPaymentOrder.JourName.SetValue(BatchName);
         VendorPaymentOrder.DebitDate.SetValue(WorkDate());
-        VendorPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1311,7 +1306,7 @@ codeunit 144351 "CH DTA Reports"
     procedure ExchangeRatePageHandler(var ChangeExchangeRate: TestPage "Change Exchange Rate")
     begin
         ChangeExchangeRate.RefExchRate.SetValue(LibraryRandom.RandDecInRange(100, 200, 2));
-        ChangeExchangeRate.OK.Invoke;
+        ChangeExchangeRate.OK().Invoke();
     end;
 }
 

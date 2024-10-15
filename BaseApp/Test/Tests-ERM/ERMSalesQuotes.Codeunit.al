@@ -41,8 +41,6 @@ codeunit 134379 "ERM Sales Quotes"
         BillToAddressFieldsEditableErr: Label 'Bill-to address fields should be editable.';
         LinesUneditableErr: Label 'Lines should not be editable.';
         LinesEditableErr: Label 'Lines should be editable.';
-        RowDoesNotExistErr: Label 'The row does not exist on the TestPage.';
-        InvalidTemplateSelectedErr: Label 'Invalid template selected';
         CopyCustTemplateErr: Label 'Customer template copied incorrectly.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
@@ -65,7 +63,7 @@ codeunit 134379 "ERM Sales Quotes"
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // Exercise: Create Sales Quote.
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
 
         // Verify: Verify Blanket Sales Quote.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -93,7 +91,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
 
         // Calculate VAT Amount on Sales Quote.
         SalesLine.CalcVATAmountLines(QtyType::Invoicing, SalesHeader, SalesLine, VATAmountLine);
@@ -102,7 +100,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          SalesHeader.Amount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          SalesHeader.Amount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), SalesHeader.Amount * SalesLine."VAT %" / 100,
             VATAmountLine.TableCaption()));
@@ -129,7 +127,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
         LineCount := FindSalesLineCount(SalesHeader."No.");
         ResponsibilityCenterCode := SalesHeader."Responsibility Center";
 
@@ -156,7 +154,6 @@ codeunit 134379 "ERM Sales Quotes"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
-        VATRegNo: Code[20];
     begin
         // [SCENARIO] Test Create Sales Order from Sales Quote with "VAT Registration No."
 
@@ -226,14 +223,14 @@ codeunit 134379 "ERM Sales Quotes"
 
         // Setup: Create Sales Quote with Multiple Sales Quote Line.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
 
         // Exercise: Update Sales Header with different Sell to Customer No.
-        SalesHeader.Validate("Sell-to Customer No.", CreateCustomer);
+        SalesHeader.Validate("Sell-to Customer No.", CreateCustomer());
         SalesHeader.Modify(true);
 
         // Verify: Verify Sell to Customer No in Sales Line table.
@@ -264,7 +261,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomerInvDiscount(CreateCustomer), 1);
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomerInvDiscount(CreateCustomer()), 1);
         SalesCalcDiscount.Run(SalesLine);
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
         InvDiscountAmount := SalesLine."Inv. Discount Amount";
@@ -275,7 +272,7 @@ codeunit 134379 "ERM Sales Quotes"
         // Verify: Verify Sales Quote Line for Invoice Discount after run Make Order.
         FindSalesLine(SalesLine, SalesHeader."No.");
         Assert.AreNearlyEqual(
-          InvDiscountAmount, SalesLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision,
+          InvDiscountAmount, SalesLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErrorMessage, SalesLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, SalesLine.TableCaption()));
 
         // Tear Down: Cleanup of Setup Done.
@@ -300,7 +297,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
         LineCount := FindSalesLineCount(SalesHeader."No.");
 
         // Exercise: Create Sales Order form Sales Quote.
@@ -332,10 +329,10 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
         LineCount := FindSalesLineCount(SalesHeader."No.");
 
-        SalesOrder.Trap;
+        SalesOrder.Trap();
 
         LibraryVariableStorage.Enqueue(QuoteToOrderMessage);
         LibraryVariableStorage.Enqueue(OpenNewOrderQst);
@@ -369,7 +366,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"No Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
         // To avoid failure in IT, using Posting Date as Document Date when Default Posting Date: "No Date" in Sales & Receivables Setup.
         SalesHeader.Validate("Document Date", SalesHeader."Posting Date");
         SalesHeader.Modify(true);
@@ -424,28 +421,28 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 202130] Actions on Sales Quote Page not enabled if no Quotes exist in the list
 
         // [GIVEN] No Sales Quote exist
-        DeleteSalesQuotes;
+        DeleteSalesQuotes();
 
         // [WHEN] Sales Quotes page is opened
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
 
         // [THEN] All controls related with Sales Quote are disabled
-        Assert.IsFalse(SalesQuotes.Email.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Print.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.MakeOrder.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.MakeInvoice.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Approvals.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Dimensions.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Customer.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes."C&ontact".Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Statistics.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes."Co&mments".Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.CreateTask.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Release.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.Reopen.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Email.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Print.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.MakeOrder.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.MakeInvoice.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Approvals.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Dimensions.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Customer.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes."C&ontact".Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Statistics.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes."Co&mments".Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.CreateTask.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Release.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.Reopen.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled(), ControlShouldBeDisabledErr);
     end;
 
     [Test]
@@ -461,54 +458,54 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 202130] Actions on Sales Quote Page are enabled if Quotes exist in the list
 
         // [GIVEN] Sales Quote "SQ" ith "Sell-to Customer No." and "Sell-to Contact No." filled
-        DeleteSalesQuotes;
+        DeleteSalesQuotes();
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Contact "C"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // [WHEN] Sales Quotes page is opened
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
 
         // [THEN] All controls related with Sales Quote are enabled, except "Create Customer" and "Cancel Approval Request"
-        Assert.IsTrue(SalesQuotes.Email.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Print.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.MakeOrder.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.MakeInvoice.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Approvals.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Dimensions.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Customer.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes."C&ontact".Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Statistics.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes."Co&mments".Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsTrue(SalesQuotes.CreateTask.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Release.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.Reopen.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsTrue(SalesQuotes.Email.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Print.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.MakeOrder.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.MakeInvoice.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Approvals.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Dimensions.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Customer.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes."C&ontact".Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Statistics.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes."Co&mments".Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes.CreateCustomer.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsTrue(SalesQuotes.CreateTask.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Release.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.Reopen.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled(), ControlShouldBeDisabledErr);
         SalesQuotes.Close();
 
         // [WHEN] "Sell-to Contact No." = '' in Sales Quote
         SalesHeader."Sell-to Contact No." := '';
         SalesHeader.Modify();
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
 
         // [THEN] "Contact" control is disabled
-        Assert.IsFalse(SalesQuotes."C&ontact".Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuotes."C&ontact".Enabled(), ControlShouldBeDisabledErr);
         SalesQuotes.Close();
 
         // [WHEN] "Sell-to Contact No." = "C", "Sell-to Customer No." = ''
         SalesHeader."Sell-to Contact No." := Contact."No.";
         SalesHeader."Sell-to Customer No." := '';
         SalesHeader.Modify();
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
 
         // [THEN] "Contact" control is enabled, "Customer" control - disabled, "Create Customer" - enabled
-        Assert.IsTrue(SalesQuotes."C&ontact".Enabled, ControlShouldBeEnabledErr);
-        Assert.IsFalse(SalesQuotes.Customer.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsTrue(SalesQuotes.CreateCustomer.Enabled, ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuotes."C&ontact".Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsFalse(SalesQuotes.Customer.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsTrue(SalesQuotes.CreateCustomer.Enabled(), ControlShouldBeEnabledErr);
     end;
 
     [Test]
@@ -575,11 +572,11 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code); // for CustomerTemplateListModalPageHandler
 
         // [GIVEN] Opened "Sales Quote" page
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] Lookup "Contact No." in Sales Quote and confirm "Customer Template" selection with code "CUST"
-        SalesQuote."Sell-to Contact No.".Lookup;
+        SalesQuote."Sell-to Contact No.".Lookup();
         SalesQuote.Close();
 
         // [THEN] "Sell-to Customer Template Code" is assigned according to selected "Customer Template"
@@ -602,18 +599,18 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [GIVEN] Item with Extended Texts "X" and "Y"
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CreateExtendedTextForItem(Item, ExtendedTextLine[1]);
         CreateExtendedTextForItem(Item, ExtendedTextLine[2]);
 
         // [WHEN] Sales Quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Insert Extended Text into the Sales Line.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesQuote.SalesLines.InsertExtTexts.Invoke;
+        SalesQuote.SalesLines.InsertExtTexts.Invoke();
 
         // [THEN] Desription of the Sales Line with type " " must match with "X" or "Y".
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -640,22 +637,22 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
-        Assert.IsFalse(SalesQuote.MakeOrder.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.MakeInvoice.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.CalculateInvoiceDiscount.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.Email.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.Print.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesQuote.CopyDocument.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.MakeOrder.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.MakeInvoice.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.CalculateInvoiceDiscount.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.Email.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.Print.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.CopyDocument.Enabled(), ControlShouldBeDisabledErr);
 
         SalesQuote.Close();
 
         // [WHEN] Sales Quotes page is opened with no application area
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         SalesQuote.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
-        Assert.IsFalse(SalesQuote.Statistics.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesQuote.Statistics.Enabled(), ControlShouldBeDisabledErr);
     end;
 
     [Test]
@@ -672,31 +669,31 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [Given] A sample sales quote
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
 
         // [WHEN] Sales Quote page is opened on SaaS
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
-        Assert.IsTrue(SalesQuote.MakeOrder.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.MakeInvoice.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.CalculateInvoiceDiscount.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.Email.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.Print.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesQuote.CopyDocument.Enabled, ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.MakeOrder.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.MakeInvoice.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.CalculateInvoiceDiscount.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.Email.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.Print.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.CopyDocument.Enabled(), ControlShouldBeEnabledErr);
 
         SalesQuote.Close();
 
         // [WHEN] Sales Quotes page is opened with no application area
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] All controls related to customer (and not on SaaS) are enabled
-        Assert.IsTrue(SalesQuote.Statistics.Enabled, ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesQuote.Statistics.Enabled(), ControlShouldBeEnabledErr);
     end;
 
     [Test]
@@ -714,7 +711,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.OpenNew();
 
         // [THEN] Contact Field is not editable
-        Assert.IsFalse(SalesQuote."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
+        Assert.IsFalse(SalesQuote."Sell-to Contact".Editable(), ContactShouldNotBeEditableErr);
     end;
 
     [Test]
@@ -730,14 +727,14 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [Given] A sample Sales Quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer());
 
         // [WHEN] Sales Quote page is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Contact Field is editable
-        Assert.IsTrue(SalesQuote."Sell-to Contact".Editable, ContactShouldBeEditableErr);
+        Assert.IsTrue(SalesQuote."Sell-to Contact".Editable(), ContactShouldBeEditableErr);
     end;
 
     [Test]
@@ -753,18 +750,18 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [Given] A sample Sales Quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer());
 
         // [WHEN] Sales Quote page is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Pay-to Address Fields is not editable
-        Assert.IsFalse(SalesQuote."Bill-to Address".Editable, BillToAddressFieldsNotEditableErr);
-        Assert.IsFalse(SalesQuote."Bill-to Address 2".Editable, BillToAddressFieldsNotEditableErr);
-        Assert.IsFalse(SalesQuote."Bill-to City".Editable, BillToAddressFieldsNotEditableErr);
-        Assert.IsFalse(SalesQuote."Bill-to Contact".Editable, BillToAddressFieldsNotEditableErr);
-        Assert.IsFalse(SalesQuote."Bill-to Post Code".Editable, BillToAddressFieldsNotEditableErr);
+        Assert.IsFalse(SalesQuote."Bill-to Address".Editable(), BillToAddressFieldsNotEditableErr);
+        Assert.IsFalse(SalesQuote."Bill-to Address 2".Editable(), BillToAddressFieldsNotEditableErr);
+        Assert.IsFalse(SalesQuote."Bill-to City".Editable(), BillToAddressFieldsNotEditableErr);
+        Assert.IsFalse(SalesQuote."Bill-to Contact".Editable(), BillToAddressFieldsNotEditableErr);
+        Assert.IsFalse(SalesQuote."Bill-to Post Code".Editable(), BillToAddressFieldsNotEditableErr);
     end;
 
     [Test]
@@ -782,22 +779,22 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [Given] A sample Sales Quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer());
 
         // [WHEN] Sales Quote page is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] Another Pay-to vendor is picked
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         SalesQuote."Bill-to Name".SetValue(Customer.Name);
 
         // [THEN] Pay-to Address Fields is editable
-        Assert.IsTrue(SalesQuote."Bill-to Address".Editable, BillToAddressFieldsEditableErr);
-        Assert.IsTrue(SalesQuote."Bill-to Address 2".Editable, BillToAddressFieldsEditableErr);
-        Assert.IsTrue(SalesQuote."Bill-to City".Editable, BillToAddressFieldsEditableErr);
-        Assert.IsTrue(SalesQuote."Bill-to Contact".Editable, BillToAddressFieldsEditableErr);
-        Assert.IsTrue(SalesQuote."Bill-to Post Code".Editable, BillToAddressFieldsEditableErr);
+        Assert.IsTrue(SalesQuote."Bill-to Address".Editable(), BillToAddressFieldsEditableErr);
+        Assert.IsTrue(SalesQuote."Bill-to Address 2".Editable(), BillToAddressFieldsEditableErr);
+        Assert.IsTrue(SalesQuote."Bill-to City".Editable(), BillToAddressFieldsEditableErr);
+        Assert.IsTrue(SalesQuote."Bill-to Contact".Editable(), BillToAddressFieldsEditableErr);
+        Assert.IsTrue(SalesQuote."Bill-to Post Code".Editable(), BillToAddressFieldsEditableErr);
     end;
 
     [Test]
@@ -815,6 +812,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 209065] "Credit Limit" notification is shown when create Sales Order from Sales Quote
 
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
@@ -833,16 +831,17 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] Action "Make Order" is invoked on Sales Quote page
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
 
         // [THEN] Notification "Credit Limit" is shown
         // Verification done in CreditLimitNotificationHandler
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -859,29 +858,31 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 209065] "Item Availability" notification is shown when create Sales Order from Sales Quote
 
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning"); // make sure no "credit limit" notification will be send
         LibrarySales.SetStockoutWarning(true);
 
         // [GIVEN] Sales Quote "SQ" with Customer "X" and Amount = 100
-        CreateSalesQuote(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo, 1);
+        CreateSalesQuote(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), 1);
 
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         LibraryVariableStorage.Enqueue(SalesLine."No.");
         SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] Action "Make Order" is invoked on Sales Quote page
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
 
         // [THEN] Notification "Item Availability" is shown
         // Verification done in ItemAvailabilityNotificationHandler
 
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -903,6 +904,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [SCENARIO 228972] If you create a new sales quote from template, it must be possible to populate the Ship-to fields
 
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Sales Quote is created for new Contact with Customer Template Code
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -913,7 +915,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
-        SalesQuoteNo := SalesQuote."No.".Value;
+        SalesQuoteNo := SalesQuote."No.".Value();
 
         // [GIVEN] "Ship-to Contact" field is updated on Shipping and Billing tab of the Sales Quote with "STC" value
         SalesQuote."Ship-to Contact".SetValue(Contact."No.");
@@ -936,7 +938,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote."Package Tracking No.".SetValue(PackageTrackingNo);
 
         // [WHEN] Make Sales Order from the Sales Quote
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
         SalesHeader.SetRange("Quote No.", SalesQuoteNo);
         SalesHeader.FindFirst();
 
@@ -954,6 +956,8 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [THEN] Sales Order has "Package Tracking No." = "PTN"
         SalesHeader.TestField("Package Tracking No.", PackageTrackingNo);
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -965,7 +969,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI]
         // [SCENARIO 234080] Lines of a blank sales quote should not be editable.
         SalesQuote.OpenNew();
-        Assert.IsFalse(SalesQuote.SalesLines.Description.Editable, LinesUneditableErr);
+        Assert.IsFalse(SalesQuote.SalesLines.Description.Editable(), LinesUneditableErr);
     end;
 
     [Test]
@@ -977,10 +981,10 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 234080] When open sales quote with populated "Sell-to Customer No." lines are editable.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-        SalesQuote.OpenEdit;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
+        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable(), LinesEditableErr);
     end;
 
     [Test]
@@ -995,7 +999,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.OpenNew();
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         SalesQuote."Sell-to Customer Templ. Code".SetValue(CustomerTemplate.Code);
-        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
+        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable(), LinesEditableErr);
     end;
 
     [Test]
@@ -1011,7 +1015,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.OpenNew();
         LibraryMarketing.CreateCompanyContact(Contact);
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
-        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
+        Assert.IsTrue(SalesQuote.SalesLines.Description.Editable(), LinesEditableErr);
     end;
 
     [Test]
@@ -1035,7 +1039,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.Modify();
 
         // [WHEN] Page Sales Quote is opened
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Sales Quote page has "Your Reference" = Y and "Quote Valid Until Date" = D
@@ -1058,16 +1062,16 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [GIVEN] Sales Quote page opened
         SalesQuote.OpenNew();
-        SalesQuote."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo);
+        SalesQuote."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo());
 
         // [WHEN] "Your Reference" = Y and "Quote Valid Until Date" = D are filled on Sales Quote page
         SalesQuote."Your Reference".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(SalesHeader."Your Reference")));
         SalesQuote."Quote Valid Until Date".SetValue(
-          SalesQuote."Document Date".AsDate + 1);
-        SalesDocNo := SalesQuote."No.".Value;
-        SalesDocYourReference := SalesQuote."Your Reference".Value;
-        SalesDocQuoteValidUntilDate := SalesQuote."Quote Valid Until Date".AsDate;
+          SalesQuote."Document Date".AsDate() + 1);
+        SalesDocNo := SalesQuote."No.".Value();
+        SalesDocYourReference := SalesQuote."Your Reference".Value();
+        SalesDocQuoteValidUntilDate := SalesQuote."Quote Valid Until Date".AsDate();
         SalesQuote.Close();
 
         // [THEN] Created Sales Header record has "Your Reference" = Y and "Quote Valid Until Date" = D
@@ -1133,7 +1137,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [GIVEN] Create sales qoute
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Set SalesSetup."Quote Validity Calculation" = 30D
         SetSalesSetupQuoteValidUntilDate('<30D>');
@@ -1178,9 +1182,10 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [Quote Valid To Date]
         // [SCENARIO 280680] Report "Delete Overdue Sales Quotes" deletes overdue after confirmation
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Create overdue quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         SalesHeader."Quote Valid Until Date" := WorkDate() - 1;
         SalesHeader.Modify();
         Commit();
@@ -1190,7 +1195,9 @@ codeunit 134379 "ERM Sales Quotes"
         REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote deleted
-        Assert.IsFalse(SalesHeader.Find, 'Quote sould be deleted');
+        Assert.IsFalse(SalesHeader.Find(), 'Quote should be deleted');
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1205,7 +1212,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [GIVEN] Create overdue quote
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         SalesHeader."Quote Valid Until Date" := WorkDate() - 1;
         SalesHeader.Modify();
         Commit();
@@ -1215,7 +1222,7 @@ codeunit 134379 "ERM Sales Quotes"
         asserterror REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote is not deleted
-        Assert.IsTrue(SalesHeader.Find, 'Quote should not be deleted');
+        Assert.IsTrue(SalesHeader.Find(), 'Quote should not be deleted');
         Assert.ExpectedError('');
     end;
 
@@ -1231,10 +1238,10 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [GIVEN] No Sales Quote exist
-        DeleteSalesQuotes;
+        DeleteSalesQuotes();
 
         // [GIVEN] Create quote with empty "Quote Valid Until Date"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run
         Commit();
@@ -1242,7 +1249,7 @@ codeunit 134379 "ERM Sales Quotes"
         REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote is not deleted
-        Assert.IsTrue(SalesHeader.Find, 'Quote should not be deleted');
+        Assert.IsTrue(SalesHeader.Find(), 'Quote should not be deleted');
     end;
 
     [Test]
@@ -1255,6 +1262,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 210447] Copy customer template
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Customer template 'CT1'
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
@@ -1263,7 +1271,7 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplateCard.OpenNew();
         CustomerTemplateCard.Code.SetValue('CT2');
         // [WHEN] Copy from customer template 'CT1' to 'CT2'
-        CustomerTemplateCard.CopyTemplate.Invoke;
+        CustomerTemplateCard.CopyTemplate.Invoke();
 
         // [THEN] Customer template 'CT1' fields copied to 'CT2'
         Assert.AreEqual(
@@ -1275,6 +1283,8 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.AreEqual(
           CustomerTemplate."Customer Posting Group",
           CustomerTemplateCard."Customer Posting Group".Value, CopyCustTemplateErr);
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1294,6 +1304,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE] [UI] [Credit Limit] [Notification]
         // [SCENARIO 290301] "Credit Limit" notification is shown when Amount change is less than Credit Limit on Sales Quote
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] "Credit Warnings"  set to "Credit Limit" in "Sales & Receivables Setup"
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
@@ -1323,7 +1334,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [WHEN] Change Amount on Sales Line to 1001
@@ -1333,7 +1344,9 @@ codeunit 134379 "ERM Sales Quotes"
         // Verification done in CreditLimitNotificationHandler
         NotificationLifecycleMgt.RecallAllNotifications();
         SalesQuote.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1347,19 +1360,22 @@ codeunit 134379 "ERM Sales Quotes"
         // [FEATURE]
         // [SCENARIO 307204] Setting Company Contact without Customer on new Sales Quote page leads to fields "Sell-to Contact" and "Bill-to Contact" being equal to ''.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Company Contact "X" without Customer
-        ContactNo := LibraryMarketing.CreateCompanyContactNo;
+        ContactNo := LibraryMarketing.CreateCompanyContactNo();
         LibraryVariableStorage.Enqueue(ContactNo);
 
         // [WHEN] "Sell-to Contact" is set to Contact "X" on new Sales Quote page.
         SalesQuote.OpenNew();
-        SalesQuote."Sell-to Contact".Lookup;
+        SalesQuote."Sell-to Contact".Lookup();
 
         // [THEN] Fields "Sell-to Contact" and "Bill-to Contact" are equal to ''.
         SalesQuote."Sell-to Contact".AssertEquals('');
         SalesQuote."Bill-to Contact".AssertEquals('');
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1385,7 +1401,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeaderQuote, SalesHeaderOrder."Sell-to Customer No.");
 
         // [WHEN] Run "Sales-Quote to Order (Yes/No)" on "YY", create Sales Order "ZZ"
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeaderQuote);
 
         // [THEN] Opened Sales Order No. = "XX" - because Setfilter orders records
@@ -1394,8 +1410,8 @@ codeunit 134379 "ERM Sales Quotes"
         SalesOrder."No.".AssertEquals(SalesHeaderOrder."No.");
 
         // [THEN] Stan can switch from "XX"
-        Assert.IsTrue(SalesOrder.Next, '');
-        Assert.AreEqual(1, SalesHeaderOrder.Next, '');
+        Assert.IsTrue(SalesOrder.Next(), '');
+        Assert.AreEqual(1, SalesHeaderOrder.Next(), '');
         SalesOrder."No.".AssertEquals(SalesHeaderOrder."No.");
 
         // Cleanup
@@ -1417,6 +1433,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 328279] Assigning Sales Quotes for Contact to Customer created from a different Customer Template raises a warning
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Company Contact "COMP"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1432,7 +1449,7 @@ codeunit 134379 "ERM Sales Quotes"
         end;
 
         // [WHEN] Customer created from quote "SQ2"
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SalesHeader.CheckCustomerCreated(false);
         SalesHeader.Find();
 
@@ -1442,8 +1459,10 @@ codeunit 134379 "ERM Sales Quotes"
           StrSubstNo(DifferentCustomerTemplateMsg, DocumentNo[1], CustomerTemplate[1].Code, CustomerTemplate[2].Code),
           ErrorMessages.Description.Value);
         ErrorMessages."Message Type".AssertEquals(ErrorMessage."Message Type"::Warning);
-        Assert.IsFalse(ErrorMessages.Next, 'Unexpected error message');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.IsFalse(ErrorMessages.Next(), 'Unexpected error message');
+        LibraryVariableStorage.AssertEmpty();
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1460,6 +1479,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 331392] Assigning Sales Quote without Customer Template for Contact to Customer created from a Customer Template raises a warning
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Company Contact "COMP"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1477,7 +1497,7 @@ codeunit 134379 "ERM Sales Quotes"
         CreateQuoteFromContact(SalesHeader, Contact."No.");
 
         // [WHEN] Customer created from quote "SQ2"
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         LibraryVariableStorage.Enqueue(true);
         SalesHeader.CheckCustomerCreated(false);
         SalesHeader.Find();
@@ -1488,8 +1508,10 @@ codeunit 134379 "ERM Sales Quotes"
           StrSubstNo(NoOriginalCustomerTemplateMsg, DocumentNo, CustomerTemplate.Code),
           ErrorMessages.Description.Value);
         ErrorMessages."Message Type".AssertEquals(ErrorMessage."Message Type"::Warning);
-        Assert.IsFalse(ErrorMessages.Next, 'Unexpected error message');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.IsFalse(ErrorMessages.Next(), 'Unexpected error message');
+        LibraryVariableStorage.AssertEmpty();
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1515,7 +1537,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
 
         // [THEN] The action "Get Recurring Sales Lines" is not enabled.
-        Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled, '');
+        Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled(), '');
         SalesQuote.Close();
     end;
 
@@ -1542,7 +1564,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
 
         // [THEN] The action "Get Recurring Sales Lines" is enabled.
-        Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled, '');
+        Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled(), '');
         SalesQuote.Close();
     end;
 
@@ -1561,11 +1583,12 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 370775] The Work Description copied correctly when the user convert Sales Quote to an Order.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Create Sales Quote with Work Description
         OldStockoutWarning :=
           UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));
         WorkDescription := LibraryRandom.RandText(50);
         SalesHeader.SetWorkDescription(WorkDescription);
 
@@ -1579,6 +1602,8 @@ codeunit 134379 "ERM Sales Quotes"
         SalesOrder.WorkDescription.AssertEquals(WorkDescription);
         SalesOrder.Close();
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1666,10 +1691,11 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // [SCENARIO 432859] Drill-down on field value should not be shown on Sales Quote line with Item when returned from comment line
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryERM.SetEnableDataCheck(false);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Sales Quote with 2 lines: Item - Qty = 1, Qty. to Assemble to Order = 1; Empty Line with Description
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, 1);
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), 1);
         SalesLine.Validate(Quantity, 1);
         SalesLine.Validate("Qty. to Assemble to Order", 1);
         SalesLine.Modify();
@@ -1682,16 +1708,18 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.GoToRecord(SalesHeader);
 
         // [GIVEN] User navigates to second 'Comment' line and invoke DrillDown on Qty. to Assemble to Order
-        LibraryVariableStorage.Enqueue(True);
+        LibraryVariableStorage.Enqueue(true);
         ERMSalesQuotes.SetVariableStorage(LibraryVariableStorage);
         BindSubscription(ERMSalesQuotes);
         SalesQuote.SalesLines.Last();
 
         // [WHEN] User returns on first line with Item
-        LibraryVariableStorage.Enqueue(False);
+        LibraryVariableStorage.Enqueue(false);
         ERMSalesQuotes.SetVariableStorage(LibraryVariableStorage);
         SalesQuote.SalesLines.Previous();
         // [THEN] The field Qty. to Assemble to Order is editable (Drill-down not invoke), Checked in CheckIsCommentLineIsBlankNumber.
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1708,7 +1736,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize();
 
         // [GIVEN] Create Item and Customer
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         LibrarySales.CreateCustomer(Customer);
 
         // [THEN] Update Prepayment % on customer.
@@ -1801,7 +1829,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // Using Random for Quantity, value not important for Quantity.
         for Counter := 1 to NoOfLines do
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesQuoteComments(SalesHeader: Record "Sales Header"; DocLineNo: Integer)
@@ -1870,7 +1898,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
+        CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup());
         CustomerTemplate.Modify(true);
     end;
 
@@ -1977,8 +2005,8 @@ codeunit 134379 "ERM Sales Quotes"
             VATPostingSetup.Validate("VAT %", 0);
             VATPostingSetup.Validate("VAT Identifier",
               LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             VATPostingSetup.Validate("Tax Category", 'S');
             VATPostingSetup.Insert(true);
 
@@ -1999,7 +2027,7 @@ codeunit 134379 "ERM Sales Quotes"
     var
         Message: Text;
     begin
-        Message := LibraryVariableStorage.DequeueText;
+        Message := LibraryVariableStorage.DequeueText();
         Assert.IsTrue(StrPos(Question, Message) <> 0, UnknownError);
         Reply := true;
     end;
@@ -2045,23 +2073,23 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure ConfirmHandlerConditional(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
-        CustomerTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        CustomerTemplateList.OK.Invoke;
+        CustomerTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        CustomerTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListModalPageHandler(var ContactList: TestPage "Contact List")
     begin
-        ContactList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ContactList.OK.Invoke;
+        ContactList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ContactList.OK().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -2073,10 +2101,10 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // Quote already removed when notification handled is shown so that notification belongs to Order
         Assert.IsFalse(
-          SalesHeader.Get(SalesHeader."Document Type"::Quote, LibraryVariableStorage.DequeueText), 'Sales Quote is not deleted');
+          SalesHeader.Get(SalesHeader."Document Type"::Quote, LibraryVariableStorage.DequeueText()), 'Sales Quote is not deleted');
 
         Evaluate(AmountInNotification, Notification.GetData('OrderAmountThisOrderLCY'));
-        Assert.AreEqual(AmountInNotification, LibraryVariableStorage.DequeueDecimal, 'Amount in Credit Limit notification is not correct');
+        Assert.AreEqual(AmountInNotification, LibraryVariableStorage.DequeueDecimal(), 'Amount in Credit Limit notification is not correct');
     end;
 
     [SendNotificationHandler]
@@ -2086,7 +2114,7 @@ codeunit 134379 "ERM Sales Quotes"
         AmountInNotification: Decimal;
     begin
         Evaluate(AmountInNotification, Notification.GetData('OrderAmountThisOrderLCY'));
-        Assert.AreEqual(AmountInNotification, LibraryVariableStorage.DequeueDecimal, 'Amount in Credit Limit notification is not correct');
+        Assert.AreEqual(AmountInNotification, LibraryVariableStorage.DequeueDecimal(), 'Amount in Credit Limit notification is not correct');
     end;
 
     [SendNotificationHandler]
@@ -2098,10 +2126,10 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         // Quote already removed when notification handled is shown so that notification belongs to Order
         Assert.IsFalse(
-          SalesHeader.Get(SalesHeader."Document Type"::Quote, LibraryVariableStorage.DequeueText), 'Sales Quote is not deleted');
+          SalesHeader.Get(SalesHeader."Document Type"::Quote, LibraryVariableStorage.DequeueText()), 'Sales Quote is not deleted');
 
         Evaluate(ItemNo, Notification.GetData('ItemNo'));
-        Assert.AreEqual(ItemNo, LibraryVariableStorage.DequeueText, 'Item in Item Availability notification is not correct');
+        Assert.AreEqual(ItemNo, LibraryVariableStorage.DequeueText(), 'Item in Item Availability notification is not correct');
     end;
 
     [PageHandler]
@@ -2123,8 +2151,8 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure DeleteOverdueSalesQuotesRequestPageHandler(var DeleteOverdueSalesQuotes: TestRequestPage "Delete Expired Sales Quotes")
     begin
-        DeleteOverdueSalesQuotes.ValidToDate.Value(Format(LibraryVariableStorage.DequeueDate));
-        DeleteOverdueSalesQuotes.OK.Invoke;
+        DeleteOverdueSalesQuotes.ValidToDate.Value(Format(LibraryVariableStorage.DequeueDate()));
+        DeleteOverdueSalesQuotes.OK().Invoke();
     end;
 
     [RecallNotificationHandler]
@@ -2151,7 +2179,7 @@ codeunit 134379 "ERM Sales Quotes"
     var
         BooleanValue: Boolean;
     begin
-        if LibraryVariableStorage.Length = 0 then
+        if LibraryVariableStorage.Length() = 0 then
             exit;
         BooleanValue := LibraryVariableStorage.DequeueBoolean();
         Assert.AreEqual(BooleanValue, IsCommentLine, '');

@@ -576,10 +576,10 @@ codeunit 137001 "SCM Online Adjustment"
         ManufacturingSetup: Record "Manufacturing Setup";
         InventorySetup: Record "Inventory Setup";
     begin
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
 
         // Setup Sales and Purchases.
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", false);
@@ -693,7 +693,7 @@ codeunit 137001 "SCM Online Adjustment"
     begin
         // Create Sales Header with blank currency and location.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        SalesHeader.Validate("Order Date", WorkDate + LibraryRandom.RandInt(30));
+        SalesHeader.Validate("Order Date", WorkDate() + LibraryRandom.RandInt(30));
         SalesHeader.Modify(true);
 
         Item.CalcFields(Inventory);
@@ -835,7 +835,9 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Calculate inventory value for selected item.
         Item1.SetRange("No.", Item."No.");
-        LibraryCosting.CreateRevaluationJnlLines(Item1, ItemJournalLine1, CopyStr(Item."No.", 1, 5), 1, 0, true, true, false, WorkDate());
+        LibraryCosting.CreateRevaluationJnlLines(
+          Item1, ItemJournalLine1, CopyStr(Item."No.", 1, 5),
+          "Inventory Value Calc. Per"::Item, "Inventory Value Calc. Base"::" ", true, true, false, WorkDate());
 
         // Collect and post the resulted Item Journal Line.
         ItemJournalLine1.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
@@ -912,7 +914,7 @@ codeunit 137001 "SCM Online Adjustment"
             until ValueEntry.Next() = 0;
 
         if SumQty <> 0 then
-            exit(Round(SumValue / SumQty, LibraryERM.GetUnitAmountRoundingPrecision));
+            exit(Round(SumValue / SumQty, LibraryERM.GetUnitAmountRoundingPrecision()));
 
         exit(0);
     end;
@@ -941,7 +943,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Test value entry fields.
         ValueEntry.TestField("Cost Amount (Actual)", Round(PurchInvLine.Quantity *
-            PurchInvLine."Direct Unit Cost", LibraryERM.GetAmountRoundingPrecision));
+            PurchInvLine."Direct Unit Cost", LibraryERM.GetAmountRoundingPrecision()));
         ValueEntry.TestField("Cost Posted to G/L", ValueEntry."Cost Amount (Actual)");
         ValueEntry.TestField("Valued Quantity", PurchInvLine.Quantity);
         ValueEntry.TestField("Invoiced Quantity", PurchInvLine.Quantity);
@@ -984,7 +986,7 @@ codeunit 137001 "SCM Online Adjustment"
                       StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Valued Quantity'));
 
                     Assert.AreNearlyEqual(
-                      Round(RevalCostDiff * TempItemJournalLine.Quantity, LibraryERM.GetAmountRoundingPrecision),
+                      Round(RevalCostDiff * TempItemJournalLine.Quantity, LibraryERM.GetAmountRoundingPrecision()),
                       ValueEntry."Cost Amount (Actual)",
                       0.01,
                       StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
@@ -999,7 +1001,7 @@ codeunit 137001 "SCM Online Adjustment"
                       StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
 
                     Assert.AreNearlyEqual(
-                      Round(RevalCostDiff / ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision),
+                      Round(RevalCostDiff / ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision()),
                       ValueEntry."Cost per Unit",
                       0.01,
                       StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost per unit'));
@@ -1044,7 +1046,7 @@ codeunit 137001 "SCM Online Adjustment"
               StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost posted to GL'));
 
             Assert.AreNearlyEqual(
-              Round(ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision),
+              Round(ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision()),
               ValueEntry."Cost Amount (Actual)",
               0.01,
               StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
@@ -1059,7 +1061,7 @@ codeunit 137001 "SCM Online Adjustment"
         Item.Get(ItemNo);
         UnitCost := CalcUnitCost(ItemNo);
         Assert.AreNearlyEqual(
-          Round(Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision),
+          Round(Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision()),
           UnitCost,
           0.01,
           StrSubstNo(ErrorWrongCost, UnitCost, ItemNo));
@@ -1178,7 +1180,7 @@ codeunit 137001 "SCM Online Adjustment"
         Assert.AreEqual(ValueEntry."Valued Quantity", TransferQty * TransferSign,
           StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Valued Quantity'));
         Assert.AreNearlyEqual(
-          Round(ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision),
+          Round(ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision()),
           ValueEntry."Cost Amount (Actual)",
           0.01, StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
     end;

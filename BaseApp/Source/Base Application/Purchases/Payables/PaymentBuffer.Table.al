@@ -8,7 +8,6 @@ using Microsoft.Purchases.Vendor;
 
 #pragma warning disable AS0109
 table 372 "Payment Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
@@ -22,6 +21,7 @@ table 372 "Payment Buffer"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

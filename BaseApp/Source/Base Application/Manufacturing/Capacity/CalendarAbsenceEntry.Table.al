@@ -8,6 +8,7 @@ table 99000760 "Calendar Absence Entry"
     Caption = 'Calendar Absence Entry';
     DrillDownPageID = "Capacity Absence";
     LookupPageID = "Capacity Absence";
+    DataClassification = CustomerContent;
 
     fields
     {

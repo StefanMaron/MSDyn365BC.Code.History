@@ -12,7 +12,7 @@ page 832 Approvals
     SourceTable = "Workflows Entries Buffer";
     SourceTableTemporary = true;
     SourceTableView = sorting("Record ID", "Last Date-Time Modified")
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {

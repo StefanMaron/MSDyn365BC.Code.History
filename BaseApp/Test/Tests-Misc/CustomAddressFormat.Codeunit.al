@@ -37,11 +37,11 @@ codeunit 134448 "Custom Address Format"
         CountryRegion.Modify();
 
         // [WHEN] Open Country/Regions page with created country
-        CountriesRegions.OpenEdit;
+        CountriesRegions.OpenEdit();
         CountriesRegions.GotoRecord(CountryRegion);
 
         // [THEN] Action Custom Address Format is enabled
-        Assert.IsTrue(CountriesRegions.CustomAddressFormat.Enabled, 'Action must be enabled');
+        Assert.IsTrue(CountriesRegions.CustomAddressFormat.Enabled(), 'Action must be enabled');
     end;
 
     [Test]
@@ -59,11 +59,11 @@ codeunit 134448 "Custom Address Format"
         LibraryERM.CreateCountryRegion(CountryRegion);
 
         // [WHEN] Open Country/Regions page with created country
-        CountriesRegions.OpenEdit;
+        CountriesRegions.OpenEdit();
         CountriesRegions.GotoRecord(CountryRegion);
 
         // [THEN] Action Custom Address Format is enabled
-        Assert.IsFalse(CountriesRegions.CustomAddressFormat.Enabled, 'Action must be disabled');
+        Assert.IsFalse(CountriesRegions.CustomAddressFormat.Enabled(), 'Action must be disabled');
     end;
 
     [Test]
@@ -151,12 +151,12 @@ codeunit 134448 "Custom Address Format"
         CountryRegion.Modify();
 
         // [GIVEN] Open Custom Address Format page for created country
-        CustomAddressFormatPage.OpenEdit;
+        CustomAddressFormatPage.OpenEdit();
         CustomAddressFormatPage.FILTER.SetFilter("Country/Region Code", CountryRegion.Code);
 
         // [WHEN] Lookup for Field Id and pick field 51 Contact Person
         LibraryVariableStorage.Enqueue(CompanyInformation.FieldNo("Contact Person"));
-        CustomAddressFormatPage."Field ID".Lookup;
+        CustomAddressFormatPage."Field ID".Lookup();
 
         // [THEN] Field Id is changed to 51
         CustomAddressFormatPage."Field ID".AssertEquals(CompanyInformation.FieldNo("Contact Person"));
@@ -182,7 +182,7 @@ codeunit 134448 "Custom Address Format"
         CustomAddressFormat."Line No." := 0;
 
         // [WHEN] Function CustomAddressFormat.ShowCustomAddressFormatLines is being run
-        asserterror CustomAddressFormat.ShowCustomAddressFormatLines;
+        asserterror CustomAddressFormat.ShowCustomAddressFormatLines();
 
         // [THEN] Error "Line No. must have a value..."
         Assert.ExpectedError('Line No. must have a value');
@@ -482,7 +482,7 @@ codeunit 134448 "Custom Address Format"
 
         // [GIVEN] Create country with non-exiting Address Format value
         LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion."Address Format" := 99;
+        CountryRegion."Address Format" := "Country/Region Address Format".FromInteger(99);
         CountryRegion.Modify();
 
         // [WHEN] Address Format is being changed to Custom
@@ -525,7 +525,6 @@ codeunit 134448 "Custom Address Format"
         CountryRegion: Record "Country/Region";
         CustomAddressFormat: Record "Custom Address Format";
         CustomAddressFormatLine: Record "Custom Address Format Line";
-        CustomAddressFormatLines: TestPage "Custom Address Format Lines";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 431391] User is able to use only City, Post Code and County fields for composite custom address format line
@@ -592,9 +591,9 @@ codeunit 134448 "Custom Address Format"
     var
         "Field": Record "Field";
     begin
-        Field.Get(DATABASE::"Company Information", LibraryVariableStorage.DequeueInteger);
+        Field.Get(DATABASE::"Company Information", LibraryVariableStorage.DequeueInteger());
         FieldsLookup.GotoRecord(Field);
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 
     local procedure VerifyInitAddressFormatFromCityPostCode(CountryCode: Code[10])

@@ -28,7 +28,6 @@ codeunit 144001 "LSV CH DD Test"
         LibraryERM: Codeunit "Library - ERM";
         LibraryLSV: Codeunit "Library - LSV";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         CollectionSuccesfullySuggestedMsg: Label 'Collection has been successfully suggested.';
@@ -126,7 +125,7 @@ codeunit 144001 "LSV CH DD Test"
 
         // Exercise
         WriteLSVDirectDebitFile(LSVJnl);
-        CreateLSVDirectDebitImportFile(LSVJnl);
+        CreateLSVDirectDebitImportFile();
         LibraryVariableStorage.Enqueue(LSVBankCode); // for LSV Setup List handler
         ImportLSVDirectDebitFile(GenJournalLine);
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -239,9 +238,9 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.LSVSuggestCollection.Invoke;
+        LSVJnlList.LSVSuggestCollection.Invoke();
     end;
 
     [RequestPageHandler]
@@ -250,8 +249,8 @@ codeunit 144001 "LSV CH DD Test"
     begin
         LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
         LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
-        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
-        LSVSuggestCollection.OK.Invoke;
+        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection());
+        LSVSuggestCollection.OK().Invoke();
     end;
 
     local procedure RetrieveLSVCustomerForCollection() CustomerNo: Code[20]
@@ -283,7 +282,7 @@ codeunit 144001 "LSV CH DD Test"
             repeat
                 Assert.AreEqual("On Hold", 'LSV', FieldCaption("On Hold"));
                 Assert.AreEqual(Open, true, FieldCaption(Open));
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
@@ -316,16 +315,16 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.LSVCloseCollection.Invoke;
+        LSVJnlList.LSVCloseCollection.Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCloseCollectionReqPageHandler(var LSVCloseCollection: TestRequestPage "LSV Close Collection")
     begin
-        LSVCloseCollection.OK.Invoke;
+        LSVCloseCollection.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -338,14 +337,13 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.WriteDebitDirectFile.Invoke;
+        LSVJnlList.WriteDebitDirectFile.Invoke();
     end;
 
-    local procedure CreateLSVDirectDebitImportFile(var LSVJnl: Record "LSV Journal")
+    local procedure CreateLSVDirectDebitImportFile()
     var
-        FileMgt: Codeunit "File Management";
         InFile: File;
         OutFile: File;
         InStr: InStream;
@@ -369,7 +367,7 @@ codeunit 144001 "LSV CH DD Test"
             InStr.ReadText(Line);
             if i > 1 then begin
                 OutStr.WriteText(ModifyLineForImport(Line, (i = 3)));
-                OutStr.WriteText;
+                OutStr.WriteText();
             end;
         end;
         InFile.Close();
@@ -417,23 +415,23 @@ codeunit 144001 "LSV CH DD Test"
     [Scope('OnPrem')]
     procedure WriteLSVDirectDebitFileReqPageHandler(var LSVWriteDebitDirectFile: TestRequestPage "LSV Write DebitDirect File")
     begin
-        LSVWriteDebitDirectFile.OK.Invoke;
+        LSVWriteDebitDirectFile.OK().Invoke();
     end;
 
     local procedure WriteLSVFile(var LSVJnl: Record "LSV Journal")
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.WriteLSVFile.Invoke;
+        LSVJnlList.WriteLSVFile.Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WriteLSVFileReqPageHandler(var WriteLSVFile: TestRequestPage "Write LSV File")
     begin
-        WriteLSVFile.OK.Invoke;
+        WriteLSVFile.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -444,7 +442,7 @@ codeunit 144001 "LSV CH DD Test"
     begin
         LibraryVariableStorage.Dequeue(BankCodeVar);
         LSVSetupListModalPage.GotoKey(BankCodeVar);
-        LSVSetupListModalPage.OK.Invoke;
+        LSVSetupListModalPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

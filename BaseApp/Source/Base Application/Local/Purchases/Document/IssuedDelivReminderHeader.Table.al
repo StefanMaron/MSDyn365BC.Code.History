@@ -17,6 +17,7 @@ table 5005272 "Issued Deliv. Reminder Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Issued Delivery Reminders List";
     LookupPageID = "Issued Delivery Reminders List";
+    DataClassification = CustomerContent;
 
     fields
     {

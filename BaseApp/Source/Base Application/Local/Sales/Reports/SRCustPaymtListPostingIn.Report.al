@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -216,7 +216,6 @@ report 11570 "SR Cust. Paymt List Posting In"
         Text005: Label 'Total Customer';
         GlSetup: Record "General Ledger Setup";
         Customer: Record Customer;
-        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         Sorting: Option Customer,Chronological;
         LinesPerGrp: Integer;
         NoOfPmts: Integer;

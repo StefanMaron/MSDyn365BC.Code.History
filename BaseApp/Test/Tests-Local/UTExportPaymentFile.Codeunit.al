@@ -47,8 +47,8 @@ codeunit 144068 "UT - Export Payment File"
         SetupPaymentJournal(GenJournalLine);
 
         // Exercise.
-        PaymentJournal.OpenView;
-        PaymentJournal."Generate &DTA File".Invoke; // Generate DTA
+        PaymentJournal.OpenView();
+        PaymentJournal."Generate &DTA File".Invoke(); // Generate DTA
 
         // Verify: In confirm handler.
     end;
@@ -67,8 +67,8 @@ codeunit 144068 "UT - Export Payment File"
         SetupPaymentJournal(GenJournalLine);
 
         // Exercise.
-        PaymentJournal.OpenView;
-        PaymentJournal."Generate EZAG File".Invoke; // Generate EZAG
+        PaymentJournal.OpenView();
+        PaymentJournal."Generate EZAG File".Invoke(); // Generate EZAG
 
         // Verify: In confirm handler.
     end;

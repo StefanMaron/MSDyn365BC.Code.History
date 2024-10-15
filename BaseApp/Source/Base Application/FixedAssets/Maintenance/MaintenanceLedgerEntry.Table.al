@@ -25,6 +25,7 @@ table 5625 "Maintenance Ledger Entry"
     Caption = 'Maintenance Ledger Entry';
     DrillDownPageID = "Maintenance Ledger Entries";
     LookupPageID = "Maintenance Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

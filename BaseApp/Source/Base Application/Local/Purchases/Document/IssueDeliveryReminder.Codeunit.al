@@ -15,129 +15,126 @@ codeunit 5005270 "Issue Delivery Reminder"
                   TableData "Delivery Reminder Ledger Entry" = rimd;
 
     trigger OnRun()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with DeliveryReminderHeader do begin
-            if ReplacePostingDate then
-                "Posting Date" := PostingDate;
+        if ReplacePostingDate then
+            DeliveryReminderHeader."Posting Date" := PostingDate;
+        // Test Header
+        CheckDeliveryReminderHeader();
 
-            // Test Header
-            CheckDeliveryReminderHeader();
+        DeliveryReminderLine.Reset();
+        DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
+        DeliveryReminderLine.SetFilter(Quantity, '<>0');
+        if not DeliveryReminderLine.Find('-') then
+            Error(Text1140000);
 
-            DeliveryReminderLine.Reset();
-            DeliveryReminderLine.SetRange("Document No.", "No.");
-            DeliveryReminderLine.SetFilter(Quantity, '<>0');
-            if not DeliveryReminderLine.Find('-') then
-                Error(Text1140000);
+        Window.Open(
+          Text1140001 +
+          Text1140002 +
+          Text1140003);
 
-            Window.Open(
-              Text1140001 +
-              Text1140002 +
-              Text1140003);
+        Window.Update(1, DeliveryReminderHeader."No.");
 
-            Window.Update(1, "No.");
-
-            if ("Issuing No." = '') and ("No. Series" <> "Issuing No. Series") then begin
-                TestField("Issuing No. Series");
-                "Issuing No." := NoSeriesMgt.GetNextNo("Issuing No. Series", "Posting Date", true);
-                Modify();
-                Commit();
-            end;
-
-            if "Issuing No." <> '' then
-                DocumentNo := "Issuing No."
-            else
-                DocumentNo := "No.";
-
-            // Checking Lines
-            DeliveryReminderLine.Reset();
-            DeliveryReminderLine.SetRange("Document No.", "No.");
-            LineCount := 0;
-            if DeliveryReminderLine.Find('-') then
-                repeat
-                    if DeliveryReminderLine.Type = DeliveryReminderLine.Type::" " then
-                        DeliveryReminderLine.TestField(Quantity, 0);
-                    if (DeliveryReminderLine.Type <> DeliveryReminderLine.Type::" ")
-                       and (DeliveryReminderLine."No." <> '')
-                    then begin
-                        DeliveryReminderLine.TestField("Order No.");
-                        DeliveryReminderLine.TestField("Order Line No.");
-                    end;
-                    LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
-                until DeliveryReminderLine.Next() = 0;
-
-            // Issuing
-            SourceCodeSetup.Get('');
-            SourceCode := SourceCodeSetup."Delivery Reminder";
-
-            IssuedDeliveryReminderHeader.Init();
-            IssuedDeliveryReminderHeader.TransferFields(DeliveryReminderHeader);
-            IssuedDeliveryReminderHeader."No." := DocumentNo;
-            IssuedDeliveryReminderHeader."Pre-Assigned No." := "No.";
-            IssuedDeliveryReminderHeader."Source Code" := SourceCode;
-            IssuedDeliveryReminderHeader."User ID" := UserId;
-            IssuedDeliveryReminderHeader."No. Printed" := 0;
-            OnBeforeIssuedDeliveryReminderHeaderInsert(IssuedDeliveryReminderHeader, DeliveryReminderHeader);
-            IssuedDeliveryReminderHeader.Insert();
-            OnAfterIssuedDeliveryReminderHeaderInsert(IssuedDeliveryReminderHeader, DeliveryReminderHeader);
-
-            if NextEntryNo = 0 then begin
-                DelivReminLedgerEntries.LockTable();
-                NextEntryNo := DelivReminLedgerEntries.GetLastEntryNo() + 1;
-            end;
-
-            DeliveryReminderLine.Reset();
-            DeliveryReminderLine.SetRange("Document No.", "No.");
-            if DeliveryReminderLine.Find('-') then
-                repeat
-                    if DeliveryReminderLine.Quantity <> 0 then begin
-                        DelivReminLedgerEntries.Init();
-                        DelivReminLedgerEntries."Entry No." := NextEntryNo;
-                        DelivReminLedgerEntries."Reminder No." := IssuedDeliveryReminderHeader."No.";
-                        DelivReminLedgerEntries."Reminder Line No." := DeliveryReminderLine."Line No.";
-                        DelivReminLedgerEntries."Vendor No." := "Vendor No.";
-                        DelivReminLedgerEntries."Posting Date" := "Posting Date";
-                        DelivReminLedgerEntries."Document Date" := "Document Date";
-                        DelivReminLedgerEntries."Reminder Level" := DeliveryReminderLine."Reminder Level";
-                        DelivReminLedgerEntries."Order No." := DeliveryReminderLine."Order No.";
-                        DelivReminLedgerEntries."Order Line No." := DeliveryReminderLine."Order Line No.";
-                        DelivReminLedgerEntries.Type := DeliveryReminderLine.Type;
-                        DelivReminLedgerEntries."No." := DeliveryReminderLine."No.";
-                        DelivReminLedgerEntries."Reorder Quantity" := DeliveryReminderLine."Reorder Quantity";
-                        DelivReminLedgerEntries."Remaining Quantity" := DeliveryReminderLine."Remaining Quantity";
-                        DelivReminLedgerEntries.Quantity := DeliveryReminderLine.Quantity;
-                        DelivReminLedgerEntries."User ID" := UserId;
-                        DelivReminLedgerEntries."Source Code" := SourceCode;
-                        DelivReminLedgerEntries."Purch. Expected Receipt Date" := DeliveryReminderLine."Expected Receipt Date";
-                        DelivReminLedgerEntries."Days overdue" := DeliveryReminderLine."Days overdue";
-                        OnBeforeDelivReminLedgerEntriesInsert(DelivReminLedgerEntries, DeliveryReminderLine);
-                        DelivReminLedgerEntries.Insert();
-                        NextEntryNo := NextEntryNo + 1;
-                    end;
-
-                    IssuedDeliveryReminderLine.Init();
-                    IssuedDeliveryReminderLine.TransferFields(DeliveryReminderLine);
-                    IssuedDeliveryReminderLine."Document No." := IssuedDeliveryReminderHeader."No.";
-                    OnBeforeIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
-                    IssuedDeliveryReminderLine.Insert();
-                    OnAfterIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
-                until DeliveryReminderLine.Next() = 0;
-            DeliveryReminderLine.DeleteAll();
-
-            DeliveryReminderCommentLine.Reset();
-            DeliveryReminderCommentLine.SetRange("Document Type", DeliveryReminderCommentLine."Document Type"::"Delivery Reminder");
-            DeliveryReminderCommentLine.SetRange("No.", "No.");
-            if DeliveryReminderCommentLine.Find('-') then
-                repeat
-                    IssDelivReminCommLine2 := DeliveryReminderCommentLine;
-                    IssDelivReminCommLine2."Document Type" := DeliveryReminderCommentLine."Document Type"::"Issued Delivery Reminder";
-                    IssDelivReminCommLine2."No." := IssuedDeliveryReminderHeader."No.";
-                    IssDelivReminCommLine2.Insert();
-                until DeliveryReminderCommentLine.Next() = 0;
-            DeliveryReminderCommentLine.DeleteAll();
-
-            Delete();
+        if (DeliveryReminderHeader."Issuing No." = '') and (DeliveryReminderHeader."No. Series" <> DeliveryReminderHeader."Issuing No. Series") then begin
+            DeliveryReminderHeader.TestField("Issuing No. Series");
+            DeliveryReminderHeader."Issuing No." := NoSeries.GetNextNo(DeliveryReminderHeader."Issuing No. Series", DeliveryReminderHeader."Posting Date");
+            DeliveryReminderHeader.Modify();
+            Commit();
         end;
+
+        if DeliveryReminderHeader."Issuing No." <> '' then
+            DocumentNo := DeliveryReminderHeader."Issuing No."
+        else
+            DocumentNo := DeliveryReminderHeader."No.";
+        // Checking Lines
+        DeliveryReminderLine.Reset();
+        DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
+        LineCount := 0;
+        if DeliveryReminderLine.Find('-') then
+            repeat
+                if DeliveryReminderLine.Type = DeliveryReminderLine.Type::" " then
+                    DeliveryReminderLine.TestField(Quantity, 0);
+                if (DeliveryReminderLine.Type <> DeliveryReminderLine.Type::" ")
+                   and (DeliveryReminderLine."No." <> '')
+                then begin
+                    DeliveryReminderLine.TestField("Order No.");
+                    DeliveryReminderLine.TestField("Order Line No.");
+                end;
+                LineCount := LineCount + 1;
+                Window.Update(2, LineCount);
+            until DeliveryReminderLine.Next() = 0;
+        // Issuing
+        SourceCodeSetup.Get('');
+        SourceCode := SourceCodeSetup."Delivery Reminder";
+
+        IssuedDeliveryReminderHeader.Init();
+        IssuedDeliveryReminderHeader.TransferFields(DeliveryReminderHeader);
+        IssuedDeliveryReminderHeader."No." := DocumentNo;
+        IssuedDeliveryReminderHeader."Pre-Assigned No." := DeliveryReminderHeader."No.";
+        IssuedDeliveryReminderHeader."Source Code" := SourceCode;
+        IssuedDeliveryReminderHeader."User ID" := UserId;
+        IssuedDeliveryReminderHeader."No. Printed" := 0;
+        OnBeforeIssuedDeliveryReminderHeaderInsert(IssuedDeliveryReminderHeader, DeliveryReminderHeader);
+        IssuedDeliveryReminderHeader.Insert();
+        OnAfterIssuedDeliveryReminderHeaderInsert(IssuedDeliveryReminderHeader, DeliveryReminderHeader);
+
+        if NextEntryNo = 0 then begin
+            DelivReminLedgerEntries.LockTable();
+            NextEntryNo := DelivReminLedgerEntries.GetLastEntryNo() + 1;
+        end;
+
+        DeliveryReminderLine.Reset();
+        DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
+        if DeliveryReminderLine.Find('-') then
+            repeat
+                if DeliveryReminderLine.Quantity <> 0 then begin
+                    DelivReminLedgerEntries.Init();
+                    DelivReminLedgerEntries."Entry No." := NextEntryNo;
+                    DelivReminLedgerEntries."Reminder No." := IssuedDeliveryReminderHeader."No.";
+                    DelivReminLedgerEntries."Reminder Line No." := DeliveryReminderLine."Line No.";
+                    DelivReminLedgerEntries."Vendor No." := DeliveryReminderHeader."Vendor No.";
+                    DelivReminLedgerEntries."Posting Date" := DeliveryReminderHeader."Posting Date";
+                    DelivReminLedgerEntries."Document Date" := DeliveryReminderHeader."Document Date";
+                    DelivReminLedgerEntries."Reminder Level" := DeliveryReminderLine."Reminder Level";
+                    DelivReminLedgerEntries."Order No." := DeliveryReminderLine."Order No.";
+                    DelivReminLedgerEntries."Order Line No." := DeliveryReminderLine."Order Line No.";
+                    DelivReminLedgerEntries.Type := DeliveryReminderLine.Type;
+                    DelivReminLedgerEntries."No." := DeliveryReminderLine."No.";
+                    DelivReminLedgerEntries."Reorder Quantity" := DeliveryReminderLine."Reorder Quantity";
+                    DelivReminLedgerEntries."Remaining Quantity" := DeliveryReminderLine."Remaining Quantity";
+                    DelivReminLedgerEntries.Quantity := DeliveryReminderLine.Quantity;
+                    DelivReminLedgerEntries."User ID" := UserId;
+                    DelivReminLedgerEntries."Source Code" := SourceCode;
+                    DelivReminLedgerEntries."Purch. Expected Receipt Date" := DeliveryReminderLine."Expected Receipt Date";
+                    DelivReminLedgerEntries."Days overdue" := DeliveryReminderLine."Days overdue";
+                    OnBeforeDelivReminLedgerEntriesInsert(DelivReminLedgerEntries, DeliveryReminderLine);
+                    DelivReminLedgerEntries.Insert();
+                    NextEntryNo := NextEntryNo + 1;
+                end;
+
+                IssuedDeliveryReminderLine.Init();
+                IssuedDeliveryReminderLine.TransferFields(DeliveryReminderLine);
+                IssuedDeliveryReminderLine."Document No." := IssuedDeliveryReminderHeader."No.";
+                OnBeforeIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
+                IssuedDeliveryReminderLine.Insert();
+                OnAfterIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
+            until DeliveryReminderLine.Next() = 0;
+        DeliveryReminderLine.DeleteAll();
+
+        DeliveryReminderCommentLine.Reset();
+        DeliveryReminderCommentLine.SetRange("Document Type", DeliveryReminderCommentLine."Document Type"::"Delivery Reminder");
+        DeliveryReminderCommentLine.SetRange("No.", DeliveryReminderHeader."No.");
+        if DeliveryReminderCommentLine.Find('-') then
+            repeat
+                IssDelivReminCommLine2 := DeliveryReminderCommentLine;
+                IssDelivReminCommLine2."Document Type" := DeliveryReminderCommentLine."Document Type"::"Issued Delivery Reminder";
+                IssDelivReminCommLine2."No." := IssuedDeliveryReminderHeader."No.";
+                IssDelivReminCommLine2.Insert();
+            until DeliveryReminderCommentLine.Next() = 0;
+        DeliveryReminderCommentLine.DeleteAll();
+
+        DeliveryReminderHeader.Delete();
     end;
 
     var
@@ -153,7 +150,6 @@ codeunit 5005270 "Issue Delivery Reminder"
         DeliveryReminderCommentLine: Record "Delivery Reminder Comment Line";
         IssDelivReminCommLine2: Record "Delivery Reminder Comment Line";
         SourceCodeSetup: Record "Source Code Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DocumentNo: Code[20];
         SourceCode: Code[20];
         NextEntryNo: Integer;
@@ -171,12 +167,10 @@ codeunit 5005270 "Issue Delivery Reminder"
         if IsHandled then
             exit;
 
-        with DeliveryReminderHeader do begin
-            TestField("No.");
-            TestField("Vendor No.");
-            TestField("Posting Date");
-            TestField("Document Date");
-        end;
+        DeliveryReminderHeader.TestField("No.");
+        DeliveryReminderHeader.TestField("Vendor No.");
+        DeliveryReminderHeader.TestField("Posting Date");
+        DeliveryReminderHeader.TestField("Document Date");
     end;
 
     [Scope('OnPrem')]
@@ -196,12 +190,10 @@ codeunit 5005270 "Issue Delivery Reminder"
     [Scope('OnPrem')]
     procedure IncrNoPrinted(var IssDelivReminHeader: Record "Issued Deliv. Reminder Header")
     begin
-        with IssDelivReminHeader do begin
-            Find();
-            "No. Printed" := "No. Printed" + 1;
-            Modify();
-            Commit();
-        end;
+        IssDelivReminHeader.Find();
+        IssDelivReminHeader."No. Printed" := IssDelivReminHeader."No. Printed" + 1;
+        IssDelivReminHeader.Modify();
+        Commit();
     end;
 
     [Scope('OnPrem')]

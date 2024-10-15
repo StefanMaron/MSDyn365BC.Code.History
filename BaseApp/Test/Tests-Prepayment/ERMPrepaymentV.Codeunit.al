@@ -423,7 +423,7 @@
         TotalCountDimSetEntries := DimensionSetEntry.Count();
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Purchase Header
-        PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim;
+        PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Two new Dimension Set Entries added:
         Assert.AreEqual(TotalCountDimSetEntries + 2, DimensionSetEntry.Count, CountDimSetEntriesErr);
@@ -482,7 +482,7 @@
         TotalCountDimSetEntries := DimensionSetEntry.Count();
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Sales Header
-        SalesHeader.CreateDimSetForPrepmtAccDefaultDim;
+        SalesHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Two new Dimension Set Entries added:
         Assert.AreEqual(TotalCountDimSetEntries + 2, DimensionSetEntry.Count, CountDimSetEntriesErr);
@@ -513,7 +513,7 @@
         MockPurchaseLineWithPrepmtAmtInv(PurchaseHeader, GenBusPostingGroupCode, GenProdPostingGroupCode, '');
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDime" on Purchase Header
-        asserterror PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim;
+        asserterror PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Error: "Purch. Prepayments Account" must have a value in General Posting Setup
         Assert.ExpectedError(GenPostingSetup.FieldCaption("Purch. Prepayments Account"));
@@ -540,7 +540,7 @@
         MockSalesLineWithPrepmtAmtInv(SalesHeader, GenBusPostingGroupCode, GenProdPostingGroupCode, '');
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Sales Header
-        asserterror SalesHeader.CreateDimSetForPrepmtAccDefaultDim;
+        asserterror SalesHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Error: "Sales Prepayments Account" must have a value in General Posting Setup
         Assert.ExpectedError(GenPostingSetup.FieldCaption("Sales Prepayments Account"));
@@ -587,7 +587,7 @@
         VerifyDimensionSetEntryIsNotExists(DimensionValueJob2."Dimension Code", DimensionValueJob2.Code);
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Purchase Header
-        PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim;
+        PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Dimension Set Entry with "Dimension Code" = "DDAcc" and "Dimension Value Code" = "DDVAcc" was created
         VerifyDimensionSetEntryIsExists(DimensionValueAcc."Dimension Code", DimensionValueAcc.Code);
@@ -638,7 +638,7 @@
         VerifyDimensionSetEntryIsNotExists(DimensionValueJob2."Dimension Code", DimensionValueJob2.Code);
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Purchase Header
-        SalesHeader.CreateDimSetForPrepmtAccDefaultDim;
+        SalesHeader.CreateDimSetForPrepmtAccDefaultDim();
 
         // [THEN] Dimension Set Entry with "Dimension Code" = "DDAcc" and "Dimension Value Code" = "DDVAcc" was created
         VerifyDimensionSetEntryIsExists(DimensionValueAcc."Dimension Code", DimensionValueAcc.Code);
@@ -775,7 +775,7 @@
         // [FEATURE] [Sales]
         // [SCENARIO 377768] Posting of Prepayment Credit Memo from sales order wich was copied from another order
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         VATEntry.DeleteAll();
 
         // [GIVEN] Sales Order "X" with Posted Prepayment Invoice
@@ -1513,16 +1513,11 @@
     [HandlerFunctions('SalesOrderStatisticsForInvDiscPageHandler')]
     procedure FinalSalesInvoiceWithOneHundredPrepmtAndInvDiscStatsPage()
     var
-        SalesOrderStatistics: TestPage "Sales Order Statistics";
-        SalesOrder: TestPage "Sales Order";
         VATPostingSetup: Record "VAT Posting Setup";
-        CustomerPostingGroup: Record "Customer Posting Group";
-        GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         CustomerNo: Code[20];
         ItemNo: array[2] of Code[20];
-        DocumentNo: Code[20];
     begin
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 273512] Stan can post sales invoice with "Prepayment %" = 100 and non-zero "Invoice Discount %" open and reopen Statistics Page without issues
@@ -1753,7 +1748,7 @@
         // [THEN] The invoiced amount is equal to 4 * "unit cost" - 30% prepayment.
         PurchInvHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          PurchaseHeader.Amount * (1 - PrepmtPerc / 100), PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision, '');
+          PurchaseHeader.Amount * (1 - PrepmtPerc / 100), PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision(), '');
 
         // Tear down.
         TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
@@ -1867,7 +1862,7 @@
         // [THEN] The invoiced amount is equal to 4 * "unit cost" - 30% prepayment.
         SalesInvoiceHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          SalesHeader.Amount * (1 - PrepmtPerc / 100), SalesInvoiceHeader.Amount, LibraryERM.GetAmountRoundingPrecision, '');
+          SalesHeader.Amount * (1 - PrepmtPerc / 100), SalesInvoiceHeader.Amount, LibraryERM.GetAmountRoundingPrecision(), '');
 
         // Tear down.
         TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
@@ -2038,7 +2033,7 @@
         SalesHeader.Validate("Prepayment %", 100);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         SalesLine.Modify(true);
@@ -2058,9 +2053,9 @@
         OpenSalesOrderStatistics(SalesHeader."No.");
 
         // [THEN] Line Amount on the statistics page is equal to line amount on the sales line.
-        Assert.AreEqual(SalesLine.Amount, LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(SalesLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2081,7 +2076,7 @@
         PurchaseHeader.Validate("Prepayment %", 100);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Modify(true);
@@ -2101,9 +2096,9 @@
         OpenPurchaseOrderStatistics(PurchaseHeader."No.");
 
         // [THEN] Line Amount on the statistics page is equal to line amount on the purchase line.
-        Assert.AreEqual(PurchaseLine.Amount, LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(PurchaseLine.Amount, LibraryVariableStorage.DequeueDecimal(), '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2558,7 +2553,6 @@
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        GeneralPostingSetup: Record "General Posting Setup";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
     begin
         // [FEATURE] [Invoice Discount]
@@ -2588,7 +2582,6 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        GeneralPostingSetup: Record "General Posting Setup";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
     begin
         // [FEATURE] [Invoice Discount]
@@ -2618,9 +2611,7 @@
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        GeneralPostingSetup: Record "General Posting Setup";
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
-        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 288239] User calculates invoice discount which is greater than amount left to post after prepayment invoice was posted
@@ -2654,9 +2645,7 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        GeneralPostingSetup: Record "General Posting Setup";
         VendorInvoiceDisc: Record "Vendor Invoice Disc.";
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 288239] User calculates invoice discount which is greater than amount left to post after prepayment invoice was posted
@@ -2844,7 +2833,6 @@
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
-        PurchInvHeader: Record "Purch. Inv. Header";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         ItemNo: array[2] of Code[20];
         VendorNo: Code[20];
@@ -3079,7 +3067,7 @@
 
         Initialize();
         VATEntry.DeleteAll();
-        
+
         // [GIVEN] Sales Order with sales prepayment account that has "VAT Product Posting Group" with VAT rate = "X"
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
 
@@ -3353,7 +3341,7 @@
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
         PrepLineAmountExclVAT := SalesLine."Prepmt. Line Amount";
         PrepLineAmountIclVAT := Round(
-            SalesLine."Amount Including VAT" * SalesLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision);
+            SalesLine."Amount Including VAT" * SalesLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Unable "Prices Including VAT" in Sales Header
         SalesHeader.Validate("Prices Including VAT", true);
@@ -3387,7 +3375,7 @@
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         PrepLineAmountExclVAT := PurchaseLine."Prepmt. Line Amount";
         PrepLineAmountIclVAT := Round(
-            PurchaseLine."Amount Including VAT" * PurchaseLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision);
+            PurchaseLine."Amount Including VAT" * PurchaseLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Unable "Prices Including VAT" in Purchase Header
         PurchaseHeader.Validate("Prices Including VAT", true);
@@ -3567,7 +3555,6 @@
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        VATEntry: Record "VAT Entry";
         PostedInvoiceNo: array[2] of Code[20];
         PostedCreditMemoNo: Code[20];
         DocumentType: Enum "Gen. Journal Document Type";
@@ -3633,7 +3620,6 @@
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         PostedInvoiceNo: array[2] of Code[20];
         PostedCreditMemoNo: Code[20];
         DocumentType: Enum "Gen. Journal Document Type";
@@ -3704,7 +3690,6 @@
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -3749,7 +3734,6 @@
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvLine: Record "Purch. Inv. Line";
@@ -3799,7 +3783,6 @@
         GLAccount: array[2] of Record "G/L Account";
         SalesHeader: Record "Sales Header";
         PostedDocumentNo: Code[20];
-        Index: Integer;
     begin
         // [FEATURE] [Sales] [Price including VAT] [Partial Prepayment] [Compress Prepayment]
         // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
@@ -3832,7 +3815,6 @@
         GLAccount: array[2] of Record "G/L Account";
         SalesHeader: Record "Sales Header";
         PostedDocumentNo: Code[20];
-        Index: Integer;
     begin
         // [FEATURE] [Sales] [Price including VAT] [Partial Prepayment]
         // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
@@ -3863,11 +3845,8 @@
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         VATPostingSetupGLAccount: Record "VAT Posting Setup";
         GLAccount: array[2] of Record "G/L Account";
-        Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
         PostedDocumentNo: Code[20];
-        Index: Integer;
     begin
         // [FEATURE] [Purchase] [Price including VAT] [Partial Prepayment] [Compress Prepayment]
         // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
@@ -3879,7 +3858,7 @@
 
         CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
 
-        CreatePurchaseOrder_426793(PurchaseHeader, true, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+        CreatePurchaseOrder_426793(PurchaseHeader, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
 
         PostedDocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
@@ -3899,11 +3878,8 @@
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         VATPostingSetupGLAccount: Record "VAT Posting Setup";
         GLAccount: array[2] of Record "G/L Account";
-        Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
         PostedDocumentNo: Code[20];
-        Index: Integer;
     begin
         // [FEATURE] [Purchase] [Price including VAT] [Partial Prepayment]
         // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
@@ -3915,7 +3891,7 @@
 
         CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
 
-        CreatePurchaseOrder_426793(PurchaseHeader, false, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+        CreatePurchaseOrder_426793(PurchaseHeader, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
 
         PostedDocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
@@ -3983,7 +3959,7 @@
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         LibrarySales.ReleaseSalesDocument(SalesHeaderOrder);
 
         SalesLineOrder.Find();
@@ -4134,12 +4110,9 @@
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        GenProductPostingGroup: array[2] of Record "Gen. Product Posting Group";
-        GeneralPostingSetup: array[2] of Record "General Posting Setup";
         GLAccount: array[2] of Record "G/L Account";
         ExpectedNo: Code[20];
         DocumentNo: Code[20];
-        SalesPrepaymentsAccount: Code[20];
     begin
         // [SCENARIO 443795] To ensure that prepayment no. series for invoice is not getting changed when a credit memo is posted.
         Initialize();
@@ -4169,7 +4142,6 @@
     [Scope('OnPrem')]
     procedure PartialShipmentWith100PctPrepayment()
     var
-        Customer: Record customer;
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4202,8 +4174,6 @@
     [Scope('OnPrem')]
     procedure PartialRecievementWith100PctPrepayment()
     var
-        //ala
-        Vendor: Record Vendor;
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -4243,8 +4213,6 @@
         InvoicePurchaseHeader: Record "Purchase Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
         PrepmtInvoiceNo: array[3] of Code[20];
     begin
         // [FEATURE] [Purchase] [Invoice] [Get Receipt Lines]
@@ -4317,13 +4285,10 @@
     [Scope('OnPrem')]
     procedure CheckSalesPrepAmountToDeductToSmallErrorIfInvoiceMultipleShipments()
     var
-        Item: Record Item;
         OrderSalesHeader: Record "Sales Header";
         InvoiceSalesHeader: Record "Sales Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesLine: Record "Sales Line";
-        Customer: Record Customer;
         PrepmtInvoiceNo: array[3] of Code[20];
     begin
         // [FEATURE] [Sales] [Invoice] [Get Receipt Lines]
@@ -4598,7 +4563,7 @@
         SalesLine[2].Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder_426793(var PurchaseHeader: Record "Purchase Header"; CompressPrepayment: Boolean; PriceIncludingVAT: Boolean; PrepaymentPercent: Decimal; var GLAccount: array[2] of Record "G/L Account"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetupGLAccount: Record "VAT Posting Setup")
+    local procedure CreatePurchaseOrder_426793(var PurchaseHeader: Record "Purchase Header"; var GLAccount: array[2] of Record "G/L Account"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetupGLAccount: Record "VAT Posting Setup")
     var
         Vendor: Record Vendor;
         PurchaseLine: array[2] of Record "Purchase Line";
@@ -4831,15 +4796,15 @@
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(5) * 2); // to simplify next division by 2
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(5) * 2); // to simplify next division by 2
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
         PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchLineAndCalcVATAmountLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; PricesInclVAT: Boolean; PrepmtPct: Decimal; DirectUnitCost: Decimal)
     begin
-        CreatePurchaseHeader(PurchaseHeader, LibraryPurchase.CreateVendorNo, PrepmtPct, PricesInclVAT);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, 1, DirectUnitCost);
+        CreatePurchaseHeader(PurchaseHeader, LibraryPurchase.CreateVendorNo(), PrepmtPct, PricesInclVAT);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup(), 1, DirectUnitCost);
         PurchaseLine.CalcVATAmountLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
     end;
 
@@ -4956,7 +4921,7 @@
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(5) * 2); // to simplify next division by 2
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(5) * 2); // to simplify next division by 2
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
         SalesLine.Modify(true);
     end;
@@ -5035,8 +5000,8 @@
 
     local procedure CreateCustomSalesLineAndCalcVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; PricesInclVAT: Boolean; PrepmtPct: Decimal; UnitPrice: Decimal)
     begin
-        CreateSalesHeader(SalesHeader, LibrarySales.CreateCustomerNo, PrepmtPct, PricesInclVAT);
-        CreateCustomSalesLine(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithPurchSetup, 1, UnitPrice);
+        CreateSalesHeader(SalesHeader, LibrarySales.CreateCustomerNo(), PrepmtPct, PricesInclVAT);
+        CreateCustomSalesLine(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithPurchSetup(), 1, UnitPrice);
         SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, VATAmountLine);
     end;
 
@@ -5047,7 +5012,7 @@
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        CreateCustomItemSalesLine(SalesLine, SalesHeader, LibraryInventory.CreateItemNo, 1, LibraryRandom.RandDecInRange(10, 100, 2));
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, LibraryInventory.CreateItemNo(), 1, LibraryRandom.RandDecInRange(10, 100, 2));
     end;
 
     local procedure CreatePurchaseOrderWithOneLine(var PurchaseHeader: Record "Purchase Header")
@@ -5057,7 +5022,7 @@
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo, 1, LibraryRandom.RandDecInRange(10, 100, 2));
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, LibraryRandom.RandDecInRange(10, 100, 2));
     end;
 
     local procedure CreatePurchasePrepmtOrderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
@@ -5156,10 +5121,9 @@
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -5272,36 +5236,36 @@
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPstdPurchCrMemorStatistics(No: Code[20])
     var
         PostedPurchaseCreditMemos: TestPage "Posted Purchase Credit Memos";
     begin
-        PostedPurchaseCreditMemos.OpenEdit;
+        PostedPurchaseCreditMemos.OpenEdit();
         PostedPurchaseCreditMemos.FILTER.SetFilter("No.", No);
-        PostedPurchaseCreditMemos.Statistics.Invoke;
+        PostedPurchaseCreditMemos.Statistics.Invoke();
     end;
 
     local procedure OpenPstdSalesCrMemorStatistics(No: Code[20])
     var
         PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos";
     begin
-        PostedSalesCreditMemos.OpenEdit;
+        PostedSalesCreditMemos.OpenEdit();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", No);
-        PostedSalesCreditMemos.Statistics.Invoke;
+        PostedSalesCreditMemos.Statistics.Invoke();
     end;
 
     local procedure OpenSalesOrderStatistics(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure UpdatePurchasePrepmtAccount(PurchPrepaymentsAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -5355,7 +5319,7 @@
             repeat
                 Validate("Qty. to Ship", Quantity / 2);
                 Modify();
-            until Next = 0;
+            until Next() = 0;
         end;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -5371,7 +5335,7 @@
             repeat
                 Validate("Qty. to Receive", Quantity / 2);
                 Modify();
-            until Next = 0;
+            until Next() = 0;
         end;
         PurchaseHeader."Vendor Invoice No." := IncStr(PurchaseHeader."Vendor Invoice No.");
         PurchaseHeader.Modify();
@@ -5640,7 +5604,7 @@
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -5652,7 +5616,7 @@
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.CalcSums(Amount);
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -5930,7 +5894,6 @@
     local procedure VerifyGLVATEntries(PostedDocumentNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
-        VATEntry: Record "VAT Entry";
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", PostedDocumentNo);
@@ -6030,14 +5993,14 @@
     [Scope('OnPrem')]
     procedure StandardSalesOrderConfRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
-        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderRequestPageHandler(var "Order": TestRequestPage "Order")
     begin
-        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [StrMenuHandler]

@@ -118,12 +118,12 @@ codeunit 144353 "Test ESR Reports"
         REPORT.Run(REPORT::"Service - Invoice ESR", true, false, ServiceInvoiceHeader);
 
         // 3. Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // hardcoded values!
-        // Assert.AreEqual(ExpectedNumberOfRows,LibraryReportDataset.RowCount,'Wrong number of rows.');
+        // Assert.AreEqual(ExpectedNumberOfRows,LibraryReportDataset.RowCount(),'Wrong number of rows.');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_ServiceInvHdr', ServiceInvoiceHeader."No.");
 
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
@@ -152,13 +152,13 @@ codeunit 144353 "Test ESR Reports"
         REPORT.Run(REPORT::"Sales Invoice ESR", true, false, SalesInvoiceHeader);
 
         // 3. Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ExpectedNumberOfRows := 3;
 
-        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount, 'Wrong number of rows.');
+        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount(), 'Wrong number of rows.');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Head', SalesInvoiceHeader."No.");
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
@@ -183,13 +183,13 @@ codeunit 144353 "Test ESR Reports"
         REPORT.Run(REPORT::"ESR Coupon", true, false, SalesInvoiceHeader);
 
         // 3. Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ExpectedNumberOfRows := 1;
 
-        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount, 'Wrong number of rows.');
+        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount(), 'Wrong number of rows.');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('HeadNo', SalesInvoiceHeader."No.");
 
         ESRSetup.Reset();
@@ -216,13 +216,13 @@ codeunit 144353 "Test ESR Reports"
         REPORT.Run(REPORT::"Service - ESR Coupon", true, false, ServiceInvoiceHeader);
 
         // 3. Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ExpectedNumberOfRows := 1;
 
-        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount, 'Wrong number of rows.');
+        Assert.AreEqual(ExpectedNumberOfRows, LibraryReportDataset.RowCount(), 'Wrong number of rows.');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Head', ServiceInvoiceHeader."No.");
 
         ESRSetup.Reset();
@@ -467,7 +467,7 @@ codeunit 144353 "Test ESR Reports"
         ServiceInvoice.EsrType.SetValue(ESRSystem);
 
         LibraryReportDataset.Reset();
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -491,7 +491,7 @@ codeunit 144353 "Test ESR Reports"
         SalesInvoice.EsrType.SetValue(ESRSystem);
 
         LibraryReportDataset.Reset();
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -505,7 +505,7 @@ codeunit 144353 "Test ESR Reports"
         ESRCoupon.EsrType.SetValue(ESRSystem);
 
         LibraryReportDataset.Reset();
-        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -519,7 +519,7 @@ codeunit 144353 "Test ESR Reports"
         ESRCoupon.EsrType.SetValue(ESRSystem);
 
         LibraryReportDataset.Reset();
-        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ESRCoupon.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
 

@@ -40,7 +40,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         GeneralLedgerSetup.Modify(true);
 
         // Exercise.
-        CloseFiscalYear;
+        CloseFiscalYear();
         LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.
@@ -65,7 +65,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         OrigAllowPostingFromDate := GeneralLedgerSetup."Allow Posting From";
 
         // Exercise.
-        CloseFiscalYear;
+        CloseFiscalYear();
 
         // Verify.
         GeneralLedgerSetup.Get();
@@ -89,7 +89,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         OrigAllowPostingFromDate := GeneralLedgerSetup."Allow Posting From";
 
         // Exercise.
-        CloseFiscalYear;
+        CloseFiscalYear();
         LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.
@@ -113,7 +113,7 @@ codeunit 144056 "Test CH Allowed Posting Dates"
         GeneralLedgerSetup.Modify(true);
 
         // Exercise.
-        CloseFiscalYear;
+        CloseFiscalYear();
         LibraryFiscalYear.CreateFiscalYear();
 
         // Verify.

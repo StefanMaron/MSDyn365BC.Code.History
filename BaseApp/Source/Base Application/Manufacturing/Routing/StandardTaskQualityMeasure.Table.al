@@ -5,6 +5,7 @@ using Microsoft.Manufacturing.Setup;
 table 99000784 "Standard Task Quality Measure"
 {
     Caption = 'Standard Task Quality Measure';
+    DataClassification = CustomerContent;
 
     fields
     {

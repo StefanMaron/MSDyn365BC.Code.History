@@ -17,8 +17,8 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateMissingVATPostingSetup;
-        CreateReverseChargeVATSetup;
+        CreateMissingVATPostingSetup();
+        CreateReverseChargeVATSetup();
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -86,12 +86,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
     begin
-        SetPostingAccForMfgOverheadVarAcc;
+        SetPostingAccForMfgOverheadVarAcc();
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -104,7 +104,7 @@ codeunit 131305 "Library - ERM Country Data"
         GLSetup: Record "General Ledger Setup";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
     begin
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         GLSetup.Get();
         GLSetup.Validate("Adjust for Payment Disc.", false);
         GLSetup.Validate("Prepayment Unrealized VAT", false);
@@ -147,7 +147,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateGeneralPostingSetupData()
     begin
-        CreateMissingGeneralPostingSetup;
+        CreateMissingGeneralPostingSetup();
     end;
 
     procedure CreateUnitsOfMeasure()
@@ -191,7 +191,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateVATPostingSetup()
     begin
-        UpdateAccountsInVATPostingSetup;
+        UpdateAccountsInVATPostingSetup();
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -286,7 +286,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -357,7 +357,7 @@ codeunit 131305 "Library - ERM Country Data"
                     Validate("Purch. Inv. Disc. Account",
                       GetNotEmptyDiffAccount("Purch. Inv. Disc. Account", NormalGeneralPostingSetup."Purch. Inv. Disc. Account", "Purch. Account", "Sales Inv. Disc. Account"));
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure PrepareNormalGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
@@ -381,7 +381,6 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATProdPostingGroup: Record "VAT Product Posting Group";
-        VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATBusPostingGroup.FindSet();
         repeat
@@ -427,7 +426,7 @@ codeunit 131305 "Library - ERM Country Data"
                 Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
                 Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -526,7 +525,7 @@ codeunit 131305 "Library - ERM Country Data"
                         Validate("Mfg. Overhead Variance Account", GLAccount."No.");
                         Modify(true);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

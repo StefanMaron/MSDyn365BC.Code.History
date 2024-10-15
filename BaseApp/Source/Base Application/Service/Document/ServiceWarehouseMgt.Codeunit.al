@@ -90,14 +90,12 @@ codeunit 5995 "Service Warehouse Mgt."
 
         NewRecordRef.GetTable(NewServiceLine);
         OldRecordRef.GetTable(OldServiceLine);
-        with NewServiceLine do begin
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Type));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
-        end;
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo(Type));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo("No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo("Location Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo(Quantity));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo("Variant Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo("Unit of Measure Code"));
 
         OnAfterServiceLineVerifyChange(NewRecordRef, OldRecordRef);
 #if not CLEAN23
@@ -156,20 +154,18 @@ codeunit 5995 "Service Warehouse Mgt."
     var
         ServiceLine: Record "Service Line";
     begin
-        with NewServiceHeader do begin
-            if "Shipping Advice" = OldServiceHeader."Shipping Advice" then
-                exit;
+        if NewServiceHeader."Shipping Advice" = OldServiceHeader."Shipping Advice" then
+            exit;
 
-            ServiceLine.Reset();
-            ServiceLine.SetRange("Document Type", OldServiceHeader."Document Type");
-            ServiceLine.SetRange("Document No.", OldServiceHeader."No.");
-            if ServiceLine.Find('-') then
-                repeat
-                    WhseValidateSourceHeader.ChangeWarehouseLines(
-                        DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0,
-                        "Shipping Advice");
-                until ServiceLine.Next() = 0;
-        end;
+        ServiceLine.Reset();
+        ServiceLine.SetRange("Document Type", OldServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", OldServiceHeader."No.");
+        if ServiceLine.Find('-') then
+            repeat
+                WhseValidateSourceHeader.ChangeWarehouseLines(
+                    DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0,
+                    NewServiceHeader."Shipping Advice");
+            until ServiceLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]

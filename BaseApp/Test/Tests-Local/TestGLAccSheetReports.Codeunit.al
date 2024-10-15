@@ -235,9 +235,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         RunSRGLAccSheetBalAccountReport(GLAccount);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be no rows for the account.');
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be no rows for the account.');
     end;
 
     [Test]
@@ -309,9 +309,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         RunSRGLAccSheetForeignCurrReport(GLAccount);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be no rows for the account.');
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be no rows for the account.');
     end;
 
     [Test]
@@ -462,9 +462,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         RunSRGLAccSheetReportigCurReport(GLAccount);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAcc', GLAccount."No.");
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be no rows for the account.');
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be no rows for the account.');
     end;
 
     [Test]
@@ -592,9 +592,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         RunSRGLAccSheetPostingInfoReport(GLAccount);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be no rows for the account.');
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be no rows for the account.');
     end;
 
     [Test]
@@ -724,9 +724,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         RunSRGLAccSheetVATInfoReport(GLAccount);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('GLAccountNo', GLAccount."No.");
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'There should be no rows for the account.');
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'There should be no rows for the account.');
     end;
 
     [Test]
@@ -828,7 +828,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         // [FEATURE] [SR G/L Acc Sheet VAT Info] [Fixed Asset] [G/L Entry - VAT Entry Link] [VAT on Net Disposal Entries]
         // [SCENARIO 376686] "SR G/L Acc Sheet VAT Info" report correctly prints VAT% in case of Fixed Asset Disposal with Gain/Losses and "VAT on Net Disposal Entries" = TRUE
         Initialize();
-        UpdateVATPostingSetup;
+        UpdateVATPostingSetup();
 
         // [GIVEN] Fixed Asset, where Depreciation Book has "VAT on Net Disposal Entries" = TRUE.
         // [GIVEN] Post Fixed Asset Acquisition Cost, Depreciation.
@@ -1037,7 +1037,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         if isInitialised then
             exit;
 
-        SetupReportingCurrency;
+        SetupReportingCurrency();
         isInitialised := true;
     end;
 
@@ -1051,7 +1051,11 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalTemplate.Modify(true);
 
         LibraryERM.CreateGLAccount(GLAccount);
+#if not CLEAN24
         GLAccount."Currency Code" := CurrencyCode;
+#else
+        GLAccount."Source Currency Code" := CurrencyCode;
+#endif
         GLAccount.Modify();
 
         SetupVAT(GLAccount, VATPercentage);
@@ -1093,7 +1097,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; BalAccType: Option; BalAccNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1119,7 +1123,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Option; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Enum "FA Journal Line FA Posting Type"; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
     begin
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
@@ -1190,7 +1194,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
 
@@ -1205,20 +1209,18 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
     local procedure FindSalesInvoiceGLEntryWithVATAmount(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            SetFilter("VAT Amount", '<>%1', 0);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Sale);
+        GLEntry.SetFilter("VAT Amount", '<>%1', 0);
+        GLEntry.FindFirst();
     end;
 
     local procedure UpdateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup")
     var
         FAJournalSetup2: Record "FA Journal Setup";
     begin
-        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
+        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook());
         FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
@@ -1289,15 +1291,15 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GLAccount.CalcFields(Balance);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
             LibraryReportDataset.SetRange('EntryNo_GLEntry', GLEntry."Entry No.");
-            LibraryReportDataset.GetNextRow;
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL entry in the report.');
+            LibraryReportDataset.GetNextRow();
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL entry in the report.');
             LibraryReportDataset.AssertCurrentRowValueEquals('BalAccountNo_GLEntry', GLEntry."Bal. Account No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_GLEntry', GLEntry."Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_GLEntry', GLEntry.Description);
@@ -1321,26 +1323,43 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
     var
         GLEntry: Record "G/L Entry";
         GenJournalLine: Record "Gen. Journal Line";
+#if CLEAN24
+        GLAccountSourceCurrency: Record "G/L Account Source Currency";
+#endif
     begin
+#if not CLEAN24
         GLAccount.CalcFields(Balance, "Balance (FCY)");
-        LibraryReportDataset.LoadDataSetFile;
+#else
+        GLAccount.CalcFields(Balance);
+        GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
+        GLAccountSourceCurrency."Currency Code" := GLAccount."Source Currency Code";
+        GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+#endif
+        LibraryReportDataset.LoadDataSetFile();
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
             LibraryReportDataset.SetRange('DocumentNo_GLEntry', GLEntry."Document No.");
-            LibraryReportDataset.GetNextRow;
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL entry in the report.');
+            LibraryReportDataset.GetNextRow();
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL entry in the report.');
             LibraryReportDataset.AssertCurrentRowValueEquals('BalAccountNo_GLEntry', GLEntry."Bal. Account No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_GLEntry', GLEntry.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryGlBalance', GLAccount.Balance);
             LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAccount', GLAccount.Name);
 
+#if not CLEAN24
             LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyCode_GLAccount', GLAccount."Currency Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyBalance', GLAccount."Balance (FCY)");
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', GLAccount."Balance (FCY)");
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', GLEntry."Amount (FCY)");
+#else
+            LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyCode_GLAccount', GLAccount."Source Currency Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyBalance', GLAccountSourceCurrency."Source Curr. Balance at Date");
+            LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', GLAccountSourceCurrency."Source Curr. Balance at Date");
+            LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', GLEntry."Source Currency Amount");
+#endif
         until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
@@ -1361,22 +1380,26 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GLAccount.CalcFields(Balance, "Additional-Currency Balance", "Additional-Currency Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAcc', GLAccount."No.");
             LibraryReportDataset.SetRange('EntryNo_GLEntry', GLEntry."Entry No.");
-            LibraryReportDataset.GetNextRow;
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL entry in the report.');
+            LibraryReportDataset.GetNextRow();
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL entry in the report.');
             LibraryReportDataset.AssertCurrentRowValueEquals('BalAccNo_GLEntry', GLEntry."Bal. Account No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_GLEntry', GLEntry."Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Desc_GLEntry', GLEntry.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryGlBalance', GLAccount.Balance);
             LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAcc', GLAccount.Name);
 
+#if not CLEAN24
             LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyCode_GLAcc', GLAccount."Currency Code");
+#else
+            LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyCode_GLAcc', GLAccount."Source Currency Code");
+#endif
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyBalance', GLAccount."Additional-Currency Balance");
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', GLAccount."Additional-Currency Net Change");
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', GLAccount."Additional-Currency Net Change");
@@ -1400,15 +1423,15 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GLAccount.CalcFields(Balance);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
             LibraryReportDataset.SetRange('EntryNo_GLEntry', GLEntry."Entry No.");
-            LibraryReportDataset.GetNextRow;
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL entry in the report.');
+            LibraryReportDataset.GetNextRow();
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL entry in the report.');
             LibraryReportDataset.AssertCurrentRowValueEquals('BalAccountNo_GLEntry', GLEntry."Bal. Account No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_GLEntry', GLEntry."Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_GLEntry', GLEntry.Description);
@@ -1440,15 +1463,15 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         GLAccount.CalcFields(Balance);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('GLAccountNo', GLAccount."No.");
             LibraryReportDataset.SetRange('DocumentNo_GLEntry', GLEntry."Document No.");
-            LibraryReportDataset.GetNextRow;
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL entry in the report.');
+            LibraryReportDataset.GetNextRow();
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL entry in the report.');
             LibraryReportDataset.AssertCurrentRowValueEquals('BalAccountNo_GLEntry', GLEntry."Bal. Account No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_GLEntry', GLEntry.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('GlBalance', GLAccount.Balance);
@@ -1481,8 +1504,8 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
                 LibraryReportDataset.SetRange(GLAccountNoTag, GLAccount."No.");
                 LibraryReportDataset.SetRange(DocNoTag, GenJournalLine."Document No.");
                 LibraryReportDataset.SetRange(DescTag, GenJournalLine.Description);
-                LibraryReportDataset.GetNextRow;
-                Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one entry per GL line in the report.');
+                LibraryReportDataset.GetNextRow();
+                Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one entry per GL line in the report.');
                 LibraryReportDataset.AssertCurrentRowValueEquals(JnlBatchNameTag, GenJournalLine."Journal Batch Name");
                 LibraryReportDataset.AssertCurrentRowValueEquals(GLAccountNameTag, GLAccount.Name);
                 VerifySpecificTags(GenJournalLine, ReportID, GenJournalLine."Bal. Account No." = GLAccount."No.")
@@ -1550,10 +1573,10 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetBalAccount.NewPagePerAcc.SetValue(true); // New page per account.
         SRGLAccSheetBalAccount.ShowAllAccounts.SetValue(false); // Show account without balance.
         SRGLAccSheetBalAccount.WithoutClosingEntries.SetValue(false); // Without closing entries.
-        SRGLAccSheetBalAccount.JourName1.Lookup; // lookup the provisional journal(s).
-        SRGLAccSheetBalAccount.JourName2.Lookup;
-        SRGLAccSheetBalAccount.JourName3.Lookup;
-        SRGLAccSheetBalAccount.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetBalAccount.JourName1.Lookup(); // lookup the provisional journal(s).
+        SRGLAccSheetBalAccount.JourName2.Lookup();
+        SRGLAccSheetBalAccount.JourName3.Lookup();
+        SRGLAccSheetBalAccount.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1563,10 +1586,10 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetForeignCurr.NewPagePerAcc.SetValue(true); // New page per account.
         SRGLAccSheetForeignCurr.ShowAllAccounts.SetValue(false); // Show account without balance.
         SRGLAccSheetForeignCurr.WithoutClosingEntries.SetValue(false); // Without closing entries.
-        SRGLAccSheetForeignCurr.JourName1.Lookup; // lookup the provisional journal(s).
-        SRGLAccSheetForeignCurr.JourName2.Lookup;
-        SRGLAccSheetForeignCurr.JourName3.Lookup;
-        SRGLAccSheetForeignCurr.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetForeignCurr.JourName1.Lookup(); // lookup the provisional journal(s).
+        SRGLAccSheetForeignCurr.JourName2.Lookup();
+        SRGLAccSheetForeignCurr.JourName3.Lookup();
+        SRGLAccSheetForeignCurr.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1576,10 +1599,10 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetReportigCur.NewPagePerAcc.SetValue(true); // New page per account.
         SRGLAccSheetReportigCur.ShowAllAccounts.SetValue(false); // Show account without balance.
         SRGLAccSheetReportigCur.WithoutClosingEntries.SetValue(false); // Without closing entries.
-        SRGLAccSheetReportigCur.JourName1.Lookup; // lookup the provisional journal(s).
-        SRGLAccSheetReportigCur.JourName2.Lookup;
-        SRGLAccSheetReportigCur.JourName3.Lookup;
-        SRGLAccSheetReportigCur.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetReportigCur.JourName1.Lookup(); // lookup the provisional journal(s).
+        SRGLAccSheetReportigCur.JourName2.Lookup();
+        SRGLAccSheetReportigCur.JourName3.Lookup();
+        SRGLAccSheetReportigCur.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1589,10 +1612,10 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetPostingInfo.NewPagePerAcc.SetValue(true); // New page per account.
         SRGLAccSheetPostingInfo.ShowAllAccounts.SetValue(false); // Show account without balance.
         SRGLAccSheetPostingInfo.WithoutClosingEntries.SetValue(false); // Without closing entries.
-        SRGLAccSheetPostingInfo.JourName1.Lookup; // lookup the provisional journal(s).
-        SRGLAccSheetPostingInfo.JourName2.Lookup;
-        SRGLAccSheetPostingInfo.JourName3.Lookup;
-        SRGLAccSheetPostingInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetPostingInfo.JourName1.Lookup(); // lookup the provisional journal(s).
+        SRGLAccSheetPostingInfo.JourName2.Lookup();
+        SRGLAccSheetPostingInfo.JourName3.Lookup();
+        SRGLAccSheetPostingInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1602,10 +1625,10 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetVATInfo.NewPagePerAcc.SetValue(true); // New page per account.
         SRGLAccSheetVATInfo.ShowAllAccounts.SetValue(false); // Show account without balance.
         SRGLAccSheetVATInfo.WithoutClosingEntries.SetValue(false); // Without closing entries.
-        SRGLAccSheetVATInfo.JourName1.Lookup; // lookup the provisional journal(s).
-        SRGLAccSheetVATInfo.JourName2.Lookup;
-        SRGLAccSheetVATInfo.JourName3.Lookup;
-        SRGLAccSheetVATInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetVATInfo.JourName1.Lookup(); // lookup the provisional journal(s).
+        SRGLAccSheetVATInfo.JourName2.Lookup();
+        SRGLAccSheetVATInfo.JourName3.Lookup();
+        SRGLAccSheetVATInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1615,15 +1638,15 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SRGLAccSheetVATInfo.NewPagePerAcc.SetValue(true);
         SRGLAccSheetVATInfo.ShowAllAccounts.SetValue(false);
         SRGLAccSheetVATInfo.WithoutClosingEntries.SetValue(false);
-        SRGLAccSheetVATInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRGLAccSheetVATInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GenJournalBatchesPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        GeneralJournalBatches.First;
-        GeneralJournalBatches.OK.Invoke;
+        GeneralJournalBatches.First();
+        GeneralJournalBatches.OK().Invoke();
     end;
 
     [ConfirmHandler]

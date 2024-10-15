@@ -120,11 +120,11 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
     [Normal]
     local procedure VerifyReportData(GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Filter rows by GL Account No.
         LibraryReportDataset.SetRange('Description_GLEntry', GLAccountNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         // Verify the XML for the proper entry values.
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GLEntry', GenJournalLine."Amount (LCY)");
@@ -137,17 +137,18 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Validate("Income/Balance", "Income/Balance"::"Balance Sheet");
-            Validate("Currency Code", CurrencyCode);
-
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+#if not CLEAN24
+        GLAccount.Validate("Currency Code", CurrencyCode);
+#else
+        GLAccount.Validate("Source Currency Code", CurrencyCode);
+#endif
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     [RequestPageHandler]
@@ -163,7 +164,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
             GLEntriesForeginCurrency."FromGlRegister.""No.""".SetValue(GLRegisterNo);
 
         // Save the report as XML
-        GLEntriesForeginCurrency.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLEntriesForeginCurrency.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

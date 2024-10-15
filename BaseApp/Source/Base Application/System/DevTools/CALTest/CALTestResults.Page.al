@@ -65,7 +65,7 @@ page 130405 "CAL Test Results"
                 {
                     ApplicationArea = All;
                     Style = Unfavorable;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                 }
                 field("User ID"; Rec."User ID")
                 {

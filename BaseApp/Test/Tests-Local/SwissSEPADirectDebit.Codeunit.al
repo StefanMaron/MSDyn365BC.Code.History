@@ -31,7 +31,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222118] IsSwissSEPADDExport returns FALSE when "SEPA Direct Debit Exp. Format" is set up with W1 processing codeunit
-        DDCollectionNo := CreateMockBankAccWithDDSetup(GetW1ProcCodeunitID);
+        DDCollectionNo := CreateMockBankAccWithDDSetup(GetW1ProcCodeunitID());
         Assert.IsFalse(CHMgt.IsSwissSEPADDExport(DDCollectionNo), '');
     end;
 
@@ -44,7 +44,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222118] IsSwissSEPADDExport returns FALSE when "SEPA Direct Debit Exp. Format" is set up with Swiss processing codeunit
-        DDCollectionNo := CreateMockBankAccWithDDSetup(GetSwissProcCodeunitID);
+        DDCollectionNo := CreateMockBankAccWithDDSetup(GetSwissProcCodeunitID());
         Assert.IsTrue(CHMgt.IsSwissSEPADDExport(DDCollectionNo), '');
     end;
 
@@ -67,7 +67,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         LibraryERM.SetLCYCode('CHF');
 
         // [GIVEN] Bank Account with Direct Debit Export Setup
-        BankAccountNo := CreateBankWithDDSetup;
+        BankAccountNo := CreateBankWithDDSetup();
 
         // [GIVEN] Local Customer with Posted Sales Invoice in LCY
         CreateCustomerAndPostInvoice(Customer, SEPADirectDebitMandate, CustLedgerEntry);
@@ -77,7 +77,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgerEntry, BankAccountNo);
 
         // [WHEN] When run SEPA DD Export File
-        SEPADDExportFile.EnableExportToServerFile;
+        SEPADDExportFile.EnableExportToServerFile();
         SEPADDExportFile.Run(DirectDebitCollectionEntry);
 
         // [THEN] Export completed without errors
@@ -107,7 +107,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         LibraryERM.SetLCYCode('CHF');
 
         // [GIVEN] Bank Account with Direct Debit Export Setup
-        BankAccountNo := CreateBankWithDDSetup;
+        BankAccountNo := CreateBankWithDDSetup();
 
         // [GIVEN] Direct Debit Collection Entry for local Customer with Posted Sales Invoice in LCY
         CreateCustomerAndPostInvoice(Customer, SEPADirectDebitMandate, CustLedgerEntry);
@@ -139,7 +139,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     begin
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollectionEntry."Direct Debit Collection No.");
         TempBlob.CreateOutStream(OutStream);
-        XMLPORT.Export(GetSEPADDExportXMLPortID, OutStream, DirectDebitCollectionEntry);
+        XMLPORT.Export(GetSEPADDExportXMLPortID(), OutStream, DirectDebitCollectionEntry);
     end;
 
     local procedure GetIBAN(): Code[50]
@@ -184,9 +184,9 @@ codeunit 144085 "Swiss SEPA Direct Debit"
 
     local procedure CreateBankWithDDSetup(): Code[20]
     begin
-        UpdateDDNosOnSalesSetup;
+        UpdateDDNosOnSalesSetup();
         exit(
-          CreateBankAccount(CreateBankExpImpSetup));
+          CreateBankAccount(CreateBankExpImpSetup()));
     end;
 
     local procedure CreateBankExpImpSetup(): Code[20]
@@ -197,8 +197,8 @@ codeunit 144085 "Swiss SEPA Direct Debit"
             Init();
             Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
-            "Processing Codeunit ID" := GetSwissProcCodeunitID;
-            "Processing XMLport ID" := GetSEPADDExportXMLPortID;
+            "Processing Codeunit ID" := GetSwissProcCodeunitID();
+            "Processing XMLport ID" := GetSEPADDExportXMLPortID();
             "Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
             Insert();
             exit(Code);
@@ -212,10 +212,10 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             "SEPA Direct Debit Exp. Format" := BankExpImpCode;
-            "Direct Debit Msg. Nos." := LibraryERM.CreateNoSeriesCode;
-            IBAN := GetIBAN;
-            "SWIFT Code" := GetSWIFT;
-            "Creditor No." := GetRSPID;
+            "Direct Debit Msg. Nos." := LibraryERM.CreateNoSeriesCode();
+            IBAN := GetIBAN();
+            "SWIFT Code" := GetSWIFT();
+            "Creditor No." := GetRSPID();
             Modify();
             exit("No.");
         end;
@@ -242,8 +242,8 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        CustomerBankAccount.IBAN := GetIBANCust;
-        CustomerBankAccount."SWIFT Code" := GetSWIFTCUst;
+        CustomerBankAccount.IBAN := GetIBANCust();
+        CustomerBankAccount."SWIFT Code" := GetSWIFTCUst();
         CustomerBankAccount.Modify();
         exit(CustomerBankAccount.Code);
     end;
@@ -280,7 +280,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     begin
         Customer.Get(CustLedgerEntry."Customer No.");
         DirectDebitCollection.CreateRecord(
-          LibraryUtility.GenerateGUID, BankAccountNo, Customer."Partner Type");
+          LibraryUtility.GenerateGUID(), BankAccountNo, Customer."Partner Type");
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgerEntry);
@@ -327,7 +327,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Direct Debit Mandate Nos." := LibraryERM.CreateNoSeriesCode;
+        SalesReceivablesSetup."Direct Debit Mandate Nos." := LibraryERM.CreateNoSeriesCode();
         SalesReceivablesSetup.Modify();
     end;
 
@@ -339,7 +339,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         DirectDebitCollection.Get(DirectDebitCollectionEntry."Direct Debit Collection No.");
 
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'http://www.six-interbank-clearing.com/de/pain.008.001.02.ch.03.xsd');
-        VerifyXMLHeader;
+        VerifyXMLHeader();
         LibraryXPathXMLReader.GetNodeByXPath('/Document/CstmrDrctDbtInitn', XMLNode);
         VerifyGrpHdrAndInitgPty(DirectDebitCollectionEntry, DirectDebitCollection."Message ID");
         VerifyPmtInf(GetCreditorNo(DirectDebitCollection."To Bank Account No."), DirectDebitCollectionEntry."Transfer Date");
@@ -370,7 +370,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         CompanyInformation.Get();
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//InitgPty/Nm', CompanyInformation.Name);
         LibraryXPathXMLReader.VerifyNodeAbsence('CtctDtls');
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//InitgPty/Id', GetRSPID);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//InitgPty/Id', GetRSPID());
     end;
 
     local procedure VerifyPmtInf(ExpectedCreditorNo: Text; ExpectedDate: Date)
@@ -386,10 +386,10 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/PmtMtd', 'DD');
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/ReqdColltnDt', Format(ExpectedDate, 0, '<Standard Format,9>'));
 
-        VerifyPmtTpInf; // <PmtInf><PmtTpInf>
-        VerifyCdtr; // <PmtInf><Cdtr>
+        VerifyPmtTpInf(); // <PmtInf><PmtTpInf>
+        VerifyCdtr(); // <PmtInf><Cdtr>
         VerifyCdtrSchmeId(ExpectedCreditorNo);  // <PmtInf><CdtrSchmeId>
-        VerifyDrctDbtTxInf; // <PmtInf><DrctDbtTxInf>
+        VerifyDrctDbtTxInf(); // <PmtInf><DrctDbtTxInf>
     end;
 
     local procedure VerifyCdtr()
@@ -416,7 +416,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         LibraryXPathXMLReader.GetNodeByXPath('//PmtInf/DrctDbtTxInf/InstdAmt', XMLNode);
         LibraryXPathXMLReader.GetNodeByXPath('//PmtInf/DrctDbtTxInf/Dbtr', XMLNode);
         LibraryXPathXMLReader.GetNodeByXPath('//PmtInf/DrctDbtTxInf/RmtInf', XMLNode);
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/DrctDbtTxInf/DbtrAcct/Id/IBAN', GetIBANCust);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/DrctDbtTxInf/DbtrAcct/Id/IBAN', GetIBANCust());
     end;
 
     local procedure VerifyPmtTpInf()

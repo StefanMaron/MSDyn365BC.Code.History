@@ -778,7 +778,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     local procedure ParseIdToken(IdToken: Text; var Json: Text; var Subject: Text; var IssuedAt: DateTime)
     begin
-        If IdToken = '' then begin
+        if IdToken = '' then begin
             Session.LogMessage('0000EZ8', EmptyIdTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit;
         end;
@@ -1660,7 +1660,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
             ServiceConnection, RecRef.RecordId(), DocExchServiceSetup.TableCaption(), DocExchServiceSetup."Service URL", PAGE::"Doc. Exch. Service Setup");
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnAfterIncomingDocReceivedFromDocExch(var IncomingDocument: Record "Incoming Document")
     begin

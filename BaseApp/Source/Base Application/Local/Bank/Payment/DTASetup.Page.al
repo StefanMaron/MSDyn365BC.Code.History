@@ -1,11 +1,10 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
 using System.Telemetry;
-using System.Email;
 
 page 3010541 "DTA Setup"
 {
@@ -330,6 +329,5 @@ page 3010541 "DTA Setup"
     end;
 
     var
-        Mail: Codeunit Mail;
 }
 

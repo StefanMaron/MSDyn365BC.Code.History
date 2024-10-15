@@ -305,24 +305,25 @@ report 3010542 "EZAG File"
     procedure PrepareSummaryPmt()
     begin
         // Text and summary pmt text prepare
-        with "Gen. Journal Line" do begin
-            VendEntry.SetCurrentKey("Document No.");
-            VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
-            VendEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            VendEntry.SetRange("Vendor No.", "Account No.");
-            if VendEntry.FindFirst() then begin
-                if SummaryPmtTxt = '' then
-                    SummaryPmtTxt := VendEntry."External Document No." // 1. Line: Ext. No.
+        VendEntry.SetCurrentKey("Document No.");
+        VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
+        VendEntry.SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
+        VendEntry.SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
+        if VendEntry.FindFirst() then begin
+            if SummaryPmtTxt = '' then
+                SummaryPmtTxt := VendEntry."External Document No."
+            // 1. Line: Ext. No.
+            else
+                if StrLen(SummaryPmtTxt) < 60 then
+                    // Additional lines with free space: + Ext. No.
+                    SummaryPmtTxt := SummaryPmtTxt + ', ' + VendEntry."External Document No."
                 else
-                    if StrLen(SummaryPmtTxt) < 60 then  // Additional lines with free space: + Ext. No.
-                        SummaryPmtTxt := SummaryPmtTxt + ', ' + VendEntry."External Document No."
-                    else
-                        if StrPos(SummaryPmtTxt, Text016) = 0 then  // etc. not yet added
-                            SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 61) + Text017;
-                if VendEntry."On Hold" = '' then begin
-                    VendEntry."On Hold" := 'DTA';
-                    VendEntry.Modify();
-                end;
+                    if StrPos(SummaryPmtTxt, Text016) = 0 then
+                        // etc. not yet added
+                        SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 61) + Text017;
+            if VendEntry."On Hold" = '' then begin
+                VendEntry."On Hold" := 'DTA';
+                VendEntry.Modify();
             end;
         end;
     end;
@@ -331,13 +332,13 @@ report 3010542 "EZAG File"
     procedure AdjustSummaryPmtText()
     begin
         // Adjust text and summary text before DTA record is written
-        with "Gen. Journal Line" do
-            if SummaryPmtTxt = VendEntry."External Document No." then  // Only one pmt.
-                SummaryPmtTxt := ''
-            else begin
-                if StrPos(Description, VendEntry."External Document No.") > 0 then // Remove Ext. No in text
-                    Description := CopyStr(Description, 1, StrPos(Description, VendEntry."External Document No.") - 3);
-            end;
+        if SummaryPmtTxt = VendEntry."External Document No." then
+            // Only one pmt.
+            SummaryPmtTxt := ''
+        else
+            if StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") > 0 then
+                // Remove Ext. No in text
+                "Gen. Journal Line".Description := CopyStr("Gen. Journal Line".Description, 1, StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") - 3);
     end;
 
     [Scope('OnPrem')]
@@ -941,9 +942,8 @@ report 3010542 "EZAG File"
 
     local procedure CheckVendBankAccount(VendorBankAccount: Record "Vendor Bank Account")
     begin
-        with VendorBankAccount do
-            if (IBAN = '') and ("Bank Account No." = '') then
-                Error(Text062, "Vendor No.", Code);
+        if (VendorBankAccount.IBAN = '') and (VendorBankAccount."Bank Account No." = '') then
+            Error(Text062, VendorBankAccount."Vendor No.", VendorBankAccount.Code);
     end;
 }
 

@@ -198,35 +198,33 @@ report 11517 "Inventory Value (Help Report)"
         ValueEntry2: Record "Value Entry";
         BufferRecExists: Boolean;
     begin
-        with ValueEntry2 do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-            SetRange("Posting Date", 0D, StatusDate);
+        ValueEntry2.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry2.SetRange("Posting Date", 0D, StatusDate);
 
-            if FindLast() then begin
-                CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity", "Cost Posted to G/L");
+        if ValueEntry2.FindLast() then begin
+            ValueEntry2.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity", "Cost Posted to G/L");
 
-                BufferRecExists := TempItemStatisticsBuffer.Get("Inventory Posting Group");
-                if not BufferRecExists then begin
-                    TempItemStatisticsBuffer.Init();
-                    TempItemStatisticsBuffer.Code := "Inventory Posting Group";
-                end;
-
-                TempItemStatisticsBuffer."Inv. Valuation Actual" += "Cost Amount (Actual)";
-                TempItemStatisticsBuffer."Inv. Posted to GL" += "Cost Posted to G/L";
-                TempItemStatisticsBuffer."Inv. Valuation Exp." += "Cost Amount (Expected)";
-                ValueEntry."Cost Amount (Actual)" += "Cost Amount (Actual)";
-                ValueEntry."Cost Amount (Expected)" += "Cost Amount (Expected)";
-                ValueEntry."Cost Posted to G/L" += "Cost Posted to G/L";
-                ValueEntry."Invoiced Quantity" += "Invoiced Quantity";
-
-                OnBeforeUpdateTempItemStatisticsBuffer(TempItemStatisticsBuffer, ValueEntry, ValueEntry2, ItemLedgEntry);
-
-                if BufferRecExists then
-                    TempItemStatisticsBuffer.Modify()
-                else
-                    TempItemStatisticsBuffer.Insert();
+            BufferRecExists := TempItemStatisticsBuffer.Get(ValueEntry2."Inventory Posting Group");
+            if not BufferRecExists then begin
+                TempItemStatisticsBuffer.Init();
+                TempItemStatisticsBuffer.Code := ValueEntry2."Inventory Posting Group";
             end;
+
+            TempItemStatisticsBuffer."Inv. Valuation Actual" += ValueEntry2."Cost Amount (Actual)";
+            TempItemStatisticsBuffer."Inv. Posted to GL" += ValueEntry2."Cost Posted to G/L";
+            TempItemStatisticsBuffer."Inv. Valuation Exp." += ValueEntry2."Cost Amount (Expected)";
+            ValueEntry."Cost Amount (Actual)" += ValueEntry2."Cost Amount (Actual)";
+            ValueEntry."Cost Amount (Expected)" += ValueEntry2."Cost Amount (Expected)";
+            ValueEntry."Cost Posted to G/L" += ValueEntry2."Cost Posted to G/L";
+            ValueEntry."Invoiced Quantity" += ValueEntry2."Invoiced Quantity";
+
+            OnBeforeUpdateTempItemStatisticsBuffer(TempItemStatisticsBuffer, ValueEntry, ValueEntry2, ItemLedgEntry);
+
+            if BufferRecExists then
+                TempItemStatisticsBuffer.Modify()
+            else
+                TempItemStatisticsBuffer.Insert();
         end;
     end;
 

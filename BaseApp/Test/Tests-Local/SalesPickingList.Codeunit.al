@@ -55,7 +55,7 @@ codeunit 144023 "Sales Picking List"
     [Scope('OnPrem')]
     procedure ReportRequestPageHandler(var SalesPickingList: TestRequestPage "Sales Picking List")
     begin
-        SalesPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesPickingList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Normal]
@@ -65,11 +65,11 @@ codeunit 144023 "Sales Picking List"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Salesperson Code", SalesPerson);
-        SalesHeader.Validate("Shipment Method Code", CreateShipmentMethodCode);
+        SalesHeader.Validate("Shipment Method Code", CreateShipmentMethodCode());
         SalesHeader.Modify();
 
-        CreateSalesLine(SalesHeader, CreateItem, NoOfItems);
-        CreateSalesLine(SalesHeader, CreateItem, NoOfItems);
+        CreateSalesLine(SalesHeader, CreateItem(), NoOfItems);
+        CreateSalesLine(SalesHeader, CreateItem(), NoOfItems);
     end;
 
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; NoOfItems: Integer)
@@ -122,8 +122,8 @@ codeunit 144023 "Sales Picking List"
         NoOfSalesLines := SalesLine.Count();
         Assert.AreEqual(2, NoOfSalesLines, 'Expecting exact 2 sales lines.');
 
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         Count := 0;
 
         // Note that the report will contain two Picking List ..
@@ -145,7 +145,7 @@ codeunit 144023 "Sales Picking List"
                 SalesLine.Next();
                 Count += 1;
             end;
-        until LibraryReportDataset.GetNextRow = false;
+        until LibraryReportDataset.GetNextRow() = false;
     end;
 }
 

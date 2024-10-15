@@ -21,7 +21,6 @@ codeunit 134920 "ERM General Journal UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryGraphMgt: Codeunit "Library - Graph Mgt";
-        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
         GenJnlManagement: Codeunit GenJnlManagement;
         LibraryDimension: Codeunit "Library - Dimension";
@@ -503,7 +502,7 @@ codeunit 134920 "ERM General Journal UT"
         NewDocNo := SetNewDocNo(GenJournalLine);
 
         // Exercise
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -525,13 +524,13 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
-          GenJournalLine."Account Type"::"G/L Account", '', LibraryERM.CreateNoSeriesCode);
+          GenJournalLine."Account Type"::"G/L Account", '', LibraryERM.CreateNoSeriesCode());
         OldDocNo := GenJournalLine."Document No.";
         SetNewDocNo(GenJournalLine);
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -546,7 +545,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
@@ -555,7 +554,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
@@ -567,10 +566,10 @@ codeunit 134920 "ERM General Journal UT"
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -587,7 +586,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
@@ -597,7 +596,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
 
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
 
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
@@ -609,10 +608,10 @@ codeunit 134920 "ERM General Journal UT"
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -631,7 +630,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
@@ -641,7 +640,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
 
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
 
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
@@ -652,10 +651,10 @@ codeunit 134920 "ERM General Journal UT"
         // Exercise
         Commit();
         GenJournalLine.SetRange("Line No.", 20000, 30000);
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           20000, NewDocNo); // line 20000 is now first doc
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -679,7 +678,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", '', NoSeriesCode);
@@ -687,7 +686,7 @@ codeunit 134920 "ERM General Journal UT"
         // Exercise
         Commit();
         GenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
-        asserterror GenJournalLine.RenumberDocumentNo;
+        asserterror GenJournalLine.RenumberDocumentNo();
 
         // Verify
         Assert.ExpectedError(DocNoFilterErr);
@@ -707,13 +706,13 @@ codeunit 134920 "ERM General Journal UT"
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
-        EntryNo := CreateGenJournalLineWithVendEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode, Vendor."No.", '');
+        EntryNo := CreateGenJournalLineWithVendEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode(), Vendor."No.", '');
         OldDocNo := GenJournalLine."Document No.";
         SetNewDocNo(GenJournalLine);
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, GenJournalLine."Line No.", EntryNo, OldDocNo);
@@ -727,7 +726,7 @@ codeunit 134920 "ERM General Journal UT"
         Vendor: Record Vendor;
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         EntryNo: Integer;
@@ -737,17 +736,17 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         EntryNo := CreateGenJournalLineWithVendEntry(GenJournalLine, NoSeriesCode, Vendor."No.", GLAccount."No.");
         CreateSingleLineGenJnlDocAndVendEntry(GenJournalLine, Vendor."No.");
         CreateSingleLineGenJnlDocAndVendEntry(GenJournalLine, Vendor."No.");
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 10000, EntryNo, NewDocNo);
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 20000, EntryNo + 1, IncStr(NewDocNo));
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 30000, EntryNo + 2, IncStr(IncStr(NewDocNo)));
@@ -767,13 +766,13 @@ codeunit 134920 "ERM General Journal UT"
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
-        EntryNo := CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode, Customer."No.", '');
+        EntryNo := CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode(), Customer."No.", '');
         OldDocNo := GenJournalLine."Document No.";
         SetNewDocNo(GenJournalLine);
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, GenJournalLine."Line No.", EntryNo, OldDocNo);
@@ -787,7 +786,7 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         EntryNo: Integer;
@@ -797,17 +796,17 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         EntryNo := CreateGenJournalLineWithCustEntry(GenJournalLine, NoSeriesCode, Customer."No.", GLAccount."No.");
         CreateSingleLineGenJnlDocAndCustEntry(GenJournalLine, Customer."No.");
         CreateSingleLineGenJnlDocAndCustEntry(GenJournalLine, Customer."No.");
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 10000, EntryNo, NewDocNo);
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 20000, EntryNo + 1, IncStr(NewDocNo));
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 30000, EntryNo + 2, IncStr(IncStr(NewDocNo)));
@@ -821,7 +820,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Vendor: Record Vendor;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         AppliesToDocNo: Code[20];
         NewDocNo: Code[20];
@@ -831,7 +830,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", NoSeriesCode);
@@ -841,10 +840,10 @@ codeunit 134920 "ERM General Journal UT"
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 10000,
           NewDocNo);
         VerifyGenJnlLineDocNoAndAppliesToDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 20000,
@@ -859,7 +858,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Vendor: Record Vendor;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         AppliesToDocNo: Code[20];
         NewDocNo: Code[20];
@@ -869,7 +868,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", NoSeriesCode);
@@ -882,10 +881,10 @@ codeunit 134920 "ERM General Journal UT"
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false); // GU00000000
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode); // GU00000000
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 10000,
           NewDocNo);
 
@@ -912,7 +911,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
@@ -921,7 +920,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
@@ -937,10 +936,10 @@ codeunit 134920 "ERM General Journal UT"
         // Exercise
         Commit();
         GenJournalLine.SetCurrentKey("Document No.");
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           20000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -957,7 +956,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
@@ -966,7 +965,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
@@ -980,10 +979,10 @@ codeunit 134920 "ERM General Journal UT"
         // Exercise
         Commit();
         GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -1000,7 +999,7 @@ codeunit 134920 "ERM General Journal UT"
         Vendor: Record Vendor;
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         EntryNo: Integer;
@@ -1014,7 +1013,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateGLAccount(GLAccount);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         EntryNo := CreateGenJournalLineWithVendEntry(GenJournalLine, NoSeriesCode, Vendor."No.", GLAccount."No.");
         CreateSingleLineGenJnlDocAndVendEntry(GenJournalLine, Vendor."No.");
         LineNoToDelete := GenJournalLine."Line No.";
@@ -1023,7 +1022,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // Exercise
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", LineNoToDelete);
         GenJournalLine.Delete(true);
         Commit();
@@ -1031,8 +1030,8 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", LastLineNo);
-        GenJournalLine.RenumberDocumentNo;
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        GenJournalLine.RenumberDocumentNo();
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
 
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, LastLineNo, EntryNo + 2, IncStr(NewDocNo));
     end;
@@ -1053,8 +1052,8 @@ codeunit 134920 "ERM General Journal UT"
         CreateCustomerWithName(Customer);
         // [GIVEN] GenJournalLine with "Account Type" = G/L Account, "Account No." = "X", "Bal. Account Type" = Customer, "Bal Account No." = "A"
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
-          GenJournalLine."Bal. Account Type"::Customer, Customer."No.", LibraryERM.CreateNoSeriesCode);
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bal. Account Type"::Customer, Customer."No.", LibraryERM.CreateNoSeriesCode());
 
         // [WHEN] Run Apply Entries action
         RunGenJnlApplyAction(GenJournalLine, Customer."No.", Customer.Name);
@@ -1080,7 +1079,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] GenJournalLine with "Account Type" = Customer, "Account No." = "A", "Bal. Account Type" = G/L Account, "Bal Account No." = "X"
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, Customer."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryERM.CreateNoSeriesCode);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryERM.CreateNoSeriesCode());
 
         // [WHEN] Run Apply Entries action
         RunGenJnlApplyAction(GenJournalLine, Customer."No.", Customer.Name);
@@ -1105,8 +1104,8 @@ codeunit 134920 "ERM General Journal UT"
         CreateVendorWithName(Vendor);
         // [GIVEN] GenJournalLine with "Account Type" = G/L Account, "Account No." = "X", "Bal. Account Type" = Vendor, "Bal Account No." = "A"
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
-          GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", LibraryERM.CreateNoSeriesCode);
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", LibraryERM.CreateNoSeriesCode());
 
         // [WHEN] Run Apply Entries action
         RunGenJnlApplyAction(GenJournalLine, Vendor."No.", Vendor.Name);
@@ -1132,7 +1131,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] GenJournalLine with "Account Type" = Vendor, "Account No." = "A", "Bal. Account Type" = G/L Account, "Bal Account No." = "X"
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryERM.CreateNoSeriesCode);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryERM.CreateNoSeriesCode());
 
         // [WHEN] Run Apply Entries action
         RunGenJnlApplyAction(GenJournalLine, Vendor."No.", Vendor.Name);
@@ -1166,7 +1165,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLineNew: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if "Increment-by No." of No. Series Line is not set up
 
@@ -1180,7 +1178,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLineNew."Journal Batch Name" := GenJournalLine."Journal Batch Name";
         GenJournalLineNew.SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
 
-        NoSeriesManagement.IncrementNoText(GenJournalLine."Document No.", 1);
+        GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
         GenJournalLineNew.TestField("Document No.", 'X00014');
     end;
 
@@ -1190,7 +1188,6 @@ codeunit 134920 "ERM General Journal UT"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLineNew: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if "Increment-by No." of No. Series Line is 1 or less
 
@@ -1200,7 +1197,7 @@ codeunit 134920 "ERM General Journal UT"
 
         SetUpNewGenJnlLineWithNoSeries(GenJournalLine, GenJournalLineNew, -LibraryRandom.RandIntInRange(2, 10));
 
-        NoSeriesManagement.IncrementNoText(GenJournalLine."Document No.", 1);
+        GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
         GenJournalLineNew.TestField("Document No.", 'X00014');
     end;
 
@@ -1211,7 +1208,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLineNew: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if No. Series is not specified
 
@@ -1225,7 +1221,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLineNew."Journal Batch Name" := GenJournalLine."Journal Batch Name";
         GenJournalLineNew.SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
 
-        NoSeriesManagement.IncrementNoText(GenJournalLine."Document No.", 1);
+        GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
         GenJournalLineNew.TestField("Document No.", 'X00014');
     end;
 
@@ -1246,7 +1242,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine[1], GenJournalLine[1]."Document Type"::" ",
           GenJournalLine[1]."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryERM.CreateNoSeriesCode);
+          GenJournalLine[1]."Bal. Account Type"::"G/L Account", '', LibraryERM.CreateNoSeriesCode());
         SetDocNoAndAppliesToDocNo(GenJournalLine[1], '', '');
 
         LibraryERM.CreateGeneralJnlLine2(
@@ -1258,7 +1254,7 @@ codeunit 134920 "ERM General Journal UT"
         AppliesToDocNo := GenJournalLine[2]."Applies-to Doc. No.";
 
         Commit();
-        GenJournalLine[1].RenumberDocumentNo;
+        GenJournalLine[1].RenumberDocumentNo();
 
         GenJournalLine[1].TestField("Applies-to Doc. No.", '');
         GenJournalLine[2].TestField("Applies-to Doc. No.", AppliesToDocNo);
@@ -1277,14 +1273,14 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Check Printed", true);
         GenJournalLine.Modify();
         DocNo := GenJournalLine."Document No.";
 
         Commit();
 
-        asserterror GenJournalLine.RenumberDocumentNo;
+        asserterror GenJournalLine.RenumberDocumentNo();
 
         Assert.ExpectedError(CheckPrintedIsTrueErr);
         GenJournalLine.TestField("Document No.", DocNo);
@@ -1298,7 +1294,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         PrintedDocNo: Code[20];
@@ -1309,7 +1305,7 @@ codeunit 134920 "ERM General Journal UT"
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
@@ -1324,10 +1320,10 @@ codeunit 134920 "ERM General Journal UT"
         // Exercise
         Commit();
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", FirstLineNo);
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -1339,13 +1335,12 @@ codeunit 134920 "ERM General Journal UT"
     procedure NoModifyWithJobQueueStatusScheduledOrPosting()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        DocNo: Code[20];
     begin
         // Verify modify is not allowed when line has been scheduled in the job queue
         Initialize();
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
         Commit();
@@ -1368,13 +1363,12 @@ codeunit 134920 "ERM General Journal UT"
     procedure NoDeleteWithJobQueueStatusScheduledOrPosting()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        DocNo: Code[20];
     begin
         // Verify delete is not allowed when line has been scheduled in the job queue
         Initialize();
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
         Commit();
@@ -1396,13 +1390,12 @@ codeunit 134920 "ERM General Journal UT"
     procedure NoRenumberWithJobQueueStatusScheduledOrPosting()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        DocNo: Code[20];
     begin
         // Verify renumber is not allowed when line has been scheduled in the job queue
         Initialize();
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
         Commit();
@@ -1424,13 +1417,12 @@ codeunit 134920 "ERM General Journal UT"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
-        DocNo: Code[20];
     begin
         // Verify modify is not allowed when line has been scheduled in the job queue
         Initialize();
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
         Commit();
@@ -1439,7 +1431,7 @@ codeunit 134920 "ERM General Journal UT"
         Assert.ExpectedError(WrongJobQueueStatus);
 
         CreateGenJournalLineWithVendEntry(
-          GenJournalLine2, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
+          GenJournalLine2, LibraryERM.CreateNoSeriesCode(), LibraryPurchase.CreateVendorNo(), LibraryERM.CreateGLAccountNo());
         GenJournalLine2.Validate("Job Queue Status", GenJournalLine2."Job Queue Status"::"Posting");
         GenJournalLine2.Modify();
         Commit();
@@ -1456,7 +1448,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: array[4] of Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         GLAccountNo: Code[20];
         BalGLAccountNo: Code[20];
         NoSeriesCode: Code[20];
@@ -1470,7 +1461,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         BalGLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch."No. Series" := NoSeriesCode;
         GenJournalBatch.Modify();
 
@@ -1484,7 +1475,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // [WHEN] Run "Renumber Document Numbers"
         Commit();
-        GenJournalLine[1].RenumberDocumentNo;
+        GenJournalLine[1].RenumberDocumentNo();
         for i := 1 to 4 do
             GenJournalLine[i].Find();
 
@@ -1508,7 +1499,7 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // [GIVEN] Vendor Ledger Entry having -("Remaining Amount" - "Remaining Pmt. Disc. Possible") = -100 and "Document No." = AAA
-        CreateVendLedgEntry(VendLedgEntry, LibraryPurchase.CreateVendorNo, '');
+        CreateVendLedgEntry(VendLedgEntry, LibraryPurchase.CreateVendorNo(), '');
 
         // [GIVEN] General Journal Line habing "Applies-to Doc. No." = AAA
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1518,7 +1509,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Modify();
 
         // [WHEN] Call "Get Vendor Ledger Entry" for General Journal Line
-        GenJournalLine.GetVendLedgerEntry;
+        GenJournalLine.GetVendLedgerEntry();
 
         // [THEN] General Journal Line "Amount" = -100
         GenJournalLine.TestField(Amount, -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible"));
@@ -1699,7 +1690,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do begin
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, "Recurring Method"::" ", false,
-              "Document Type"::Invoice, "Account Type"::Customer, LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", '', 1, 0);
+              "Document Type"::Invoice, "Account Type"::Customer, LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", '', 1, 0);
             Validate("Recurring Method", "Recurring Method"::"F  Fixed");
             TestField("Sales/Purch. (LCY)", 1);
         end;
@@ -1721,7 +1712,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalTemplate.Modify(true);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        asserterror GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        asserterror GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         Assert.ExpectedErrorCode('TableErrorStr');
         Assert.ExpectedError(CannotBeSpecifiedForRecurrJnlErr);
     end;
@@ -1757,7 +1748,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] When validate "Bal. Account No" = LCY Bank Account in new Gen. Journal Line with <non-blank> Account then "Currency Code" is not changed in Gen. Journal Line
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
 
         // [GIVEN] Bank Account "B" with <blank> Currency Code
         BankAccountNo := CreateBankAccountWithCurrency('');
@@ -1765,7 +1756,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] Gen. Journal Line is initialized with Currency Code = "EUR", <non-blank> Account and Bal. Account Type = Bank Account
         GenJournalLine.Init();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
-        GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
+        GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo());
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
 
@@ -1788,7 +1779,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 266335] Currency Code is not cleared in Gen. Journal Line when clear Bal. Account No. in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = LCY Bank Account and Currency Code = FCY
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
 
         // [GIVEN] Bank Account "B" with "Currency Code" = <blank>
         BankAccountNo := CreateBankAccountWithCurrency('');
@@ -1815,7 +1806,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 266335] Currency Code is cleared in Gen. Journal Line when clear Bal. Account No. in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = FCY Bank Account "B" and Currency Code = "B" Currency Code
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
 
         // [GIVEN] Bank Account "B" with "Currency Code" = "EUR"
         BankAccountNo := CreateBankAccountWithCurrency(CurrencyCode);
@@ -1842,7 +1833,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 266335] Currency Code is not cleared in Gen. Journal Line when validate Bal. Account No. = LCY Bank Account in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = LCY Bank Account and Currency Code = FCY
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
 
         // [GIVEN] Bank Account "B1" with "Currency Code" = <blank>
         BankAccountNo := CreateBankAccountWithCurrency('');
@@ -1872,7 +1863,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 266335] Currency Code is cleared in Gen. Journal Line when validate Bal. Account No. = LCY Bank Account in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = FCY Bank Account "B" and Currency Code = "B" Currency Code
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
 
         // [GIVEN] Bank Account "B1" with "Currency Code" = "EUR"
         BankAccountNo := CreateBankAccountWithCurrency(CurrencyCode);
@@ -1903,7 +1894,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // [GIVEN] Currency "FCY"
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
-            WorkDate, LibraryRandom.RandDecInDecimalRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+            WorkDate(), LibraryRandom.RandDecInDecimalRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [GIVEN] Gen. Journal Line with <blank> Currency Code
         GenJournalLine.Init();
@@ -2015,7 +2006,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Chart of Accounts page is opened.
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // [THEN] "Debit Amount" and "Credit Amount" columns are visible on Chart of Accounts page.
         VerifyChartOfAccountsPageDebitCreditAmtFieldsVisibility(ChartofAccounts, true, true);
@@ -2036,7 +2027,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Chart of Accounts page is opened.
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible on Chart of Accounts page.
         VerifyChartOfAccountsPageDebitCreditAmtFieldsVisibility(ChartofAccounts, true, true);
@@ -2057,7 +2048,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Chart of Accounts page is opened .
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible on Chart of Accounts page.
         VerifyChartOfAccountsPageDebitCreditAmtFieldsVisibility(ChartofAccounts, false, false);
@@ -2078,7 +2069,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] General Ledger Entries page is opened.
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" and "Amount" columns are visible on General Ledger Entries page.
         VerifyGeneralLedgerEntriesPageDebitCreditAmtFieldsVisibility(GeneralLedgerEntries, true, true, true);
@@ -2099,7 +2090,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] General Ledger Entries page is opened.
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column is not visible on General Ledger Entries page.
         VerifyGeneralLedgerEntriesPageDebitCreditAmtFieldsVisibility(GeneralLedgerEntries, true, true, false);
@@ -2120,7 +2111,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] General Ledger Entries page is opened .
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column is visible on General Ledger Entries page.
         VerifyGeneralLedgerEntriesPageDebitCreditAmtFieldsVisibility(GeneralLedgerEntries, false, false, true);
@@ -2141,7 +2132,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Customer Ledger Entries page is opened.
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)", "Amount" and "Amount (LCY)" columns are visible on Customer Ledger Entries page.
         VerifyCustomerLedgerEntriesPageDebitCreditAmtFieldsVisibility(CustomerLedgerEntries, true, true, true, true, true, true);
@@ -2162,7 +2153,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Customer Ledger Entries page is opened.
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Customer Ledger Entries page.
         VerifyCustomerLedgerEntriesPageDebitCreditAmtFieldsVisibility(CustomerLedgerEntries, true, true, true, true, false, false);
@@ -2183,7 +2174,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Customer Ledger Entries page is opened .
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are not visible, "Amount" and "Amount (LCY)" column is visible on Customer Ledger Entries page.
         VerifyCustomerLedgerEntriesPageDebitCreditAmtFieldsVisibility(CustomerLedgerEntries, false, false, false, false, true, true);
@@ -2726,7 +2717,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Vendor Ledger Entries page is opened.
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)", "Amount" and "Amount (LCY)" columns are visible on Vendor Ledger Entries page.
         VerifyVendorLedgerEntriesPageDebitCreditAmtFieldsVisibility(VendorLedgerEntries, true, true, true, true, true, true);
@@ -2747,7 +2738,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Vendor Ledger Entries page is opened.
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Vendor Ledger Entries page.
         VerifyVendorLedgerEntriesPageDebitCreditAmtFieldsVisibility(VendorLedgerEntries, true, true, true, true, false, false);
@@ -2768,7 +2759,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Vendor Ledger Entries page is opened .
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Vendor Ledger Entries page.
         VerifyVendorLedgerEntriesPageDebitCreditAmtFieldsVisibility(VendorLedgerEntries, false, false, false, false, true, true);
@@ -2789,7 +2780,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Apply Bank Acc. Ledger Entries page is opened.
-        ApplyBankAccLedgerEntries.OpenView;
+        ApplyBankAccLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" columns are visible on Apply Bank Acc. Ledger Entries page.
         VerifyApplyBankAccLedgerEntriesPageDebitCreditAmtFieldsVisibility(ApplyBankAccLedgerEntries, true, true, true);
@@ -2810,7 +2801,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Apply Bank Acc. Ledger Entries page is opened.
-        ApplyBankAccLedgerEntries.OpenView;
+        ApplyBankAccLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column is not visible on Apply Bank Acc. Ledger Entries page.
         VerifyApplyBankAccLedgerEntriesPageDebitCreditAmtFieldsVisibility(ApplyBankAccLedgerEntries, true, true, false);
@@ -2831,7 +2822,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Apply Bank Acc. Ledger Entries page is opened .
-        ApplyBankAccLedgerEntries.OpenView;
+        ApplyBankAccLedgerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column is visible on Apply Bank Acc. Ledger Entries page.
         VerifyApplyBankAccLedgerEntriesPageDebitCreditAmtFieldsVisibility(ApplyBankAccLedgerEntries, false, false, true);
@@ -2852,7 +2843,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Detailed Cust. Ledg. Entries page is opened.
-        DetailedCustLedgEntries.OpenView;
+        DetailedCustLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)", "Amount" and "Amount (LCY)" columns are visible on Detailed Cust. Ledg. Entries page.
         VerifyDetailedCustLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedCustLedgEntries, true, true, true, true, true, true);
@@ -2873,7 +2864,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Detailed Cust. Ledg. Entries page is opened.
-        DetailedCustLedgEntries.OpenView;
+        DetailedCustLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Detailed Cust. Ledg. Entries page.
         VerifyDetailedCustLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedCustLedgEntries, true, true, true, true, false, false);
@@ -2894,7 +2885,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Detailed Cust. Ledg. Entries page is opened.
-        DetailedCustLedgEntries.OpenView;
+        DetailedCustLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Detailed Cust. Ledg. Entries page.
         VerifyDetailedCustLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedCustLedgEntries, false, false, false, false, true, true);
@@ -2915,7 +2906,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Detailed Vendor Ledg. Entries page is opened.
-        DetailedVendorLedgEntries.OpenView;
+        DetailedVendorLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)", "Amount" and "Amount (LCY)" columns are visible on Detailed Vendor Ledg. Entries page.
         VerifyDetailedVendorLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedVendorLedgEntries, true, true, true, true, true, true);
@@ -2936,7 +2927,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Detailed Vendor Ledg. Entries page is opened.
-        DetailedVendorLedgEntries.OpenView;
+        DetailedVendorLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Detailed Vendor Ledg. Entries page.
         VerifyDetailedVendorLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedVendorLedgEntries, true, true, true, true, false, false);
@@ -2957,7 +2948,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Detailed Vendor Ledg. Entries page is opened.
-        DetailedVendorLedgEntries.OpenView;
+        DetailedVendorLedgEntries.OpenView();
 
         // [THEN] "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Detailed Vendor Ledg. Entries page.
         VerifyDetailedVendorLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedVendorLedgEntries, false, false, false, false, true, true);
@@ -2978,7 +2969,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Applied Vendor Entries page is opened.
-        AppliedVendorEntries.OpenView;
+        AppliedVendorEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" columns are visible on Applied Vendor Entries page.
         VerifyAppliedVendorEntriesPageDebitCreditAmtFieldsVisibility(AppliedVendorEntries, true, true, true);
@@ -2999,7 +2990,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Applied Vendor Entries page is opened.
-        AppliedVendorEntries.OpenView;
+        AppliedVendorEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column is not visible on Applied Vendor Entries page.
         VerifyAppliedVendorEntriesPageDebitCreditAmtFieldsVisibility(AppliedVendorEntries, true, true, false);
@@ -3020,7 +3011,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Applied Vendor Entries page is opened.
-        AppliedVendorEntries.OpenView;
+        AppliedVendorEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column is visible on Applied Vendor Entries page.
         VerifyAppliedVendorEntriesPageDebitCreditAmtFieldsVisibility(AppliedVendorEntries, false, false, true);
@@ -3041,7 +3032,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
 
         // [WHEN] Applied Customer Entries page is opened.
-        AppliedCustomerEntries.OpenView;
+        AppliedCustomerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" columns are visible on Applied Customer Entries page.
         VerifyAppliedCustomerEntriesPageDebitCreditAmtFieldsVisibility(AppliedCustomerEntries, true, true, true);
@@ -3062,7 +3053,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
 
         // [WHEN] Applied Customer Entries page is opened.
-        AppliedCustomerEntries.OpenView;
+        AppliedCustomerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column is not visible on Applied Customer Entries page.
         VerifyAppliedCustomerEntriesPageDebitCreditAmtFieldsVisibility(AppliedCustomerEntries, true, true, false);
@@ -3083,7 +3074,7 @@ codeunit 134920 "ERM General Journal UT"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
 
         // [WHEN] Applied Customer Entries page is opened.
-        AppliedCustomerEntries.OpenView;
+        AppliedCustomerEntries.OpenView();
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column is visible on Applied Customer Entries page.
         VerifyAppliedCustomerEntriesPageDebitCreditAmtFieldsVisibility(AppliedCustomerEntries, false, false, true);
@@ -3103,7 +3094,7 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created and selected on General Journal Batches page.
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
@@ -3137,7 +3128,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"General Journal");
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created and selected on General Journal Batches page.
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
@@ -3166,7 +3157,7 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created for Sales Template and selected on General Journal Batches page
         PrepareTemplateBatchAndPageWithTypeAndReccuring(GeneralJournalBatches, GenJournalTemplate.Type::Sales, false);
@@ -3198,7 +3189,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"Sales Journal");
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created for Sales Template and selected on General Journal Batches page
         PrepareTemplateBatchAndPageWithTypeAndReccuring(GeneralJournalBatches, GenJournalTemplate.Type::Sales, false);
@@ -3226,7 +3217,7 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created for Sales Template and selected on General Journal Batches page
         PrepareTemplateBatchAndPageWithTypeAndReccuring(GeneralJournalBatches, GenJournalTemplate.Type::Purchases, false);
@@ -3258,7 +3249,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"Purchase Journal");
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created for Purchase Template and selected on General Journal Batches page
         PrepareTemplateBatchAndPageWithTypeAndReccuring(GeneralJournalBatches, GenJournalTemplate.Type::Purchases, false);
@@ -3278,11 +3269,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyGeneralJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         GeneralJournal: TestPage "General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3292,11 +3280,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(GeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3305,7 +3293,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(GeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3315,7 +3303,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(GeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3328,11 +3316,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifySalesJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         SalesJournal: TestPage "Sales Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3344,11 +3329,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        SalesJournal.Trap;
+        SalesJournal.Trap();
         PAGE.Run(PAGE::"Sales Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(SalesJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3357,7 +3342,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        SalesJournal.Trap;
+        SalesJournal.Trap();
         PAGE.Run(PAGE::"Sales Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(SalesJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3367,7 +3352,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        SalesJournal.Trap;
+        SalesJournal.Trap();
         PAGE.Run(PAGE::"Sales Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(SalesJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3380,11 +3365,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyPurchaseJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3396,11 +3378,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        PurchaseJournal.Trap;
+        PurchaseJournal.Trap();
         PAGE.Run(PAGE::"Purchase Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(PurchaseJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3409,7 +3391,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        PurchaseJournal.Trap;
+        PurchaseJournal.Trap();
         PAGE.Run(PAGE::"Purchase Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(PurchaseJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3419,7 +3401,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        PurchaseJournal.Trap;
+        PurchaseJournal.Trap();
         PAGE.Run(PAGE::"Purchase Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(PurchaseJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3432,11 +3414,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyCashReceiptJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3448,11 +3427,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        CashReceiptJournal.Trap;
+        CashReceiptJournal.Trap();
         PAGE.Run(PAGE::"Cash Receipt Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(CashReceiptJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3461,7 +3440,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        CashReceiptJournal.Trap;
+        CashReceiptJournal.Trap();
         PAGE.Run(PAGE::"Cash Receipt Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(CashReceiptJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3471,7 +3450,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        CashReceiptJournal.Trap;
+        CashReceiptJournal.Trap();
         PAGE.Run(PAGE::"Cash Receipt Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(CashReceiptJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3484,11 +3463,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyICGeneralJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         ICGeneralJournal: TestPage "IC General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3500,11 +3476,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        ICGeneralJournal.Trap;
+        ICGeneralJournal.Trap();
         PAGE.Run(PAGE::"IC General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(ICGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3513,7 +3489,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        ICGeneralJournal.Trap;
+        ICGeneralJournal.Trap();
         PAGE.Run(PAGE::"IC General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(ICGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3523,7 +3499,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        ICGeneralJournal.Trap;
+        ICGeneralJournal.Trap();
         PAGE.Run(PAGE::"IC General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(ICGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3536,11 +3512,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyJobGLJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         JobGLJournal: TestPage "Job G/L Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3552,11 +3525,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        JobGLJournal.Trap;
+        JobGLJournal.Trap();
         PAGE.Run(PAGE::"Job G/L Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(JobGLJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3565,7 +3538,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        JobGLJournal.Trap;
+        JobGLJournal.Trap();
         PAGE.Run(PAGE::"Job G/L Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(JobGLJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3575,7 +3548,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        JobGLJournal.Trap;
+        JobGLJournal.Trap();
         PAGE.Run(PAGE::"Job G/L Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(JobGLJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3588,11 +3561,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyPaymentJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3604,11 +3574,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        PaymentJournal.Trap;
+        PaymentJournal.Trap();
         PAGE.Run(PAGE::"Payment Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(PaymentJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3617,7 +3587,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        PaymentJournal.Trap;
+        PaymentJournal.Trap();
         PAGE.Run(PAGE::"Payment Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(PaymentJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3627,7 +3597,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        PaymentJournal.Trap;
+        PaymentJournal.Trap();
         PAGE.Run(PAGE::"Payment Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(PaymentJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3640,11 +3610,8 @@ codeunit 134920 "ERM General Journal UT"
     procedure VerifyRecurringGeneralJournalJobQueueStatusAndRemoveFromJobQueueVisibility()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GenJnlManagement: Codeunit GenJnlManagement;
-        GeneralJournalBatches: TestPage "General Journal Batches";
         RecurringGeneralJournal: TestPage "Recurring General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
@@ -3656,11 +3623,11 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
-        RecurringGeneralJournal.Trap;
+        RecurringGeneralJournal.Trap();
         PAGE.Run(PAGE::"Recurring General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsFalse(RecurringGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3669,7 +3636,7 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryJournals.SetPostWithJobQueue(true);
 
-        RecurringGeneralJournal.Trap;
+        RecurringGeneralJournal.Trap();
         PAGE.Run(PAGE::"Recurring General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(RecurringGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3679,7 +3646,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
         GenJournalLine.Modify();
 
-        RecurringGeneralJournal.Trap;
+        RecurringGeneralJournal.Trap();
         PAGE.Run(PAGE::"Recurring General Journal", GenJournalLine);
         // Job Queue Status should be visible when Post With Job Queue = true.
         Assert.IsTrue(RecurringGeneralJournal."Job Queue Status".Visible(), 'Incorrect visibility value for Job Queue Status');
@@ -3714,14 +3681,14 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 123);
 
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         GeneralJournal.Post.Invoke();
 
         // Verify journals scheduled message is shown
-        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
+        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText());
 
         //Verify job queue info on line
         GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
@@ -3756,14 +3723,14 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 123);
 
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         GeneralJournal.PostAndPrint.Invoke();
 
         // Verify journals scheduled message is shown
-        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
+        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText());
 
         //Verify job queue info on line
         GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
@@ -3801,10 +3768,10 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 123);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine2, GenJournalTemplate.Name, GenJournalBatch2.Name, GenJournalLine2."Document Type"::" ",
-          GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo, 456);
+          GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 456);
 
         GeneralJournalBatches.OpenView();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -3812,7 +3779,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches."P&ost".Invoke();
 
         // Verify journals scheduled message is shown
-        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
+        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText());
 
         //Verify job queue info on lines
         GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
@@ -3853,10 +3820,10 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 123);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 123);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine2, GenJournalTemplate.Name, GenJournalBatch2.Name, GenJournalLine2."Document Type"::" ",
-          GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo, 456);
+          GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 456);
 
         GeneralJournalBatches.OpenView();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -3864,7 +3831,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches."Post and &Print".Invoke();
 
         // Verify journals scheduled message is shown
-        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText);
+        Assert.ExpectedMessage(JournalsScheduledMsg, LibraryVariableStorageCounter.DequeueText());
 
         //Verify job queue info on lines
         GenJournalLine.Get(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Line No.");
@@ -3900,7 +3867,7 @@ codeunit 134920 "ERM General Journal UT"
         RunEditJournalActionOnGeneralJournalPage(GeneralJournal, GeneralJournalBatches);
 
         // Verify scenario 1 / 2
-        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
+        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate(), 'Current posting date NOT equal to WORKDATE.');
         Assert.AreEqual(
           GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value,
           'Current journal batch name not equal to batch that was opened.');
@@ -3996,18 +3963,18 @@ codeunit 134920 "ERM General Journal UT"
 
         // [WHEN] General Journal page opened from General Journal Batches and next doc number action is invoked
         RunEditJournalActionOnGeneralJournalPage(GeneralJournal, GeneralJournalBatches);
-        GeneralJournal.NextDocNumberTrx.Invoke;
+        GeneralJournal.NextDocNumberTrx.Invoke();
 
         // Verify 1 (should be next doc number)
         Assert.AreEqual('T0003', GeneralJournal."<Document No. Simple Page>".Value, 'Document number does not match.');
-        GeneralJournal.Last;
+        GeneralJournal.Last();
         Assert.AreEqual('T0003', GeneralJournal."Document No.".Value, 'Last line displayed has a different document number.');
 
-        GeneralJournal.NextDocNumberTrx.Invoke; // Going to T0005
-        GeneralJournal.PreviousDocNumberTrx.Invoke; // Going back to T0003
+        GeneralJournal.NextDocNumberTrx.Invoke(); // Going to T0005
+        GeneralJournal.PreviousDocNumberTrx.Invoke(); // Going back to T0003
 
         Assert.AreEqual('T0003', GeneralJournal."<Document No. Simple Page>".Value, 'Document number does not match.');
-        GeneralJournal.Last;
+        GeneralJournal.Last();
         Assert.AreEqual('T0003', GeneralJournal."Document No.".Value, 'Last line displayed has a different document number.');
     end;
 
@@ -4036,11 +4003,11 @@ codeunit 134920 "ERM General Journal UT"
 
         // [WHEN] General Journal page opened from General Journal Batches and next doc number action is invoked
         RunEditJournalActionOnGeneralJournalPage(GeneralJournal, GeneralJournalBatches);
-        GeneralJournal."New Doc No.".Invoke;
+        GeneralJournal."New Doc No.".Invoke();
 
         // Verify 1 (should be next doc number)
         Assert.AreEqual('U0002', GeneralJournal."<Document No. Simple Page>".Value, 'Document number does not match.');
-        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
+        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate(), 'Current posting date NOT equal to WORKDATE.');
         Assert.AreEqual(
           GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value,
           'Current journal batch name not equal to batch that was opened.');
@@ -4101,7 +4068,7 @@ codeunit 134920 "ERM General Journal UT"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Gen. Journal Line for Customer with "Document Type" = Invoice and "Payment Terms Code" = ''
-        CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode, Customer."No.", '');
+        CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode(), Customer."No.", '');
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Invoice);
         GenJournalLine.Validate("Payment Terms Code", '');
 
@@ -4129,7 +4096,7 @@ codeunit 134920 "ERM General Journal UT"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Gen. Journal Line for Customer with "Document Type" = "Credit Memo" and "Payment Terms Code" = ''
-        CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode, Customer."No.", '');
+        CreateGenJournalLineWithCustEntry(GenJournalLine, LibraryERM.CreateNoSeriesCode(), Customer."No.", '');
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::"Credit Memo");
         GenJournalLine.Validate("Payment Terms Code", '');
 
@@ -4162,15 +4129,15 @@ codeunit 134920 "ERM General Journal UT"
 
         Assert.AreEqual(
           GenJournalLine[1]."Journal Batch Name",
-          LibraryVariableStorage.DequeueText, GenJournalBatchFromGenJournalLineErr);
+          LibraryVariableStorage.DequeueText(), GenJournalBatchFromGenJournalLineErr);
 
         PAGE.RunModal(PAGE::"General Journal", GenJournalLine[2]);
 
         Assert.AreEqual(
           GenJournalLine[2]."Journal Batch Name",
-          LibraryVariableStorage.DequeueText, GenJournalBatchFromGenJournalLineErr);
+          LibraryVariableStorage.DequeueText(), GenJournalBatchFromGenJournalLineErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4190,7 +4157,7 @@ codeunit 134920 "ERM General Journal UT"
         PrepareGenJournalTemplateWithTwoBatchesAndGenJournalLines(GenJournalLine);
 
         // When the page is opened from an URL link, the record is already exist
-        Assert.IsTrue(GenJournalLine[2].IsOpenedFromBatch, 'GenJournalLine.IsOpenedFromBatch must return TRUE');
+        Assert.IsTrue(GenJournalLine[2].IsOpenedFromBatch(), 'GenJournalLine.IsOpenedFromBatch must return TRUE');
     end;
 
     [Test]
@@ -4212,7 +4179,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
 
-        Assert.IsTrue(GenJournalLine.IsOpenedFromBatch, 'GenJournalLine.IsOpenedFromBatch must return TRUE');
+        Assert.IsTrue(GenJournalLine.IsOpenedFromBatch(), 'GenJournalLine.IsOpenedFromBatch must return TRUE');
     end;
 
     [Test]
@@ -4225,7 +4192,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return FALSE when there are no filters and no record selected
         Initialize();
 
-        Assert.IsFalse(GenJournalLine.IsOpenedFromBatch, 'GenJournalLine.IsOpenedFromBatch must return FALSE');
+        Assert.IsFalse(GenJournalLine.IsOpenedFromBatch(), 'GenJournalLine.IsOpenedFromBatch must return FALSE');
     end;
 
     [Test]
@@ -4297,7 +4264,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] Gen. Journal Line on "BATCH01" with "Document No." = "DOC01"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
@@ -4306,7 +4273,7 @@ codeunit 134920 "ERM General Journal UT"
         VerifyGenJnlBatchIsEmpty(GenJournalBatch);
 
         // [GIVEN] General Journal Page open in simple mode for batch "BATCH01"
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
         Assert.AreEqual(
           GenJournalLine."Document No.", GeneralJournal."<Document No. Simple Page>".Value, 'Unexpected Document No.');
@@ -4343,7 +4310,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] Gen. Journal Line on "BATCH01" with "Document No." = "DOC01"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 0);
         GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
@@ -4352,7 +4319,7 @@ codeunit 134920 "ERM General Journal UT"
         VerifyGenJnlBatchIsEmpty(GenJournalBatch);
 
         // [GIVEN] General Journal Page open in simple mode for batch "BATCH01"
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         // [GIVEN] "Document No." set to "TEST01" on the page
@@ -4384,7 +4351,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalTemplate.DeleteAll();
 
         // [GIVEN] General ledger setup has shortcut dim codes
-        SetAllShortCutDimOnGLSetup;
+        SetAllShortCutDimOnGLSetup();
 
         // [GIVEN] General Journal Batch is created for Payment Template and selected on General Journal Batches page.
         PreparePaymentTemplateBatchAndPage(GeneralJournalBatches);
@@ -4404,7 +4371,6 @@ codeunit 134920 "ERM General Journal UT"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
         GeneralJournal: TestPage "General Journal";
         NumberOfLines: Integer;
         i: Integer;
@@ -4425,7 +4391,7 @@ codeunit 134920 "ERM General Journal UT"
               GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), 0);
 
         // [WHEN] General Journal page is opened for batch "GJB"
-        GeneralJournal.Trap;
+        GeneralJournal.Trap();
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         // [THEN] "Number of Journal Lines" = "N"
@@ -4606,7 +4572,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NoSeriesCode2: Code[20];
         NewDocNo: Code[20];
@@ -4634,12 +4600,10 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.RenumberDocumentNo();
 
         // [THEN] GJL1 has "Doc No." from "GU1.." No. Series, GJL2 has "Doc No." from "GU2.." No. Series
-        Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
-        Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode2);
         VerifyGenJnlLineDocNo(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name",
           10000, NewDocNo);
     end;
@@ -4785,7 +4749,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Array[4] of Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         DocNos: array[3] of Code[20];
         NoSeriesCode: Code[20];
         i: Integer;
@@ -4807,22 +4771,22 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] Gen. Journal Line "1" with Document No. = "1" and Amount = 100
         CreateGenJournalLine1(
             GenJournalLine[1], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[1]."Account Type"::"G/L Account", GLAccount."No.",
-            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+            GLAccount."No.",
+            100, NoSeriesBatch.GetNextNo(NoSeriesCode));
 
         // [GIVEN] Gen. Journal Line "2" with Document No. = "2" and Amount = 200
         CreateGenJournalLine1(
             GenJournalLine[2], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[2]."Account Type"::"G/L Account", GLAccount."No.",
-            200, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+            GLAccount."No.",
+            200, NoSeriesBatch.GetNextNo(NoSeriesCode));
 
         // [GIVEN] Gen. Journal Line "3" with Document No. = "3" and Amount = 100
         CreateGenJournalLine1(
             GenJournalLine[3], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[3]."Account Type"::"G/L Account", GLAccount."No.",
-            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+            GLAccount."No.",
+            100, NoSeriesBatch.GetNextNo(NoSeriesCode));
 
-        For i := 1 to ArrayLen(DocNos) do
+        for i := 1 to ArrayLen(DocNos) do
             DocNos[i] := GenJournalLine[i]."Document No.";
 
         // [GIVEN] Gen. Journal Lines filtered by Batch/Template and Amount = 100   
@@ -4852,7 +4816,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         SavedGenJournalLine: Record "Gen. Journal Line";
         DocumentSendingProfile: Record "Document Sending Profile";
-        JobQueueEntry: Record "Job Queue Entry";
         Vendor: Record Vendor;
         LibraryJobQueue: Codeunit "Library - Job Queue";
         ERMGeneralJournalUT: Codeunit "ERM General Journal UT";
@@ -4907,7 +4870,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         DocumentSendingProfile: Record "Document Sending Profile";
-        JobQueueEntry: Record "Job Queue Entry";
         Vendor: Record Vendor;
         ReportSelections: Record "Report Selections";
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -4961,7 +4923,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         JournalTemplateName: Code[10];
@@ -4972,7 +4934,7 @@ codeunit 134920 "ERM General Journal UT"
         // [GIVEN] 3 General Journal lines with Document No. = '0008', '0009', '0020'
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
@@ -4992,10 +4954,10 @@ codeunit 134920 "ERM General Journal UT"
 
         // [WHEN] Invoke Renumber Document No.
         Commit();
-        GenJournalLine.RenumberDocumentNo;
+        GenJournalLine.RenumberDocumentNo();
 
         // [THEN] 3 General Journal lines exist with Document No. = '0000', '0001', '0002'
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -5013,7 +4975,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Array[4] of Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         DocNos: array[3] of Code[20];
         NoSeriesCode: Code[20];
         i: Integer;
@@ -5032,31 +4994,31 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch.Modify();
 
         for i := 1 to 3 do
-            DocNos[i] := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+            DocNos[i] := NoSeriesBatch.GetNextNo(NoSeriesCode);
 
         // [GIVEN] Mock Document No. gap: 2 lines with Document No. = 1 and 2 lines with Document No. = 3
         // [GIVEN] Line 1 with Document No. = "1"
         CreateGeneralJnlLineWithBalAcc(
             GenJournalLine[1], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[1]."Account Type"::"G/L Account", GLAccount."No.",
+            GLAccount."No.",
             LibraryRandom.RandDecInRange(10, 20, 2), DocNos[1]);
 
         // [GIVEN] Line 2 with Document No. = "1"
         CreateGeneralJnlLineWithBalAcc(
             GenJournalLine[2], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[2]."Account Type"::"G/L Account", GLAccount."No.",
+            GLAccount."No.",
             LibraryRandom.RandDecInRange(10, 20, 2), DocNos[1]);
 
         // [GIVEN] Line 3 with Document No. = "3"
         CreateGeneralJnlLineWithBalAcc(
             GenJournalLine[3], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[3]."Account Type"::"G/L Account", GLAccount."No.",
+            GLAccount."No.",
             LibraryRandom.RandDecInRange(10, 20, 2), DocNos[3]);
 
         // [GIVEN] Line 4 with Document No. = "3" 
         CreateGeneralJnlLineWithBalAcc(
             GenJournalLine[4], GenJournalBatch.Name, GenJournalTemplate.Name,
-            GenJournalLine[4]."Account Type"::"G/L Account", GLAccount."No.",
+            GLAccount."No.",
             LibraryRandom.RandDecInRange(10, 20, 2), DocNos[3]);
 
 
@@ -5114,7 +5076,7 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
         Customer2: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         Amount: Decimal;
         Amount2: Decimal;
@@ -5127,10 +5089,10 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateBankAccount(BankAccount);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
 
         // [GIVEN] Save DocNo and amount in Variable to verify the result.
-        DocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        DocNo := NoSeries.PeekNextNo(NoSeriesCode);
         Amount := LibraryRandom.RandDec(100, 2);
         Amount2 := LibraryRandom.RandDec(100, 2);
 
@@ -5140,13 +5102,13 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch.Modify();
 
         // [GIVEN] Create 4 Gen. Journal Line with blank document no.
-        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
             GenJournalLine."Account Type"::Customer, Customer."No.", -1 * Amount, WorkDate());
-        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
             GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", Amount, WorkDate());
-        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
             GenJournalLine."Account Type"::Customer, Customer2."No.", -1 * Amount2, WorkDate() + 1);
-        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
             GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", Amount2, WorkDate() + 1);
         Commit();
 
@@ -5223,7 +5185,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // [GIVEN] Create GenJournalTemplate and GenJournalBatch
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch.Modify();
 
         // [WHEN] Create 1st General Journal Line
@@ -5275,7 +5237,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         NoSeries: Record "No. Series";
         NoSeriesLine: array[3] of Record "No. Series Line";
         GenJnlPost: Codeunit "Gen. Jnl.-Post";
@@ -5315,15 +5277,15 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.RenumberDocumentNo();
 
         // [VERIFY Verify all three document no
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, WorkDate(), false);
+        NewDocNo := NoSeriesBatch.GetNextNo(NoSeries.Code, WorkDate());
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
 
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, CalcDate('<+1M>', WorkDate()), false);
+        NewDocNo := NoSeriesBatch.GetNextNo(NoSeries.Code, CalcDate('<+1M>', WorkDate()));
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           20000, NewDocNo);
 
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, CalcDate('<+2M>', WorkDate()), false);
+        NewDocNo := NoSeriesBatch.GetNextNo(NoSeries.Code, CalcDate('<+2M>', WorkDate()));
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           30000, NewDocNo);
 
@@ -5331,7 +5293,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlPost.Run(GenJournalLine);
 
         // [VERIFY] Verify Gen. Journal Line post successfully
-        Assert.ExpectedMessage(GenJouranlLinePostedMsg, LibraryVariableStorageCounter.DequeueText);
+        Assert.ExpectedMessage(GenJouranlLinePostedMsg, LibraryVariableStorageCounter.DequeueText());
 
         // [VERIFY] No. Series line start date update successfully.
         Assert.AreEqual(WorkDate(), NoSeriesLine[1]."Starting Date", NoSeriesLineStartDateErr);
@@ -5449,7 +5411,7 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure PrepareGeneralJournalBatchesPage(var GeneralJournalBatches: TestPage "General Journal Batches"; GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        GeneralJournalBatches.OpenEdit;
+        GeneralJournalBatches.OpenEdit();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
         GeneralJournalBatches.GotoRecord(GenJournalBatch);
     end;
@@ -5458,7 +5420,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         GenJournalLine.Init();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
-        GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
+        GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo());
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
@@ -5479,11 +5441,18 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     local procedure CreateGenJournalLineWithDocNo(var GenJournalLine: Record "Gen. Journal Line"; DocNo: Code[20])
+    var
+        NoSeriesLine: Record "No. Series Line";
     begin
+        NoSeriesLine.Get(LibraryERM.CreateNoSeriesCode(), 10000);
+        NoSeriesLine."Starting No." := DocNo;
+        NoSeriesLine."Ending No." := '';
+        NoSeriesLine.Modify();
+
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryERM.CreateNoSeriesCode);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), NoSeriesLine."Series Code");
         GenJournalLine."Document No." := DocNo;
         GenJournalLine.Modify();
     end;
@@ -5517,10 +5486,10 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
         GenJournalLine."Applies-to Doc. No." := AppliesToDocNo;
-        GenJournalLine.Modify
+        GenJournalLine.Modify();
     end;
 
-    local procedure CreateGenJournalLine1(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; Type: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreateGenJournalLine1(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJnlTemplateName, GenJnlBatchName,
@@ -5530,7 +5499,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; Type: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreateGeneralJnlLineWithBalAcc(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
             GenJournalLine, GenJnlTemplateName, GenJnlBatchName,
@@ -5630,7 +5599,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(1000, 2));
     end;
 
     local procedure CreateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; AppliesToID: Code[50])
@@ -5641,7 +5610,7 @@ codeunit 134920 "ERM General Journal UT"
         VendLedgEntry."Vendor No." := VendorNo;
         VendLedgEntry."Applies-to ID" := AppliesToID;
         VendLedgEntry.Open := true;
-        VendLedgEntry.Insert
+        VendLedgEntry.Insert();
     end;
 
     local procedure CreateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; AppliesToID: Code[50])
@@ -5652,7 +5621,7 @@ codeunit 134920 "ERM General Journal UT"
         CustLedgEntry."Customer No." := CustomerNo;
         CustLedgEntry."Applies-to ID" := AppliesToID;
         CustLedgEntry.Open := true;
-        CustLedgEntry.Insert
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateCustomerWithName(var Customer: Record Customer)
@@ -5682,7 +5651,7 @@ codeunit 134920 "ERM General Journal UT"
     local procedure CreateCurrency(): Code[10]
     begin
         exit(LibraryERM.CreateCurrencyWithExchangeRate(
-            WorkDate, LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(1, 10, 2)));
+            WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(1, 10, 2)));
     end;
 
     local procedure CreateBankAccountWithCurrency(CurrencyCode: Code[10]): Code[20]
@@ -5770,56 +5739,55 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure RunEditJournalActionOnPaymentJournalPage(var PaymentJournal: TestPage "Payment Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        PaymentJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        PaymentJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnGeneralJournalPage(var GeneralJournal: TestPage "General Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        GeneralJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        GeneralJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnJobGLJournalPage(var JobGLJournal: TestPage "Job G/L Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        JobGLJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        JobGLJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnSalesJournalPage(var SalesJournal: TestPage "Sales Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        SalesJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        SalesJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnPurchaseJournalPage(var PurchaseJournal: TestPage "Purchase Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        PurchaseJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        PurchaseJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnCashReceiptJournalPage(var CashReceiptJournal: TestPage "Cash Receipt Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        CashReceiptJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        CashReceiptJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure RunEditJournalActionOnRecurringGeneralJournalPage(var RecurringGeneralJournal: TestPage "Recurring General Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        RecurringGeneralJournal.Trap;
-        GeneralJournalBatches.EditJournal.Invoke;
+        RecurringGeneralJournal.Trap();
+        GeneralJournalBatches.EditJournal.Invoke();
     end;
 
     local procedure SetUpNewGenJnlLineWithNoSeries(GenJournalLine: Record "Gen. Journal Line"; var GenJournalLineNew: Record "Gen. Journal Line"; IncrementByNo: Integer)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
-        NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, GenJnlBatch."No. Series", GenJournalLine."Posting Date");
-        NoSeriesLine.FindFirst();
+        NoSeries.GetNoSeriesLine(NoSeriesLine, GenJnlBatch."No. Series", GenJournalLine."Posting Date", true);
         NoSeriesLine.Validate("Increment-by No.", IncrementByNo);
         NoSeriesLine.Modify(true);
 
@@ -5930,169 +5898,169 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GeneralJournal: TestPage "General Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, GeneralJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, GeneralJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, GeneralJournal.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, GeneralJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, GeneralJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, GeneralJournal.Amount.Visible(), WrongFieldVisibilityErr);
         GeneralJournal.Close();
     end;
 
     local procedure VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal: TestPage "Payment Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.IsTrue(PaymentJournal."Posting Date".Visible, PaymentJournal."Posting Date".Caption);
-        Assert.IsTrue(PaymentJournal."Document Type".Visible, PaymentJournal."Document Type".Caption);
-        Assert.IsTrue(PaymentJournal."Document No.".Visible, PaymentJournal."Document No.".Caption);
+        Assert.IsTrue(PaymentJournal."Posting Date".Visible(), PaymentJournal."Posting Date".Caption);
+        Assert.IsTrue(PaymentJournal."Document Type".Visible(), PaymentJournal."Document Type".Caption);
+        Assert.IsTrue(PaymentJournal."Document No.".Visible(), PaymentJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, PaymentJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, PaymentJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, PaymentJournal.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, PaymentJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, PaymentJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, PaymentJournal.Amount.Visible(), WrongFieldVisibilityErr);
         PaymentJournal.Close();
     end;
 
     local procedure VerifyJobGLJnlPageDebitCreditAmtFieldsVisibility(JobGLJournal: TestPage "Job G/L Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.IsTrue(JobGLJournal."Posting Date".Visible, JobGLJournal."Posting Date".Caption);
-        Assert.IsTrue(JobGLJournal."Document Type".Visible, JobGLJournal."Document Type".Caption);
-        Assert.IsTrue(JobGLJournal."Document No.".Visible, JobGLJournal."Document No.".Caption);
+        Assert.IsTrue(JobGLJournal."Posting Date".Visible(), JobGLJournal."Posting Date".Caption);
+        Assert.IsTrue(JobGLJournal."Document Type".Visible(), JobGLJournal."Document Type".Caption);
+        Assert.IsTrue(JobGLJournal."Document No.".Visible(), JobGLJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, JobGLJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, JobGLJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, JobGLJournal.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, JobGLJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, JobGLJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, JobGLJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, JobGLJournal.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, JobGLJournal."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         JobGLJournal.Close();
     end;
 
     local procedure VerifyChartOfAccountsPageDebitCreditAmtFieldsVisibility(ChartOfAccounts: TestPage "Chart of Accounts"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, ChartOfAccounts."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, ChartOfAccounts."Credit Amount".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, ChartOfAccounts."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, ChartOfAccounts."Credit Amount".Visible(), WrongFieldVisibilityErr);
         ChartOfAccounts.Close();
     end;
 
     local procedure VerifyGeneralLedgerEntriesPageDebitCreditAmtFieldsVisibility(GeneralLedgerEntries: TestPage "General Ledger Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, GeneralLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, GeneralLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, GeneralLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, GeneralLedgerEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, GeneralLedgerEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, GeneralLedgerEntries.Amount.Visible(), WrongFieldVisibilityErr);
         GeneralLedgerEntries.Close();
     end;
 
     local procedure VerifyCustomerLedgerEntriesPageDebitCreditAmtFieldsVisibility(CustomerLedgerEntries: TestPage "Customer Ledger Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, CustomerLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(DebitAmountLCYVisilble, CustomerLedgerEntries."Debit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, CustomerLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountLCYVisilble, CustomerLedgerEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, CustomerLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, CustomerLedgerEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, CustomerLedgerEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountLCYVisilble, CustomerLedgerEntries."Debit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, CustomerLedgerEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountLCYVisilble, CustomerLedgerEntries."Credit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, CustomerLedgerEntries.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, CustomerLedgerEntries."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         CustomerLedgerEntries.Close();
     end;
 
     local procedure VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal: TestPage "Sales Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.IsTrue(SalesJournal."Posting Date".Visible, SalesJournal."Posting Date".Caption);
-        Assert.IsTrue(SalesJournal."Document Type".Visible, SalesJournal."Document Type".Caption);
-        Assert.IsTrue(SalesJournal."Document No.".Visible, SalesJournal."Document No.".Caption);
+        Assert.IsTrue(SalesJournal."Posting Date".Visible(), SalesJournal."Posting Date".Caption);
+        Assert.IsTrue(SalesJournal."Document Type".Visible(), SalesJournal."Document Type".Caption);
+        Assert.IsTrue(SalesJournal."Document No.".Visible(), SalesJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, SalesJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, SalesJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, SalesJournal.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, SalesJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, SalesJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, SalesJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, SalesJournal.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, SalesJournal."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         SalesJournal.Close();
     end;
 
     local procedure VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal: TestPage "Purchase Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.IsTrue(PurchaseJournal."Posting Date".Visible, PurchaseJournal."Posting Date".Caption);
-        Assert.IsTrue(PurchaseJournal."Document Type".Visible, PurchaseJournal."Document Type".Caption);
-        Assert.IsTrue(PurchaseJournal."Document No.".Visible, PurchaseJournal."Document No.".Caption);
+        Assert.IsTrue(PurchaseJournal."Posting Date".Visible(), PurchaseJournal."Posting Date".Caption);
+        Assert.IsTrue(PurchaseJournal."Document Type".Visible(), PurchaseJournal."Document Type".Caption);
+        Assert.IsTrue(PurchaseJournal."Document No.".Visible(), PurchaseJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, PurchaseJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, PurchaseJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, PurchaseJournal.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, PurchaseJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, PurchaseJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, PurchaseJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, PurchaseJournal.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, PurchaseJournal."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         PurchaseJournal.Close();
     end;
 
     local procedure VerifyCashReceiptJnlPageDebitCreditAmtFieldsVisibility(CashReceiptJournal: TestPage "Cash Receipt Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.IsTrue(CashReceiptJournal."Posting Date".Visible, CashReceiptJournal."Posting Date".Caption);
-        Assert.IsTrue(CashReceiptJournal."Document Type".Visible, CashReceiptJournal."Document Type".Caption);
-        Assert.IsTrue(CashReceiptJournal."Document No.".Visible, CashReceiptJournal."Document No.".Caption);
+        Assert.IsTrue(CashReceiptJournal."Posting Date".Visible(), CashReceiptJournal."Posting Date".Caption);
+        Assert.IsTrue(CashReceiptJournal."Document Type".Visible(), CashReceiptJournal."Document Type".Caption);
+        Assert.IsTrue(CashReceiptJournal."Document No.".Visible(), CashReceiptJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, CashReceiptJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, CashReceiptJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, CashReceiptJournal.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, CashReceiptJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, CashReceiptJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, CashReceiptJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, CashReceiptJournal.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, CashReceiptJournal."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         CashReceiptJournal.Close();
     end;
 
     local procedure VerifyRecurringGeneralJnlPageDebitCreditAmtFieldsVisibility(RecurringGeneralJournal: TestPage "Recurring General Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.IsTrue(RecurringGeneralJournal."Posting Date".Visible, RecurringGeneralJournal."Posting Date".Caption);
-        Assert.IsTrue(RecurringGeneralJournal."Document Type".Visible, RecurringGeneralJournal."Document Type".Caption);
-        Assert.IsTrue(RecurringGeneralJournal."Document No.".Visible, RecurringGeneralJournal."Document No.".Caption);
+        Assert.IsTrue(RecurringGeneralJournal."Posting Date".Visible(), RecurringGeneralJournal."Posting Date".Caption);
+        Assert.IsTrue(RecurringGeneralJournal."Document Type".Visible(), RecurringGeneralJournal."Document Type".Caption);
+        Assert.IsTrue(RecurringGeneralJournal."Document No.".Visible(), RecurringGeneralJournal."Document No.".Caption);
 
-        Assert.AreEqual(DebitAmountVisilble, RecurringGeneralJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, RecurringGeneralJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, RecurringGeneralJournal.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, RecurringGeneralJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, RecurringGeneralJournal."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, RecurringGeneralJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, RecurringGeneralJournal.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, RecurringGeneralJournal."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         RecurringGeneralJournal.Close();
     end;
 
     local procedure VerifyVendorLedgerEntriesPageDebitCreditAmtFieldsVisibility(VendorLedgerEntries: TestPage "Vendor Ledger Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, VendorLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(DebitAmountLCYVisilble, VendorLedgerEntries."Debit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, VendorLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountLCYVisilble, VendorLedgerEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, VendorLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, VendorLedgerEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, VendorLedgerEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountLCYVisilble, VendorLedgerEntries."Debit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, VendorLedgerEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountLCYVisilble, VendorLedgerEntries."Credit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, VendorLedgerEntries.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, VendorLedgerEntries."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         VendorLedgerEntries.Close();
     end;
 
     local procedure VerifyApplyBankAccLedgerEntriesPageDebitCreditAmtFieldsVisibility(ApplyBankAccLedgerEntries: TestPage "Apply Bank Acc. Ledger Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, ApplyBankAccLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, ApplyBankAccLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, ApplyBankAccLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, ApplyBankAccLedgerEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, ApplyBankAccLedgerEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, ApplyBankAccLedgerEntries.Amount.Visible(), WrongFieldVisibilityErr);
         ApplyBankAccLedgerEntries.Close();
     end;
 
     local procedure VerifyDetailedCustLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedCustLedgEntries: TestPage "Detailed Cust. Ledg. Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, DetailedCustLedgEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(DebitAmountLCYVisilble, DetailedCustLedgEntries."Debit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, DetailedCustLedgEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountLCYVisilble, DetailedCustLedgEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, DetailedCustLedgEntries.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, DetailedCustLedgEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, DetailedCustLedgEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountLCYVisilble, DetailedCustLedgEntries."Debit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, DetailedCustLedgEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountLCYVisilble, DetailedCustLedgEntries."Credit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, DetailedCustLedgEntries.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, DetailedCustLedgEntries."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         DetailedCustLedgEntries.Close();
     end;
 
     local procedure VerifyDetailedVendorLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedVendorLedgEntries: TestPage "Detailed Vendor Ledg. Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, DetailedVendorLedgEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(DebitAmountLCYVisilble, DetailedVendorLedgEntries."Debit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, DetailedVendorLedgEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountLCYVisilble, DetailedVendorLedgEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, DetailedVendorLedgEntries.Amount.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountLCYVisilble, DetailedVendorLedgEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, DetailedVendorLedgEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountLCYVisilble, DetailedVendorLedgEntries."Debit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, DetailedVendorLedgEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountLCYVisilble, DetailedVendorLedgEntries."Credit Amount (LCY)".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, DetailedVendorLedgEntries.Amount.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountLCYVisilble, DetailedVendorLedgEntries."Amount (LCY)".Visible(), WrongFieldVisibilityErr);
         DetailedVendorLedgEntries.Close();
     end;
 
     local procedure VerifyAppliedVendorEntriesPageDebitCreditAmtFieldsVisibility(AppliedVendorEntries: TestPage "Applied Vendor Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, AppliedVendorEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, AppliedVendorEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, AppliedVendorEntries.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, AppliedVendorEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, AppliedVendorEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, AppliedVendorEntries.Amount.Visible(), WrongFieldVisibilityErr);
         AppliedVendorEntries.Close();
     end;
 
     local procedure VerifyAppliedCustomerEntriesPageDebitCreditAmtFieldsVisibility(AppliedCustomerEntries: TestPage "Applied Customer Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
     begin
-        Assert.AreEqual(DebitAmountVisilble, AppliedCustomerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(CreditAmountVisilble, AppliedCustomerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(AmountVisilble, AppliedCustomerEntries.Amount.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(DebitAmountVisilble, AppliedCustomerEntries."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, AppliedCustomerEntries."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, AppliedCustomerEntries.Amount.Visible(), WrongFieldVisibilityErr);
         AppliedCustomerEntries.Close();
     end;
 
@@ -6104,34 +6072,34 @@ codeunit 134920 "ERM General Journal UT"
             // negative: system-created entry
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, true, "Document Type"::Invoice, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1, 0);
+              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
 
             // negative: document type = payment
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Payment, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1, 0);
+              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
 
             // negative: document type = refund
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Refund, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1, 0);
+              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
 
             // negative: account type = g/l account
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountNo, "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 1, 0);
+              LibraryERM.CreateGLAccountNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
 
             // positive: customer\vendor invoice\credit memo
-            VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, 1);
+            VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+            VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+            VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+            VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
 
             // positive: balance customer\vendor invoice\creit memo
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo, 1, -1);
+            VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+            VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+            VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+            VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
 
             // negative: blanked account no. for balance customer\vendor invoice\credit memo
             VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, '', 1, 0);
@@ -6148,7 +6116,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6158,7 +6126,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6168,7 +6136,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::Vendor,
-              LibraryPurchase.CreateVendorNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+              LibraryPurchase.CreateVendorNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6178,7 +6146,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::Vendor,
-              LibraryPurchase.CreateVendorNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+              LibraryPurchase.CreateVendorNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6188,7 +6156,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo, ValidateAmount, ExpectedValue);
+              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6198,7 +6166,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo, ValidateAmount, ExpectedValue);
+              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6208,7 +6176,7 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, ValidateAmount, ExpectedValue);
+              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
@@ -6218,14 +6186,13 @@ codeunit 134920 "ERM General Journal UT"
         with GenJournalLine do
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, ValidateAmount, ExpectedValue);
+              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure CreateGenJournalLineWithoutDocNo(
         var GenJournalLine: Record "Gen. Journal Line";
         JournalTemplateName: Code[10];
         JournalBatchName: Code[10];
-        DocumentType: Enum "Gen. Journal Document Type";
         AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
         Amount: Decimal;
@@ -6241,92 +6208,92 @@ codeunit 134920 "ERM General Journal UT"
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnGenJournalPageInSimplePageMode(GeneralJournal: TestPage "General Journal")
     begin
-        Assert.AreEqual(false, GeneralJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, GeneralJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnGenJournalPage(GeneralJournal: TestPage "General Journal")
     begin
-        Assert.AreEqual(true, GeneralJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, GeneralJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnSalesJournalPageInSimplePageMode(SalesJournal: TestPage "Sales Journal")
     begin
-        Assert.AreEqual(false, SalesJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, SalesJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, SalesJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnSalesJournalPage(SalesJournal: TestPage "Sales Journal")
     begin
-        Assert.AreEqual(true, SalesJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, SalesJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, SalesJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnPurchaseJournalPageInSimplePageMode(PurchaseJournal: TestPage "Purchase Journal")
     begin
-        Assert.AreEqual(false, PurchaseJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(false, PurchaseJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyShortcutDimCodesVisibilityOnPurchaseJournalPage(PurchaseJournal: TestPage "Purchase Journal")
     begin
-        Assert.AreEqual(true, PurchaseJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PurchaseJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     [Scope('OnPrem')]
     local procedure VerifyShortcutDimCodesVisibilityOnPaymentJournalPage(PaymentJournal: TestPage "Payment Journal")
     begin
-        Assert.AreEqual(true, PaymentJournal."Shortcut Dimension 1 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal."Shortcut Dimension 2 Code".Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode3.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode4.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode5.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode6.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode7.Visible, WrongFieldVisibilityErr);
-        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode8.Visible, WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal."Shortcut Dimension 1 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal."Shortcut Dimension 2 Code".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode3.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode4.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode5.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode6.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode7.Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(true, PaymentJournal.ShortcutDimCode8.Visible(), WrongFieldVisibilityErr);
     end;
 
     local procedure SetShowAmounts(ShowAmounts: Option)
@@ -6383,8 +6350,8 @@ codeunit 134920 "ERM General Journal UT"
         CaptionTxt: Text;
     begin
         CaptionTxt := ApplyCustomerEntries.Caption;
-        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText) > 0, '');
-        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText) > 0, '');
+        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText()) > 0, '');
+        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText()) > 0, '');
     end;
 
     [ModalPageHandler]
@@ -6394,8 +6361,8 @@ codeunit 134920 "ERM General Journal UT"
         CaptionTxt: Text;
     begin
         CaptionTxt := ApplyVendorEntries.Caption;
-        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText) > 0, '');
-        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText) > 0, '');
+        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText()) > 0, '');
+        Assert.IsTrue(StrPos(CaptionTxt, LibraryVariableStorage.DequeueText()) > 0, '');
     end;
 
     [ConfirmHandler]
@@ -6418,7 +6385,7 @@ codeunit 134920 "ERM General Journal UT"
     procedure GenJournalModalPageHandler(var GeneralJournal: TestPage "General Journal")
     begin
         LibraryVariableStorage.Enqueue(GeneralJournal.CurrentJnlBatchName.Value);
-        GeneralJournal.OK.Invoke;
+        GeneralJournal.OK().Invoke();
     end;
 
     [ConfirmHandler]

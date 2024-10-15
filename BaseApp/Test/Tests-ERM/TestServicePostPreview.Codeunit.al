@@ -43,16 +43,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
         // Execute the page
-        ServiceInvoice.Trap;
+        ServiceInvoice.Trap();
         PAGE.Run(PAGE::"Service Invoice", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceInvoice.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceInvoice.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -75,16 +75,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
         // Execute the page
-        ServiceOrder.Trap;
+        ServiceOrder.Trap();
         PAGE.Run(PAGE::"Service Order", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceOrder.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceOrder.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -110,16 +110,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
 
         // Execute the page
-        ServiceCreditMemo.Trap;
+        ServiceCreditMemo.Trap();
         PAGE.Run(PAGE::"Service Credit Memo", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceCreditMemo.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceCreditMemo.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -141,9 +141,9 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
         // Execute the page
-        ServiceOrder.Trap;
+        ServiceOrder.Trap();
         PAGE.Run(PAGE::"Service Order", ServiceHeader);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -165,16 +165,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
         // Execute the page
-        ServiceInvoices.Trap;
+        ServiceInvoices.Trap();
         PAGE.Run(PAGE::"Service Invoices", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceInvoices.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceInvoices.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -197,16 +197,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
         // Execute the page
-        ServiceOrders.Trap;
+        ServiceOrders.Trap();
         PAGE.Run(PAGE::"Service Orders", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceOrders.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceOrders.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -232,16 +232,16 @@ codeunit 134766 "Test Service Post Preview"
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
 
         // Execute the page
-        ServiceCreditMemos.Trap;
+        ServiceCreditMemos.Trap();
         PAGE.Run(PAGE::"Service Credit Memos", ServiceHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        ServiceCreditMemos.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceCreditMemos.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         ServiceHeader.Find();
@@ -278,12 +278,12 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         Commit();
-        GLPostingPreview.Trap;
-        ServiceLines.Preview.Invoke;
+        GLPostingPreview.Trap();
+        ServiceLines.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Normal]

@@ -42,7 +42,7 @@ codeunit 3010831 LSVMgt
         GlLine: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
         GlBatchName: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         FileMgt: Codeunit "File Management";
         EnvironmentInfo: Codeunit "Environment Information";
         Window: Dialog;
@@ -129,7 +129,7 @@ codeunit 3010831 LSVMgt
         LsvLine: Record "LSV Journal Line";
         GLSetup: Record "General Ledger Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LastEntryNo: Integer;
     begin
         LsvLine.SetRange("LSV Journal No.", LsvJournal."No.");
@@ -155,8 +155,7 @@ codeunit 3010831 LSVMgt
                 GenJournalLine."Journal Batch Name" := GenJournalLine."Journal Batch Name";
                 GenJournalLine."Line No." := LastEntryNo;
                 GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
-                GenJournalLine.Validate("Document No.",
-                  NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", LsvJournal."Credit Date", false));
+                GenJournalLine.Validate("Document No.", NoSeries.PeekNextNo(GenJournalBatch."No. Series", LsvJournal."Credit Date"));
                 GenJournalLine.Validate("Posting Date", LsvJournal."Credit Date");
                 GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
                 GenJournalLine.Validate("Applies-to Doc. No.", LsvLine."Applies-to Doc. No.");
@@ -298,7 +297,7 @@ codeunit 3010831 LSVMgt
 
         // Journal name for no serie
         GlBatchName.Get(ActGenJnlLine."Journal Template Name", ActGenJnlLine."Journal Batch Name");
-        NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
+        NextDocNo := NoSeriesBatch.GetNextNo(GlBatchName."No. Series", PostDate);
 
         FileName := OpenDDFile(f);
         Window.Open(ImportProgressMsg);
@@ -318,7 +317,7 @@ codeunit 3010831 LSVMgt
                 if (PrevTransaction <> Transaction) and
                    ((PrevTransaction = Transaction::Cancellation) or (Transaction = Transaction::Cancellation))
                 then
-                    NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
+                    NextDocNo := NoSeriesBatch.GetNextNo(GlBatchName."No. Series", PostDate);
 
                 if Transaction <> Transaction::Correction then begin
                     PrepareGenJournalLine(GenJournalLine, ActGenJnlLine, PostDate, Transaction, LastLineNo, NextDocNo, Currency);
@@ -468,25 +467,21 @@ codeunit 3010831 LSVMgt
     var
         LSVJournal: Record "LSV Journal";
     begin
-        with LSVJournal do begin
-            Reset();
-            SetRange("Credit Date", PostDate);
-            SetRange("DebitDirect Orderno.", DebitDirectOrderNo);
-            if not FindLast() then
-                Error(DDOrderNoErr, DebitDirectOrderNo, PostDate);
-        end;
+        LSVJournal.Reset();
+        LSVJournal.SetRange("Credit Date", PostDate);
+        LSVJournal.SetRange("DebitDirect Orderno.", DebitDirectOrderNo);
+        if not LSVJournal.FindLast() then
+            Error(DDOrderNoErr, DebitDirectOrderNo, PostDate);
 
-        with LSVJournalLine do begin
-            Reset();
-            SetCurrentKey("LSV Journal No.", "Transaction No.");
-            SetRange("LSV Journal No.", LSVJournal."No.");
-            SetRange("Transaction No.", DebitDirectRecordNo);
-            if not FindFirst() then begin
-                Window.Close();
-                Error(TransactionNoErr, DebitDirectRecordNo, DebitDirectOrderNo);
-            end;
-            exit("Applies-to Doc. No.");
+        LSVJournalLine.Reset();
+        LSVJournalLine.SetCurrentKey("LSV Journal No.", "Transaction No.");
+        LSVJournalLine.SetRange("LSV Journal No.", LSVJournal."No.");
+        LSVJournalLine.SetRange("Transaction No.", DebitDirectRecordNo);
+        if not LSVJournalLine.FindFirst() then begin
+            Window.Close();
+            Error(TransactionNoErr, DebitDirectRecordNo, DebitDirectOrderNo);
         end;
+        exit(LSVJournalLine."Applies-to Doc. No.");
     end;
 
     local procedure ValidateLineLength(var f: File; FileName: Text[1024]; LineLength: Integer)
@@ -531,27 +526,25 @@ codeunit 3010831 LSVMgt
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GenJournalLine do begin
-            Init();
+        GenJournalLine.Init();
 
-            "Journal Template Name" := ActGenJnlLine."Journal Template Name";
-            "Journal Batch Name" := ActGenJnlLine."Journal Batch Name";
+        GenJournalLine."Journal Template Name" := ActGenJnlLine."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := ActGenJnlLine."Journal Batch Name";
 
-            "Posting Date" := PostDate;
+        GenJournalLine."Posting Date" := PostDate;
 
-            LastLineNo := LastLineNo + 10000;
-            "Line No." := LastLineNo;
+        LastLineNo := LastLineNo + 10000;
+        GenJournalLine."Line No." := LastLineNo;
 
-            if Transaction = Transaction::Cancellation then
-                "Document Type" := "Document Type"::Refund
-            else
-                "Document Type" := "Document Type"::Payment;
-            "Document No." := DocumentNo;
+        if Transaction = Transaction::Cancellation then
+            GenJournalLine."Document Type" := GenJournalLine."Document Type"::Refund
+        else
+            GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
+        GenJournalLine."Document No." := DocumentNo;
 
-            GeneralLedgerSetup.Get();
-            if GeneralLedgerSetup."LCY Code" <> Currency then
-                "Currency Code" := Currency;
-        end;
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."LCY Code" <> Currency then
+            GenJournalLine."Currency Code" := Currency;
     end;
 
     local procedure SetCustomerAndCurrencyFromInvoice(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20])
@@ -559,16 +552,14 @@ codeunit 3010831 LSVMgt
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        with CustLedgerEntry do begin
-            SetCurrentKey("Document No.");
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            if FindFirst() then
-                GenJournalLine.Validate("Account No.", "Customer No.");
+        CustLedgerEntry.SetCurrentKey("Document No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", InvoiceNo);
+        if CustLedgerEntry.FindFirst() then
+            GenJournalLine.Validate("Account No.", CustLedgerEntry."Customer No.");
 
-            if GenJournalLine."Currency Code" <> "Currency Code" then
-                GenJournalLine.Validate("Currency Code", "Currency Code");
-        end;
+        if GenJournalLine."Currency Code" <> CustLedgerEntry."Currency Code" then
+            GenJournalLine.Validate("Currency Code", CustLedgerEntry."Currency Code");
     end;
 
     local procedure SetValuesDueToTransaction(var GenJournalLine: Record "Gen. Journal Line"; Transaction: Option " ",Credit,Cancellation,Correction; var InvoiceAmount: Decimal; InvoiceNo: Code[20]; var IsCancellationExist: Boolean)
@@ -593,14 +584,12 @@ codeunit 3010831 LSVMgt
 
     local procedure SetBalanceAccounts(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Enum "Gen. Journal Account Type"; BalanceAccountNo: Code[20])
     begin
-        with GenJournalLine do begin
-            if FindSet() then
-                repeat
-                    "Bal. Account Type" := BalanceAccountType;
-                    Validate("Bal. Account No.", BalanceAccountNo);
-                    Modify();
-                until Next() = 0;
-        end;
+        if GenJournalLine.FindSet() then
+            repeat
+                GenJournalLine."Bal. Account Type" := BalanceAccountType;
+                GenJournalLine.Validate("Bal. Account No.", BalanceAccountNo);
+                GenJournalLine.Modify();
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure GetBalanceAccountType(LSVSetup: Record "LSV Setup"; var BalanceAccountType: Enum "Gen. Journal Account Type")
@@ -615,16 +604,14 @@ codeunit 3010831 LSVMgt
 
     local procedure InsertBalancingLine(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Enum "Gen. Journal Account Type"; LSVSetup: Record "LSV Setup"; BalancingAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            "Account Type" := BalanceAccountType;
-            "Source Code" := 'ESR';
+        GenJournalLine."Account Type" := BalanceAccountType;
+        GenJournalLine."Source Code" := 'ESR';
 
-            Validate("Account No.", LSVSetup."Bal. Account No.");
-            Description := DDPaymentTxt + ' ' + LSVSetup."Bank Code";
-            Validate("Document Type", "Document Type"::Payment);
-            Validate(Amount, BalancingAmount);
-            Insert();
-        end;
+        GenJournalLine.Validate("Account No.", LSVSetup."Bal. Account No.");
+        GenJournalLine.Description := DDPaymentTxt + ' ' + LSVSetup."Bank Code";
+        GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.Validate(Amount, BalancingAmount);
+        GenJournalLine.Insert();
     end;
 
     local procedure ApplyToInvoice(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20])
@@ -651,13 +638,11 @@ codeunit 3010831 LSVMgt
 
     local procedure SelectAndCheckGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; ActGenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", ActGenJournalLine."Journal Template Name");
-            SetRange("Journal Batch Name", ActGenJournalLine."Journal Batch Name");
-            SetFilter("Account No.", '<>%1', '');
-            if FindFirst() then
-                Error(GenJournalNotEmptyErr, "Journal Batch Name");
-        end;
+        GenJournalLine.SetRange("Journal Template Name", ActGenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", ActGenJournalLine."Journal Batch Name");
+        GenJournalLine.SetFilter("Account No.", '<>%1', '');
+        if GenJournalLine.FindFirst() then
+            Error(GenJournalNotEmptyErr, GenJournalLine."Journal Batch Name");
     end;
 
     [IntegrationEvent(false, false)]

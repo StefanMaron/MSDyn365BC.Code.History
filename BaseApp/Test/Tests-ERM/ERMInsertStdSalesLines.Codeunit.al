@@ -47,7 +47,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -116,7 +116,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCodesMgt.GetSalesRecurringLines(SalesHeader);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCodesMgt.GetSalesRecurringLines(SalesHeader);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -329,7 +329,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -421,7 +421,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -513,7 +513,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -533,15 +533,15 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic));
 
         // [GIVEN] Customer List on customer "C" record
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [GIVEN] Perform page action: New Sales Document -> Sales Order
-        SalesOrder.Trap;
-        CustomerList.NewSalesOrder.Invoke;
+        SalesOrder.Trap();
+        CustomerList.NewSalesOrder.Invoke();
 
         // [WHEN] Activate "Sell-to Customer No." field
-        SalesOrder."Sell-to Customer No.".Activate;
+        SalesOrder."Sell-to Customer No.".Activate();
 
         // [THEN] Recurring sales line created
         SalesHeader.get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value);
@@ -565,15 +565,15 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::Automatic));
 
         // [GIVEN] Customer List on customer "C" record
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [GIVEN] Perform page action: New Sales Document -> Sales Invoice
-        SalesInvoice.Trap;
-        CustomerList.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerList.NewSalesInvoice.Invoke();
 
         // [WHEN] Activate "Sell-to Customer No." field
-        SalesInvoice."Sell-to Customer No.".Activate;
+        SalesInvoice."Sell-to Customer No.".Activate();
 
         // [THEN] Recurring sales line created
         SalesHeader.get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);
@@ -597,15 +597,15 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::Quote, RefMode::Automatic));
 
         // [GIVEN] Customer List on customer "C" record
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [GIVEN] Perform page action: New Sales Document -> Sales Quote
-        SalesQuote.Trap;
-        CustomerList.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerList.NewSalesQuote.Invoke();
 
         // [WHEN] Activate "Sell-to Customer No." field
-        SalesQuote."Sell-to Customer No.".Activate;
+        SalesQuote."Sell-to Customer No.".Activate();
 
         // [THEN] Recurring sales line created
         SalesHeader.get(SalesHeader."Document Type"::Quote, SalesQuote."No.".Value);
@@ -629,15 +629,15 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Customer.Get(GetNewCustNoWithStandardSalesCode(RefDocType::"Credit Memo", RefMode::Automatic));
 
         // [GIVEN] Customer List on customer "C" record
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [GIVEN] Perform page action: New Sales Document -> Sales Credit Memo
-        SalesCreditMemo.Trap;
-        CustomerList.NewSalesCrMemo.Invoke;
+        SalesCreditMemo.Trap();
+        CustomerList.NewSalesCrMemo.Invoke();
 
         // [WHEN] Activate "Sell-to Customer No." field
-        SalesCreditMemo."Sell-to Customer No.".Activate;
+        SalesCreditMemo."Sell-to Customer No.".Activate();
 
         // [THEN] Recurring sales line created
         SalesHeader.get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
@@ -657,16 +657,16 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open page Standard Customer Sales Codes
-        StandardCustomerSalesCodes.OpenEdit;
+        StandardCustomerSalesCodes.OpenEdit();
 
         // [THEN] Fields "Insert Rec Lines On..." are visible
-        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Quotes".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Orders".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Invoices".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Cr. Memos".Visible, FieldNotVisibleErr);
+        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Quotes".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Orders".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Invoices".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardCustomerSalesCodes."Insert Rec. Lines On Cr. Memos".Visible(), FieldNotVisibleErr);
 
         // TearDown
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -690,7 +690,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesBlanketOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -714,7 +714,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesReturnOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -741,7 +741,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
-        VerifyNoSalesStdCodesNotification;
+        VerifyNoSalesStdCodesNotification();
     end;
 
     [Test]
@@ -775,8 +775,8 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SalesOrder."Currency Code".SetValue(CurrencyCode);
 
         // [THEN] Standard sales code notification created
-        Assert.AreEqual(SalesHeader."Document Type", LibraryVariableStorage.DequeueInteger, 'Unexpected document type');
-        Assert.AreEqual(SalesHeader."No.", LibraryVariableStorage.DequeueText, 'Unexpected document number');
+        Assert.AreEqual(SalesHeader."Document Type", LibraryVariableStorage.DequeueInteger(), 'Unexpected document type');
+        Assert.AreEqual(SalesHeader."No.", LibraryVariableStorage.DequeueText(), 'Unexpected document number');
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
     end;
 
@@ -847,7 +847,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure RecurringSalesLinesAutomaticallyPopulatedToSalesInvoiceWithCurrency()
     var
         SalesHeader: Record "Sales Header";
-        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
         StandardSalesCode: Record "Standard Sales Code";
         Customer: Record Customer;
         CurrencyCode: Code[20];
@@ -1009,7 +1008,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Customer.Get(
             GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, StdSalesCodeCode));
 
-        Commit;
+        Commit();
         LibraryVariableStorage.DequeueText(); // flush variable storage
         LibraryVariableStorage.Enqueue(false);
 
@@ -1134,7 +1133,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Insert Std. Sales Lines");
         LibraryVariableStorage.Clear();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
 
         if isInitialized then
             exit;
@@ -1159,7 +1158,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode."Customer No." := CustomerNo;
-        StandardCustomerSalesCode.Code := CreateStandardSalesCodeWithItemLine;
+        StandardCustomerSalesCode.Code := CreateStandardSalesCodeWithItemLine();
         case DocType of
             RefDocType::Quote:
                 StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
@@ -1187,7 +1186,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardSalesLine: Record "Standard Sales Line";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode;
+        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode();
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
         StandardSalesLine."No." := LibraryInventory.CreateItemNo();
         StandardSalesLine.Quantity := LibraryRandom.RandDec(10, 2);
@@ -1199,7 +1198,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     var
         StandardSalesLine: Record "Standard Sales Line";
     begin
-        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode;
+        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode();
         StandardSalesLine.Type := StandardSalesLine.Type::" ";
         StandardSalesLine.Description := LibraryUTUtility.GetNewCode();
         StandardSalesLine.Insert();
@@ -1227,7 +1226,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
     end;
@@ -1269,8 +1268,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     end;
 
     local procedure GetNewCustNoWithStandardSalesCode(DocType: Option; Mode: Integer): Code[20]
-    var
-        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
         exit(
             GetNewCustNoWithStandardSalesCodeForCode(DocType, Mode, CreateStandardSalesCodeWithItemLine()));
@@ -1281,7 +1278,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
         StandardCustomerSalesCode.Init();
-        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         StandardCustomerSalesCode.Validate(Code, SalesCode);
         case DocType of
             RefDocType::Quote:
@@ -1377,7 +1374,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardSalesLine: Record "Standard Sales Line";
     begin
         FilterOnSalesLine(SalesLine, SalesHeader);
-        Assert.IsTrue(SalesLine.FindFirst, StrSubstNo(ValueMustExistMsg, SalesLine.TableCaption()));
+        Assert.IsTrue(SalesLine.FindFirst(), StrSubstNo(ValueMustExistMsg, SalesLine.TableCaption()));
         FindStandardSalesLine(StandardSalesLine, SalesLine."Sell-to Customer No.");
         SalesLine.TestField(Type, StandardSalesLine.Type);
         SalesLine.TestField("No.", StandardSalesLine."No.");
@@ -1403,9 +1400,9 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         TempNotificationContext.SetRange("Record ID", SalesHeader.RecordId);
-        Assert.IsTrue(TempNotificationContext.FindFirst, 'Notification not found');
+        Assert.IsTrue(TempNotificationContext.FindFirst(), 'Notification not found');
         Assert.AreEqual(
-          StandardCodesMgt.GetSalesRecurringLinesNotificationId,
+          StandardCodesMgt.GetSalesRecurringLinesNotificationId(),
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1419,7 +1416,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         Assert.AreEqual(
-          StandardCodesMgt.GetSalesRecurringLinesNotificationId,
+          StandardCodesMgt.GetSalesRecurringLinesNotificationId(),
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1433,14 +1430,14 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         LibraryVariableStorage.Dequeue(Code);
         StandardCustomerSalesCodes.FILTER.SetFilter(Code, Code);
-        StandardCustomerSalesCodes.OK.Invoke;
+        StandardCustomerSalesCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardCustomerSalesCodesCancelModalPageHandler(var StandardCustomerSalesCodes: TestPage "Standard Customer Sales Codes")
     begin
-        StandardCustomerSalesCodes.Cancel.Invoke;
+        StandardCustomerSalesCodes.Cancel().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -1464,7 +1461,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure CustomerLookupModalHandler(var CustomerLookupPage: TestPage "Customer Lookup")
     begin
         CustomerLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
-        CustomerLookupPage.OK.Invoke;
+        CustomerLookupPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

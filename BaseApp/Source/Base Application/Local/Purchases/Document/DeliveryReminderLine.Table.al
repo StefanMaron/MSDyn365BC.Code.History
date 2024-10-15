@@ -12,6 +12,7 @@ using Microsoft.Utilities;
 table 5005271 "Delivery Reminder Line"
 {
     Caption = 'Delivery Reminder Line';
+    DataClassification = CustomerContent;
 
     fields
     {

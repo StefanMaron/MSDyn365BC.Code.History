@@ -22,32 +22,35 @@ codeunit 143002 "Library - DTA"
     begin
         BankCode := LibraryUtility.GenerateRandomCode(DTASetup.FieldNo("Bank Code"), DATABASE::"DTA Setup");
 
-        with DTASetup do begin
-            Init();
-            Validate("Bank Code", BankCode);
-            Validate("DTA/EZAG", "DTA/EZAG"::DTA);
+        DTASetup.Init();
+        DTASetup.Validate("Bank Code", BankCode);
+        DTASetup.Validate("DTA/EZAG", DTASetup."DTA/EZAG"::DTA);
 
-            Validate("DTA Customer ID", LibraryUtility.GenerateRandomText(5));
-            Validate("DTA Sender ID", LibraryUtility.GenerateRandomText(5));
-            Validate("DTA File Folder", 'C:\Windows\Temp\'); // Cannot use TEMPORARYPATH due to field size.
-            Validate("DTA Filename", LibraryUtility.GenerateGUID());
-            Validate("DTA Main Bank", true);
-            if CurrencyCode <> '' then
-                Validate("DTA Currency Code", CurrencyCode);
+        DTASetup.Validate("DTA Customer ID", LibraryUtility.GenerateRandomText(5));
+        DTASetup.Validate("DTA Sender ID", LibraryUtility.GenerateRandomText(5));
+        DTASetup.Validate("DTA File Folder", 'C:\Windows\Temp\');
+        // Cannot use TEMPORARYPATH due to field size.
+        DTASetup.Validate("DTA Filename", LibraryUtility.GenerateGUID());
+        DTASetup.Validate("DTA Main Bank", true);
+        if CurrencyCode <> '' then
+            DTASetup.Validate("DTA Currency Code", CurrencyCode);
 
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            GLAccount.SetFilter("Account Type", 'Posting');
-            GLAccount.SetFilter("Currency Code", CurrencyCode);
-            GLAccount.FindFirst();
-            Validate("Bal. Account No.", GLAccount."No.");
+        DTASetup.Validate("Bal. Account Type", DTASetup."Bal. Account Type"::"G/L Account");
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+#if not CLEAN24
+        GLAccount.SetRange("Currency Code", CurrencyCode);
+#else
+        GLAccount.SetRange("Source Currency Code", CurrencyCode);
+#endif
+        GLAccount.FindFirst();
+        DTASetup.Validate("Bal. Account No.", GLAccount."No.");
 
-            if Backup then begin
-                Validate("Backup Copy", true);
-                Validate("Backup Folder", TemporaryPath);
-            end;
-
-            Insert(true);
+        if Backup then begin
+            DTASetup.Validate("Backup Copy", true);
+            DTASetup.Validate("Backup Folder", TemporaryPath);
         end;
+
+        DTASetup.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -64,44 +67,44 @@ codeunit 143002 "Library - DTA"
     begin
         BankCode := LibraryUtility.GenerateRandomCode(DTASetup.FieldNo("Bank Code"), DATABASE::"DTA Setup");
 
-        with DTASetup do begin
-            Init();
+        DTASetup.Init();
 
-            Validate("Bank Code", BankCode);
-            Validate("DTA/EZAG", "DTA/EZAG"::EZAG);
+        DTASetup.Validate("Bank Code", BankCode);
+        DTASetup.Validate("DTA/EZAG", DTASetup."DTA/EZAG"::EZAG);
+        // Generate a valid EZAG Acct. No.
+        EZAGAcctPart1 := Format(LibraryRandom.RandIntInRange(10, 99));
+        EZAGAcctPart2 := Format(LibraryRandom.RandIntInRange(100000, 999999));
+        CheckDigit := BankMgt.CalcCheckDigit(EZAGAcctPart1 + EZAGAcctPart2);
+        EZAGAcctNo := EZAGAcctPart1 + '-' + EZAGAcctPart2 + '-' + CheckDigit;
 
-            // Generate a valid EZAG Acct. No.
-            EZAGAcctPart1 := Format(LibraryRandom.RandIntInRange(10, 99));
-            EZAGAcctPart2 := Format(LibraryRandom.RandIntInRange(100000, 999999));
-            CheckDigit := BankMgt.CalcCheckDigit(EZAGAcctPart1 + EZAGAcctPart2);
-            EZAGAcctNo := EZAGAcctPart1 + '-' + EZAGAcctPart2 + '-' + CheckDigit;
+        DTASetup.Validate("EZAG Debit Account No.", EZAGAcctNo);
+        DTASetup.Validate("EZAG Charges Account No.", EZAGAcctNo);
 
-            Validate("EZAG Debit Account No.", EZAGAcctNo);
-            Validate("EZAG Charges Account No.", EZAGAcctNo);
+        DTASetup.Validate("Last EZAG Order No.", Format(LibraryRandom.RandIntInRange(10, 99)));
+        DTASetup.Validate("EZAG Media ID", LibraryUtility.GenerateRandomCode(DTASetup.FieldNo("EZAG Media ID"), DATABASE::"DTA Setup"));
 
-            Validate("Last EZAG Order No.", Format(LibraryRandom.RandIntInRange(10, 99)));
-            Validate("EZAG Media ID", LibraryUtility.GenerateRandomCode(FieldNo("EZAG Media ID"), DATABASE::"DTA Setup"));
+        if CurrencyCode <> '' then
+            DTASetup.Validate("DTA Currency Code", CurrencyCode);
 
-            if CurrencyCode <> '' then
-                Validate("DTA Currency Code", CurrencyCode);
+        DTASetup.Validate("Bal. Account Type", DTASetup."Bal. Account Type"::"G/L Account");
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+#if not CLEAN24
+        GLAccount.SetRange("Currency Code", CurrencyCode);
+#else
+        GLAccount.SetRange("Source Currency Code", CurrencyCode);
+#endif
+        GLAccount.FindFirst();
 
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            GLAccount.SetFilter("Account Type", 'Posting');
-            GLAccount.SetFilter("Currency Code", CurrencyCode);
-            GLAccount.FindFirst();
+        DTASetup.Validate("Bal. Account No.", GLAccount."No.");
+        // Generate a dummy blob for the post and bar code logos
+        DTASetup."EZAG Post Logo".CreateOutStream(OutStream);
+        OutStream.WriteText(LibraryUtility.GenerateRandomText(LibraryRandom.RandInt(1000)));
+        DTASetup.Validate("EZAG Bar Code", DTASetup."EZAG Post Logo");
 
-            Validate("Bal. Account No.", GLAccount."No.");
+        DTASetup.Validate("EZAG File Folder", 'C:\Windows\Temp\');
+        DTASetup.Validate("DTA Filename", LibraryUtility.GenerateGUID());
 
-            // Generate a dummy blob for the post and bar code logos
-            "EZAG Post Logo".CreateOutStream(OutStream);
-            OutStream.WriteText(LibraryUtility.GenerateRandomText(LibraryRandom.RandInt(1000)));
-            Validate("EZAG Bar Code", "EZAG Post Logo");
-
-            Validate("EZAG File Folder", 'C:\Windows\Temp\');
-            Validate("DTA Filename", LibraryUtility.GenerateGUID());
-
-            Insert();
-        end;
+        DTASetup.Insert();
     end;
 
     [Normal]
@@ -110,8 +113,8 @@ codeunit 143002 "Library - DTA"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         PaymentTerms: Record "Payment Terms";
-        I: Integer;
         DateFormula10Days: DateFormula;
+        I: Integer;
     begin
         if UsePaymentTerms then begin
             // Create Payment Terms
@@ -211,7 +214,7 @@ codeunit 143002 "Library - DTA"
                 begin
                     VendorBankAccount.Validate("Payment Form", VendorBankAccount."Payment Form"::"Bank Payment Domestic");
                     VendorBankAccount.Validate("Bank Account No.", Format(LibraryRandom.RandIntInRange(100000, 999999)));
-                    BankDirectory.Next(LibraryRandom.RandInt(BankDirectory.Count));
+                    BankDirectory.Next(LibraryRandom.RandInt(BankDirectory.Count()));
                     VendorBankAccount.Validate("Clearing No.", BankDirectory."Clearing No.");
                     VendorBankAccount.Validate(IBAN, 'CH9300762011623852957');
                 end;
@@ -245,7 +248,7 @@ codeunit 143002 "Library - DTA"
                 end;
         end;
 
-        VendorBankAccount.Validate("Balance Account No.", CreateGLAccount);
+        VendorBankAccount.Validate("Balance Account No.", CreateGLAccount());
         if DebitBankNo <> '' then
             VendorBankAccount.Validate("Debit Bank", DebitBankNo);
 
@@ -253,7 +256,7 @@ codeunit 143002 "Library - DTA"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option; CreateNoSeries: Boolean)
+    procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Document Type"; CreateNoSeries: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         NoSeries: Record "No. Series";
@@ -265,7 +268,7 @@ codeunit 143002 "Library - DTA"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         if CreateNoSeries then begin
             LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
-            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID, '');
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID(), '');
             GenJournalBatch.Validate("No. Series", NoSeries.Code);
             GenJournalBatch.Modify(true);
         end;
@@ -319,29 +322,27 @@ codeunit 143002 "Library - DTA"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; DocumentType: Option; LineAmount: Decimal; VendorBankAccountNo: Code[20]; PaymentMethod: Option; CurrencyCode: Code[3])
+    procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; LineAmount: Decimal; VendorBankAccountNo: Code[20]; PaymentMethod: Option; CurrencyCode: Code[3])
     var
         ESRISRCodingLine: Text[70];
         UpdateAmount: Boolean;
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
-          GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccount, LineAmount);
+          GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccount(), LineAmount);
 
-        with GenJournalLine do begin
-            Validate("Document No.", GenJournalBatch.Name + Format("Line No."));
-            Validate("External Document No.", "Document No.");
-            Validate("Posting Date", PostingDate);
-            Validate("Recipient Bank Account", VendorBankAccountNo);
-            if CurrencyCode <> '' then
-                Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Document No.", GenJournalBatch.Name + Format(GenJournalLine."Line No."));
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccountNo);
+        if CurrencyCode <> '' then
+            GenJournalLine.Validate("Currency Code", CurrencyCode);
 
-            GetEntityESRISRCodingLine(ESRISRCodingLine, UpdateAmount, PaymentMethod, LineAmount);
-            Validate("ESR/ISR Coding Line", ESRISRCodingLine);
-            if UpdateAmount then
-                Validate(Amount, LineAmount);
-            Modify(true);
-        end;
+        GetEntityESRISRCodingLine(ESRISRCodingLine, UpdateAmount, PaymentMethod, LineAmount);
+        GenJournalLine.Validate("ESR/ISR Coding Line", ESRISRCodingLine);
+        if UpdateAmount then
+            GenJournalLine.Validate(Amount, LineAmount);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure GetEntityESRISRCodingLine(var ESRISRCodingLine: Text; var UpdateAmount: Boolean; PaymentMethod: Option; Amount: Decimal)

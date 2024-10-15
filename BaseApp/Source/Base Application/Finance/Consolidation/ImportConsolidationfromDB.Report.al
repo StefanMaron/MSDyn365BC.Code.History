@@ -12,7 +12,7 @@ using System.Utilities;
 
 report 90 "Import Consolidation from DB"
 {
-    Caption = 'Consolidation Report';
+    Caption = 'Consolidation Report (same environment)';
     ProcessingOnly = true;
 
     dataset
@@ -90,6 +90,12 @@ report 90 "Import Consolidation from DB"
 
                     BusUnitConsolidate.InsertGLAccount("G/L Account");
                 end;
+
+                trigger OnPreDataItem()
+                begin
+                    "G/L Account".SetRange("Exclude From Consolidation", false);
+                end;
+
             }
             dataitem("Currency Exchange Rate"; "Currency Exchange Rate")
             {
@@ -329,6 +335,8 @@ report 90 "Import Consolidation from DB"
     end;
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Import Consolidation from DB", '', ColumnDim, Text020);
@@ -338,11 +346,10 @@ report 90 "Import Consolidation from DB"
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
-            Clear(NoSeriesMgt);
             Clear(GLDocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            GLDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), true);
+            GLDocNo := NoSeries.GetNextNo(GenJnlBatch."No. Series", WorkDate());
         end;
     end;
 
@@ -356,7 +363,6 @@ report 90 "Import Consolidation from DB"
         DimSelectionBuf: Record "Dimension Selection Buffer";
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         BusUnitConsolidate: Codeunit Consolidate;
         Window: Dialog;
         ConsolidStartDate: Date;
@@ -368,7 +374,7 @@ report 90 "Import Consolidation from DB"
         AdditionalCurrencyCode: Code[10];
         BusinessUnitCode: Code[20];
         IsJournalTemplNameVisible: Boolean;
-        SkipRunningTrialBalanceAfter: Boolean;
+        SkipDateConfirm, SkipRunningTrialBalanceAfter : Boolean;
         Text032Err: Label 'The %1 is later than the %2 in company %3.';
         GLEntryNo: Integer;
 
@@ -400,6 +406,7 @@ report 90 "Import Consolidation from DB"
         GenJnlLineReq."Journal Batch Name" := ConsolidationProcess."Journal Batch Name";
         ParentCurrencyCode := ConsolidationProcess."Parent Currency Code";
         BusinessUnitCode := BusUnitInConsProcess."Business Unit Code";
+        SkipDateConfirm := true;
         SkipRunningTrialBalanceAfter := true
     end;
 
@@ -454,8 +461,9 @@ report 90 "Import Consolidation from DB"
         if EndDate = 0D then
             Error(Text007);
 
-        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text023, StartDate, EndDate), true) then
-            CurrReport.Break();
+        if not SkipDateConfirm then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text023, StartDate, EndDate), true) then
+                CurrReport.Break();
 
         CheckClosingDates(StartDate, EndDate);
 
@@ -534,15 +542,14 @@ report 90 "Import Consolidation from DB"
 
     local procedure CheckBusUnitsDatesToFiscalYear(var BusUnit: Record "Business Unit")
     begin
-        with BusUnit do
-            if ("Starting Date" <> 0D) or ("Ending Date" <> 0D) then begin
-                TestField("Starting Date");
-                TestField("Ending Date");
-                if "Starting Date" > "Ending Date" then
-                    Error(
-                      Text032Err, FieldCaption("Starting Date"),
-                      FieldCaption("Ending Date"), "Company Name");
-            end;
+        if (BusUnit."Starting Date" <> 0D) or (BusUnit."Ending Date" <> 0D) then begin
+            BusUnit.TestField("Starting Date");
+            BusUnit.TestField("Ending Date");
+            if BusUnit."Starting Date" > BusUnit."Ending Date" then
+                Error(
+                  Text032Err, BusUnit.FieldCaption("Starting Date"),
+                  BusUnit.FieldCaption("Ending Date"), BusUnit."Company Name");
+        end;
     end;
 }
 

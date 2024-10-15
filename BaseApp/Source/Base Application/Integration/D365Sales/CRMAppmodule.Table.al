@@ -12,6 +12,7 @@ table 5369 "CRM Appmodule"
     Description = 'A role-based, modular business app that provides task-based functionality for a particular area of work.';
     ExternalName = 'appmodule';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {

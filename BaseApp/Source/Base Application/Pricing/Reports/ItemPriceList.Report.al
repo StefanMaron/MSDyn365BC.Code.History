@@ -600,24 +600,22 @@ report 7050 "Item Price List"
 
     local procedure PreparePrintSalesPrice(IsVariant: Boolean)
     begin
-        with TempSalesPrice do begin
-            if PricesInCurrency then begin
-                SetRange("Currency Code", Currency.Code);
-                if Find('-') then begin
-                    SetRange("Currency Code", '');
-                    DeleteAll();
-                end;
-                SetRange("Currency Code");
+        if PricesInCurrency then begin
+            TempSalesPrice.SetRange("Currency Code", Currency.Code);
+            if TempSalesPrice.Find('-') then begin
+                TempSalesPrice.SetRange("Currency Code", '');
+                TempSalesPrice.DeleteAll();
             end;
+            TempSalesPrice.SetRange("Currency Code");
+        end;
 
-            SetRange("Source Type", PriceSource."Source Type");
-            SetRange("Source No.", PriceSource."Source No.");
+        TempSalesPrice.SetRange("Source Type", PriceSource."Source Type");
+        TempSalesPrice.SetRange("Source No.", PriceSource."Source No.");
 
-            if IsVariant then begin
-                SetRange("Variant Code", '');
-                DeleteAll();
-                SetRange("Variant Code");
-            end;
+        if IsVariant then begin
+            TempSalesPrice.SetRange("Variant Code", '');
+            TempSalesPrice.DeleteAll();
+            TempSalesPrice.SetRange("Variant Code");
         end;
 
         IsFirstSalesPrice := true;
@@ -625,55 +623,51 @@ report 7050 "Item Price List"
 
     local procedure PrintSalesPrice(IsVariant: Boolean)
     begin
-        with TempSalesPrice do begin
-            if IsFirstSalesPrice then begin
-                IsFirstSalesPrice := false;
-                if not FindSet() then
-                    if not IsVariant then begin
-                        if PriceSource."Source Type" = PriceSource."Source Type"::Campaign then
-                            CurrReport.Skip();
-
-                        "Currency Code" := '';
-                        "Price Includes VAT" := Item."Price Includes VAT";
-                        "Unit Price" := Item."Unit Price";
-                        "Unit of Measure Code" := Item."Base Unit of Measure";
-                        "Minimum Quantity" := 0;
-                    end else
+        if IsFirstSalesPrice then begin
+            IsFirstSalesPrice := false;
+            if not TempSalesPrice.FindSet() then
+                if not IsVariant then begin
+                    if PriceSource."Source Type" = PriceSource."Source Type"::Campaign then
                         CurrReport.Skip();
-            end else
-                if Next() = 0 then
-                    CurrReport.Break();
 
-            if (PriceSource."Source Type" = PriceSource."Source Type"::Campaign) and ("Source Type" <> "Source Type"::Campaign) then
-                CurrReport.Skip();
+                    TempSalesPrice."Currency Code" := '';
+                    TempSalesPrice."Price Includes VAT" := Item."Price Includes VAT";
+                    TempSalesPrice."Unit Price" := Item."Unit Price";
+                    TempSalesPrice."Unit of Measure Code" := Item."Base Unit of Measure";
+                    TempSalesPrice."Minimum Quantity" := 0;
+                end else
+                    CurrReport.Skip();
+        end else
+            if TempSalesPrice.Next() = 0 then
+                CurrReport.Break();
 
-            if "Price Includes VAT" then
-                VATText := InclTok
-            else
-                VATText := ExclTok;
-            UnitOfMeasure := "Unit of Measure Code";
-            ConvertPricetoUoM(UnitOfMeasure, "Unit Price");
-            ConvertPriceLCYToFCY("Currency Code", "Unit Price");
-        end;
+        if (PriceSource."Source Type" = PriceSource."Source Type"::Campaign) and (TempSalesPrice."Source Type" <> TempSalesPrice."Source Type"::Campaign) then
+            CurrReport.Skip();
+
+        if TempSalesPrice."Price Includes VAT" then
+            VATText := InclTok
+        else
+            VATText := ExclTok;
+        UnitOfMeasure := TempSalesPrice."Unit of Measure Code";
+        ConvertPricetoUoM(UnitOfMeasure, TempSalesPrice."Unit Price");
+        ConvertPriceLCYToFCY(TempSalesPrice."Currency Code", TempSalesPrice."Unit Price");
     end;
 
     local procedure PreparePrintSalesDisc(IsVariant: Boolean)
     begin
-        with TempSalesLineDisc do begin
-            if PricesInCurrency then begin
-                SetRange("Currency Code", Currency.Code);
-                if FindSet() then begin
-                    SetRange("Currency Code", '');
-                    DeleteAll();
-                end;
-                SetRange("Currency Code");
+        if PricesInCurrency then begin
+            TempSalesLineDisc.SetRange("Currency Code", Currency.Code);
+            if TempSalesLineDisc.FindSet() then begin
+                TempSalesLineDisc.SetRange("Currency Code", '');
+                TempSalesLineDisc.DeleteAll();
             end;
+            TempSalesLineDisc.SetRange("Currency Code");
+        end;
 
-            if IsVariant then begin
-                SetRange("Variant Code", '');
-                DeleteAll();
-                SetRange("Variant Code");
-            end;
+        if IsVariant then begin
+            TempSalesLineDisc.SetRange("Variant Code", '');
+            TempSalesLineDisc.DeleteAll();
+            TempSalesLineDisc.SetRange("Variant Code");
         end;
 
         IsFirstSalesLineDisc := true;
@@ -681,23 +675,21 @@ report 7050 "Item Price List"
 
     local procedure PrintSalesDisc()
     begin
-        with TempSalesLineDisc do begin
-            if IsFirstSalesLineDisc then begin
-                IsFirstSalesLineDisc := false;
-                if not FindSet() then
-                    CurrReport.Break();
-            end else
-                if Next() = 0 then
-                    CurrReport.Break();
+        if IsFirstSalesLineDisc then begin
+            IsFirstSalesLineDisc := false;
+            if not TempSalesLineDisc.FindSet() then
+                CurrReport.Break();
+        end else
+            if TempSalesLineDisc.Next() = 0 then
+                CurrReport.Break();
 
-            if (PriceSource."Source Type" = PriceSource."Source Type"::Campaign) and ("Source Type" <> "Source Type"::Campaign) then
-                CurrReport.Skip();
+        if (PriceSource."Source Type" = PriceSource."Source Type"::Campaign) and (TempSalesLineDisc."Source Type" <> TempSalesLineDisc."Source Type"::Campaign) then
+            CurrReport.Skip();
 
-            if "Unit of Measure Code" = '' then
-                UnitOfMeasure := Item."Base Unit of Measure"
-            else
-                UnitOfMeasure := "Unit of Measure Code";
-        end;
+        if TempSalesLineDisc."Unit of Measure Code" = '' then
+            UnitOfMeasure := Item."Base Unit of Measure"
+        else
+            UnitOfMeasure := TempSalesLineDisc."Unit of Measure Code";
     end;
 
     local procedure SetCurrencyFactorInHeader(var SalesHeader: Record "Sales Header")

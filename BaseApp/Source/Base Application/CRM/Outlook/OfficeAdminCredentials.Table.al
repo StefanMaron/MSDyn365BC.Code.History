@@ -5,6 +5,7 @@ using System.Security.Encryption;
 table 1612 "Office Admin. Credentials"
 {
     Caption = 'Office Admin. Credentials';
+    DataClassification = CustomerContent;
     Permissions = TableData "Office Admin. Credentials" = r;
     ReplicateData = false;
 

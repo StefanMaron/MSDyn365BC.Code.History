@@ -8,6 +8,7 @@ table 7504 "Item Attribute Value Selection"
 {
     Caption = 'Item Attribute Value Selection';
     Description = 'This table is used when selecting attributes for items or categories. It should only be used as temporary.';
+    DataClassification = CustomerContent;
 
     fields
     {

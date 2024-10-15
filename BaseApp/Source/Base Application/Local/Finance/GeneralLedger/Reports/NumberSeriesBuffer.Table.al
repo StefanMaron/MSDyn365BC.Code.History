@@ -7,6 +7,7 @@ namespace Microsoft.Finance.GeneralLedger.Reports;
 table 11016 "Number Series Buffer"
 {
     Caption = 'Number Series Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

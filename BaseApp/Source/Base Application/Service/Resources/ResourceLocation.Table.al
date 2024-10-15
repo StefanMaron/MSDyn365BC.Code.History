@@ -8,6 +8,7 @@ table 5952 "Resource Location"
     Caption = 'Resource Location';
     DrillDownPageID = "Resource Locations";
     LookupPageID = "Resource Locations";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -23,7 +24,7 @@ table 5952 "Resource Location"
         }
         field(2; "Location Name"; Text[100])
         {
-            CalcFormula = Lookup(Location.Name where(Code = field("Location Code")));
+            CalcFormula = lookup(Location.Name where(Code = field("Location Code")));
             Caption = 'Location Name';
             Editable = false;
             FieldClass = FlowField;
@@ -40,7 +41,7 @@ table 5952 "Resource Location"
         }
         field(4; "Resource Name"; Text[100])
         {
-            CalcFormula = Lookup(Resource.Name where("No." = field("Resource No.")));
+            CalcFormula = lookup(Resource.Name where("No." = field("Resource No.")));
             Caption = 'Resource Name';
             Editable = false;
             FieldClass = FlowField;

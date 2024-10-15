@@ -33,7 +33,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Initialize();
 
         // Create Foreign Customer
-        CustomerNo := CreateCustomer1;
+        CustomerNo := CreateCustomer1();
 
         // Create Sales Blanket Order + Lines
         CreateSalesDocumentVATIsZero(SalesHeader, SalesHeader."Document Type"::"Blanket Order", CustomerNo);
@@ -59,7 +59,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Initialize();
 
         // Create Foreign Customer
-        CustomerNo := CreateCustomer2;
+        CustomerNo := CreateCustomer2();
 
         // Create Sales Blanket Order + Lines
         CreateSalesDocumentVATIsNotZero(SalesHeader, SalesHeader."Document Type"::"Blanket Order", CustomerNo);
@@ -85,7 +85,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Initialize();
 
         // Create Foreign Customer
-        CustomerNo := CreateCustomer1;
+        CustomerNo := CreateCustomer1();
 
         // Create Sales Quote + Lines
         CreateSalesDocumentVATIsZero(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
@@ -111,7 +111,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Initialize();
 
         // Create Foreign Customer
-        CustomerNo := CreateCustomer2;
+        CustomerNo := CreateCustomer2();
 
         // Create Sales Quote + Lines
         CreateSalesDocumentVATIsNotZero(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
@@ -140,7 +140,7 @@ codeunit 144048 "Sales Document VAT Amount"
         // [GIVEN] Sales Invoice with the following values in Sales Line
         // [GIVEN] "VAT %" = 10
         // [GIVEN] "Amount Including VAT" = 110
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, 1);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), 1);
         FindSalesLine(SalesHeader, SalesLine);
         ExpectedVATPercent := SalesLine."VAT %" + LibraryRandom.RandInt(5);
         ExpectedAmountInclVAT := Round(SalesLine.Amount / 100 * (100 + ExpectedVATPercent));
@@ -212,51 +212,51 @@ codeunit 144048 "Sales Document VAT Amount"
         Commit();
     end;
 
-    local procedure CreateSalesDocumentVATIsZero(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocumentVATIsZero(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup);
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup());
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
     end;
 
-    local procedure CreateSalesDocumentVATIsNotZero(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocumentVATIsNotZero(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup);
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup());
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
-        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem,
-          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup);
+        CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItem(),
+          LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup());
         CreateSalesLine(SalesHeader, SalesLine.Type::"New Page", '', 0, 0, '');
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; LineCount: Integer)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; LineCount: Integer)
     var
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         for i := 1 to LineCount do
-            CreateSalesLine(SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
-              LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup);
+            CreateSalesLine(SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(),
+              LibraryRandom.RandInt(10), LibraryRandom.RandDec(10000, 2), FindNonZeroVATProdPosingGroup());
     end;
 
     [Normal]
@@ -265,9 +265,9 @@ codeunit 144048 "Sales Document VAT Amount"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", FindZeroVATBusPosingGroup);
+        Customer.Validate("VAT Bus. Posting Group", FindZeroVATBusPosingGroup());
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
-        Customer.Validate("Currency Code", CreateCurrency);
+        Customer.Validate("Currency Code", CreateCurrency());
         Customer.Modify();
         exit(Customer."No.");
     end;
@@ -278,7 +278,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", FindNonZeroVATBusPosingGroup);
+        Customer.Validate("VAT Bus. Posting Group", FindNonZeroVATBusPosingGroup());
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Validate("Currency Code", '');
         Customer.Modify();
@@ -290,7 +290,7 @@ codeunit 144048 "Sales Document VAT Amount"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", FindZeroVATProdPosingGroup);
+        Item.Validate("VAT Prod. Posting Group", FindZeroVATProdPosingGroup());
         Item.Modify();
         exit(Item."No.");
     end;
@@ -303,7 +303,7 @@ codeunit 144048 "Sales Document VAT Amount"
         exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate));
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; SalesLineType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; VatPostingGroup: Code[20])
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; SalesLineType: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; VatPostingGroup: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -324,14 +324,14 @@ codeunit 144048 "Sales Document VAT Amount"
         BlanketSalesOrder.ArchiveDocument.SetValue(false);
         BlanketSalesOrder.LogInteraction.SetValue(true);
 
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure QuoteReportRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -351,8 +351,8 @@ codeunit 144048 "Sales Document VAT Amount"
         ElementName: Option UnitPrice,LineAmount,VATPercentage,TotalAmountExVAT,TotalVATAmount;
     begin
         // Verify the XML
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
@@ -363,7 +363,7 @@ codeunit 144048 "Sales Document VAT Amount"
             TotalVATAmount := 0;
             if FindSet() then
                 repeat
-                    LibraryReportDataset.GetNextRow;
+                    LibraryReportDataset.GetNextRow();
                     if Type <> Type::"New Page" then begin
                         LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), "Unit Price");
                         TotalLineAmountExclVAT := "Unit Price" * Quantity;
@@ -376,7 +376,7 @@ codeunit 144048 "Sales Document VAT Amount"
                         TotalAllAmountExclVAT += TotalLineAmountExclVAT;
                         TotalVATAmount += ("VAT %" * TotalLineAmountExclVAT) / 100;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             LibraryReportDataset.MoveToRow(Count);
         end;
@@ -404,8 +404,8 @@ codeunit 144048 "Sales Document VAT Amount"
         ElementName: Option UnitPrice,LineAmount,VATPercentage,TotalAmountExVAT,TotalVATAmount;
     begin
         // Verify the XML
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
@@ -428,7 +428,7 @@ codeunit 144048 "Sales Document VAT Amount"
                         TotalVATAmount += ("VAT %" * TotalLineAmountExclVAT) / 100;
                     end;
                     LibraryReportDataset.GetNextRow();
-                until Next = 0;
+                until Next() = 0;
 
             LibraryReportDataset.GetLastRow();
         end;

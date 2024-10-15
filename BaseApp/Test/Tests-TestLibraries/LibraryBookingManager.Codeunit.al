@@ -7,7 +7,7 @@ codeunit 131014 "Library - Booking Manager"
     end;
 
     var
-        GlobalTempBookingMailbox: Record "Booking Mailbox" temporary;
+        TempGlobalBookingMailbox: Record "Booking Mailbox" temporary;
 
     local procedure CanHandle(): Boolean
     var
@@ -25,7 +25,7 @@ codeunit 131014 "Library - Booking Manager"
         if not CanHandle() then
             exit;
 
-        TempBookingMailbox.Copy(GlobalTempBookingMailbox, true);
+        TempBookingMailbox.Copy(TempGlobalBookingMailbox, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnRegisterAppointmentConnection', '', false, false)]
@@ -37,7 +37,7 @@ codeunit 131014 "Library - Booking Manager"
         if not CanHandle() then
             exit;
 
-        ConnectionName := BookingManager.GetAppointmentConnectionName;
+        ConnectionName := BookingManager.GetAppointmentConnectionName();
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName, '@@test@@');
 
@@ -72,14 +72,12 @@ codeunit 131014 "Library - Booking Manager"
         Customer.SetRange("E-Mail", TempBookingItem."Customer Email");
         if not Customer.FindFirst() then begin
             ExistingCustomer.FindFirst();
-            with Customer do begin
-                Init();
-                Validate("E-Mail", TempBookingItem."Customer Email");
-                Validate(Name, TempBookingItem."Customer Name");
-                Validate("Gen. Bus. Posting Group", ExistingCustomer."Gen. Bus. Posting Group");
-                Validate("Customer Posting Group", ExistingCustomer."Customer Posting Group");
-                Insert(true);
-            end;
+            Customer.Init();
+            Customer.Validate("E-Mail", TempBookingItem."Customer Email");
+            Customer.Validate(Name, TempBookingItem."Customer Name");
+            Customer.Validate("Gen. Bus. Posting Group", ExistingCustomer."Gen. Bus. Posting Group");
+            Customer.Validate("Customer Posting Group", ExistingCustomer."Customer Posting Group");
+            Customer.Insert(true);
         end;
     end;
 
@@ -91,15 +89,13 @@ codeunit 131014 "Library - Booking Manager"
     begin
         if not BookingServiceMapping.Get(TempBookingItem."Service ID") then begin
             ExistingItem.FindFirst();
-            with Item do begin
-                Init();
-                Validate(Description, CopyStr(TempBookingItem."Service Name", 1, 50));
-                Validate(Type, Type::Service);
-                Validate("Unit Price", TempBookingItem.Price / ((TempBookingItem.GetEndDate() - TempBookingItem.GetStartDate()) / 3600000));
-                Validate("Gen. Prod. Posting Group", ExistingItem."Gen. Prod. Posting Group");
-                "Base Unit of Measure" := 'HOUR';
-                Insert(true);
-            end;
+            Item.Init();
+            Item.Validate(Description, CopyStr(TempBookingItem."Service Name", 1, 50));
+            Item.Validate(Type, Item.Type::Service);
+            Item.Validate("Unit Price", TempBookingItem.Price / ((TempBookingItem.GetEndDate() - TempBookingItem.GetStartDate()) / 3600000));
+            Item.Validate("Gen. Prod. Posting Group", ExistingItem."Gen. Prod. Posting Group");
+            Item."Base Unit of Measure" := 'HOUR';
+            Item.Insert(true);
 
             BookingServiceMapping.Map(Item."No.", TempBookingItem."Service ID", 'Default');
         end;

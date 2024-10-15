@@ -603,8 +603,8 @@ report 208 "Sales - Shipment"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 PrepareHeader();
@@ -742,7 +742,6 @@ report 208 "Sales - Shipment"
     var
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -750,7 +749,7 @@ report 208 "Sales - Shipment"
         PostedAsmLine: Record "Posted Assembly Line";
         RespCenter: Record "Responsibility Center";
         ItemTrackingAppendix: Report "Item Tracking Appendix";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -788,17 +787,11 @@ report 208 "Sales - Shipment"
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Reg. No.';
-        GiroNoCaptionLbl: Label 'Giro No.';
-        BankNameCaptionLbl: Label 'Bank';
-        BankAccNoCaptionLbl: Label 'Account No.';
-        ShipmentNoCaptionLbl: Label 'Shipment No.';
-        ShipmentDateCaptionLbl: Label 'Shipment Date';
         HomePageCaptionLbl: Label 'Home Page';
         EmailCaptionLbl: Label 'Email';
         DocumentDateCaptionLbl: Label 'Document Date';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
-        BilltoAddressCaptionLbl: Label 'Bill-to Address';
         QuantityCaptionLbl: Label 'Quantity';
         SerialNoCaptionLbl: Label 'Serial No.';
         LotNoCaptionLbl: Label 'Lot No.';
@@ -810,9 +803,6 @@ report 208 "Sales - Shipment"
         FooterTxt: array[20] of Text;
         TotalPageNo: Integer;
         InnerGroupNo: Integer;
-        HiddenHeader: Integer;
-        ShowNumber: Boolean;
-        HiddenFooter: Integer;
         CustomerNoCaptionLbl: Label 'Customer No.';
         CompanyInfoRegNoCaptionLbl: Label 'Reg. No.';
         NewPageGroupNo: Integer;
@@ -820,6 +810,7 @@ report 208 "Sales - Shipment"
 
     protected var
         TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+        CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
@@ -855,10 +846,8 @@ report 208 "Sales - Shipment"
 
     local procedure FormatDocumentFields(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
-        with SalesShipmentHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-        end;
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesShipmentHeader."Salesperson Code", SalesPersonText);
+        ReferenceText := FormatDocument.SetText(SalesShipmentHeader."Your Reference" <> '', SalesShipmentHeader.FieldCaption("Your Reference"));
     end;
 
     local procedure GetUnitOfMeasureDescr(UOMCode: Code[10]): Text[50]
@@ -914,4 +903,3 @@ report 208 "Sales - Shipment"
     begin
     end;
 }
-

@@ -2,10 +2,11 @@ namespace Microsoft.Projects.Project.Ledger;
 
 report 1015 "Job Register"
 {
+    AdditionalSearchTerms = 'Job Register';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobRegister.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Register';
+    Caption = 'Project Register';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -156,7 +157,7 @@ report 1015 "Job Register"
     var
         JobRegFilter: Text;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Job_RegisterCaptionLbl: Label 'Job Register';
+        Job_RegisterCaptionLbl: Label 'Project Register';
         Job_Ledger_Entry__Posting_Date_CaptionLbl: Label 'Posting Date';
         Job_Register__No__CaptionLbl: Label 'Register No.';
         Job_Ledger_Entry___Total_Cost__LCY__CaptionLbl: Label 'Total';

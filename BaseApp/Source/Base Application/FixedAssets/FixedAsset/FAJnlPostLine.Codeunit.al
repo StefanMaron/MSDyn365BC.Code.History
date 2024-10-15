@@ -59,31 +59,29 @@ codeunit 5632 "FA Jnl.-Post Line"
         OnBeforeFAJnlPostLine(FAJnlLine, FAInsertLedgEntry, CheckLine, IsHandled);
         if not IsHandled then begin
             FAInsertLedgEntry.SetGLRegisterNo(0);
-            with FAJnlLine do begin
-                if "FA No." = '' then
-                    exit;
-                if "Posting Date" = 0D then
-                    "Posting Date" := "FA Posting Date";
-                if CheckLine then
-                    FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
-                DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
-                FANo := "FA No.";
-                BudgetNo := "Budgeted FA No.";
-                DeprBookCode := "Depreciation Book Code";
-                FAPostingType := "FA Posting Type";
-                FAPostingDate := "FA Posting Date";
-                Amount2 := Amount;
-                SalvageValue := "Salvage Value";
-                DeprUntilDate := "Depr. until FA Posting Date";
-                DeprAcqCost := "Depr. Acquisition Cost";
-                ErrorEntryNo := "FA Error Entry No.";
-                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
-                    MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
-                    PostMaintenance();
-                end else begin
-                    MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
-                    PostFixedAsset();
-                end;
+            if FAJnlLine."FA No." = '' then
+                exit;
+            if FAJnlLine."Posting Date" = 0D then
+                FAJnlLine."Posting Date" := FAJnlLine."FA Posting Date";
+            if CheckLine then
+                FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
+            DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
+            FANo := FAJnlLine."FA No.";
+            BudgetNo := FAJnlLine."Budgeted FA No.";
+            DeprBookCode := FAJnlLine."Depreciation Book Code";
+            FAPostingType := FAJnlLine."FA Posting Type";
+            FAPostingDate := FAJnlLine."FA Posting Date";
+            Amount2 := FAJnlLine.Amount;
+            SalvageValue := FAJnlLine."Salvage Value";
+            DeprUntilDate := FAJnlLine."Depr. until FA Posting Date";
+            DeprAcqCost := FAJnlLine."Depr. Acquisition Cost";
+            ErrorEntryNo := FAJnlLine."FA Error Entry No.";
+            if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Maintenance then begin
+                MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
+                PostMaintenance();
+            end else begin
+                MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
+                PostFixedAsset();
             end;
         end;
 
@@ -99,40 +97,38 @@ codeunit 5632 "FA Jnl.-Post Line"
         if not IsHandled then begin
             FAInsertLedgEntry.SetGLRegisterNo(GLRegisterNo);
             FAInsertLedgEntry.DeleteAllGLAcc();
-            with GenJnlLine do begin
-                if "Account No." = '' then
-                    exit;
-                if "FA Posting Date" = 0D then
-                    "FA Posting Date" := "Posting Date";
-                if "Journal Template Name" = '' then
-                    Quantity := 0;
-                DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
-                FANo := "Account No.";
-                BudgetNo := "Budgeted FA No.";
-                DeprBookCode := "Depreciation Book Code";
-                FAPostingType := Enum::"FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
-                FAPostingDate := "FA Posting Date";
-                Amount2 := FAAmount;
-                SalvageValue := ConvertAmtFCYToLCYForSourceCurrency("Salvage Value");
-                DeprUntilDate := "Depr. until FA Posting Date";
-                DeprAcqCost := "Depr. Acquisition Cost";
-                ErrorEntryNo := "FA Error Entry No.";
-                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
-                    MakeMaintenanceLedgEntry.CopyFromGenJnlLine(MaintenanceLedgEntry, GenJnlLine);
-                    MaintenanceLedgEntry.Amount := FAAmount;
-                    MaintenanceLedgEntry."VAT Amount" := VATAmount;
-                    MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
-                    MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
-                    PostMaintenance();
-                end else begin
-                    MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
-                    FALedgEntry.Amount := FAAmount;
-                    FALedgEntry."VAT Amount" := VATAmount;
-                    FALedgEntry."Transaction No." := NextTransactionNo;
-                    FALedgEntry."G/L Entry No." := NextGLEntryNo;
-                    OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount, GLRegisterNo);
-                    PostFixedAsset();
-                end;
+            if GenJnlLine."Account No." = '' then
+                exit;
+            if GenJnlLine."FA Posting Date" = 0D then
+                GenJnlLine."FA Posting Date" := GenJnlLine."Posting Date";
+            if GenJnlLine."Journal Template Name" = '' then
+                GenJnlLine.Quantity := 0;
+            DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
+            FANo := GenJnlLine."Account No.";
+            BudgetNo := GenJnlLine."Budgeted FA No.";
+            DeprBookCode := GenJnlLine."Depreciation Book Code";
+            FAPostingType := Enum::"FA Journal Line FA Posting Type".FromInteger(GenJnlLine."FA Posting Type".AsInteger() - 1);
+            FAPostingDate := GenJnlLine."FA Posting Date";
+            Amount2 := FAAmount;
+            SalvageValue := GenJnlLine.ConvertAmtFCYToLCYForSourceCurrency(GenJnlLine."Salvage Value");
+            DeprUntilDate := GenJnlLine."Depr. until FA Posting Date";
+            DeprAcqCost := GenJnlLine."Depr. Acquisition Cost";
+            ErrorEntryNo := GenJnlLine."FA Error Entry No.";
+            if GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::Maintenance then begin
+                MakeMaintenanceLedgEntry.CopyFromGenJnlLine(MaintenanceLedgEntry, GenJnlLine);
+                MaintenanceLedgEntry.Amount := FAAmount;
+                MaintenanceLedgEntry."VAT Amount" := VATAmount;
+                MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
+                MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
+                PostMaintenance();
+            end else begin
+                MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
+                FALedgEntry.Amount := FAAmount;
+                FALedgEntry."VAT Amount" := VATAmount;
+                FALedgEntry."Transaction No." := NextTransactionNo;
+                FALedgEntry."G/L Entry No." := NextGLEntryNo;
+                OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount, GLRegisterNo);
+                PostFixedAsset();
             end;
 
             FAInsertLedgEntry.CopyRecordLinksToFALedgEntry(GenJnlLine);
@@ -200,11 +196,10 @@ codeunit 5632 "FA Jnl.-Post Line"
         MakeMaintenanceLedgEntry.CopyFromFACard(MaintenanceLedgEntry, FA, FADeprBook);
         if not DeprBook."Allow Identical Document No." and (MaintenanceLedgEntry."Journal Batch Name" <> '') then
             CheckMaintDocNo(MaintenanceLedgEntry);
-        with MaintenanceLedgEntry do
-            if ("FA Posting Group" = '') and ("G/L Entry No." > 0) then begin
-                FADeprBook.TestField("FA Posting Group");
-                "FA Posting Group" := FADeprBook."FA Posting Group";
-            end;
+        if (MaintenanceLedgEntry."FA Posting Group" = '') and (MaintenanceLedgEntry."G/L Entry No." > 0) then begin
+            FADeprBook.TestField("FA Posting Group");
+            MaintenanceLedgEntry."FA Posting Group" := FADeprBook."FA Posting Group";
+        end;
         if PostBudget() then
             SetBudgetAssetNo();
         OnPostMaintenanceOnBeforeInsertEntry(MaintenanceLedgEntry);
@@ -232,106 +227,104 @@ codeunit 5632 "FA Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with FALedgEntry do begin
-            "Disposal Calculation Method" := DeprBook."Disposal Calculation Method" + 1;
-            CalculateDisposal.GetDisposalType(
-              FANo, DeprBookCode, ErrorEntryNo, DisposalType,
-              OldDisposalMethod, MaxDisposalNo, SalesEntryNo);
-            if (MaxDisposalNo > 0) and
-               ("Disposal Calculation Method" <> OldDisposalMethod)
-            then
-                Error(
-                  Text000,
-                  FAName(), DeprBook.FieldCaption("Disposal Calculation Method"), "Disposal Calculation Method",
-                  DeprBook.TableCaption(), DeprBook.FieldCaption(Code), DeprBook.Code);
-            if ErrorEntryNo = 0 then
-                "Disposal Entry No." := MaxDisposalNo + 1
-            else
-                if SalesEntryNo <> ErrorEntryNo then
-                    Error(Text001,
-                      FAName(), FieldCaption("Disposal Entry No."), MaxDisposalNo);
-            if DisposalType = DisposalType::FirstDisposal then
-                PostReverseType(FALedgEntry);
-            if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
-                FAInsertLedgEntry.SetOrgGenJnlLine(true);
-            FAInsertLedgEntry.InsertFA(FALedgEntry);
-            FAInsertLedgEntry.SetOrgGenJnlLine(false);
-            "Automatic Entry" := true;
-            FAInsertLedgEntry.SetNetdisposal(false);
-            if (DeprBook."Disposal Calculation Method" =
-                DeprBook."Disposal Calculation Method"::Net) and
-               DeprBook."VAT on Net Disposal Entries"
-            then
-                FAInsertLedgEntry.SetNetdisposal(true);
+        FALedgEntry."Disposal Calculation Method" := DeprBook."Disposal Calculation Method" + 1;
+        CalculateDisposal.GetDisposalType(
+          FANo, DeprBookCode, ErrorEntryNo, DisposalType,
+          OldDisposalMethod, MaxDisposalNo, SalesEntryNo);
+        if (MaxDisposalNo > 0) and
+           (FALedgEntry."Disposal Calculation Method" <> OldDisposalMethod)
+        then
+            Error(
+              Text000,
+              FAName(), DeprBook.FieldCaption("Disposal Calculation Method"), FALedgEntry."Disposal Calculation Method",
+              DeprBook.TableCaption(), DeprBook.FieldCaption(Code), DeprBook.Code);
+        if ErrorEntryNo = 0 then
+            FALedgEntry."Disposal Entry No." := MaxDisposalNo + 1
+        else
+            if SalesEntryNo <> ErrorEntryNo then
+                Error(Text001,
+                  FAName(), FALedgEntry.FieldCaption("Disposal Entry No."), MaxDisposalNo);
+        if DisposalType = DisposalType::FirstDisposal then
+            PostReverseType(FALedgEntry);
+        if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
+            FAInsertLedgEntry.SetOrgGenJnlLine(true);
+        FAInsertLedgEntry.InsertFA(FALedgEntry);
+        FAInsertLedgEntry.SetOrgGenJnlLine(false);
+        FALedgEntry."Automatic Entry" := true;
+        FAInsertLedgEntry.SetNetdisposal(false);
+        if (DeprBook."Disposal Calculation Method" =
+            DeprBook."Disposal Calculation Method"::Net) and
+           DeprBook."VAT on Net Disposal Entries"
+        then
+            FAInsertLedgEntry.SetNetdisposal(true);
 
-            if DisposalType = DisposalType::FirstDisposal then begin
-                CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
-                for i := 1 to 14 do
-                    if EntryAmounts[i] <> 0 then begin
-                        "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
-                        Amount := EntryAmounts[i];
-                        if i = 1 then
-                            "Result on Disposal" := "Result on Disposal"::Gain;
-                        if i = 2 then
-                            "Result on Disposal" := "Result on Disposal"::Loss;
-                        if i > 2 then
-                            "Result on Disposal" := "Result on Disposal"::" ";
-                        if i = 10 then
-                            SetResultOnDisposal(FALedgEntry);
-                        FAInsertLedgEntry.InsertFA(FALedgEntry);
-                        PostAllocation(FALedgEntry);
-                    end;
-            end;
-            if DisposalType = DisposalType::SecondDisposal then begin
-                CalculateDisposal.CalcSecondGainLoss(FANo, DeprBookCode, Amount, EntryAmounts);
-                for i := 1 to 2 do
-                    if EntryAmounts[i] <> 0 then begin
-                        "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
-                        Amount := EntryAmounts[i];
-                        if i = 1 then
-                            "Result on Disposal" := "Result on Disposal"::Gain;
-                        if i = 2 then
-                            "Result on Disposal" := "Result on Disposal"::Loss;
-                        FAInsertLedgEntry.InsertFA(FALedgEntry);
-                        PostAllocation(FALedgEntry);
-                    end;
-            end;
-            if DisposalType in
-               [DisposalType::ErrorDisposal, DisposalType::LastErrorDisposal]
-            then begin
-                CalculateDisposal.GetErrorDisposal(
-                  FANo, DeprBookCode, DisposalType = DisposalType::ErrorDisposal, MaxDisposalNo,
-                  EntryAmounts, EntryNumbers);
-                if DisposalType = DisposalType::ErrorDisposal then
-                    j := 2
-                else begin
-                    j := 14;
-                    ResultOnDisposal := CalcResultOnDisposal(FANo, DeprBookCode);
+        if DisposalType = DisposalType::FirstDisposal then begin
+            CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
+            for i := 1 to 14 do
+                if EntryAmounts[i] <> 0 then begin
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
+                    FALedgEntry.Amount := EntryAmounts[i];
+                    if i = 1 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Gain;
+                    if i = 2 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Loss;
+                    if i > 2 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::" ";
+                    if i = 10 then
+                        SetResultOnDisposal(FALedgEntry);
+                    FAInsertLedgEntry.InsertFA(FALedgEntry);
+                    PostAllocation(FALedgEntry);
                 end;
-                for i := 1 to j do
-                    if EntryNumbers[i] <> 0 then begin
-                        Amount := EntryAmounts[i];
-                        "Entry No." := EntryNumbers[i];
-                        "FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
-                        "FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
-                        if i = 1 then
-                            "Result on Disposal" := "Result on Disposal"::Gain;
-                        if i = 2 then
-                            "Result on Disposal" := "Result on Disposal"::Loss;
-                        if i > 2 then
-                            "Result on Disposal" := "Result on Disposal"::" ";
-                        if i = 10 then
-                            "Result on Disposal" := ResultOnDisposal;
-                        FAInsertLedgEntry.InsertFA(FALedgEntry);
-                        PostAllocation(FALedgEntry);
-                    end;
-            end;
-            OnPostDisposalEntryOnAfterPostDisposalType(FAInsertLedgEntry, FALedgEntry, DisposalType, EntryAmounts);
-            FAInsertLedgEntry.CorrectEntries();
-            FAInsertLedgEntry.SetNetdisposal(false);
         end;
+        if DisposalType = DisposalType::SecondDisposal then begin
+            CalculateDisposal.CalcSecondGainLoss(FANo, DeprBookCode, FALedgEntry.Amount, EntryAmounts);
+            for i := 1 to 2 do
+                if EntryAmounts[i] <> 0 then begin
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
+                    FALedgEntry.Amount := EntryAmounts[i];
+                    if i = 1 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Gain;
+                    if i = 2 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Loss;
+                    FAInsertLedgEntry.InsertFA(FALedgEntry);
+                    PostAllocation(FALedgEntry);
+                end;
+        end;
+        if DisposalType in
+           [DisposalType::ErrorDisposal, DisposalType::LastErrorDisposal]
+        then begin
+            CalculateDisposal.GetErrorDisposal(
+              FANo, DeprBookCode, DisposalType = DisposalType::ErrorDisposal, MaxDisposalNo,
+              EntryAmounts, EntryNumbers);
+            if DisposalType = DisposalType::ErrorDisposal then
+                j := 2
+            else begin
+                j := 14;
+                ResultOnDisposal := CalcResultOnDisposal(FANo, DeprBookCode);
+            end;
+            for i := 1 to j do
+                if EntryNumbers[i] <> 0 then begin
+                    FALedgEntry.Amount := EntryAmounts[i];
+                    FALedgEntry."Entry No." := EntryNumbers[i];
+                    FALedgEntry."FA Posting Category" := CalculateDisposal.SetFAPostingCategory(i);
+                    FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(CalculateDisposal.SetFAPostingType(i));
+                    if i = 1 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Gain;
+                    if i = 2 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::Loss;
+                    if i > 2 then
+                        FALedgEntry."Result on Disposal" := FALedgEntry."Result on Disposal"::" ";
+                    if i = 10 then
+                        FALedgEntry."Result on Disposal" := ResultOnDisposal;
+                    FAInsertLedgEntry.InsertFA(FALedgEntry);
+                    PostAllocation(FALedgEntry);
+                end;
+        end;
+        OnPostDisposalEntryOnAfterPostDisposalType(FAInsertLedgEntry, FALedgEntry, DisposalType, EntryAmounts);
+        FAInsertLedgEntry.CorrectEntries();
+        FAInsertLedgEntry.SetNetdisposal(false);
 
         OnAfterPostDisposalEntry(FALedgEntry, DeprBook, FANo, FAInsertLedgEntry);
     end;
@@ -349,35 +342,33 @@ codeunit 5632 "FA Jnl.-Post Line"
         OnBeforePostDeprUntilDate(FALedgEntry, FAPostingDate, Type, IsHandled);
         if IsHandled then
             exit;
-        with FALedgEntry do begin
-            "Automatic Entry" := true;
-            "FA No./Budgeted FA No." := '';
-            "FA Posting Category" := "FA Posting Category"::" ";
-            "No. of Depreciation Days" := 0;
-            if Type = Type::UntilDate then
-                CalculateDepr.Calculate(
-                  DepreciationAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
-                  FANo, DeprBookCode, FAPostingDate, DummyEntryAmounts, 0D, 0)
-            else
-                CalculateAcqCostDepr.DeprCalc(
-                  DepreciationAmount, Custom1Amount, FANo, DeprBookCode,
-                  Amount2 + SalvageValue, Amount2);
-            if Custom1Amount <> 0 then begin
-                "FA Posting Type" := "FA Posting Type"::"Custom 1";
-                Amount := Custom1Amount;
-                "No. of Depreciation Days" := Custom1NumberOfDays;
-                FAInsertLedgEntry.InsertFA(FALedgEntry);
-                if "G/L Entry No." > 0 then
-                    FAInsertLedgEntry.InsertBalAcc(FALedgEntry);
-            end;
-            if DepreciationAmount <> 0 then begin
-                "FA Posting Type" := "FA Posting Type"::Depreciation;
-                Amount := DepreciationAmount;
-                "No. of Depreciation Days" := NumberOfDays;
-                FAInsertLedgEntry.InsertFA(FALedgEntry);
-                if "G/L Entry No." > 0 then
-                    FAInsertLedgEntry.InsertBalAcc(FALedgEntry);
-            end;
+        FALedgEntry."Automatic Entry" := true;
+        FALedgEntry."FA No./Budgeted FA No." := '';
+        FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+        FALedgEntry."No. of Depreciation Days" := 0;
+        if Type = Type::UntilDate then
+            CalculateDepr.Calculate(
+              DepreciationAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
+              FANo, DeprBookCode, FAPostingDate, DummyEntryAmounts, 0D, 0)
+        else
+            CalculateAcqCostDepr.DeprCalc(
+              DepreciationAmount, Custom1Amount, FANo, DeprBookCode,
+              Amount2 + SalvageValue, Amount2);
+        if Custom1Amount <> 0 then begin
+            FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
+            FALedgEntry.Amount := Custom1Amount;
+            FALedgEntry."No. of Depreciation Days" := Custom1NumberOfDays;
+            FAInsertLedgEntry.InsertFA(FALedgEntry);
+            if FALedgEntry."G/L Entry No." > 0 then
+                FAInsertLedgEntry.InsertBalAcc(FALedgEntry);
+        end;
+        if DepreciationAmount <> 0 then begin
+            FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
+            FALedgEntry.Amount := DepreciationAmount;
+            FALedgEntry."No. of Depreciation Days" := NumberOfDays;
+            FAInsertLedgEntry.InsertFA(FALedgEntry);
+            if FALedgEntry."G/L Entry No." > 0 then
+                FAInsertLedgEntry.InsertBalAcc(FALedgEntry);
         end;
     end;
 
@@ -385,14 +376,12 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
         if (SalvageValue = 0) or (FAPostingType <> FAPostingType::"Acquisition Cost") then
             exit;
-        with FALedgEntry do begin
-            "Entry No." := 0;
-            "Automatic Entry" := true;
-            Amount := SalvageValue;
-            "FA Posting Type" := "FA Posting Type"::"Salvage Value";
-            OnPostSalvageValueOnBeforeInsertEntry(FALedgEntry);
-            FAInsertLedgEntry.InsertFA(FALedgEntry);
-        end;
+        FALedgEntry."Entry No." := 0;
+        FALedgEntry."Automatic Entry" := true;
+        FALedgEntry.Amount := SalvageValue;
+        FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
+        OnPostSalvageValueOnBeforeInsertEntry(FALedgEntry);
+        FAInsertLedgEntry.InsertFA(FALedgEntry);
     end;
 
     local procedure PostBudget(): Boolean
@@ -491,29 +480,27 @@ codeunit 5632 "FA Jnl.-Post Line"
     var
         FAPostingGr: Record "FA Posting Group";
     begin
-        with FALedgEntry do begin
-            if "G/L Entry No." = 0 then
-                exit;
-            case "FA Posting Type" of
-                "FA Posting Type"::"Gain/Loss":
-                    if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Net then begin
-                        FAPostingGr.GetPostingGroup("FA Posting Group", DeprBook.Code);
-                        FAPostingGr.CalcFields("Allocated Gain %", "Allocated Loss %");
-                        if "Result on Disposal" = "Result on Disposal"::Gain then
-                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Gain %")
-                        else
-                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Loss %");
-                    end;
-                "FA Posting Type"::"Book Value on Disposal":
-                    begin
-                        FAPostingGr.GetPostingGroup("FA Posting Group", DeprBook.Code);
-                        FAPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
-                        if "Result on Disposal" = "Result on Disposal"::Gain then
-                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Gain)")
-                        else
-                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Loss)");
-                    end;
-            end;
+        if FALedgEntry."G/L Entry No." = 0 then
+            exit;
+        case FALedgEntry."FA Posting Type" of
+            FALedgEntry."FA Posting Type"::"Gain/Loss":
+                if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Net then begin
+                    FAPostingGr.GetPostingGroup(FALedgEntry."FA Posting Group", DeprBook.Code);
+                    FAPostingGr.CalcFields("Allocated Gain %", "Allocated Loss %");
+                    if FALedgEntry."Result on Disposal" = FALedgEntry."Result on Disposal"::Gain then
+                        PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Gain %")
+                    else
+                        PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Loss %");
+                end;
+            FALedgEntry."FA Posting Type"::"Book Value on Disposal":
+                begin
+                    FAPostingGr.GetPostingGroup(FALedgEntry."FA Posting Group", DeprBook.Code);
+                    FAPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
+                    if FALedgEntry."Result on Disposal" = FALedgEntry."Result on Disposal"::Gain then
+                        PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Gain)")
+                    else
+                        PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Loss)");
+                end;
         end;
         OnAfterPostAllocation(FALedgEntry);
     end;

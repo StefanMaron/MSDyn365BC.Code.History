@@ -178,7 +178,7 @@ report 3010834 "Write LSV File"
                     Error(Text039, CustLedgEntry.TableCaption(),
                       CustLedgEntry."Entry No.", CustLedgEntry."Customer No.", CustLedgEntry."Document No.");
                 CollectionAmt := CollectionAmt + CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
-                PrepareMessage;
+                PrepareMessage();
                 NoOfLines := NoOfLines + 1;
 
                 WriteCollectionRecord(

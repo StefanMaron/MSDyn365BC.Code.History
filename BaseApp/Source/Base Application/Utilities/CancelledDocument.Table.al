@@ -11,6 +11,7 @@ table 1900 "Cancelled Document"
 {
     Caption = 'Cancelled Document';
     Permissions = TableData "Cancelled Document" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

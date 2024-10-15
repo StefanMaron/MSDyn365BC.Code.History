@@ -44,7 +44,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
         LibraryVariableStorage.Dequeue(OnlyDueEntries);
         RequestPageHandler.KeyDate.SetValue(WorkDate());
         RequestPageHandler.OnlyDueEntries.SetValue(OnlyDueEntries);
-        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure Initialize()
@@ -56,7 +56,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Swiss  It. Ven. Shp. Rem. Rep.");
 
-        UpdatePurchasesPayablesSetup;
+        UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Swiss  It. Ven. Shp. Rem. Rep.");
@@ -109,7 +109,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
 
         // Make it old.
         if OnlyDueEntries then
-            PurchaseLine.Validate("Expected Receipt Date", WorkDate - 2);
+            PurchaseLine.Validate("Expected Receipt Date", WorkDate() - 2);
 
         PurchaseLine.Modify(true);
 
@@ -117,8 +117,8 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
         VendorToFilter.SetRange("No.", Vendor."No.");
         REPORT.Run(REPORT::"SR Item Vendor Shipping Rem.", true, false, VendorToFilter);
 
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Vendor', Vendor."No.");
 

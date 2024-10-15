@@ -8,6 +8,7 @@ table 11000 "Place of Dispatcher"
 {
     Caption = 'Place of Dispatcher';
     LookupPageID = "Place of Dispatchers";
+    DataClassification = CustomerContent;
 
     fields
     {

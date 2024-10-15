@@ -10,7 +10,6 @@ codeunit 134712 "Autom. Payment Registration.UT"
 
     var
         Assert: Codeunit Assert;
-        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -26,7 +25,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        BankAccNo := CreateBankAcc;
+        BankAccNo := CreateBankAcc();
 
         BankAccReconciliation.Init();
         BankAccReconciliation.Validate("Bank Account No.", BankAccNo);
@@ -45,7 +44,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        BankAccNo := CreateBankAcc;
+        BankAccNo := CreateBankAcc();
 
         BankAccount.Get(BankAccNo);
         BankAccount."Last Statement No." := '0';
@@ -68,7 +67,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        BankAccNo := CreateBankAcc;
+        BankAccNo := CreateBankAcc();
 
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
@@ -89,7 +88,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        BankAccNo := CreateBankAcc;
+        BankAccNo := CreateBankAcc();
         BankAccReconciliationCaller.CreateNewBankPaymentAppBatch(BankAccNo, BankAccReconciliation);
 
         ValidateLastStmntsNos(BankAccNo, '', '1');
@@ -109,7 +108,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        BankAccNo := CopyStr(CreateGuid, 1, 20);
+        BankAccNo := CopyStr(CreateGuid(), 1, 20);
         asserterror
           BankAccReconciliationCaller.CreateNewBankPaymentAppBatch(BankAccNo, BankAccReconciliation);
 
@@ -126,10 +125,10 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        InsertDummyBankReconHeaderAndLine(0, '0', BankAccReconciliation);
-        InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Bank Reconciliation", '0', BankAccReconciliation);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Payment Application", '0', BankAccReconciliation);
         TestStatementNo := 'TEST1';
-        InsertDummyBankReconHeaderAndLine(1, TestStatementNo, BankAccReconciliation);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Payment Application", TestStatementNo, BankAccReconciliation);
 
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
@@ -153,7 +152,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     begin
         Initialize();
 
-        InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Payment Application", '0', BankAccReconciliation);
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
 
@@ -179,18 +178,18 @@ codeunit 134712 "Autom. Payment Registration.UT"
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
-    local procedure InsertDummyBankReconHeaderAndLine(StatementType: Option; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    local procedure InsertDummyBankReconHeaderAndLine(StatementType: Enum "Bank Acc. Rec. Stmt. Type"; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
-        BankAccReconciliation."Bank Account No." := CreateBankAcc;
+        BankAccReconciliation."Bank Account No." := CreateBankAcc();
         BankAccReconciliation."Statement No." := StatementNo;
         BankAccReconciliation.Insert();
 
@@ -207,7 +206,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.Init();
-        BankAccount."No." := CopyStr(CreateGuid, 1, 20);
+        BankAccount."No." := CopyStr(CreateGuid(), 1, 20);
         BankAccount.Insert();
 
         exit(BankAccount."No.");
@@ -240,7 +239,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 }
 

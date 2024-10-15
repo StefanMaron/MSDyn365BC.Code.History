@@ -1,4 +1,4 @@
-﻿namespace System.Security.AccessControl;
+namespace System.Security.AccessControl;
 
 using System.Environment;
 using System.IO;
@@ -130,7 +130,7 @@ page 9802 "Permission Sets"
                 SubPageLink = "Role ID" = field("Role ID"), "App ID" = field("App ID"), Scope = field(Scope);
                 AboutTitle = 'Permission set assignments';
                 AboutText = 'View or edit the list of users who are assigned a permission set.';
-                Visible = not CanManageUsersOnTenant;
+                Visible = CanManageUsersOnTenant;
             }
         }
     }
@@ -143,28 +143,6 @@ page 9802 "Permission Sets"
             {
                 Caption = 'Permissions';
                 Image = Permission;
-#if not CLEAN21
-                action(Permissions)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Permissions (legacy)';
-                    Image = Permission;
-                    Scope = Repeater;
-                    ToolTip = 'View or edit which feature objects users need to access, and set up the related permissions in permission sets that you can assign to the users of the database.';
-                    ObsoleteReason = 'Replaced by the PermissionSetContent action.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-
-                    trigger OnAction()
-                    var
-                        AggregatePermissionSet: Record "Aggregate Permission Set";
-                        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-                    begin
-                        GetSelectionFilter(AggregatePermissionSet);
-                        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet, false)
-                    end;
-                }
-#endif
                 action(PermissionSetContent)
                 {
                     ApplicationArea = Basic, Suite;
@@ -328,9 +306,6 @@ page 9802 "Permission Sets"
                         PermissionSetBuffer: Record "Permission Set Buffer";
                         TempBlob: Codeunit "Temp Blob";
                         ImportPermissionSets: XmlPort "Import Permission Sets";
-#if not CLEAN21
-                        ImportTenantPermissionSets: XmlPort "Import Tenant Permission Sets";
-#endif
                         FileName: Text;
                         InStream: InStream;
                         OutStream: OutStream;
@@ -344,21 +319,9 @@ page 9802 "Permission Sets"
 
                         TempBlob.CreateInStream(InStream);
                         UpdateExistingPermissions := Confirm(UpdateExistingPermissionsLbl, true);
-#if not CLEAN21
-                        if IsImportNewVersion(InStream) then begin
                             ImportPermissionSets.SetSource(InStream);
                             ImportPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
                             ImportPermissionSets.Import();
-                        end else begin
-                            ImportTenantPermissionSets.SetSource(InStream);
-                            ImportTenantPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
-                            ImportTenantPermissionSets.Import();
-                        end;
-#else
-                            ImportPermissionSets.SetSource(InStream);
-                            ImportPermissionSets.SetUpdatePermissions(UpdateExistingPermissions);
-                            ImportPermissionSets.Import();
-#endif
 
                         PermissionSetBuffer := Rec;
                         Rec.FillRecordBuffer();
@@ -604,27 +567,6 @@ page 9802 "Permission Sets"
         if PermissionManager.IsIntelligentCloud() then
             Rec.SetRange("Role ID", IntelligentCloudTok);
     end;
-#if not CLEAN21
-    local procedure IsImportNewVersion(InStream: InStream): Boolean
-    var
-        XmlDoc: XmlDocument;
-        XmlList: XmlNodeList;
-        XmlRoot: XmlElement;
-        XmlAttributes: XmlAttributeCollection;
-        XmlAttribute: XmlAttribute;
-        Counter: Integer;
-    begin
-        XmlDocument.ReadFrom(InStream, XmlDoc);
-        XmlDoc.GetRoot(XmlRoot);
-        XmlAttributes := XmlRoot.Attributes();
-        for Counter := 1 to XmlAttributes.Count() do begin
-            XmlAttributes.Get(Counter, XmlAttribute);
-            if XmlAttribute.Name = 'Version' then
-                exit(true);
-        end;
-        exit(false);
-    end;
-#endif
 
     local procedure ExportMixedPermissionSets(ExportToExtension: Boolean; var MetadataPermissionSet: Record "Metadata Permission Set"; var TenantPermissionSet: Record "Tenant Permission Set"; var OutStreamDest: OutStream)
     var
@@ -702,25 +644,6 @@ page 9802 "Permission Sets"
         Rec.Reset();
         Rec.CopyFilters(PermissionSetBuffer);
     end;
-
-#if not CLEAN21
-    local procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
-    var
-        PermissionSetBuffer: Record "Permission Set Buffer";
-    begin
-        AggregatePermissionSet.Reset();
-        PermissionSetBuffer.CopyFilters(Rec);
-        CurrPage.SetSelectionFilter(Rec);
-        if Rec.FindSet() then
-            repeat
-                if AggregatePermissionSet.Get(Rec.Scope, Rec."App ID", Rec."Role ID") then
-                    AggregatePermissionSet.Mark(true);
-            until Rec.Next() = 0;
-        AggregatePermissionSet.MarkedOnly(true);
-        Rec.Reset();
-        Rec.CopyFilters(PermissionSetBuffer);
-    end;
-#endif
 
     internal procedure GetSelectedRecords(var CurrSelectedRecords: Record "Permission Set Buffer")
     begin

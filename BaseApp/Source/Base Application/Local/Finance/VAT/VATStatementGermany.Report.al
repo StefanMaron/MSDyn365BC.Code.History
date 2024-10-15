@@ -323,7 +323,6 @@ report 11005 "VAT Statement Germany"
         RowNo: array[6] of Code[10];
         ErrorText: Text[80];
         i: Integer;
-        UseAmtsInAddCurr: Boolean;
         HeaderText: Text[50];
         EndDate: Date;
         StartDate: Date;
@@ -347,6 +346,9 @@ report 11005 "VAT Statement Germany"
         UnrealizedBaseAmtCaptionLbl: Label 'Unrealized Base Amount';
         VATAmountCaptionLbl: Label 'VAT Amount';
         BaseAmountCaptionLbl: Label 'Base Amount';
+
+    protected var
+        UseAmtsInAddCurr: Boolean;
 
     local procedure SetVATEntryVATKey(var VATEntry: Record "VAT Entry")
     begin

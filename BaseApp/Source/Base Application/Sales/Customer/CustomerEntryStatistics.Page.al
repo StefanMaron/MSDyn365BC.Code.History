@@ -24,37 +24,49 @@ page 302 "Customer Entry Statistics"
                     group(Date)
                     {
                         Caption = 'Date';
+#pragma warning disable AA0100
                         field("CustLedgEntry[1].""Posting Date"""; CustLedgEntry[1]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Payment';
                             ToolTip = 'Specifies the amount that relates to payments.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[2].""Posting Date"""; CustLedgEntry[2]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Invoice';
                             ToolTip = 'Specifies the amount that relates to invoices.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[3].""Posting Date"""; CustLedgEntry[3]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Credit Memo';
                             ToolTip = 'Specifies the amount that relates to credit memos.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[5].""Posting Date"""; CustLedgEntry[5]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Reminder';
                             ToolTip = 'Specifies the amount that relates to reminders.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[4].""Posting Date"""; CustLedgEntry[4]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Finance Charge Memo';
                             ToolTip = 'Specifies the amount that relates to finance charge memos.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[6].""Posting Date"""; CustLedgEntry[6]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Refund';
@@ -64,37 +76,49 @@ page 302 "Customer Entry Statistics"
                     group("Document No.")
                     {
                         Caption = 'Document No.';
+#pragma warning disable AA0100
                         field("CustLedgEntry[1].""Document No."""; CustLedgEntry[1]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[2].""Document No."""; CustLedgEntry[2]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[3].""Document No."""; CustLedgEntry[3]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[5].""Document No."""; CustLedgEntry[5]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[4].""Document No."""; CustLedgEntry[4]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[6].""Document No."""; CustLedgEntry[6]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
@@ -104,37 +128,49 @@ page 302 "Customer Entry Statistics"
                     group("Currency Code")
                     {
                         Caption = 'Currency Code';
+#pragma warning disable AA0100
                         field("CustLedgEntry[1].""Currency Code"""; CustLedgEntry[1]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[2].""Currency Code"""; CustLedgEntry[2]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[3].""Currency Code"""; CustLedgEntry[3]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[5].""Currency Code"""; CustLedgEntry[5]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[4].""Currency Code"""; CustLedgEntry[4]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[6].""Currency Code"""; CustLedgEntry[6]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
@@ -196,7 +232,9 @@ page 302 "Customer Entry Statistics"
                     group("Remaining Amount")
                     {
                         Caption = 'Remaining Amount';
+#pragma warning disable AA0100
                         field("-CustLedgEntry[1].""Remaining Amount"""; -CustLedgEntry[1]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = CustLedgEntry[1]."Currency Code";
@@ -212,7 +250,9 @@ page 302 "Customer Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the customer entry.';
                         }
+#pragma warning disable AA0100
                         field("-CustLedgEntry[3].""Remaining Amount"""; -CustLedgEntry[3]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = CustLedgEntry[3]."Currency Code";
@@ -220,7 +260,9 @@ page 302 "Customer Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the customer entry.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[5].""Remaining Amount"""; CustLedgEntry[5]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = CustLedgEntry[5]."Currency Code";
@@ -228,7 +270,9 @@ page 302 "Customer Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the customer entry.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[4].""Remaining Amount"""; CustLedgEntry[4]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = CustLedgEntry[4]."Currency Code";
@@ -236,7 +280,9 @@ page 302 "Customer Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the customer entry.';
                         }
+#pragma warning disable AA0100
                         field("CustLedgEntry[6].""Remaining Amount"""; CustLedgEntry[6]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = CustLedgEntry[6]."Currency Code";

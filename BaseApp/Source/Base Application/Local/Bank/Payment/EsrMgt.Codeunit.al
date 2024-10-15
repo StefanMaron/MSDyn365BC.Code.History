@@ -88,7 +88,7 @@ codeunit 3010531 EsrMgt
     [Scope('OnPrem')]
     procedure ImportEsrFile(var ActGenJnlLine: Record "Gen. Journal Line")
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         BankMgt: Codeunit BankMgt;
         f: File;
         OcrAccNo: Code[20];
@@ -129,7 +129,7 @@ codeunit 3010531 EsrMgt
 
         // Journal name for no serie
         GlBatchName.Get(ActGenJnlLine."Journal Template Name", ActGenJnlLine."Journal Batch Name");
-        NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
+        NextDocNo := NoSeries.PeekNextNo(GlBatchName."No. Series", PostDate);
 
         CRLFTerminated := false;
         TempFileName := Copystr(FileMgt.UploadFile(ChooseFileTitleMsg, ''), 1, 1024);

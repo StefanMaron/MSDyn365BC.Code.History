@@ -6,6 +6,7 @@ table 1833 "Consolidation Setup"
     ReplicateData = false;
     Access = Internal;
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

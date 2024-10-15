@@ -155,7 +155,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         SRCustDueAmountPerPeriod.PeriodLength.SetValue(PeriodLength);
         SRCustDueAmountPerPeriod.Layout.SetValue(Layout);
         SRCustDueAmountPerPeriod.ShowAmtInLCY.SetValue(ShowLCY);
-        SRCustDueAmountPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRCustDueAmountPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure PostSalesInvoiceWithGivenDate(Customer: Record Customer; DueDate: Date; Amount: Decimal; CurrencyCode: Code[10])
@@ -197,10 +197,10 @@ codeunit 144027 "Test Cust. Due Amt. Report"
 
     local procedure VerifyReportDataBeforeKeyDate(Customer: Record Customer; Balance: array[5] of Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', Customer."No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one customer line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one customer line in the report.');
+        LibraryReportDataset.GetNextRow();
 
         Customer.CalcFields(Balance, "Balance (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY1', Balance[4] + Balance[5]);
@@ -214,10 +214,10 @@ codeunit 144027 "Test Cust. Due Amt. Report"
 
     local procedure VerifyReportDataAfterKeyDate(Customer: Record Customer; Balance: array[5] of Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', Customer."No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one customer line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one customer line in the report.');
+        LibraryReportDataset.GetNextRow();
 
         Customer.CalcFields(Balance, "Balance (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY1', 0);
@@ -231,10 +231,10 @@ codeunit 144027 "Test Cust. Due Amt. Report"
 
     local procedure VerifyReportDataAfterKeyDateFCY(Customer: Record Customer; Balance: array[5] of Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', Customer."No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one customer line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one customer line in the report.');
+        LibraryReportDataset.GetNextRow();
 
         Customer.CalcFields(Balance, "Balance (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDue1', 0);

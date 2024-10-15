@@ -123,7 +123,6 @@ page 7318 "Warehouse Entries"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the package number assigned to the warehouse entry.';
-                    Visible = PackageTrackingVisible;
 
                     trigger OnDrillDown()
                     var
@@ -298,7 +297,6 @@ page 7318 "Warehouse Entries"
                     Caption = 'Package No. Information Card';
                     Image = SNInfo;
                     ToolTip = 'View or edit detailed information about the package number.';
-                    Visible = PackageTrackingVisible;
 
                     trigger OnAction()
                     var
@@ -316,17 +314,6 @@ page 7318 "Warehouse Entries"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
-    end;
-
-    var
-        PackageTrackingVisible: Boolean;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     local procedure GetTrackingSpecification(var TrackingSpecification: Record "Tracking Specification")

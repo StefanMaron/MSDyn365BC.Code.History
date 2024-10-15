@@ -86,16 +86,14 @@ page 6320 "Upload Power BI Report"
                     if PowerBICustomerReports.Count() >= MaxReportLimit then
                         Error(TableLimitMsg);
 
-                    with PowerBICustomerReports do begin
-                        Init();
-                        Id := CreateGuid();
-                        Name := ReportName;
-                        RecordRef.GetTable(PowerBICustomerReports);
-                        TempBlob.ToRecordRef(RecordRef, FieldNo("Blob File"));
-                        RecordRef.SetTable(PowerBICustomerReports);
-                        Version := 1;
-                        Insert();
-                    end;
+                    PowerBICustomerReports.Init();
+                    PowerBICustomerReports.Id := CreateGuid();
+                    PowerBICustomerReports.Name := ReportName;
+                    RecordRef.GetTable(PowerBICustomerReports);
+                    TempBlob.ToRecordRef(RecordRef, PowerBICustomerReports.FieldNo("Blob File"));
+                    RecordRef.SetTable(PowerBICustomerReports);
+                    PowerBICustomerReports.Version := 1;
+                    PowerBICustomerReports.Insert();
 
                     Commit();
 

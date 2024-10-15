@@ -5,6 +5,7 @@ using Microsoft.Inventory.Item;
 table 7505 "Item Attribute Value Mapping"
 {
     Caption = 'Item Attribute Value Mapping';
+    DataClassification = CustomerContent;
 
     fields
     {

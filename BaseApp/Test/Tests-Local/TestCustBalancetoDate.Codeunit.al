@@ -53,11 +53,11 @@ codeunit 144032 "Test Cust Balance to Date"
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', Customer."No.");
 
         // Expect 2 rows for the customer - one detailed line for the sales invoice, and one aggregation
-        Assert.AreEqual(2, LibraryReportDataset.RowCount, 'Expected 2 rows to be found in the report');
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), 'Expected 2 rows to be found in the report');
     end;
 
     [Test]
@@ -78,7 +78,7 @@ codeunit 144032 "Test Cust Balance to Date"
         for i := 0 to LibraryRandom.RandInt(10) do begin
             CurrencyCode :=
               LibraryERM.CreateCurrencyWithExchangeRate(
-                WorkDate, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+                WorkDate(), LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
             PostSalesDocument(GenJournalLine, Customer, GenJournalLine."Document Type"::Invoice,
               LibraryRandom.RandDec(1000, 2), CurrencyCode, WorkDate());
             TotalCustLCYBalance += GenJournalLine."Amount (LCY)";
@@ -87,7 +87,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Customer.SetRange("No.", Customer."No.");
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Expect totaling value in LCY for all Currencies is equal to total 'Amount (LCY)' of posted Invoices
         LibraryReportDataset.AssertElementWithValueExists('CustomerTotalLCY', TotalCustLCYBalance);
@@ -123,11 +123,11 @@ codeunit 144032 "Test Cust Balance to Date"
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', Customer."No.");
         LibraryReportDataset.SetRange('DocNo_CustLedgEntry', CustLedgerEntry."Document No.");
 
-        Assert.AreEqual(2, LibraryReportDataset.RowCount, 'Expected 2 rows to be found in the report');
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), 'Expected 2 rows to be found in the report');
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [THEN] Row[1]."ConsNo_DtldCustLedgEntry" = 1
         // [THEN] Row[2]."ConsNo_DtldCustLedgEntry" = 2
         // [THEN] Row[3] - TAG "ConsNo_DtldCustLedgEntry" does not exist
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(CustomerNoTagTxt, Customer."No.");
         VerifyTagOnRows(ConsNoDtldCustLedgEntryTagTxt);
     end;
@@ -199,13 +199,13 @@ codeunit 144032 "Test Cust Balance to Date"
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
         Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
+        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName(), Customer);
 
         // [THEN] 1st line: "I1".Amount = 900,00
         // [THEN] 2nd line: "P1".Amount = -300,00
         // [THEN] 3rd line: "P2".Amount = -200,00
         // [THEN] 4th line: "I1".Remaining Amount = 500,00
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 17, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 17, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 17, Format(Amount[3]));
@@ -256,7 +256,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
         Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
+        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName(), Customer);
 
         // [THEN] 1st line: "I1".Amount = 1000
         // [THEN] 2nd line: "P1".Amount =  = -300
@@ -264,7 +264,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [THEN] 4th line: "I2".Amount = 2000
         // [THEN] 5th line: "P2".Amount = -200
         // [THEN] 6rd line: "I1".Remaining Amount= 1800
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 17, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 17, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 17, Format(Amount[1] + Amount[2]));
@@ -325,7 +325,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
         Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
+        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName(), Customer);
 
         // [THEN] 1st line: "I1".Amount = 900
         // [THEN] 2nd line: "P1".Amount = -200
@@ -335,7 +335,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [THEN] 6st line: "I2".Amount = 300
         // [THEN] 7th line: "I3".Amount = 400
         // [THEN] 8th line: "P3".Remaining Amount = -100
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 17, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 17, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 17, Format(Amount[3]));
@@ -436,7 +436,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [GIVEN] Sales Invoice "SI1" for customer "C1"
         // [GIVEN] Customer "C2", "C2"."Customer Posting Group" = "CPG"
         // [GIVEN] Sales Invoice "SI2" for customer "C2"
-        CustomerPostingGroupCode := TwoSalesInvoicesWithCustomerPostingGroup;
+        CustomerPostingGroupCode := TwoSalesInvoicesWithCustomerPostingGroup();
 
         Commit();
 
@@ -445,8 +445,8 @@ codeunit 144032 "Test Cust Balance to Date"
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // [THEN] 5 rows are generated
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(5, LibraryReportDataset.RowCount, StrSubstNo(ReportEndDatasetErr, 5));
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(5, LibraryReportDataset.RowCount(), StrSubstNo(ReportEndDatasetErr, 5));
 
         // [THEN] Row[1]."OutputNo" = 1
         LibraryReportDataset.MoveToRow(1);
@@ -459,7 +459,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Assert.AreEqual(2, RowValue, StrSubstNo(ReportRowsErr, OutputNoTagTxt, 2));
 
         // [THEN] Row[5] is the total row
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalTagTxt, 'Total');
     end;
 
@@ -480,7 +480,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // [GIVEN] Sales Invoice "SI1" for customer "C1"
         // [GIVEN] Customer "C2", "C2"."Customer Posting Group" = "CPG"
         // [GIVEN] Sales Invoice "SI2" for customer "C2"
-        CustomerPostingGroupCode := TwoSalesInvoicesWithCustomerPostingGroup;
+        CustomerPostingGroupCode := TwoSalesInvoicesWithCustomerPostingGroup();
 
         Commit();
 
@@ -488,11 +488,11 @@ codeunit 144032 "Test Cust Balance to Date"
         Customer.Init();
         Customer.SetFilter("Customer Posting Group", CustomerPostingGroupCode);
         LibraryReportValidation.SetFileName(CustomerPostingGroupCode);
-        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
+        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName(), Customer);
 
         // [THEN] 3 excel worksheets are generated
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(3, LibraryReportValidation.CountWorksheets, CountOfSheetsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(3, LibraryReportValidation.CountWorksheets(), CountOfSheetsErr);
     end;
 
     [Test]
@@ -518,11 +518,11 @@ codeunit 144032 "Test Cust Balance to Date"
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // [THEN] Report contains 1 page, because Totals part is situated on the same page with Customer.
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, CountOfPagesWithTotalsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), CountOfPagesWithTotalsErr);
 
         // Tear Down.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -548,11 +548,11 @@ codeunit 144032 "Test Cust Balance to Date"
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // [THEN] Report contains 2 pages, one for Customer and one for Totals.
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(2, LibraryReportValidation.CountWorksheets, CountOfPagesWithTotalsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(2, LibraryReportValidation.CountWorksheets(), CountOfPagesWithTotalsErr);
 
         // Tear Down.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -606,7 +606,7 @@ codeunit 144032 "Test Cust Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentType,
@@ -616,7 +616,7 @@ codeunit 144032 "Test Cust Balance to Date"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; AppliedDocNo: Code[20])
+    local procedure ApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Document Type"; AppliedDocNo: Code[20])
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", Type);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliedDocNo);
@@ -624,7 +624,7 @@ codeunit 144032 "Test Cust Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostSalesDocument(var GenJournalLine: Record "Gen. Journal Line"; Customer: Record Customer; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure PostSalesDocument(var GenJournalLine: Record "Gen. Journal Line"; Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -642,7 +642,7 @@ codeunit 144032 "Test Cust Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostAppliedSalesDocument(var GenJournalLine: Record "Gen. Journal Line"; AppliedToGenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal)
+    local procedure PostAppliedSalesDocument(var GenJournalLine: Record "Gen. Journal Line"; AppliedToGenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -668,12 +668,12 @@ codeunit 144032 "Test Cust Balance to Date"
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.FindCurrentRowValue(XMLTag, RowValue);
         Assert.AreEqual(RowValue, 1, StrSubstNo(ReportRowsErr, XMLTag, 1));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.FindCurrentRowValue(XMLTag, RowValue);
         Assert.AreEqual(RowValue, 2, StrSubstNo(ReportRowsErr, XMLTag, 2));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement(XMLTag), ReportNoRowsErr);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, StrSubstNo(ReportEndDatasetErr, 3));
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), StrSubstNo(ReportEndDatasetErr, 3));
     end;
 
     [RequestPageHandler]
@@ -684,7 +684,7 @@ codeunit 144032 "Test Cust Balance to Date"
         SRCustBalanceToDateRequestPage.PrintOnePerPage.SetValue(true);
         SRCustBalanceToDateRequestPage.CheckGLReceivables.SetValue(true);
         SRCustBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
-        SRCustBalanceToDateRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRCustBalanceToDateRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -692,10 +692,10 @@ codeunit 144032 "Test Cust Balance to Date"
     procedure CustBalanceToDateRequestPageHandlerSaveAsExcel(var SRCustBalanceToDateRequestPage: TestRequestPage "SR Cust. - Balance to Date")
     begin
         SRCustBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
-        SRCustBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean);
+        SRCustBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean());
         SRCustBalanceToDateRequestPage.CheckGLReceivables.SetValue(true);
         SRCustBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
-        SRCustBalanceToDateRequestPage.SaveAsExcel(LibraryReportValidation.GetFileName);
+        SRCustBalanceToDateRequestPage.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

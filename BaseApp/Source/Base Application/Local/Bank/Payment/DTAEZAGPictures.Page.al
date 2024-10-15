@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -38,9 +38,6 @@ page 3010543 "DTA EZAG Pictures"
     end;
 
     var
-        Text001: Label 'Do you want to replace the existing picture of %1 %2?';
-        Text002: Label 'Do you want to delete the picture of %1 %2?';
-        PictureExists: Boolean;
         Text003: Label 'You can only add Pictures for EZAG.';
 }
 

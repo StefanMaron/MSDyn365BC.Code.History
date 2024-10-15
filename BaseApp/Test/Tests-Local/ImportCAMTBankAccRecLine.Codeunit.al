@@ -42,19 +42,19 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] CAMT 053.001.02 xml with statement header, balance node and one entry node
-        SetupWriteCAMTFile05302;
+        SetupWriteCAMTFile05302();
 
         // [GIVEN] Setup of Bank Account with Bank Acc. Reconciliation for CAMT 053.001.02
-        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT05302DataExch);
+        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT05302DataExch());
 
         // [WHEN] Import Bank Statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two Bank Reconciliation lines created
-        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT05302DataExch, 1, 18);
+        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT05302DataExch(), 1, 18);
     end;
 
     [Test]
@@ -74,16 +74,16 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         SetupWriteCAMTFile05304();
 
         // [GIVEN] Setup of Bank Account with Bank Acc. Reconciliation for CAMT 053.001.04
-        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT05304DataExch);
+        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT05304DataExch());
 
         // [WHEN] Import Bank Statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two Bank Reconciliation lines created
-        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT05304DataExch, 2, 27);
+        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT05304DataExch(), 2, 27);
     end;
 
     [Test]
@@ -100,19 +100,19 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] CAMT 054.001.04 xml with statement header, balance node and one entry node
-        SetupWriteCAMTFile054;
+        SetupWriteCAMTFile054();
 
         // [GIVEN] Setup of Bank Account with Bank Acc. Reconciliation for CAMT 054.001.04
-        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT054DataExch());
 
         // [WHEN] Import Bank Statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One Bank Reconciliation line created
-        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT054DataExch, 1, 12);
+        VerifyBankAccRecLineWithDataExchField(BankAccReconciliationLineTemplate, GetCAMT054DataExch(), 1, 12);
     end;
 
     [Test]
@@ -127,13 +127,13 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] CAMT 053.001.02 xml with statement header, balance node and one entry node
-        SetupWriteCAMTFile05302;
+        SetupWriteCAMTFile05302();
 
         // [GIVEN] Setup of Bank Statement Import Format for CAMT 053.001.02
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch.Validate(
           "Bank Statement Import Format",
-          CreateBankExportImportSetup(GetCAMT05302DataExch, GetCAMT053ProcCodID));
+          CreateBankExportImportSetup(GetCAMT05302DataExch(), GetCAMT053ProcCodID()));
         GenJournalBatch.Modify(true);
 
         // [WHEN] Import Bank Statement for Gen. Jnl. Line
@@ -163,7 +163,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch.Validate(
           "Bank Statement Import Format",
-          CreateBankExportImportSetup(GetCAMT05304DataExch, GetCAMT053ProcCodID));
+          CreateBankExportImportSetup(GetCAMT05304DataExch(), GetCAMT053ProcCodID()));
         GenJournalBatch.Modify(true);
 
         // [WHEN] Import Bank Statement for Gen. Jnl. Line
@@ -187,13 +187,13 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] CAMT 054.001.04 xml with statement header, balance node and one entry node
-        SetupWriteCAMTFile054;
+        SetupWriteCAMTFile054();
 
         // [GIVEN] Setup of Bank Statement Import Format for CAMT 054.001.04
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch.Validate(
           "Bank Statement Import Format",
-          CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID));
+          CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID()));
         GenJournalBatch.Modify(true);
 
         // [WHEN] Import Bank Statement for Gen. Jnl. Line
@@ -230,8 +230,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -265,8 +265,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -300,8 +300,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -329,14 +329,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with one invoice (Amount = 1234.56 EUR, Debitor Name = "DBTR_NAME", Ref. No. = "INV_REF")
-        InvCurrency := GetForeignCurrency;
+        InvCurrency := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_OnePmtOneInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -371,8 +371,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -409,8 +409,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -446,8 +446,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -477,14 +477,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with two invoices:
         // [GIVEN] Invoice1: Amount = 617.29 CHF, Debitor Name = "DBTR_NAME1", Ref. No. = "INV_REF1"
         // [GIVEN] Invoice2: Amount = 617.27 USD, Debitor Name = "DBTR_NAME2", Ref. No. = "INV_REF2"
-        InvCurrency[2] := GetForeignCurrency;
+        InvCurrency[2] := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_OnePmtTwoInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created with following details:
@@ -519,8 +519,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -557,8 +557,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -595,8 +595,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -633,8 +633,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -671,8 +671,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -703,14 +703,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] CAMT 054.001.04 xml: two payments:
         // [GIVEN] payment1: Amount = 1234.56 CHF with one invoice (Amount = 1234.56 USD, Debitor Name = "CHF_DBTR_NAME", Ref. No. = "CHF_INV_REF")
         // [GIVEN] payment2: Amount = 3456.78 EUR with one invoice (Amount = 3456.78 EUR, Debitor Name = "EUR_DBTR_NAME", Ref. No. = "EUR_INV_REF")
-        InvCurrency[1] := GetForeignCurrency;
+        InvCurrency[1] := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_TwoPmtOneInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -741,14 +741,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] CAMT 054.001.04 xml: two payments:
         // [GIVEN] payment1: Amount = 1234.56 CHF with one invoice (Amount = 1234.56 CHF, Debitor Name = "CHF_DBTR_NAME", Ref. No. = "CHF_INV_REF")
         // [GIVEN] payment2: Amount = 3456.78 EUR with one invoice (Amount = 3456.78 USD, Debitor Name = "EUR_DBTR_NAME", Ref. No. = "EUR_INV_REF")
-        InvCurrency[2] := GetForeignCurrency;
+        InvCurrency[2] := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_TwoPmtOneInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Two bank reconciliation lines have been created with following details:
@@ -788,8 +788,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Four bank reconciliation lines have been created with following details:
@@ -832,8 +832,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -876,8 +876,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -920,8 +920,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -964,8 +964,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -1002,14 +1002,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] payment2: Amount = 3456.78 EUR with two invoices:
         // [GIVEN] Invoice2-1: Amount = 1728.40 EUR, Debitor Name = "EUR_DBTR_NAME1", Ref. No. = "EUR_INV_REF1"
         // [GIVEN] Invoice2-2: Amount = 1728.38 EUR, Debitor Name = "EUR_DBTR_NAME2", Ref. No. = "EUR_INV_REF2"
-        InvCurrency[2] := GetForeignCurrency;
+        InvCurrency[2] := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_TwoPmtTwoInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -1046,14 +1046,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] payment2: Amount = 3456.78 EUR with two invoices:
         // [GIVEN] Invoice2-1: Amount = 1728.40 EUR, Debitor Name = "EUR_DBTR_NAME1", Ref. No. = "EUR_INV_REF1"
         // [GIVEN] Invoice2-2: Amount = 1728.38 USD, Debitor Name = "EUR_DBTR_NAME2", Ref. No. = "EUR_INV_REF2"
-        InvCurrency[4] := GetForeignCurrency;
+        InvCurrency[4] := GetForeignCurrency();
         SetupBankAndWriteCAMTFile054_TwoPmtTwoInv(
           BankAccReconciliation, BankAccReconciliationLine, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] Three bank reconciliation lines have been created with following details:
@@ -1089,8 +1089,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] One bank reconciliation line has been created.
@@ -1111,15 +1111,15 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 053-02 setup
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05302DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05302DataExch());
 
         // [GIVEN] XML file with Bank Account Id specified in Stmt/Acct/Id/Othr/Id
-        WriteCAMTFile_BankAccID(GetNamespace05302, 'camt.053.001.02.xsd', 'BkToCstmrStmt', 'Stmt', BankAccount."Bank Account No.");
+        WriteCAMTFile_BankAccID(GetNamespace05302(), 'camt.053.001.02.xsd', 'BkToCstmrStmt', 'Stmt', BankAccount."Bank Account No.");
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] The file has been imported and a line has been created
@@ -1141,15 +1141,15 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 053-04 setup
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05304DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05304DataExch());
 
         // [GIVEN] XML file with Bank Account Id specified in Stmt/Acct/Id/Othr/Id
-        WriteCAMTFile_BankAccID(GetNamespace05304, 'camt.053.001.04.xsd', 'BkToCstmrStmt', 'Stmt', BankAccount."Bank Account No.");
+        WriteCAMTFile_BankAccID(GetNamespace05304(), 'camt.053.001.04.xsd', 'BkToCstmrStmt', 'Stmt', BankAccount."Bank Account No.");
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] The file has been imported and a line has been created
@@ -1171,15 +1171,15 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 054 setup
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
 
         // [GIVEN] XML file with Bank Account Id specified in Stmt/Acct/Id/Othr/Id
-        WriteCAMTFile_BankAccID(GetNamespace054, 'camt.054.001.04.xsd', 'BkToCstmrDbtCdtNtfctn', 'Ntfctn', BankAccount."Bank Account No.");
+        WriteCAMTFile_BankAccID(GetNamespace054(), 'camt.054.001.04.xsd', 'BkToCstmrDbtCdtNtfctn', 'Ntfctn', BankAccount."Bank Account No.");
 
         // [WHEN] Import bank statement
         BindSubscription(ImportCAMTBankAccRecLine);
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliation.ImportBankStatement;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliation.ImportBankStatement();
         UnbindSubscription(ImportCAMTBankAccRecLine);
 
         // [THEN] The file has been imported and a line has been created
@@ -1218,7 +1218,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-02"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1261,7 +1261,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-04"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1304,7 +1304,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1354,10 +1354,10 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Assert.IsFalse(CHMgt.IsESRFormat('30041985300000000000000001'), 'ESR Reference No. must have 27 digits.');
 
         // IsESRFormat returns FALSE, when set numeric text with length = 27 and incorrect check digit as input.
-        Assert.IsFalse(CHMgt.IsESRFormat(IncStr(GetESRReferenceNo)), 'Wrong check digit of ESR Reference No.');
+        Assert.IsFalse(CHMgt.IsESRFormat(IncStr(GetESRReferenceNo())), 'Wrong check digit of ESR Reference No.');
 
         // IsESRFormat returns TRUE, when set numeric text with length = 27 and correct check digit as input.
-        Assert.IsTrue(CHMgt.IsESRFormat(GetESRReferenceNo), 'The text is not in ESR format.');
+        Assert.IsTrue(CHMgt.IsESRFormat(GetESRReferenceNo()), 'The text is not in ESR format.');
     end;
 
     [Test]
@@ -1379,7 +1379,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
@@ -1391,7 +1391,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1421,9 +1421,9 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxx103001xxxx", where "x" is a numeric symbol (0-9). Amount = "A1", "Transaction Text" = "CN1".
@@ -1433,7 +1433,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1464,7 +1464,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9).
@@ -1474,7 +1474,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-02"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1507,7 +1507,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9).
@@ -1517,7 +1517,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-04"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1550,7 +1550,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9).
@@ -1560,7 +1560,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1591,9 +1591,9 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9). Amount = "A1", "Transaction Text" = "CN1".
@@ -1603,7 +1603,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-02"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05302DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1634,9 +1634,9 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9). Amount = "A1", "Transaction Text" = "CN1".
@@ -1646,7 +1646,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 053-04"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch, GetCAMT053ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT05304DataExch(), GetCAMT053ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1677,9 +1677,9 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := GenerateNumericDocNo;
+        DocumentNo := GenerateNumericDocNo();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
 
         // [GIVEN] Reconciliation Line with "ESR Reference No." = "xxxxxxxxx103001x", where "x" is a numeric symbol (0-9). Amount = "A1", "Transaction Text" = "CN1".
@@ -1689,7 +1689,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1719,7 +1719,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
-        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
+        CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID(), '', '', '');
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := LibraryUtility.GenerateGUID();
         CreateAndPostSalesInvoice(Customer."No.", DocumentNo, '', Amount);
@@ -1731,7 +1731,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // [GIVEN] Bank Account of the Reconciliation Line has "Bank Statement Import Format" = "SEPA CAMT 054"
         BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch, GetCAMT054ProcCodID);
+        BankAccount."Bank Statement Import Format" := CreateBankExportImportSetup(GetCAMT054DataExch(), GetCAMT054ProcCodID());
         BankAccount.Modify();
 
         // [WHEN] Run matching procedure.
@@ -1754,7 +1754,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Import CAMT Bank AccRecLine");
 
-        LibraryERM.SetLCYCode(GetEURCurrency);
+        LibraryERM.SetLCYCode(GetEURCurrency());
         Commit();
 
         IsInitialized := true;
@@ -1763,34 +1763,34 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
     local procedure PrepareValuesForImportCAMT054_OnePmtOneInv(var PmtCurrency: Text; var PmtAmount: Decimal; var InvCurrency: Text; var InvAmount: Decimal; var InvDbtrName: Text; var InvRefTxt: Text)
     begin
-        PmtCurrency := GetDomesticCurrency;
+        PmtCurrency := GetDomesticCurrency();
         PmtAmount := 1234.56;
-        InvCurrency := GetDomesticCurrency;
+        InvCurrency := GetDomesticCurrency();
         InvAmount := 1234.56;
-        InvDbtrName := GetDomesticCurrency + '_DBTR_NAME';
-        InvRefTxt := GetDomesticCurrency + '_INV_REF';
+        InvDbtrName := GetDomesticCurrency() + '_DBTR_NAME';
+        InvRefTxt := GetDomesticCurrency() + '_INV_REF';
     end;
 
     local procedure PrepareValuesForImportCAMT054_OnePmtOneInv_EUR(var PmtCurrency: Text; var PmtAmount: Decimal; var InvCurrency: Text; var InvAmount: Decimal; var InvDbtrName: Text; var InvRefTxt: Text)
     begin
-        PmtCurrency := GetEURCurrency;
+        PmtCurrency := GetEURCurrency();
         PmtAmount := 3456.78;
-        InvCurrency := GetEURCurrency;
+        InvCurrency := GetEURCurrency();
         InvAmount := 3456.78;
-        InvDbtrName := GetEURCurrency + '_DBTR_NAME';
-        InvRefTxt := GetEURCurrency + '_INV_REF';
+        InvDbtrName := GetEURCurrency() + '_DBTR_NAME';
+        InvRefTxt := GetEURCurrency() + '_INV_REF';
     end;
 
     local procedure PrepareValuesForImportCAMT054_OnePmtTwoInv(var PmtCurrency: Text; var PmtAmount: Decimal; var InvCurrency: array[2] of Text; var InvAmount: array[2] of Decimal; var InvDbtrName: array[2] of Text; var InvRefTxt: array[2] of Text)
     var
         i: Integer;
     begin
-        PmtCurrency := GetDomesticCurrency;
+        PmtCurrency := GetDomesticCurrency();
         PmtAmount := 1234.56;
         for i := 1 to ArrayLen(InvCurrency) do begin
-            InvCurrency[i] := GetDomesticCurrency;
-            InvDbtrName[i] := GetDomesticCurrency + '_DBTR_NAME' + Format(i);
-            InvRefTxt[i] := GetDomesticCurrency + '_INV_REF' + Format(i);
+            InvCurrency[i] := GetDomesticCurrency();
+            InvDbtrName[i] := GetDomesticCurrency() + '_DBTR_NAME' + Format(i);
+            InvRefTxt[i] := GetDomesticCurrency() + '_INV_REF' + Format(i);
         end;
         InvAmount[1] := 617.29;
         InvAmount[2] := 617.27;
@@ -1800,12 +1800,12 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     var
         i: Integer;
     begin
-        PmtCurrency := GetEURCurrency;
+        PmtCurrency := GetEURCurrency();
         PmtAmount := 3456.78;
         for i := 1 to ArrayLen(InvCurrency) do begin
-            InvCurrency[i] := GetEURCurrency;
-            InvDbtrName[i] := GetEURCurrency + '_DBTR_NAME' + Format(i);
-            InvRefTxt[i] := GetEURCurrency + '_INV_REF' + Format(i);
+            InvCurrency[i] := GetEURCurrency();
+            InvDbtrName[i] := GetEURCurrency() + '_DBTR_NAME' + Format(i);
+            InvRefTxt[i] := GetEURCurrency() + '_INV_REF' + Format(i);
         end;
         InvAmount[1] := 1728.4;
         InvAmount[2] := 1728.38;
@@ -1839,7 +1839,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchLineDef: Record "Data Exch. Line Def";
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchLineDef.SetFilter(Namespace, GetNamespace05302);
+        DataExchLineDef.SetFilter(Namespace, GetNamespace05302());
         DataExchLineDef.FindSet();
         DataExchMapping.SetRange("Mapping Codeunit", CODEUNIT::"SEPA CAMT 053 Bank Rec. Lines");
         repeat
@@ -1854,7 +1854,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        DataExchLineDef.SetFilter(Namespace, GetNamespace05304);
+        DataExchLineDef.SetFilter(Namespace, GetNamespace05304());
         DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
@@ -1863,7 +1863,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        DataExchLineDef.SetFilter(Namespace, GetNamespace054);
+        DataExchLineDef.SetFilter(Namespace, GetNamespace054());
         DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
@@ -1940,7 +1940,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine.ImportBankStatement;
+        GenJournalLine.ImportBankStatement();
     end;
 
     local procedure SetStatementValues(var StartBalAmt: Decimal; var CreditAmt1: Decimal; var CreditAmt2: Decimal; var DebitAmt: Decimal)
@@ -1956,7 +1956,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         with DataExchColumnDef do begin
-            SetRange("Data Exch. Def Code", GetCAMT054DataExch);
+            SetRange("Data Exch. Def Code", GetCAMT054DataExch());
             SetRange(Name, 'Ntfctn/Ntry/Amt[@Ccy]');
             FindFirst();
             exit("Column No.");
@@ -1968,7 +1968,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         with DataExchColumnDef do begin
-            SetRange("Data Exch. Def Code", GetCAMT054DataExch);
+            SetRange("Data Exch. Def Code", GetCAMT054DataExch());
             SetRange(Name, 'Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref');
             FindFirst();
             exit("Column No.");
@@ -1986,7 +1986,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankMgt: Codeunit BankMgt;
         RefNo: Text[26];
     begin
-        RefNo := CopyStr(PadStr(GetESRReferenceNo, 27 - StrLen(DocumentNo) - 1) + DocumentNo, 1, MaxStrLen(RefNo));
+        RefNo := CopyStr(PadStr(GetESRReferenceNo(), 27 - StrLen(DocumentNo) - 1) + DocumentNo, 1, MaxStrLen(RefNo));
         exit(RefNo + BankMgt.CalcCheckDigit(RefNo));
     end;
 
@@ -2004,8 +2004,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTHeaderWithBankID(OutStream, NamespaceTxt, XSDTxt, HeaderName, StatementName, BankAccID);
-        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'OPBD', GetEURCurrency, GetAmountText(0), GetDate);
-        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'CLBD', GetEURCurrency, GetAmountText(PmtAmount), GetDate);
+        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'OPBD', GetEURCurrency(), GetAmountText(0), GetDate());
+        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'CLBD', GetEURCurrency(), GetAmountText(PmtAmount), GetDate());
         WriteCAMTPmtHeader(OutStream, PmtCurrency, PmtAmount, true);
         WriteCAMTInvoice(OutStream, 'TEST', InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
         WriteCAMTPmtFooter(OutStream);
@@ -2015,19 +2015,19 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure WriteCAMTFile05302(OutStream: OutStream)
     begin
         WriteCAMTFileSwiss(
-          OutStream, ImportTypeRef::camt05302, GetNamespace05302, 'camt.053.001.02.xsd', 'BkToCstmrStmt', 'Stmt');
+          OutStream, ImportTypeRef::camt05302, GetNamespace05302(), 'camt.053.001.02.xsd', 'BkToCstmrStmt', 'Stmt');
     end;
 
     local procedure WriteCAMTFile05304(OutStream: OutStream)
     begin
         WriteCAMTFileSwiss(
-          OutStream, ImportTypeRef::camt05304, GetNamespace05304, 'camt.053.001.04.xsd', 'BkToCstmrStmt', 'Stmt');
+          OutStream, ImportTypeRef::camt05304, GetNamespace05304(), 'camt.053.001.04.xsd', 'BkToCstmrStmt', 'Stmt');
     end;
 
     local procedure WriteCAMTFile054(OutStream: OutStream)
     begin
         WriteCAMTFileSwiss(
-          OutStream, ImportTypeRef::camt054, GetNamespace054, 'camt.054.001.04.xsd', 'BkToCstmrDbtCdtNtfctn', 'Ntfctn');
+          OutStream, ImportTypeRef::camt054, GetNamespace054(), 'camt.054.001.04.xsd', 'BkToCstmrDbtCdtNtfctn', 'Ntfctn');
     end;
 
     local procedure WriteCAMTFileSwiss(OutStream: OutStream; ImportType: Option; NamespaceTxt: Text; XSDTxt: Text; HeaderName: Text; StatementName: Text)
@@ -2044,9 +2044,9 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         // Statement Balance
         if ImportType in [ImportTypeRef::camt05302, ImportTypeRef::camt05304] then begin
-            LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'OPBD', GetEURCurrency, GetAmountText(StartBalAmt), GetDate);
+            LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(OutStream, 'OPBD', GetEURCurrency(), GetAmountText(StartBalAmt), GetDate());
             LibraryCAMTFileMgt.WriteCAMTStmtHeaderBal(
-              OutStream, 'CLBD', GetEURCurrency, GetAmountText(StartBalAmt + CreditAmt1 + CreditAmt2 - DebitAmt), GetDate);
+              OutStream, 'CLBD', GetEURCurrency(), GetAmountText(StartBalAmt + CreditAmt1 + CreditAmt2 - DebitAmt), GetDate());
         end;
 
         // Credit Entry for multy payment statement
@@ -2083,8 +2083,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         WriteCAMTGrpHdr(OutStream);
         WriteLine(OutStream, '    <' + StatementName + '>');
         WriteLine(OutStream, '      <Id>STMID-01</Id>');
-        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime + '</CreDtTm>');
-        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBankAccIBAN(OutStream, GetIBANTxt);
+        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime() + '</CreDtTm>');
+        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBankAccIBAN(OutStream, GetIBANTxt());
     end;
 
     local procedure WriteCAMTHeaderWithBankID(OutStream: OutStream; NamespaceTxt: Text; XSDTxt: Text; HeaderName: Text; StatementName: Text; BankAccID: Text)
@@ -2094,7 +2094,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         WriteCAMTGrpHdr(OutStream);
         WriteLine(OutStream, '    <' + StatementName + '>');
         WriteLine(OutStream, '      <Id>STMID-01</Id>');
-        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime + '</CreDtTm>');
+        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime() + '</CreDtTm>');
         LibraryCAMTFileMgt.WriteCAMTStmtHeaderBankAccID(OutStream, BankAccID);
     end;
 
@@ -2105,8 +2105,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         WriteCAMTGrpHdr(OutStream);
         WriteLine(OutStream, '      <' + StatementName + '>');
         WriteLine(OutStream, '         <Id>STMID-01</Id>');
-        WriteLine(OutStream, '         <CreDtTm>' + GetDateTime + '</CreDtTm>');
-        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBankAccIBAN(OutStream, GetIBANTxt);
+        WriteLine(OutStream, '         <CreDtTm>' + GetDateTime() + '</CreDtTm>');
+        LibraryCAMTFileMgt.WriteCAMTStmtHeaderBankAccIBAN(OutStream, GetIBANTxt());
     end;
 
     local procedure WriteCAMTFooter(OutStream: OutStream; HeaderName: Text; StatementName: Text)
@@ -2187,14 +2187,14 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         WriteLine(OutStream, '    <GrpHdr>');
         WriteLine(OutStream, '      <MsgId>MSGID-01</MsgId>');
-        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime + '</CreDtTm>');
+        WriteLine(OutStream, '      <CreDtTm>' + GetDateTime() + '</CreDtTm>');
         WriteLine(OutStream, '    </GrpHdr>');
     end;
 
     local procedure WriteDtForBookgValItems(OutStream: OutStream; NodeName: Text)
     begin
         WriteLine(OutStream, '        <' + NodeName + '>');
-        WriteLine(OutStream, '          <Dt>' + GetDate + '</Dt>');
+        WriteLine(OutStream, '          <Dt>' + GetDate() + '</Dt>');
         WriteLine(OutStream, '        </' + NodeName + '>');
     end;
 
@@ -2256,7 +2256,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure WriteCAMTFile054_OnePmtOneInv(OutStream: OutStream; PmtCurrency: Text; PmtAmount: Decimal; InvCurrency: Text; InvAmount: Decimal; InvDbtrName: Text; InvRefTxt: Text)
@@ -2266,7 +2266,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         HeaderName := 'BkToCstmrDbtCdtNtfctn';
         StatementName := 'Ntfctn';
-        WriteCAMTHeader(OutStream, GetNamespace054, 'camt.054.001.04.xsd', HeaderName, StatementName);
+        WriteCAMTHeader(OutStream, GetNamespace054(), 'camt.054.001.04.xsd', HeaderName, StatementName);
         WriteCAMT054PmtWithOneInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
         WriteCAMTFooter(OutStream, HeaderName, StatementName);
     end;
@@ -2278,7 +2278,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         HeaderName := 'BkToCstmrDbtCdtNtfctn';
         StatementName := 'Ntfctn';
-        WriteCAMTHeaderWithExtraSpaces(OutStream, GetNamespace054, 'camt.054.001.04.xsd', HeaderName, StatementName);
+        WriteCAMTHeaderWithExtraSpaces(OutStream, GetNamespace054(), 'camt.054.001.04.xsd', HeaderName, StatementName);
         WriteCAMT054PmtWithOneInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
         WriteCAMTFooterWithExtraSpaces(OutStream, HeaderName, StatementName);
     end;
@@ -2290,7 +2290,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         HeaderName := 'BkToCstmrDbtCdtNtfctn';
         StatementName := 'Ntfctn';
-        WriteCAMTHeader(OutStream, GetNamespace054, 'camt.054.001.04.xsd', HeaderName, StatementName);
+        WriteCAMTHeader(OutStream, GetNamespace054(), 'camt.054.001.04.xsd', HeaderName, StatementName);
         WriteCAMT054PmtWithTwoInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
         WriteCAMTFooter(OutStream, HeaderName, StatementName);
     end;
@@ -2303,7 +2303,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         HeaderName := 'BkToCstmrDbtCdtNtfctn';
         StatementName := 'Ntfctn';
-        WriteCAMTHeader(OutStream, GetNamespace054, 'camt.054.001.04.xsd', HeaderName, StatementName);
+        WriteCAMTHeader(OutStream, GetNamespace054(), 'camt.054.001.04.xsd', HeaderName, StatementName);
         for i := 1 to ArrayLen(PmtCurrency) do
             WriteCAMT054PmtWithOneInv(OutStream, PmtCurrency[i], PmtAmount[i], InvCurrency[i], InvAmount[i], InvDbtrName[i], InvRefTxt[i]);
         WriteCAMTFooter(OutStream, HeaderName, StatementName);
@@ -2320,7 +2320,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         HeaderName := 'BkToCstmrDbtCdtNtfctn';
         StatementName := 'Ntfctn';
-        WriteCAMTHeader(OutStream, GetNamespace054, 'camt.054.001.04.xsd', HeaderName, StatementName);
+        WriteCAMTHeader(OutStream, GetNamespace054(), 'camt.054.001.04.xsd', HeaderName, StatementName);
         Copy4DimBufTo2DimBuf(TempInvCurrency, TempInvAmount, TempInvDbtrName, TempInvRefTxt, InvCurrency, InvAmount, InvDbtrName, InvRefTxt, 0);
         WriteCAMT054PmtWithTwoInv(OutStream, PmtCurrency[1], PmtAmount[1], TempInvCurrency, TempInvAmount, TempInvDbtrName, TempInvRefTxt);
         Copy4DimBufTo2DimBuf(TempInvCurrency, TempInvAmount, TempInvDbtrName, TempInvRefTxt, InvCurrency, InvAmount, InvDbtrName, InvRefTxt, 2);
@@ -2371,7 +2371,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTFile054_OnePmtOneInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
     end;
 
     local procedure SetupBankAndWriteCAMTFile054_OnePmtOneInv_ExtraSpaces(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PmtCurrency: Text; PmtAmount: Decimal; InvCurrency: Text; InvAmount: Decimal; InvDbtrName: Text; InvRefTxt: Text)
@@ -2382,7 +2382,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTFile054_OnePmtOneInvExtraSpaces(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
     end;
 
     local procedure SetupBankAndWriteCAMTFile054_OnePmtTwoInv(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PmtCurrency: Text; PmtAmount: Decimal; InvCurrency: array[2] of Text; InvAmount: array[2] of Decimal; InvDbtrName: array[2] of Text; InvRefTxt: array[2] of Text)
@@ -2393,7 +2393,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTFile054_OnePmtTwoInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
     end;
 
     local procedure SetupBankAndWriteCAMTFile054_TwoPmtOneInv(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PmtCurrency: array[2] of Text; PmtAmount: array[2] of Decimal; InvCurrency: array[2] of Text; InvAmount: array[2] of Decimal; InvDbtrName: array[2] of Text; InvRefTxt: array[2] of Text)
@@ -2404,7 +2404,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTFile054_TwoPmtOneInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
     end;
 
     local procedure SetupBankAndWriteCAMTFile054_TwoPmtTwoInv(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PmtCurrency: array[2] of Text; PmtAmount: array[2] of Decimal; InvCurrency: array[4] of Text; InvAmount: array[4] of Decimal; InvDbtrName: array[4] of Text; InvRefTxt: array[4] of Text)
@@ -2415,7 +2415,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Clear(TempBlobGlobal);
         TempBlobGlobal.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         WriteCAMTFile054_TwoPmtTwoInv(OutStream, PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
-        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
+        SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch());
     end;
 
     local procedure CreateBankAccReconTemplateWithFilter(var BankAccReconciliationLineTemplate: Record "Bank Acc. Reconciliation Line"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -2443,7 +2443,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankAccount.Validate("Last Statement No.",
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Last Statement No."), DATABASE::"Bank Account"));
         BankAccount."Bank Statement Import Format" := BankExportImportSetup.Code;
-        BankAccount.IBAN := GetIBANTxt;
+        BankAccount.IBAN := GetIBANTxt();
         BankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         BankAccount.Modify(true);
     end;
@@ -2480,9 +2480,6 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankAccReconciliationLine.Validate("ESR Reference No.", ESRReferenceNo);
         BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
-#if not CLEAN21
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
-#endif
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -2544,7 +2541,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
     local procedure GenerateNumericDocNo(): Text[10]
     begin
-        exit(ConvertStr(LibraryUtility.GenerateGUID, 'GU', Format(LibraryRandom.RandIntInRange(10, 99))));
+        exit(ConvertStr(LibraryUtility.GenerateGUID(), 'GU', Format(LibraryRandom.RandIntInRange(10, 99))));
     end;
 
     local procedure InsertDefaultMatchingRules()
@@ -2656,7 +2653,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure VerifyImportCAMT054_PmtCurrency(var DataExchField: Record "Data Exch. Field"; ExpetedValue: Text)
     begin
         with DataExchField do begin
-            SetRange("Column No.", GetCAMT054DataExchPmtCurrencyColumnNo);
+            SetRange("Column No.", GetCAMT054DataExchPmtCurrencyColumnNo());
             Assert.RecordCount(DataExchField, 1);
             FindFirst();
             TestField(Value, ExpetedValue);
@@ -2666,7 +2663,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure VerifyImportCAMT054_InvRef(var DataExchField: Record "Data Exch. Field"; ExpetedValue: Text)
     begin
         with DataExchField do begin
-            SetRange("Column No.", GetCAMT054DataExchInvRefColumnNo);
+            SetRange("Column No.", GetCAMT054DataExchInvRefColumnNo());
             FindFirst();
             TestField(Value, ExpetedValue);
         end;
@@ -2757,7 +2754,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         Score: Integer;
     begin
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         Score := TempBankPmtApplRule.GetBestMatchScore(ExpectedBankPmtApplRule);
 
         TempBankStatementMatchingBuffer.Reset();

@@ -51,7 +51,7 @@ codeunit 144037 "SR Vendor Orders per Period"
         LibraryVariableStorage.Dequeue(ShowLCY);
         ReqPage."Period Length".SetValue(PeriodLength);
         ReqPage.ShowAmtInLCY.SetValue(ShowLCY);
-        ReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VendOrdersPerPeriodReportTest(ShowAmtInLCY: Boolean)
@@ -115,11 +115,11 @@ codeunit 144037 "SR Vendor Orders per Period"
         Index: Integer;
         PurchAmtInOrderLCY: array[5] of Decimal;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(NumberOfPurchaseOrders, LibraryReportDataset.RowCount, 'Wrong number of customer lines in the report.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(NumberOfPurchaseOrders, LibraryReportDataset.RowCount(), 'Wrong number of customer lines in the report.');
 
         for Index := 1 to NumberOfPurchaseOrders do begin
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
 
             Clear(PurchAmtInOrderLCY);
             PurchAmtInOrderLCY[Index] := ExpectedPurchAmtInOrderLCY[Index];

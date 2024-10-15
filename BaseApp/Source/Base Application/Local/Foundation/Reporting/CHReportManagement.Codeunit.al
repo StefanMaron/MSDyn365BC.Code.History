@@ -94,11 +94,10 @@ codeunit 11515 "CH Report Management"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         RecRef.SetTable(SalesInvoiceHeader);
-        with SalesInvoiceHeader do
-            if "Order No." <> '' then begin
-                HeaderLabel[1] := OrderNoTxt;
-                HeaderTxt[1] := "Order No.";
-            end;
+        if SalesInvoiceHeader."Order No." <> '' then begin
+            HeaderLabel[1] := OrderNoTxt;
+            HeaderTxt[1] := SalesInvoiceHeader."Order No.";
+        end;
 
         PrepareHeaderSalesCommonPart(RecRef, HeaderLabel, HeaderTxt);
     end;
@@ -162,51 +161,49 @@ codeunit 11515 "CH Report Management"
         CompanyInformation: Record "Company Information";
         AppliesToDocNo: Text;
     begin
-        with SalesHeader do begin
-            if PaymentTerms.Get(GetFieldValue(RecRef, FieldNo("Payment Terms Code"))) then begin
-                FooterLabel[1] := PaymentTermsTxt;
-                PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
-                FooterTxt[1] := PaymentTerms.Description;
-            end;
+        if PaymentTerms.Get(GetFieldValue(RecRef, SalesHeader.FieldNo("Payment Terms Code"))) then begin
+            FooterLabel[1] := PaymentTermsTxt;
+            PaymentTerms.TranslateDescription(PaymentTerms, SalesHeader."Language Code");
+            FooterTxt[1] := PaymentTerms.Description;
+        end;
 
-            AppliesToDocNo := GetFieldValue(RecRef, FieldNo("Applies-to Doc. No."));
-            if AppliesToDocNo <> '' then begin
-                FooterLabel[2] := ApplyToDocTxt;
-                FooterTxt[2] := GetFieldValue(RecRef, FieldNo("Applies-to Doc. Type")) + ' ' + AppliesToDocNo;
-            end;
+        AppliesToDocNo := GetFieldValue(RecRef, SalesHeader.FieldNo("Applies-to Doc. No."));
+        if AppliesToDocNo <> '' then begin
+            FooterLabel[2] := ApplyToDocTxt;
+            FooterTxt[2] := GetFieldValue(RecRef, SalesHeader.FieldNo("Applies-to Doc. Type")) + ' ' + AppliesToDocNo;
+        end;
 
-            if ShipmentMethod.Get(GetFieldValue(RecRef, FieldNo("Shipment Method Code"))) then begin
-                FooterLabel[3] := ShipCondTxt;
-                ShipmentMethod.TranslateDescription(ShipmentMethod, "Language Code");
-                FooterTxt[3] := ShipmentMethod.Description;
-            end;
+        if ShipmentMethod.Get(GetFieldValue(RecRef, SalesHeader.FieldNo("Shipment Method Code"))) then begin
+            FooterLabel[3] := ShipCondTxt;
+            ShipmentMethod.TranslateDescription(ShipmentMethod, SalesHeader."Language Code");
+            FooterTxt[3] := ShipmentMethod.Description;
+        end;
 
-            if GetFieldValue(RecRef, FieldNo("Ship-to Code")) <> '' then begin
-                FooterLabel[4] := ShipAdrTxt;
-                FooterTxt[4] := GetFieldValue(RecRef, FieldNo("Ship-to Name")) + ' ' + GetFieldValue(RecRef, FieldNo("Ship-to City"));
-            end;
+        if GetFieldValue(RecRef, SalesHeader.FieldNo("Ship-to Code")) <> '' then begin
+            FooterLabel[4] := ShipAdrTxt;
+            FooterTxt[4] := GetFieldValue(RecRef, SalesHeader.FieldNo("Ship-to Name")) + ' ' + GetFieldValue(RecRef, SalesHeader.FieldNo("Ship-to City"));
+        end;
 
-            if GetFieldValue(RecRef, FieldNo("Sell-to Customer No.")) <> GetFieldValue(RecRef, FieldNo("Bill-to Customer No.")) then begin
-                FooterLabel[5] := InvAdrTxt;
-                FooterTxt[5] := GetFieldValue(RecRef, FieldNo("Bill-to Name")) + ', ' + GetFieldValue(RecRef, FieldNo("Bill-to City"));
-                FooterLabel[6] := OrderAdrTxt;
-                FooterTxt[6] :=
-                  GetFieldValue(RecRef, FieldNo("Sell-to Customer Name")) + ', ' + GetFieldValue(RecRef, FieldNo("Sell-to City"));
-            end;
+        if GetFieldValue(RecRef, SalesHeader.FieldNo("Sell-to Customer No.")) <> GetFieldValue(RecRef, SalesHeader.FieldNo("Bill-to Customer No.")) then begin
+            FooterLabel[5] := InvAdrTxt;
+            FooterTxt[5] := GetFieldValue(RecRef, SalesHeader.FieldNo("Bill-to Name")) + ', ' + GetFieldValue(RecRef, SalesHeader.FieldNo("Bill-to City"));
+            FooterLabel[6] := OrderAdrTxt;
+            FooterTxt[6] :=
+              GetFieldValue(RecRef, SalesHeader.FieldNo("Sell-to Customer Name")) + ', ' + GetFieldValue(RecRef, SalesHeader.FieldNo("Sell-to City"));
+        end;
 
-            if (GetFieldValue(RecRef, FieldNo("Shipment Date")) <> GetFieldValue(RecRef, FieldNo("Document Date"))) and
-               (GetFieldValue(RecRef, FieldNo("Shipment Date")) <> '')
-            then begin
-                FooterLabel[7] := ShipDateTxt;
-                FooterTxt[7] := GetDateFieldValue(RecRef, FieldNo("Shipment Date"));
-            end;
+        if (GetFieldValue(RecRef, SalesHeader.FieldNo("Shipment Date")) <> GetFieldValue(RecRef, SalesHeader.FieldNo("Document Date"))) and
+           (GetFieldValue(RecRef, SalesHeader.FieldNo("Shipment Date")) <> '')
+        then begin
+            FooterLabel[7] := ShipDateTxt;
+            FooterTxt[7] := GetDateFieldValue(RecRef, SalesHeader.FieldNo("Shipment Date"));
+        end;
 
-            if ShowBankInfo then begin
-                CompanyInformation.Get();
-                CompanyInformation.TestField("Bank Name");
-                FooterLabel[8] := BankInformationTxt;
-                FooterTxt[8] := StrSubstNo('%1, %2 %3', CompanyInformation."Bank Name", AccountTxt, CompanyInformation."Bank Account No.");
-            end;
+        if ShowBankInfo then begin
+            CompanyInformation.Get();
+            CompanyInformation.TestField("Bank Name");
+            FooterLabel[8] := BankInformationTxt;
+            FooterTxt[8] := StrSubstNo('%1, %2 %3', CompanyInformation."Bank Name", AccountTxt, CompanyInformation."Bank Account No.");
         end;
     end;
 
@@ -216,38 +213,36 @@ codeunit 11515 "CH Report Management"
         ShipmentMethod: Record "Shipment Method";
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            if PaymentTerms.Get(GetFieldValue(RecRef, FieldNo("Payment Terms Code"))) then begin
-                FooterLabel[1] := PaymentTermsTxt;
-                PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
-                FooterTxt[1] := PaymentTerms.Description;
-            end;
+        if PaymentTerms.Get(GetFieldValue(RecRef, PurchaseHeader.FieldNo("Payment Terms Code"))) then begin
+            FooterLabel[1] := PaymentTermsTxt;
+            PaymentTerms.TranslateDescription(PaymentTerms, PurchaseHeader."Language Code");
+            FooterTxt[1] := PaymentTerms.Description;
+        end;
 
-            if ShipmentMethod.Get(GetFieldValue(RecRef, FieldNo("Shipment Method Code"))) then begin
-                FooterLabel[2] := ShipCondTxt;
-                ShipmentMethod.TranslateDescription(ShipmentMethod, "Language Code");
-                FooterTxt[2] := ShipmentMethod.Description;
-            end;
+        if ShipmentMethod.Get(GetFieldValue(RecRef, PurchaseHeader.FieldNo("Shipment Method Code"))) then begin
+            FooterLabel[2] := ShipCondTxt;
+            ShipmentMethod.TranslateDescription(ShipmentMethod, PurchaseHeader."Language Code");
+            FooterTxt[2] := ShipmentMethod.Description;
+        end;
 
-            if GetFieldValue(RecRef, FieldNo("Ship-to Code")) <> '' then begin
-                FooterLabel[3] := ShipAdrTxt;
-                FooterTxt[3] := GetFieldValue(RecRef, FieldNo("Ship-to Name")) + ' ' + GetFieldValue(RecRef, FieldNo("Ship-to City"));
-            end;
+        if GetFieldValue(RecRef, PurchaseHeader.FieldNo("Ship-to Code")) <> '' then begin
+            FooterLabel[3] := ShipAdrTxt;
+            FooterTxt[3] := GetFieldValue(RecRef, PurchaseHeader.FieldNo("Ship-to Name")) + ' ' + GetFieldValue(RecRef, PurchaseHeader.FieldNo("Ship-to City"));
+        end;
 
-            if GetFieldValue(RecRef, FieldNo("Buy-from Vendor No.")) <> GetFieldValue(RecRef, FieldNo("Pay-to Vendor No.")) then begin
-                FooterLabel[4] := InvAdrTxt;
-                FooterTxt[4] := GetFieldValue(RecRef, FieldNo("Pay-to Name")) + ', ' + GetFieldValue(RecRef, FieldNo("Pay-to City"));
-                FooterLabel[5] := OrderAdrTxt;
-                FooterTxt[5] :=
-                  GetFieldValue(RecRef, FieldNo("Buy-from Vendor Name")) + ', ' + GetFieldValue(RecRef, FieldNo("Buy-from City"));
-            end;
+        if GetFieldValue(RecRef, PurchaseHeader.FieldNo("Buy-from Vendor No.")) <> GetFieldValue(RecRef, PurchaseHeader.FieldNo("Pay-to Vendor No.")) then begin
+            FooterLabel[4] := InvAdrTxt;
+            FooterTxt[4] := GetFieldValue(RecRef, PurchaseHeader.FieldNo("Pay-to Name")) + ', ' + GetFieldValue(RecRef, PurchaseHeader.FieldNo("Pay-to City"));
+            FooterLabel[5] := OrderAdrTxt;
+            FooterTxt[5] :=
+              GetFieldValue(RecRef, PurchaseHeader.FieldNo("Buy-from Vendor Name")) + ', ' + GetFieldValue(RecRef, PurchaseHeader.FieldNo("Buy-from City"));
+        end;
 
-            if (GetFieldValue(RecRef, FieldNo("Expected Receipt Date")) = GetFieldValue(RecRef, FieldNo("Document Date"))) and
-               (GetFieldValue(RecRef, FieldNo("Expected Receipt Date")) = '')
-            then begin
-                FooterLabel[6] := ShipDateTxt;
-                FooterTxt[6] := GetDateFieldValue(RecRef, FieldNo("Expected Receipt Date"));
-            end;
+        if (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) = GetFieldValue(RecRef, PurchaseHeader.FieldNo("Document Date"))) and
+           (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) = '')
+        then begin
+            FooterLabel[6] := ShipDateTxt;
+            FooterTxt[6] := GetDateFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date"));
         end;
     end;
 
@@ -256,16 +251,14 @@ codeunit 11515 "CH Report Management"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         RecRef.SetTable(PurchInvHeader);
-        with PurchInvHeader do begin
-            if "Order No." <> '' then begin
-                HeaderLabel[1] := OrderNoTxt;
-                HeaderTxt[1] := "Order No.";
-            end;
+        if PurchInvHeader."Order No." <> '' then begin
+            HeaderLabel[1] := OrderNoTxt;
+            HeaderTxt[1] := PurchInvHeader."Order No.";
+        end;
 
-            if "Vendor Invoice No." <> '' then begin
-                HeaderLabel[2] := InvoiceNoTxt;
-                HeaderTxt[2] := "Vendor Invoice No.";
-            end;
+        if PurchInvHeader."Vendor Invoice No." <> '' then begin
+            HeaderLabel[2] := InvoiceNoTxt;
+            HeaderTxt[2] := PurchInvHeader."Vendor Invoice No.";
         end;
         PrepareHeadePurchaseCommonPart(RecRef, HeaderLabel, HeaderTxt);
     end;

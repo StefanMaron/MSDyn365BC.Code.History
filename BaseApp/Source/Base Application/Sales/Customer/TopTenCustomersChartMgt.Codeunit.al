@@ -26,17 +26,15 @@ codeunit 1316 "Top Ten Customers Chart Mgt."
         CustomerName: array[11] of Text[100];
         SalesLCY: array[11] of Decimal;
     begin
-        with BusChartBuf do begin
-            Initialize();
-            AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::StackedColumn);
-            SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
-            CalcTopTenSalesCustomers(CustomerName, SalesLCY);
-            for ColumnIndex := 1 to 11 do begin
-                if SalesLCY[ColumnIndex] = 0 then
-                    exit;
-                AddColumn(CustomerName[ColumnIndex]);
-                SetValueByIndex(0, ColumnIndex - 1, SalesLCY[ColumnIndex]);
-            end;
+        BusChartBuf.Initialize();
+        BusChartBuf.AddDecimalMeasure(SalesLCYYCaptionTxt, 1, BusChartBuf."Chart Type"::StackedColumn);
+        BusChartBuf.SetXAxis(CustomerXCaptionTxt, BusChartBuf."Data Type"::String);
+        CalcTopTenSalesCustomers(CustomerName, SalesLCY);
+        for ColumnIndex := 1 to 11 do begin
+            if SalesLCY[ColumnIndex] = 0 then
+                exit;
+            BusChartBuf.AddColumn(CustomerName[ColumnIndex]);
+            BusChartBuf.SetValueByIndex(0, ColumnIndex - 1, SalesLCY[ColumnIndex]);
         end;
     end;
 

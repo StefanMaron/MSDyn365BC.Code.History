@@ -41,7 +41,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         CreateLSVJournalLines(LSVJnl);
 
         // Setup
-        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
+        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", "Partner Type".FromInteger(LSVJnl."Partner Type"));
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
 
         // Exercise
@@ -70,7 +70,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         // Setup
         CreateMandateForCustomer(SEPADirectDebitMandate, Customer."No.");
         AddMandateIDToLSVJournalLines(LSVJnl."No.", SEPADirectDebitMandate.ID);
-        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
+        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", "Partner Type".FromInteger(LSVJnl."Partner Type"));
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
 
         // Exercise
@@ -86,7 +86,6 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     procedure DirectDebitCollectionNotCreated()
     var
         Customer: Record Customer;
-        DirectDebitCollection: Record "Direct Debit Collection";
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         LSVJnl: Record "LSV Journal";
     begin
@@ -121,7 +120,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         CreateLSVJournalLines(LSVJnl);
 
         // Exercise
-        asserterror LSVJnl.CreateDirectDebitFile;
+        asserterror LSVJnl.CreateDirectDebitFile();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, BankAcc.FieldCaption("SEPA Direct Debit Exp. Format"), BankAcc.TableCaption()));
@@ -186,7 +185,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         Assert.ExpectedError(CollectionHasErrorsErr);
 
         // Verify
-        ValidateCollectionErrorsExist(PmtJnlExportErrText, Format(LSVJnl."No."), Format(LSVJnl."No."), 1);
+        ValidateCollectionErrorsExist(PmtJnlExportErrText, Format(LSVJnl."No."), 1);
     end;
 
     [Test]
@@ -224,7 +223,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         LSVJnl.Delete(true);
 
         // Verify
-        asserterror ValidateCollectionErrorsExist(PmtJnlExportErrText, Format(LSVJnl."No."), Format(LSVJnl."No."), 1);
+        asserterror ValidateCollectionErrorsExist(PmtJnlExportErrText, Format(LSVJnl."No."), 1);
     end;
 
     [Test]
@@ -298,9 +297,9 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.LSVSuggestCollection.Invoke;
+        LSVJnlList.LSVSuggestCollection.Invoke();
     end;
 
     [RequestPageHandler]
@@ -309,8 +308,8 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     begin
         LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
         LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
-        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
-        LSVSuggestCollection.OK.Invoke;
+        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection());
+        LSVSuggestCollection.OK().Invoke();
     end;
 
     local procedure RetrieveLSVCustomerForCollection() CustomerNo: Code[20]
@@ -408,12 +407,12 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.WriteSEPAFile.Invoke;
+        LSVJnlList.WriteSEPAFile.Invoke();
     end;
 
-    local procedure ValidateCollectionErrorsExist(var PmtJnlExportErrText: Record "Payment Jnl. Export Error Text"; JnlBatchName: Code[10]; DocNo: Code[20]; JnlLineNo: Integer)
+    local procedure ValidateCollectionErrorsExist(var PmtJnlExportErrText: Record "Payment Jnl. Export Error Text"; DocNo: Code[20]; JnlLineNo: Integer)
     begin
         with PmtJnlExportErrText do begin
             SetRange("Journal Template Name", '');

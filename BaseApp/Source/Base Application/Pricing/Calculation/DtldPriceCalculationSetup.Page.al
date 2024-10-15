@@ -62,7 +62,7 @@ page 7008 "Dtld. Price Calculation Setup"
                 field(SourceGroup; Rec."Source Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
+                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or projects.';
                 }
                 field(SourceNo; Rec."Source No.")
                 {

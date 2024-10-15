@@ -9,6 +9,7 @@ table 5835 "Marketing Text Suggestion"
 {
     TableType = Temporary;
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

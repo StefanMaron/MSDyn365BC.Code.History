@@ -1,15 +1,10 @@
-namespace Microsoft.Assembly.Document;
+﻿namespace Microsoft.Assembly.Document;
 
 using Microsoft.Assembly.Comment;
-using Microsoft.Assembly.Posting;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Projects.Resources.Ledger;
-using Microsoft.Warehouse.Ledger;
 
 page 932 "Assembly Quotes"
 {
@@ -30,15 +25,6 @@ page 932 "Assembly Quotes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; Rec."Document Type")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies the type of assembly document the record represents in assemble-to-order scenarios.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
@@ -105,15 +91,6 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin the assembly item is posted to as output and from where it is taken to storage or shipped if it is assembled to a sales order.';
                 }
-                field("Remaining Quantity"; Rec."Remaining Quantity")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                }
             }
         }
         area(factboxes)
@@ -140,107 +117,6 @@ page 932 "Assembly Quotes"
             {
                 Caption = 'Line';
                 Image = Line;
-                group(Entries)
-                {
-                    Caption = 'Entries';
-                    Image = Entries;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                    action("Item Ledger Entries")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Item Ledger E&ntries';
-                        Image = ItemLedger;
-                        RunObject = Page "Item Ledger Entries";
-                        RunPageLink = "Order Type" = const(Assembly),
-                                      "Order No." = field("No.");
-                        RunPageView = sorting("Order Type", "Order No.");
-                        ShortCutKey = 'Ctrl+F7';
-                        ToolTip = 'View the item ledger entries of the item on the document or journal line.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                        ObsoleteTag = '17.0';
-                    }
-                    action("Capacity Ledger Entries")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Capacity Ledger Entries';
-                        Image = CapacityLedger;
-                        RunObject = Page "Capacity Ledger Entries";
-                        RunPageLink = "Order Type" = const(Assembly),
-                                      "Order No." = field("No.");
-                        RunPageView = sorting("Order Type", "Order No.");
-                        ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                        ObsoleteTag = '17.0';
-                    }
-                    action("Resource Ledger Entries")
-                    {
-                        ApplicationArea = Jobs;
-                        Caption = 'Resource Ledger Entries';
-                        Image = ResourceLedger;
-                        RunObject = Page "Resource Ledger Entries";
-                        RunPageLink = "Order Type" = const(Assembly),
-                                      "Order No." = field("No.");
-                        RunPageView = sorting("Order Type", "Order No.");
-                        ToolTip = 'View the ledger entries for the resource.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                        ObsoleteTag = '17.0';
-                    }
-                    action("Value Entries")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Value Entries';
-                        Image = ValueLedger;
-                        RunObject = Page "Value Entries";
-                        RunPageLink = "Order Type" = const(Assembly),
-                                      "Order No." = field("No.");
-                        RunPageView = sorting("Order Type", "Order No.");
-                        ToolTip = 'View the value entries of the item on the document or journal line.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                        ObsoleteTag = '17.0';
-                    }
-                    action("Warehouse Entries")
-                    {
-                        ApplicationArea = Warehouse;
-                        Caption = '&Warehouse Entries';
-                        Image = BinLedger;
-                        RunObject = Page "Warehouse Entries";
-                        RunPageLink = "Source Type" = filter(83 | 901),
-                                      "Source Subtype" = filter("1" | "6"),
-                                      "Source No." = field("No.");
-                        RunPageView = sorting("Source Type", "Source Subtype", "Source No.");
-                        ToolTip = 'View the history of quantities that are registered for the item in warehouse activities. ';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                        ObsoleteTag = '17.0';
-                    }
-                }
-                action("Show Order")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'Show Quote';
-                    Image = ViewOrder;
-                    RunObject = Page "Assembly Quote";
-                    RunPageLink = "Document Type" = field("Document Type"),
-                                  "No." = field("No.");
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View the selected assembly order.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                }
             }
             group("Item Availability by")
             {
@@ -371,14 +247,6 @@ page 932 "Assembly Quotes"
         }
         area(processing)
         {
-            group("F&unctions")
-            {
-                Caption = 'F&unctions';
-                Image = "Action";
-                ObsoleteState = Pending;
-                ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                ObsoleteTag = '17.0';
-            }
             group(ReleaseGroup)
             {
                 Caption = 'Release';
@@ -418,76 +286,12 @@ page 932 "Assembly Quotes"
                     end;
                 }
             }
-            group("P&osting")
-            {
-                Caption = 'P&osting';
-                Image = Post;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                ObsoleteTag = '17.0';
-                action("P&ost")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'P&ost';
-                    Ellipsis = true;
-                    Image = PostOrder;
-                    ShortCutKey = 'F9';
-                    ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    begin
-                        CODEUNIT.Run(CODEUNIT::"Assembly-Post (Yes/No)", Rec);
-                    end;
-                }
-                action("Post &Batch")
-                {
-                    ApplicationArea = Assembly;
-                    Caption = 'Post &Batch';
-                    Ellipsis = true;
-                    Image = PostBatch;
-                    ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    begin
-                        REPORT.RunModal(REPORT::"Batch Post Assembly Orders", true, true, Rec);
-                        CurrPage.Update(false);
-                    end;
-                }
-            }
         }
         area(Promoted)
         {
             group(Category_Process)
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
-
-#if not CLEAN22
-                actionref("P&ost_Promoted"; "P&ost")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
-#if not CLEAN22
-                actionref("Post &Batch_Promoted"; "Post &Batch")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
             group(Category_Category6)
             {

@@ -1,10 +1,17 @@
 namespace Microsoft.Sales.Reminder;
 
+using Microsoft.Sales.Customer;
+
 table 292 "Reminder Terms"
 {
     Caption = 'Reminder Terms';
     DataCaptionFields = "Code", Description;
+    DataClassification = CustomerContent;
+#if not CLEAN25
     LookupPageID = "Reminder Terms";
+#else
+    LookupPageID = "Reminder Terms List";
+#endif
 
     fields
     {
@@ -44,6 +51,16 @@ table 292 "Reminder Terms"
         {
             Caption = 'Note About Line Fee on Report';
         }
+        field(20; "Reminder Attachment Text"; Guid)
+        {
+            Caption = 'Reminder Attachment Text';
+            TableRelation = "Reminder Attachment Text".Id;
+        }
+        field(21; "Reminder Email Text"; Guid)
+        {
+            Caption = 'Reminder Email Text';
+            TableRelation = "Reminder Email Text".Id;
+        }
     }
 
     keys
@@ -59,12 +76,26 @@ table 292 "Reminder Terms"
     }
 
     trigger OnDelete()
+    var
+        ReminderAttachmentText: Record "Reminder Attachment Text";
+        ReminderEmailText: Record "Reminder Email Text";
+        Customer: Record Customer;
     begin
         ReminderLevel.SetRange("Reminder Terms Code", Code);
         ReminderLevel.DeleteAll(true);
 
         ReminderTermsTranslation.SetRange("Reminder Terms Code", Code);
         ReminderTermsTranslation.DeleteAll(true);
+
+        ReminderAttachmentText.SetRange(Id, "Reminder Attachment Text");
+        ReminderAttachmentText.DeleteAll();
+
+        ReminderEmailText.SetRange(Id, "Reminder Email Text");
+        ReminderEmailText.DeleteAll();
+
+        Customer.SetRange("Reminder Terms Code", Code);
+        if not Customer.IsEmpty() then
+            Customer.ModifyAll("Reminder Terms Code", '');
     end;
 
     trigger OnRename()

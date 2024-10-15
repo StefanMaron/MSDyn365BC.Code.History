@@ -10,6 +10,7 @@ table 7207 "CRM BC Virtual Table Config."
     TableType = CRM;
     Description = 'CRM Virtual Table Configuration';
     Access = Internal;
+    DataClassification = CustomerContent;
 
     fields
     {

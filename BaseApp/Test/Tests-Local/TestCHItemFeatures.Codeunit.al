@@ -43,7 +43,7 @@ codeunit 144047 "Test CH Item Features"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test CH Item Features");
     end;
 
-    local procedure TransferFieldsFromSalesDocument(DocumentType: Option)
+    local procedure TransferFieldsFromSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         Customer: Record Customer;

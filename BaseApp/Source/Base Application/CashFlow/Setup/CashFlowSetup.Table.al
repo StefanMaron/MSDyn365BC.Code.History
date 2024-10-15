@@ -19,12 +19,14 @@ using System.Security.Encryption;
 table 843 "Cash Flow Setup"
 {
     Caption = 'Cash Flow Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
             Caption = 'Primary Key';
+            DataClassification = SystemMetadata;
         }
         field(2; "Cash Flow Forecast No. Series"; Code[20])
         {
@@ -119,7 +121,7 @@ table 843 "Cash Flow Setup"
         field(12; "Job CF Account No."; Code[20])
         {
             AccessByPermission = TableData "Job Planning Line" = R;
-            Caption = 'Job CF Account No.';
+            Caption = 'Project CF Account No.';
             TableRelation = "Cash Flow Account";
 
             trigger OnValidate()
@@ -486,8 +488,10 @@ table 843 "Cash Flow Setup"
             "Tax Bal. Account No." := '';
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Use "SaveUserDefinedAPIKey(APIKeyValue: SecretText)" instead.', '24.0')]
     procedure SaveUserDefinedAPIKey(APIKeyValue: Text[250])
     begin
         if IsNullGuid("Service Pass API Key ID") then
@@ -495,21 +499,45 @@ table 843 "Cash Flow Setup"
 
         IsolatedStorageManagement.Set("Service Pass API Key ID", APIKeyValue, DATASCOPE::Company);
     end;
+#endif
+    [Scope('OnPrem')]
+    procedure SaveUserDefinedAPIKey(APIKeyValue: SecretText)
+    begin
+        if IsNullGuid("Service Pass API Key ID") then
+            "Service Pass API Key ID" := CreateGuid();
 
+        IsolatedStorageManagement.Set("Service Pass API Key ID", APIKeyValue, DATASCOPE::Company);
+    end;
+
+#if not CLEAN24
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Use "GetMLCredentials(var ApiUrl: SecretText; var ApiKey: SecretText; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean" instead.', '24.0')]
     procedure GetMLCredentials(var APIURL: Text[250]; var APIKey: Text[200]; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean
     var
+        Result: Boolean;
+        SecretAPIKey: SecretText;
+    begin
+        Result := GetMLCredentials(APIURL, SecretAPIKey, LimitValue, UsingStandardCredentials);
+        if not SecretAPIKey.IsEmpty() then
+            APIKey := SecretAPIKey.Unwrap();
+        exit(Result);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetMLCredentials(var ApiUrl: Text[250]; var ApiKey: SecretText; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean
+    var
         EnvironmentInfo: Codeunit "Environment Information";
-        Value: Text;
+        Value: SecretText;
     begin
         // user-defined credentials
         if IsAPIUserDefined() then begin
             IsolatedStorageManagement.Get("Service Pass API Key ID", DATASCOPE::Company, Value);
-            APIKey := CopyStr(Value, 1, 200);
-            if (APIKey = '') or ("API URL" = '') then
+            ApiKey := Value;
+            if (ApiKey.IsEmpty()) or ("API URL" = '') then
                 exit(false);
-            APIURL := "API URL";
+            ApiUrl := "API URL";
             UsingStandardCredentials := false;
             exit(true);
         end;
@@ -517,10 +545,12 @@ table 843 "Cash Flow Setup"
         UsingStandardCredentials := true;
         // if credentials not user-defined retrieve it from Azure Key Vault
         if EnvironmentInfo.IsSaaS() then
-            exit(RetrieveSaaSMLCredentials(APIURL, APIKey, LimitValue));
+            exit(RetrieveSaaSMLCredentials(ApiUrl, ApiKey, LimitValue));
     end;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Use "RetrieveSaaSMLCredentials(var ApiUrl: SecretText; var ApiKey: SecretText; var LimitValue: Decimal): Boolean" instead.', '24.0')]
     local procedure RetrieveSaaSMLCredentials(var APIURL: Text[250]; var APIKey: Text[200]; var LimitValue: Decimal): Boolean
     var
         TimeSeriesManagement: Codeunit "Time Series Management";
@@ -528,8 +558,16 @@ table 843 "Cash Flow Setup"
     begin
         exit(TimeSeriesManagement.GetMLForecastCredentials(APIURL, APIKey, LimitType, LimitValue));
     end;
+#endif
+    local procedure RetrieveSaaSMLCredentials(var ApiUrl: Text[250]; var ApiKey: SecretText; var LimitValue: Decimal): Boolean
+    var
+        TimeSeriesManagement: Codeunit "Time Series Management";
+        LimitType: Option;
+    begin
+        exit(TimeSeriesManagement.GetMLForecastCredentials(ApiUrl, ApiKey, LimitType, LimitValue));
+    end;
 
-    local procedure EnableEncryption()
+    internal procedure EnableEncryption()
     var
         CryptographyManagement: Codeunit "Cryptography Management";
     begin
@@ -537,8 +575,10 @@ table 843 "Cash Flow Setup"
             CryptographyManagement.EnableEncryption(false);
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Use "GetUserDefinedAPIKeySecret(): SecretText" instead.', '24.0')]
     procedure GetUserDefinedAPIKey(): Text[200]
     var
         Value: Text;
@@ -547,6 +587,18 @@ table 843 "Cash Flow Setup"
         if not IsNullGuid("Service Pass API Key ID") then begin
             IsolatedStorageManagement.Get("Service Pass API Key ID", DATASCOPE::Company, Value);
             exit(CopyStr(Value, 1, 200));
+        end;
+    end;
+#endif
+    [Scope('OnPrem')]
+    internal procedure GetUserDefinedAPIKeySecret(): SecretText
+    var
+        Value: SecretText;
+    begin
+        // user-defined credentials
+        if not IsNullGuid("Service Pass API Key ID") then begin
+            IsolatedStorageManagement.Get("Service Pass API Key ID", DATASCOPE::Company, Value);
+            exit(Value);
         end;
     end;
 

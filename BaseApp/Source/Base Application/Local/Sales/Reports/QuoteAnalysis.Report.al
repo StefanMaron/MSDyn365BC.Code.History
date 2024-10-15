@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -403,7 +403,6 @@ report 3010801 "Quote Analysis"
         WithDetails: Boolean;
         TotalActQuoteRTC: Decimal;
         TotalActOrderRTC: Decimal;
-        TotalBecameOrderRTC: Decimal;
         GroupNum: Decimal;
         NewTotalCompletedOrderForRTC: Decimal;
         NewTotalNoOrderForRTC: Decimal;

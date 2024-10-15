@@ -105,7 +105,7 @@ page 9087 "Sales Line FactBox"
                     ApplicationArea = Service;
                     Caption = 'Gross Requirements';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies, for the item on the sales line, dependent demand plus independent demand. Dependent demand comes production order components of all statuses, assembly order components, and planning lines. Independent demand comes from sales orders, transfer orders, service orders, job tasks, and demand forecasts.';
+                    ToolTip = 'Specifies, for the item on the sales line, dependent demand plus independent demand. Dependent demand comes production order components of all statuses, assembly order components, and planning lines. Independent demand comes from sales orders, transfer orders, service orders, project tasks, and demand forecasts.';
                 }
                 field("Reserved Requirements"; SalesInfoPaneMgt.CalcReservedDemand(Rec))
                 {

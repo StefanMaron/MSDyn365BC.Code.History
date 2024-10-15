@@ -1050,8 +1050,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndRefreshFirmPlannedProductionOrder(ProductionOrder, Item."No.", LocationBlue.Code, Quantity);
         OpenItemTrackingLinesForProduction(ProductionOrder."No.");  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         ProductionOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
         CreateAndPostOutputJournal(ProductionOrderNo, Quantity, false);  // Tracking As False.
 
         // [WHEN] Change Status of Production Order Released to Finished.
@@ -1390,6 +1389,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateItem(Item, ItemTrackingCode.Code, Item."Costing Method"::FIFO);
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10), 1);  // No. of Lines value required.
         SelectPurchaseLine(PurchaseLine, PurchaseHeader."No.");
+        // Commit so created records are not rolled back on the next asserterror
+        Commit();
 
         // Exercise: Post Purchase Order without Tracking.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1445,6 +1446,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         end;
         CreateAndReleasePurchaseReturnOrder(PurchaseHeader, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10), 1);  // No. of Lines value required.
         SelectPurchaseLine(PurchaseLine, PurchaseHeader."No.");
+        // Commit so created records are not rolled back on the next asserterror
+        Commit();
 
         // Exercise: Post Purchase Return Order without Tracking.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1477,6 +1480,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateItemTrackingCode(ItemTrackingCode, ItemTrackingCode.FieldNo("SN Sales Outbound Tracking"), true);
         CreateItem(Item, ItemTrackingCode.Code, Item."Costing Method"::FIFO);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
+        // Commit so created records are not rolled back on the next asserterror
+        Commit();
 
         // Exercise: Post Sales Order without Tracking.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1532,6 +1537,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end;
         CreateAndReleaseSalesReturnOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
+        // Commit so created records are not rolled back on the next asserterror
+        Commit();
 
         // Exercise: Post Sales Return Order without Tracking.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2041,7 +2048,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             Assert.ExpectedError(StrSubstNo(QtyToHandleErr, Item."No."));
         end else begin
             // Exercise: Drill down Reserved Quantity.
-            ReservationEntries.Trap;
+            ReservationEntries.Trap();
             OpenReservedQuantityOnSalesOrder(SalesLine."Document No.");
 
             // Verify: Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPageHandler.
@@ -2304,7 +2311,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Verify: Verify Tracking line on Consumption Item Journal.
         SetGlobalValue(Item2."No.", false, true, false, AssignTracking::None, ProductionOrder.Quantity, false);  // VerifyQtyToHandle as True.
-        VerifyTrackingOnConsumptionItemJournal;  // Verify on Page Handler ItemTrackingProductionPageHandler.
+        VerifyTrackingOnConsumptionItemJournal();  // Verify on Page Handler ItemTrackingProductionPageHandler.
     end;
 
     [Test]
@@ -2462,7 +2469,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Exercise: Combine Sales Shipments and Post Invoice.
         SalesHeader2.SetRange("Sell-to Customer No.", Customer."No.");
         SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader, WorkDate(), WorkDate, false, true, false, false);
+        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader, WorkDate(), WorkDate(), false, true, false, false);
 
         // Verify: Verify Tracking line on Posted Sales Invoive Line.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, SalesLine.Quantity, false);  // Tracking Quantity required.
@@ -2504,7 +2511,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Exercise: Combine Sales Return Receipt and Post Invoice.
         SalesHeader2.SetRange("Sell-to Customer No.", Customer."No.");
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        LibrarySales.CombineReturnReceipts(SalesHeader2, ReturnReceiptHeader, WorkDate(), WorkDate, false, true);
+        LibrarySales.CombineReturnReceipts(SalesHeader2, ReturnReceiptHeader, WorkDate(), WorkDate(), false, true);
 
         // Verify: Verify Tracking line on Posted Sales Credit Memo Line.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, SalesLine.Quantity, false);  // Tracking Quantity required.
@@ -2704,7 +2711,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, 0, false);
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order",
-          Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10), CreateCustomer, false);
+          Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10), CreateCustomer(), false);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         SalesLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
@@ -2729,7 +2736,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // [FEATURE] [Item Ledger Entries] [Filter] [UT]
         // [SCENARIO 375688] It should be possible to set >250 symbols long filter on "Document Type" in Item Ledger Entries page
-        ItemLedgerEntries.OpenEdit;
+        ItemLedgerEntries.OpenEdit();
         ItemLedgerEntries.FILTER.SetFilter("Document Type", ItemLedgerEntryFilterTxt);
         Assert.AreEqual(
           Format(ItemLedgerEntryFilterTxt), ItemLedgerEntries.FILTER.GetFilter("Document Type"), ItemLedgerEntryFilteringErr);
@@ -2931,13 +2938,13 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         CreatePurchasingCode(Purchasing);
         CreateItemTrackingCode(ItemTrackingCode, ItemTrackingCode.FieldNo("SN Specific Tracking"), true);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] Item with Tracking Code
         CreateItem(Item, ItemTrackingCode.Code, Item."Costing Method"::FIFO);
 
         // [GIVEN] Item registered as Service Item
-        UpdateItemWithServiceItem(Item, CreateServiceItemGroup);
+        UpdateItemWithServiceItem(Item, CreateServiceItemGroup());
 
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         UpdateSellToCustomerOnPurchaseHeader(PurchaseHeader, CustomerNo);
@@ -2997,7 +3004,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         LibraryCRMIntegration.DisableConnection();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM RTAM Item Tracking");
-        ClearGlobals;
+        ClearGlobals();
 
         // Lazy Setup.
         if isInitialized then
@@ -3011,11 +3018,11 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         NoSeriesSetup();
-        CreateLocationSetup;
-        ItemTrackingCodeSetup;
-        ItemJournalSetup;
-        OutputJournalSetup;
-        ConsumptionJournalSetup;
+        CreateLocationSetup();
+        ItemTrackingCodeSetup();
+        ItemJournalSetup();
+        OutputJournalSetup();
+        ConsumptionJournalSetup();
 
         isInitialized := true;
         Commit();
@@ -3063,21 +3070,21 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
@@ -3135,7 +3142,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
@@ -3179,7 +3186,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         TrackingQuantity := TrackingQuantity2;
 
         if GlobalComments then
-            SetGlobalDescriptionAndComments;
+            SetGlobalDescriptionAndComments();
     end;
 
     local procedure SetGlobalDescriptionAndComments()
@@ -3201,8 +3208,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemTrackingCode);  // Assign Tracking Code.
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Validate("Costing Method", CostingMethod);
         Item.Modify(true);
     end;
@@ -3280,7 +3287,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
-        UpdateItemJournalLine(ItemJournalLine, LibraryUtility.GenerateGUID, LocationCode);
+        UpdateItemJournalLine(ItemJournalLine, LibraryUtility.GenerateGUID(), LocationCode);
         if MultipleLines then begin
             DocumentNo := ItemJournalLine."Document No.";
             LibraryInventory.CreateItemJournalLine(
@@ -3438,20 +3445,20 @@ codeunit 137052 "SCM RTAM Item Tracking"
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         // Create Sales Order.
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo, LocationCode, Quantity, CreateCustomer, false);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo, LocationCode, Quantity, CreateCustomer(), false);
     end;
 
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         // Create Sales Order and Release Order.
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo, LocationCode, Quantity, CreateCustomer, true);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo, LocationCode, Quantity, CreateCustomer(), true);
     end;
 
     local procedure CreateAndReleaseSalesReturnOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         // Create Sales Return Order and Release.
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity, CreateCustomer, true);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity, CreateCustomer(), true);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; CustomerNo: Code[20]; Release: Boolean)
@@ -3548,14 +3555,14 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingComments: TestPage "Item Tracking Comments";
     begin
         // Update Description on Serial No information list and add Comments for Serial No.
-        SerialNoInformationCard.Trap;
-        ItemTrackingLines.Reclass_SerialNoInfoCard.Invoke;
-        ItemTrackingComments.Trap;
+        SerialNoInformationCard.Trap();
+        ItemTrackingLines.Reclass_SerialNoInfoCard.Invoke();
+        ItemTrackingComments.Trap();
         SerialNoInformationCard.Description.SetValue(Description);
-        SerialNoInformationCard.Comment.Invoke;
+        SerialNoInformationCard.Comment.Invoke();
         ItemTrackingComments.Date.SetValue(WorkDate());
         ItemTrackingComments.Comment.SetValue(Comment);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; No: Code[20]; Ship: Boolean; Invoice: Boolean)
@@ -3987,9 +3994,9 @@ codeunit 137052 "SCM RTAM Item Tracking"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
-        SalesOrder.SalesLines."Reserved Quantity".DrillDown;  // Open Page Reservation Entries.
+        SalesOrder.SalesLines."Reserved Quantity".DrillDown();  // Open Page Reservation Entries.
     end;
 
     local procedure CreateSalesProductionSetup(var Item: Record Item; var Item2: Record Item; var SalesLine: Record "Sales Line"; var ProductionOrder: Record "Production Order"; Quantity: Decimal; LocationCode: Code[10]; ItemTrackingCode: Code[10]; AssignTrackingValue: Option)
@@ -4003,7 +4010,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item2."No.", LocationCode, Quantity, 0, false, AssignTrackingValue);
 
-        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationCode, LibraryRandom.RandInt(10) + 10);  // Large value required.
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationCode, LibraryRandom.RandIntInRange(Round(Quantity / 2, 1, '>') + 1, Quantity - 1));
         CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item."No.", LocationCode, Quantity);
     end;
 
@@ -4019,7 +4026,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     var
         ReleasedProductionOrder: TestPage "Released Production Order";
     begin
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
         ReleasedProductionOrder."Due Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5) + 10) + 'D>', WorkDate()));
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -4201,8 +4208,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     local procedure SelectEntriesOnItemTrackingLines(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Select Entries".Invoke;  // Open Item Tracking Summary for Select Line.
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Select Entries".Invoke();  // Open Item Tracking Summary for Select Line.
+        ItemTrackingLines.OK().Invoke();
     end;
 
     local procedure VerifyTrackingOnPostedPurchaseInvoice(OrderNo: Code[20])
@@ -4384,7 +4391,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ReservationEntries: TestPage "Reservation Entries";
         "Count": Integer;
     begin
-        ReservationEntries.Trap;
+        ReservationEntries.Trap();
         OpenReservedQuantityOnSalesOrder(DocumentNo);
         for Count := 1 to ReservedQuantity do
             ReservationEntries.ReservedFrom.Drilldown();  // Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPositiveAdjmtPageHandler.
@@ -4415,16 +4422,16 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case ItemTrackingAction of
             ItemTrackingAction::AvailabilityLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     ItemTrackingLines.AvailabilityLotNo.AssertEquals(true);
                 end;
             ItemTrackingAction::AvailabilitySerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
                     ItemTrackingLines.AvailabilitySerialNo.AssertEquals(true);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4435,8 +4442,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Assign Serial and Lot no based on requirments.
         if not VerifyQtyToHandle then begin
-            ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create for create Serial No or with Lot No.
-            ItemTrackingLines.Last;
+            ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create for create Serial No or with Lot No.
+            ItemTrackingLines.Last();
             if Partial then
                 ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);  // Value to partially track the items.
             LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, GlobalItemNo, '', ItemTrackingLines."Serial No.".Value);
@@ -4445,9 +4452,9 @@ codeunit 137052 "SCM RTAM Item Tracking"
         end;
 
         // Verify: Qty to Handle- Tracking on unit quantity.
-        ItemTrackingLines.Last;
+        ItemTrackingLines.Last();
         ItemTrackingLines."Qty. to Handle (Base)".AssertEquals(1);  // For Serial No tracking - as per standard, Quantity (Base) must be -1,0,1 when Serial No. is stated.
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4458,16 +4465,16 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Assign Serial and Lot no based on requirments.
         if AssignTracking = AssignTracking::SerialNo then begin
-            ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create for Create Serial No or with Lot No.
-            ItemTrackingLines.Last;
+            ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create for Create Serial No or with Lot No.
+            ItemTrackingLines.Last();
             LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, GlobalItemNo, '', ItemTrackingLines."Serial No.".Value);
             UpdateSerialNoInformationAndComments(ItemTrackingLines);
             exit;
         end;
-        ItemTrackingLines."Select Entries".Invoke;  // Open Item Tracking Summary for Select Line.
+        ItemTrackingLines."Select Entries".Invoke();  // Open Item Tracking Summary for Select Line.
 
         if Partial then begin
-            ItemTrackingLines.First;
+            ItemTrackingLines.First();
             while TrackingQuantity > 0 do begin
                 TrackingQuantity -= 1;
                 ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);  // Value to partially track the Items.
@@ -4475,7 +4482,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
                 ItemTrackingLines.Next();
             end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4488,22 +4495,22 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case AssignTracking of
             AssignTracking::SerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
+                    ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
                     exit;
                 end;
             AssignTracking::LotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
                     exit;
                 end;
         end;
 
         if Partial and (TrackingQuantity <> 0) then begin
-            ItemTrackingLines.Last;
+            ItemTrackingLines.Last();
             while TrackingQuantity > 0 do begin
                 TrackingQuantity -= 1;
                 ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);  // Value to partially track the Items for Invoice.
-                ItemTrackingLines.Previous;
+                ItemTrackingLines.Previous();
             end;
             exit;
         end;
@@ -4521,7 +4528,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         end;
 
         if UpdateLotNo then begin // Using for Sales Order
-            ItemTrackingLines."Lot No.".AssistEdit; // Open Item Tracking Summary for update line.
+            ItemTrackingLines."Lot No.".AssistEdit(); // Open Item Tracking Summary for update line.
             exit;
         end;
 
@@ -4538,28 +4545,28 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Assign Serial no based on requirments.
         if AssignTracking = AssignTracking::SerialNo then begin
-            ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
+            ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
             exit;
         end;
 
         if Partial then begin
             FindReservationEntry(ReservationEntry, GlobalItemNo, DATABASE::"Purchase Line", DocumentNo);
-            ItemTrackingLines.Last;
+            ItemTrackingLines.Last();
             SetValueSerialAndLotNoOnItemTrackingLines(ItemTrackingLines, ReservationEntry."Serial No.", ReservationEntry."Lot No.");
             exit;
         end;
 
         if ItemTrackingAction = ItemTrackingAction::AvailabilitySerialNo then begin
-            ItemTrackingLines.First;
-            SerialNo := ItemTrackingLines."Serial No.".Value;
-            LotNo := ItemTrackingLines."Lot No.".Value;
-            ItemTrackingLines.Last;
+            ItemTrackingLines.First();
+            SerialNo := ItemTrackingLines."Serial No.".Value();
+            LotNo := ItemTrackingLines."Lot No.".Value();
+            ItemTrackingLines.Last();
             SetValueSerialAndLotNoOnItemTrackingLines(ItemTrackingLines, SerialNo, LotNo);
             exit;
         end;
 
         if UpdateSerialNo then begin
-            ItemTrackingLines."Serial No.".AssistEdit; // Open Item Tracking Summary for update line.
+            ItemTrackingLines."Serial No.".AssistEdit(); // Open Item Tracking Summary for update line.
             exit;
         end;
 
@@ -4576,12 +4583,12 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case AssignTracking of
             AssignTracking::SerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
+                    ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
                     exit;
                 end;
             AssignTracking::LotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
                     exit;
                 end;
         end;
@@ -4622,7 +4629,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
                     end;
                 ItemTrackingAction::AvailabilitySerialNo:
                     begin
-                        ItemTrackingLines.First;
+                        ItemTrackingLines.First();
                         FindReservationEntry(ReservationEntry, GlobalItemNo, DATABASE::"Prod. Order Component", DocumentNo);
                         repeat
                             ItemTrackingLines."Serial No.".AssertEquals(ReservationEntry."Serial No.");
@@ -4647,18 +4654,18 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case AssignTracking of
             AssignTracking::SerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
+                    ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
                     exit;
                 end;
             AssignTracking::LotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
                     exit;
                 end;
         end;
 
         if Partial and VerifyQtyToHandle then begin
-            ItemTrackingLines.First;
+            ItemTrackingLines.First();
             while TrackingQuantity > 0 do begin
                 TrackingQuantity -= 1;
                 ItemTrackingLines."Quantity (Base)".SetValue(0);  // Set Quantity (Base) as Zero.
@@ -4671,7 +4678,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             FindReservationEntry(ReservationEntry, GlobalItemNo, DATABASE::"Prod. Order Line", DocumentNo);
             while TrackingQuantity > 0 do begin
                 TrackingQuantity -= 1;
-                ItemTrackingLines.New;
+                ItemTrackingLines.New();
                 ItemTrackingLines."Serial No.".SetValue(ReservationEntry."Serial No.");
                 ItemTrackingLines."Quantity (Base)".SetValue(1);
                 ReservationEntry.Next();
@@ -4692,30 +4699,30 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Assign Lot no based on requirments.
         if AssignTracking = AssignTracking::LotNo then begin
-            ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
-            ItemTrackingLines.Last;
+            ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
+            ItemTrackingLines.Last();
             LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."Lot No.".Value);
-            LotNoInformationCard.Trap;
-            ItemTrackingLines.Reclass_LotNoInfoCard.Invoke;
+            LotNoInformationCard.Trap();
+            ItemTrackingLines.Reclass_LotNoInfoCard.Invoke();
 
-            ItemTrackingComments.Trap;
+            ItemTrackingComments.Trap();
             LotNoInformationCard.Description.SetValue(Description);
-            LotNoInformationCard.Comment.Invoke;
+            LotNoInformationCard.Comment.Invoke();
             ItemTrackingComments.Date.SetValue(WorkDate());
             ItemTrackingComments.Comment.SetValue(Comment);
-            ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines.OK().Invoke();
             exit;
         end;
 
-        ItemTrackingLines."Select Entries".Invoke;  // Open Item Tracking Summary for Select Line.
+        ItemTrackingLines."Select Entries".Invoke();  // Open Item Tracking Summary for Select Line.
 
         // Select Lot no based on requirments.
         if Partial then begin
-            ItemTrackingLines.First;
+            ItemTrackingLines.First();
             ItemTrackingLines."Qty. to Handle (Base)".SetValue(TrackingQuantity);
             ItemTrackingLines."Qty. to Invoice (Base)".SetValue(TrackingQuantity);
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4728,22 +4735,22 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case AssignTracking of
             AssignTracking::SerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
+                    ItemTrackingLines."Assign Serial No.".Invoke();  // Open Enter Quantity to Create Page for Create Serial No or with Lot No.
                     exit;
                 end;
             AssignTracking::LotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
                     exit;
                 end;
         end;
 
         if VerifyQtyToHandle then begin  // Using For Transfer Receipt.
-            ItemTrackingLines.Last;
+            ItemTrackingLines.Last();
             repeat
                 ItemTrackingLines."Qty. to Handle (Base)".AssertEquals(1);  // For Serial No.
                 LineCount += 1;
-            until not ItemTrackingLines.Previous;
+            until not ItemTrackingLines.Previous();
             Assert.AreEqual(TrackingQuantity, LineCount, NumberOfLineEqualErr);  // Verify Number of line Tracking Line.
             exit;
         end;
@@ -4759,7 +4766,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // For Partial Tracking Set all Selected Quantity as 0.
         if TrackingQuantity <> 0 then begin
-            ItemTrackingSummary.First;
+            ItemTrackingSummary.First();
             TrackingQuantity2 := TrackingQuantity;
             while TrackingQuantity2 > 0 do begin
                 TrackingQuantity2 -= 1;
@@ -4768,22 +4775,22 @@ codeunit 137052 "SCM RTAM Item Tracking"
             end;
 
             // For Partial Tracking Set Selected Quantity as 1.
-            ItemTrackingSummary.Last;
+            ItemTrackingSummary.Last();
             while TrackingQuantity > 0 do begin
                 TrackingQuantity -= 1;
                 ItemTrackingSummary."Selected Quantity".SetValue(1);  // Set Value to partially track the Items.
-                ItemTrackingSummary.Previous;
+                ItemTrackingSummary.Previous();
             end;
         end;
 
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4791,15 +4798,15 @@ codeunit 137052 "SCM RTAM Item Tracking"
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(CreateNewLotNo);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SerialPostedLinesPageHandler(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
     begin
-        PostedItemTrackingLines.Last;
-        PostedItemTrackingLines."Serial No.".Lookup;  // Open Serial No Information List for verify.
+        PostedItemTrackingLines.Last();
+        PostedItemTrackingLines."Serial No.".Lookup();  // Open Serial No Information List for verify.
     end;
 
     [ModalPageHandler]
@@ -4812,7 +4819,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         case AssignTracking of
             AssignTracking::SerialNo:
                 begin
-                    PostedItemTrackingLines.First;
+                    PostedItemTrackingLines.First();
                     repeat
                         PostedItemTrackingLines.Quantity.AssertEquals(SignFactor);  // Using SignFactor for Negative Value- Consumption.
                         LineCount += 1;
@@ -4831,7 +4838,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LineCount: Integer;
     begin
         // Verify Quantity and Number of Line on Tracking Page.
-        PostedItemTrackingLines.First;
+        PostedItemTrackingLines.First();
         repeat
             PostedItemTrackingLines.Quantity.AssertEquals(1);
             PostedItemTrackingLines."Warranty Date".AssertEquals(
@@ -4845,8 +4852,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
     [Scope('OnPrem')]
     procedure LotPostedLinesPageHandler(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
     begin
-        PostedItemTrackingLines.Last;
-        PostedItemTrackingLines."Lot No.".Lookup;  // Open Lot No Information List for verify.
+        PostedItemTrackingLines.Last();
+        PostedItemTrackingLines."Lot No.".Lookup();  // Open Lot No Information List for verify.
     end;
 
     [ModalPageHandler]
@@ -4856,9 +4863,9 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingComments: TestPage "Item Tracking Comments";
     begin
         // Verify Item Tracking for Serial.
-        ItemTrackingComments.Trap;
+        ItemTrackingComments.Trap();
         SerialNoInformationList.Description.AssertEquals(Description);
-        SerialNoInformationList.Comment.Invoke;
+        SerialNoInformationList.Comment.Invoke();
         ItemTrackingComments.Date.AssertEquals(WorkDate());
         ItemTrackingComments.Comment.AssertEquals(Comment);
     end;
@@ -4870,9 +4877,9 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingComments: TestPage "Item Tracking Comments";
     begin
         // Verify Item Tracking for Lot.
-        ItemTrackingComments.Trap;
+        ItemTrackingComments.Trap();
         LotNoInformationList.Description.AssertEquals(Description);
-        LotNoInformationList.Comment.Invoke;
+        LotNoInformationList.Comment.Invoke();
         ItemTrackingComments.Date.AssertEquals(WorkDate());
         ItemTrackingComments.Comment.AssertEquals(Comment);
     end;
@@ -4896,23 +4903,23 @@ codeunit 137052 "SCM RTAM Item Tracking"
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
         if not CancelReservationCurrentLine then begin
-            Reservation."Reserve from Current Line".Invoke;  // Reserve.
-            Reservation.OK.Invoke;
+            Reservation."Reserve from Current Line".Invoke();  // Reserve.
+            Reservation.OK().Invoke();
             exit;
         end;
-        Reservation.CancelReservationCurrentLine.Invoke;  // Cancel Reservation.
-        Reservation.OK.Invoke;
+        Reservation.CancelReservationCurrentLine.Invoke();  // Cancel Reservation.
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationAvailablePageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.First;
+        Reservation.First();
         Reservation."Summary Type".AssertEquals(ItemLedgerEntrySummaryTypeTxt);
         Reservation.Next();
         Reservation."Summary Type".AssertEquals(TransferLineSummaryTypeTxt);
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4920,7 +4927,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.FILTER.SetFilter("No.", DocumentNo);
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4945,21 +4952,21 @@ codeunit 137052 "SCM RTAM Item Tracking"
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetReturnShipmentLinesPageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
+    procedure GetReturnShipmentLinesPageHandler(var GetReturnShipmentLinesPage: TestPage "Get Return Shipment Lines")
     begin
-        GetReturnShipmentLines.OK.Invoke;
+        GetReturnShipmentLinesPage.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -5016,7 +5023,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             1:
                 Assert.IsTrue(StrPos(ConfirmMessage, AvailabilityWarningsMsg) > 0, ConfirmMessage);
             2:
-                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText) > 0, ConfirmMessage);
+                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText()) > 0, ConfirmMessage);
             3:
                 Assert.IsTrue(StrPos(ConfirmMessage, SomeOutputMissingMsg) > 0, ConfirmMessage);
         end;
@@ -5032,7 +5039,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             1:
                 Assert.IsTrue(StrPos(ConfirmMessage, AvailabilityWarningsMsg) > 0, ConfirmMessage);
             2:
-                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText) > 0, ConfirmMessage);
+                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText()) > 0, ConfirmMessage);
             3:
                 Assert.IsTrue(StrPos(ConfirmMessage, 'One or more lines have tracking specified, but Quantity (Base) is zero') > 0, ConfirmMessage);
             4:
@@ -5050,7 +5057,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             1, 3:
                 Assert.IsTrue(StrPos(ConfirmMessage, AvailabilityWarningsMsg) > 0, ConfirmMessage);
             2:
-                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText) > 0, ConfirmMessage);
+                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText()) > 0, ConfirmMessage);
         end;
         Reply := true;
     end;
@@ -5081,22 +5088,22 @@ codeunit 137052 "SCM RTAM Item Tracking"
     [Scope('OnPrem')]
     procedure ItemTrackingAssignSerialPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreateOKPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListDocPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SalesList.OK.Invoke;
+        SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5104,21 +5111,21 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         ItemTrackingLines."Lot No.".AssistEdit();
-        ItemTrackingLines.OK.Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure ItemTrackingSummaryVerifyLotModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
-        ItemTrackingSummary.OK.Invoke();
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure ItemTrackingSummaryFindLastModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.Last();
-        ItemTrackingSummary.OK.Invoke();
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

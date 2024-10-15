@@ -42,7 +42,7 @@ codeunit 144016 "Test Import Bank Directory"
         UpdateClearingNumbers := false;
         LibraryVariableStorage.Enqueue(UpdateClearingNumbers);
 
-        CreateBankDirectoryImportFile;
+        CreateBankDirectoryImportFile();
         BindSubscription(TestImportBankDirectory);
         TestImportBankDirectory.SetFileName(FileNameForHandler);
 
@@ -54,9 +54,9 @@ codeunit 144016 "Test Import Bank Directory"
         // Verify
         VerifyImportedRecords(NumberOfImportedRows);
 
-        VerifyBankDirectoryRecords;
+        VerifyBankDirectoryRecords();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -71,8 +71,8 @@ codeunit 144016 "Test Import Bank Directory"
         Initialize();
 
         // Exercise
-        BankDirectoryPage.OpenView;
-        BankDirectoryPage."Import Bank Directory".Invoke;
+        BankDirectoryPage.OpenView();
+        BankDirectoryPage."Import Bank Directory".Invoke();
         BankDirectoryPage.Close();
 
         // Verify
@@ -132,7 +132,7 @@ codeunit 144016 "Test Import Bank Directory"
         // [GIVEN] Bank directory file which has address with country specific symbols
         UpdateClearingNumbers := false;
         LibraryVariableStorage.Enqueue(UpdateClearingNumbers);
-        CreateBankDirectoryImportFile;
+        CreateBankDirectoryImportFile();
         BindSubscription(TestImportBankDirectory);
         TestImportBankDirectory.SetFileName(FileNameForHandler);
 
@@ -200,7 +200,7 @@ codeunit 144016 "Test Import Bank Directory"
         Assert.AreEqual(BranchNo2, CustomerBankAccount2."Bank Branch No.", 'Bank Branch No should not be modified');
         Assert.AreEqual(BranchNo3, CustomerBankAccount3."Bank Branch No.", 'Bank Branch No should not be modified');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ImportBankDirectoryWithVendorBankAccount(UpdateClearingNumbers: Boolean)
@@ -245,7 +245,7 @@ codeunit 144016 "Test Import Bank Directory"
         Assert.AreEqual(BranchNo2, VendorBankAccount2."Clearing No.", 'Vendor Bank Account 2 Clearing No should not be modified');
         Assert.AreEqual(BranchNo3, VendorBankAccount3."Clearing No.", 'Vendor Bank Account 3 Clearing No should not be modified');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure ImportBankDirectoryWithClearingNumbers(BranchNo1: Code[5]; BranchNo2: Code[5]; BranchNo3: Code[5])
@@ -271,8 +271,8 @@ codeunit 144016 "Test Import Bank Directory"
         ImportedRecords: Text;
     begin
         // Verify records imported in the report dataset
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           'No rows in the dataset.');
 
         // Verify the Imported record count from the dataset
@@ -379,7 +379,7 @@ codeunit 144016 "Test Import Bank Directory"
     local procedure WriteLine(TmpStream: OutStream; Text: Text)
     begin
         TmpStream.WriteText(Text);
-        TmpStream.WriteText;
+        TmpStream.WriteText();
     end;
 
     local procedure WriteBankDirectoryFile(ClearingBranchNo1: Code[5]; ClearingBranchNo2: Code[5]; ClearingBranchNo3: Code[5]; NewClearingBranchNo1: Code[5]) RecordCount: Integer
@@ -414,21 +414,20 @@ codeunit 144016 "Test Import Bank Directory"
     [Scope('OnPrem')]
     procedure ImportHandler(var ImportBankDirectory: TestRequestPage "Import Bank Directory")
     var
-        FileName: Variant;
         UpdateClearingNumbers: Variant;
     begin
         LibraryVariableStorage.Dequeue(UpdateClearingNumbers);
         ImportBankDirectory.AutoUpdate.SetValue(UpdateClearingNumbers);
         ImportBankDirectory.FileName.AssistEdit();
 
-        ImportBankDirectory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ImportBankDirectory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ImportBankDirectoryCancelRequestPageHandler(var ImportBankDirectoryRequestPage: TestRequestPage "Import Bank Directory")
     begin
-        ImportBankDirectoryRequestPage.Cancel.Invoke;
+        ImportBankDirectoryRequestPage.Cancel().Invoke();
     end;
 
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account")

@@ -118,7 +118,6 @@ page 193 "Incoming Doc. Attach. FactBox"
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
                 Visible = ShareOptionsEnabled;
-                Promoted = true;
                 Scope = Repeater;
                 trigger OnAction()
                 var
@@ -145,7 +144,6 @@ page 193 "Incoming Doc. Attach. FactBox"
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
                 Visible = ShareOptionsEnabled;
-                Promoted = true;
                 Scope = Repeater;
                 trigger OnAction()
                 var
@@ -171,8 +169,6 @@ page 193 "Incoming Doc. Attach. FactBox"
                 Caption = 'Download';
                 Image = Download;
                 Enabled = DownloadEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
                 ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
 

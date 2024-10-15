@@ -1,6 +1,7 @@
 namespace System.DataAdministration;
 using Microsoft.Sales.Archive;
 using Microsoft.Purchases.Archive;
+using Microsoft.Projects.Project.Archive;
 
 pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setup Lines"
 {
@@ -29,7 +30,7 @@ pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setu
 
     internal procedure SetIsDocumentArchiveTable(TableId: Integer)
     begin
-        IsDocumentArchiveTable := TableId in [Database::"Sales Header Archive", Database::"Purchase Header Archive"];
+        IsDocumentArchiveTable := TableId in [Database::"Sales Header Archive", Database::"Purchase Header Archive", Database::"Job Archive"];
     end;
 
     trigger OnAfterGetCurrRecord()

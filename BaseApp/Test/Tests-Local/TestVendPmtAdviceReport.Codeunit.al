@@ -63,7 +63,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         RunVendPmtAdviceReport(GenJournalLine, false, Responsible, Advice);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(GenJournalLine, -InvoiceGenJournalLine."Amount (LCY)", Responsible, Advice, 1);
     end;
 
@@ -100,7 +100,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         RunVendPmtAdviceReport(GenJournalLine, false, Responsible, Advice);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(GenJournalLine, -InvoiceGenJournalLine."Amount (LCY)", Responsible, Advice, 2);
         VerifyReportData(GenJournalLine1, 0, Responsible, Advice, 2);
     end;
@@ -135,7 +135,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         RunVendPmtAdviceReport(GenJournalLine, true, Responsible, Advice);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(GenJournalLine, -InvoiceGenJournalLine."Amount (LCY)", Responsible, Advice, 1);
     end;
 
@@ -206,7 +206,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         RunVendPmtAdviceReport(PmtGenJnlLine, true, '', '');
 
         // [THEN] Credit Memo "B1" printed in Vendor Payment Advice Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(VendorNoTxt, Vendor."No.");
         LibraryReportDataset.SetRange(GenJnlLineNoTxt, PmtGenJnlLine."Line No.");
         LibraryReportDataset.MoveToRow(3); // 1 - invoice "A1"; 2 - invoice "A2"
@@ -240,7 +240,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure PostPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; Vendor: Record Vendor; Amount: Decimal): Code[20]
+    local procedure PostPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; Vendor: Record Vendor; Amount: Decimal): Code[20]
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocType, GenJournalLine."Account Type"::Vendor, Vendor."No.", -Amount);
@@ -290,14 +290,14 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
           VendLedgEntry."Document Type"::Invoice, VendLedgEntry."Document Type"::"Credit Memo", InvNo, DocNo);
     end;
 
-    local procedure GetVendLedgEntryRemAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; DocNo: Code[20]): Decimal
+    local procedure GetVendLedgEntryRemAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Decimal
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(VendLedgEntry."Remaining Amount");
     end;
 
-    local procedure GetVendLedgEntryNo(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetVendLedgEntryNo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -323,10 +323,10 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
     begin
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('No_Vendor', GenJournalLine."Account No.");
-        Assert.AreEqual(ExpCount, LibraryReportDataset.RowCount, 'Incorrect number of payment lines in the report.');
+        Assert.AreEqual(ExpCount, LibraryReportDataset.RowCount(), 'Incorrect number of payment lines in the report.');
         LibraryReportDataset.SetRange('LineNo_GenJnlLine', GenJournalLine."Line No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one line per journal line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one line per journal line in the report.');
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('VendEntryDocNo', GenJournalLine."Applies-to Doc. No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('VendEntryAmount', AppliedAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GenJnlLine', GenJournalLine."Amount (LCY)");
@@ -348,7 +348,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         SRVendorPaymentAdvice.ShowEsrPayments.SetValue(ShowESRPayments);
         SRVendorPaymentAdvice.RespPerson.SetValue(Responsible);
         SRVendorPaymentAdvice.MsgTxt.SetValue(Advice);
-        SRVendorPaymentAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRVendorPaymentAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

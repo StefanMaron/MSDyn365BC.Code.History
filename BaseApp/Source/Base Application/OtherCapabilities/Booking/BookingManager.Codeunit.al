@@ -43,10 +43,9 @@ codeunit 6721 "Booking Manager"
                 TempBookingItem.Init();
                 BookingItem.CalcFields("Start Date", "End Date");
                 TempBookingItem.TransferFields(BookingItem);
-                with BookingItem do
-                    if ("Invoice No." = '') and ("Invoice Status" = "Invoice Status"::draft) then
-                        if GetStartDate() < Now then
-                            TempBookingItem.Insert();
+                if (BookingItem."Invoice No." = '') and (BookingItem."Invoice Status" = BookingItem."Invoice Status"::draft) then
+                    if BookingItem.GetStartDate() < Now then
+                        TempBookingItem.Insert();
             until BookingItem.Next() = 0;
     end;
 

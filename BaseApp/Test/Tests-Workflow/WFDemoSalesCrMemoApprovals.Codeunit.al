@@ -45,14 +45,14 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         CreateSalesCreditMemo(SalesHeader);
 
         // Exercise
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemo.Post.Invoke;
+        asserterror SalesCreditMemo.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, SalesHeader."Document Type", SalesHeader."No."));
@@ -76,14 +76,14 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         CreateSalesCreditMemo(SalesHeader);
 
         // Exercise
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemo.Release.Invoke;
+        asserterror SalesCreditMemo.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -108,7 +108,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -127,9 +127,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         // Exercise
         Commit();
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemo.Release.Invoke;
+        asserterror SalesCreditMemo.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -154,7 +154,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -172,9 +172,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         VerifySalesCreditMemoIsPendingApproval(SalesHeader);
 
         // Exercise
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemo.Reopen.Invoke;
+        asserterror SalesCreditMemo.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -199,7 +199,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -256,7 +256,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -316,7 +316,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] Sales CreditMemo is released.
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -392,7 +392,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] Sales CreditMemo is opend and approval requests are marked as cancelled.
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -445,15 +445,15 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesCreditMemo(SalesHeader);
         Commit();
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(SalesCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesCreditMemo.SendApprovalRequest.Invoke;
+        asserterror SalesCreditMemo.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -462,33 +462,33 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(SalesCreditMemo.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(SalesCreditMemo.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(SalesCreditMemo.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(SalesCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(SalesCreditMemo.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(SalesCreditMemo.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(SalesCreditMemo.Delegate.Visible(), 'Delegate should NOT be visible');
         SalesCreditMemo.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesCreditMemo.SendApprovalRequest.Invoke;
+        SalesCreditMemo.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         SalesCreditMemo.Close();
@@ -497,13 +497,13 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
 
         // [WHEN] SalesHeader card is opened.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(SalesCreditMemo.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(SalesCreditMemo.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(SalesCreditMemo.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(SalesCreditMemo.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(SalesCreditMemo.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(SalesCreditMemo.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -524,15 +524,15 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesCreditMemo(SalesHeader);
         Commit();
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesCreditMemos.SendApprovalRequest.Invoke;
+        asserterror SalesCreditMemos.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -541,30 +541,30 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemos.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         SalesCreditMemos.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesCreditMemos.SendApprovalRequest.Invoke;
+        SalesCreditMemos.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -586,7 +586,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -652,7 +652,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -723,7 +723,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Sales CrMemo Approvals");
@@ -761,9 +761,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.SendApprovalRequest.Invoke;
+        SalesCreditMemo.SendApprovalRequest.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -825,9 +825,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Approve.Invoke;
+        SalesCreditMemo.Approve.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -835,9 +835,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Reject.Invoke;
+        SalesCreditMemo.Reject.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -845,9 +845,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Delegate.Invoke;
+        SalesCreditMemo.Delegate.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -855,9 +855,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.CancelApprovalRequest.Invoke;
+        SalesCreditMemo.CancelApprovalRequest.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -873,16 +873,16 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, SalesCreditMemo.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, SalesCreditMemo.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            SalesCreditMemo.Comment.Invoke;
-            if ApprovalComments.First then
+            SalesCreditMemo.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -902,13 +902,13 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -925,13 +925,13 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -947,14 +947,14 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemo.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemo.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesCreditMemo.Close();
 
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemos.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemos.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesCreditMemos.Close();
     end;
 }

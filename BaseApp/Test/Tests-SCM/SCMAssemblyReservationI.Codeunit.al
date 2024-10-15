@@ -280,10 +280,10 @@ codeunit 137916 "SCM Assembly Reservation I"
         AssemblyLine.ShowReservation();
 
         // [THEN] The assembly line is reserved.
-        ReservedQty := LibraryVariableStorage.DequeueDecimal;
+        ReservedQty := LibraryVariableStorage.DequeueDecimal();
         Assert.AreEqual(AssemblyLine.Quantity, ReservedQty, 'The assembly line has not been reserved.');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         AddItemToInventory(CompItem, Qty * 2);
 
         // [GIVEN] Sales order for item "A". "Assemble-to-Order" link is created for a new assembly order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Shipment Date", WorkDate2);
         SalesHeader.Modify(true);
 
@@ -448,14 +448,14 @@ codeunit 137916 "SCM Assembly Reservation I"
     procedure ReservationPage(var Reservation: TestPage Reservation)
     begin
         Commit();
-        Reservation.AvailableToReserve.Invoke;
+        Reservation.AvailableToReserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailToReservePage(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
-        AvailableItemLedgEntries.First;
+        AvailableItemLedgEntries.First();
 
         Assert.IsTrue(AvailableItemLedgEntries."Entry Type".Value = 'Positive Adjmt.',
           'AvailableItemLedgEntries wrong entry type');
@@ -467,20 +467,20 @@ codeunit 137916 "SCM Assembly Reservation I"
     var
         QtyToReserve: Decimal;
     begin
-        QtyToReserve := LibraryVariableStorage.DequeueDecimal;
+        QtyToReserve := LibraryVariableStorage.DequeueDecimal();
 
-        AvailableAsmLinesPage.First;
-        Assert.AreEqual(QtyToReserve, AvailableAsmLinesPage."Remaining Quantity".AsDEcimal, WrongRemainingQtyErr);
+        AvailableAsmLinesPage.First();
+        Assert.AreEqual(QtyToReserve, AvailableAsmLinesPage."Remaining Quantity".AsDecimal(), WrongRemainingQtyErr);
 
-        AvailableAsmLinesPage.Reserve.Invoke;
-        Assert.AreEqual(QtyToReserve, AvailableAsmLinesPage."Reserved Qty. (Base)".AsDEcimal, WrongReservedQtyErr);
+        AvailableAsmLinesPage.Reserve.Invoke();
+        Assert.AreEqual(QtyToReserve, AvailableAsmLinesPage."Reserved Qty. (Base)".AsDecimal(), WrongReservedQtyErr);
     end;
 
     local procedure CreateSalesOrderWithTrackedAssembleToOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Qty: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Shipment Date", WorkDate2);
         SalesHeader.Modify(true);
 
@@ -579,9 +579,9 @@ codeunit 137916 "SCM Assembly Reservation I"
     [Scope('OnPrem')]
     procedure AvailToReserveAsmHeaderPage(var AvailableAsmHeadersPage: TestPage "Available - Assembly Headers")
     begin
-        AvailableAsmHeadersPage.First;
+        AvailableAsmHeadersPage.First();
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueDecimal, AvailableAsmHeadersPage."Remaining Quantity".AsDEcimal,
+          LibraryVariableStorage.DequeueDecimal(), AvailableAsmHeadersPage."Remaining Quantity".AsDecimal(),
           WrongRemainingQtyErr);
     end;
 
@@ -589,51 +589,51 @@ codeunit 137916 "SCM Assembly Reservation I"
     [Scope('OnPrem')]
     procedure AvailAssemblyHeadersCancelReservationHandler(var AvailableAssemblyHeaders: TestPage "Available - Assembly Headers")
     begin
-        AvailableAssemblyHeaders.CancelReservation.Invoke;
+        AvailableAssemblyHeaders.CancelReservation.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailAssemblyHeadersDrillDownQtyHandler(var AvailableAssemblyHeaders: TestPage "Available - Assembly Headers")
     begin
-        AvailableAssemblyHeaders.ReservedQuantity.DrillDown;
+        AvailableAssemblyHeaders.ReservedQuantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableAssemblyLinesCancelReservationPageHandler(var AvailableAssemblyLines: TestPage "Available - Assembly Lines")
     begin
-        AvailableAssemblyLines.CancelReservation.Invoke;
+        AvailableAssemblyLines.CancelReservation.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableAssemblyLinesDrillDownQtyPageHandler(var AvailableAssemblyLines: TestPage "Available - Assembly Lines")
     begin
-        AvailableAssemblyLines.ReservedQuantity.DrillDown;
+        AvailableAssemblyLines.ReservedQuantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailablePurchaseLinesModalPageHandler(var AvailablePurchaseLines: TestPage "Available - Purchase Lines")
     begin
-        AvailablePurchaseLines.Reserve.Invoke;
-        LibraryVariableStorage.Enqueue(AvailablePurchaseLines.ReservedQuantity.AsDEcimal);
+        AvailablePurchaseLines.Reserve.Invoke();
+        LibraryVariableStorage.Enqueue(AvailablePurchaseLines.ReservedQuantity.AsDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationEntriesPageHandler(var ReservationEntries: TestPage "Reservation Entries")
     begin
-        ReservationEntries.OK.Invoke;
+        ReservationEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandlerAssignSN(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -643,36 +643,36 @@ codeunit 137916 "SCM Assembly Reservation I"
         NoOfLines: Integer;
         I: Integer;
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingOption::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             ItemTrackingOption::AssignLotNoManual:
                 begin
-                    ItemTrackingLines.New;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingOption::AssignLotNos:
                 begin
-                    NoOfLines := LibraryVariableStorage.DequeueInteger;
+                    NoOfLines := LibraryVariableStorage.DequeueInteger();
                     for I := 1 to NoOfLines do begin
-                        ItemTrackingLines.New;
-                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                     end;
                 end;
             ItemTrackingOption::SelectLotNo:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 
     [ConfirmHandler]

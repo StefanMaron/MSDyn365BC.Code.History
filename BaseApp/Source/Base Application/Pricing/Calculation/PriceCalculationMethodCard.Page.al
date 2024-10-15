@@ -37,7 +37,7 @@ page 7026 "Price Calculation Method Card"
         }
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

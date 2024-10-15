@@ -19,6 +19,7 @@ table 11014 Certificate
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

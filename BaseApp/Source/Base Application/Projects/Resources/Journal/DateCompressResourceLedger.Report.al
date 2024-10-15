@@ -26,57 +26,55 @@ report 1198 "Date Compress Resource Ledger"
             trigger OnAfterGetRecord()
             begin
                 ResLedgEntry2 := "Res. Ledger Entry";
-                with ResLedgEntry2 do begin
-                    SetCurrentKey("Resource No.", "Posting Date");
-                    CopyFilters("Res. Ledger Entry");
-                    SetRange("Entry Type", "Entry Type");
-                    SetRange("Resource No.", "Resource No.");
-                    SetRange("Resource Group No.", "Resource Group No.");
-                    SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
+                ResLedgEntry2.SetCurrentKey("Resource No.", "Posting Date");
+                ResLedgEntry2.CopyFilters("Res. Ledger Entry");
+                ResLedgEntry2.SetRange("Entry Type", ResLedgEntry2."Entry Type");
+                ResLedgEntry2.SetRange("Resource No.", ResLedgEntry2."Resource No.");
+                ResLedgEntry2.SetRange("Resource Group No.", ResLedgEntry2."Resource Group No.");
+                ResLedgEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(ResLedgEntry2."Posting Date", EntrdDateComprReg, true));
 
-                    if RetainNo(FieldNo("Document No.")) then
-                        SetRange("Document No.", "Document No.");
-                    if RetainNo(FieldNo("Work Type Code")) then
-                        SetRange("Work Type Code", "Work Type Code");
-                    if RetainNo(FieldNo("Job No.")) then
-                        SetRange("Job No.", "Job No.");
-                    if RetainNo(FieldNo("Unit of Measure Code")) then
-                        SetRange("Unit of Measure Code", "Unit of Measure Code");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                    if RetainNo(FieldNo(Chargeable)) then
-                        SetRange(Chargeable, Chargeable);
-                    if RetainNo(FieldNo("Source Type")) then
-                        SetRange("Source Type", "Source Type");
-                    if RetainNo(FieldNo("Source No.")) then
-                        SetRange("Source No.", "Source No.");
+                if RetainNo(ResLedgEntry2.FieldNo("Document No.")) then
+                    ResLedgEntry2.SetRange("Document No.", ResLedgEntry2."Document No.");
+                if RetainNo(ResLedgEntry2.FieldNo("Work Type Code")) then
+                    ResLedgEntry2.SetRange("Work Type Code", ResLedgEntry2."Work Type Code");
+                if RetainNo(ResLedgEntry2.FieldNo("Job No.")) then
+                    ResLedgEntry2.SetRange("Job No.", ResLedgEntry2."Job No.");
+                if RetainNo(ResLedgEntry2.FieldNo("Unit of Measure Code")) then
+                    ResLedgEntry2.SetRange("Unit of Measure Code", ResLedgEntry2."Unit of Measure Code");
+                if RetainNo(ResLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+                    ResLedgEntry2.SetRange("Global Dimension 1 Code", ResLedgEntry2."Global Dimension 1 Code");
+                if RetainNo(ResLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+                    ResLedgEntry2.SetRange("Global Dimension 2 Code", ResLedgEntry2."Global Dimension 2 Code");
+                if RetainNo(ResLedgEntry2.FieldNo(Chargeable)) then
+                    ResLedgEntry2.SetRange(Chargeable, ResLedgEntry2.Chargeable);
+                if RetainNo(ResLedgEntry2.FieldNo("Source Type")) then
+                    ResLedgEntry2.SetRange("Source Type", ResLedgEntry2."Source Type");
+                if RetainNo(ResLedgEntry2.FieldNo("Source No.")) then
+                    ResLedgEntry2.SetRange("Source No.", ResLedgEntry2."Source No.");
 
-                    if Quantity >= 0 then
-                        SetFilter(Quantity, '>=0')
-                    else
-                        SetFilter(Quantity, '<0');
+                if ResLedgEntry2.Quantity >= 0 then
+                    ResLedgEntry2.SetFilter(Quantity, '>=0')
+                else
+                    ResLedgEntry2.SetFilter(Quantity, '<0');
 
-                    InitNewEntry(NewResLedgEntry);
+                InitNewEntry(NewResLedgEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, ResLedgEntry2."Dimension Set ID", ResLedgEntry2."Entry No.",
+                  0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewResLedgEntry, ResLedgEntry2);
+                while ResLedgEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.",
-                      0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewResLedgEntry, ResLedgEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.",
-                          ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewResLedgEntry, ResLedgEntry2);
-                    end;
-
-                    InsertNewEntry(NewResLedgEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, ResLedgEntry2."Dimension Set ID", ResLedgEntry2."Entry No.",
+                      ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewResLedgEntry, ResLedgEntry2);
                 end;
+
+                InsertNewEntry(NewResLedgEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -160,7 +158,9 @@ report 1198 "Date Compress Resource Ledger"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Period Length';
@@ -191,8 +191,8 @@ report 1198 "Date Compress Resource Ledger"
                         field("Retain[3]"; Retain[3])
                         {
                             ApplicationArea = Jobs;
-                            Caption = 'Job No.';
-                            ToolTip = 'Specifies the job number.';
+                            Caption = 'Project No.';
+                            ToolTip = 'Specifies the project number.';
                         }
                         field("Retain[4]"; Retain[4])
                         {
@@ -430,15 +430,13 @@ report 1198 "Date Compress Resource Ledger"
 
     local procedure SummarizeEntry(var NewResLedgEntry: Record "Res. Ledger Entry"; ResLedgEntry: Record "Res. Ledger Entry")
     begin
-        with ResLedgEntry do begin
-            NewResLedgEntry.Quantity := NewResLedgEntry.Quantity + Quantity;
-            NewResLedgEntry."Quantity (Base)" := NewResLedgEntry."Quantity (Base)" + "Quantity (Base)";
-            NewResLedgEntry."Total Cost" := NewResLedgEntry."Total Cost" + "Total Cost";
-            NewResLedgEntry."Total Price" := NewResLedgEntry."Total Price" + "Total Price";
-            Delete();
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        NewResLedgEntry.Quantity := NewResLedgEntry.Quantity + ResLedgEntry.Quantity;
+        NewResLedgEntry."Quantity (Base)" := NewResLedgEntry."Quantity (Base)" + ResLedgEntry."Quantity (Base)";
+        NewResLedgEntry."Total Cost" := NewResLedgEntry."Total Cost" + ResLedgEntry."Total Cost";
+        NewResLedgEntry."Total Price" := NewResLedgEntry."Total Price" + ResLedgEntry."Total Price";
+        ResLedgEntry.Delete();
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(ResLedgEntry);
     end;
@@ -473,37 +471,35 @@ report 1198 "Date Compress Resource Ledger"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with ResLedgEntry2 do begin
-            NewResLedgEntry.Init();
-            NewResLedgEntry."Entry No." := LastEntryNo;
-            NewResLedgEntry."Entry Type" := "Entry Type";
-            NewResLedgEntry."Resource No." := "Resource No.";
-            NewResLedgEntry."Resource Group No." := "Resource Group No.";
-            NewResLedgEntry."Posting Date" := GetRangeMin("Posting Date");
-            NewResLedgEntry.Description := EntrdResLedgEntry.Description;
-            NewResLedgEntry."Source Code" := SourceCodeSetup."Compress Res. Ledger";
-            NewResLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        NewResLedgEntry.Init();
+        NewResLedgEntry."Entry No." := LastEntryNo;
+        NewResLedgEntry."Entry Type" := ResLedgEntry2."Entry Type";
+        NewResLedgEntry."Resource No." := ResLedgEntry2."Resource No.";
+        NewResLedgEntry."Resource Group No." := ResLedgEntry2."Resource Group No.";
+        NewResLedgEntry."Posting Date" := ResLedgEntry2.GetRangeMin("Posting Date");
+        NewResLedgEntry.Description := EntrdResLedgEntry.Description;
+        NewResLedgEntry."Source Code" := SourceCodeSetup."Compress Res. Ledger";
+        NewResLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ResLedgEntry2."User ID"));
 
-            if RetainNo(FieldNo("Document No.")) then
-                NewResLedgEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Work Type Code")) then
-                NewResLedgEntry."Work Type Code" := "Work Type Code";
-            if RetainNo(FieldNo("Job No.")) then
-                NewResLedgEntry."Job No." := "Job No.";
-            if RetainNo(FieldNo("Unit of Measure Code")) then
-                NewResLedgEntry."Unit of Measure Code" := "Unit of Measure Code";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                NewResLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                NewResLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-            if RetainNo(FieldNo(Chargeable)) then
-                NewResLedgEntry.Chargeable := Chargeable;
+        if RetainNo(ResLedgEntry2.FieldNo("Document No.")) then
+            NewResLedgEntry."Document No." := ResLedgEntry2."Document No.";
+        if RetainNo(ResLedgEntry2.FieldNo("Work Type Code")) then
+            NewResLedgEntry."Work Type Code" := ResLedgEntry2."Work Type Code";
+        if RetainNo(ResLedgEntry2.FieldNo("Job No.")) then
+            NewResLedgEntry."Job No." := ResLedgEntry2."Job No.";
+        if RetainNo(ResLedgEntry2.FieldNo("Unit of Measure Code")) then
+            NewResLedgEntry."Unit of Measure Code" := ResLedgEntry2."Unit of Measure Code";
+        if RetainNo(ResLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+            NewResLedgEntry."Global Dimension 1 Code" := ResLedgEntry2."Global Dimension 1 Code";
+        if RetainNo(ResLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+            NewResLedgEntry."Global Dimension 2 Code" := ResLedgEntry2."Global Dimension 2 Code";
+        if RetainNo(ResLedgEntry2.FieldNo(Chargeable)) then
+            NewResLedgEntry.Chargeable := ResLedgEntry2.Chargeable;
 
-            Window.Update(1, NewResLedgEntry."Resource No.");
-            Window.Update(2, NewResLedgEntry."Posting Date");
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(3, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewResLedgEntry."Resource No.");
+        Window.Update(2, NewResLedgEntry."Posting Date");
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(3, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewResLedgEntry: Record "Res. Ledger Entry"; DimEntryNo: Integer)

@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 table 11501 "VAT Currency Adjustment Buffer"
 {
     Caption = 'VAT Currency Adjustment Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

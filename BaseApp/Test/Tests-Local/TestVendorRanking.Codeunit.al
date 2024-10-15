@@ -39,12 +39,12 @@ codeunit 144034 "Test Vendor Ranking"
         REPORT.Run(REPORT::"SR Vendor Ranking");
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        Assert.AreEqual(ExpectedNumberOfRecords, LibraryReportDataset.RowCount, 'Incorrect number of records');
+        Assert.AreEqual(ExpectedNumberOfRecords, LibraryReportDataset.RowCount(), 'Incorrect number of records');
 
-        for i := 0 to LibraryReportDataset.RowCount - 1 do begin
-            LibraryReportDataset.GetNextRow;
+        for i := 0 to LibraryReportDataset.RowCount() - 1 do begin
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.GetElementValueInCurrentRow('Col1Txt', Col1Text);
             LibraryReportDataset.GetElementValueInCurrentRow('Col1Amt', Col1Amount);
             LibraryReportDataset.GetElementValueInCurrentRow('Col2Txt', Col2Text);
@@ -69,7 +69,7 @@ codeunit 144034 "Test Vendor Ranking"
             Assert.AreEqual(i, Vendor.Count, 'Incorrect ranking of vendors')
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [RequestPageHandler]
@@ -88,7 +88,7 @@ codeunit 144034 "Test Vendor Ranking"
         CustRankingRequestPage."Column[1]".SetValue(Column1Option);
         CustRankingRequestPage."Column[2]".SetValue(Column2Option);
 
-        CustRankingRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustRankingRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]

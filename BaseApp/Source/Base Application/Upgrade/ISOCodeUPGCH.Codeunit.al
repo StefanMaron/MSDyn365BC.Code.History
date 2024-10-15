@@ -22,17 +22,15 @@ codeunit 104151 "ISO Code UPG.CH"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag()) then
+            exit;
 
-        WITH Currency DO BEGIN
-            SETFILTER("ISO Currency Code", '<>%1', '');
-            IF FindSet() then
-                REPEAT
-                    "ISO Code" := "ISO Currency Code";
-                    Modify();
-                UNTIL Next() = 0;
-        END;
+            Currency.SetFilter("ISO Currency Code", '<>%1', '');
+            if Currency.FindSet() then
+                repeat
+                    Currency."ISO Code" := Currency."ISO Currency Code";
+                    Currency.Modify();
+                until Currency.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag());
     end;

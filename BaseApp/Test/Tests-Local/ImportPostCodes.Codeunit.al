@@ -17,7 +17,7 @@ codeunit 144010 "Import Post Codes"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Import Post Codes");
-        InsertNumericPostCodes;
+        InsertNumericPostCodes();
         Commit();
     end;
 
@@ -66,7 +66,7 @@ codeunit 144010 "Import Post Codes"
         Initialize();
 
         // Setup.
-        NumericPostCodesCount := GetNumericPostCodesCount;
+        NumericPostCodesCount := GetNumericPostCodesCount();
         CreatePostCodeFile(NewPostCode, NewCity, NewCounty, TempFileName);
 
         // Pre-check.
@@ -77,7 +77,7 @@ codeunit 144010 "Import Post Codes"
         asserterror ImportPostCodes.RunModal();
 
         // Verify.
-        Assert.AreEqual(NumericPostCodesCount, GetNumericPostCodesCount, 'Number of numeric codes should be the same.');
+        Assert.AreEqual(NumericPostCodesCount, GetNumericPostCodesCount(), 'Number of numeric codes should be the same.');
         asserterror PostCode.Get(NewPostCode, NewCity);
     end;
 

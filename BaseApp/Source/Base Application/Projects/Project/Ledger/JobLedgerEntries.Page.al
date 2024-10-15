@@ -8,14 +8,15 @@ using System.Security.User;
 
 page 92 "Job Ledger Entries"
 {
+    AdditionalSearchTerms = 'Job Ledger Entries';
     ApplicationArea = Jobs;
-    Caption = 'Job Ledger Entries';
+    Caption = 'Project Ledger Entries';
     DataCaptionFields = "Job No.";
     Editable = false;
     PageType = List;
     SourceTable = "Job Ledger Entry";
     SourceTableView = sorting("Job No.", "Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -41,23 +42,23 @@ page 92 "Job Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the document number on the job ledger entry.';
+                    ToolTip = 'Specifies the document number on the project ledger entry.';
                 }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the job.';
+                    ToolTip = 'Specifies the number of the project.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of account to which the job ledger entry is posted.';
+                    ToolTip = 'Specifies the type of account to which the project ledger entry is posted.';
                 }
                 field("No."; Rec."No.")
                 {
@@ -68,7 +69,7 @@ page 92 "Job Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the description of the job ledger entry.';
+                    ToolTip = 'Specifies the description of the project ledger entry.';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
@@ -136,12 +137,12 @@ page 92 "Job Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the total cost for the posted entry, in the currency specified for the job.';
+                    ToolTip = 'Specifies the total cost for the posted entry, in the currency specified for the project.';
                 }
                 field("Total Cost (LCY)"; Rec."Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost of the posted entry in local currency. If you update the job ledger costs for item ledger cost adjustments, this field will be adjusted to include the item cost adjustments.';
+                    ToolTip = 'Specifies the total cost of the posted entry in local currency. If you update the project ledger costs for item ledger cost adjustments, this field will be adjusted to include the item cost adjustments.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
@@ -162,7 +163,7 @@ page 92 "Job Ledger Entries"
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount for the posted entry, in the currency specified for the job.';
+                    ToolTip = 'Specifies the line discount amount for the posted entry, in the currency specified for the project.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
@@ -173,7 +174,7 @@ page 92 "Job Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the total price for the posted entry, in the currency specified for the job.';
+                    ToolTip = 'Specifies the total price for the posted entry, in the currency specified for the project.';
                     Visible = false;
                 }
                 field("Total Price (LCY)"; Rec."Total Price (LCY)")
@@ -203,7 +204,7 @@ page 92 "Job Ledger Entries"
                 field("Original Unit Cost"; Rec."Original Unit Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the unit cost for the posted entry at the time of posting, in the currency specified for the job. No item cost adjustments are included.';
+                    ToolTip = 'Specifies the unit cost for the posted entry at the time of posting, in the currency specified for the project. No item cost adjustments are included.';
                     Visible = false;
                 }
                 field("Original Unit Cost (LCY)"; Rec."Original Unit Cost (LCY)")
@@ -215,7 +216,7 @@ page 92 "Job Ledger Entries"
                 field("Original Total Cost"; Rec."Original Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost for the posted entry at the time of posting, in the currency specified for the job. No item cost adjustments are included.';
+                    ToolTip = 'Specifies the total cost for the posted entry at the time of posting, in the currency specified for the project. No item cost adjustments are included.';
                     Visible = false;
                 }
                 field("Original Total Cost (LCY)"; Rec."Original Total Cost (LCY)")
@@ -261,25 +262,25 @@ page 92 "Job Ledger Entries"
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the serial number if the job ledger entry Specifies an item usage that was posted with serial number tracking.';
+                    ToolTip = 'Specifies the serial number if the project ledger entry Specifies an item usage that was posted with serial number tracking.';
                     Visible = false;
                 }
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
-                    ToolTip = 'Specifies the lot number if the job ledger entry Specifies an item usage that was posted with lot number tracking.';
+                    ToolTip = 'Specifies the lot number if the project ledger entry Specifies an item usage that was posted with lot number tracking.';
                     Visible = false;
                 }
                 field("Ledger Entry Type"; Rec."Ledger Entry Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry type that the job ledger entry is linked to.';
+                    ToolTip = 'Specifies the entry type that the project ledger entry is linked to.';
                 }
                 field("Ledger Entry No."; Rec."Ledger Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number (Resource, Item or G/L) to which the job ledger entry is linked.';
+                    ToolTip = 'Specifies the entry number (Resource, Item or G/L) to which the project ledger entry is linked.';
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
@@ -290,12 +291,12 @@ page 92 "Job Ledger Entries"
                 field(Adjusted; Rec.Adjusted)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether a job ledger entry has been modified or adjusted. The value in this field is inserted by the Adjust Cost - Item Entries batch job. The Adjusted check box is selected if applicable.';
+                    ToolTip = 'Specifies whether a project ledger entry has been modified or adjusted. The value in this field is inserted by the Adjust Cost - Item Entries batch job. The Adjusted check box is selected if applicable.';
                 }
                 field("DateTime Adjusted"; Rec."DateTime Adjusted")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the time stamp of a job ledger entry adjustment or modification.';
+                    ToolTip = 'Specifies the time stamp of a project ledger entry adjustment or modification.';
                 }
                 field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
@@ -412,9 +413,9 @@ page 92 "Job Ledger Entries"
                 action("<Action28>")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Show Linked Job Planning Lines';
+                    Caption = 'Show Linked Project Planning Lines';
                     Image = JobLines;
-                    ToolTip = 'View the planning lines that are associated with job journal entries that have been posted to the job ledger. This requires that the Apply Usage Link check box has been selected for the job, or is the default setting for all jobs in your organization.';
+                    ToolTip = 'View the planning lines that are associated with project journal entries that have been posted to the project ledger. This requires that the Apply Usage Link check box has been selected for the project, or is the default setting for all projects in your organization.';
 
                     trigger OnAction()
                     var
@@ -447,7 +448,7 @@ page 92 "Job Ledger Entries"
                     Caption = 'Transfer To Planning Lines';
                     Ellipsis = true;
                     Image = TransferToLines;
-                    ToolTip = 'Create planning lines from posted job ledger entries. This is useful if you forgot to specify the planning lines that should be created when you posted the job journal lines.';
+                    ToolTip = 'Create planning lines from posted project ledger entries. This is useful if you forgot to specify the planning lines that should be created when you posted the project journal lines.';
 
                     trigger OnAction()
                     var

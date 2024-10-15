@@ -33,6 +33,7 @@ table 1382 "Item Templ."
     Caption = 'Item Template';
     LookupPageID = "Item Templ. List";
     DrillDownPageID = "Item Templ. List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -999,6 +1000,16 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Purchasing Blocked"));
             end;
         }
+        field(8010; "Service Blocked"; Boolean)
+        {
+            Caption = 'Service Blocked';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Service Blocked"));
+            end;
+        }
         field(8510; "Over-Receipt Code"; Code[20])
         {
             Caption = 'Over-Receipt Code';
@@ -1208,7 +1219,7 @@ table 1382 "Item Templ."
             if not Reverse then
                 DestFieldRef.Value := SrcFieldRef.Value
             else
-                SrcFieldRef.Value := DestFieldRef.Value;
+                SrcFieldRef.Value := DestFieldRef.Value();
         end;
 
         OnAfterTransferFieldValues(SrcRecRef, DestRecRef, Reverse);

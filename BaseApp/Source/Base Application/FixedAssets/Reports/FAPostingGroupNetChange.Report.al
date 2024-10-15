@@ -483,39 +483,36 @@ report 5611 "FA Posting Group - Net Change"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        with FADeprBook do
-            case Type of
-                Type::Acq, Type::DispAcq:
-                    exit(FieldNo("Acquisition Cost"));
-                Type::Depr, Type::DeprExp, Type::DispDepr:
-                    exit(FieldNo(Depreciation));
-                Type::WD, Type::DispWD, Type::BalWD:
-                    exit(FieldNo("Write-Down"));
-                Type::Appr, Type::DispAppr, Type::BalAppr:
-                    exit(FieldNo(Appreciation));
-                Type::C1, Type::DispC1, Type::BalC1:
-                    exit(FieldNo("Custom 1"));
-                Type::C2, Type::DispC2, Type::BalC2:
-                    exit(FieldNo("Custom 2"));
-                Type::Disp:
-                    exit(FieldNo("Proceeds on Disposal"));
-                Type::GL:
-                    exit(FieldNo("Gain/Loss"));
-                Type::BV:
-                    exit(FieldNo("Book Value on Disposal"));
-            end;
+        case Type of
+            Type::Acq, Type::DispAcq:
+                exit(FADeprBook.FieldNo("Acquisition Cost"));
+            Type::Depr, Type::DeprExp, Type::DispDepr:
+                exit(FADeprBook.FieldNo(Depreciation));
+            Type::WD, Type::DispWD, Type::BalWD:
+                exit(FADeprBook.FieldNo("Write-Down"));
+            Type::Appr, Type::DispAppr, Type::BalAppr:
+                exit(FADeprBook.FieldNo(Appreciation));
+            Type::C1, Type::DispC1, Type::BalC1:
+                exit(FADeprBook.FieldNo("Custom 1"));
+            Type::C2, Type::DispC2, Type::BalC2:
+                exit(FADeprBook.FieldNo("Custom 2"));
+            Type::Disp:
+                exit(FADeprBook.FieldNo("Proceeds on Disposal"));
+            Type::GL:
+                exit(FADeprBook.FieldNo("Gain/Loss"));
+            Type::BV:
+                exit(FADeprBook.FieldNo("Book Value on Disposal"));
+        end;
     end;
 
     local procedure CalculateMaintenance(): Decimal
     begin
-        with MaintenanceLedgEntry do begin
-            SetCurrentKey("FA No.", "Depreciation Book Code", "Posting Date");
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("Posting Date", StartingDate, EndingDate);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        MaintenanceLedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Posting Date");
+        MaintenanceLedgEntry.SetRange("FA No.", FANo);
+        MaintenanceLedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        MaintenanceLedgEntry.SetRange("Posting Date", StartingDate, EndingDate);
+        MaintenanceLedgEntry.CalcSums(Amount);
+        exit(MaintenanceLedgEntry.Amount);
     end;
 
     procedure CalcNetDisposalMethod(): Boolean

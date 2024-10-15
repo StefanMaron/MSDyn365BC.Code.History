@@ -1,6 +1,5 @@
 namespace Microsoft.Bank.DirectDebit;
 
-using Microsoft.Sales.Receivables;
 using Microsoft.Bank.Payment;
 
 codeunit 1232 "SEPA DD-Prepare Source"
@@ -31,7 +30,6 @@ codeunit 1232 "SEPA DD-Prepare Source"
 
     local procedure CreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
         DirectDebitCollection: Record "Direct Debit Collection";
         LSVJnl: Record "LSV Journal";
         LSVJnlLine: Record "LSV Journal Line";

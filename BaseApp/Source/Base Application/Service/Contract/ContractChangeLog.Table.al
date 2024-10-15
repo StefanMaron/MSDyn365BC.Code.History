@@ -8,6 +8,7 @@ table 5967 "Contract Change Log"
     DataCaptionFields = "Contract No.";
     Permissions = TableData "Contract Change Log" = rimd;
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

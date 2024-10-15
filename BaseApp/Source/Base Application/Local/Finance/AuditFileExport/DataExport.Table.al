@@ -9,6 +9,7 @@ table 11002 "Data Export"
     Caption = 'Data Export';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Data Exports";
+    DataClassification = CustomerContent;
 
     fields
     {

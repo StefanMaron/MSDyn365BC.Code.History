@@ -142,14 +142,12 @@ page 766 "Acc. Sched. Chart SubPage"
 
     local procedure SetFilters(var AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line")
     begin
-        with AccSchedChartSetupLine do begin
-            Reset();
-            if IsMeasure then
-                AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine)
-            else
-                AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
-            SetFilter("Chart Type", '<>%1', "Chart Type"::" ");
-        end;
+        AccSchedChartSetupLine.Reset();
+        if IsMeasure then
+            AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine)
+        else
+            AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
+        AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
     end;
 
     procedure SetSetupRec(var NewAccountSchedulesChartSetup: Record "Account Schedules Chart Setup")

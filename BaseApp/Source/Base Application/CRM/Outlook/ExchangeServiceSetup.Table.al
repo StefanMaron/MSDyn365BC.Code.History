@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Outlook;
 table 5324 "Exchange Service Setup"
 {
     Caption = 'Exchange Service Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

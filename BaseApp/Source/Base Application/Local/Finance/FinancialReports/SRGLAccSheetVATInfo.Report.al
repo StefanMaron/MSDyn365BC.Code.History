@@ -1,19 +1,15 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
-using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
-using Microsoft.FixedAssets.FixedAsset;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Sales.Customer;
 using System.Utilities;
 
 report 11567 "SR G/L Acc Sheet VAT Info"
@@ -48,9 +44,15 @@ report 11567 "SR G/L Acc Sheet VAT Info"
             column(GLAccountName; "G/L Account".Name)
             {
             }
+#if not CLEAN24
             column(GLAccountCurrencyCode; "G/L Account"."Currency Code")
             {
             }
+#else
+            column(GLAccountCurrencyCode; "G/L Account"."Source Currency Code")
+            {
+            }
+#endif
             column(GLAccountNo; "G/L Account"."No.")
             {
             }
@@ -59,7 +61,11 @@ report 11567 "SR G/L Acc Sheet VAT Info"
             }
             column(FcyAcyBalance; FcyAcyBalance)
             {
+#if not CLEAN24
                 AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                 AutoFormatType = 1;
             }
             column(GlBalance; GlBalance)
@@ -121,16 +127,26 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                 column(CreditAmount_GLEntry; "Credit Amount")
                 {
                 }
+#if not CLEAN24
                 column(GLAccountCurrencyCode_GLEntry; "G/L Account"."Currency Code")
                 {
                 }
+#else
+                column(GLAccountCurrencyCode_GLEntry; "G/L Account"."Source Currency Code")
+                {
+                }
+#endif
                 column(GlBalanceExclAmount; GlBalance - Amount)
                 {
                     AutoFormatType = 1;
                 }
                 column(FcyAcyBalanceExclFcyAcyAmt; FcyAcyBalance - FcyAcyAmt)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(PostingDateFormatted; Format("Posting Date"))
@@ -222,7 +238,11 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                 }
                 column(FcyAcyBalance_GlAccTotal; FcyAcyBalance)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(Exrate; Exrate)
@@ -235,7 +255,11 @@ report 11567 "SR G/L Acc Sheet VAT Info"
 
                 trigger OnAfterGetRecord()
                 begin
+#if not CLEAN24
                     Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Currency Code");
+#else
+                    Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Source Currency Code");
+#endif
                 end;
             }
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
@@ -367,6 +391,10 @@ report 11567 "SR G/L Acc Sheet VAT Info"
             }
 
             trigger OnAfterGetRecord()
+#if CLEAN24
+            var
+                GLAccountSourceCurrency: Record "G/L Account Source Currency";
+#endif
             begin
                 if NewPagePerAcc then
                     NewPagePerAccNo := NewPagePerAccNo + 1;
@@ -375,10 +403,8 @@ report 11567 "SR G/L Acc Sheet VAT Info"
 
                 if StartDate > 0D then begin
                     SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
-                    CalcFields("Net Change", "Movement (FCY)", "Additional-Currency Net Change");
-
+                    CalcFields("Net Change", "Additional-Currency Net Change");
                     GlBalance := "Net Change";
-
                     SetFilter("Date Filter", GlJourDateFilter);
                 end;
 
@@ -390,12 +416,23 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                 if GlJourDateFilter <> '' then
                     GlEntry2.SetFilter("Posting Date", GlJourDateFilter);
                 CalcFields("Balance at Date");
+#if not CLEAN24
                 CalcFields("Balance at Date (FCY)");
+#else
+                GLAccountSourceCurrency."G/L Account No." := "No.";
+                GLAccountSourceCurrency."Currency Code" := "Gen. Journal Line"."Currency Code";
+                GLAccountSourceCurrency.SetFilter("Date Filter", GlJourDateFilter);
+                GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+#endif
 
                 CheckProvEntry();
 
                 if ("Balance at Date" = 0) and
+#if not CLEAN24
                    ("Balance at Date (FCY)" = 0) and
+#else
+                   (GLAccountSourceCurrency."Source Curr. Balance at Date" = 0) and
+#endif
                    (not GlEntry2.FindFirst()) and
                    (not ProvEntryExist) and
                    (not ShowAllAccounts)
@@ -522,11 +559,6 @@ report 11567 "SR G/L Acc Sheet VAT Info"
     end;
 
     var
-        GlAcc2: Record "G/L Account";
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        Bank: Record "Bank Account";
-        FixedAsset: Record "Fixed Asset";
         GlEntry2: Record "G/L Entry";
         GenJourTemplate: Record "Gen. Journal Template";
         GLSetup: Record "General Ledger Setup";

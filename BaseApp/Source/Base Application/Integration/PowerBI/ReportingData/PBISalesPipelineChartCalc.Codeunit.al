@@ -34,17 +34,15 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
 
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempSalesCycleStage: Record "Sales Cycle Stage" temporary)
     begin
-        with TempPowerBIChartBuffer do begin
-            if FindLast() then
-                ID += 1
-            else
-                ID := 1;
-            "Row No." := Format(TempSalesCycleStage.Stage);
-            Value := SalesPipelineChartMgt.GetOppEntryCount(TempSalesCycleStage."Sales Cycle Code", TempSalesCycleStage.Stage);
-            "Measure Name" := TempSalesCycleStage.Description;
-            "Measure No." := TempSalesCycleStage."Sales Cycle Code";
-            Insert();
-        end;
+        if TempPowerBIChartBuffer.FindLast() then
+            TempPowerBIChartBuffer.ID += 1
+        else
+            TempPowerBIChartBuffer.ID := 1;
+        TempPowerBIChartBuffer."Row No." := Format(TempSalesCycleStage.Stage);
+        TempPowerBIChartBuffer.Value := SalesPipelineChartMgt.GetOppEntryCount(TempSalesCycleStage."Sales Cycle Code", TempSalesCycleStage.Stage);
+        TempPowerBIChartBuffer."Measure Name" := TempSalesCycleStage.Description;
+        TempPowerBIChartBuffer."Measure No." := TempSalesCycleStage."Sales Cycle Code";
+        TempPowerBIChartBuffer.Insert();
     end;
 }
 

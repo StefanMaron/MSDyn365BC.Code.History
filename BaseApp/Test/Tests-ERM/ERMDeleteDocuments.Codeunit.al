@@ -23,13 +23,13 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
+        AllowPostedDocumentDeletionDate: Date;
         ValidationErr: Label 'The expected and actual values are equal.';
         SalesDocDeletionErr: Label 'You cannot delete posted sales documents that are posted after %1.';
         PurchDocDeletionErr: Label 'You cannot delete posted purchase documents that are posted after %1.';
         DocumentStillExistsErr: Label 'The document still exists', Locked = true;
         TestFieldErr: Label '%1 must have a value in %2';
         TestFieldCodeErr: Label 'TestField';
-        DocumentsDeletedMsg: Label '%1 archived versions deleted.';
         CannotDeleteSalesOrderLineErr: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2';
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 134417 "ERM Delete Documents"
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Invoice.
-        MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate());
+        MockPostedSalesInvoice(SalesInvoiceHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Sales Invoice.
         asserterror SalesInvoiceHeader.Delete(true);
@@ -545,11 +545,11 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Invoice. Posted Sales Invoice date is greater/equal than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         SalesSetup.Get();
-        // [GIVEN] Posted Sales Invoice with "Posting Date" = WORKDATE.
-        MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate());
+        // [GIVEN] Posted Sales Invoice with "Posting Date" = AllowPostedDocumentDeletionDate.
+        MockPostedSalesInvoice(SalesInvoiceHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Sales Invoice.
         asserterror SalesInvoiceHeader.Delete(true);
@@ -567,10 +567,10 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Invoice. Posted Sales Invoice date is less than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
-        // [GIVEN] Posted Sales Invoice with "Posting Date" = WORKDATE - 1.
-        MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate() - 1);
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
+        // [GIVEN] Posted Sales Invoice with "Posting Date" = AllowPostedDocumentDeletionDate - 1.
+        MockPostedSalesInvoice(SalesInvoiceHeader, AllowPostedDocumentDeletionDate - 1);
         Commit();
         // [WHEN] Delete posted Sales Invoice.
         SalesInvoiceHeader.Delete(true);
@@ -591,7 +591,7 @@ codeunit 134417 "ERM Delete Documents"
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Credit Memo.
-        MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate());
+        MockPostedSalesCrMemo(SalesCrMemoHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         asserterror SalesCrMemoHeader.Delete(true);
@@ -612,11 +612,11 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Credit Memo. Posted Sales Credit Memo date is greater/equal than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         SalesSetup.Get();
-        // [GIVEN] Posted Sales Credit Memo with "Posting Date" = WORKDATE.
-        MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate());
+        // [GIVEN] Posted Sales Credit Memo with "Posting Date" = AllowPostedDocumentDeletionDate.
+        MockPostedSalesCrMemo(SalesCrMemoHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         asserterror SalesCrMemoHeader.Delete(true);
@@ -634,10 +634,10 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Sales]
         // [SCENARIO 169264] Delete posted Sales Credit Memo. Posted Sales Credit Memo date is less than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
-        // [GIVEN] Posted Sales Credit Memo with "Posting Date" = WORKDATE - 1.
-        MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate() - 1);
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
+        // [GIVEN] Posted Sales Credit Memo with "Posting Date" = AllowPostedDocumentDeletionDate - 1.
+        MockPostedSalesCrMemo(SalesCrMemoHeader, AllowPostedDocumentDeletionDate - 1);
         Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         SalesCrMemoHeader.Delete(true);
@@ -658,7 +658,7 @@ codeunit 134417 "ERM Delete Documents"
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Invoice.
-        MockPostedPurchaseInvoice(PurchInvHeader, WorkDate());
+        MockPostedPurchaseInvoice(PurchInvHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Purchase Invoice.
         asserterror PurchInvHeader.Delete(true);
@@ -679,11 +679,11 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Invoice. Posted Purchase Invoice date is greater/equal than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         PurchSetup.Get();
-        // [GIVEN] Posted Purchase Invoice with "Posting Date" = WORKDATE.
-        MockPostedPurchaseInvoice(PurchInvHeader, WorkDate());
+        // [GIVEN] Posted Purchase Invoice with "Posting Date" = AllowPostedDocumentDeletionDate.
+        MockPostedPurchaseInvoice(PurchInvHeader, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Purchase Invoice.
         asserterror PurchInvHeader.Delete(true);
@@ -701,10 +701,10 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Invoice. Posted Purchase Invoice date is less than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
-        // [GIVEN] Posted Purchase Invoice with "Posting Date" = WORKDATE - 1.
-        MockPostedPurchaseInvoice(PurchInvHeader, WorkDate() - 1);
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
+        // [GIVEN] Posted Purchase Invoice with "Posting Date" = AllowPostedDocumentDeletionDate - 1.
+        MockPostedPurchaseInvoice(PurchInvHeader, AllowPostedDocumentDeletionDate - 1);
         Commit();
         // [WHEN] Delete posted Purchase Invoice.
         PurchInvHeader.Delete(true);
@@ -725,7 +725,7 @@ codeunit 134417 "ERM Delete Documents"
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Credit Memo.
-        MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate());
+        MockPostedPurchaseCrMemo(PurchCrMemoHdr, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         asserterror PurchCrMemoHdr.Delete(true);
@@ -746,11 +746,11 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Credit Memo. Posted Purchase Credit Memo date is greater/equal than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         PurchSetup.Get();
-        // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = WORKDATE.
-        MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate());
+        // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = AllowPostedDocumentDeletionDate.
+        MockPostedPurchaseCrMemo(PurchCrMemoHdr, AllowPostedDocumentDeletionDate);
         Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         asserterror PurchCrMemoHdr.Delete(true);
@@ -768,10 +768,10 @@ codeunit 134417 "ERM Delete Documents"
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 169264] Delete posted Purchase Credit Memo. Posted Purchase Credit Memo date is less than allowed deletion before date.
         Initialize();
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
-        // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = WORKDATE - 1.
-        MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate() - 1);
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
+        // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = AllowPostedDocumentDeletionDate - 1.
+        MockPostedPurchaseCrMemo(PurchCrMemoHdr, AllowPostedDocumentDeletionDate - 1);
         Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         PurchCrMemoHdr.Delete(true);
@@ -795,8 +795,8 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
 
         // [GIVEN] Receive on two different dates
-        PostingDate[1] := CalcDate('<-5D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-5D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedPurchaseReceipt(PurchRcptHeader, PostingDate);
         Commit();
 
@@ -816,19 +816,18 @@ codeunit 134417 "ERM Delete Documents"
         PurchRcptHeader: array[2] of Record "Purch. Rcpt. Header";
         PurchaseSetup: Record "Purchases & Payables Setup";
         PostingDate: array[2] of Date;
-        Receive, Invoice : array[2] of Boolean;
     begin
         // [FEATURE] [Allow Document Deletion] [Purchase]
         // [SCENARIO 463858] Delete posted Purchase Receipts. On second receipt, posting date is greater/equal then allowed deletion date. On the first receipt, posting date is less then allowed deletion date
         Initialize();
 
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         PurchaseSetup.Get();
 
         // [GIVEN] Receive on two different dates
-        PostingDate[1] := CalcDate('<-5D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-5D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedPurchaseReceipt(PurchRcptHeader, PostingDate);
         Commit();
 
@@ -862,8 +861,8 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
 
         // [GIVEN] Receive shipments
-        PostingDate[1] := CalcDate('<-2D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-2D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedReturnShipment(ReturnShipmentHeader, PostingDate);
         Commit();
 
@@ -888,13 +887,13 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO 463858] Delete posted Return Shipments. On second return, posting date is greater/equal then allowed deletion date. On the first return, posting date is less then allowed deletion date
         Initialize();
 
-        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         PurchaseSetup.Get();
 
         // [GIVEN] Receive on two different dates
-        PostingDate[1] := CalcDate('<-2D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-2D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedReturnShipment(ReturnShipmentHeader, PostingDate);
         Commit();
 
@@ -928,8 +927,8 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
 
         // [GIVEN] Ship on two different dates
-        PostingDate[1] := CalcDate('<-5D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-5D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedSalesShipment(SalesShipmentHeader, PostingDate);
         Commit();
 
@@ -954,13 +953,13 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO 463858] Delete posted Sales Shipments. On second shipment, posting date is greater/equal then allowed deletion date. On the first shipment, posting date is less then allowed deletion date
         Initialize();
 
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         SalesSetup.Get();
 
         // [GIVEN] Ship on two different dates
-        PostingDate[1] := CalcDate('<-5D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-5D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedSalesShipment(SalesShipmentHeader, PostingDate);
         Commit();
 
@@ -1000,8 +999,8 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
 
         // [GIVEN] Return receipts
-        PostingDate[1] := CalcDate('<-2D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-2D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedReturnReceipt(ReturnReceiptHeader, PostingDate);
         Commit();
 
@@ -1026,13 +1025,13 @@ codeunit 134417 "ERM Delete Documents"
         // [SCENARIO 463858] Delete posted Return Receipts. On second return, posting date is greater/equal then allowed deletion date. On the first return, posting date is less then allowed deletion date
         Initialize();
 
-        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
-        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = AllowPostedDocumentDeletionDate.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(AllowPostedDocumentDeletionDate);
         SalesSetup.Get();
 
         // [GIVEN] Receive on two different dates
-        PostingDate[1] := CalcDate('<-2D>', WorkDate());
-        PostingDate[2] := WorkDate();
+        PostingDate[1] := CalcDate('<-2D>', AllowPostedDocumentDeletionDate);
+        PostingDate[2] := AllowPostedDocumentDeletionDate;
         MockPostedReturnReceipt(ReturnReceiptHeader, PostingDate);
         Commit();
 
@@ -1077,7 +1076,7 @@ codeunit 134417 "ERM Delete Documents"
         DeleteInvoiceSalesOrder(SalesHeader);
 
         // [THEN] Since all lines do have a quantity to ship and quantity to invoice of 0, the complete sales order should be deleted.
-        Assert.IsFalse(SalesHeader.Find, DocumentStillExistsErr);
+        Assert.IsFalse(SalesHeader.Find(), DocumentStillExistsErr);
     end;
 
     [Test]
@@ -1101,7 +1100,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesHeader.Delete(true);
 
         // [THEN] Since all lines do have a quantity to ship and quantity to invoice of 0, the complete sales order should be deleted.
-        Assert.IsFalse(SalesHeader.Find, DocumentStillExistsErr);
+        Assert.IsFalse(SalesHeader.Find(), DocumentStillExistsErr);
     end;
 
     [Test]
@@ -1125,7 +1124,7 @@ codeunit 134417 "ERM Delete Documents"
         DeleteInvoicePurchOrder(PurchaseHeader);
 
         // [THEN] Since all lines do have a quantity to received and quantity to invoice of 0, the complete Purchase order should be deleted.
-        Assert.IsFalse(PurchaseHeader.Find, DocumentStillExistsErr);
+        Assert.IsFalse(PurchaseHeader.Find(), DocumentStillExistsErr);
     end;
 
     [Test]
@@ -1149,7 +1148,7 @@ codeunit 134417 "ERM Delete Documents"
         PurchaseHeader.Delete(true);
 
         // [THEN] Since all lines do have a quantity to received and quantity to invoice of 0, the complete Purchase order should be deleted.
-        Assert.IsFalse(PurchaseHeader.Find, DocumentStillExistsErr);
+        Assert.IsFalse(PurchaseHeader.Find(), DocumentStillExistsErr);
     end;
 
     [Test]
@@ -1405,7 +1404,7 @@ codeunit 134417 "ERM Delete Documents"
 
         CreatePurchOrderForDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
 
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -1439,7 +1438,7 @@ codeunit 134417 "ERM Delete Documents"
         CreatePurchOrderForDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
 
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         asserterror SalesHeader.Validate("Currency Code", CurrencyCode);
 
@@ -1475,8 +1474,8 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] The first line is deleted.
         // [THEN] The second line stays.
-        Assert.IsFalse(SalesLine[1].Find, '');
-        Assert.IsTrue(SalesLine[2].Find, '');
+        Assert.IsFalse(SalesLine[1].Find(), '');
+        Assert.IsTrue(SalesLine[2].Find(), '');
     end;
 
     [Test]
@@ -1508,8 +1507,8 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] The first line is deleted.
         // [THEN] The second line stays.
-        Assert.IsFalse(PurchaseLine[1].Find, '');
-        Assert.IsTrue(PurchaseLine[2].Find, '');
+        Assert.IsFalse(PurchaseLine[1].Find(), '');
+        Assert.IsTrue(PurchaseLine[2].Find(), '');
     end;
 
     [Test]
@@ -1690,6 +1689,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        AllowPostedDocumentDeletionDate := LibraryERM.GetDeletionBlockedAfterDate();
         isInitialized := true;
         Commit();
 
@@ -1781,26 +1781,26 @@ codeunit 134417 "ERM Delete Documents"
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         // LibraryRandom used for Random Quantity.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchOrderForSpecialOrder(var PurchaseHeader: Record "Purchase Header"; CustomerNo: Code[20])
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Sell-to Customer No.", CustomerNo);
         PurchaseHeader.Modify(true);
         LibraryPurchase.GetSpecialOrder(PurchaseHeader);
@@ -1808,7 +1808,7 @@ codeunit 134417 "ERM Delete Documents"
 
     local procedure CreatePurchOrderForDropShipment(var PurchaseHeader: Record "Purchase Header"; CustomerNo: Code[20])
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Sell-to Customer No.", CustomerNo);
         PurchaseHeader.Modify(true);
         LibraryPurchase.GetDropShipment(PurchaseHeader);
@@ -1838,13 +1838,13 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
         // LibraryRandom used for Random Quantity.
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
     end;
@@ -1974,7 +1974,7 @@ codeunit 134417 "ERM Delete Documents"
         SalesLine: Record "Sales Line";
         Item: Record Item;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
@@ -2267,7 +2267,7 @@ codeunit 134417 "ERM Delete Documents"
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Qty. to Ship", 0);
         SalesLine.Modify(true);
@@ -2303,7 +2303,7 @@ codeunit 134417 "ERM Delete Documents"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', LibraryRandom.RandDec(10, 2), '', 0D);
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchaseLine.Validate("Qty. to Receive", 0);
         PurchaseLine.Modify(true);
@@ -2456,7 +2456,7 @@ codeunit 134417 "ERM Delete Documents"
     [Scope('OnPrem')]
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -10,6 +10,7 @@ table 11006 "Data Export Table Relation"
 {
     Caption = 'Data Export Table Relationship';
     DataCaptionFields = "Data Export Code", "Data Exp. Rec. Type Code";
+    DataClassification = CustomerContent;
 
     fields
     {

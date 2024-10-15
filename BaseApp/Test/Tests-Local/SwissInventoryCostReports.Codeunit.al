@@ -48,13 +48,13 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         LibraryVariableStorage.Dequeue(ItemNumber);
         LibraryVariableStorage.Dequeue(QuantityToBuy);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo', ItemNumber);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ItemLedgerEntry', QuantityToBuy);
 
         LibraryReportDataset.SetRange('EndBalanceCaption', EndBalanceCaptionTxt);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('IncreaseQty_Integer', QuantityToBuy);
     end;
 
@@ -80,13 +80,13 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         QuantityToBuy := Quantity;
         AmountToBuy := AmountToBuy * QuantityToBuy;
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo', ItemNumber);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostAmountActual_ItemLedgerEntry', Amount);
 
         LibraryReportDataset.SetRange('EndBalanceCaption', EndBalanceCaptionTxt);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalValueAdjusted_Integer', Amount);
     end;
 
@@ -125,14 +125,14 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
     [Scope('OnPrem')]
     procedure SRItemAccSheetNetChangeRequestPageHandler(var RequestPageHandler: TestRequestPage "SR Item Acc Sheet Net Change")
     begin
-        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SRItemAccSheetInvValueRequestPageHandler(var RequestPageHandler: TestRequestPage "SR Item Acc Sheet Inv. Value")
     begin
-        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -147,11 +147,11 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
 
         RequestPageHandler."Column[1]".SetValue(Column1);
         RequestPageHandler."Column[2]".SetValue(Column2);
-        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Normal]
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Option; Quantity: Integer; Amount: Decimal)
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; Quantity: Integer; Amount: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -170,7 +170,7 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -208,9 +208,9 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
         TmpAmount2: Decimal;
         HasRow: Boolean;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo', ItemNumber);
-        HasRow := LibraryReportDataset.GetNextRow;
+        HasRow := LibraryReportDataset.GetNextRow();
 
         // Get the item
         Assert.IsTrue(Item.Get(ItemNumber), 'We should have retrieved the item');

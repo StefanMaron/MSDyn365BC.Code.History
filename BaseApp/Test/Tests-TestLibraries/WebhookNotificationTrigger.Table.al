@@ -1,6 +1,7 @@
 table 130642 "Webhook Notification Trigger"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

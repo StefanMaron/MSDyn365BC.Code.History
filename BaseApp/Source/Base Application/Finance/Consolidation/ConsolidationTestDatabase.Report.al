@@ -11,7 +11,7 @@ report 14 "Consolidation - Test Database"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Finance/Consolidation/ConsolidationTestDatabase.rdlc';
-    Caption = 'Consolidation - Test Database';
+    Caption = 'Consolidation - Test Database (same environment)';
 
     dataset
     {

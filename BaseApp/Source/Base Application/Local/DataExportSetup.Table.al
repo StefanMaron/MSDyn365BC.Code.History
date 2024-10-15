@@ -1,6 +1,7 @@
 table 11009 "Data Export Setup"
 {
     Caption = 'Data Export Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -42,13 +42,13 @@ codeunit 144018 QuoteManagement
         ArchiveType: Option " ","Converted To Order","Posted Order",Deleted;
     begin
         Initialize();
-        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId());
 
         LibrarySales.CreateCustomer(Customer);
 
         LibraryInventory.CreateItem(Item);
 
-        SalespersonPurchaserCode := CreateSalesPersonPurchaser;
+        SalespersonPurchaserCode := CreateSalesPersonPurchaser();
 
         // Create Sales quote 1
         CreateSalesQuote(SalesHeader1, Customer."No.", SalespersonPurchaserCode, Item."No.");
@@ -61,7 +61,7 @@ codeunit 144018 QuoteManagement
         // It is needed in order that the salesperson purchaser gets some activity.
         // We cannot run a report on a lazy salesperson.
         // Else we would get a division by zero error. (TFS 91065)
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader1);
         SalesOrder.Close();
         // Create Sales quote 2
@@ -75,16 +75,16 @@ codeunit 144018 QuoteManagement
         REPORT.Run(REPORT::"Quote Analysis", true, false, SalesPersonPurchaser);
 
         // Verify Report Content
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Code_SalespersonPurchaser', SalespersonPurchaserCode);
 
         // Expect 4 rows, 2 created + 2 totaling
-        Assert.AreEqual(4, LibraryReportDataset.RowCount, 'Expected 4 rows to be found in the report');
+        Assert.AreEqual(4, LibraryReportDataset.RowCount(), 'Expected 4 rows to be found in the report');
 
         // See if we find the quote for sales header 2.
         LibraryReportDataset.SetRange('No_SalesHead', SalesHeader2."No.");
-        LibraryReportDataset.GetNextRow;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expect only 1 row found in report');
+        LibraryReportDataset.GetNextRow();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expect only 1 row found in report');
     end;
 
     [Test]
@@ -175,16 +175,16 @@ codeunit 144018 QuoteManagement
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
 
         // [WHEN] Recalculate Lines
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.RecalculateLines.Invoke;
+        SalesOrder.RecalculateLines.Invoke();
 
         // [THEN] Description in End-Total on page line started with 'Total'
         SalesOrder.SalesLines.FILTER.SetFilter(Type, Format(DummySalesLine.Type::"End-Total"));
         VerifyTextStartsWith(TotalTxt, SalesOrder.SalesLines.Description.Value, TotalErr);
 
         // [THEN] "Line Amount" in End-Total line on page equals "Line Amount" in line with item between Begin-Total and End-Total
-        EndTotalAmountText := SalesOrder.SalesLines."Line Amount".Value;
+        EndTotalAmountText := SalesOrder.SalesLines."Line Amount".Value();
         SalesOrder.SalesLines.Previous();
         Assert.AreEqual(SalesOrder.SalesLines."Line Amount".Value, EndTotalAmountText, '');
 
@@ -211,16 +211,16 @@ codeunit 144018 QuoteManagement
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [WHEN] Recalculate Lines
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.RecalculateLines.Invoke;
+        SalesInvoice.RecalculateLines.Invoke();
 
         // [THEN] Description in End-Total on page line started with 'Total'
         SalesInvoice.SalesLines.FILTER.SetFilter(Type, Format(DummySalesLine.Type::"End-Total"));
         VerifyTextStartsWith(TotalTxt, SalesInvoice.SalesLines.Description.Value, TotalErr);
 
         // [THEN] "Line Amount" in End-Total line on page equals "Line Amount" in line with item between Begin-Total and End-Total
-        EndTotalAmountText := SalesInvoice.SalesLines."Line Amount".Value;
+        EndTotalAmountText := SalesInvoice.SalesLines."Line Amount".Value();
         SalesInvoice.SalesLines.Previous();
         Assert.AreEqual(SalesInvoice.SalesLines."Line Amount".Value, EndTotalAmountText, '');
 
@@ -247,16 +247,16 @@ codeunit 144018 QuoteManagement
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Recalculate Lines
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.RecalculateLines.Invoke;
+        SalesCreditMemo.RecalculateLines.Invoke();
 
         // [THEN] Description in End-Total on page line started with 'Total'
         SalesCreditMemo.SalesLines.FILTER.SetFilter(Type, Format(DummySalesLine.Type::"End-Total"));
         VerifyTextStartsWith(TotalTxt, SalesCreditMemo.SalesLines.Description.Value, TotalErr);
 
         // [THEN] "Line Amount" in End-Total line on page equals "Line Amount" in line with item between Begin-Total and End-Total
-        EndTotalAmountText := SalesCreditMemo.SalesLines."Line Amount".Value;
+        EndTotalAmountText := SalesCreditMemo.SalesLines."Line Amount".Value();
         SalesCreditMemo.SalesLines.Previous();
         Assert.AreEqual(SalesCreditMemo.SalesLines."Line Amount".Value, EndTotalAmountText, '');
 
@@ -283,16 +283,16 @@ codeunit 144018 QuoteManagement
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
 
         // [WHEN] Recalculate Lines
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.RecalculateLines.Invoke;
+        BlanketSalesOrder.RecalculateLines.Invoke();
 
         // [THEN] Description in End-Total on page line started with 'Total'
         BlanketSalesOrder.SalesLines.FILTER.SetFilter(Type, Format(DummySalesLine.Type::"End-Total"));
         VerifyTextStartsWith(TotalTxt, BlanketSalesOrder.SalesLines.Description.Value, TotalErr);
 
         // [THEN] "Line Amount" in End-Total line on page equals "Line Amount" in line with item between Begin-Total and End-Total
-        EndTotalAmountText := BlanketSalesOrder.SalesLines."Line Amount".Value;
+        EndTotalAmountText := BlanketSalesOrder.SalesLines."Line Amount".Value();
         BlanketSalesOrder.SalesLines.Previous();
         Assert.AreEqual(BlanketSalesOrder.SalesLines."Line Amount".Value, EndTotalAmountText, '');
 
@@ -319,16 +319,16 @@ codeunit 144018 QuoteManagement
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         // [WHEN] Recalculate Lines
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.RecalculateLines.Invoke;
+        SalesReturnOrder.RecalculateLines.Invoke();
 
         // [THEN] Description in End-Total on page line started with 'Total'
         SalesReturnOrder.SalesLines.FILTER.SetFilter(Type, Format(DummySalesLine.Type::"End-Total"));
         VerifyTextStartsWith(TotalTxt, SalesReturnOrder.SalesLines.Description.Value, TotalErr);
 
         // [THEN] "Line Amount" in End-Total line on page equals "Line Amount" in line with item between Begin-Total and End-Total
-        EndTotalAmountText := SalesReturnOrder.SalesLines."Line Amount".Value;
+        EndTotalAmountText := SalesReturnOrder.SalesLines."Line Amount".Value();
         SalesReturnOrder.SalesLines.Previous();
         Assert.AreEqual(SalesReturnOrder.SalesLines."Line Amount".Value, EndTotalAmountText, '');
 
@@ -352,8 +352,8 @@ codeunit 144018 QuoteManagement
         Initialize();
 
         // [GIVEN] Sales Quote with a line set up for "Quote Variant" = "Variant".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-        CreateSalesLine(SalesLine, SalesHeader, LibraryInventory.CreateItemNo, SalesLine.Type::Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        CreateSalesLine(SalesLine, SalesHeader, LibraryInventory.CreateItemNo(), SalesLine.Type::Item);
         SalesLine.Validate("Quote Variant", SalesLine."Quote Variant"::Variant);
         SalesLine.Modify(true);
 
@@ -513,7 +513,7 @@ codeunit 144018 QuoteManagement
         CreateSalesLine(SalesLine, SalesHeader, ItemCode, SalesLine.Type::Item);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; ItemNumber: Code[20]; Type: Option)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; ItemNumber: Code[20]; Type: Enum "Sales Line Type")
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNumber, LibraryRandom.RandInt(1000));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
@@ -553,7 +553,7 @@ codeunit 144018 QuoteManagement
         exit(SalesPersonPurchaser.Code);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; SalesHeaderType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; SalesHeaderType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
@@ -570,7 +570,7 @@ codeunit 144018 QuoteManagement
         CreateSalesLineTotal(SalesLine, SalesHeader, SalesLine.Type::"End-Total");
     end;
 
-    local procedure CreateSalesLineTotal(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Type: Option)
+    local procedure CreateSalesLineTotal(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type")
     var
         RecRef: RecordRef;
     begin
@@ -680,7 +680,7 @@ codeunit 144018 QuoteManagement
     begin
         // Set new page per salesperson to true.
         QuoteAnalysis.PagePerSalesperson.SetValue(true);
-        QuoteAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        QuoteAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

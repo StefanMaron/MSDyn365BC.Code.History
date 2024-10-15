@@ -403,7 +403,7 @@ codeunit 139011 "Excel Buffer Test"
         TempExcelBuffer.UpdateBookStream(ExcelStream, SheetNameTok, true);
         TempExcelBuffer.AddColumn('New Value', false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
         TempExcelBuffer.WriteSheet('', '', '');
-        TempExcelBuffer.QuitExcel;
+        TempExcelBuffer.QuitExcel();
         TempExcelBuffer.UTgetGlobalValue('ExcelFile', Value);
         FileName := Format(Value);
 
@@ -515,9 +515,9 @@ codeunit 139011 "Excel Buffer Test"
     begin
         // [FEATURE] [UT] [UI] [Name/Value Lookup]
         // [SCENARIO 363552] "Name/Value Lookup" page should be not editable
-        NameValueLookupPage.Trap;
+        NameValueLookupPage.Trap();
         NameValueLookupPage.OpenNew();
-        Assert.IsFalse(NameValueLookupPage.Editable, '');
+        Assert.IsFalse(NameValueLookupPage.Editable(), '');
     end;
 
     [Test]
@@ -642,7 +642,7 @@ codeunit 139011 "Excel Buffer Test"
     begin
         // [GIVEN] An example Excel file with 2 sheets as a base64 string
         TempBlob.CreateOutStream(OutStream);
-        Base64Convert.FromBase64(GetExampleFileBase64, OutStream);
+        Base64Convert.FromBase64(GetExampleFileBase64(), OutStream);
         TempBlob.CreateInStream(ExcelFileStream);
         // [WHEN] List of all sheet names is read
         TempExcelBuffer.GetSheetsNameListFromStream(ExcelFileStream, TempValueNameBuffer);
@@ -668,7 +668,7 @@ codeunit 139011 "Excel Buffer Test"
     begin
         // [GIVEN] An example Excel file with 2 sheets as a base64 string
         TempBlob.CreateOutStream(OutStream);
-        Base64Convert.FromBase64(GetExampleFileBase64, OutStream);
+        Base64Convert.FromBase64(GetExampleFileBase64(), OutStream);
         TempBlob.CreateInStream(ExcelFileStream);
         // [WHEN] First sheet is read
         TempExcelBuffer.OpenBookStream(ExcelFileStream, 'Sheet1');
@@ -778,7 +778,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile: Text;
     begin
         ExcelFile := CreateExcelFile(ExcelBuffer, SheetName);
-        ExcelBuffer.SetUseInfoSheet;
+        ExcelBuffer.SetUseInfoSheet();
         ExcelBuffer.WriteSheet('', '', UserID);
         ExcelBuffer.CloseBook();
         exit(ExcelFile);
@@ -1034,7 +1034,7 @@ codeunit 139011 "Excel Buffer Test"
     procedure SelectSheetMPH(var NameValueLookupPage: TestPage "Name/Value Lookup")
     begin
         NameValueLookupPage.Next();
-        NameValueLookupPage.OK.Invoke;
+        NameValueLookupPage.OK().Invoke();
     end;
 
     local procedure CreateExcelStream(var ExcelStream: InStream)
@@ -1047,7 +1047,7 @@ codeunit 139011 "Excel Buffer Test"
         PopulateRowWithTexts(TempExcelBuffer, 5, 0);
         PopulateRowWithTexts(TempExcelBuffer, 5, 0);
         TempExcelBuffer.WriteSheet('', '', '');
-        TempExcelBuffer.QuitExcel;
+        TempExcelBuffer.QuitExcel();
 
         ExcelFile.Open(FileName);
         ExcelFile.CreateInStream(ExcelStream);

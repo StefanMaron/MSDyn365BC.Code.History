@@ -29,7 +29,6 @@ codeunit 143000 "Library - LSV"
         BankAcc: Record "Bank Account";
         GLSetup: Record "General Ledger Setup";
         PaymentMethod: Record "Payment Method";
-        FileMgt: Codeunit "File Management";
     begin
         LibraryERM.CreateBankAccount(BankAcc);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -47,7 +46,7 @@ codeunit 143000 "Library - LSV"
             "LSV Currency Code" := GLSetup."LCY Code";
             "LSV Sender IBAN" := LibraryUtility.GenerateGUID();
             "ESR Bank Code" := ESRSetup."Bank Code";
-            "LSV File Folder" := 'C:\Windows\Temp\' + TenantId + Format(LibraryRandom.RandInt(10)); // Cannot use TEMPORARYPATH due to field size.
+            "LSV File Folder" := 'C:\Windows\Temp\' + TenantId() + Format(LibraryRandom.RandInt(10)); // Cannot use TEMPORARYPATH due to field size.
             "LSV Filename" := LibraryUtility.GenerateGUID();
             "DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
             "DebitDirect Import Filename" := LibraryUtility.GenerateGUID();
@@ -81,14 +80,12 @@ codeunit 143000 "Library - LSV"
     var
         CustBankAcc: Record "Customer Bank Account";
     begin
-        with CustBankAcc do begin
-            "Customer No." := Customer."No.";
-            Code := LibraryUtility.GenerateGUID();
-            "Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            IBAN := LibraryUtility.GenerateGUID();
-            "Giro Account No." := GetRandomGiroAccountNo;
-            Insert();
-        end;
+        CustBankAcc."Customer No." := Customer."No.";
+        CustBankAcc.Code := LibraryUtility.GenerateGUID();
+        CustBankAcc."Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        CustBankAcc.IBAN := LibraryUtility.GenerateGUID();
+        CustBankAcc."Giro Account No." := GetRandomGiroAccountNo();
+        CustBankAcc.Insert();
     end;
 
     local procedure GetRandomGiroAccountNo() GiroAccNo: Code[11]

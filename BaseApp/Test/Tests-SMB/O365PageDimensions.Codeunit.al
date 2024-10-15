@@ -40,7 +40,7 @@ codeunit 138042 "O365 Page Dimensions"
 
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -48,21 +48,21 @@ codeunit 138042 "O365 Page Dimensions"
         TestDimensionCode := LibraryUtility.GenerateGUID();
         TestDimensionValue := LibraryUtility.GenerateGUID();
         Dimensions.OpenNew();
-        Dimensions.New;
+        Dimensions.New();
         Dimensions.Code.SetValue(TestDimensionCode);
-        Dimensions.OK.Invoke;
+        Dimensions.OK().Invoke();
         DimensionValue.Init();
         DimensionValue."Dimension Code" := TestDimensionCode;
         DimensionValue.Code := TestDimensionValue;
         DimensionValue.Insert();
-        Dimensions.OpenEdit;
-        DimensionValues.Trap;
+        Dimensions.OpenEdit();
+        DimensionValues.Trap();
         Dimensions.FindFirstField(Code, TestDimensionCode);
-        Dimensions."Dimension &Values".Invoke;
-        DimensionValues.New;
+        Dimensions."Dimension &Values".Invoke();
+        DimensionValues.New();
         DimensionValues.Code.SetValue(TestDimensionValue);
-        DimensionValues.OK.Invoke;
-        Dimensions.OK.Invoke;
+        DimensionValues.OK().Invoke();
+        Dimensions.OK().Invoke();
 
         IsInitialized := true;
         Commit();
@@ -78,7 +78,7 @@ codeunit 138042 "O365 Page Dimensions"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -102,9 +102,9 @@ codeunit 138042 "O365 Page Dimensions"
         LibrarySmallBusiness.CreateSalesLine(TestSalesLine, TestSalesHeader, TestItem, LibraryRandom.RandInt(100));
 
         // open the test sales invoice and add the test dimension
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(TestSalesHeader);
-        SalesInvoice.Dimensions.Invoke;
+        SalesInvoice.Dimensions.Invoke();
 
         // we need to get the sales header again, because dimension has been added to it
         TestSalesHeader.Get(TestSalesHeader."Document Type", TestSalesHeader."No.");
@@ -115,9 +115,9 @@ codeunit 138042 "O365 Page Dimensions"
         // check that the posted sales invoice has test dimension
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", TestCustomer."No.");
         SalesInvoiceHeader.FindFirst();
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.Dimensions.Invoke;
+        PostedSalesInvoice.Dimensions.Invoke();
     end;
 
     [Test]
@@ -136,9 +136,9 @@ codeunit 138042 "O365 Page Dimensions"
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(TestSalesHeader, TestCustomer, TestItem, 1, 1);
 
         // open the test sales invoice and add the test dimension
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(TestSalesHeader);
-        SalesQuote.Dimensions.Invoke;
+        SalesQuote.Dimensions.Invoke();
     end;
 
     [Test]
@@ -162,9 +162,9 @@ codeunit 138042 "O365 Page Dimensions"
         LibrarySmallBusiness.CreatePurchaseLine(TestPurchaseLine, TestPurchaseHeader, TestItem, LibraryRandom.RandInt(100));
 
         // open the test purchase invoice and add the test dimension
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(TestPurchaseHeader);
-        PurchaseInvoice.Dimensions.Invoke;
+        PurchaseInvoice.Dimensions.Invoke();
 
         // we need to get the purchase header again, because dimension has been added to it
         TestPurchaseHeader.Get(TestPurchaseHeader."Document Type", TestPurchaseHeader."No.");
@@ -175,20 +175,20 @@ codeunit 138042 "O365 Page Dimensions"
         // check that the posted purchase invoice has test dimension
         PurchInvHeader.SetRange("Buy-from Vendor No.", TestVendor."No.");
         PurchInvHeader.FindFirst();
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Dimensions.Invoke;
+        PostedPurchaseInvoice.Dimensions.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionEntryHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.New;
-        EditDimensionSetEntries.First;
+        EditDimensionSetEntries.New();
+        EditDimensionSetEntries.First();
         EditDimensionSetEntries."Dimension Code".SetValue(TestDimensionCode);
         EditDimensionSetEntries.DimensionValueCode.SetValue(TestDimensionValue);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

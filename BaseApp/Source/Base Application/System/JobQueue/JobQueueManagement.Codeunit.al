@@ -17,8 +17,8 @@ codeunit 456 "Job Queue Management"
         JobSomethingWentWrongMsg: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.';
         JobQueueDelegatedAdminCategoryTxt: Label 'AL JobQueueEntries Delegated Admin', Locked = true;
         JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
-        StaleJobQueueEntryTxt: Label 'Stale Job Queue Entry', Locked = true;
-        StaleJobQueueLogEntryTxt: Label 'Stale Job Queue Log Entry', Locked = true;
+        TelemetryStaleJobQueueEntryTxt: Label 'Updated Job Queue Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
+        TelemetryStaleJobQueueLogEntryTxt: Label 'Updated Job Queue Log Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
         RunJobQueueOnceTxt: Label 'Running job queue once.', Locked = true;
         JobQueueWorkflowSetupErr: Label 'The Job Queue approval workflow has not been setup.';
         DelegatedAdminSendingApprovalLbl: Label 'Delegated admin sending approval', Locked = true;
@@ -45,87 +45,79 @@ codeunit 456 "Job Queue Management"
         ObjectTypeToRun := JobQueueEntry."Object Type to Run";
         ObjectIdToRun := JobQueueEntry."Object ID to Run";
 
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", ObjectTypeToRun);
-            SetRange("Object ID to Run", ObjectIdToRun);
-            if NoOfMinutesBetweenRuns <> 0 then
-                RecurringJob := true
-            else
-                RecurringJob := false;
-            SetRange("Recurring Job", RecurringJob);
-            if not IsEmpty() then
-                exit;
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToRun);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIdToRun);
+        if NoOfMinutesBetweenRuns <> 0 then
+            RecurringJob := true
+        else
+            RecurringJob := false;
+        JobQueueEntry.SetRange("Recurring Job", RecurringJob);
+        if not JobQueueEntry.IsEmpty() then
+            exit;
 
-            Init();
-            Validate("Object Type to Run", ObjectTypeToRun);
-            Validate("Object ID to Run", ObjectIdToRun);
-            "Earliest Start Date/Time" := CurrentDateTime;
-            if NoOfMinutesBetweenRuns <> 0 then begin
-                Validate("Run on Mondays", true);
-                Validate("Run on Tuesdays", true);
-                Validate("Run on Wednesdays", true);
-                Validate("Run on Thursdays", true);
-                Validate("Run on Fridays", true);
-                Validate("Run on Saturdays", true);
-                Validate("Run on Sundays", true);
-                Validate("Recurring Job", RecurringJob);
-                "No. of Minutes between Runs" := NoOfMinutesBetweenRuns;
-            end;
-            "Maximum No. of Attempts to Run" := 3;
-            "Notify On Success" := true;
-            Status := Status::"On Hold";
-            "Earliest Start Date/Time" := EarliestStartDateTime;
-            "Report Output Type" := ReportOutputType;
-            Insert(true);
+        JobQueueEntry.Init();
+        JobQueueEntry.Validate("Object Type to Run", ObjectTypeToRun);
+        JobQueueEntry.Validate("Object ID to Run", ObjectIdToRun);
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime;
+        if NoOfMinutesBetweenRuns <> 0 then begin
+            JobQueueEntry.Validate("Run on Mondays", true);
+            JobQueueEntry.Validate("Run on Tuesdays", true);
+            JobQueueEntry.Validate("Run on Wednesdays", true);
+            JobQueueEntry.Validate("Run on Thursdays", true);
+            JobQueueEntry.Validate("Run on Fridays", true);
+            JobQueueEntry.Validate("Run on Saturdays", true);
+            JobQueueEntry.Validate("Run on Sundays", true);
+            JobQueueEntry.Validate("Recurring Job", RecurringJob);
+            JobQueueEntry."No. of Minutes between Runs" := NoOfMinutesBetweenRuns;
         end;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+        JobQueueEntry."Notify On Success" := true;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry."Earliest Start Date/Time" := EarliestStartDateTime;
+        JobQueueEntry."Report Output Type" := ReportOutputType;
+        JobQueueEntry.Insert(true);
     end;
 
     procedure DeleteJobQueueEntries(ObjectTypeToDelete: Option; ObjectIdToDelete: Integer)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", ObjectTypeToDelete);
-            SetRange("Object ID to Run", ObjectIdToDelete);
-            if FindSet() then
-                repeat
-                    if Status = Status::"In Process" then begin
-                        // Non-recurring jobs will be auto-deleted after execution has completed.
-                        "Recurring Job" := false;
-                        Modify();
-                    end else
-                        Delete();
-                until Next() = 0;
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToDelete);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIdToDelete);
+        if JobQueueEntry.FindSet() then
+            repeat
+                if JobQueueEntry.Status = JobQueueEntry.Status::"In Process" then begin
+                    // Non-recurring jobs will be auto-deleted after execution has completed.
+                    JobQueueEntry."Recurring Job" := false;
+                    JobQueueEntry.Modify();
+                end else
+                    JobQueueEntry.Delete();
+            until JobQueueEntry.Next() = 0;
     end;
 
     procedure StartInactiveJobQueueEntries(ObjectTypeToStart: Option; ObjectIdToStart: Integer)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", ObjectTypeToStart);
-            SetRange("Object ID to Run", ObjectIdToStart);
-            SetRange(Status, Status::"On Hold");
-            if FindSet() then
-                repeat
-                    SetStatus(Status::Ready);
-                until Next() = 0;
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToStart);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIdToStart);
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"On Hold");
+        if JobQueueEntry.FindSet() then
+            repeat
+                JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
+            until JobQueueEntry.Next() = 0;
     end;
 
     procedure SetJobQueueEntriesOnHold(ObjectTypeToSetOnHold: Option; ObjectIdToSetOnHold: Integer)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", ObjectTypeToSetOnHold);
-            SetRange("Object ID to Run", ObjectIdToSetOnHold);
-            if FindSet() then
-                repeat
-                    SetStatus(Status::"On Hold");
-                until Next() = 0;
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToSetOnHold);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIdToSetOnHold);
+        if JobQueueEntry.FindSet() then
+            repeat
+                JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
+            until JobQueueEntry.Next() = 0;
     end;
 
     procedure SetRecurringJobsOnHold(CompanyName: Text)
@@ -305,7 +297,7 @@ codeunit 456 "Job Queue Management"
 
         TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
 
-        Session.LogMessage('0000FMH', StaleJobQueueEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+        Session.LogMessage('0000FMH', TelemetryStaleJobQueueEntryTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
     end;
@@ -320,7 +312,7 @@ codeunit 456 "Job Queue Management"
 
         TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
 
-        Session.LogMessage('0000FMI', StaleJobQueueLogEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+        Session.LogMessage('0000FMI', TelemetryStaleJobQueueLogEntryTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
     end;
@@ -341,9 +333,32 @@ codeunit 456 "Job Queue Management"
         end;
     end;
 
+    internal procedure GetScheduledTasks(): Integer
+    begin
+        exit(GetNumberOfScheduledTasks())
+    end;
+
+    internal procedure GetScheduledTasksForUser(UserId: Guid): Integer
+    begin
+        exit(GetNumberOfScheduledTasksForUser(UserId))
+    end;
+
     internal procedure TooManyScheduledTasksDocs(ScheduledTaskNotification: Notification)
     begin
         Hyperlink('https://aka.ms/JobQueueDocs');
+    end;
+
+    local procedure GetNumberOfScheduledTasksForUser(UserId: Guid): Integer
+    var
+        ScheduledTasks: Record "Scheduled Task";
+    begin
+        if ScheduledTasks.ReadPermission() then begin
+            ScheduledTasks.SetRange("Is Ready", true);
+            ScheduledTasks.SetRange("User ID", UserId);
+            exit(ScheduledTasks.Count());
+        end;
+
+        exit(0);
     end;
 
     local procedure GetNumberOfScheduledTasks(): Integer

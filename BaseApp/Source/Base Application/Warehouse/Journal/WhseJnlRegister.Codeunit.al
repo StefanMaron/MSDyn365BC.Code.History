@@ -31,37 +31,35 @@ codeunit 7303 "Whse. Jnl.-Register"
         if IsHandled then
             exit;
 
-        with WhseJnlLine do begin
-            WhseJnlTemplate.Get("Journal Template Name");
-            WhseJnlTemplate.TestField("Force Registering Report", false);
+        WhseJnlTemplate.Get(WhseJnlLine."Journal Template Name");
+        WhseJnlTemplate.TestField("Force Registering Report", false);
 
-            if not ConfirmRegisterLines(WhseJnlLine) then
-                exit;
+        if not ConfirmRegisterLines(WhseJnlLine) then
+            exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := WhseJnlLine."Journal Batch Name";
 
-            CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register Batch", WhseJnlLine);
+        CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register Batch", WhseJnlLine);
 
-            if "Line No." = 0 then
-                Message(Text002)
+        if WhseJnlLine."Line No." = 0 then
+            Message(Text002)
+        else
+            if TempJnlBatchName = WhseJnlLine."Journal Batch Name" then
+                Message(Text003)
             else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text003)
-                else
-                    Message(
-                      Text003 +
-                      Text004,
-                      "Journal Batch Name");
+                Message(
+                  Text003 +
+                  Text004,
+                  WhseJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                SetRange("Location Code", "Location Code");
-                FilterGroup(0);
-                "Line No." := 10000;
-            end;
+        if not WhseJnlLine.Find('=><') or (TempJnlBatchName <> WhseJnlLine."Journal Batch Name") then begin
+            WhseJnlLine.Reset();
+            WhseJnlLine.FilterGroup(2);
+            WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+            WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+            WhseJnlLine.SetRange("Location Code", WhseJnlLine."Location Code");
+            WhseJnlLine.FilterGroup(0);
+            WhseJnlLine."Line No." := 10000;
         end;
     end;
 
@@ -74,13 +72,12 @@ codeunit 7303 "Whse. Jnl.-Register"
         if IsHandled then
             exit(Result);
 
-        with WhseJnlLine do
-            if ItemTrackingReclass("Journal Template Name", "Journal Batch Name", "Location Code", 0) then begin
-                if not Confirm(Text005, false) then
-                    exit(false)
-            end else
-                if not Confirm(Text001, false) then
-                    exit(false);
+        if WhseJnlLine.ItemTrackingReclass(WhseJnlLine."Journal Template Name", WhseJnlLine."Journal Batch Name", WhseJnlLine."Location Code", 0) then begin
+            if not Confirm(Text005, false) then
+                exit(false)
+        end else
+            if not Confirm(Text001, false) then
+                exit(false);
 
         exit(true);
     end;

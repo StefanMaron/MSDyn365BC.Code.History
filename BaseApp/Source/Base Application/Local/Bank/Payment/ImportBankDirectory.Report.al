@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -346,11 +346,6 @@ report 11504 "Import Bank Directory"
         ImportText: Text[80];
         BranchNotFound: Text[80];
         OldBranchNo: Code[20];
-        OldBranchNo2: Code[20];
-        OldCode: Code[20];
-        NewBranchNo: Code[20];
-        TableName: Text[30];
-        FieldName: Text[50];
         OtherText: Text[100];
         Text001: Label '%1 Records have been imported.';
         Text002: Label '%1 Records have been created.';
@@ -361,7 +356,6 @@ report 11504 "Import Bank Directory"
         Text007: Label 'The Entry %1 %2 cannot be updated.';
         Text008: Label 'All Files (*.*)|*.*';
         Text009: Label 'Open Bank Directory file';
-        Text010: Label 'The latest Bank Directory file can be downloaded from www.sic.ch.';
         Text19057439: Label 'The latest Bank Directory file can be downloaded from www.sic.ch.';
         PageCaptionLbl: Label 'Page';
         ImportBankDirectoryCaptionLbl: Label 'Import Bank Directory';
@@ -371,8 +365,6 @@ report 11504 "Import Bank Directory"
         OldClearingNoCaptionLbl: Label 'Old Clearing No.';
         NewClearingNoCaptionLbl: Label 'New Clearing No.';
         NewCodeCaptionLbl: Label 'New Code';
-        OldBranchNo2CaptionLbl: Label 'Old Clearing No. 2';
-        NewClearingNo2CaptionLbl: Label 'New Clearing No. 2';
         OtherCaptionLbl: Label 'Other';
         TableCaptionLbl: Label 'Table';
         FieldCaptionLbl: Label 'Field';

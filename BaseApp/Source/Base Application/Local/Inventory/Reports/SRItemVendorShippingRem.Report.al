@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -328,7 +328,6 @@ report 11581 "SR Item Vendor Shipping Rem."
         FaxCaptionLbl: Label 'Fax';
         TelephoneCaptionLbl: Label 'Telephone';
         OrderLinesCouldYouPleaseCaptionLbl: Label 'The following Order Lines are presently open. Delivery dates that are already overdue are marked with an *. Could you please provide updated information on planned delivery dates?';
-        PageCaptionLbl: Label 'Page';
         YourItemNoCaptionLbl: Label 'Your Item No.';
         OrderCaptionLbl: Label 'Order:';
         TotalCaptionLbl: Label 'Total';

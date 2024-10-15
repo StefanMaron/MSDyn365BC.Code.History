@@ -1,18 +1,14 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
-using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.FixedAssets.FixedAsset;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Sales.Customer;
 using System.Utilities;
 
 report 11565 "SR G/L Acc Sheet Reportig Cur"
@@ -47,9 +43,15 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             column(Name_GLAcc; Name)
             {
             }
+#if not CLEAN24
             column(CurrencyCode_GLAcc; "Currency Code")
             {
             }
+#else
+            column(CurrencyCode_GLAcc; "Source Currency Code")
+            {
+            }
+#endif
             column(No_GLAcc; "G/L Account"."No.")
             {
             }
@@ -58,7 +60,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             }
             column(FcyAcyBalance; FcyAcyBalance)
             {
+#if not CLEAN24
                 AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                 AutoFormatType = 1;
             }
             column(GlBalance; GlBalance)
@@ -129,7 +135,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(FcyAcyBalanceFcyAcyAmt; FcyAcyBalance - FcyAcyAmt)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(PostingDate_GLEntry; Format("Posting Date"))
@@ -147,7 +157,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(FcyAcyAmt; FcyAcyAmt)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(Exrate; Exrate)
@@ -156,7 +170,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(GLEntryFcyAcyBalance; FcyAcyBalance)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(BalAccNo_GLEntry; "Bal. Account No.")
@@ -224,7 +242,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 }
                 column(GlAccTotalFcyAcyBalance; FcyAcyBalance)
                 {
+#if not CLEAN24
                     AutoFormatExpression = "G/L Account"."Currency Code";
+#else
+                    AutoFormatExpression = "G/L Account"."Source Currency Code";
+#endif
                     AutoFormatType = 1;
                 }
                 column(GlAccTotalExrate; Exrate)
@@ -237,7 +259,11 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
 
                 trigger OnAfterGetRecord()
                 begin
+#if not CLEAN24
                     Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Currency Code");
+#else
+                    Exrate := CalcExrate(FcyAcyBalance, GlBalance, "G/L Account"."Source Currency Code");
+#endif
                 end;
             }
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
@@ -371,6 +397,10 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
             }
 
             trigger OnAfterGetRecord()
+#if CLEAN24
+            var
+                GLAccountSourceCurrency: Record "G/L Account Source Currency";
+#endif
             begin
                 if NewPagePerAcc then
                     NewPagePerAccNo := NewPagePerAccNo + 1;
@@ -379,8 +409,7 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
 
                 if StartDate > 0D then begin
                     SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
-                    CalcFields("Net Change", "Movement (FCY)", "Additional-Currency Net Change");
-
+                    CalcFields("Net Change", "Additional-Currency Net Change");
                     GlBalance := "Net Change";
                     FcyAcyBalance := "Additional-Currency Net Change";
 
@@ -395,12 +424,22 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
                 if GlJourDateFilter <> '' then
                     GlEntry2.SetFilter("Posting Date", GlJourDateFilter);
                 CalcFields("Balance at Date");
+#if not CLEAN24
                 CalcFields("Balance at Date (FCY)");
-
+#else
+                GLAccountSourceCurrency."G/L Account No." := "No.";
+                GLAccountSourceCurrency."Currency Code" := "Gen. Journal Line"."Currency Code";
+                GLAccountSourceCurrency.SetFilter("Date Filter", GlJourDateFilter);
+                GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+#endif
                 CheckProvEntry();
 
                 if ("Balance at Date" = 0) and
+#if not CLEAN24
                    ("Balance at Date (FCY)" = 0) and
+#else
+                   (GLAccountSourceCurrency."Source Curr. Balance at Date" = 0) and
+#endif
                    (not GlEntry2.FindFirst()) and
                    (not ProvEntryExist) and
                    (not ShowAllAccounts)
@@ -527,11 +566,6 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
     end;
 
     var
-        GlAcc2: Record "G/L Account";
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        Bank: Record "Bank Account";
-        FixedAsset: Record "Fixed Asset";
         GlEntry2: Record "G/L Entry";
         GenJourTemplate: Record "Gen. Journal Template";
         GLSetup: Record "General Ledger Setup";
@@ -580,14 +614,14 @@ report 11565 "SR G/L Acc Sheet Reportig Cur"
         ProvisionalEndBalanceCaptionLbl: Label 'Provisional End Balance';
 
     [Scope('OnPrem')]
-    procedure CalcExrate(_FcyAmt: Decimal; _LcyAmt: Decimal; _Curr: Code[10]): Decimal
+    procedure CalcExrate(FcyAmt: Decimal; LcyAmt: Decimal; CurrencyCode: Code[10]): Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
-        if _FcyAmt <> 0 then begin
-            CurrExchRate.SetRange("Currency Code", _Curr);
+        if FcyAmt <> 0 then begin
+            CurrExchRate.SetRange("Currency Code", CurrencyCode);
             if CurrExchRate.FindLast() then
-                exit(Round(_LcyAmt * CurrExchRate."Exchange Rate Amount" / _FcyAmt, 0.001))
+                exit(Round(LcyAmt * CurrExchRate."Exchange Rate Amount" / FcyAmt, 0.001))
         end;
         exit(0);
     end;

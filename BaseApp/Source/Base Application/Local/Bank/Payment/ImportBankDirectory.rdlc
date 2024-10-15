@@ -980,11 +980,6 @@
                                     <KeepTogether>true</KeepTogether>
                                   </TablixMember>
                                   <TablixMember>
-                                    <Group Name="table2_Group1">
-                                      <GroupExpressions>
-                                        <GroupExpression>fields!NewGroup.value</GroupExpression>
-                                      </GroupExpressions>
-                                    </Group>
                                     <TablixMembers>
                                       <TablixMember>
                                         <Group Name="table2_Details_Group">

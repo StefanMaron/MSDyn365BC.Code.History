@@ -5,7 +5,7 @@ using Microsoft.Warehouse.Ledger;
 query 7300 "Lot Numbers by Bin"
 {
     Caption = 'Lot Numbers by Bin';
-    OrderBy = Ascending(Bin_Code);
+    OrderBy = ascending(Bin_Code);
 
     elements
     {
@@ -40,7 +40,7 @@ query 7300 "Lot Numbers by Bin"
             }
             column(Sum_Qty_Base; "Qty. (Base)")
             {
-                ColumnFilter = Sum_Qty_Base = FILTER(<> 0);
+                ColumnFilter = Sum_Qty_Base = filter(<> 0);
                 Method = Sum;
             }
         }

@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN24
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ report 3010536 "Adjust Exchange Rates G/L"
     Caption = 'Adjust Exchange Rates G/L';
     UsageCategory = ReportsAndAnalysis;
     AllowScheduling = false;
+    ObsoleteReason = 'Replaced by W1 report G/L Currency Revaluation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -109,14 +113,14 @@ report 3010536 "Adjust Exchange Rates G/L"
                 else
                     EMU := '';
 
-                // Calc avg. exrate of existing entries
+                // Calc avg. exchange rate of existing entries
                 CalcFields("Balance at Date (FCY)", "Balance at Date");
                 if "Balance at Date (FCY)" <> 0 then
                     AvgExRate := Round("Balance at Date" / "Balance at Date (FCY)", 0.00001)
                 else
                     AvgExRate := 0;
 
-                // Calc value of FCY at current exrate
+                // Calc value of FCY at current exchange rate
                 CurrRate := ExchRate.ExchangeRateAdjmt(KeyDate, Currency.Code);
                 if CurrRate <> 0 then
                     CurrRate := Round(1 / CurrRate, 0.00001);
@@ -124,29 +128,28 @@ report 3010536 "Adjust Exchange Rates G/L"
 
                 // Prepare line in GL journal
                 if PrepareGlLines and (Correction <> 0) then begin
-                    GlLine.Init();
-                    GlLine."Journal Template Name" := GenJourTemplate.Name;
-                    GlLine."Journal Batch Name" := GenJourBatch.Name;
+                    GenJnlLine.Init();
+                    GenJnlLine."Journal Template Name" := GenJourTemplate.Name;
+                    GenJnlLine."Journal Batch Name" := GenJourBatch.Name;
                     LastLineNo := LastLineNo + 10000;
-                    GlLine."Line No." := LastLineNo;
-                    GlLine.Insert(true);
+                    GenJnlLine."Line No." := LastLineNo;
+                    GenJnlLine.Insert(true);
 
-                    GlLine."Account Type" := GlLine."Account Type"::"G/L Account";
-                    GlLine."Document No." := Text010 + "G/L Account"."Currency Code";
-                    GlLine."Account No." := "G/L Account"."No.";
-                    GlLine.Validate("Posting Date", KeyDate);
+                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+                    GenJnlLine."Document No." := Text010 + "G/L Account"."Currency Code";
+                    GenJnlLine.Description := StrSubstNo(Text007, "Currency Code", "No.", KeyDate);
+                    GenJnlLine."Account No." := "G/L Account"."No.";
+                    GenJnlLine.Validate("Posting Date", KeyDate);
 
                     SourceCodeSetup.Get();
-                    GlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
-                    GlLine.Description :=
-                      StrSubstNo(Text007, "Currency Code", "No.", KeyDate);
+                    GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
                     if Correction > 0 then
-                        GlLine.Validate("Bal. Account No.", Currency."Realized Gains Acc.")
+                        GenJnlLine.Validate("Bal. Account No.", Currency."Realized Gains Acc.")
                     else
-                        GlLine.Validate("Bal. Account No.", Currency."Realized Losses Acc.");
-                    GlLine."Amount (LCY)" := Correction;
-                    GlLine.Validate(Amount, Correction);
-                    GlLine.Modify();
+                        GenJnlLine.Validate("Bal. Account No.", Currency."Realized Losses Acc.");
+                    GenJnlLine."Amount (LCY)" := Correction;
+                    GenJnlLine.Validate(Amount, Correction);
+                    GenJnlLine.Modify();
                     LinesCreated := LinesCreated + 1;
                 end;
             end;
@@ -253,13 +256,13 @@ report 3010536 "Adjust Exchange Rates G/L"
                 Error(Text001);
 
             GenJourTemplate.FindFirst();
-            GlLine.SetRange("Journal Template Name", GenJourTemplate.Name);
-            GlLine.SetRange("Journal Batch Name", GenJourBatch.Name);
-            GlLine.SetFilter("Account No.", '<>%1', '');
-            if GlLine.FindFirst() then
+            GenJnlLine.SetRange("Journal Template Name", GenJourTemplate.Name);
+            GenJnlLine.SetRange("Journal Batch Name", GenJourBatch.Name);
+            GenJnlLine.SetFilter("Account No.", '<>%1', '');
+            if GenJnlLine.FindFirst() then
                 Error(Text002, GenJourBatch.Name);
-            GlLine.SetRange("Account No.");
-            GlLine.DeleteAll();
+            GenJnlLine.SetRange("Account No.");
+            GenJnlLine.DeleteAll();
         end;
     end;
 
@@ -274,7 +277,7 @@ report 3010536 "Adjust Exchange Rates G/L"
         SourceCodeSetup: Record "Source Code Setup";
         GenJourBatch: Record "Gen. Journal Batch";
         GenJourTemplate: Record "Gen. Journal Template";
-        GlLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
         Correction: Decimal;
         AvgExRate: Decimal;
         PrepareGlLines: Boolean;
@@ -296,4 +299,4 @@ report 3010536 "Adjust Exchange Rates G/L"
         CurrencyCaptionLbl: Label 'Currency';
         TotalRateAdjustmentCaptionLbl: Label 'Total Rate Adjustment';
 }
-
+#endif

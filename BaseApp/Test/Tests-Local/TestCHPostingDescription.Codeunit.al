@@ -238,7 +238,7 @@ codeunit 144055 "Test CH Posting Description"
         Initialize();
 
         // Setup
-        UpdatePurchPayablesSetup;
+        UpdatePurchPayablesSetup();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
@@ -268,10 +268,10 @@ codeunit 144055 "Test CH Posting Description"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 233233] Description in sales line should be accepted without triggering the search for a related record if the type is one of the following: Title, Begin-Total, End-Total, New Page
 
-        for Type := SalesLine.Type::Title to SalesLine.Type::"New Page" do begin
+        for Type := SalesLine.Type::Title.AsInteger() to SalesLine.Type::"New Page".AsInteger() do begin
             SalesLineDescr := LibraryUtility.GenerateRandomText(MaxStrLen(SalesLine.Description));
             SalesLine.Init();
-            SalesLine.Type := Type;
+            SalesLine.Type := "Sales Line Type".FromInteger(Type);
             SalesLine.Validate(Description, CopyStr(SalesLineDescr, 1, MaxStrLen(SalesLine.Description)));
 
             SalesLine.TestField(Description, SalesLineDescr);
@@ -283,8 +283,8 @@ codeunit 144055 "Test CH Posting Description"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         PurchasesPayablesSetup.Modify(true);
     end;
 }

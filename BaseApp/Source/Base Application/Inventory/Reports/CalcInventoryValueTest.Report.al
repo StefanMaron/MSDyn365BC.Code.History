@@ -4,6 +4,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Inventory.Costing;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Utilities;
@@ -54,7 +55,7 @@ report 5811 "Calc. Inventory Value - Test"
                 if (CalculatePer = CalculatePer::Item) and (GetFilter("Bin Filter") <> '') then
                     Error(Text007, FieldCaption("Bin Filter"));
 
-                CheckCalcInvtVal.SetProperties(PostingDate, CalculatePer, ByLocation, ByVariant, true, true);
+                CheckCalcInvtVal.SetParameters(PostingDate, CalculatePer, ByLocation, ByVariant, true, true);
                 CheckCalcInvtVal.RunCheck(Item, TempErrorBuf);
 
                 if CalcBase = CalcBase::"Standard Cost - Manufacturing" then begin
@@ -276,7 +277,6 @@ report 5811 "Calc. Inventory Value - Test"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Calculate Per';
-                        OptionCaption = 'Item Ledger Entry,Item';
                         ToolTip = 'Specifies if you want to sum up the inventory value per item ledger entry or per item.';
 
                         trigger OnValidate()
@@ -306,7 +306,6 @@ report 5811 "Calc. Inventory Value - Test"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Calculation Base';
                         Enabled = CalcBaseEnable;
-                        OptionCaption = ' ,Last Direct Unit Cost,Standard Cost - Assembly List,Standard Cost - Manufacturing';
                         ToolTip = 'Specifies if the revaluation journal will suggest a new value for the Unit Cost (Revalued) field.';
                     }
                 }
@@ -345,26 +344,18 @@ report 5811 "Calc. Inventory Value - Test"
 
     var
         ItemLedgEntryErrBuf: Record "Item Ledger Entry";
-        TempProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
-        TempRtngVersionErrBuf: Record "Routing Version" temporary;
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         RtngHeader: Record "Routing Header";
         RtngVersion: Record "Routing Version";
-        TempErrorBuf: Record "Error Buffer" temporary;
         CheckCalcInvtVal: Codeunit "Calc. Inventory Value-Check";
         CalcStdCost: Codeunit "Calculate Standard Cost";
-        PostingDate: Date;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        ByLocation: Boolean;
-        ByVariant: Boolean;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         ItemFilter: Text;
-        Text000: Label 'Posting Date of %1';
         OK: Boolean;
         ByLocationEnable: Boolean;
         ByVariantEnable: Boolean;
         CalcBaseEnable: Boolean;
+        Text000: Label 'Posting Date of %1';
         Text005: Label 'You cannot enter a %1.';
         Text006: Label 'You must enter a posting date.';
         Text007: Label 'You cannot enter a %1, if Calculate Per is Item.';
@@ -389,6 +380,16 @@ report 5811 "Calc. Inventory Value - Test"
         RtngVersionErrBuf_DescriptionCaptionLbl: Label 'Description';
         RtngVersionErrBuf__Version_Code_CaptionLbl: Label 'Version Code';
         RtngVersionErrBuf__Routing_No__CaptionLbl: Label 'Routing No.';
+
+    protected var
+        TempProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
+        TempRtngVersionErrBuf: Record "Routing Version" temporary;
+        TempErrorBuf: Record "Error Buffer" temporary;
+        ByLocation: Boolean;
+        ByVariant: Boolean;
+        CalcBase: Enum "Inventory Value Calc. Base";
+        CalculatePer: Enum "Inventory Value Calc. Per";
+        PostingDate: Date;
 
     local procedure ValidateCalcLevel()
     begin
@@ -415,7 +416,19 @@ report 5811 "Calc. Inventory Value - Test"
         ValidateCalcLevel();
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
     procedure InitializeRequest(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewCalcBase: Option)
+    begin
+        PostingDate := NewPostingDate;
+        CalculatePer := "Inventory Value Calc. Per".FromInteger(NewCalculatePer);
+        ByLocation := NewByLocation;
+        ByVariant := NewByVariant;
+        CalcBase := "Inventory Value Calc. Base".FromInteger(NewCalcBase);
+    end;
+#endif
+
+    procedure SetParameters(NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewCalcBase: Enum "Inventory Value Calc. Base")
     begin
         PostingDate := NewPostingDate;
         CalculatePer := NewCalculatePer;

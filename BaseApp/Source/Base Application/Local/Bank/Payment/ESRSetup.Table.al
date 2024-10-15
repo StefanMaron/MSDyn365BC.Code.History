@@ -15,6 +15,7 @@ table 3010531 "ESR Setup"
     Caption = 'ESR Setup';
     DrillDownPageID = "ESR Setup List";
     LookupPageID = "ESR Setup List";
+    DataClassification = CustomerContent;
 
     fields
     {

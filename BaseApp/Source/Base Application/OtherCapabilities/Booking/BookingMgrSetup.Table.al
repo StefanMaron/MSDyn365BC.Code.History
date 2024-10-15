@@ -3,6 +3,7 @@ namespace Microsoft.Booking;
 table 6721 "Booking Mgr. Setup"
 {
     Caption = 'Booking Mgr. Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

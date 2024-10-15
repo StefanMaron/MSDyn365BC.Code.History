@@ -23,5 +23,6 @@ permissionset 5267 "D365 INV DOC, POST"
                   tabledata "Transfer Shipment Header" = RIMD,
                   tabledata "Transfer Shipment Line" = RIMD,
                   tabledata "Warehouse Activity Line" = RIMD,
+                  tabledata "Warehouse Reason Code" = RIMD,
                   tabledata "Warehouse Shipment Line" = RIMD;
 }

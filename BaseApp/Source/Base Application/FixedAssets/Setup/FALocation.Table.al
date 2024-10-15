@@ -4,6 +4,7 @@ table 5609 "FA Location"
 {
     Caption = 'FA Location';
     LookupPageID = "FA Locations";
+    DataClassification = CustomerContent;
 
     fields
     {

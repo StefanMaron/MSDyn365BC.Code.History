@@ -4606,6 +4606,18 @@ End Function</Code>
         <Field Name="VendAddr5">
           <DataField>VendAddr5</DataField>
         </Field>
+        <Field Name="CompanyAddr5">
+          <DataField>CompanyAddr5</DataField>
+        </Field>
+        <Field Name="CompanyAddr6">
+          <DataField>CompanyAddr6</DataField>
+        </Field>
+        <Field Name="CompanyAddr7">
+          <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
+        </Field>
         <Field Name="CompanyInfoPhNo">
           <DataField>CompanyInfoPhNo</DataField>
         </Field>
@@ -4666,18 +4678,6 @@ End Function</Code>
         <Field Name="VendAddr8">
           <DataField>VendAddr8</DataField>
         </Field>
-        <Field Name="CompanyAddr5">
-          <DataField>CompanyAddr5</DataField>
-        </Field>
-        <Field Name="CompanyAddr6">
-          <DataField>CompanyAddr6</DataField>
-        </Field>
-        <Field Name="CompanyAddr7">
-          <DataField>CompanyAddr7</DataField>
-        </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
-        </Field>
         <Field Name="OutputNo">
           <DataField>OutputNo</DataField>
         </Field>
@@ -4689,7 +4689,7 @@ End Function</Code>
         </Field>
         <Field Name="CompanyInfoVatRegNoCaption">
           <DataField>CompanyInfoVatRegNoCaption</DataField>
-        </Field>
+        </Field>  
         <Field Name="CompanyInfoGiroNoCaption">
           <DataField>CompanyInfoGiroNoCaption</DataField>
         </Field>

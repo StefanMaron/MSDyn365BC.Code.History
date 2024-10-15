@@ -17,7 +17,6 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
-        FileMgt: Codeunit "File Management";
         TestOption: Option "ESR5/15","ESR9/16","ESR9/27","ESR+5/15","ESR+9/16","ESR+9/27","Post Payment Domestic","Bank Payment Domestic","Cash Outpayment Order Domestic","Post Payment Abroad","Bank Payment Abroad","SWIFT Payment Abroad","Cash Outpayment Order Abroad";
         isInitialized: Boolean;
         FileLineValueIsWrongErr: Label 'Unexpected file value at position %1, length %2.';
@@ -40,9 +39,9 @@ codeunit 144350 "CH DTA/EZAG File Reports"
 
         Commit();
 
-        DTASetupPage.OpenEdit;
+        DTASetupPage.OpenEdit();
         DTASetupPage.GotoRecord(DTASetup);
-        DTASetupPage."&Write Testfile".Invoke;
+        DTASetupPage."&Write Testfile".Invoke();
 
         File := DTASetup."DTA File Folder" + DTASetup."DTA Filename";
 
@@ -206,7 +205,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
 
         // [GIVEN] Foreign Vendor with Vendor Bank Account No. = '123456789012345678901' (21 chars length)
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
-          GenJournalBatch, 1, Dates, Amounts, TestOption, CreateCurrencyCode, '', false);
+          GenJournalBatch, 1, Dates, Amounts, TestOption, CreateCurrencyCode(), '', false);
         VendorBankAccount.Validate(IBAN, '');
         VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateRandomAlphabeticText(21, 0));
         VendorBankAccount.Modify();
@@ -294,7 +293,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         REPORT.Run(REPORT::"EZAG File");
 
         // [THEN] Created file contains country specific symbols in correct encoding
-        VerifyEZAGFileVendorAddress(DTASetup, Vendor);
+        VerifyEZAGFileVendorAddress(Vendor);
     end;
 
     local procedure Initialize()
@@ -616,7 +615,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         end;
     end;
 
-    local procedure VerifyEZAGFileVendorAddress(DTASetup: Record "DTA Setup"; Vendor: Record Vendor)
+    local procedure VerifyEZAGFileVendorAddress(Vendor: Record Vendor)
     var
         FileName: Text;
         Line: Text;
@@ -677,7 +676,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
             DTASuggestVendorPayments."ReqFormDebitBank.""Bank Code""".SetValue(DebitToBank);
         DTASuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
 
-        DTASuggestVendorPayments.OK.Invoke;
+        DTASuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -688,7 +687,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         LibraryVariableStorage.Dequeue(BankCode);
         DTAFile."FileBank.""Bank Code""".SetValue(BankCode);
-        DTAFile.OK.Invoke;
+        DTAFile.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -699,7 +698,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         LibraryVariableStorage.Dequeue(BankCode);
         EZAGFile."DtaSetup.""Bank Code""".SetValue(BankCode);
-        EZAGFile.OK.Invoke;
+        EZAGFile.OK().Invoke();
     end;
 }
 

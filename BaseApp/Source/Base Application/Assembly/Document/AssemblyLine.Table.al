@@ -25,6 +25,7 @@ table 901 "Assembly Line"
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
     LookupPageID = "Assembly Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -138,6 +139,7 @@ table 901 "Assembly Line"
                 end else begin
                     ItemVariant.SetLoadFields(Description, "Description 2", Blocked);
                     ItemVariant.Get("No.", "Variant Code");
+                    ItemVariant.TestField(Blocked, false);
                     Description := ItemVariant.Description;
                     "Description 2" := ItemVariant."Description 2";
                 end;
@@ -262,10 +264,8 @@ table 901 "Assembly Line"
                     Item.Get("No.");
                     Item.TestField(Type, Item.Type::Inventory);
                     WMSManagement.FindBin("Location Code", "Bin Code", '');
-                    WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Assembly Line",
-                      FieldCaption("Bin Code"),
-                      "Location Code",
-                      "Bin Code", 0);
+                    WhseIntegrationMgt.CheckBinTypeAndCode(
+                        DATABASE::"Assembly Line", FieldCaption("Bin Code"), "Location Code", "Bin Code", 0);
                     CheckBin();
                 end;
             end;
@@ -742,6 +742,8 @@ table 901 "Assembly Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "No.", Description, Quantity, Type, "Unit of Measure Code")
+        { }
     }
 
     trigger OnDelete()
@@ -984,7 +986,6 @@ table 901 "Assembly Line"
         ItemCheckAvail.AssemblyLineCheck(Rec);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowAvailabilityWarningPage()
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
@@ -1888,6 +1889,7 @@ table 901 "Assembly Line"
             Item.TestField("Inventory Posting Group");
         end;
 
+        Item.TestField(Blocked, false);
         "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
         "Inventory Posting Group" := Item."Inventory Posting Group";
         GetDefaultBin();

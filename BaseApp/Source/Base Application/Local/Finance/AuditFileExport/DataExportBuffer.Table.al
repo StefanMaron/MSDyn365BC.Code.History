@@ -7,6 +7,7 @@ namespace Microsoft.Finance.AuditFileExport;
 table 11008 "Data Export Buffer"
 {
     Caption = 'Data Export Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

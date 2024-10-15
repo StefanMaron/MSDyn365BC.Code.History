@@ -35,21 +35,21 @@ codeunit 144061 "Test ESR Localized Features"
 
         // If the bank account is set the IBAN field should not be editable.
         VendorBankAccountCard."Bank Account No.".SetValue('012-345678.009');
-        Assert.IsFalse(VendorBankAccountCard.IBAN.Enabled, 'The IBAN field should be disabled when the bank account is set');
+        Assert.IsFalse(VendorBankAccountCard.IBAN.Enabled(), 'The IBAN field should be disabled when the bank account is set');
 
         // If the bank account is not set the IBAN field should be editable.
         VendorBankAccountCard."Bank Account No.".SetValue('');
-        Assert.IsTrue(VendorBankAccountCard.IBAN.Enabled,
+        Assert.IsTrue(VendorBankAccountCard.IBAN.Enabled(),
           'The IBAN field should be enabled when the bank account is not set');
 
         // If the IBAN field is set the bank account should be disabled.
         VendorBankAccountCard.IBAN.SetValue('CH5604835012345678009');
-        Assert.IsFalse(VendorBankAccountCard."Bank Account No.".Enabled,
+        Assert.IsFalse(VendorBankAccountCard."Bank Account No.".Enabled(),
           'The Bank account No. field should be disabled when the IBAN field is set');
 
         // If the IBAN field is not set the bank account should be enabled.
         VendorBankAccountCard.IBAN.SetValue('');
-        Assert.IsTrue(VendorBankAccountCard."Bank Account No.".Enabled,
+        Assert.IsTrue(VendorBankAccountCard."Bank Account No.".Enabled(),
           'The Bank account No. field should be enabled when the IBAN field is not set');
     end;
 
@@ -82,7 +82,7 @@ codeunit 144061 "Test ESR Localized Features"
 
         // We should get ESR and ESR Amount 400.68
         PurchaseOrder."Bank Code".AssertEquals('ESR');
-        Assert.IsTrue(PurchaseOrder."ESR Amount".AsDEcimal = 400.68, 'Wrong value for the ESR Amount Field');
+        Assert.IsTrue(PurchaseOrder."ESR Amount".AsDecimal() = 400.68, 'Wrong value for the ESR Amount Field');
 
         // Now try to change ESR to Bank
         asserterror PurchaseOrder."Bank Code".SetValue('BANK');

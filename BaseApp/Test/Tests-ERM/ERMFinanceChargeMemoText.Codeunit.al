@@ -60,7 +60,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         // Setup: Create Finance Charge Terms with Beginning and Ending Texts, update it on Customer. Create and Post Sales Invoice.
         Initialize();
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency());
         PostedDocumentNo := CreateAndPostSalesInvoice(Customer."No.");
         LibraryFinanceChargeMemo.ComputeDescription(FinanceChargeTerms, Description, DocumentDate, PostedDocumentNo);
 
@@ -227,7 +227,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     begin
         // Take Random Quantity for Sales Invoice.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -260,7 +260,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 

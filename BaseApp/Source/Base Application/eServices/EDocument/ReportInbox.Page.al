@@ -12,7 +12,7 @@ page 680 "Report Inbox"
     PageType = List;
     SourceTable = "Report Inbox";
     SourceTableView = sorting("User ID", "Created Date-Time")
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout

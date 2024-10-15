@@ -4,7 +4,7 @@ using Microsoft.Projects.Resources.Resource;
 
 page 376 "Job Journal Reconcile"
 {
-    Caption = 'Job Journal Reconcile';
+    Caption = 'Project Journal Reconcile';
     DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
@@ -35,7 +35,7 @@ page 376 "Job Journal Reconcile"
                     ApplicationArea = Jobs;
                     Style = Strong;
                     StyleExpr = Emphasize;
-                    ToolTip = 'Specifies the job quantity to be reconciled.';
+                    ToolTip = 'Specifies the project quantity to be reconciled.';
                 }
             }
         }

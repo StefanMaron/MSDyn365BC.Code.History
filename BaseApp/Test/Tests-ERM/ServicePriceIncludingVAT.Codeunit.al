@@ -118,7 +118,7 @@ codeunit 136123 "Service Price Including VAT"
         CopyServiceLine(TempServiceLine, ServiceLine);
 
         // 2. Exercise: Post Service Credit Memo.
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
         // 3. Verify: Verify Service Ledger Entry.
@@ -154,11 +154,11 @@ codeunit 136123 "Service Price Including VAT"
         if PriceIncludingVAT then
             VATPercentage := 10 + LibraryRandom.RandInt(10);
 
-        CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, VATPercentage);
-        CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo, VATPercentage);
+        CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), VATPercentage);
+        CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo(), VATPercentage);
         CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code, VATPercentage);
         CreateAndUpdateServiceLine(
-          ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, VATPercentage);
+          ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), VATPercentage);
     end;
 
     local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
@@ -170,7 +170,7 @@ codeunit 136123 "Service Price Including VAT"
 
         // Use Random Number Generator to generate 1 to 10 service lines.
         for Counter := 1 to 1 + LibraryRandom.RandInt(9) do begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
             ServiceLine.Validate("Service Item No.", ServiceItemNo);
 
             // Use Random for Quantity, Unit Price and VAT %.
@@ -201,7 +201,7 @@ codeunit 136123 "Service Price Including VAT"
     local procedure CreateServiceCost(var ServiceCost: Record "Service Cost")
     begin
         LibraryService.CreateServiceCost(ServiceCost);
-        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         ServiceCost.Modify(true);
     end;
 
@@ -236,12 +236,12 @@ codeunit 136123 "Service Price Including VAT"
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             Assert.AreNearlyEqual(
-              TempServiceLine."Amount Including VAT", ServiceInvoiceLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision,
+              TempServiceLine."Amount Including VAT", ServiceInvoiceLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(
                 AmountErrorErr, ServiceInvoiceLine.FieldCaption("Amount Including VAT"), ServiceInvoiceLine."Amount Including VAT",
                 ServiceInvoiceLine.TableCaption()));
             Assert.AreNearlyEqual(
-              TempServiceLine."Line Amount", ServiceInvoiceLine."Line Amount", LibraryERM.GetAmountRoundingPrecision,
+              TempServiceLine."Line Amount", ServiceInvoiceLine."Line Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(
                 AmountErrorErr, ServiceInvoiceLine.FieldCaption("Line Amount"), ServiceInvoiceLine."Line Amount",
                 ServiceInvoiceLine.TableCaption()));

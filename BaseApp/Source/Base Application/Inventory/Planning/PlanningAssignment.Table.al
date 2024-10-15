@@ -12,6 +12,7 @@ table 99000850 "Planning Assignment"
 {
     Caption = 'Planning Assignment';
     Permissions = TableData "Planning Assignment" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -219,7 +220,7 @@ table 99000850 "Planning Assignment"
         ProdOrderLine.SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code");
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Planned);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        if ProdOrderLine.FindSet(true, true) then
+        if ProdOrderLine.FindSet(true) then
             repeat
                 if CheckSKU then
                     AssignThis := not SKUexists(ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code")
@@ -237,7 +238,7 @@ table 99000850 "Planning Assignment"
         ReqLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", ItemNo);
-        if ReqLine.FindSet(true, true) then
+        if ReqLine.FindSet(true) then
             repeat
                 if CheckSKU then
                     AssignThis := not SKUexists(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code")

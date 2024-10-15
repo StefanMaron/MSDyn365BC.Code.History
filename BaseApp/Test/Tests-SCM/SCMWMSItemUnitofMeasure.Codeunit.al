@@ -147,7 +147,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         // Exercise
         // 3. Create Sales Order for the item and post as shipped through white location
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineWithUnitOfMeasure(SalesLine, SalesHeader, Item."No.", 0.00002, Location.Code, Item."Base Unit of Measure");
 
         for I := 1 to 4 do
@@ -183,7 +183,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateAndPostPurchReceiptPutAway(Item."No.", 2, 0.5, Location.Code);
 
         // Exercise
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for I := 1 to 4 do
             CreateSalesLine(SalesLine, SalesHeader, Item."No.", 0.25, Location.Code);
 
@@ -224,7 +224,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateAndPostPurchReceiptPutAway(Item."No.", 13, PutAwayQtyPerUOMRatio * SalesQtyPerUOMRatio * 11 * 2, Location.Code);
 
         // Exercise
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for CurrLine := 1 to 10 do
             CreateSalesLine(SalesLine, SalesHeader, Item."No.", PurchQtyPerUOMRatio * PutAwayQtyPerUOMRatio * 13, Location.Code);
 
@@ -275,16 +275,16 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Initialize();
         CreateFullWMSLocation(Location, false);
 
-        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode, 54, 0);
+        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode(), 54, 0);
 
         CreateAndPostWhseJnlB25525(
           Item,
           Location.Code,
           CalcDate('<2M>', WorkDate()),
           CalcDate('<3M>', WorkDate()),
-          WorkDate,
+          WorkDate(),
           CalcDate('<3M>', WorkDate()),
-          WorkDate);
+          WorkDate());
 
         // Exercise
         CreateAndPostSalesB25525(Item."No.", Location.Code, SalesLine);
@@ -377,7 +377,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         PostPickFromSalesLine(SalesLine);
         PostWhseShptFromSalesLine(SalesLine);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 0.5, Location.Code);
         CreateSalesLineWithUnitOfMeasure(SalesLine, SalesHeader, Item."No.", 5, Location.Code, Item."Base Unit of Measure");
 
@@ -406,14 +406,14 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LibraryInventory.CreateItem(Item);
 
-        LibraryWarehouse.FindZone(Zone, Location.Code, FindPutPickBinType, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, FindPutPickBinType(), false);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', Zone.Code, Zone."Bin Type Code");
         LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, Item."No.", 100, false);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', Zone.Code, Zone."Bin Type Code");
         LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, Item."No.", 111, false);
 
         // Exercise
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 112, Location.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -449,16 +449,16 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Initialize();
         CreateFullWMSLocation(Location, true);
 
-        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode, 54, 0);
+        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode(), 54, 0);
 
         CreateAndPostWhseJnlB25525(
           Item,
           Location.Code,
           CalcDate('<2M>', WorkDate()),
           CalcDate('<3M>', WorkDate()),
-          WorkDate,
+          WorkDate(),
           CalcDate('<3M>', WorkDate()),
-          WorkDate);
+          WorkDate());
 
         // Exercise
         CreateAndPostSalesB25525(Item."No.", Location.Code, SalesLine);
@@ -494,7 +494,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Validate("Put-away Unit of Measure Code", CreateItemUnitOfMeasureCode(Item."No.", 324));
         Item.Modify(true);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 348, Location.Code, 'LOT1');
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
@@ -530,7 +530,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // Exercise
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 11, false);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 2, Location.Code);
         CreateWhseShipmentAndPickFromSalesOrder(SalesHeader);
 
@@ -624,7 +624,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LotNos[1] := LibraryUtility.GenerateGUID();
         LotNos[2] := LibraryUtility.GenerateGUID();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignMultipleLotNos);
         LibraryVariableStorage.Enqueue(2);
@@ -681,13 +681,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Validate("Sales Unit of Measure", Item."Purch. Unit of Measure");
         Item.Modify(true);
 
-        LibraryWarehouse.CreateBin(Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType());
 
         LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
         LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, Location.Code);
         CreateWhseJournalLineWithLotTracking(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin, Item."No.", Item."Purch. Unit of Measure", 5,
-          LibraryUtility.GenerateGUID, CalcDate('<2M>', WorkDate()));
+          LibraryUtility.GenerateGUID(), CalcDate('<2M>', WorkDate()));
 
         LibraryWarehouse.PostWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code);
 
@@ -731,7 +731,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Modify(true);
 
         LotNo := LibraryUtility.GenerateGUID();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code, LotNo);
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
@@ -775,12 +775,12 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Purch. Unit of Measure", 0, 0, 0);
         VerifyInvtQty(Item."No.", 20);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 20, Location.Code);
         PostWarehouseShipmentAndPick(SalesHeader);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", 6,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", 6,
           Location.Code, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
@@ -839,7 +839,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             Modify(true);
         end;
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 24, Location.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -876,13 +876,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         CreateLotTrackedItemWithPurchUnitOfMeasure(Item, 10);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 2, Location.Code, LibraryUtility.GenerateGUID());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 4, Location.Code, LibraryUtility.GenerateGUID());
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
         // Exercise
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 55, Location.Code);
         CreateWhseShipmentAndPickFromSalesOrder(SalesHeader);
 
@@ -906,7 +906,6 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
         Location: Record Location;
-        DestinationType: Option MovementWorksheet,WhseInternalPutawayHeader,ItemJournalLine,TransferHeader,InternalMovementHeader;
     begin
         // [FEATURE] [Warehouse Movement]
         // [SCENARIO] The Create movement function should create a Warehouse Movement document with the correct Quantities
@@ -917,19 +916,19 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         CreateLotTrackedItemWithPurchUnitOfMeasure(Item, 10);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID());
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
         // Exercise
-        LibraryWarehouse.FindZone(Zone, Location.Code, FindPutPickBinType, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, FindPutPickBinType(), false);
         LibraryWarehouse.FindBin(Bin[1], Location.Code, Zone.Code, 1);
         LibraryWarehouse.FindBin(Bin[2], Location.Code, Zone.Code, 2);
         LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin[2], Bin[1], Item."No.", '', 0);
         BinContent.SetRange("Location Code", Location.Code);
         BinContent.SetRange("Item No.", Item."No.");
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, DestinationType::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
         LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, Location.Code, "Whse. Activity Sorting Method"::None, false, false);
 
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Base Unit of Measure", 0, 0, 0);
@@ -949,7 +948,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             Bin[1].SetFilter(Code, '<>%1', "Bin Code");
             Bin[1].FindFirst();
 
-            Next;
+            Next();
             Assert.AreEqual(10, Quantity, '');
             Assert.AreEqual(100, "Qty. (Base)", '');
         end;
@@ -979,7 +978,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 15);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 6, Location.Code, '0001');
 
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code);
@@ -1060,14 +1059,14 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Initialize();
         CreateFullWMSLocation(Location, false);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         for CurrLineNo := 1 to 10 do
             CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID());
 
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
         // Exercise
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", SalesQty, Location.Code);
 
         CreateWhseShipmentAndPickFromSalesOrder(SalesHeader);
@@ -1167,7 +1166,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // Setup
         Initialize();
         CreateFullWMSLocation(Location, false);
-        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType());
         Bin[2].Validate("Bin Ranking", 10000);
         Bin[2].Modify(true);
 
@@ -1188,10 +1187,10 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             SetRange("Location Code", Location.Code);
             SetRange("Item No.", Item."No.");
             SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
-            Assert.IsTrue(FindFirst, 'Bin Content exists');
+            Assert.IsTrue(FindFirst(), 'Bin Content exists');
 
             SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-            Assert.IsTrue(FindFirst, 'Bin Content exists');
+            Assert.IsTrue(FindFirst(), 'Bin Content exists');
         end;
 
         // Exercise
@@ -1214,10 +1213,10 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             SetRange("Item No.", Item."No.");
             SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
             SetRange("Bin Code", Bin[2].Code);
-            Assert.IsTrue(FindFirst, 'Bin Content exists');
+            Assert.IsTrue(FindFirst(), 'Bin Content exists');
 
             SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-            Assert.IsTrue(FindFirst, 'Bin Content exists');
+            Assert.IsTrue(FindFirst(), 'Bin Content exists');
         end;
     end;
 
@@ -1252,7 +1251,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Modify(true);
 
         LibraryWarehouse.CreateBin(
-          Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
+          Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType());
 
         with BinContent do begin
             Init();
@@ -1261,7 +1260,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             Validate("Bin Code", Bin.Code);
             Validate("Item No.", Item."No.");
             Validate("Unit of Measure Code", Item."Base Unit of Measure");
-            Validate("Bin Type Code", FindPutPickBinType);
+            Validate("Bin Type Code", FindPutPickBinType());
             Validate("Bin Ranking", 10000);
             Validate("Min. Qty.", 101);
             Validate("Max. Qty.", 225);
@@ -1270,7 +1269,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         end;
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", 152,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", 152,
           Location.Code, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
@@ -1355,7 +1354,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", 3.5, Location.Code, 0D);
+          LibraryPurchase.CreateVendorNo(), Item."No.", 3.5, Location.Code, 0D);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignMultipleSN);
         LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)");
         for I := 1 to PurchaseLine."Quantity (Base)" do
@@ -1371,7 +1370,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Purch. Unit of Measure", 0, 0, 21);
         VerifyInvtQty(Item."No.", 21);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code);
         PurchaseLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         PurchaseLine.Validate("Qty. to Receive", 0.5);
@@ -1400,7 +1399,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             AssertRunTime('integer', 'It should not be possible to receive ratios of items that are serial nos. tracked');
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1430,7 +1429,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateAndPostPurchReceiptPutAway(Item."No.", 1, 12, Location.Code);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 1, Location.Code, 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 1, Location.Code, 0D);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WhseShptHeader.Get(
@@ -1477,7 +1476,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         CreateAndPostPurchReceiptPutAway(Item."No.", 1, 2, Location.Code);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 1, Location.Code);
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 1, Location.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1532,7 +1531,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Assert.AreEqual(TrackingSpecification.Count, 1, '');
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 1, Location.Code, WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 1, Location.Code, WorkDate());
         SalesLine.Validate("Bin Code", Bin.Code);
         SalesLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignManualSN);
@@ -1596,7 +1595,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         UOMCodes[1] := CreateItemUnitOfMeasureCode(Item."No.", 0.4);
         UOMCodes[2] := CreateItemUnitOfMeasureCode(Item."No.", 8);
 
-        LibraryWarehouse.CreateBin(Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType());
 
         LotNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
@@ -1924,7 +1923,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM WMS Item Unit of Measure");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -1962,7 +1961,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID, false);  // False for Item not on Inventory.
+        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID(), false);  // False for Item not on Inventory.
     end;
 
     local procedure ChangeQtyPerUOM(ItemNo: Code[20]; UOMCode: Code[10])
@@ -2003,7 +2002,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         PurchaseLine: Record "Purchase Line";
         CurrLine: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         for CurrLine := 1 to NoOfLines do
             CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, QtyPerLine, LocationCode);
 
@@ -2059,7 +2058,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryWarehouse.SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, LocationCode);
 
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
@@ -2067,7 +2066,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseJournalLine.Validate("Unit of Measure Code", Item."Purch. Unit of Measure");
         WarehouseJournalLine.Modify(true);
 
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
@@ -2075,17 +2074,17 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseJournalLine.Validate("Unit of Measure Code", Item."Purch. Unit of Measure");
         WarehouseJournalLine.Modify(true);
 
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 2);
 
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 3);
 
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 27);
@@ -2114,7 +2113,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo, 2, LocationCode, WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), ItemNo, 2, LocationCode, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
@@ -2131,7 +2130,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, ItemNo, 1,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), ItemNo, 1,
           LocationCode, 0D);
         PurchaseLine.Validate("Bin Code", BinCode);
         PurchaseLine.Modify(true);
@@ -2276,7 +2275,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, ItemNo, Quantity, LocationCode);
         EnqueueLotTrackingParameters(LotNo, SalesLine."Quantity (Base)");
         SalesLine.OpenItemTrackingLines();
@@ -2435,7 +2434,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         Bin: Record Bin;
     begin
-        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', FindLocationPickZone(LocationCode), FindPutPickBinType());
         CreateWhseJournalLineWithLotTracking(
           WarehouseJournalLine, WhseJnlTemplateName, WhseJnlBatchName, Bin, ItemNo, UOMCode, Quantity, LotNo, ExpirationDate);
     end;
@@ -2482,7 +2481,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         Zone: Record Zone;
     begin
-        LibraryWarehouse.FindZone(Zone, LocationCode, FindPutPickBinType, false);
+        LibraryWarehouse.FindZone(Zone, LocationCode, FindPutPickBinType(), false);
         exit(Zone.Code);
     end;
 
@@ -2644,8 +2643,8 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     local procedure UpdateItemInventoryOnWMSLocationSplitByLotNo(var Item: Record Item; var Location: Record Location; IsFEFO: Boolean; QtyPerUOM: Decimal)
     begin
         CreateFullWMSLocation(Location, IsFEFO);
-        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode, QtyPerUOM, 0);
-        CreateAndPostWhseJnlB25525(Item, Location.Code, WorkDate(), WorkDate, WorkDate(), WorkDate, WorkDate());
+        CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode(), QtyPerUOM, 0);
+        CreateAndPostWhseJnlB25525(Item, Location.Code, WorkDate(), WorkDate(), WorkDate(), WorkDate(), WorkDate());
     end;
 
     local procedure UpdatePhysInventoryQtyOnWhseJournalLine(JnlTemplateName: Code[10]; JnlBatchName: Code[10]; LocationCode: Code[10]; LotNo: Code[50]; NewPhysInvQty: Decimal)
@@ -2791,49 +2790,49 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         I: Integer;
         NoOfTrackingLines: Integer;
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingOption::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             ItemTrackingOption::AssignManualLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingOption::AssignMultipleLotNos:
                 begin
-                    NoOfTrackingLines := LibraryVariableStorage.DequeueInteger;
+                    NoOfTrackingLines := LibraryVariableStorage.DequeueInteger();
                     for I := 1 to NoOfTrackingLines do begin
-                        ItemTrackingLines.New;
-                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                     end;
                 end;
             ItemTrackingOption::AssignManualSN:
                 begin
-                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
                     ItemTrackingLines."Quantity (Base)".SetValue(1);
                 end;
             ItemTrackingOption::AssignMultipleSN:
                 begin
-                    NoOfTrackingLines := LibraryVariableStorage.DequeueInteger;
+                    NoOfTrackingLines := LibraryVariableStorage.DequeueInteger();
                     for I := 1 to NoOfTrackingLines do begin
-                        ItemTrackingLines.New;
-                        ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
                         ItemTrackingLines."Quantity (Base)".SetValue(1);
                     end;
                 end;
         end;
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

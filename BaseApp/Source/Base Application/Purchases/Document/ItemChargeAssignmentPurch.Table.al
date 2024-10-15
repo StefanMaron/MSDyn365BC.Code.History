@@ -8,6 +8,7 @@ using Microsoft.Purchases.History;
 table 5805 "Item Charge Assignment (Purch)"
 {
     Caption = 'Item Charge Assignment (Purch)';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -199,7 +200,7 @@ table 5805 "Item Charge Assignment (Purch)"
     begin
         PurchLine.Get("Document Type", "Document No.", "Document Line No.");
         if not Currency.Get(PurchLine."Currency Code") then
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
     end;
 
     procedure PurchLineInvoiced(): Boolean

@@ -217,7 +217,7 @@ codeunit 1240 "Read Data Exch. from File"
         if IsNull(XMLAttribute) then
             exit(false);
 
-        AttributeText := XMLAttribute.Value;
+        AttributeText := XMLAttribute.Value();
         exit(true);
     end;
 

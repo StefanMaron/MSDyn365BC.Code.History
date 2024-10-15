@@ -108,7 +108,7 @@ page 5709 "Get Receipt Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Prod. Order No."; Rec."Prod. Order No.")

@@ -172,59 +172,57 @@ codeunit 6520 "Item Tracing Mgt."
         if IsHandled then
             exit;
 
-        with TempTrackEntry2 do begin
-            if ExitLevel(TempTrackEntry) then
+        if ExitLevel(TempTrackEntry) then
+            exit;
+        CurrentLevel += 1;
+
+        ItemApplnEntry.Reset();
+        // Test for if we have reached lowest level possible - if so exit
+        if (Direction = Direction::Backward) and TempTrackEntry2.Positive then begin
+            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
+            ItemApplnEntry.SetRange("Inbound Item Entry No.", TempTrackEntry2."Item Ledger Entry No.");
+            ItemApplnEntry.SetRange("Item Ledger Entry No.", TempTrackEntry2."Item Ledger Entry No.");
+            ItemApplnEntry.SetRange("Outbound Item Entry No.", 0);
+            if ItemApplnEntry.Find('-') then begin
+                CurrentLevel -= 1;
                 exit;
-            CurrentLevel += 1;
-
+            end;
             ItemApplnEntry.Reset();
-            // Test for if we have reached lowest level possible - if so exit
-            if (Direction = Direction::Backward) and Positive then begin
-                ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
-                ItemApplnEntry.SetRange("Inbound Item Entry No.", "Item Ledger Entry No.");
-                ItemApplnEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
-                ItemApplnEntry.SetRange("Outbound Item Entry No.", 0);
-                if ItemApplnEntry.Find('-') then begin
-                    CurrentLevel -= 1;
-                    exit;
-                end;
-                ItemApplnEntry.Reset();
-            end;
-
-            if Positive then begin
-                ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
-                ItemApplnEntry.SetRange("Inbound Item Entry No.", "Item Ledger Entry No.");
-            end else begin
-                ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.");
-                ItemApplnEntry.SetRange("Outbound Item Entry No.", "Item Ledger Entry No.");
-            end;
-
-            if Direction = Direction::Forward then
-                ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', "Item Ledger Entry No.")
-            else
-                ItemApplnEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
-
-            ItemApplnEntry.Ascending(Direction = Direction::Forward);
-            if ItemApplnEntry.Find('-') then
-                repeat
-                    if Positive then
-                        TrackNo := ItemApplnEntry."Outbound Item Entry No."
-                    else
-                        TrackNo := ItemApplnEntry."Inbound Item Entry No.";
-
-                    if TrackNo <> 0 then
-                        if ItemLedgEntry.Get(TrackNo) then begin
-                            TransferData(ItemLedgEntry, TempTrackEntry);
-                            OnNextLevelOnAfterTransferData(TempTrackEntry, TempTrackEntry2);
-                            if InsertRecord(TempTrackEntry, ParentID) then begin
-                                TempTrackEntryBuffer := TempTrackEntry;
-                                FindComponents(ItemLedgEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
-                                TempTrackEntry := TempTrackEntryBuffer;
-                                NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
-                            end;
-                        end;
-                until (TrackNo = 0) or (ItemApplnEntry.Next() = 0);
         end;
+
+        if TempTrackEntry2.Positive then begin
+            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
+            ItemApplnEntry.SetRange("Inbound Item Entry No.", TempTrackEntry2."Item Ledger Entry No.");
+        end else begin
+            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.");
+            ItemApplnEntry.SetRange("Outbound Item Entry No.", TempTrackEntry2."Item Ledger Entry No.");
+        end;
+
+        if Direction = Direction::Forward then
+            ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', TempTrackEntry2."Item Ledger Entry No.")
+        else
+            ItemApplnEntry.SetRange("Item Ledger Entry No.", TempTrackEntry2."Item Ledger Entry No.");
+
+        ItemApplnEntry.Ascending(Direction = Direction::Forward);
+        if ItemApplnEntry.Find('-') then
+            repeat
+                if TempTrackEntry2.Positive then
+                    TrackNo := ItemApplnEntry."Outbound Item Entry No."
+                else
+                    TrackNo := ItemApplnEntry."Inbound Item Entry No.";
+
+                if TrackNo <> 0 then
+                    if ItemLedgEntry.Get(TrackNo) then begin
+                        TransferData(ItemLedgEntry, TempTrackEntry);
+                        OnNextLevelOnAfterTransferData(TempTrackEntry, TempTrackEntry2);
+                        if InsertRecord(TempTrackEntry, ParentID) then begin
+                            TempTrackEntryBuffer := TempTrackEntry;
+                            FindComponents(ItemLedgEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
+                            TempTrackEntry := TempTrackEntryBuffer;
+                            NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
+                        end;
+                    end;
+            until (TrackNo = 0) or (ItemApplnEntry.Next() = 0);
         CurrentLevel -= 1;
     end;
 
@@ -238,63 +236,61 @@ codeunit 6520 "Item Tracing Mgt."
         if IsHandled then
             exit;
 
-        with ItemLedgEntry2 do begin
-            if (("Order Type" <> "Order Type"::Production) and ("Order Type" <> "Order Type"::Assembly)) or ("Order No." = '') then
-                exit;
+        if ((ItemLedgEntry2."Order Type" <> ItemLedgEntry2."Order Type"::Production) and (ItemLedgEntry2."Order Type" <> ItemLedgEntry2."Order Type"::Assembly)) or (ItemLedgEntry2."Order No." = '') then
+            exit;
 
-            if ((("Entry Type" = "Entry Type"::Consumption) or ("Entry Type" = "Entry Type"::"Assembly Consumption")) and
-                (Direction = Direction::Forward)) or
-               ((("Entry Type" = "Entry Type"::Output) or ("Entry Type" = "Entry Type"::"Assembly Output")) and
-                (Direction = Direction::Backward))
-            then begin
-                ItemLedgEntry.Reset();
-                ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
-                ItemLedgEntry.SetRange("Order Type", "Order Type");
-                ItemLedgEntry.SetRange("Order No.", "Order No.");
-                if "Order Type" = "Order Type"::Production then
-                    ItemLedgEntry.SetRange("Order Line No.", "Order Line No.");
-                if "Order Type" = "Order Type"::Assembly then
-                    ItemLedgEntry.SetRange("Document No.", "Document No.");
-                ItemLedgEntry.SetFilter("Entry No.", '<>%1', ParentID);
-                if ("Entry Type" = "Entry Type"::Consumption) or ("Entry Type" = "Entry Type"::"Assembly Consumption") then begin
-                    if ShowComponents <> ShowComponents::No then begin
-                        ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
-                          ItemLedgEntry."Entry Type"::"Assembly Consumption");
-                        if ItemLedgEntry.Find('-') then
-                            repeat
-                                if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
-                                    CurrentLevel += 1;
-                                    TransferData(ItemLedgEntry, TempItemTracingBuffer);
-                                    OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
-                                    if InsertRecord(TempItemTracingBuffer, ParentID) then
-                                        NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
-                                    CurrentLevel -= 1;
-                                end;
-                            until ItemLedgEntry.Next() = 0;
-                    end;
-                    ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Output,
-                      ItemLedgEntry."Entry Type"::"Assembly Output");
-                    ItemLedgEntry.SetRange(Positive, true);
-                end else begin
-                    if ShowComponents = ShowComponents::No then
-                        exit;
+        if (((ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Consumption) or (ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::"Assembly Consumption")) and
+            (Direction = Direction::Forward)) or
+           (((ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Output) or (ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::"Assembly Output")) and
+            (Direction = Direction::Backward))
+        then begin
+            ItemLedgEntry.Reset();
+            ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
+            ItemLedgEntry.SetRange("Order Type", ItemLedgEntry2."Order Type");
+            ItemLedgEntry.SetRange("Order No.", ItemLedgEntry2."Order No.");
+            if ItemLedgEntry2."Order Type" = ItemLedgEntry2."Order Type"::Production then
+                ItemLedgEntry.SetRange("Order Line No.", ItemLedgEntry2."Order Line No.");
+            if ItemLedgEntry2."Order Type" = ItemLedgEntry2."Order Type"::Assembly then
+                ItemLedgEntry.SetRange("Document No.", ItemLedgEntry2."Document No.");
+            ItemLedgEntry.SetFilter("Entry No.", '<>%1', ParentID);
+            if (ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Consumption) or (ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::"Assembly Consumption") then begin
+                if ShowComponents <> ShowComponents::No then begin
                     ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
                       ItemLedgEntry."Entry Type"::"Assembly Consumption");
-                    ItemLedgEntry.SetRange(Positive, not ItemLedgEntry2.Positive);
+                    if ItemLedgEntry.Find('-') then
+                        repeat
+                            if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
+                                CurrentLevel += 1;
+                                TransferData(ItemLedgEntry, TempItemTracingBuffer);
+                                OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
+                                if InsertRecord(TempItemTracingBuffer, ParentID) then
+                                    NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
+                                CurrentLevel -= 1;
+                            end;
+                        until ItemLedgEntry.Next() = 0;
                 end;
-                OnFindComponentsOnAfterSetFilters(ItemLedgEntry, ItemLedgEntry2);
-                CurrentLevel += 1;
-                if ItemLedgEntry.Find('-') then
-                    repeat
-                        if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
-                            TransferData(ItemLedgEntry, TempItemTracingBuffer);
-                            OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
-                            if InsertRecord(TempItemTracingBuffer, ParentID) then
-                                NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
-                        end;
-                    until ItemLedgEntry.Next() = 0;
-                CurrentLevel -= 1;
+                ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Output,
+                  ItemLedgEntry."Entry Type"::"Assembly Output");
+                ItemLedgEntry.SetRange(Positive, true);
+            end else begin
+                if ShowComponents = ShowComponents::No then
+                    exit;
+                ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
+                  ItemLedgEntry."Entry Type"::"Assembly Consumption");
+                ItemLedgEntry.SetRange(Positive, not ItemLedgEntry2.Positive);
             end;
+            OnFindComponentsOnAfterSetFilters(ItemLedgEntry, ItemLedgEntry2);
+            CurrentLevel += 1;
+            if ItemLedgEntry.Find('-') then
+                repeat
+                    if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
+                        TransferData(ItemLedgEntry, TempItemTracingBuffer);
+                        OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
+                        if InsertRecord(TempItemTracingBuffer, ParentID) then
+                            NextLevel(TempItemTracingBuffer, TempItemTracingBuffer, Direction, ShowComponents, ItemLedgEntry."Entry No.");
+                    end;
+                until ItemLedgEntry.Next() = 0;
+            CurrentLevel -= 1;
         end;
     end;
 
@@ -311,64 +307,62 @@ codeunit 6520 "Item Tracing Mgt."
     begin
         IsHandled := false;
         OnBeforeInsertRecord(TempTrackEntry, ParentID, Result, IsHandled);
-        if not IsHandled then
-            with TempTrackEntry do begin
-                TempTrackEntry2 := TempTrackEntry;
-                Reset();
-                SetCurrentKey("Item Ledger Entry No.");
-                SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
+        if not IsHandled then begin
+            TempTrackEntry2 := TempTrackEntry;
+            TempTrackEntry.Reset();
+            TempTrackEntry.SetCurrentKey(TempTrackEntry."Item Ledger Entry No.");
+            TempTrackEntry.SetRange(TempTrackEntry."Item Ledger Entry No.", TempTrackEntry."Item Ledger Entry No.");
+            // Mark entry if already in search result
+            TempTrackEntry2."Already Traced" := TempTrackEntry.FindFirst();
 
-                // Mark entry if already in search result
-                TempTrackEntry2."Already Traced" := FindFirst();
-
-                if CurrentLevel = 1 then begin
-                    SetRange("Parent Item Ledger Entry No.", ParentID);
-                    SetFilter(Level, '<>%1', CurrentLevel);
-                end;
-
-                InsertEntry := true;
-                if CurrentLevel <= 1 then
-                    InsertEntry := not FindFirst();
-
-                if InsertEntry then begin
-                    TempTrackEntry2.Reset();
-                    TempTrackEntry := TempTrackEntry2;
-                    TempLineNo += 1;
-                    "Line No." := TempLineNo;
-                    SetRecordID(TempTrackEntry);
-                    "Parent Item Ledger Entry No." := ParentID;
-                    if Format("Record Identifier") = '' then
-                        Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.")
-                    else begin
-                        if RecRef.Get("Record Identifier") then
-                            case RecRef.Number of
-                                Database::"Production Order":
-                                    begin
-                                        RecRef.SetTable(ProductionOrder);
-                                        Description2 :=
-                                          StrSubstNo('%1 %2 %3 %4', ProductionOrder.Status, RecRef.Caption, "Entry Type", "Document No.");
-                                    end;
-                                Database::"Posted Assembly Header":
-                                    Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.");
-                                Database::"Item Ledger Entry":
-                                    begin
-                                        RecRef.SetTable(ItemLedgerEntry);
-                                        if ItemLedgerEntry."Job No." <> '' then begin
-                                            Job.Get(ItemLedgerEntry."Job No.");
-                                            Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption(), ItemLedgerEntry."Job No."), -50);
-                                        end;
-                                    end;
-                            end;
-                        if Description2 = '' then
-                            Description2 := StrSubstNo('%1 %2', RecRef.Caption, "Document No.");
-                    end;
-                    OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
-                    SetDescription(Description2);
-                    Insert();
-                    exit(true);
-                end;
-                exit(false);
+            if CurrentLevel = 1 then begin
+                TempTrackEntry.SetRange("Parent Item Ledger Entry No.", ParentID);
+                TempTrackEntry.SetFilter(Level, '<>%1', CurrentLevel);
             end;
+
+            InsertEntry := true;
+            if CurrentLevel <= 1 then
+                InsertEntry := not TempTrackEntry.FindFirst();
+
+            if InsertEntry then begin
+                TempTrackEntry2.Reset();
+                TempTrackEntry := TempTrackEntry2;
+                TempLineNo += 1;
+                TempTrackEntry."Line No." := TempLineNo;
+                SetRecordID(TempTrackEntry);
+                TempTrackEntry."Parent Item Ledger Entry No." := ParentID;
+                if Format(TempTrackEntry."Record Identifier") = '' then
+                    Description2 := StrSubstNo('%1 %2', TempTrackEntry."Entry Type", TempTrackEntry."Document No.")
+                else begin
+                    if RecRef.Get(TempTrackEntry."Record Identifier") then
+                        case RecRef.Number of
+                            Database::"Production Order":
+                                begin
+                                    RecRef.SetTable(ProductionOrder);
+                                    Description2 :=
+                                      StrSubstNo('%1 %2 %3 %4', ProductionOrder.Status, RecRef.Caption, TempTrackEntry."Entry Type", TempTrackEntry."Document No.");
+                                end;
+                            Database::"Posted Assembly Header":
+                                Description2 := StrSubstNo('%1 %2', TempTrackEntry."Entry Type", TempTrackEntry."Document No.");
+                            Database::"Item Ledger Entry":
+                                begin
+                                    RecRef.SetTable(ItemLedgerEntry);
+                                    if ItemLedgerEntry."Job No." <> '' then begin
+                                        Job.Get(ItemLedgerEntry."Job No.");
+                                        Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption(), ItemLedgerEntry."Job No."), -50);
+                                    end;
+                                end;
+                        end;
+                    if Description2 = '' then
+                        Description2 := StrSubstNo('%1 %2', RecRef.Caption, TempTrackEntry."Document No.");
+                end;
+                OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
+                TempTrackEntry.SetDescription(Description2);
+                TempTrackEntry.Insert();
+                exit(true);
+            end;
+            exit(false);
+        end;
     end;
 
     procedure InitTempTable(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer")
@@ -507,24 +501,22 @@ codeunit 6520 "Item Tracing Mgt."
         OnAfterInitSearchCriteria(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, SearchCriteria);
     end;
 
-    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
+    procedure InitSearchParm(var ItemTracingBuffer: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
     var
         ItemTrackingEntry: Record "Item Tracing Buffer";
     begin
-        with Rec do begin
-            ItemTrackingEntry.SetRange("Serial No.", "Serial No.");
-            ItemTrackingEntry.SetRange("Lot No.", "Lot No.");
-            ItemTrackingEntry.SetRange("Package No.", "Package No.");
-            ItemTrackingEntry.SetRange("Item No.", "Item No.");
-            ItemTrackingEntry.SetRange("Variant Code", "Variant Code");
-            SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
-            LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
-            PackageNoFilter := ItemTrackingEntry.GetFilter("Package No.");
-            ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
-            VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
-        end;
+        ItemTrackingEntry.SetRange("Serial No.", ItemTracingBuffer."Serial No.");
+        ItemTrackingEntry.SetRange("Lot No.", ItemTracingBuffer."Lot No.");
+        ItemTrackingEntry.SetRange("Package No.", ItemTracingBuffer."Package No.");
+        ItemTrackingEntry.SetRange("Item No.", ItemTracingBuffer."Item No.");
+        ItemTrackingEntry.SetRange("Variant Code", ItemTracingBuffer."Variant Code");
+        SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
+        LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
+        PackageNoFilter := ItemTrackingEntry.GetFilter("Package No.");
+        ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
+        VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
 
-        OnAfterInitSearchParam(Rec, ItemTrackingEntry);
+        OnAfterInitSearchParam(ItemTracingBuffer, ItemTrackingEntry);
     end;
 
     procedure SetRecordID(var TrackingEntry: Record "Item Tracing Buffer")
@@ -552,126 +544,124 @@ codeunit 6520 "Item Tracing Mgt."
         if IsHandled then
             exit;
 
-        with TrackingEntry do begin
-            Clear(RecRef);
+        Clear(RecRef);
 
-            case "Entry Type" of
-                "Entry Type"::Purchase:
-                    if not Positive then begin
-                        if PurchCrMemoHeader.Get("Document No.") then begin
-                            RecRef.GetTable(PurchCrMemoHeader);
-                            "Record Identifier" := RecRef.RecordId;
-                        end else
-                            if ReturnShipHeader.Get("Document No.") then begin
-                                RecRef.GetTable(ReturnShipHeader);
-                                "Record Identifier" := RecRef.RecordId;
-                            end else
-                                if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
-                                    RecRef.GetTable(ItemLedgEntry);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end;
+        case TrackingEntry."Entry Type" of
+            TrackingEntry."Entry Type"::Purchase:
+                if not TrackingEntry.Positive then begin
+                    if PurchCrMemoHeader.Get(TrackingEntry."Document No.") then begin
+                        RecRef.GetTable(PurchCrMemoHeader);
+                        TrackingEntry."Record Identifier" := RecRef.RecordId;
                     end else
-                        if PurchRcptHeader.Get("Document No.") then begin
-                            RecRef.GetTable(PurchRcptHeader);
-                            "Record Identifier" := RecRef.RecordId;
+                        if ReturnShipHeader.Get(TrackingEntry."Document No.") then begin
+                            RecRef.GetTable(ReturnShipHeader);
+                            TrackingEntry."Record Identifier" := RecRef.RecordId;
                         end else
-                            if PurchInvHeader.Get("Document No.") then begin
-                                RecRef.GetTable(PurchInvHeader);
-                                "Record Identifier" := RecRef.RecordId;
-                            end else
-                                if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
-                                    RecRef.GetTable(ItemLedgEntry);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end;
-                "Entry Type"::Sale:
-                    if IsServiceDocument("Item Ledger Entry No.", ItemLedgEntry) then begin
-                        OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry, TrackingEntry);
-                        case ItemLedgEntry."Document Type" of
-                            ItemLedgEntry."Document Type"::"Service Shipment":
-                                if ServShptHeader.Get("Document No.") then begin
-                                    RecRef.GetTable(ServShptHeader);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end else begin
-                                    RecRef.GetTable(ItemLedgEntry);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end;
-                            ItemLedgEntry."Document Type"::"Service Invoice":
-                                if ServInvHeader.Get("Document No.") then begin
-                                    RecRef.GetTable(ServInvHeader);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end else begin
-                                    RecRef.GetTable(ItemLedgEntry);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end;
-                            ItemLedgEntry."Document Type"::"Service Credit Memo":
-                                if ServCrMemoHeader.Get("Document No.") then begin
-                                    RecRef.GetTable(ServCrMemoHeader);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end else begin
-                                    RecRef.GetTable(ItemLedgEntry);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end;
-                        end
-                    end else
-                        if Positive then begin
-                            if SalesCrMemoHeader.Get("Document No.") then begin
-                                RecRef.GetTable(SalesCrMemoHeader);
-                                "Record Identifier" := RecRef.RecordId;
-                            end else
-                                if ReturnRcptHeader.Get("Document No.") then begin
-                                    RecRef.GetTable(ReturnRcptHeader);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end else
-                                    if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
-                                        RecRef.GetTable(ItemLedgEntry);
-                                        "Record Identifier" := RecRef.RecordId;
-                                    end;
-                        end else
-                            if SalesShptHeader.Get("Document No.") then begin
-                                RecRef.GetTable(SalesShptHeader);
-                                "Record Identifier" := RecRef.RecordId;
-                            end else
-                                if SalesInvHeader.Get("Document No.") then begin
-                                    RecRef.GetTable(SalesInvHeader);
-                                    "Record Identifier" := RecRef.RecordId;
-                                end else
-                                    if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
-                                        RecRef.GetTable(ItemLedgEntry);
-                                        "Record Identifier" := RecRef.RecordId;
-                                    end;
-                "Entry Type"::"Positive Adjmt.",
-              "Entry Type"::"Negative Adjmt.":
-                    if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
-                        RecRef.GetTable(ItemLedgEntry);
-                        "Record Identifier" := RecRef.RecordId;
-                    end;
-                "Entry Type"::Transfer:
-                    if TransShipHeader.Get("Document No.") then begin
-                        RecRef.GetTable(TransShipHeader);
-                        "Record Identifier" := RecRef.RecordId;
-                    end else
-                        if TransRcptHeader.Get("Document No.") then begin
-                            RecRef.GetTable(TransRcptHeader);
-                            "Record Identifier" := RecRef.RecordId;
-                        end else
-                            if ItemLedgEntry.Get("Item Ledger Entry No.") then begin
+                            if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
                                 RecRef.GetTable(ItemLedgEntry);
-                                "Record Identifier" := RecRef.RecordId;
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
                             end;
-                "Entry Type"::"Assembly Consumption",
-              "Entry Type"::"Assembly Output":
-                    SetRecordIDAssembly(TrackingEntry);
-                "Entry Type"::Consumption,
-                "Entry Type"::Output:
-                    begin
-                        ProductionOrder.SetFilter(Status, '>=%1', ProductionOrder.Status::Released);
-                        ProductionOrder.SetRange("No.", "Document No.");
-                        if ProductionOrder.FindFirst() then begin
-                            RecRef.GetTable(ProductionOrder);
-                            "Record Identifier" := RecRef.RecordId;
+                end else
+                    if PurchRcptHeader.Get(TrackingEntry."Document No.") then begin
+                        RecRef.GetTable(PurchRcptHeader);
+                        TrackingEntry."Record Identifier" := RecRef.RecordId;
+                    end else
+                        if PurchInvHeader.Get(TrackingEntry."Document No.") then begin
+                            RecRef.GetTable(PurchInvHeader);
+                            TrackingEntry."Record Identifier" := RecRef.RecordId;
+                        end else
+                            if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
+                                RecRef.GetTable(ItemLedgEntry);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end;
+            TrackingEntry."Entry Type"::Sale:
+                if IsServiceDocument(TrackingEntry."Item Ledger Entry No.", ItemLedgEntry) then begin
+                    OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry, TrackingEntry);
+                    case ItemLedgEntry."Document Type" of
+                        ItemLedgEntry."Document Type"::"Service Shipment":
+                            if ServShptHeader.Get(TrackingEntry."Document No.") then begin
+                                RecRef.GetTable(ServShptHeader);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end else begin
+                                RecRef.GetTable(ItemLedgEntry);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end;
+                        ItemLedgEntry."Document Type"::"Service Invoice":
+                            if ServInvHeader.Get(TrackingEntry."Document No.") then begin
+                                RecRef.GetTable(ServInvHeader);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end else begin
+                                RecRef.GetTable(ItemLedgEntry);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end;
+                        ItemLedgEntry."Document Type"::"Service Credit Memo":
+                            if ServCrMemoHeader.Get(TrackingEntry."Document No.") then begin
+                                RecRef.GetTable(ServCrMemoHeader);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end else begin
+                                RecRef.GetTable(ItemLedgEntry);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end;
+                    end
+                end else
+                    if TrackingEntry.Positive then begin
+                        if SalesCrMemoHeader.Get(TrackingEntry."Document No.") then begin
+                            RecRef.GetTable(SalesCrMemoHeader);
+                            TrackingEntry."Record Identifier" := RecRef.RecordId;
+                        end else
+                            if ReturnRcptHeader.Get(TrackingEntry."Document No.") then begin
+                                RecRef.GetTable(ReturnRcptHeader);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end else
+                                if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
+                                    RecRef.GetTable(ItemLedgEntry);
+                                    TrackingEntry."Record Identifier" := RecRef.RecordId;
+                                end;
+                    end else
+                        if SalesShptHeader.Get(TrackingEntry."Document No.") then begin
+                            RecRef.GetTable(SalesShptHeader);
+                            TrackingEntry."Record Identifier" := RecRef.RecordId;
+                        end else
+                            if SalesInvHeader.Get(TrackingEntry."Document No.") then begin
+                                RecRef.GetTable(SalesInvHeader);
+                                TrackingEntry."Record Identifier" := RecRef.RecordId;
+                            end else
+                                if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
+                                    RecRef.GetTable(ItemLedgEntry);
+                                    TrackingEntry."Record Identifier" := RecRef.RecordId;
+                                end;
+            TrackingEntry."Entry Type"::"Positive Adjmt.",
+          TrackingEntry."Entry Type"::"Negative Adjmt.":
+                if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
+                    RecRef.GetTable(ItemLedgEntry);
+                    TrackingEntry."Record Identifier" := RecRef.RecordId;
+                end;
+            TrackingEntry."Entry Type"::Transfer:
+                if TransShipHeader.Get(TrackingEntry."Document No.") then begin
+                    RecRef.GetTable(TransShipHeader);
+                    TrackingEntry."Record Identifier" := RecRef.RecordId;
+                end else
+                    if TransRcptHeader.Get(TrackingEntry."Document No.") then begin
+                        RecRef.GetTable(TransRcptHeader);
+                        TrackingEntry."Record Identifier" := RecRef.RecordId;
+                    end else
+                        if ItemLedgEntry.Get(TrackingEntry."Item Ledger Entry No.") then begin
+                            RecRef.GetTable(ItemLedgEntry);
+                            TrackingEntry."Record Identifier" := RecRef.RecordId;
                         end;
+            TrackingEntry."Entry Type"::"Assembly Consumption",
+          TrackingEntry."Entry Type"::"Assembly Output":
+                SetRecordIDAssembly(TrackingEntry);
+            TrackingEntry."Entry Type"::Consumption,
+            TrackingEntry."Entry Type"::Output:
+                begin
+                    ProductionOrder.SetFilter(Status, '>=%1', ProductionOrder.Status::Released);
+                    ProductionOrder.SetRange("No.", TrackingEntry."Document No.");
+                    if ProductionOrder.FindFirst() then begin
+                        RecRef.GetTable(ProductionOrder);
+                        TrackingEntry."Record Identifier" := RecRef.RecordId;
                     end;
-            end;
+                end;
         end;
     end;
 
@@ -680,11 +670,10 @@ codeunit 6520 "Item Tracing Mgt."
         PostedAssemblyHeader: Record "Posted Assembly Header";
         RecRef: RecordRef;
     begin
-        with ItemTracingBuffer do
-            if PostedAssemblyHeader.Get("Document No.") then begin
-                RecRef.GetTable(PostedAssemblyHeader);
-                "Record Identifier" := RecRef.RecordId;
-            end;
+        if PostedAssemblyHeader.Get(ItemTracingBuffer."Document No.") then begin
+            RecRef.GetTable(PostedAssemblyHeader);
+            ItemTracingBuffer."Record Identifier" := RecRef.RecordId;
+        end;
     end;
 
     procedure ShowDocument(RecID: RecordID)
@@ -895,41 +884,39 @@ codeunit 6520 "Item Tracing Mgt."
         if IsHandled then
             exit(OK);
 
-        with TempItemTracingHistoryBuffer do begin
-            Reset();
-            SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
-            DeleteAll();
-            LevelCount := 0;
-            repeat
-                Init();
-                "Entry No." := CurrentHistoryEntryNo + 1;
-                Level := LevelCount;
+        TempItemTracingHistoryBuffer.Reset();
+        TempItemTracingHistoryBuffer.SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
+        TempItemTracingHistoryBuffer.DeleteAll();
+        LevelCount := 0;
+        repeat
+            TempItemTracingHistoryBuffer.Init();
+            TempItemTracingHistoryBuffer."Entry No." := CurrentHistoryEntryNo + 1;
+            TempItemTracingHistoryBuffer.Level := LevelCount;
 
-                OnAfterInitItemTracingHistoryBuffer(TempItemTracingHistoryBuffer, ExtFilterExists);
+            OnAfterInitItemTracingHistoryBuffer(TempItemTracingHistoryBuffer, ExtFilterExists);
 
-                "Serial No. Filter" := CopyStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
-                "Lot No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                "Package No. Filter" := CopyStr(PackageNoFilter, 1, MaxStrLen("Package No. Filter"));
-                "Item No. Filter" := CopyStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
-                "Variant Filter" := CopyStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
+            TempItemTracingHistoryBuffer."Serial No. Filter" := CopyStr(SerialNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Serial No. Filter"));
+            TempItemTracingHistoryBuffer."Lot No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Lot No. Filter"));
+            TempItemTracingHistoryBuffer."Package No. Filter" := CopyStr(PackageNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Package No. Filter"));
+            TempItemTracingHistoryBuffer."Item No. Filter" := CopyStr(ItemNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Item No. Filter"));
+            TempItemTracingHistoryBuffer."Variant Filter" := CopyStr(VariantFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Variant Filter"));
 
-                if Level = 0 then begin
-                    "Trace Method" := TraceMethod;
-                    "Show Components" := ShowComponents;
-                end;
-                OnBeforeItemTracingHistoryBufferInsert(TempItemTracingHistoryBuffer);
-                Insert();
+            if TempItemTracingHistoryBuffer.Level = 0 then begin
+                TempItemTracingHistoryBuffer."Trace Method" := TraceMethod;
+                TempItemTracingHistoryBuffer."Show Components" := ShowComponents;
+            end;
+            OnBeforeItemTracingHistoryBufferInsert(TempItemTracingHistoryBuffer);
+            TempItemTracingHistoryBuffer.Insert();
 
-                LevelCount += 1;
-                SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
-                LotNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                PackageNoFilter := DelStr(PackageNoFilter, 1, MaxStrLen("Package No. Filter"));
-                ItemNoFilter := DelStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
-                VariantFilter := DelStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
-            until (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (VariantFilter = '') and
-                  (PackageNoFilter = '') and not ExtFilterExists;
-            CurrentHistoryEntryNo := "Entry No.";
-        end;
+            LevelCount += 1;
+            SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Serial No. Filter"));
+            LotNoFilter := DelStr(LotNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Lot No. Filter"));
+            PackageNoFilter := DelStr(PackageNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Package No. Filter"));
+            ItemNoFilter := DelStr(ItemNoFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Item No. Filter"));
+            VariantFilter := DelStr(VariantFilter, 1, MaxStrLen(TempItemTracingHistoryBuffer."Variant Filter"));
+        until (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (VariantFilter = '') and
+              (PackageNoFilter = '') and not ExtFilterExists;
+        CurrentHistoryEntryNo := TempItemTracingHistoryBuffer."Entry No.";
         OK := true;
     end;
 
@@ -952,32 +939,30 @@ codeunit 6520 "Item Tracing Mgt."
 
     local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin
-        with TempItemTracingHistoryBuffer do begin
-            Reset();
-            SetCurrentKey("Entry No.", Level);
-            SetRange("Entry No.", EntryNo);
-            if not FindSet() then
-                exit(false);
-            repeat
-                if Level = 0 then begin
-                    SerialNoFilter := "Serial No. Filter";
-                    LotNoFilter := "Lot No. Filter";
-                    PackageNoFilter := "Package No. Filter";
-                    ItemNoFilter := "Item No. Filter";
-                    VariantFilter := "Variant Filter";
-                    TraceMethod := "Trace Method";
-                    ShowComponents := "Show Components";
-                end else begin
-                    SerialNoFilter := SerialNoFilter + "Serial No. Filter";
-                    LotNoFilter := LotNoFilter + "Lot No. Filter";
-                    PackageNoFilter := PackageNoFilter + "Package No. Filter";
-                    ItemNoFilter := ItemNoFilter + "Item No. Filter";
-                    VariantFilter := VariantFilter + "Variant Filter";
-                end;
-                OnRetrieveHistoryDataOnAfterTraceHistoryLine(TempItemTracingHistoryBuffer);
-            until Next() = 0;
-            exit(true);
-        end;
+        TempItemTracingHistoryBuffer.Reset();
+        TempItemTracingHistoryBuffer.SetCurrentKey("Entry No.", TempItemTracingHistoryBuffer.Level);
+        TempItemTracingHistoryBuffer.SetRange("Entry No.", EntryNo);
+        if not TempItemTracingHistoryBuffer.FindSet() then
+            exit(false);
+        repeat
+            if TempItemTracingHistoryBuffer.Level = 0 then begin
+                SerialNoFilter := TempItemTracingHistoryBuffer."Serial No. Filter";
+                LotNoFilter := TempItemTracingHistoryBuffer."Lot No. Filter";
+                PackageNoFilter := TempItemTracingHistoryBuffer."Package No. Filter";
+                ItemNoFilter := TempItemTracingHistoryBuffer."Item No. Filter";
+                VariantFilter := TempItemTracingHistoryBuffer."Variant Filter";
+                TraceMethod := TempItemTracingHistoryBuffer."Trace Method";
+                ShowComponents := TempItemTracingHistoryBuffer."Show Components";
+            end else begin
+                SerialNoFilter := SerialNoFilter + TempItemTracingHistoryBuffer."Serial No. Filter";
+                LotNoFilter := LotNoFilter + TempItemTracingHistoryBuffer."Lot No. Filter";
+                PackageNoFilter := PackageNoFilter + TempItemTracingHistoryBuffer."Package No. Filter";
+                ItemNoFilter := ItemNoFilter + TempItemTracingHistoryBuffer."Item No. Filter";
+                VariantFilter := VariantFilter + TempItemTracingHistoryBuffer."Variant Filter";
+            end;
+            OnRetrieveHistoryDataOnAfterTraceHistoryLine(TempItemTracingHistoryBuffer);
+        until TempItemTracingHistoryBuffer.Next() = 0;
+        exit(true);
     end;
 
     procedure GetHistoryStatus(var PreviousExists: Boolean; var NextExists: Boolean)
@@ -991,13 +976,12 @@ codeunit 6520 "Item Tracing Mgt."
 
     local procedure IsServiceDocument(ItemLedgEntryNo: Integer; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
-        with ItemLedgEntry do
-            if Get(ItemLedgEntryNo) then
-                if "Document Type" in [
-                                       "Document Type"::"Service Shipment", "Document Type"::"Service Invoice",
-                                       "Document Type"::"Service Credit Memo"]
-                then
-                    exit(true);
+        if ItemLedgEntry.Get(ItemLedgEntryNo) then
+            if ItemLedgEntry."Document Type" in [
+                                    ItemLedgEntry."Document Type"::"Service Shipment", ItemLedgEntry."Document Type"::"Service Invoice",
+                                    ItemLedgEntry."Document Type"::"Service Credit Memo"]
+            then
+                exit(true);
         exit(false);
     end;
 

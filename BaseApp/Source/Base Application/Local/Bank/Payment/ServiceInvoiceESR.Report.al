@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -880,7 +880,6 @@ report 3010534 "Service - Invoice ESR"
         InvDiscBaseAmtCaptionLbl: Label 'Inv. Disc. Base Amount';
         LineAmtCaptionLbl: Label 'Line Amount';
         InvDiscAmountCaptionLbl: Label 'Invoice Discount Amount';
-        TotCaptionLbl: Label 'Total';
         PaymentTermsCaptionLbl: Label 'Payment Terms';
         ShiptoAddrCaptionLbl: Label 'Ship-to Address';
 
@@ -1029,17 +1028,15 @@ report 3010534 "Service - Invoice ESR"
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
-            "Document No." := ServiceInvoiceLine."Document No.";
-            "Line No." := ServiceInvoiceLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := ServiceInvoiceLine.Type;
-            "No." := ServiceInvoiceLine."No.";
-            Quantity := QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        ServiceShipmentBuffer."Document No." := ServiceInvoiceLine."Document No.";
+        ServiceShipmentBuffer."Line No." := ServiceInvoiceLine."Line No.";
+        ServiceShipmentBuffer."Entry No." := NextEntryNo;
+        ServiceShipmentBuffer.Type := ServiceInvoiceLine.Type;
+        ServiceShipmentBuffer."No." := ServiceInvoiceLine."No.";
+        ServiceShipmentBuffer.Quantity := QtyOnShipment;
+        ServiceShipmentBuffer."Posting Date" := PostingDate;
+        ServiceShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 
     local procedure FormatAddressFields(var ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -1051,15 +1048,13 @@ report 3010534 "Service - Invoice ESR"
 
     local procedure FormatDocumentFields(ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
-        with ServiceInvoiceHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
+        FormatDocument.SetTotalLabels(ServiceInvoiceHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ServiceInvoiceHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, ServiceInvoiceHeader."Payment Terms Code", ServiceInvoiceHeader."Language Code");
 
-            OrderNoText := FormatDocument.SetText("Order No." <> '', FieldCaption("Order No."));
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        OrderNoText := FormatDocument.SetText(ServiceInvoiceHeader."Order No." <> '', ServiceInvoiceHeader.FieldCaption("Order No."));
+        ReferenceText := FormatDocument.SetText(ServiceInvoiceHeader."Your Reference" <> '', ServiceInvoiceHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(ServiceInvoiceHeader."VAT Registration No." <> '', ServiceInvoiceHeader.FieldCaption("VAT Registration No."));
     end;
 }
 

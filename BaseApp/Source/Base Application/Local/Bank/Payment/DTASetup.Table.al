@@ -16,6 +16,7 @@ table 3010541 "DTA Setup"
 {
     Caption = 'DTA Setup';
     LookupPageID = "DTA Setup List";
+    DataClassification = CustomerContent;
 
     fields
     {

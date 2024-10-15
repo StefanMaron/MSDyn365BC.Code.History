@@ -28,7 +28,7 @@ codeunit 144049 "ERM Purchase Payables CH"
         // [GIVEN] Purchase Invoice with the following values in Purchase Line
         // [GIVEN] "VAT %" = 10
         // [GIVEN] "Amount Including VAT" = 110
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, PurchaseHeader."Document Type"::Invoice);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), PurchaseHeader."Document Type"::Invoice);
         ExpectedVATPercent := PurchaseLine."VAT %" + LibraryRandom.RandInt(5);
         ExpectedAmountInclVAT := Round(PurchaseLine.Amount / 100 * (100 + ExpectedVATPercent));
 
@@ -83,14 +83,14 @@ codeunit 144049 "ERM Purchase Payables CH"
         PurchaseLine.TestField("Expected Receipt Date", PurchaseHeader."Expected Receipt Date");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure SetVATPercentInVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; NewVATPercent: Decimal)

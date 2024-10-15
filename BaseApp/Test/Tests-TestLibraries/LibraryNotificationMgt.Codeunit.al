@@ -24,7 +24,7 @@ codeunit 132222 "Library - Notification Mgt."
 
     procedure DisableAllNotifications()
     begin
-        DisableImageAnalyzerNotifications;
+        DisableImageAnalyzerNotifications();
     end;
 
     local procedure DisableImageAnalyzerNotifications()

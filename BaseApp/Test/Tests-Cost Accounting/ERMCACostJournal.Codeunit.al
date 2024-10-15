@@ -53,7 +53,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -171,7 +171,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -199,7 +199,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -227,7 +227,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -283,7 +283,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -316,7 +316,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -344,7 +344,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Teardown.
         ClearLastError();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -357,15 +357,15 @@ codeunit 134811 "ERM CA Cost Journal"
         Initialize();
 
         // Setup:
-        CostJnlBatchPage.OpenEdit;
-        GlobalBatchName := CostJnlBatchPage.Name.Value;
+        CostJnlBatchPage.OpenEdit();
+        GlobalBatchName := CostJnlBatchPage.Name.Value();
 
         // Exercise:
-        CostJnlBatchPage."Edit Journal".Invoke;
+        CostJnlBatchPage."Edit Journal".Invoke();
 
         // Clean-up
         CostJnlBatchPage.Close();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -389,7 +389,7 @@ codeunit 134811 "ERM CA Cost Journal"
         ValidateCreatedEntries(CostJournalLine);
 
         // Teardown.
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -417,7 +417,7 @@ codeunit 134811 "ERM CA Cost Journal"
         // Clean-up:
         CostJournalBatch.Validate("Delete after Posting", true);
         CostJournalBatch.Modify(true);
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -445,7 +445,7 @@ codeunit 134811 "ERM CA Cost Journal"
         ValidateCreatedEntries(CostJournalLine);
 
         // Teardown.
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -458,17 +458,17 @@ codeunit 134811 "ERM CA Cost Journal"
         Initialize();
 
         // Setup:
-        CostJournalPage.OpenEdit;
+        CostJournalPage.OpenEdit();
 
         // Exercise:
-        CostJournalPage.CostJnlBatchName.Lookup;
+        CostJournalPage.CostJnlBatchName.Lookup();
 
         // Verify:
         Assert.AreEqual(GlobalBatchName, CostJournalPage.CostJnlBatchName.Value, CostJournalBatchNameError);
 
         // Clean-up
         CostJournalPage.Close();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -482,7 +482,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
-        CostJournalPage.OpenEdit;
+        CostJournalPage.OpenEdit();
 
         // Exercise:
         CostJournalPage.CostJnlBatchName.SetValue(CostJournalBatch.Name);
@@ -492,7 +492,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Clean-up
         CostJournalPage.Close();
-        ClearCostAccountingSetup;
+        ClearCostAccountingSetup();
     end;
 
     [Test]
@@ -522,7 +522,7 @@ codeunit 134811 "ERM CA Cost Journal"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM CA Cost Journal");
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryCostAccounting.InitializeCASetup();
     end;
 
     local procedure ClearCostAccountingSetup()
@@ -628,9 +628,9 @@ codeunit 134811 "ERM CA Cost Journal"
     [Scope('OnPrem')]
     procedure CostJnlBatchHandler(var CostJnlBatchPage: TestPage "Cost Journal Batches")
     begin
-        CostJnlBatchPage.Last;
-        GlobalBatchName := CostJnlBatchPage.Name.Value;
-        CostJnlBatchPage.OK.Invoke;
+        CostJnlBatchPage.Last();
+        GlobalBatchName := CostJnlBatchPage.Name.Value();
+        CostJnlBatchPage.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -17,7 +17,6 @@ codeunit 144063 "Test ROUND Purchase"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
 
     [Test]
     [Scope('OnPrem')]
@@ -31,7 +30,7 @@ codeunit 144063 "Test ROUND Purchase"
           PurchaseHeader."Document Type"::"Credit Memo",
           GLEntry."Document Type"::"Credit Memo",
           VATEntry."Document Type"::"Credit Memo",
-          DocumentType::"Posted Credit Memo");
+          "Purchase Document Type From"::"Posted Credit Memo");
     end;
 
     [Test]
@@ -46,7 +45,7 @@ codeunit 144063 "Test ROUND Purchase"
           PurchaseHeader."Document Type"::Invoice,
           GLEntry."Document Type"::Invoice,
           VATEntry."Document Type"::Invoice,
-          DocumentType::"Posted Invoice");
+          "Purchase Document Type From"::"Posted Invoice");
     end;
 
     [Test]
@@ -61,7 +60,7 @@ codeunit 144063 "Test ROUND Purchase"
           PurchaseHeader."Document Type"::Order,
           GLEntry."Document Type"::Invoice,
           VATEntry."Document Type"::Invoice,
-          DocumentType::"Posted Invoice");
+          "Purchase Document Type From"::"Posted Invoice");
     end;
 
     [Test]
@@ -76,11 +75,11 @@ codeunit 144063 "Test ROUND Purchase"
           PurchaseHeader."Document Type"::"Return Order",
           GLEntry."Document Type"::"Credit Memo",
           VATEntry."Document Type"::"Credit Memo",
-          DocumentType::"Posted Credit Memo");
+          "Purchase Document Type From"::"Posted Credit Memo");
     end;
 
     [Normal]
-    local procedure VerifyVATEntriesWithRecalculateLines(DocumentType: Option; GLEntryDocumentType: Option; VATEntryDocumentType: Option; PostedDocumentType: Option)
+    local procedure VerifyVATEntriesWithRecalculateLines(DocumentType: Enum "Purchase Document Type"; GLEntryDocumentType: Enum "Gen. Journal Document Type"; VATEntryDocumentType: Enum "Gen. Journal Document Type"; PostedDocumentType: Enum "Purchase Document Type From")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader1: Record "Purchase Header";
@@ -169,7 +168,7 @@ codeunit 144063 "Test ROUND Purchase"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; LineType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LineType: Enum "Purchase Line Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         "Code": Code[20];
@@ -177,7 +176,7 @@ codeunit 144063 "Test ROUND Purchase"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, DocumentType, CreateVendor);
+          PurchaseHeader, DocumentType, CreateVendor());
 
         // Create Purchase Line with Random Quantity and Direct Unit Cost.
         case LineType of
@@ -235,7 +234,7 @@ codeunit 144063 "Test ROUND Purchase"
     end;
 
     [Normal]
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Option; VATAmount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -245,13 +244,13 @@ codeunit 144063 "Test ROUND Purchase"
             FindFirst();
             Assert.AreNearlyEqual(
               "VAT Amount",
-              VATAmount, LibraryERM.GetAmountRoundingPrecision,
+              VATAmount, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo('VAT Amounts are not equal. Expected: %1, Actual: %2', "VAT Amount", VATAmount))
         end;
     end;
 
     [Normal]
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; VATAmount: Decimal; DocumentType: Option)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; VATAmount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -263,7 +262,7 @@ codeunit 144063 "Test ROUND Purchase"
             FindFirst();
 
             Assert.AreNearlyEqual(
-              VATAmount, Amount, LibraryERM.GetAmountRoundingPrecision,
+              VATAmount, Amount, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo('VAT amounts are not equal. Expected: %1, Actual: %2', Amount, VATAmount));
         end;
     end;

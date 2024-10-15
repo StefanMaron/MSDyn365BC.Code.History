@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN24
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,9 @@ using Microsoft.Sales.Customer;
 
 codeunit 3010536 GlForeignCurrMgt
 {
+    ObsoleteReason = 'Procedure code merged to Gen. Journal Line table code.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     trigger OnRun()
     begin
@@ -38,7 +42,8 @@ codeunit 3010536 GlForeignCurrMgt
         Text008: Label 'This feature is designed for bank accounts in foreign currency and should only be used for this purpose.';
 
     [Scope('OnPrem')]
-    procedure NewCurrCode(GlAcc: Record "G/L Account"; xGlAcc: Record "G/L Account")
+    [Obsolete('Procedure code merged to Gen. Journal Line table code.', '24.0')]
+    procedure NewCurrCode(GLAcc: Record "G/L Account"; xGlAcc: Record "G/L Account")
     begin
         // CHeck line type and entries if currency code is change in chart of account
         // Call from GlAcc.Currency Code
@@ -46,21 +51,26 @@ codeunit 3010536 GlForeignCurrMgt
         if (GlAcc."Currency Code" <> '') and (xGlAcc."Currency Code" = '') then
             Message(Text008);
 
-        with GlAcc do begin
-            if ("Currency Code" <> '') and (("Account Type" <> "Account Type"::Posting) or
-                                            ("Income/Balance" <> "Income/Balance"::"Balance Sheet"))
-            then
-                Error(Text000);
+        if (GLAcc."Currency Code" <> '') and ((GLAcc."Account Type" <> GLAcc."Account Type"::Posting) or
+                                              (GLAcc."Income/Balance" <> GLAcc."Income/Balance"::"Balance Sheet"))
+        then
+            Error(Text000);
 
-            if "Currency Code" <> xGlAcc."Currency Code" then begin
-                CalcFields(Balance, "Balance (FCY)");
-                if (Balance <> 0) or ("Balance (FCY)" <> 0) then
+        if GlAcc."Currency Code" <> xGlAcc."Currency Code" then begin
+#if not CLEAN24
+            GlAcc.CalcFields(Balance, "Balance (FCY)");
+            if (GlAcc.Balance <> 0) or (GlAcc."Balance (FCY)" <> 0) then
+                Error(Text001);
+#else
+                GlAcc.CalcFields(Balance, "Source Currency Balance");
+                if (GlAcc.Balance <> 0) or (GlAcc."Source Currency Balance" <> 0) then
                     Error(Text001);
-            end;
+#endif
         end;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure code merged to Gen. Journal Line table code.', '24.0')]
     procedure GetCurrCode(AccNo: Code[20]; var GenJnlLine: Record "Gen. Journal Line")
     begin
         // Transfer Currency Code from GL Account to GenJnlLine.Account or Bal. Account
@@ -72,6 +82,7 @@ codeunit 3010536 GlForeignCurrMgt
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure code merged to Gen. Journal Line table code.', '24.0')]
     procedure CheckCurrCode(GenJnlLine: Record "Gen. Journal Line")
     begin
         // CHeck if Acc and Bal. Acc have same Curr Code as in Gl Line
@@ -91,6 +102,7 @@ codeunit 3010536 GlForeignCurrMgt
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure code merged to Gen. Journal Line table code.', '24.0')]
     procedure CheckCurrOnAccount(AccNo: Code[20]; AccType: Option "GL Account",Customer,Vendor,Bank; CurrCode: Code[10]; ACYOnly: Boolean)
     begin
         // CHeck if Acc or Bal Acc (GL, Cust, Venor, Bank Summary) matches
@@ -147,6 +159,7 @@ codeunit 3010536 GlForeignCurrMgt
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure code merged to Gen. Journal Line table code.', '24.0')]
     procedure ShowGlRegMessage()
     begin
         // G/L Acc with Currency Code found
@@ -155,4 +168,4 @@ codeunit 3010536 GlForeignCurrMgt
             Message(Text002);
     end;
 }
-
+#endif

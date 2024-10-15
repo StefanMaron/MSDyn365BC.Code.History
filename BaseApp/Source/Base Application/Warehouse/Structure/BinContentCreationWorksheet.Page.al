@@ -14,8 +14,8 @@ page 7371 "Bin Content Creation Worksheet"
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Bin Creation Worksheet Line";
-    SourceTableView = SORTING("Worksheet Template Name", Name, "Location Code", "Line No.")
-                      WHERE(Type = CONST("Bin Content"));
+    SourceTableView = sorting("Worksheet Template Name", Name, "Location Code", "Line No.")
+                      where(Type = const("Bin Content"));
     UsageCategory = Tasks;
 
     layout

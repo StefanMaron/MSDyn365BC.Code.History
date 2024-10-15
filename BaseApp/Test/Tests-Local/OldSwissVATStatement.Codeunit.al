@@ -113,7 +113,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateLocalData();
         UpdateSalesReceivablesSetup();
-        UpdatePurchasesPayablesSetup;
+        UpdatePurchasesPayablesSetup();
     end;
 
     local procedure CreateVendor(GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Code[20]
@@ -124,7 +124,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Integer; CustomerNumber: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNumber: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNumber);
         SalesHeader.Validate("Prices Including VAT", true);
@@ -148,7 +148,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Integer; VendorNumber: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendorNumber: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendorNumber);
         PurchaseHeader.Validate("Prices Including VAT", true);
@@ -179,10 +179,10 @@ codeunit 144012 "Old Swiss VAT Statement"
         VATEntry.SetRange("Document No.", DocumentNumber);
         VATEntry.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.SetRange('ExternalDocNo_VATEntry', VATEntry."External Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         if IsAmountNegative then
             LibraryReportDataset.AssertCurrentRowValueEquals('Amt_VATEntry', -VATEntry.Amount)
@@ -198,7 +198,7 @@ codeunit 144012 "Old Swiss VAT Statement"
         OldSwissVATStatement.NormalRatePerc.SetValue(LibraryRandom.RandInt(10));
         OldSwissVATStatement.ReducedRatePerc.SetValue(LibraryRandom.RandInt(10));
         OldSwissVATStatement.SpecialRatePerc.SetValue(LibraryRandom.RandInt(10));
-        OldSwissVATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OldSwissVATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

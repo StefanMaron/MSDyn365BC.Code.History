@@ -20,6 +20,7 @@ table 5530 "Inventory Event Buffer"
 {
     Caption = 'Inventory Event Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

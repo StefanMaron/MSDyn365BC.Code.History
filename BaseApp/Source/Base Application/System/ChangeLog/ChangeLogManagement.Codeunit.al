@@ -135,24 +135,23 @@ codeunit 423 "Change Log Management"
         if not MonitorSensitiveFieldData.CheckIfTableIsMonitored(TempChangeLogSetupTable, FieldMonitoringSetup, ChangeLogSetup) then
             exit(false);
 
-        with TempChangeLogSetupTable do
-            case TypeOfChange of
-                TypeOfChange::Insertion:
-                    if "Log Insertion" = "Log Insertion"::"Some Fields" then
-                        exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
-                    else
-                        exit("Log Insertion" = "Log Insertion"::"All Fields");
-                TypeOfChange::Modification:
-                    if "Log Modification" = "Log Modification"::"Some Fields" then
-                        exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
-                    else
-                        exit("Log Modification" = "Log Modification"::"All Fields");
-                TypeOfChange::Deletion:
-                    if "Log Deletion" = "Log Deletion"::"Some Fields" then
-                        exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
-                    else
-                        exit("Log Deletion" = "Log Deletion"::"All Fields");
-            end;
+        case TypeOfChange of
+            TypeOfChange::Insertion:
+                if TempChangeLogSetupTable."Log Insertion" = TempChangeLogSetupTable."Log Insertion"::"Some Fields" then
+                    exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
+                else
+                    exit(TempChangeLogSetupTable."Log Insertion" = TempChangeLogSetupTable."Log Insertion"::"All Fields");
+            TypeOfChange::Modification:
+                if TempChangeLogSetupTable."Log Modification" = TempChangeLogSetupTable."Log Modification"::"Some Fields" then
+                    exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
+                else
+                    exit(TempChangeLogSetupTable."Log Modification" = TempChangeLogSetupTable."Log Modification"::"All Fields");
+            TypeOfChange::Deletion:
+                if TempChangeLogSetupTable."Log Deletion" = TempChangeLogSetupTable."Log Deletion"::"Some Fields" then
+                    exit(IsFieldLogActive(TableNumber, FieldNumber, TypeOfChange))
+                else
+                    exit(TempChangeLogSetupTable."Log Deletion" = TempChangeLogSetupTable."Log Deletion"::"All Fields");
+        end;
     end;
 
     local procedure IsFieldLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion) IsActive: Boolean
@@ -174,15 +173,14 @@ codeunit 423 "Change Log Management"
             if not FieldMonitoringSetup."Monitor Status" then
                 exit(false);
 
-        with TempChangeLogSetupField do
-            case TypeOfChange of
-                TypeOfChange::Insertion:
-                    exit("Log Insertion");
-                TypeOfChange::Modification:
-                    exit("Log Modification");
-                TypeOfChange::Deletion:
-                    exit("Log Deletion");
-            end;
+        case TypeOfChange of
+            TypeOfChange::Insertion:
+                exit(TempChangeLogSetupField."Log Insertion");
+            TypeOfChange::Modification:
+                exit(TempChangeLogSetupField."Log Modification");
+            TypeOfChange::Deletion:
+                exit(TempChangeLogSetupField."Log Deletion");
+        end;
 
         OnAfterIsFieldLogActive(TableNumber, FieldNumber, TypeOfChange, TempChangeLogSetupField, IsActive);
     end;
@@ -335,9 +333,11 @@ codeunit 423 "Change Log Management"
             exit;
 
         xRecRef.Open(RecRef.Number, false, RecRef.CurrentCompany());
+        xRecRef.ReadIsolation := xRecRef.ReadIsolation::ReadCommitted;
         OnLogModificationOnBeforeCheckSecurityFiltering(xRecRef);
         xRecRef."SecurityFiltering" := SECURITYFILTER::Filtered;
-        if xRecRef.ReadPermission then begin
+        OnLogModificationOnAfterCheckSecurityFiltering(xRecRef);
+        if xRecRef.ReadPermission() then begin
             IsReadable := true;
             if not xRecRef.Get(RecRef.RecordId) then
                 exit;
@@ -348,7 +348,7 @@ codeunit 423 "Change Log Management"
             FldRef := RecRef.FieldIndex(i);
             xFldRef := xRecRef.FieldIndex(i);
             if IsNormalField(FldRef) then
-                if Format(FldRef.Value) <> Format(xFldRef.Value) then
+                if FldRef.Value <> xFldRef.Value then
                     if IsLogActive(RecRef.Number, FldRef.Number, 1) then
                         InsertLogEntry(FldRef, xFldRef, RecRef, "Change Log Entry Type"::Modification, IsReadable);
         end;
@@ -371,12 +371,13 @@ codeunit 423 "Change Log Management"
             exit;
 
         xRecRef.Open(xRecRefParam.Number, false, RecRef.CurrentCompany);
+        xRecRef.ReadIsolation := xRecRef.ReadIsolation::ReadCommitted;
         xRecRef.Get(xRecRefParam.RecordId);
         for i := 1 to RecRef.FieldCount do begin
             FldRef := RecRef.FieldIndex(i);
             xFldRef := xRecRef.FieldIndex(i);
             if IsNormalField(FldRef) then
-                if Format(FldRef.Value) <> Format(xFldRef.Value) then
+                if FldRef.Value <> xFldRef.Value then
                     if IsLogActive(RecRef.Number, FldRef.Number, 1) then
                         InsertLogEntry(FldRef, xFldRef, RecRef, "Change Log Entry Type"::Modification, true);
         end;
@@ -419,27 +420,27 @@ codeunit 423 "Change Log Management"
     begin
         case FldRef.Type of
             FieldType::Boolean:
-                HasValue := FldRef.Value;
+                HasValue := FldRef.Value();
             FieldType::Option:
                 HasValue := true;
             FieldType::Integer:
                 begin
-                    Int := FldRef.Value;
+                    Int := FldRef.Value();
                     HasValue := Int <> 0;
                 end;
             FieldType::Decimal:
                 begin
-                    Dec := FldRef.Value;
+                    Dec := FldRef.Value();
                     HasValue := Dec <> 0;
                 end;
             FieldType::Date:
                 begin
-                    D := FldRef.Value;
+                    D := FldRef.Value();
                     HasValue := D <> 0D;
                 end;
             FieldType::Time:
                 begin
-                    T := FldRef.Value;
+                    T := FldRef.Value();
                     HasValue := T <> 0T;
                 end;
             FieldType::BLOB:
@@ -708,6 +709,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogModificationOnAfterCheckSecurityFiltering(var xRecRef: RecordRef)
     begin
     end;
 

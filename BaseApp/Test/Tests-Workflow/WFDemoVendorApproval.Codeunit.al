@@ -73,7 +73,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         SendVendorForApproval(Workflow, Vendor, VendorCard);
 
         // Exercise
-        VendorCard.CancelApprovalRequest.Invoke;
+        VendorCard.CancelApprovalRequest.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
@@ -142,7 +142,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Initialize();
 
         SendVendorForApproval(Workflow, Vendor, VendorCard);
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -178,15 +178,15 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
         Commit();
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(VendorCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(VendorCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(VendorCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror VendorCard.SendApprovalRequest.Invoke;
+        asserterror VendorCard.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -195,32 +195,32 @@ codeunit 134211 "WF Demo Vendor Approval"
         VendorCard.Close();
 
         // [GIVEN] Vendor approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
 
         // [WHEN] Vendor card is opened.
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(VendorCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(VendorCard.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(VendorCard.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(VendorCard.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(VendorCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(VendorCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(VendorCard.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(VendorCard.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(VendorCard.Delegate.Visible(), 'Delegate should NOT be visible');
         VendorCard.Close();
 
         // [GIVEN] Approval exist on Vendor.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // [WHEN] Vendor send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(VendorCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(VendorCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         VendorCard.Close();
@@ -229,13 +229,13 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
         // [WHEN] Vendor card is opened.
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(VendorCard.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(VendorCard.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(VendorCard.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(VendorCard.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(VendorCard.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(VendorCard.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -252,19 +252,19 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [SCENARIO 4] Approval action availability.
         // [GIVEN] Vendor approval disabled.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
         Commit();
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(VendorList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(VendorList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(VendorList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror VendorList.SendApprovalRequest.Invoke;
+        asserterror VendorList.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -273,29 +273,29 @@ codeunit 134211 "WF Demo Vendor Approval"
         VendorList.Close();
 
         // [GIVEN] Vendor approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
 
         // [WHEN] Vendor card is opened.
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(VendorList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(VendorList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(VendorList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         VendorList.Close();
 
         // [GIVEN] Approval exist on Vendor.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [WHEN] Vendor send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        VendorList.SendApprovalRequest.Invoke;
+        VendorList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(VendorList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(VendorList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(VendorList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [MessageHandler]
@@ -330,9 +330,9 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
         // Exercise
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.Approve.Invoke;
+        VendorCard.Approve.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
@@ -361,9 +361,9 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
         // Exercise
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.Reject.Invoke;
+        VendorCard.Reject.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
@@ -394,20 +394,20 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryDocumentApprovals.SetApprover(CurrentUserSetup, ApproverUserSetup);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, ApproverUserSetup);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
         LibraryPurchase.CreateVendor(Vendor);
 
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
         VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
         // Exercise
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.Delegate.Invoke;
+        VendorCard.Delegate.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Vendor.RecordId);
@@ -432,7 +432,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         Initialize();
 
         // [GIVEN] A Vendor Approval Workflow "W".
-        LibraryWorkflow.CopyWorkflow(Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.VendorWorkflowCode));
+        LibraryWorkflow.CopyWorkflow(Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.VendorWorkflowCode()));
 
         // [GIVEN] Group of 3 Approvers for "W"
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(Workflow, UserSetup[1], UserSetup[2], UserSetup[3]);
@@ -445,18 +445,18 @@ codeunit 134211 "WF Demo Vendor Approval"
 
         // [GIVEN] Send Vendor Approval Request
         LibraryPurchase.CreateVendor(Vendor);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
         VendorCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Vendor.RecordId);
 
         // [WHEN] All users approves a request for Vendor approval.
         for i := 1 to 2 do begin
-            VendorCard.OpenEdit;
+            VendorCard.OpenEdit();
             VendorCard.GotoRecord(Vendor);
-            VendorCard.Approve.Invoke;
+            VendorCard.Approve.Invoke();
             VendorCard.Close();
         end;
 
@@ -476,7 +476,6 @@ codeunit 134211 "WF Demo Vendor Approval"
         Vendor: Record Vendor;
         Workflow: Record Workflow;
         WorkflowStepArgument: Record "Workflow Step Argument";
-        CurrentUserSetup: Record "User Setup";
         ApprovalEntry: Record "Approval Entry";
         ApprovalUserSetup: Record "User Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -497,7 +496,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         // [GIVEN] Vendor Approval Workflow "WF" where Approver Type set as "Salesperson/Purchaser'"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser");
         ApprovalUserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
         ApprovalUserSetup.Modify(true);
@@ -510,9 +509,9 @@ codeunit 134211 "WF Demo Vendor Approval"
         Vendor.Modify(true);
 
         // [WHEN] Vendor is sent for approval
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
 
         // [THEN] No error appears
         // [THEN] Approval Entry has Status::Open.
@@ -532,13 +531,13 @@ codeunit 134211 "WF Demo Vendor Approval"
         ApprovalUserSetup: Record "User Setup";
     begin
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
 
         // Setup - an existing approval
         LibraryPurchase.CreateVendor(Vendor);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
     end;
 
     local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Enum "Approval Status"; Vendor: Record Vendor)
@@ -579,7 +578,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;
@@ -597,13 +596,13 @@ codeunit 134211 "WF Demo Vendor Approval"
     begin
         PreviousWorkflowStep.SetRange("Workflow Code", WorkflowCode);
         PreviousWorkflowStep.SetRange(Type, PreviousWorkflowStep.Type::Response);
-        PreviousWorkflowStep.SetRange("Function Name", WorkflowResponseHandling.SendApprovalRequestForApprovalCode);
+        PreviousWorkflowStep.SetRange("Function Name", WorkflowResponseHandling.SendApprovalRequestForApprovalCode());
         PreviousWorkflowStep.FindFirst();
 
         with WorkflowStep do begin
             Validate("Workflow Code", WorkflowCode);
             Validate(Type, Type::Response);
-            Validate("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+            Validate("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
             Validate("Sequence No.", PreviousWorkflowStep."Sequence No.");
             Validate("Previous Workflow Step ID", PreviousWorkflowStep.ID);
             Insert(true);

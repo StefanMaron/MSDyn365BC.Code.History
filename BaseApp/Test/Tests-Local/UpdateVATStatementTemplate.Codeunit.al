@@ -121,7 +121,7 @@ codeunit 144011 "Update VAT Statement Template"
         LibraryVariableStorage.Dequeue(VATStatementName);
         UpdateVATStatementTemplate.Country.SetValue(UpdateVATStatementTemplate.Country.GetOption(1)); // Switzerland
         UpdateVATStatementTemplate.VATStatementTemplateName.SetValue(VATStatementName);
-        UpdateVATStatementTemplate.OK.Invoke;
+        UpdateVATStatementTemplate.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -132,7 +132,7 @@ codeunit 144011 "Update VAT Statement Template"
           Format(UpdateVATStatementTemplate.VATStatementTemplateName), WrongVATStatTemplateNameErr);
         Assert.AreEqual(StrSubstNo(CHTemplateDescrTxt, Format(Date2DMY(WorkDate(), 3))),
           Format(UpdateVATStatementTemplate.Description), WrongVATStatTemplateDescriptionErr);
-        UpdateVATStatementTemplate.Cancel.Invoke;
+        UpdateVATStatementTemplate.Cancel().Invoke();
     end;
 
     local procedure VerifyVATStatementLines(var TempVATPostingSetup: Record "VAT Posting Setup" temporary; VATStatementTemplate: Record "VAT Statement Template")

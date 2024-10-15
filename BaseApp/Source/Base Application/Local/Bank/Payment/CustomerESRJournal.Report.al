@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -370,7 +370,6 @@ report 3010531 "Customer ESR Journal"
         Cents: Decimal;
         PaymentCharges: Decimal;
         ProcessingDate: Code[8];
-        Comment: Text[250];
         "Layout": Option Amount,"ESR Information";
         AgeDays: Integer;
         CashDiscDays: Integer;

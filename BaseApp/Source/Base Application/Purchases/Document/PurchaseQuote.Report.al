@@ -624,8 +624,8 @@ report 404 "Purchase - Quote"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
@@ -757,11 +757,9 @@ report 404 "Purchase - Quote"
     end;
 
     var
-        Text002: Label 'Purchase - Quote %1', Comment = '%1 = Document No.';
         Text003: Label 'Page %1';
         ShipmentMethod: Record "Shipment Method";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        CompanyInfo: Record "Company Information";
         TempPurchaseLine: Record "Purchase Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -769,7 +767,7 @@ report 404 "Purchase - Quote"
         PurchSetup: Record "Purchases & Payables Setup";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         PurchPost: Codeunit "Purch.-Post";
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -826,6 +824,7 @@ report 404 "Purchase - Quote"
         Text11500: Label 'Quote %1';
 
     protected var
+        CompanyInfo: Record "Company Information";
         ArchiveDocument: Boolean;
         ArchiveDocumentEnable: Boolean;
         LogInteraction: Boolean;
@@ -861,12 +860,10 @@ report 404 "Purchase - Quote"
 
     local procedure FormatDocumentFields(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            FormatDocument.SetPurchaser(SalesPurchPerson, "Purchaser Code", PurchaserText);
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        FormatDocument.SetPurchaser(SalesPurchPerson, PurchaseHeader."Purchaser Code", PurchaserText);
+        FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeader."Shipment Method Code", PurchaseHeader."Language Code");
+        ReferenceText := FormatDocument.SetText(PurchaseHeader."Your Reference" <> '', PurchaseHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(PurchaseHeader."VAT Registration No." <> '', PurchaseHeader.FieldCaption("VAT Registration No."));
     end;
 
     [Scope('OnPrem')]
@@ -900,4 +897,3 @@ report 404 "Purchase - Quote"
     begin
     end;
 }
-

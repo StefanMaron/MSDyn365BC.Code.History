@@ -75,7 +75,9 @@ page 7382 "Inventory Movement"
                     Editable = false;
                     ToolTip = 'Specifies the number or the code of the customer or vendor that the line is linked to.';
                 }
+#pragma warning disable AA0100
                 field("WMSMgt.GetDestinationName(""Destination Type"",""Destination No."")"; WMSMgt.GetDestinationEntityName(Rec."Destination Type", Rec."Destination No."))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass(Rec."Destination Type", Rec."Source Document", 1));

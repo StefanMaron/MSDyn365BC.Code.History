@@ -22,8 +22,7 @@ codeunit 5483 "Graph Mgt - Employee"
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with Employee do
-            GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(Employee.Address, Employee."Address 2", Employee.City, Employee.County, Employee."Country/Region Code", Employee."Post Code", JSON);
     end;
 
     local procedure UpdatePostalAddress(PostalAddressJSON: Text; var Employee: Record Employee)
@@ -34,11 +33,9 @@ codeunit 5483 "Graph Mgt - Employee"
         if PostalAddressJSON = '' then
             exit;
 
-        with Employee do begin
-            RecRef.GetTable(Employee);
-            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(PostalAddressJSON, RecRef,
-              FieldNo(Address), FieldNo("Address 2"), FieldNo(City), FieldNo(County), FieldNo("Country/Region Code"), FieldNo("Post Code"));
-            RecRef.SetTable(Employee);
-        end;
+        RecRef.GetTable(Employee);
+        GraphMgtComplexTypes.ApplyPostalAddressFromJSON(PostalAddressJSON, RecRef,
+          Employee.FieldNo(Address), Employee.FieldNo("Address 2"), Employee.FieldNo(City), Employee.FieldNo(County), Employee.FieldNo("Country/Region Code"), Employee.FieldNo("Post Code"));
+        RecRef.SetTable(Employee);
     end;
 }

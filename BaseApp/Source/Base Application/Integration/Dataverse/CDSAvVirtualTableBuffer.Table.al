@@ -9,6 +9,7 @@ table 5372 "CDS Av. Virtual Table Buffer"
     TableType = Temporary;
     Caption = 'CDS Available Virtual Table Buffer';
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

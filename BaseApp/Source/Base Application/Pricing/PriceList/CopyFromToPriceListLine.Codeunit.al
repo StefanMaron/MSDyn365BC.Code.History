@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Pricing.PriceList;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.UOM;
@@ -13,7 +13,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Pricing.Source;
 using System.Telemetry;
 using Microsoft.Pricing.Calculation;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Pricing;
 using Microsoft.Projects.Resources.Pricing;
@@ -28,7 +28,7 @@ codeunit 7009 CopyFromToPriceListLine
     var
         GenerateHeader: Boolean;
         UseDefaultPriceLists: Boolean;
-#if not CLEAN21
+#if not CLEAN23
         NotMatchSalesLineDiscTypeErr: Label 'does not match sales line discount type.';
 #endif
         PlaceHolderBracketTok: Label ' (%1)', Locked = true;
@@ -46,7 +46,7 @@ codeunit 7009 CopyFromToPriceListLine
         UseDefaultPriceLists := UseDefault;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
     procedure CopyFrom(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
@@ -1051,7 +1051,7 @@ codeunit 7009 CopyFromToPriceListLine
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]

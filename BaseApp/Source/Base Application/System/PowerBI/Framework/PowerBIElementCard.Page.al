@@ -21,11 +21,11 @@ page 6323 "Power BI Element Card"
                 ShowCaption = false;
                 Visible = not HasError;
 
-                usercontrol(PowerBIManagement; "Microsoft.Dynamics.Nav.Client.PowerBIManagement")
+                usercontrol(PowerBIManagement; PowerBIManagement)
                 {
                     ApplicationArea = All;
 
-                    trigger AddInReady()
+                    trigger ControlAddInReady()
                     begin
                         InitializeAddIn();
                     end;

@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.Payment;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Enums;
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Receivables;
@@ -15,6 +16,7 @@ table 3010832 "LSV Journal"
     Caption = 'LSV Journal';
     DrillDownPageID = "LSV Journal List";
     LookupPageID = "LSV Journal List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -170,7 +172,7 @@ table 3010832 "LSV Journal"
     begin
         BankAcc.Get("LSV Bank Code");
 
-        DirectDebitCollection.CreateRecord(Format("No."), "LSV Bank Code", "Partner Type");
+        DirectDebitCollection.CreateRecord(Format("No."), "LSV Bank Code", Enum::"Partner Type".FromInteger("Partner Type"));
         DirectDebitCollection."Source Table ID" := DATABASE::"LSV Journal";
         DirectDebitCollection.Modify();
         Commit();

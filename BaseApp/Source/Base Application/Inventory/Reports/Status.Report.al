@@ -208,14 +208,12 @@ report 706 Status
     begin
         ItemFilter := Item.GetFilters();
 
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Posting Date", 0D, StatusDate);
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
-        end;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Posting Date", 0D, StatusDate);
+        ValueEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ValueEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
     end;
 
     var
@@ -246,29 +244,28 @@ report 706 Status
     begin
         RemainingQty := "Item Ledger Entry".Quantity;
 
-        with ItemApplnEntry do
-            if "Item Ledger Entry".Positive then begin
-                Reset();
-                SetCurrentKey(
-                  "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
-                SetRange("Inbound Item Entry No.", "Item Ledger Entry"."Entry No.");
-                SetFilter("Outbound Item Entry No.", '<>%1', 0);
-                SetRange("Posting Date", 0D, StatusDate);
-                if Find('-') then
-                    repeat
-                        SumQty(RemainingQty, "Outbound Item Entry No.", Quantity);
-                    until Next() = 0;
-            end else begin
-                Reset();
-                SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
-                SetRange("Outbound Item Entry No.", "Item Ledger Entry"."Entry No.");
-                SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
-                SetRange("Posting Date", 0D, StatusDate);
-                if Find('-') then
-                    repeat
-                        SumQty(RemainingQty, "Inbound Item Entry No.", -Quantity);
-                    until Next() = 0;
-            end;
+        if "Item Ledger Entry".Positive then begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey(
+              "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Inbound Item Entry No.", "Item Ledger Entry"."Entry No.");
+            ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
+            ItemApplnEntry.SetRange("Posting Date", 0D, StatusDate);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    SumQty(RemainingQty, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end else begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Outbound Item Entry No.", "Item Ledger Entry"."Entry No.");
+            ItemApplnEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
+            ItemApplnEntry.SetRange("Posting Date", 0D, StatusDate);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    SumQty(RemainingQty, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end;
     end;
 
     local procedure SumQty(var RemainingQty: Decimal; EntryNo: Integer; AppliedQty: Decimal)
@@ -286,18 +283,16 @@ report 706 Status
 
     local procedure CalcUnitCost()
     begin
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
-            UnitCost := 0;
+        ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
+        UnitCost := 0;
 
-            if Find('-') then
-                repeat
-                    if "Partial Revaluation" then
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
-                    else
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Item Ledger Entry".Quantity);
-                until Next() = 0;
-        end;
+        if ValueEntry.Find('-') then
+            repeat
+                if ValueEntry."Partial Revaluation" then
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ValueEntry."Valued Quantity")
+                else
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", "Item Ledger Entry".Quantity);
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)

@@ -14,7 +14,7 @@ codeunit 136134 "Jobs Stockout"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         DescriptionTxt: Label 'NTF_TEST_NTF_TEST';
-        ValidateQuantityDocumentErr: Label 'DocNo %1 not found in following objects: Job.';
+        ValidateQuantityDocumentErr: Label 'DocNo %1 not found in following objects: Project.';
         ReceiptDateDocumentErr: Label 'No Purchase Line found with sales order no %1.';
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -33,7 +33,7 @@ codeunit 136134 "Jobs Stockout"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Jobs Stockout");
         // Clear the needed globals
-        ClearGlobals;
+        ClearGlobals();
 
         // Lazy Setup.
         if IsInitialized then
@@ -194,8 +194,8 @@ codeunit 136134 "Jobs Stockout"
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         PlanningLineQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
-        LocationA := CreateLocation;
-        LocationB := CreateLocation;
+        LocationA := CreateLocation();
+        LocationB := CreateLocation();
         PurchaseOrderNo := CreatePurchaseSupplyAtLocation(Item."No.", PurchaseQuantity, LocationA);
         JobNo := CreateJobDemandLocationAfter(Item."No.", PurchaseQuantity - 5, LocationB, GetReceiptDate(PurchaseOrderNo));
 
@@ -223,7 +223,7 @@ codeunit 136134 "Jobs Stockout"
         // Test availability warning if the date of Job Demand is modified to a date where demand cannot be met
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Date = Workdate.
-        // SETUP: Create Job Planning Line Demand for Item X, Quantity=Y, Date = Workdate + 1
+        // SETUP: Create Job Planning Line Demand for Item X, Quantity=Y, Date = WorkDate() + 1
         Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         CreateItem(Item);
@@ -232,12 +232,12 @@ codeunit 136134 "Jobs Stockout"
         JobNo := CreateJobDemandAfter(Item."No.", PurchaseQuantity, GetReceiptDate(PurchaseOrderNo));
 
         // EXECUTE: Open the Job Planning Lines Card.
-        // EXECUTE: Change Date on Job Planning Line Through UI to Date = Workdate - 1.
+        // EXECUTE: Change Date on Job Planning Line Through UI to Date = WorkDate() - 1.
         // EXECUTE: (Date Change set in EditJobPlanningLinesDate).
         QuantityToSet := PurchaseQuantity;
         EditJobPlaningLinesPlanDate(JobNo);
 
-        // VERIFY: Quantity on Job Planning Line after warning is Y and Date is Workdate - 1.
+        // VERIFY: Quantity on Job Planning Line after warning is Y and Date is WorkDate() - 1.
         ValidateQuantity(JobNo, QuantityToSet);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -379,13 +379,13 @@ codeunit 136134 "Jobs Stockout"
         Job: Record Job;
         JobTaskLine: Record "Job Task";
     begin
-        JobPlanningLinesToReturn.OpenEdit;
+        JobPlanningLinesToReturn.OpenEdit();
         if Job.Get(JobNo) then begin
             JobTaskLine.SetRange("Job No.", Job."No.");
             JobTaskLine.FindFirst();
             JobPlanningLinesToReturn.FILTER.SetFilter("Job No.", Job."No.");
             JobPlanningLinesToReturn.FILTER.SetFilter("Job Task No.", JobTaskLine."Job Task No.");
-            JobPlanningLinesToReturn.First;
+            JobPlanningLinesToReturn.First();
         end;
     end;
 

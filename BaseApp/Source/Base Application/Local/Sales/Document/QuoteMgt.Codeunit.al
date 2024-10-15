@@ -50,123 +50,101 @@ codeunit 3010801 QuoteMgt
         OnBeforeReCalc(SalesHeader, ShowMessage, IsHandled);
         if IsHandled then
             exit;
+        // Init
+        ActualLevel := 1;
+        Clear(ActualTitle);
+        Clear(ActualOutline);
+        ActualPosition := 0;
+        // Open Dialog
+        Window.Open(Text008);
+        Counter := 0;
+        // Increment levels
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
 
-        with SalesLine do begin
-            // Init
-            ActualLevel := 1;
-            Clear(ActualTitle);
-            Clear(ActualOutline);
-            ActualPosition := 0;
+        Window.Update(2, SalesLine.Count);
 
-            // Open Dialog
-            Window.Open(Text008);
-            Counter := 0;
-
-            // Increment levels
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-
-            Window.Update(2, Count);
-
-            if FindSet() then
-                repeat
-                    // Update dialog
-                    Counter := Counter + 1;
-                    Window.Update(1, Counter);
-
-                    // Calc level, indent etc.
-                    case Type of
-                        Type::"Begin-Total":
-                            begin
-                                // Description
-                                ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
-                                BeginTotalTxt[ActualLevel] := Description;
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Level
-                                Level := ActualLevel;
-                                ActualLevel := ActualLevel + 1;
-
-                                // Recalc title
-                                if ActualLevel > 1 then
-                                    "Title No." := ActualTitle[ActualLevel - 1];
-
-                                // Maybe set position to zero
-                                // ActualPos := 0;
-
-                                // SubTotal
-                                SubTotalNet[ActualLevel] := 0;
-                                SubTotalGross[ActualLevel] := 0;
-                            end;
-                        Type::"End-Total":
-                            begin
-                                // SubTotal
-                                "Subtotal Net" := SubTotalNet[ActualLevel];
-                                "Subtotal Gross" := SubTotalGross[ActualLevel];
-                                if ActualLevel > 1 then begin
-                                    SubTotalNet[ActualLevel - 1] :=
-                                      SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
-                                    SubTotalGross[ActualLevel - 1] :=
-                                      SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
-                                end;
-
-                                // Recalc title
-                                CalcTitle(ActualLevel, ActualTitle, "Title No.");
-
-                                ActualTitle[ActualLevel] := 0;
-
-                                // Level
-                                ActualLevel := ActualLevel - 1;
-                                Level := ActualLevel;
-                                if ActualLevel = 0 then
-                                    Error(Text010);
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Description
-                                Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(Description));
-                            end;
-                        else
-                            // SubTotal
-                            if "Quote Variant" <> "Quote Variant"::Variant then begin
-                                SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + "Line Amount";
-                                SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + "Amount Including VAT";
-                            end;
-
-                            // Position
-                            if HasTypeToFillMandatoryFields() and ("No." <> '') then begin
-                                ActualPosition := ActualPosition + 10;
-                                Position := ActualPosition;
-                            end;
-
+        if SalesLine.FindSet() then
+            repeat
+                // Update dialog
+                Counter := Counter + 1;
+                Window.Update(1, Counter);
+                // Calc level, indent etc.
+                case SalesLine.Type of
+                    SalesLine.Type::"Begin-Total":
+                        begin
+                            // Description
+                            ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
+                            BeginTotalTxt[ActualLevel] := SalesLine.Description;
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
                             // Level
-                            if xSalesLine.Type = xSalesLine.Type::"End-Total" then
-                                CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
-                            Level := ActualLevel;
-
+                            SalesLine.Level := ActualLevel;
+                            ActualLevel := ActualLevel + 1;
                             // Recalc title
                             if ActualLevel > 1 then
-                                "Title No." := ActualTitle[ActualLevel - 1];
-                    end;
+                                SalesLine."Title No." := ActualTitle[ActualLevel - 1];
+                            // Maybe set position to zero
+                            // ActualPos := 0;
+                            // SubTotal
+                            SubTotalNet[ActualLevel] := 0;
+                            SubTotalGross[ActualLevel] := 0;
+                        end;
+                    SalesLine.Type::"End-Total":
+                        begin
+                            // SubTotal
+                            SalesLine."Subtotal Net" := SubTotalNet[ActualLevel];
+                            SalesLine."Subtotal Gross" := SubTotalGross[ActualLevel];
+                            if ActualLevel > 1 then begin
+                                SubTotalNet[ActualLevel - 1] :=
+                                  SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
+                                SubTotalGross[ActualLevel - 1] :=
+                                  SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
+                            end;
+                            // Recalc title
+                            CalcTitle(ActualLevel, ActualTitle, SalesLine."Title No.");
 
-                    // Fields that do not depend of the type
-                    Classification := ActualOutline;
-
-                    // write
-                    Modify();
-                    xSalesLine := SalesLine;
-                until Next() = 0;
-
-            // CHeck no of begin/end levels
-            if ActualLevel > 1 then
-                Error(Text012, ActualLevel - 1);
-
-            // Close dialog
-            Window.Close();
-        end;
+                            ActualTitle[ActualLevel] := 0;
+                            // Level
+                            ActualLevel := ActualLevel - 1;
+                            SalesLine.Level := ActualLevel;
+                            if ActualLevel = 0 then
+                                Error(Text010);
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
+                            // Description
+                            SalesLine.Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(SalesLine.Description));
+                        end;
+                    else
+                        // SubTotal
+                        if SalesLine."Quote Variant" <> SalesLine."Quote Variant"::Variant then begin
+                            SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + SalesLine."Line Amount";
+                            SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + SalesLine."Amount Including VAT";
+                        end;
+                        // Position
+                        if SalesLine.HasTypeToFillMandatoryFields() and (SalesLine."No." <> '') then begin
+                            ActualPosition := ActualPosition + 10;
+                            SalesLine.Position := ActualPosition;
+                        end;
+                        // Level
+                        if xSalesLine.Type = xSalesLine.Type::"End-Total" then
+                            CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
+                        SalesLine.Level := ActualLevel;
+                        // Recalc title
+                        if ActualLevel > 1 then
+                            SalesLine."Title No." := ActualTitle[ActualLevel - 1];
+                end;
+                // Fields that do not depend of the type
+                SalesLine.Classification := ActualOutline;
+                // write
+                SalesLine.Modify();
+                xSalesLine := SalesLine;
+            until SalesLine.Next() = 0;
+        // CHeck no of begin/end levels
+        if ActualLevel > 1 then
+            Error(Text012, ActualLevel - 1);
+        // Close dialog
+        Window.Close();
 
         if ShowMessage then
             Message(Text014, SalesHeader."Document Type");
@@ -212,120 +190,99 @@ codeunit 3010801 QuoteMgt
         if IsHandled then
             exit;
 
-        with PostedInvLine do begin
-            ActualLevel := 1;
-            Clear(ActualTitle);
-            Clear(ActualOutline);
-            ActualPosition := 0;
+        ActualLevel := 1;
+        Clear(ActualTitle);
+        Clear(ActualOutline);
+        ActualPosition := 0;
+        // Open Dialog
+        Window.Open(Text008);
+        Counter := 0;
+        // Increment levels
+        PostedInvLine.SetRange("Document No.", SalesInvHeader."No.");
 
-            // Open Dialog
-            Window.Open(Text008);
-            Counter := 0;
+        Window.Update(2, PostedInvLine.Count);
 
-            // Increment levels
-            SetRange("Document No.", SalesInvHeader."No.");
-
-            Window.Update(2, Count);
-
-            if FindSet() then
-                repeat
-                    // Update dialog
-                    Counter := Counter + 1;
-                    Window.Update(1, Counter);
-
-                    // Calc level, indent etc.
-                    case Type of
-                        Type::"Begin-Total":
-                            begin
-                                // Description
-                                ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
-                                BeginTotalTxt[ActualLevel] := Description;
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Level
-                                "Quote-Level" := ActualLevel;
-                                ActualLevel := ActualLevel + 1;
-
-                                // Recalc title
-                                if ActualLevel > 1 then
-                                    "Title No." := ActualTitle[ActualLevel - 1];
-
-                                // Maybe set position to zero
-                                // ActualPos := 0;
-
-                                // SubTotal
-                                SubTotalNet[ActualLevel] := 0;
-                                SubTotalGross[ActualLevel] := 0;
-                            end;
-                        Type::"End-Total":
-                            begin
-                                // SubTotal
-                                "Subtotal net" := SubTotalNet[ActualLevel];
-                                "Subtotal gross" := SubTotalGross[ActualLevel];
-                                if ActualLevel > 1 then begin
-                                    SubTotalNet[ActualLevel - 1] :=
-                                      SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
-                                    SubTotalGross[ActualLevel - 1] :=
-                                      SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
-                                end;
-
-                                // Recalc title
-                                CalcTitle(ActualLevel, ActualTitle, "Title No.");
-
-                                ActualTitle[ActualLevel] := 0;
-
-                                // Level
-                                ActualLevel := ActualLevel - 1;
-                                "Quote-Level" := ActualLevel;
-                                if ActualLevel = 0 then
-                                    Error(Text010);
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Description
-                                Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(Description));
-                            end;
-                        else
-                            // SubTotal
-                            SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + "Line Amount";
-                            SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + "Amount Including VAT";
-
-                            // Position
-                            if (Type in [Type::"G/L Account", Type::Resource, Type::"Fixed Asset", Type::"Charge (Item)"]) and
-                               ("No." <> '')
-                            then begin
-                                ActualPosition := ActualPosition + 10;
-                                Position := ActualPosition;
-                            end;
-
+        if PostedInvLine.FindSet() then
+            repeat
+                // Update dialog
+                Counter := Counter + 1;
+                Window.Update(1, Counter);
+                // Calc level, indent etc.
+                case PostedInvLine.Type of
+                    PostedInvLine.Type::"Begin-Total":
+                        begin
+                            // Description
+                            ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
+                            BeginTotalTxt[ActualLevel] := PostedInvLine.Description;
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
                             // Level
-                            if xPostedInvLine.Type = xPostedInvLine.Type::"End-Total" then
-                                CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
-                            "Quote-Level" := ActualLevel;
-
+                            PostedInvLine."Quote-Level" := ActualLevel;
+                            ActualLevel := ActualLevel + 1;
                             // Recalc title
                             if ActualLevel > 1 then
-                                "Title No." := ActualTitle[ActualLevel - 1];
-                    end;
+                                PostedInvLine."Title No." := ActualTitle[ActualLevel - 1];
+                            // Maybe set position to zero
+                            // ActualPos := 0;
+                            // SubTotal
+                            SubTotalNet[ActualLevel] := 0;
+                            SubTotalGross[ActualLevel] := 0;
+                        end;
+                    PostedInvLine.Type::"End-Total":
+                        begin
+                            // SubTotal
+                            PostedInvLine."Subtotal net" := SubTotalNet[ActualLevel];
+                            PostedInvLine."Subtotal gross" := SubTotalGross[ActualLevel];
+                            if ActualLevel > 1 then begin
+                                SubTotalNet[ActualLevel - 1] :=
+                                  SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
+                                SubTotalGross[ActualLevel - 1] :=
+                                  SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
+                            end;
+                            // Recalc title
+                            CalcTitle(ActualLevel, ActualTitle, PostedInvLine."Title No.");
 
-                    // Fields that do not depend of the type
-                    Classification := ActualOutline;
-
-                    // write
-                    Modify();
-                    xPostedInvLine := PostedInvLine;
-                until Next() = 0;
-
-            // CHeck no of begin/end levels
-            if ActualLevel > 1 then
-                Error(Text012, ActualLevel - 1);
-
-            // Close dialog
-            Window.Close();
-        end;
+                            ActualTitle[ActualLevel] := 0;
+                            // Level
+                            ActualLevel := ActualLevel - 1;
+                            PostedInvLine."Quote-Level" := ActualLevel;
+                            if ActualLevel = 0 then
+                                Error(Text010);
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
+                            // Description
+                            PostedInvLine.Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(PostedInvLine.Description));
+                        end;
+                    else
+                        // SubTotal
+                        SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + PostedInvLine."Line Amount";
+                        SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + PostedInvLine."Amount Including VAT";
+                        // Position
+                        if (PostedInvLine.Type in [PostedInvLine.Type::"G/L Account", PostedInvLine.Type::Resource, PostedInvLine.Type::"Fixed Asset", PostedInvLine.Type::"Charge (Item)"]) and
+                           (PostedInvLine."No." <> '')
+                        then begin
+                            ActualPosition := ActualPosition + 10;
+                            PostedInvLine.Position := ActualPosition;
+                        end;
+                        // Level
+                        if xPostedInvLine.Type = xPostedInvLine.Type::"End-Total" then
+                            CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
+                        PostedInvLine."Quote-Level" := ActualLevel;
+                        // Recalc title
+                        if ActualLevel > 1 then
+                            PostedInvLine."Title No." := ActualTitle[ActualLevel - 1];
+                end;
+                // Fields that do not depend of the type
+                PostedInvLine.Classification := ActualOutline;
+                // write
+                PostedInvLine.Modify();
+                xPostedInvLine := PostedInvLine;
+            until PostedInvLine.Next() = 0;
+        // CHeck no of begin/end levels
+        if ActualLevel > 1 then
+            Error(Text012, ActualLevel - 1);
+        // Close dialog
+        Window.Close();
     end;
 
     procedure RecalcPostedCreditMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -348,119 +305,98 @@ codeunit 3010801 QuoteMgt
         if IsHandled then
             exit;
 
-        with PostedCredMemoLine do begin
-            ActualLevel := 1;
-            Clear(ActualTitle);
-            Clear(ActualOutline);
-            ActualPosition := 0;
+        ActualLevel := 1;
+        Clear(ActualTitle);
+        Clear(ActualOutline);
+        ActualPosition := 0;
+        // Open Dialog
+        Window.Open(Text008);
+        Counter := 0;
+        // Increment levels
+        PostedCredMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
 
-            // Open Dialog
-            Window.Open(Text008);
-            Counter := 0;
-
-            // Increment levels
-            SetRange("Document No.", SalesCrMemoHeader."No.");
-
-            Window.Update(2, Count);
-
-            // Increment levels
-            SetRange("Document No.", SalesCrMemoHeader."No.");
-            if FindSet() then
-                repeat
-                    // Update dialog
-                    Counter := Counter + 1;
-                    Window.Update(1, Counter);
-
-                    // Calc level, indent etc.
-                    case Type of
-                        Type::"Begin-Total":
-                            begin
-                                // Description
-                                ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
-                                BeginTotalTxt[ActualLevel] := Description;
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Level
-                                "Quote-Level" := ActualLevel;
-                                ActualLevel := ActualLevel + 1;
-
-                                // Recalc title
-                                if ActualLevel > 1 then
-                                    "Title No." := ActualTitle[ActualLevel - 1];
-
-                                // SubTotal
-                                SubTotalNet[ActualLevel] := 0;
-                                SubTotalGross[ActualLevel] := 0;
-                            end;
-                        Type::"End-Total":
-                            begin
-                                // SubTotal
-                                "Subtotal net" := SubTotalNet[ActualLevel];
-                                "Subtotal gross" := SubTotalGross[ActualLevel];
-                                if ActualLevel > 1 then begin
-                                    SubTotalNet[ActualLevel - 1] :=
-                                      SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
-                                    SubTotalGross[ActualLevel - 1] :=
-                                      SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
-                                end;
-
-                                // Recalc title
-                                CalcTitle(ActualLevel, ActualTitle, "Title No.");
-
-                                ActualTitle[ActualLevel] := 0;
-
-                                // Level
-                                ActualLevel := ActualLevel - 1;
-                                "Quote-Level" := ActualLevel;
-                                if ActualLevel = 0 then
-                                    Error(Text010);
-
-                                // Outline
-                                CalcOutline(ActualLevel, ActualTitle, ActualOutline);
-
-                                // Description
-                                Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(Description));
-                            end;
-                        else
-                            // SubTotal
-                            SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + Amount;
-                            SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + "Amount Including VAT";
-
-                            // Position
-                            if (Type in [Type::"G/L Account", Type::Resource, Type::"Fixed Asset", Type::"Charge (Item)"]) and
-                               ("No." <> '')
-                            then begin
-                                ActualPosition := ActualPosition + 10;
-                                Position := ActualPosition;
-                            end;
-
+        Window.Update(2, PostedCredMemoLine.Count);
+        // Increment levels
+        PostedCredMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        if PostedCredMemoLine.FindSet() then
+            repeat
+                // Update dialog
+                Counter := Counter + 1;
+                Window.Update(1, Counter);
+                // Calc level, indent etc.
+                case PostedCredMemoLine.Type of
+                    PostedCredMemoLine.Type::"Begin-Total":
+                        begin
+                            // Description
+                            ActualTitle[ActualLevel] := ActualTitle[ActualLevel] + 1;
+                            BeginTotalTxt[ActualLevel] := PostedCredMemoLine.Description;
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
                             // Level
-                            if xPostedCredMemoLine.Type = xPostedCredMemoLine.Type::"End-Total" then
-                                CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
-                            "Quote-Level" := ActualLevel;
-
+                            PostedCredMemoLine."Quote-Level" := ActualLevel;
+                            ActualLevel := ActualLevel + 1;
                             // Recalc title
                             if ActualLevel > 1 then
-                                "Title No." := ActualTitle[ActualLevel - 1];
-                    end;
+                                PostedCredMemoLine."Title No." := ActualTitle[ActualLevel - 1];
+                            // SubTotal
+                            SubTotalNet[ActualLevel] := 0;
+                            SubTotalGross[ActualLevel] := 0;
+                        end;
+                    PostedCredMemoLine.Type::"End-Total":
+                        begin
+                            // SubTotal
+                            PostedCredMemoLine."Subtotal net" := SubTotalNet[ActualLevel];
+                            PostedCredMemoLine."Subtotal gross" := SubTotalGross[ActualLevel];
+                            if ActualLevel > 1 then begin
+                                SubTotalNet[ActualLevel - 1] :=
+                                  SubTotalNet[ActualLevel - 1] + SubTotalNet[ActualLevel];
+                                SubTotalGross[ActualLevel - 1] :=
+                                  SubTotalGross[ActualLevel - 1] + SubTotalGross[ActualLevel];
+                            end;
+                            // Recalc title
+                            CalcTitle(ActualLevel, ActualTitle, PostedCredMemoLine."Title No.");
 
-                    // Fields that do not depend of the type
-                    Classification := ActualOutline;
-
-                    // write
-                    Modify();
-                    xPostedCredMemoLine := PostedCredMemoLine;
-                until Next() = 0;
-
-            // CHeck no of begin/end levels
-            if ActualLevel > 1 then
-                Error(Text012, ActualLevel - 1);
-
-            // Close dialog
-            Window.Close();
-        end;
+                            ActualTitle[ActualLevel] := 0;
+                            // Level
+                            ActualLevel := ActualLevel - 1;
+                            PostedCredMemoLine."Quote-Level" := ActualLevel;
+                            if ActualLevel = 0 then
+                                Error(Text010);
+                            // Outline
+                            CalcOutline(ActualLevel, ActualTitle, ActualOutline);
+                            // Description
+                            PostedCredMemoLine.Description := Format(Text011 + BeginTotalTxt[ActualLevel], -MaxStrLen(PostedCredMemoLine.Description));
+                        end;
+                    else
+                        // SubTotal
+                        SubTotalNet[ActualLevel] := SubTotalNet[ActualLevel] + PostedCredMemoLine.Amount;
+                        SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + PostedCredMemoLine."Amount Including VAT";
+                        // Position
+                        if (PostedCredMemoLine.Type in [PostedCredMemoLine.Type::"G/L Account", PostedCredMemoLine.Type::Resource, PostedCredMemoLine.Type::"Fixed Asset", PostedCredMemoLine.Type::"Charge (Item)"]) and
+                           (PostedCredMemoLine."No." <> '')
+                        then begin
+                            ActualPosition := ActualPosition + 10;
+                            PostedCredMemoLine.Position := ActualPosition;
+                        end;
+                        // Level
+                        if xPostedCredMemoLine.Type = xPostedCredMemoLine.Type::"End-Total" then
+                            CalcOutline(ActualLevel - 1, ActualTitle, ActualOutline);
+                        PostedCredMemoLine."Quote-Level" := ActualLevel;
+                        // Recalc title
+                        if ActualLevel > 1 then
+                            PostedCredMemoLine."Title No." := ActualTitle[ActualLevel - 1];
+                end;
+                // Fields that do not depend of the type
+                PostedCredMemoLine.Classification := ActualOutline;
+                // write
+                PostedCredMemoLine.Modify();
+                xPostedCredMemoLine := PostedCredMemoLine;
+            until PostedCredMemoLine.Next() = 0;
+        // CHeck no of begin/end levels
+        if ActualLevel > 1 then
+            Error(Text012, ActualLevel - 1);
+        // Close dialog
+        Window.Close();
     end;
 
     procedure RecalcDocOnPrinting(SalesHeader: Record "Sales Header")

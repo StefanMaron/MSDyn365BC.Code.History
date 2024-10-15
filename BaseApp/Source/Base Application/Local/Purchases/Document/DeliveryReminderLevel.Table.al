@@ -9,6 +9,7 @@ table 5005277 "Delivery Reminder Level"
     Caption = 'Delivery Reminder Level';
     DrillDownPageID = "Delivery Reminder Levels";
     LookupPageID = "Delivery Reminder Levels";
+    DataClassification = CustomerContent;
 
     fields
     {

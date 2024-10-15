@@ -532,7 +532,7 @@ report 11518 "Old Swiss VAT Statement"
                     if GLRegister."Source Code" <> BalanceVATEntry2."Source Code" then
                         Error(NotVATSettlementErr, GLRegister."No.", BalanceVATEntry2."Source Code");
 
-                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", GLRegister."Creation Date");
+                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DT2Date(GLRegister.SystemCreatedAt));
                 end else
                     FilterTxt := StrSubstNo(OpenEntriesTxt, OpenTillDate);
 

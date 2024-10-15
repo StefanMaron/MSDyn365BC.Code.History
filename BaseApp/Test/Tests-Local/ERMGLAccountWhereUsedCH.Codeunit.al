@@ -30,8 +30,8 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
         Initialize();
 
         // [GIVEN] Vendor Bank Account with "Balance Account No." = "G"
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        VendorBankAccount.Validate("Balance Account No.", LibraryERM.CreateGLAccountNo);
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo());
+        VendorBankAccount.Validate("Balance Account No.", LibraryERM.CreateGLAccountNo());
         VendorBankAccount.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -61,12 +61,12 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
         Initialize();
 
         // [GIVEN] Vendor Bank Account "Vendor No." = "V", Code = "VBA" with "Balance Account No." = "G"
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        VendorBankAccount.Validate("Balance Account No.", LibraryERM.CreateGLAccountNo);
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo());
+        VendorBankAccount.Validate("Balance Account No.", LibraryERM.CreateGLAccountNo());
         VendorBankAccount.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        VendorBankAccountList.Trap;
+        VendorBankAccountList.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(VendorBankAccount."Balance Account No.");
 
         // [THEN] Vendor Bank Account List page opened with "Vendor No." = "V", Code = "VBA"
@@ -84,28 +84,28 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
-        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);
-        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText, InvalidFieldCaptionErr);
-        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText, InvalidLineValueErr);
+        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText(), InvalidTableCaptionErr);
+        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText(), InvalidFieldCaptionErr);
+        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText(), InvalidLineValueErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
+        GLAccountWhereUsedList.First();
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList.ShowDetails.Invoke;
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList.ShowDetails.Invoke();
     end;
 }
 

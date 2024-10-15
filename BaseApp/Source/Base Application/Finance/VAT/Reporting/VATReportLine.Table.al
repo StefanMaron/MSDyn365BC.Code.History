@@ -16,6 +16,7 @@ using Microsoft.Sales.Customer;
 table 741 "VAT Report Line"
 {
     Caption = 'VAT Report Line';
+    DataClassification = CustomerContent;
 
     fields
     {

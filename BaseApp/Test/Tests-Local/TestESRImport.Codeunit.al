@@ -41,7 +41,7 @@ codeunit 144043 "Test ESR Import"
           -(100 + LibraryRandom.RandDec(100, 2)));
 
         // Import the below file and verify that the gen. journal line has the imported records.
-        ESRFileName := ESRImportFile1;
+        ESRFileName := ESRImportFile1();
         VerifyESRImportBasedOnAccountNumber('01-13980-3', 23, '', ESRFileName);
 
         // Verify that the created sales journal entry is intact as a result of the import.
@@ -63,7 +63,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType3WithoutCRLF;
+        ESRFileName := RecordType3WithoutCRLF();
 
         VerifyESRImportBasedOnAccountNumber(ESRAccountNumber1Txt, 107, '', ESRFileName);
 
@@ -78,7 +78,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType3WithCRLF;
+        ESRFileName := RecordType3WithCRLF();
 
         VerifyESRImportBasedOnAccountNumber(ESRAccountNumber1Txt, 45, '', ESRFileName);
 
@@ -92,7 +92,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType3WithoutCRLFAndReferenceInvoice;
+        ESRFileName := RecordType3WithoutCRLFAndReferenceInvoice();
 
         // Should not use hardcoded values
         // VerifyESRImportBasedOnDocumentNumber(ESRAccountNumber2Txt,3,ESRFileName,'CHF','103009','103018');
@@ -107,7 +107,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType3WithCRLFAndReferenceInvoice;
+        ESRFileName := RecordType3WithCRLFAndReferenceInvoice();
 
         // Should not use hardcoded values
         // VerifyESRImportBasedOnDocumentNumber(ESRAccountNumber2Txt,3,ESRFileName,'CHF','103009','103018');
@@ -127,10 +127,10 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := CorruptRecordType4WithoutCRLF;
+        ESRFileName := CorruptRecordType4WithoutCRLF();
 
         LibraryERM.CreateGLAccount(GLAccount);
-        CreateESRSetup(ESRSetup, ESRFileName, ESRAccountNumber1Txt, GLAccount."No.", true);
+        CreateESRSetup(ESRSetup, ESRFileName, ESRAccountNumber1Txt, GLAccount."No.");
         LibraryVariableStorage.Enqueue(ESRSetup."Bank Code");
 
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -140,7 +140,7 @@ codeunit 144043 "Test ESR Import"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
 
-        DeleteESRRelatedGenJournalEntries;
+        DeleteESRRelatedGenJournalEntries();
         asserterror EsrMgt.ImportEsrFile(GenJournalLine);
         Assert.IsTrue(StrPos(GetLastErrorText, ESRSetup."Bank Code") > 0, 'Unexpected error message');
 
@@ -155,7 +155,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := CorruptESRFileWithChecksumError;
+        ESRFileName := CorruptESRFileWithChecksumError();
 
         VerifyESRImportBasedOnAccountNumber(ESRAccountNumber1Txt, 107, '492', ESRFileName);
 
@@ -170,7 +170,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType4CHFWithoutCRLF;
+        ESRFileName := RecordType4CHFWithoutCRLF();
 
         VerifyESRImportBasedOnAccountNumber(ESRAccountNumber3Txt, 28, 'CHF', ESRFileName);
 
@@ -185,7 +185,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType4CHFWithCRLF;
+        ESRFileName := RecordType4CHFWithCRLF();
 
         VerifyESRImportBasedOnAccountNumber(ESRAccountNumber3Txt, 28, 'CHF', ESRFileName);
 
@@ -215,7 +215,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType4CHFWithoutCRLFAndReferenceInvoice;
+        ESRFileName := RecordType4CHFWithoutCRLFAndReferenceInvoice();
 
         // Should not use hardcoded values
         // VerifyESRImportBasedOnDocumentNumber(ESRAccountNumber3Txt,2,ESRFileName,'CHF','103018','103018');
@@ -230,7 +230,7 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType4CHFWithCRLFAndReferenceInvoice;
+        ESRFileName := RecordType4CHFWithCRLFAndReferenceInvoice();
 
         // Should not use hardcoded values
         // VerifyESRImportBasedOnDocumentNumber(ESRAccountNumber3Txt,2,ESRFileName,'CHF','103018','103018');
@@ -333,7 +333,7 @@ codeunit 144043 "Test ESR Import"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
 
-        DeleteESRRelatedGenJournalEntries;
+        DeleteESRRelatedGenJournalEntries();
 
         asserterror EsrMgt.ImportEsrFile(GenJournalLine);
         Assert.IsTrue(StrPos(GetLastErrorText, DocumentNo) > 0, 'Unexpected error message');
@@ -353,10 +353,10 @@ codeunit 144043 "Test ESR Import"
         ESRFileName: Text;
     begin
         Init();
-        ESRFileName := RecordType4CHFWithCRLF;
+        ESRFileName := RecordType4CHFWithCRLF();
 
         LibraryERM.CreateGLAccount(GLAccount);
-        CreateESRSetup(ESRSetup, ESRFileName, ESRAccountNumber1Txt, GLAccount."No.", false);
+        CreateESRSetup(ESRSetup, ESRFileName, ESRAccountNumber1Txt, GLAccount."No.");
         LibraryVariableStorage.Enqueue(ESRSetup."Bank Code");
 
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -382,7 +382,7 @@ codeunit 144043 "Test ESR Import"
         LibraryVariableStorage.Dequeue(BankCode);
         Assert.IsTrue(ESRSetup.Get(BankCode), 'ESR setup not found');
         ESRSetupListItems.GotoRecord(ESRSetup);
-        ESRSetupListItems.OK.Invoke;
+        ESRSetupListItems.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -415,15 +415,15 @@ codeunit 144043 "Test ESR Import"
     begin
         LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
         LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
-        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
-        LSVSuggestCollection.OK.Invoke;
+        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection());
+        LSVSuggestCollection.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCloseCollectionReqPageHandler(var LSVCloseCollection: TestRequestPage "LSV Close Collection")
     begin
-        LSVCloseCollection.OK.Invoke;
+        LSVCloseCollection.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -431,7 +431,7 @@ codeunit 144043 "Test ESR Import"
     procedure WriteLSVFileReqPageHandler(var WriteLSVFile: TestRequestPage "Write LSV File")
     begin
         WriteLSVFile.TestSending.SetValue(false);
-        WriteLSVFile.OK.Invoke;
+        WriteLSVFile.OK().Invoke();
     end;
 
     local procedure Init()
@@ -466,10 +466,10 @@ codeunit 144043 "Test ESR Import"
         REPORT.Run(REPORT::"Customer ESR Journal", true, false);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Wrong number of rows');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Wrong number of rows');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('IntLayout', Layout);
         LibraryReportDataset.AssertCurrentRowValueEquals('Customer_Name', Customer.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustLedgEntry_DueDate', Format(WorkDate()));
@@ -492,7 +492,7 @@ codeunit 144043 "Test ESR Import"
         LibraryVariableStorage.Dequeue(Layout);
 
         RequestPage.Layout.SetValue(Layout);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Normal]
@@ -509,10 +509,9 @@ codeunit 144043 "Test ESR Import"
     local procedure PrepareLSVSalesDocsForCollection(var Customer: Record Customer; var LSVJnl: Record "LSV Journal"; var LSVSetup: Record "LSV Setup"; var ESRSetup: Record "ESR Setup"): Code[20]
     var
         SalesHeader: Record "Sales Header";
-        FileMgt: Codeunit "File Management";
         ESRFileName: Text;
     begin
-        ESRFileName := CreateFileName;
+        ESRFileName := CreateFileName();
         SetupLSV(LSVSetup, ESRSetup, ESRFileName);
         LibraryLSV.CreateLSVJournal(LSVJnl, LSVSetup);
         LibraryLSV.CreateLSVCustomer(Customer, LSVSetup."LSV Payment Method Code");
@@ -527,15 +526,15 @@ codeunit 144043 "Test ESR Import"
         LSVJnlList: TestPage "LSV Journal List";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
 
         // We do not care of the message
         LibraryVariableStorage.Enqueue(false);
-        LSVJnlList.LSVSuggestCollection.Invoke;
+        LSVJnlList.LSVSuggestCollection.Invoke();
     end;
 
-    local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
+    local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -553,12 +552,12 @@ codeunit 144043 "Test ESR Import"
         LSVJnlList: TestPage "LSV Journal List";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
 
         // We do not care of the message
         LibraryVariableStorage.Enqueue(false);
-        LSVJnlList.LSVCloseCollection.Invoke;
+        LSVJnlList.LSVCloseCollection.Invoke();
     end;
 
     local procedure RetrieveLSVCustomerForCollection() CustomerNo: Code[20]
@@ -573,12 +572,12 @@ codeunit 144043 "Test ESR Import"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
 
         // We do not care of the message
         LibraryVariableStorage.Enqueue(false);
-        LSVJnlList.WriteLSVFile.Invoke;
+        LSVJnlList.WriteLSVFile.Invoke();
     end;
 
     local procedure SetupLSV(var LSVSetup: Record "LSV Setup"; var ESRSetup: Record "ESR Setup"; FileName: Text)
@@ -586,7 +585,7 @@ codeunit 144043 "Test ESR Import"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        CreateESRSetup(ESRSetup, FileName, ESRAccountNumber1Txt, GLAccount."No.", false);
+        CreateESRSetup(ESRSetup, FileName, ESRAccountNumber1Txt, GLAccount."No.");
         LibraryLSV.CreateLSVSetup(LSVSetup, ESRSetup);
         LSVSetup.Validate("Bal. Account Type", LSVSetup."Bal. Account Type"::"G/L Account");
         LSVSetup.Validate("Bal. Account No.", GLAccount."No.");
@@ -660,7 +659,7 @@ codeunit 144043 "Test ESR Import"
           StrSubstNo('Wrong number of records imported. Expected %1. Actual %2', ExpectedImportedRecordNumber, GenJournalLine.Count));
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -673,7 +672,7 @@ codeunit 144043 "Test ESR Import"
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
@@ -682,7 +681,7 @@ codeunit 144043 "Test ESR Import"
     local procedure InvokeESRImport(var ESRSetup: Record "ESR Setup"; var GenJournalBatch: Record "Gen. Journal Batch"; ESRAccountNumber: Code[11]; GLAccountNumber: Code[20]; FileName: Text; ExpectedImportedRecordNumber: Integer; ExpectedDialogMsg: Text)
     begin
         if StrLen(ESRSetup."Bank Code") = 0 then
-            CreateESRSetup(ESRSetup, FileName, ESRAccountNumber, GLAccountNumber, true);
+            CreateESRSetup(ESRSetup, FileName, ESRAccountNumber, GLAccountNumber);
 
         // Create a new batch with no lines.
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -697,7 +696,7 @@ codeunit 144043 "Test ESR Import"
             LibraryVariableStorage.Enqueue(Format(ExpectedDialogMsg));
 
         // Remove all imported lines before invoking the page.
-        DeleteESRRelatedGenJournalEntries;
+        DeleteESRRelatedGenJournalEntries();
         LoadCashReceiptJournalPageAndInvokeESRImport(GenJournalBatch."Journal Template Name");
     end;
 
@@ -708,17 +707,17 @@ codeunit 144043 "Test ESR Import"
     begin
         // Commit is required for opening Cash Receipt Journal Page.
         Commit();
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         CashReceiptJournal.FILTER.SetFilter("Document Type", JournalBatchName);
-        CashReceiptJournal."Read ESR File".Invoke;
+        CashReceiptJournal."Read ESR File".Invoke();
         CashReceiptJournal.Close();
     end;
 
     local procedure WriteLine(TmpStream: OutStream; Text: Text)
     begin
         TmpStream.WriteText(Text);
-        TmpStream.WriteText;
+        TmpStream.WriteText();
     end;
 
     [Normal]
@@ -737,7 +736,7 @@ codeunit 144043 "Test ESR Import"
     end;
 
     [Normal]
-    local procedure CreateESRSetup(var ESRSetup: Record "ESR Setup"; ESRFileName: Text; ESRAccountNumber: Code[11]; GLAccountNumber: Code[20]; CheckForFile: Boolean)
+    local procedure CreateESRSetup(var ESRSetup: Record "ESR Setup"; ESRFileName: Text; ESRAccountNumber: Code[11]; GLAccountNumber: Code[20])
     var
         TempESRFileName: Code[50];
         ESRBackupFolderName: Code[50];
@@ -762,15 +761,24 @@ codeunit 144043 "Test ESR Import"
         // We cannot use LibraryERM since we need exactly 3 bytes CurrencyCodes that we can properly fill out the ESR file.
         CurrencyCode := Format(LibraryRandom.RandIntInRange(100, 999));
         StartingDate := WorkDate();
+#if not CLEAN24
         GLAccount."Currency Code" := CurrencyCode;
+#else
+        GLAccount."Source Currency Code" := CurrencyCode;
+#endif
         GLAccount.Modify(true);
 
         if not Currency.Get(CurrencyCode) then begin
             Currency.Init();
             Currency.Validate(Code, CurrencyCode);
             Currency.Insert(true);
+#if not CLEAN24
             LibraryERM.CreateExchangeRate(GLAccount."Currency Code", StartingDate,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+#else
+            LibraryERM.CreateExchangeRate(GLAccount."Source Currency Code", StartingDate,
+              LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+#endif
         end;
     end;
 
@@ -803,7 +811,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -888,7 +896,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
         TmpStream.WriteText('00201002654090000300000000000001000140700000534750' +
@@ -1177,7 +1185,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1329,7 +1337,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
         TmpStream.WriteText(
@@ -1348,7 +1356,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1367,7 +1375,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1532,7 +1540,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1665,7 +1673,7 @@ codeunit 144043 "Test ESR Import"
         Cr: Char;
         Lf: Char;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
         FormattedDate := Format(StartingDate, 0, '<Year4><Month,2><Day,2>');
@@ -1697,7 +1705,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
         WriteLine(TmpStream, '011011010480627000000000000000000598989529CHF00000' +
@@ -1825,7 +1833,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1846,7 +1854,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 
@@ -1871,7 +1879,7 @@ codeunit 144043 "Test ESR Import"
         Cr: Char;
         Lf: Char;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
         FormattedDate := Format(StartingDate, 0, '<Year4><Month,2><Day,2>');
@@ -1902,7 +1910,7 @@ codeunit 144043 "Test ESR Import"
         TmpStream: OutStream;
         FileHdl: File;
     begin
-        FileName := CreateFileName;
+        FileName := CreateFileName();
         FileHdl.Create(FileName);
         FileHdl.CreateOutStream(TmpStream);
 

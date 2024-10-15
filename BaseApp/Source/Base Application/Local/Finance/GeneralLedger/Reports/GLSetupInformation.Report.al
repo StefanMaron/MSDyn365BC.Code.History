@@ -1399,7 +1399,7 @@ report 11514 "G/L Setup Information"
                     if RecRef.FindFirst() then
                         repeat
                             FldRef := RecRef.Field("No.");
-                            FldRefValue := FldRef.Value;
+                            FldRefValue := FldRef.Value();
                             if FldRefValue <> '' then begin
                                 EntryNo := EntryNo + 1;
                                 NumberSeriesBuffer.Init();

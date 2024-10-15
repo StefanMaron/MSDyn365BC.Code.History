@@ -41,19 +41,19 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [GIVEN] Create a New company used for Business Unit
         Initialize();
-        NewCompanyName := CreateCompany;
+        NewCompanyName := CreateCompany();
 
         // [WHEN] New consolidated company and 1 business unit is created
         ConsolidatedCompanyName := LibraryUtility.GenerateRandomCode(Company.FieldNo(Name), DATABASE::Company);
         RunConsolidationWizardToCompletion(CompanyConsolidationWizard, NewCompanyName, ConsolidatedCompanyName);
-        CompanyConsolidationWizard.ActionFinish.Invoke;
+        CompanyConsolidationWizard.ActionFinish.Invoke();
 
         // [THEN] Verify new consolidated company is created and business units are created.
         Assert.IsTrue(Company.Get(ConsolidatedCompanyName), 'The new company was not created');
         Assert.IsFalse(IsNullGuid(Company.Id), 'An Id was not created for the new company');
 
         BusinessUnit.ChangeCompany(ConsolidatedCompanyName);
-        Assert.IsTrue(BusinessUnit.FindFirst, 'Business Unit has not been created.');
+        Assert.IsTrue(BusinessUnit.FindFirst(), 'Business Unit has not been created.');
     end;
 
     [Test]
@@ -66,21 +66,21 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [GIVEN] Create a New company used for Business Unit
         Initialize();
-        NewCompanyName := CreateCompany;
-        ConsolidatedCompanyName := CreateCompany;
-        PopulateConsolidationAccounts;
+        NewCompanyName := CreateCompany();
+        ConsolidatedCompanyName := CreateCompany();
+        PopulateConsolidationAccounts();
 
         // [WHEN] New consolidated company and 1 business unit is created
         RunConsolidationWizardToCompletionExistingCompany(CompanyConsolidationWizard, NewCompanyName, ConsolidatedCompanyName);
         LibraryVariableStorage.Enqueue('');
-        CompanyConsolidationWizard.ActionFinish.Invoke;
+        CompanyConsolidationWizard.ActionFinish.Invoke();
 
         // [THEN] Verify new consolidated company is created and business units are created.
         Assert.IsTrue(Company.Get(ConsolidatedCompanyName), 'The new company was not created');
         Assert.IsFalse(IsNullGuid(Company.Id), 'An Id was not created for the new company');
 
         BusinessUnit.ChangeCompany(ConsolidatedCompanyName);
-        Assert.IsTrue(BusinessUnit.FindFirst, 'Business Unit has not been created.');
+        Assert.IsTrue(BusinessUnit.FindFirst(), 'Business Unit has not been created.');
     end;
 
     [Test]
@@ -92,9 +92,9 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [GIVEN] Create a New company used for Business Unit
         Initialize();
-        NewCompanyName := CreateCompany;
-        ConsolidatedCompanyName := CreateCompany;
-        PopulateConsolidationAccounts;
+        NewCompanyName := CreateCompany();
+        ConsolidatedCompanyName := CreateCompany();
+        PopulateConsolidationAccounts();
 
         // [WHEN] New consolidated company and 1 business unit is created
         RunConsolidationWizardExistingCompanyNoCompanyEntered(CompanyConsolidationWizard);
@@ -109,13 +109,13 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         // [GIVEN] An openend company creation wizard on the Basic information page
         Initialize();
-        CompanyConsolidationWizard.Trap;
+        CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
-        CompanyConsolidationWizard.ActionNext.Invoke; // Welcome
-        CompanyConsolidationWizard.ActionNext.Invoke; // Choose to create company
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Welcome
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose to create company
 
         // [WHEN] No company name is entered and next is pressed
-        asserterror CompanyConsolidationWizard.ActionNext.Invoke; // Basic Information
+        asserterror CompanyConsolidationWizard.ActionNext.Invoke(); // Basic Information
 
         // [THEN] An error message is thrown, preventing the user from continuing
         Assert.ExpectedError(SpecifyCompanyNameErr);
@@ -132,19 +132,19 @@ codeunit 139317 "Company Consol. Wizard Tests"
         // [GIVEN] Create a New company used for Business Unit
         Initialize();
 
-        CompanyConsolidationWizard.Trap;
+        CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
         with CompanyConsolidationWizard do begin
-            ActionNext.Invoke; // Welcome page
-            ActionNext.Invoke; // Choose to create company
+            ActionNext.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Choose to create company
             CompanyName.SetValue('NEWCOMPANY');
             CompanyData.SetValue(1); // Set to None to avoid lengthy data import
-            ActionNext.Invoke; // Basic Information page
-            ActionNext.Invoke; // Choose Source Companies
+            ActionNext.Invoke(); // Basic Information page
+            ActionNext.Invoke(); // Choose Source Companies
 
             // [WHEN] A Business Unit Code is not entered
-            asserterror ActionNext.Invoke;
+            asserterror ActionNext.Invoke();
             // [THEN] An error is given stating "Enter a Business Unit Code."
             Assert.ExpectedError(SpecifyBusinessUnitCodeTxt);
         end;
@@ -168,10 +168,10 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test" report
         LibraryVariableStorage.Enqueue('');
-        RunConsolidationTestReport;
+        RunConsolidationTestReport();
 
         // [THEN] G/L Account = "X" is printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('G_L_Account__No__', GLAccount."No."));
     end;
 
@@ -192,7 +192,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        RunConsolidationTestReportBUNoStartingDate;
+        RunConsolidationTestReportBUNoStartingDate();
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        RunConsolidationTestReportBUNoEndingDate;
+        RunConsolidationTestReportBUNoEndingDate();
     end;
 
     [Test]
@@ -232,14 +232,13 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        RunConsolidationTestReportBUStartingDateGreaterThanEndingDate;
+        RunConsolidationTestReportBUStartingDateGreaterThanEndingDate();
     end;
 
     // TODO: Bug should not depend on ERM Consolidation
     procedure PrintGLAccountInConsolidationTestReportDimensions()
     var
         GLAccount: Record "G/L Account";
-        BusinessUnit: Record "Business Unit";
         DefaultDimension: Record "Default Dimension";
         DimSetEntry: Record "Dimension Set Entry";
         DimSetID: Integer;
@@ -261,11 +260,11 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue(DefaultDimension."Dimension Code");
-        RunConsolidationTestReport;
+        RunConsolidationTestReport();
 
         // [THEN] G/L Account = "X" is printed
         LibraryDimension.FindDimensionSetEntry(DimSetEntry, DimSetID);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists(
           GLEntryErrTagTok,
           StrSubstNo(
@@ -289,7 +288,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        asserterror RunConsolidationTestReport;
+        asserterror RunConsolidationTestReport();
         Assert.ExpectedError(Text004Err);
     end;
 
@@ -310,7 +309,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        asserterror RunConsolidationTestReport;
+        asserterror RunConsolidationTestReport();
         Assert.ExpectedError(Text005Err);
     end;
 
@@ -318,7 +317,6 @@ codeunit 139317 "Company Consol. Wizard Tests"
     procedure PrintGLAccountInConsolidationTestReportDimensionsError()
     var
         GLAccount: Record "G/L Account";
-        BusinessUnit: Record "Business Unit";
         DefaultDimension: Record "Default Dimension";
         DimSetID: Integer;
     begin
@@ -357,7 +355,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Initialize();
 
         // [GIVEN] Company 'New'
-        NewCompanyName := CreateCompany;
+        NewCompanyName := CreateCompany();
 
         // [GIVEN] Currency 'C' with Currency Code 'CC' in Company 'New'
         ExchangeRate := LibraryRandom.RandDec(10, 1);
@@ -439,24 +437,24 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         ConsolidationAccount: Record "Consolidation Account";
     begin
-        CompanyConsolidationWizard.Trap;
+        CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
         with CompanyConsolidationWizard do begin
-            ActionNext.Invoke; // Welcome page
-            ActionNext.Invoke; // Choose to create company
+            ActionNext.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Choose to create company
             CompanyName.SetValue(NewCompanyName);
             CompanyData.SetValue(1); // Set to None to avoid lengthy data import
-            ActionNext.Invoke; // Basic Information page
+            ActionNext.Invoke(); // Basic Information page
             SelectCreatedCompanyForBusUnit(BusinessUnit);
-            ActionNext.Invoke; // Choose Source Companies
-            Assert.IsFalse(ActionBack.Enabled, 'Back should not be enabled');
-            Assert.IsFalse(ConsolidationAccount.FindFirst, 'Consolidation Account should have no accounts as we set CompanyData to None');
+            ActionNext.Invoke(); // Choose Source Companies
+            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled');
+            Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should have no accounts as we set CompanyData to None');
             Code.SetValue('1');
-            ActionNext.Invoke; // Set up consolidated company
-            ActionNext.Invoke; // Set up consolidated company page 2
-            Assert.IsFalse(ActionBack.Enabled, 'Back should not be enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+            ActionNext.Invoke(); // Set up consolidated company
+            ActionNext.Invoke(); // Set up consolidated company page 2
+            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 
@@ -464,51 +462,51 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         ConsolidationAccount: Record "Consolidation Account";
     begin
-        CompanyConsolidationWizard.Trap;
+        CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
         with CompanyConsolidationWizard do begin
-            ActionNext.Invoke; // Welcome page
+            ActionNext.Invoke(); // Welcome page
             SelectCompanyOption.SetValue(1);
-            ActionNext.Invoke; // Choose to use existing company
+            ActionNext.Invoke(); // Choose to use existing company
             LibraryVariableStorage.Enqueue(NewCompanyName); // for PickCompanyModalHandler
-            "Select Company".AssistEdit;
-            ActionNext.Invoke; // Select Company
+            "Select Company".AssistEdit();
+            ActionNext.Invoke(); // Select Company
             SelectCreatedCompanyForBusUnit(BusinessUnit);
-            Assert.IsFalse(ConsolidationAccount.FindFirst, 'Consolidation Account should not be created');
-            ActionNext.Invoke; // Choose Source Companies
-            Assert.IsFalse(ActionBack.Enabled, 'Back should not be enabled');
+            Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should not be created');
+            ActionNext.Invoke(); // Choose Source Companies
+            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled');
             Code.SetValue('1');
-            Assert.IsTrue(ConsolidationAccount.FindFirst, 'Consolidation Account should be created');
+            Assert.IsTrue(ConsolidationAccount.FindFirst(), 'Consolidation Account should be created');
             // [THEN] Account should exist in the ConsolidationAccount table
             Assert.IsTrue(ConsolidationAccount.Get('10100'), 'Account should exist');
-            ActionNext.Invoke; // Set up consolidated company
-            ActionNext.Invoke; // Set up consolidated company page 2
-            Assert.IsFalse(ActionBack.Enabled, 'Back should notbe enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+            ActionNext.Invoke(); // Set up consolidated company
+            ActionNext.Invoke(); // Set up consolidated company page 2
+            Assert.IsFalse(ActionBack.Enabled(), 'Back should notbe enabled at the end of the wizard');
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 
     local procedure RunConsolidationWizardExistingCompanyNoCompanyEntered(var CompanyConsolidationWizard: TestPage "Company Consolidation Wizard")
     begin
-        CompanyConsolidationWizard.Trap;
+        CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
         with CompanyConsolidationWizard do begin
-            ActionNext.Invoke; // Welcome page
+            ActionNext.Invoke(); // Welcome page
             SelectCompanyOption.SetValue(1);
-            ActionNext.Invoke; // Choose to use existing company
-            asserterror ActionNext.Invoke;
+            ActionNext.Invoke(); // Choose to use existing company
+            asserterror ActionNext.Invoke();
             Assert.ExpectedError(EmptyCompanyNameErr);
-            Close;
+            Close();
         end;
     end;
 
     local procedure CreateGLAccountWithConsolidationSetup(var GLAccount: Record "G/L Account")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount.Validate("Consol. Debit Acc.", LibraryERM.CreateGLAccountNo);
-        GLAccount.Validate("Consol. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        GLAccount.Validate("Consol. Debit Acc.", LibraryERM.CreateGLAccountNo());
+        GLAccount.Validate("Consol. Credit Acc.", LibraryERM.CreateGLAccountNo());
         GLAccount.Modify(true);
     end;
 
@@ -538,7 +536,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
                         Include := false;
                         Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -662,7 +660,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
+        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo());
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit.Modify(true);
     end;
@@ -671,7 +669,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
+        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo());
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit."Starting Date" := 0D;
         BusinessUnit."Ending Date" := WorkDate();
@@ -682,7 +680,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
+        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo());
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit."Starting Date" := WorkDate();
         BusinessUnit."Ending Date" := 0D;
@@ -693,7 +691,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
+        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo());
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit."Starting Date" := WorkDate();
         BusinessUnit."Ending Date" := WorkDate() - 10;
@@ -781,7 +779,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         UpdateDimension(BusinessUnit."Company Name", DimensionCode);
         Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(LibraryReportDataset.FindRow('ErrorText_Number_', StrSubstNo(
               Text017Txt,
               'Dimension Code', DimensionCode, BusinessUnit."Company Name",
@@ -793,8 +791,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     [Scope('OnPrem')]
     procedure HandleReportRequestPage(var handler: TestRequestPage "Consolidation - Test")
     begin
-        handler.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        handler.Cancel.Invoke;
+        handler.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        handler.Cancel().Invoke();
     end;
 
     [ConfirmHandler]
@@ -816,10 +814,10 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         CompanyNameToPick: Text;
     begin
-        CompanyNameToPick := LibraryVariableStorage.DequeueText; // should be set from test
+        CompanyNameToPick := LibraryVariableStorage.DequeueText(); // should be set from test
         AccessibleCompanies.GotoKey(CompanyNameToPick);
-        Assert.IsFalse(AccessibleCompanies.SetupStatus.Editable, 'SetupStatus.EDITABLE');
-        LibraryVariableStorage.Enqueue(AccessibleCompanies.SetupStatus.AsInteger);
+        Assert.IsFalse(AccessibleCompanies.SetupStatus.Editable(), 'SetupStatus.EDITABLE');
+        LibraryVariableStorage.Enqueue(AccessibleCompanies.SetupStatus.AsInteger());
         AccessibleCompanies.OK().Invoke();
     end;
 
@@ -829,11 +827,11 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         DimNameToPick: Text;
     begin
-        DimNameToPick := LibraryVariableStorage.DequeueText; // should be set from test
+        DimNameToPick := LibraryVariableStorage.DequeueText(); // should be set from test
         DimensionSelectionMultiple.GotoKey(DimNameToPick);
-        Assert.IsTrue(DimensionSelectionMultiple.Selected.Editable, 'Selected NOT EDITABLE');
+        Assert.IsTrue(DimensionSelectionMultiple.Selected.Editable(), 'Selected NOT EDITABLE');
         DimensionSelectionMultiple.Selected.SetValue(true);
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -842,8 +840,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         ConsolidationTest.StartingDate.SetValue(WorkDate());
         ConsolidationTest.EndingDate.SetValue(WorkDate());
-        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -852,9 +850,9 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         ConsolidationTest.StartingDate.SetValue(WorkDate());
         ConsolidationTest.EndingDate.SetValue(WorkDate());
-        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueText); // should be set from test
-        ConsolidationTest.CopyDimensions.AssistEdit;
-        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueText()); // should be set from test
+        ConsolidationTest.CopyDimensions.AssistEdit();
+        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -863,8 +861,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         ConsolidationTest.StartingDate.SetValue(0D);
         ConsolidationTest.EndingDate.SetValue(WorkDate());
-        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -873,8 +871,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         ConsolidationTest.StartingDate.SetValue(WorkDate());
         ConsolidationTest.EndingDate.SetValue(0D);
-        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

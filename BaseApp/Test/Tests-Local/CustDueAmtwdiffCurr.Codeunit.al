@@ -91,12 +91,12 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
         CurrencyCode: Code[10];
     begin
         ExchangeRate := LibraryRandom.RandDec(9, 4);
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         LibraryERM.CreateExchangeRate(CurrencyCode, StartingDate, ExchangeRate, ExchangeRate);
         exit(CurrencyCode);
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; ItemNo: Code[20]; CurrencyCode: Code[10]; Quantity: Integer; UnitPrice: Decimal)
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; ItemNo: Code[20]; CurrencyCode: Code[10]; Quantity: Integer; UnitPrice: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -128,7 +128,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
         SRCustDueAmountperPeriod.Layout.SetValue(0);
         SRCustDueAmountperPeriod.ShowAmtInLCY.SetValue(false);
 
-        SRCustDueAmountperPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRCustDueAmountperPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifySalesDocumentReportData(CustomerNo: Code[20]; PostingDate: array[5] of Date)
@@ -139,7 +139,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
         "Count": Integer;
     begin
         // Verify the XML
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         AllTotalAmountLCY := 0;
         for Count := 1 to 5 do begin

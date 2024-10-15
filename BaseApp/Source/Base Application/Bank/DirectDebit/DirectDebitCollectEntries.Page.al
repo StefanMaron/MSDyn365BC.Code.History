@@ -128,7 +128,7 @@ page 1208 "Direct Debit Collect. Entries"
             {
                 ApplicationArea = Suite;
                 Caption = 'File Export Errors';
-                SubPageLink = "Document No." = field(FILTER("Direct Debit Collection No.")),
+                SubPageLink = "Document No." = field(filter("Direct Debit Collection No.")),
                               "Journal Line No." = field("Entry No.");
             }
         }

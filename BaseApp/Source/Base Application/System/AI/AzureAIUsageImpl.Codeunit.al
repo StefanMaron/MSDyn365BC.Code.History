@@ -11,9 +11,7 @@ codeunit 2005 "Azure AI Usage Impl."
         AzureMLCategoryTxt: Label 'AzureMLCategory', Locked = true;
         AzureMLLimitReachedTxt: Label 'The Azure ML usage limit has been reached', Locked = true;
         ProcessingTimeLessThanZeroErr: Label 'The available Azure Machine Learning processing time is less than or equal to zero.';
-
         ImageAnalysisIsSetup: Boolean;
-
         TestMode: Boolean;
         CurrentDateTimeMock: DateTime;
 
@@ -80,7 +78,6 @@ codeunit 2005 "Azure AI Usage Impl."
             exit(AzureAIUsage."Last DateTime Updated");
     end;
 
-    [NonDebuggable]
     procedure GetSingleInstance(Service: Enum "Azure AI Service"; var AzureAIUsage: Record "Azure AI Usage"): Boolean
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
@@ -88,9 +85,9 @@ codeunit 2005 "Azure AI Usage Impl."
         MLPredictionManagement: Codeunit "ML Prediction Management";
         EnvironmentInfo: Codeunit "Environment Information";
         ApiUri: Text;
-        ApiKey: Text;
+        ApiKey: SecretText;
         ApiUri250: Text[250];
-        ApiKey200: Text[200];
+        ApiKey200: SecretText;
         LimitType: Option;
         LimitValue: Decimal;
         LimitValueInt: Integer;
@@ -122,7 +119,7 @@ codeunit 2005 "Azure AI Usage Impl."
                     end;
 
                     if (not ImageAnalysisIsSetup) and
-                       (ImageAnalysisSetup.GetApiKey() = '') and (ImageAnalysisSetup."Api Uri" = '') and
+                       ImageAnalysisSetup.GetApiKeyAsSecret().IsEmpty() and (ImageAnalysisSetup."Api Uri" = '') and
                        EnvironmentInfo.IsSaaS()
                     then
                         if ImageAnalysisManagement.GetImageAnalysisCredentials(ApiKey, ApiUri, LimitType, LimitValueInt) then begin

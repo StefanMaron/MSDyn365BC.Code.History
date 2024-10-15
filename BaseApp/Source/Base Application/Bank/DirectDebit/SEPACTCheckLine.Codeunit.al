@@ -58,36 +58,34 @@ codeunit 1223 "SEPA CT-Check Line"
         if GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
             GenJournalBatch.OnCheckGenJournalLineExportRestrictions();
 
-        with GenJnlLine do begin
-            if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
-                InsertPaymentFileError(MustBeBankAccErr);
+        if GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"Bank Account" then
+            GenJnlLine.InsertPaymentFileError(MustBeBankAccErr);
 
-            if "Bal. Account No." = '' then
-                AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("Bal. Account No."), '');
+        if GenJnlLine."Bal. Account No." = '' then
+            AddFieldEmptyError(GenJnlLine, GenJnlLine.TableCaption(), GenJnlLine.FieldCaption(GenJnlLine."Bal. Account No."), '');
 
-            if "Recipient Bank Account" = '' then
-                AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("Recipient Bank Account"), '');
+        if GenJnlLine."Recipient Bank Account" = '' then
+            AddFieldEmptyError(GenJnlLine, GenJnlLine.TableCaption(), GenJnlLine.FieldCaption(GenJnlLine."Recipient Bank Account"), '');
 
-            if not ("Account Type" in ["Account Type"::Vendor, "Account Type"::Customer, "Account Type"::Employee]) then
-                InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
+        if not (GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Vendor, GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Employee]) then
+            GenJnlLine.InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
 
-            if (("Account Type" = "Account Type"::Vendor) and ("Document Type" <> "Document Type"::Payment)) or
-               (("Account Type" = "Account Type"::Customer) and ("Document Type" <> "Document Type"::Refund)) or
-               (("Account Type" = "Account Type"::Employee) and ("Document Type" <> "Document Type"::Payment))
-            then
-                InsertPaymentFileError(StrSubstNo(MustBeVendEmplPmtOrCustRefundErr));
+        if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) and (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment)) or
+           ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) and (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Refund)) or
+           ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee) and (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment))
+        then
+            GenJnlLine.InsertPaymentFileError(StrSubstNo(MustBeVendEmplPmtOrCustRefundErr));
 
-            if Amount <= 0 then
-                InsertPaymentFileError(MustBePositiveErr);
+        if GenJnlLine.Amount <= 0 then
+            GenJnlLine.InsertPaymentFileError(MustBePositiveErr);
 
-            if (not SwissExport) and ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) and (not GLSetup."SEPA Non-Euro Export") then begin
-                BankAccount.Get("Bal. Account No.");
-                InsertPaymentFileError(StrSubstNo(EuroCurrErr, "Bal. Account No.", BankAccount."Payment Export Format"));
-            end;
-
-            if "Posting Date" < Today then
-                InsertPaymentFileError(TransferDateErr);
+        if (not SwissExport) and (GenJnlLine."Currency Code" <> GLSetup.GetCurrencyCode('EUR')) and (not GLSetup."SEPA Non-Euro Export") then begin
+            BankAccount.Get(GenJnlLine."Bal. Account No.");
+            GenJnlLine.InsertPaymentFileError(StrSubstNo(EuroCurrErr, GenJnlLine."Bal. Account No.", BankAccount."Payment Export Format"));
         end;
+
+        if GenJnlLine."Posting Date" < Today then
+            GenJnlLine.InsertPaymentFileError(TransferDateErr);
 
         OnAfterCheckGenJnlLine(GenJnlLine);
     end;
@@ -102,10 +100,9 @@ codeunit 1223 "SEPA CT-Check Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if BankAccount.Get("Bal. Account No.") then
-                if BankAccount.IBAN = '' then
-                    AddFieldEmptyError(GenJnlLine, BankAccount.TableCaption(), BankAccount.FieldCaption(IBAN), "Bal. Account No.");
+        if BankAccount.Get(GenJnlLine."Bal. Account No.") then
+            if BankAccount.IBAN = '' then
+                AddFieldEmptyError(GenJnlLine, BankAccount.TableCaption(), BankAccount.FieldCaption(IBAN), GenJnlLine."Bal. Account No.");
     end;
 
     local procedure CheckCustVendEmpl(var GenJnlLine: Record "Gen. Journal Line")
@@ -123,51 +120,49 @@ codeunit 1223 "SEPA CT-Check Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            if "Account No." = '' then begin
-                InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
-                exit;
-            end;
-            case "Account Type" of
-                "Account Type"::Customer:
-                    begin
-                        Customer.Get("Account No.");
-                        if Customer.Name = '' then
-                            AddFieldEmptyError(GenJnlLine, Customer.TableCaption(), Customer.FieldCaption(Name), "Account No.");
-                        if "Recipient Bank Account" <> '' then begin
-                            CustomerBankAccount.Get(Customer."No.", "Recipient Bank Account");
-                            CheckSwissExportCustomerBankPaymentType(GenJnlLine, CustomerBankAccount);
-                            if CustomerBankAccount.IBAN = '' then
-                                AddFieldEmptyError(
-                                  GenJnlLine, CustomerBankAccount.TableCaption(), CustomerBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
-                        end;
+        if GenJnlLine."Account No." = '' then begin
+            GenJnlLine.InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
+            exit;
+        end;
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::Customer:
+                begin
+                    Customer.Get(GenJnlLine."Account No.");
+                    if Customer.Name = '' then
+                        AddFieldEmptyError(GenJnlLine, Customer.TableCaption(), Customer.FieldCaption(Name), GenJnlLine."Account No.");
+                    if GenJnlLine."Recipient Bank Account" <> '' then begin
+                        CustomerBankAccount.Get(Customer."No.", GenJnlLine."Recipient Bank Account");
+                        CheckSwissExportCustomerBankPaymentType(GenJnlLine, CustomerBankAccount);
+                        if CustomerBankAccount.IBAN = '' then
+                            AddFieldEmptyError(
+                              GenJnlLine, CustomerBankAccount.TableCaption(), CustomerBankAccount.FieldCaption(IBAN), GenJnlLine."Recipient Bank Account");
                     end;
-                "Account Type"::Vendor:
-                    begin
-                        Vendor.Get("Account No.");
-                        if Vendor.Name = '' then
-                            AddFieldEmptyError(GenJnlLine, Vendor.TableCaption(), Vendor.FieldCaption(Name), "Account No.");
-                        if "Recipient Bank Account" <> '' then begin
-                            VendorBankAccount.Get(Vendor."No.", "Recipient Bank Account");
-                            CheckSwissExportVendorBankPaymentType(GenJnlLine, VendorBankAccount, SwissIgnoreIBAN);
-                            if not SwissIgnoreIBAN and (VendorBankAccount.IBAN = '') then
-                                AddFieldEmptyError(
-                                  GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
-                        end;
+                end;
+            GenJnlLine."Account Type"::Vendor:
+                begin
+                    Vendor.Get(GenJnlLine."Account No.");
+                    if Vendor.Name = '' then
+                        AddFieldEmptyError(GenJnlLine, Vendor.TableCaption(), Vendor.FieldCaption(Name), GenJnlLine."Account No.");
+                    if GenJnlLine."Recipient Bank Account" <> '' then begin
+                        VendorBankAccount.Get(Vendor."No.", GenJnlLine."Recipient Bank Account");
+                        CheckSwissExportVendorBankPaymentType(GenJnlLine, VendorBankAccount, SwissIgnoreIBAN);
+                        if not SwissIgnoreIBAN and (VendorBankAccount.IBAN = '') then
+                            AddFieldEmptyError(
+                              GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(IBAN), GenJnlLine."Recipient Bank Account");
                     end;
-                "Account Type"::Employee:
-                    begin
-                        Employee.Get("Account No.");
-                        if Employee.FullName() = '' then
-                            AddFieldEmptyError(GenJnlLine, Employee.TableCaption(), Employee.FieldCaption("First Name"), "Account No.");
-                        if "Recipient Bank Account" <> '' then
-                            if Employee.IBAN = '' then
-                                AddFieldEmptyError(
-                                  GenJnlLine, Employee.TableCaption(), Employee.FieldCaption(IBAN), "Recipient Bank Account");
-                    end;
-                else
-                    OnCheckCustVendEmplOnCaseElse(GenJnlLine);
-            end;
+                end;
+            GenJnlLine."Account Type"::Employee:
+                begin
+                    Employee.Get(GenJnlLine."Account No.");
+                    if Employee.FullName() = '' then
+                        AddFieldEmptyError(GenJnlLine, Employee.TableCaption(), Employee.FieldCaption("First Name"), GenJnlLine."Account No.");
+                    if GenJnlLine."Recipient Bank Account" <> '' then
+                        if Employee.IBAN = '' then
+                            AddFieldEmptyError(
+                              GenJnlLine, Employee.TableCaption(), Employee.FieldCaption(IBAN), GenJnlLine."Recipient Bank Account");
+                end;
+            else
+                OnCheckCustVendEmplOnCaseElse(GenJnlLine);
         end;
     end;
 
@@ -235,23 +230,22 @@ codeunit 1223 "SEPA CT-Check Line"
             exit;
         end;
 
-        with VendorBankAccount do
-            case "Payment Form" of
-                "Payment Form"::ESR, "Payment Form"::"ESR+":
-                    if "ESR Account No." = '' then
-                        AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("ESR Account No."), Code);
-                "Payment Form"::"Post Payment Domestic":
-                    if "Giro Account No." = '' then
-                        AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("Giro Account No."), Code);
-                "Payment Form"::"Bank Payment Domestic":
-                    if ("Clearing No." = '') and ("SWIFT Code" = '') then
-                        AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("SWIFT Code"), Code);
-                "Payment Form"::"Bank Payment Abroad", "Payment Form"::"Post Payment Abroad":
-                    if "SWIFT Code" = '' then
-                        AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("SWIFT Code"), Code);
-                else
-                    GenJnlLine.InsertPaymentFileError(UnknownSwissPaymentTypeErr);
-            end;
+        case VendorBankAccount."Payment Form" of
+            VendorBankAccount."Payment Form"::ESR, VendorBankAccount."Payment Form"::"ESR+":
+                if VendorBankAccount."ESR Account No." = '' then
+                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."ESR Account No."), VendorBankAccount.Code);
+            VendorBankAccount."Payment Form"::"Post Payment Domestic":
+                if VendorBankAccount."Giro Account No." = '' then
+                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."Giro Account No."), VendorBankAccount.Code);
+            VendorBankAccount."Payment Form"::"Bank Payment Domestic":
+                if (VendorBankAccount."Clearing No." = '') and (VendorBankAccount."SWIFT Code" = '') then
+                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."SWIFT Code"), VendorBankAccount.Code);
+            VendorBankAccount."Payment Form"::"Bank Payment Abroad", VendorBankAccount."Payment Form"::"Post Payment Abroad":
+                if VendorBankAccount."SWIFT Code" = '' then
+                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."SWIFT Code"), VendorBankAccount.Code);
+            else
+                GenJnlLine.InsertPaymentFileError(UnknownSwissPaymentTypeErr);
+        end;
     end;
 
     local procedure CheckSwissExportCustomerBankPaymentType(GenJnlLine: Record "Gen. Journal Line"; CustomerBankAccount: Record "Customer Bank Account")

@@ -25,18 +25,18 @@ codeunit 144024 "Vendor Payment Order"
         Initialize();
 
         // Setup
-        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
+        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments();
 
         // Exercise
         REPORT.Run(REPORT::"Vendor Payment Order", true, false);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyNumberOfRowsAndVendor(VendorName);
 
         LibraryReportDataset.AssertCurrentRowValueEquals('ShowAdrLines', false);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -49,19 +49,19 @@ codeunit 144024 "Vendor Payment Order"
         Initialize();
 
         // Setup
-        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
+        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments();
 
         // Exercise
         REPORT.Run(REPORT::"Vendor Payment Order", true, false);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyNumberOfRowsAndVendor(VendorName);
 
         LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('ShowAdrLines', false);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -74,19 +74,19 @@ codeunit 144024 "Vendor Payment Order"
         Initialize();
 
         // Setup
-        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments;
+        VendorName := CreateVendorWithVendorBankAccCreateVendorPayments();
 
         // Exercise
         REPORT.Run(REPORT::"Vendor Payment Order", true, false);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyNumberOfRowsAndVendor(VendorName);
 
         LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('ShowAdrLines', true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -117,8 +117,8 @@ codeunit 144024 "Vendor Payment Order"
     var
         ElementValue: Variant;
     begin
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Wrong number of rows in the dataset.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Wrong number of rows in the dataset.');
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.GetElementValueInCurrentRow('Text1', ElementValue);
         Assert.IsTrue(StrPos(ElementValue, VendorName) > 0, 'Vendor Name was not found.');
     end;
@@ -146,8 +146,8 @@ codeunit 144024 "Vendor Payment Order"
 
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, true, 0, false, WorkDate(), '1', true,
-          GenJournalLine."Bal. Account Type"::"G/L Account", SelectGLAccount, GenJournalLine."Bank Payment Type"::" ");
+          WorkDate(), true, 0, false, WorkDate(), '1', true,
+          GenJournalLine."Bal. Account Type"::"G/L Account", SelectGLAccount(), GenJournalLine."Bank Payment Type"::" ");
         SuggestVendorPayments.UseRequestPage(false);
         Vendor.SetRange("No.", VendorBankAcc."Vendor No.");
         SuggestVendorPayments.SetTableView(Vendor);
@@ -162,7 +162,7 @@ codeunit 144024 "Vendor Payment Order"
     var
         Vendor: Record Vendor;
     begin
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, FindVendor);
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, FindVendor());
 
         with VendorBankAccount do begin
             "Bank Branch No." := BankBranchNo;
@@ -216,7 +216,7 @@ codeunit 144024 "Vendor Payment Order"
     begin
         LibraryVariableStorage.Dequeue(BatchName);
         RequestPage.JourName.SetValue(BatchName);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -228,7 +228,7 @@ codeunit 144024 "Vendor Payment Order"
         LibraryVariableStorage.Dequeue(BatchName);
         RequestPage.JourName.SetValue(BatchName);
         RequestPage.DebitDate.SetValue(WorkDate());
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -241,7 +241,7 @@ codeunit 144024 "Vendor Payment Order"
         RequestPage.JourName.SetValue(BatchName);
         RequestPage.DebitDate.SetValue(WorkDate());
         RequestPage.ShowAdrLines.SetValue(true);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

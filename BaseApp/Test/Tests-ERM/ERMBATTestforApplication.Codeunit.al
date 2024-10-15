@@ -16,7 +16,6 @@ codeunit 134013 "ERM BAT Test for Application"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
     [Test]
     [Scope('OnPrem')]

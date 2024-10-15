@@ -350,7 +350,7 @@ report 11110 "VAT Statement AT"
         end else begin
             FileManagement.CopyServerFile(FDFFileName, TestFdfFileName, true);
             FileManagement.CopyServerFile(XMLFileName, TestXmlFileName, true);
-        end
+        end;
     end;
 
     trigger OnPreReport()

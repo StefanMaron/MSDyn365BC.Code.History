@@ -16,6 +16,7 @@ table 3010831 "LSV Setup"
     Caption = 'LSV Setup';
     DrillDownPageID = "LSV Setup List";
     LookupPageID = "LSV Setup List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -115,7 +115,7 @@ codeunit 144000 "VAT Rounding"
         UpdateSalesSetup(true);
 
         // 2. Exercise
-        InvNo := CreatePostSalesOrder;
+        InvNo := CreatePostSalesOrder();
         CrMemoNo := CreatePostSalesCrMemoByCopyDocument(InvNo);
 
         // 3. Verify
@@ -190,7 +190,7 @@ codeunit 144000 "VAT Rounding"
         Customer.Modify(true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         Quantity := LibraryRandom.RandInt(10);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), Quantity);
         UnitPrice := LibraryRandom.RandDecInDecimalRange(0, 1000, 2);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
@@ -273,7 +273,7 @@ codeunit 144000 "VAT Rounding"
         // [GIVEN] Create Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         Quantity := LibraryRandom.RandInt(10);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), Quantity);
         UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
 
         // [GIVEN] Calculate "VAT %" for need a rounding for "Amount Including VAT"
@@ -288,8 +288,8 @@ codeunit 144000 "VAT Rounding"
         SalesHeader.OpenDocumentStatistics();
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" in "Sales line"
-        SalesLine.TestField(Amount, LibraryVariableStorage.DequeueDecimal);
-        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SalesLine."Amount Including VAT" - SalesLine.Amount, '');
+        SalesLine.TestField(Amount, LibraryVariableStorage.DequeueDecimal());
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), SalesLine."Amount Including VAT" - SalesLine.Amount, '');
     end;
 
     [Test]
@@ -314,7 +314,7 @@ codeunit 144000 "VAT Rounding"
         UpdateSalesSetup(true);
 
         // [GIVEN] Create Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         Quantity := LibraryRandom.RandInt(10);
         ItemNo := CreateItem();
         UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
@@ -345,8 +345,8 @@ codeunit 144000 "VAT Rounding"
         SalesHeader.OpenDocumentStatistics();
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" for Sales Order
-        Assert.AreEqual(GetAmountTotal(SalesHeader), LibraryVariableStorage.DequeueDecimal, '');
-        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, GetAmountTotalIncVAT(SalesHeader) - GetAmountTotal(SalesHeader), '');
+        Assert.AreEqual(GetAmountTotal(SalesHeader), LibraryVariableStorage.DequeueDecimal(), '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), GetAmountTotalIncVAT(SalesHeader) - GetAmountTotal(SalesHeader), '');
     end;
 
     local procedure Initialize()
@@ -429,7 +429,7 @@ codeunit 144000 "VAT Rounding"
         SalesHeader."Prepayment %" := PrepaymentPercent;
         SalesHeader.Modify(true);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), Quantity);
         SalesLine.Validate("Unit Price", Price);
         SalesLine.Modify(true);
 
@@ -454,12 +454,11 @@ codeunit 144000 "VAT Rounding"
     local procedure CreatePostSalesCrMemoByCopyDocument(CopyFromDocNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", CopyFromDocNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", CopyFromDocNo, true, false);
         SalesHeader.Find();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -478,7 +477,7 @@ codeunit 144000 "VAT Rounding"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), Quantity);
         SetFixedVATPctInSetupBySalesLine(SalesLine);
         SalesLine.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -536,7 +535,7 @@ codeunit 144000 "VAT Rounding"
             FindSet();
             repeat
                 AmtInclVAT += "Amount Including VAT";
-            until Next = 0;
+            until Next() = 0;
             Assert.AreEqual(ExpectedAmtInclVAT, AmtInclVAT, StrSubstNo(WrongAmtInclVATInCrMemoErr, DocNo));
         end;
     end;
@@ -580,7 +579,7 @@ codeunit 144000 "VAT Rounding"
     begin
         LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
         LibraryVariableStorage.Enqueue(SalesOrderStatistics.VATAmount.Value);
-        SalesOrderStatistics.OK.Invoke();
+        SalesOrderStatistics.OK().Invoke();
     end;
 }
 

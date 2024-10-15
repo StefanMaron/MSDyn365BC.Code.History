@@ -46,24 +46,24 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        CreateCostTypes;
-        ChartofCostTypes.OpenEdit;
-        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke;
+        CreateCostTypes();
+        ChartofCostTypes.OpenEdit();
+        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke();
 
         // [WHEN] Create Cost Centers
-        CreateCostCenters;
+        CreateCostCenters();
 
         // [WHEN] Create Cost Allocations
-        CreateCostAllocations;
+        CreateCostAllocations();
 
         // [WHEN] Create General Journal Lines and post them
-        CreateGeneralJournalLines;
+        CreateGeneralJournalLines();
         Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -71,7 +71,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [THEN] Verify that the Cost Centers MAIN1 and MAIN2 have Net Change that is not 0,
         // but ADM,SALES and PROD, all have 0 Net Change
-        VerifyCostAllocation;
+        VerifyCostAllocation();
     end;
 
     [Test]
@@ -85,24 +85,24 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The External Accountant plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        CreateCostTypes;
-        ChartofCostTypes.OpenEdit;
-        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke;
+        CreateCostTypes();
+        ChartofCostTypes.OpenEdit();
+        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke();
 
         // [WHEN] Create Cost Centers
-        CreateCostCenters;
+        CreateCostCenters();
 
         // [WHEN] Create Cost Allocations
-        CreateCostAllocations;
+        CreateCostAllocations();
 
         // [WHEN] Create General Journal Lines and post them
-        CreateGeneralJournalLines;
+        CreateGeneralJournalLines();
         Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -110,7 +110,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [THEN] Verify that the Cost Centers MAIN1 and MAIN2 have Net Change that is not 0,
         // but ADM,SALES and PROD, all have 0 Net Change
-        VerifyCostAllocation;
+        VerifyCostAllocation();
     end;
 
     [Test]
@@ -122,25 +122,25 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Team Member plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        asserterror CreateCostTypes;
+        asserterror CreateCostTypes();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create Cost Centers
-        asserterror CreateCostCenters;
+        asserterror CreateCostCenters();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create Cost Allocations
-        asserterror CreateCostAllocations;
+        asserterror CreateCostAllocations();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create General Journal Lines and post them
-        asserterror CreateGeneralJournalLines;
+        asserterror CreateGeneralJournalLines();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -161,24 +161,24 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Essential ISV Emb plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        CreateCostTypes;
-        ChartofCostTypes.OpenEdit;
-        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke;
+        CreateCostTypes();
+        ChartofCostTypes.OpenEdit();
+        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke();
 
         // [WHEN] Create Cost Centers
-        CreateCostCenters;
+        CreateCostCenters();
 
         // [WHEN] Create Cost Allocations
-        CreateCostAllocations;
+        CreateCostAllocations();
 
         // [WHEN] Create General Journal Lines and post them
-        CreateGeneralJournalLines;
+        CreateGeneralJournalLines();
         Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -186,7 +186,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [THEN] Verify that the Cost Centers MAIN1 and MAIN2 have Net Change that is not 0,
         // but ADM,SALES and PROD, all have 0 Net Change
-        VerifyCostAllocation;
+        VerifyCostAllocation();
     end;
 
     [Test]
@@ -198,25 +198,25 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Team Member ISV Emb plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        asserterror CreateCostTypes;
+        asserterror CreateCostTypes();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create Cost Centers
-        asserterror CreateCostCenters;
+        asserterror CreateCostCenters();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create Cost Allocations
-        asserterror CreateCostAllocations;
+        asserterror CreateCostAllocations();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Create General Journal Lines and post them
-        asserterror CreateGeneralJournalLines;
+        asserterror CreateGeneralJournalLines();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -237,24 +237,24 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Device ISV Emb plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] Setup up Cost Accounting and invoking CostAccountingSetup.UpdateCostAcctgDimensions
-        SetupCostAccounting;
+        SetupCostAccounting();
 
         // [WHEN] Create Cost types and register them by
-        CreateCostTypes;
-        ChartofCostTypes.OpenEdit;
-        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke;
+        CreateCostTypes();
+        ChartofCostTypes.OpenEdit();
+        ChartofCostTypes.RegCostTypeInChartOfCostType.Invoke();
 
         // [WHEN] Create Cost Centers
-        CreateCostCenters;
+        CreateCostCenters();
 
         // [WHEN] Create Cost Allocations
-        CreateCostAllocations;
+        CreateCostAllocations();
 
         // [WHEN] Create General Journal Lines and post them
-        CreateGeneralJournalLines;
+        CreateGeneralJournalLines();
         Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
@@ -262,7 +262,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [THEN] Verify that the Cost Centers MAIN1 and MAIN2 have Net Change that is not 0,
         // but ADM,SALES and PROD, all have 0 Net Change
-        VerifyCostAllocation;
+        VerifyCostAllocation();
     end;
 
     local procedure Initialize()
@@ -279,7 +279,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Cost Accounting Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         CostRegister.DeleteAll();
@@ -311,7 +311,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         StartingDateForGLTransfer: Date;
     begin
         StartingDateForGLTransfer := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
-        CostAccountingSetup.OpenEdit;
+        CostAccountingSetup.OpenEdit();
         CostAccountingSetup."Starting Date for G/L Transfer".SetValue(StartingDateForGLTransfer);
         CostAccountingSetup."Auto Transfer from G/L".SetValue(true);
         Commit();
@@ -320,7 +320,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostAccountingSetup.Close();
     end;
 
-    local procedure CreateCostType(CostTypeNo: Integer; CostTypeName: Text[50]; GLAccountRange: Text[20]; CostType: Option)
+    local procedure CreateCostType(CostTypeNo: Integer; CostTypeName: Text[50]; GLAccountRange: Text[20]; CostType: Enum "Cost Account Type")
     var
         CostTypeCard: TestPage "Cost Type Card";
     begin
@@ -329,7 +329,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostTypeCard.Name.SetValue(CostTypeName);
         CostTypeCard."G/L Account Range".SetValue(GLAccountRange);
         CostTypeCard.Type.SetValue(CostType);
-        CostTypeCard.OK.Invoke;
+        CostTypeCard.OK().Invoke();
     end;
 
     local procedure CreateCostTypes()
@@ -351,7 +351,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CreateCostType(AllocationCostTypeID, AllocationAccountCostTypeTxt, '', CostType.Type::"Cost Type");
     end;
 
-    local procedure CreateCostCenter("Code": Code[10]; Name: Text[50]; SortingOrder: Integer; CostSubtype: Option)
+    local procedure CreateCostCenter("Code": Code[10]; Name: Text[50]; SortingOrder: Integer; CostSubtype: Enum "Cost Center Subtype")
     var
         CostCenterCard: TestPage "Cost Center Card";
     begin
@@ -360,7 +360,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostCenterCard.Name.SetValue(Name);
         CostCenterCard."Sorting Order".SetValue(SortingOrder);
         CostCenterCard."Cost Subtype".SetValue(CostSubtype);
-        CostCenterCard.OK.Invoke;
+        CostCenterCard.OK().Invoke();
     end;
 
     local procedure CreateCostCenters()
@@ -384,17 +384,17 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostAllocation."Cost Center Code".SetValue(CostCenterCode);
         CostAllocation."Credit to Cost Type".SetValue(CreditToCostType);
 
-        CostAllocation.AllocTarget.New;
+        CostAllocation.AllocTarget.New();
         CostAllocation.AllocTarget."Target Cost Type".SetValue(TargetCostType);
         CostAllocation.AllocTarget."Target Cost Center".SetValue(Main1Tok);
         CostAllocation.AllocTarget.Share.SetValue(Share1);
 
-        CostAllocation.AllocTarget.New;
+        CostAllocation.AllocTarget.New();
         CostAllocation.AllocTarget."Target Cost Type".SetValue(TargetCostType);
         CostAllocation.AllocTarget."Target Cost Center".SetValue(Main2Tok);
         CostAllocation.AllocTarget.Share.SetValue(Share2);
 
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     local procedure CreateCostAllocations()
@@ -438,7 +438,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
           GLBalAccountNo, AdmTok, Amount * 3);
     end;
 
-    local procedure SelectGLAccountNo(AccountCategory: Option; GenPostingType: Enum "General Posting Type"): Code[20]
+    local procedure SelectGLAccountNo(AccountCategory: Enum "G/L Account Category"; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -471,25 +471,25 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     var
         ChartofCostCenters: TestPage "Chart of Cost Centers";
     begin
-        ChartofCostCenters.OpenView;
+        ChartofCostCenters.OpenView();
         // Assert ADM,SALES,PROD do NOT have Net Change allocated to them
         ChartofCostCenters.FILTER.SetFilter(Code, AdmTok);
-        Assert.IsTrue(ChartofCostCenters.First, CostCenterOneEntryTxt);
+        Assert.IsTrue(ChartofCostCenters.First(), CostCenterOneEntryTxt);
         Assert.AreEqual('', ChartofCostCenters."Net Change".Value, StrSubstNo('%1 Cost Center must be empty in Net Change', AdmTok));
         ChartofCostCenters.FILTER.SetFilter(Code, SalesTok);
-        Assert.IsTrue(ChartofCostCenters.First, CostCenterOneEntryTxt);
+        Assert.IsTrue(ChartofCostCenters.First(), CostCenterOneEntryTxt);
         Assert.AreEqual('', ChartofCostCenters."Net Change".Value, StrSubstNo('%1 Cost Center must be empty in Net Change', SalesTok));
         ChartofCostCenters.FILTER.SetFilter(Code, ProdTok);
-        Assert.IsTrue(ChartofCostCenters.First, CostCenterOneEntryTxt);
+        Assert.IsTrue(ChartofCostCenters.First(), CostCenterOneEntryTxt);
         Assert.AreEqual('', ChartofCostCenters."Net Change".Value, StrSubstNo('%1 Cost Center must be empty in Net Change', ProdTok));
 
         // Assert Main1 and Main2 do have Net Change allocated to them
         ChartofCostCenters.FILTER.SetFilter(Code, Main1Tok);
-        Assert.IsTrue(ChartofCostCenters.First, CostCenterOneEntryTxt);
+        Assert.IsTrue(ChartofCostCenters.First(), CostCenterOneEntryTxt);
         Assert.AreNotEqual('', ChartofCostCenters."Net Change".Value,
           StrSubstNo('%1 Cost Center must have a non-zero value in Net Change', Main1Tok));
         ChartofCostCenters.FILTER.SetFilter(Code, Main2Tok);
-        Assert.IsTrue(ChartofCostCenters.First, CostCenterOneEntryTxt);
+        Assert.IsTrue(ChartofCostCenters.First(), CostCenterOneEntryTxt);
         Assert.AreNotEqual('', ChartofCostCenters."Net Change".Value,
           StrSubstNo('%1 Cost Center must have a non-zero value in Net Change', Main2Tok));
     end;
@@ -500,14 +500,14 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
     begin
         UpdateCostAcctgDimensions.CostCenterDimension.SetValue(DepartmentTok);
         UpdateCostAcctgDimensions.CostObjectDimension.SetValue(CustomerGroupTok);
-        UpdateCostAcctgDimensions.OK.Invoke;
+        UpdateCostAcctgDimensions.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CostAllocationModalHandlerPage(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     [ConfirmHandler]

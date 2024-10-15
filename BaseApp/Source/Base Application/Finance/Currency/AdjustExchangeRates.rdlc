@@ -6397,29 +6397,11 @@
       </DefaultValue>
       <Prompt>Name_GLAccountCaption</Prompt>
     </ReportParameter>
-    <ReportParameter Name="Balance_at_Date_FCY_GLAccountCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Balance_at_Date_FCY_GLAccountCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Balance_at_Date_FCY_GLAccountCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="Balance_at_Date_GLAccountCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Balance_at_Date_GLAccountCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Balance_at_Date_GLAccountCaption</Prompt>
-    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>40</NumberOfRows>
+      <NumberOfRows>38</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -6610,16 +6592,6 @@
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>37</RowIndex>
           <ParameterName>Name_GLAccountCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>38</RowIndex>
-          <ParameterName>Balance_at_Date_FCY_GLAccountCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>39</RowIndex>
-          <ParameterName>Balance_at_Date_GLAccountCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -6954,23 +6926,11 @@ End Function
         <Field Name="Balance_GLAccountFormat">
           <DataField>Balance_GLAccountFormat</DataField>
         </Field>
-        <Field Name="Balance_at_Date_FCY_GLAccount">
-          <DataField>Balance_at_Date_FCY_GLAccount</DataField>
-        </Field>
-        <Field Name="Balance_at_Date_FCY_GLAccountFormat">
-          <DataField>Balance_at_Date_FCY_GLAccountFormat</DataField>
-        </Field>
         <Field Name="Add_Curr_Bal_GLAccount">
           <DataField>Add_Curr_Bal_GLAccount</DataField>
         </Field>
         <Field Name="Add_Curr_Bal_GLAccountFormat">
           <DataField>Add_Curr_Bal_GLAccountFormat</DataField>
-        </Field>
-        <Field Name="Balance_at_Date_GLAccount">
-          <DataField>Balance_at_Date_GLAccount</DataField>
-        </Field>
-        <Field Name="Balance_at_Date_GLAccountFormat">
-          <DataField>Balance_at_Date_GLAccountFormat</DataField>
         </Field>
         <Field Name="AddRepCurrBalAtAdjDt">
           <DataField>AddRepCurrBalAtAdjDt</DataField>
@@ -6989,9 +6949,6 @@ End Function
         </Field>
         <Field Name="Correction2Format">
           <DataField>Correction2Format</DataField>
-        </Field>
-        <Field Name="EMU">
-          <DataField>EMU</DataField>
         </Field>
       </Fields>
       <Query>

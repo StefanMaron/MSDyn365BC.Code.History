@@ -33,7 +33,7 @@ codeunit 142057 "UT REP VATFUNC"
         REPORT.Run(REPORT::"VAT Statement Germany");
 
         // Verify: Verify Selection Type on Report VAT Statement Germany.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Selection', 1);  // Use 1 for Selection Option Closed.
     end;
 
@@ -51,7 +51,7 @@ codeunit 142057 "UT REP VATFUNC"
         REPORT.Run(REPORT::"VAT Statement Germany");
 
         // Verify: Verify Period Selection on Report VAT Statement Germany.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Heading', 'VAT entries before and within the period');
     end;
 
@@ -68,14 +68,14 @@ codeunit 142057 "UT REP VATFUNC"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := LibraryUTUtility.GetNewCode10;
+        GeneralLedgerSetup."Additional Reporting Currency" := LibraryUTUtility.GetNewCode10();
         GeneralLedgerSetup.Modify();
 
         // Exercise: Run Report for Additional Reporting Currency set in handler - VATStmtGermanyUseAmtsInAddCurrRequestPageHandler.
         REPORT.Run(REPORT::"VAT Statement Germany");
 
         // Verify: Verify Additional Reporting Currency on Report VAT Statement Germany.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeaderText', StrSubstNo('All amounts are in %1', GeneralLedgerSetup."Additional Reporting Currency"));
     end;
 
@@ -255,7 +255,7 @@ codeunit 142057 "UT REP VATFUNC"
 
         // Verify: Verify TotalEmpty Amount calculated by Report VAT Statement Germany with PrinInInteger as TRUE.
         GLAccount.CalcFields("Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalEmpty', Round(-GLAccount."Net Change", 1, '<'));
     end;
 
@@ -314,7 +314,7 @@ codeunit 142057 "UT REP VATFUNC"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
 
         // G/L Entry record required for Net Change of G/L Account.
@@ -330,7 +330,7 @@ codeunit 142057 "UT REP VATFUNC"
         VATEntry2: Record "VAT Entry";
     begin
         CreateVATStatementLine(VATStatementLine, '', VATStatementLine.Type::"VAT Entry Totaling", AmountType);
-        VATStatementLine."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        VATStatementLine."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         VATStatementLine.Modify();
 
         VATEntry2.FindLast();
@@ -351,8 +351,8 @@ codeunit 142057 "UT REP VATFUNC"
 
     local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AccountTotaling: Code[20]; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type")
     begin
-        VATStatementLine."Statement Template Name" := LibraryUTUtility.GetNewCode10;
-        VATStatementLine."Statement Name" := LibraryUTUtility.GetNewCode10;
+        VATStatementLine."Statement Template Name" := LibraryUTUtility.GetNewCode10();
+        VATStatementLine."Statement Name" := LibraryUTUtility.GetNewCode10();
         VATStatementLine."Account Totaling" := AccountTotaling;
         VATStatementLine."Calculate with" := VATStatementLine."Calculate with"::"Opposite Sign";
         VATStatementLine.Type := Type;
@@ -408,7 +408,7 @@ codeunit 142057 "UT REP VATFUNC"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         VATStatementGermany.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
-        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -419,7 +419,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         LibraryVariableStorage.Dequeue(EntrySelection);
         VATStatementGermany.Selection.SetValue(EntrySelection);
-        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -427,7 +427,7 @@ codeunit 142057 "UT REP VATFUNC"
     procedure VATStmtGermanyUseAmtsInAddCurrRequestPageHandler(var VATStatementGermany: TestRequestPage "VAT Statement Germany")
     begin
         VATStatementGermany.UseAmtsInAddCurr.SetValue(true);
-        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -439,7 +439,7 @@ codeunit 142057 "UT REP VATFUNC"
         LibraryVariableStorage.Dequeue(StatementTemplateName);
         VATStatementGermany."VAT Statement Name".SetFilter("Statement Template Name", StatementTemplateName);
         VATStatementGermany.PrintInIntegers.SetValue(true);
-        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ReportHandler]

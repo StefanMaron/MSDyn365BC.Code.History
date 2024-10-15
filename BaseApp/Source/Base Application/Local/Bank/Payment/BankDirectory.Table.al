@@ -1,11 +1,10 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
 using Microsoft.Foundation.Address;
-using System.IO;
 using System.Utilities;
 
 table 11500 "Bank Directory"
@@ -14,6 +13,7 @@ table 11500 "Bank Directory"
     DataPerCompany = false;
     DrillDownPageID = "Bank Directory";
     LookupPageID = "Bank Directory";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -159,7 +159,6 @@ table 11500 "Bank Directory"
         f: File;
         Byte: Char;
         i: Integer;
-        FileMgt: Codeunit "File Management";
     begin
         InitImport();
 

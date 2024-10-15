@@ -12,6 +12,9 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
+#if not CLEAN24
+using System.Environment.Configuration;
+#endif
 using System.Telemetry;
 
 report 3010546 "DTA Suggest Vendor Payments"
@@ -109,12 +112,11 @@ report 3010546 "DTA Suggest Vendor Payments"
                     if (FromCashDiscDate = 0D) or (ToCashDiscDate = 0D) then
                         Error(Text002);
 
-                    if FromCashDiscDate < WorkDate() then begin
+                    if FromCashDiscDate < WorkDate() then
                         if not
                            Confirm(Text003, false, FromCashDiscDate, WorkDate())
                         then
                             Error(Text005);
-                    end;
                 end;
 
                 GlSetup.Get();
@@ -268,10 +270,12 @@ report 3010546 "DTA Suggest Vendor Payments"
         }
 
         trigger OnOpenPage()
+        var
+            NoSeries: Codeunit "No. Series";
         begin
             // Journal Name for No Serie
             GlBatchName.Get(ToGlLine."Journal Template Name", ToGlLine."Journal Batch Name");
-            DocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
+            DocNo := NoSeries.PeekNextNo(GlBatchName."No. Series", PostDate);
 
             if ReqFormDebitBank."Bank Code" = '' then
                 AutoDebitBank := true;
@@ -341,7 +345,9 @@ report 3010546 "DTA Suggest Vendor Payments"
         ReqFormDebitBank: Record "DTA Setup";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorLedgEntryTemp: Record "Vendor Ledger Entry" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         Window: Dialog;
         DocNo: Code[20];
         NoOfLinesInserted: Integer;
@@ -363,8 +369,8 @@ report 3010546 "DTA Suggest Vendor Payments"
         VendWithCmTxt: Text[250];
         PmtLineAmount: Decimal;
         CurrencyFactor: Decimal;
-        AccountCurrency: Code[3];
-        PaymentCurrency: Code[3];
+        AccountCurrency: Code[10];
+        PaymentCurrency: Code[10];
         BalAccDesc: Text[50];
         InsertBankBalanceAccount: Boolean;
 
@@ -384,106 +390,99 @@ report 3010546 "DTA Suggest Vendor Payments"
         if VendEntry."Posting Date" <= PostDate then begin
             VendorLedgerEntryNo := VendEntry."Entry No.";
 
-            with ToGlLine do begin
-                Init();
-                "Journal Template Name" := "Journal Template Name";
-                "Journal Batch Name" := "Journal Batch Name";
-                LastLineNo := LastLineNo + 10000;
-                "Line No." := LastLineNo;
-                "Account Type" := "Account Type"::Vendor;
-                "Document No." := DocNo;
-                GlBatchName2.Get("Journal Template Name", "Journal Batch Name");
-                "Posting No. Series" := GlBatchName2."Posting No. Series";
+            ToGlLine.Init();
+            ToGlLine."Journal Template Name" := ToGlLine."Journal Template Name";
+            ToGlLine."Journal Batch Name" := ToGlLine."Journal Batch Name";
+            LastLineNo := LastLineNo + 10000;
+            ToGlLine."Line No." := LastLineNo;
+            ToGlLine."Account Type" := ToGlLine."Account Type"::Vendor;
+            ToGlLine."Document No." := DocNo;
+            GlBatchName2.Get(ToGlLine."Journal Template Name", ToGlLine."Journal Batch Name");
+            ToGlLine."Posting No. Series" := GlBatchName2."Posting No. Series";
 
-                Validate("Posting Date", PostDate);
-                Validate("Account No.", VendEntry."Vendor No.");
-                Validate("Document Type", "Document Type"::Payment);
-                Validate("Currency Code", VendEntry."Currency Code");
+            ToGlLine.Validate("Posting Date", PostDate);
+            ToGlLine.Validate("Account No.", VendEntry."Vendor No.");
+            ToGlLine.Validate("Document Type", ToGlLine."Document Type"::Payment);
+            ToGlLine.Validate("Currency Code", VendEntry."Currency Code");
 
-                Description := Format(Description + ', ' + VendEntry."External Document No.", -MaxStrLen(Description));
-                if not VendBank.Get(VendEntry."Vendor No.", VendEntry."Recipient Bank Account") then begin
-                    VendBank.Init();
-                    VendBank."Vendor No." := '';
-                end;
+            ToGlLine.Description := Format(ToGlLine.Description + ', ' + VendEntry."External Document No.", -MaxStrLen(ToGlLine.Description));
+            if not VendBank.Get(VendEntry."Vendor No.", VendEntry."Recipient Bank Account") then begin
+                VendBank.Init();
+                VendBank."Vendor No." := '';
+            end;
 
-                if InsertBankBalanceAccount then begin
-                    "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-                    "Bal. Account No." := GlBatchName2."Bal. Account No.";
-                end;
+            if InsertBankBalanceAccount then begin
+                ToGlLine."Bal. Account Type" := ToGlLine."Bal. Account Type"::"Bank Account";
+                ToGlLine."Bal. Account No." := GlBatchName2."Bal. Account No.";
+            end;
 
-                VendEntry.CalcFields("Remaining Amount");
+            VendEntry.CalcFields("Remaining Amount");
 
-                if (VendEntry."Pmt. Discount Date" >= PostDate) or
-                   (VendEntry."Pmt. Disc. Tolerance Date" >= PostDate)
-                then
-                    PmtAmt := -(VendEntry."Remaining Amount" - VendEntry."Remaining Pmt. Disc. Possible")
-                else
-                    PmtAmt := -VendEntry."Remaining Amount";
+            if (VendEntry."Pmt. Discount Date" >= PostDate) or
+               (VendEntry."Pmt. Disc. Tolerance Date" >= PostDate)
+            then
+                PmtAmt := -(VendEntry."Remaining Amount" - VendEntry."Remaining Pmt. Disc. Possible")
+            else
+                PmtAmt := -VendEntry."Remaining Amount";
 
-                "Applies-to Doc. Type" := VendEntry."Document Type";
-                "Applies-to Doc. No." := VendEntry."Document No.";
+            ToGlLine."Applies-to Doc. Type" := VendEntry."Document Type";
+            ToGlLine."Applies-to Doc. No." := VendEntry."Document No.";
 
-                SetJournalLineFieldsFromApplication();
+            ToGlLine.SetJournalLineFieldsFromApplication();
 
-                "Payment Fee Code" := VendBank."Payment Fee Code";
+            ToGlLine."Payment Fee Code" := VendBank."Payment Fee Code";
 
-                Validate(Amount, PmtAmt);
+            ToGlLine.Validate(Amount, PmtAmt);
+            // CHeck Max amount and reduce
+            if MaxAmtLCY > 0 then begin
+                if ToGlLine."Amount (LCY)" > RemainMaxAmtLCY then
+                    exit;
+                RemainMaxAmtLCY := RemainMaxAmtLCY - ToGlLine."Amount (LCY)";
+            end;
 
-                // CHeck Max amount and reduce
-                if MaxAmtLCY > 0 then begin
-                    if "Amount (LCY)" > RemainMaxAmtLCY then
-                        exit;
-                    RemainMaxAmtLCY := RemainMaxAmtLCY - "Amount (LCY)";
-                end;
-
-                "Recipient Bank Account" := VendEntry."Recipient Bank Account";
-
-                // Debit Bank from Vendor Bank or Vendor?
-                if VendBank."Debit Bank" <> '' then
-                    DtaSetup.Get(VendBank."Debit Bank")
-                else begin
-                    if not AutoDebitBank then
-                        DtaSetup.Get(ReqFormDebitBank."Bank Code");
-
-                    // Get Debit Bank automatically
-                    if AutoDebitBank then begin
-                        DtaSetup."Bank Code" := '';  // reset
-                        DtaSetup.Reset();
-
-                        // Bank according to Currency available? Else, main Bank in LCY
-                        if not (VendEntry."Currency Code" in ['', GlSetup."LCY Code"]) then begin
-                            DtaSetup.SetRange("DTA Currency Code", VendEntry."Currency Code");
-                            if not DtaSetup.FindFirst() then;
-                        end;
-
-                        // Main bank with currency '' or LCY
-                        if DtaSetup."Bank Code" = '' then begin
-                            DtaSetup.SetFilter("DTA Currency Code", '%1|%2', '', GlSetup."LCY Code");
-                            DtaSetup.SetRange("DTA Main Bank", true);
-                            if not DtaSetup.FindFirst() then
-                                Error(Text021, GlSetup."LCY Code");
-                        end;
+            ToGlLine."Recipient Bank Account" := VendEntry."Recipient Bank Account";
+            // Debit Bank from Vendor Bank or Vendor?
+            if VendBank."Debit Bank" <> '' then
+                DtaSetup.Get(VendBank."Debit Bank")
+            else begin
+                if not AutoDebitBank then
+                    DtaSetup.Get(ReqFormDebitBank."Bank Code");
+                // Get Debit Bank automatically
+                if AutoDebitBank then begin
+                    DtaSetup."Bank Code" := '';
+                    // reset
+                    DtaSetup.Reset();
+                    // Bank according to Currency available? Else, main Bank in LCY
+                    if not (VendEntry."Currency Code" in ['', GlSetup."LCY Code"]) then begin
+                        DtaSetup.SetRange("DTA Currency Code", VendEntry."Currency Code");
+                        if not DtaSetup.FindFirst() then;
+                    end;
+                    // Main bank with currency '' or LCY
+                    if DtaSetup."Bank Code" = '' then begin
+                        DtaSetup.SetFilter("DTA Currency Code", '%1|%2', '', GlSetup."LCY Code");
+                        DtaSetup.SetRange("DTA Main Bank", true);
+                        if not DtaSetup.FindFirst() then
+                            Error(Text021, GlSetup."LCY Code");
                     end;
                 end;
-
-                // From Vendor Bank, Requestform or Autobank(Currency Code)
-                "Debit Bank" := DtaSetup."Bank Code";
-
-                if DtaSetup."DTA/EZAG" = DtaSetup."DTA/EZAG"::DTA then
-                    DtaSetup.TestField("DTA Sender Clearing");
-
-                "Source Code" := 'DTA';
-                Clearing := DtaSetup."DTA Sender Clearing";
-                "Due Date" := VendEntry."Due Date";
-                Insert();
-
-                NoOfLinesInserted := NoOfLinesInserted + 1;
-                Window.Update(2, NoOfLinesInserted);
-                TotalAmtLCY := TotalAmtLCY + "Amount (LCY)";
-                Window.Update(3, TotalAmtLCY);
-
-                PmtsPerVendor := PmtsPerVendor + 1;
             end;
+            // From Vendor Bank, Requestform or Autobank(Currency Code)
+            ToGlLine."Debit Bank" := DtaSetup."Bank Code";
+
+            if DtaSetup."DTA/EZAG" = DtaSetup."DTA/EZAG"::DTA then
+                DtaSetup.TestField("DTA Sender Clearing");
+
+            ToGlLine."Source Code" := 'DTA';
+            ToGlLine.Clearing := DtaSetup."DTA Sender Clearing";
+            ToGlLine."Due Date" := VendEntry."Due Date";
+            ToGlLine.Insert();
+
+            NoOfLinesInserted := NoOfLinesInserted + 1;
+            Window.Update(2, NoOfLinesInserted);
+            TotalAmtLCY := TotalAmtLCY + ToGlLine."Amount (LCY)";
+            Window.Update(3, TotalAmtLCY);
+
+            PmtsPerVendor := PmtsPerVendor + 1;
 
             VendorLedgerEntry2.Get(VendorLedgerEntryNo);
             VendorLedgerEntry2."On Hold" := 'DTA';
@@ -532,7 +531,14 @@ report 3010546 "DTA Suggest Vendor Payments"
                 if BalAccDtaBank."Bal. Account Type" = BalAccDtaBank."Bal. Account Type"::"G/L Account" then begin
                     if not GlAcc.Get(BalAccDtaBank."Bal. Account No.") then
                         Error(Text025, BalAccDtaBank."Bank Code");
-                    AccountCurrency := GlAcc."Currency Code";
+#if not CLEAN24
+                    if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
+                        AccountCurrency := GlAcc."Source Currency Code"
+                    else
+                        AccountCurrency := GlAcc."Currency Code";
+#else
+                    AccountCurrency := GlAcc."Source Currency Code";
+#endif
                 end;
 
                 if BalAccDtaBank."Bal. Account Type" = BalAccDtaBank."Bal. Account Type"::"Bank Account" then begin

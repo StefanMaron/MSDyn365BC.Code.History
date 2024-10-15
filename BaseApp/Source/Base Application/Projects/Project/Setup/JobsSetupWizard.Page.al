@@ -12,7 +12,7 @@ using System.Utilities;
 
 page 1824 "Jobs Setup Wizard"
 {
-    Caption = 'Jobs Setup';
+    Caption = 'Projects Setup';
     DelayedInsert = true;
     PageType = NavigatePage;
     SourceTable = "Jobs Setup";
@@ -25,8 +25,10 @@ page 1824 "Jobs Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -37,8 +39,10 @@ page 1824 "Jobs Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -51,8 +55,8 @@ page 1824 "Jobs Setup Wizard"
                 Visible = WelcomeStepVisible;
                 group("Welcome to Jobs Setup")
                 {
-                    Caption = 'Welcome to Jobs Setup';
-                    InstructionalText = 'You can use jobs to track costs such as time sheets that you can then charge to your customer. Choose between many reports to track your job''s profitability.';
+                    Caption = 'Welcome to Projects Setup';
+                    InstructionalText = 'You can use projects to track costs such as time sheets that you can then charge to your customer. Choose between many reports to track your project''s profitability.';
                     Visible = WelcomeStepVisible;
                 }
                 group("Let's Go!")
@@ -67,12 +71,12 @@ page 1824 "Jobs Setup Wizard"
                 Visible = NoSeriesStepVisible;
                 group(NumberSeriesHelpMessage)
                 {
-                    Caption = 'Number series are used to group jobs with consecutive IDs. Please specify the number series that you want to use for the different types of job.';
+                    Caption = 'Number series are used to group projects with consecutive IDs. Please specify the number series that you want to use for the different types of project.';
                     Visible = NoSeriesStepVisible;
                     field(NoSeriesJob; NoSeriesJob)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Jobs No Series:';
+                        Caption = 'Projects No Series:';
                         TableRelation = "No. Series".Code;
 
                         trigger OnValidate()
@@ -114,7 +118,7 @@ page 1824 "Jobs Setup Wizard"
                     field(NoSeriesJobWIP; NoSeriesJobWIP)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job-WIP No Series:';
+                        Caption = 'Project-WIP No Series:';
                         TableRelation = "No. Series".Code;
 
                         trigger OnValidate()
@@ -134,12 +138,12 @@ page 1824 "Jobs Setup Wizard"
                 group("Specify the default posting group and WIP method.")
                 {
                     Caption = 'Specify the default posting group and WIP method.';
-                    InstructionalText = 'Specify the default accounts that will be used to post to for jobs. The information is used when you create a new job, but you can change that for each job.';
+                    InstructionalText = 'Specify the default accounts that will be used to post to for projects. The information is used when you create a new project, but you can change that for each project.';
                     Visible = PostWIPStepVisible;
                     field(DefaultJobPostingGroup; DefaultJobPostingGroup)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Default Job Posting Group';
+                        Caption = 'Default Project Posting Group';
                         TableRelation = "Job Posting Group".Code;
 
                         trigger OnValidate()
@@ -241,7 +245,7 @@ page 1824 "Jobs Setup Wizard"
                     field(SuiteJobApproval; SuiteJobApproval)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Time Sheet by Job Approval';
+                        Caption = 'Time Sheet by Project Approval';
                         OptionCaption = 'Time Sheet Approver User ID,Machine Only,Person Responsible';
                     }
                 }
@@ -253,13 +257,13 @@ page 1824 "Jobs Setup Wizard"
                 }
                 group(Control30)
                 {
-                    InstructionalText = 'Machine Only - For machine time sheets that are linked to a job, the responsible person for the job will approve the time sheets. For machine time sheets that are linked to a resource, the time sheets are approved by the specified time sheet approver.';
+                    InstructionalText = 'Machine Only - For machine time sheets that are linked to a project, the responsible person for the project will approve the time sheets. For machine time sheets that are linked to a resource, the time sheets are approved by the specified time sheet approver.';
                     ShowCaption = false;
                     Visible = ResourcesSetupStepVisible;
                 }
                 group(Control9)
                 {
-                    InstructionalText = 'The person who is specified as the responsible person for the job will approve time sheets.';
+                    InstructionalText = 'The person who is specified as the responsible person for the project will approve time sheets.';
                     ShowCaption = false;
                     Visible = ResourcesSetupStepVisible;
                 }
@@ -344,7 +348,7 @@ page 1824 "Jobs Setup Wizard"
                     Caption = 'That''s it!';
                     group(Control4)
                     {
-                        InstructionalText = 'You have now set things up so you can start creating jobs.';
+                        InstructionalText = 'You have now set things up so you can start creating projects.';
                         ShowCaption = false;
                     }
                     group(Control43)
@@ -354,7 +358,7 @@ page 1824 "Jobs Setup Wizard"
                     }
                     group(Control46)
                     {
-                        InstructionalText = 'Click Finish then refresh your role center to see the Jobs activities.';
+                        InstructionalText = 'Click Finish then refresh your role center to see the Projects activities.';
                         ShowCaption = false;
                     }
                 }
@@ -387,7 +391,7 @@ page 1824 "Jobs Setup Wizard"
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
                 InFooterBar = true;
-                Visible = NOT FinalStepVisible;
+                Visible = not FinalStepVisible;
 
                 trigger OnAction()
                 begin
@@ -401,7 +405,7 @@ page 1824 "Jobs Setup Wizard"
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
-                Visible = NOT FinalStepVisible;
+                Visible = not FinalStepVisible;
 
                 trigger OnAction()
                 begin
@@ -411,7 +415,7 @@ page 1824 "Jobs Setup Wizard"
             action(ActionCreateJob)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Create a new job';
+                Caption = 'Create a new project';
                 Enabled = CreateJobActionEnabled;
                 Image = Job;
                 InFooterBar = true;
@@ -499,16 +503,16 @@ page 1824 "Jobs Setup Wizard"
         SelectYesNoMsg: Label 'To continue, specify if you want to set up time sheets.';
         DefaultJobPostingGroup: Code[20];
         DefaultWIPMethod: Code[20];
-        SelectGroupAndBatchMsg: Label 'To continue, specify a default job posting group and WIP method.';
+        SelectGroupAndBatchMsg: Label 'To continue, specify a default project posting group and WIP method.';
         ModifyRecord: Boolean;
         FirstWeekday: Option;
         SuiteJobApproval: Option;
         EnterResourceNoMsg: Label 'To add this resource, specify a resource number.';
         ExistingResourceMsg: Label 'This resource number already exists. To continue, specify a new resource number.';
-        JobTxt: Label 'JOB', Locked = true;
+        JobTxt: Label 'PROJECT', Locked = true;
         ResourceTxt: Label 'RES', Locked = true;
         TimeSheetTxt: Label 'TS';
-        JobWipTxt: Label 'JOB-WIP', Locked = true;
+        JobWipTxt: Label 'PROJ-WIP', Locked = true;
         ResourceNo: Code[20];
         ResourceName: Text[50];
         ResourceUseTimeSheet: Boolean;
@@ -578,25 +582,24 @@ page 1824 "Jobs Setup Wizard"
         if ResourceNo = '' then
             Message(EnterResourceNoMsg)
         else
-            with Resource do
-                if not Get(ResourceNo) then begin
-                    Init();
-                    "No." := ResourceNo;
-                    Name := ResourceName;
-                    "Search Name" := Format(ResourceName);
-                    Type := ResourceType;
-                    "Use Time Sheet" := ResourceUseTimeSheet;
-                    "Time Sheet Owner User ID" := ResourceTimeSheetOwnerID;
-                    "Time Sheet Approver User ID" := ResourceTimeSheetApproverID;
-                    Insert();
-                    ResourceNo := '';
-                    ResourceName := '';
-                    ResourceType := ResourceType::Person;
-                    ResourceUseTimeSheet := true;
-                    ResourceTimeSheetOwnerID := '';
-                    ResourceTimeSheetApproverID := '';
-                end else
-                    Message(ExistingResourceMsg)
+            if not Resource.Get(ResourceNo) then begin
+                Resource.Init();
+                Resource."No." := ResourceNo;
+                Resource.Name := ResourceName;
+                Resource."Search Name" := Format(ResourceName);
+                Resource.Type := ResourceType;
+                Resource."Use Time Sheet" := ResourceUseTimeSheet;
+                Resource."Time Sheet Owner User ID" := ResourceTimeSheetOwnerID;
+                Resource."Time Sheet Approver User ID" := ResourceTimeSheetApproverID;
+                Resource.Insert();
+                ResourceNo := '';
+                ResourceName := '';
+                ResourceType := ResourceType::Person;
+                ResourceUseTimeSheet := true;
+                ResourceTimeSheetOwnerID := '';
+                ResourceTimeSheetApproverID := '';
+            end else
+                Message(ExistingResourceMsg)
     end;
 
     local procedure ShowAddUsersStep()
@@ -611,7 +614,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowAddResourcesStep()
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         SetAllStepsFalse();
         AddResourcesVisible := true;
@@ -621,7 +624,7 @@ page 1824 "Jobs Setup Wizard"
         ResourceUseTimeSheet := true;
 
         if (NoSeriesResource <> '') and (ResourceNo = '') then // Number series for Resource is set, auto-populate the Resource number
-            ResourceNo := NoSeriesManagement.GetNextNo(NoSeriesResource, 0D, true);
+            ResourceNo := NoSeries.GetNextNo(NoSeriesResource, 0D);
     end;
 
     local procedure ShowWelcomeStep()
@@ -725,66 +728,64 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure SaveJobsSetup()
     begin
-        with JobsSetup do
-            if not FindFirst() then begin
-                Init();
-                "Job Nos." := NoSeriesJob;
-                "Job WIP Nos." := NoSeriesJobWIP;
-                "Default Job Posting Group" := DefaultJobPostingGroup;
-                "Default WIP Method" := DefaultWIPMethod;
-                Insert();
-            end else begin
-                Get();
-                if "Job Nos." <> NoSeriesJob then begin
-                    ModifyRecord := true;
-                    "Job Nos." := NoSeriesJob;
-                end;
-
-                if "Job WIP Nos." <> NoSeriesJobWIP then begin
-                    ModifyRecord := true;
-                    "Job WIP Nos." := NoSeriesJobWIP;
-                end;
-
-                if "Default Job Posting Group" <> DefaultJobPostingGroup then begin
-                    ModifyRecord := true;
-                    "Default Job Posting Group" := DefaultJobPostingGroup;
-                end;
-
-                if "Default WIP Method" <> DefaultWIPMethod then begin
-                    ModifyRecord := true;
-                    "Default WIP Method" := DefaultWIPMethod;
-                end;
-
-                if ModifyRecord = true then
-                    Modify();
+        if not JobsSetup.FindFirst() then begin
+            JobsSetup.Init();
+            JobsSetup."Job Nos." := NoSeriesJob;
+            JobsSetup."Job WIP Nos." := NoSeriesJobWIP;
+            JobsSetup."Default Job Posting Group" := DefaultJobPostingGroup;
+            JobsSetup."Default WIP Method" := DefaultWIPMethod;
+            JobsSetup.Insert();
+        end else begin
+            JobsSetup.Get();
+            if JobsSetup."Job Nos." <> NoSeriesJob then begin
+                ModifyRecord := true;
+                JobsSetup."Job Nos." := NoSeriesJob;
             end;
+
+            if JobsSetup."Job WIP Nos." <> NoSeriesJobWIP then begin
+                ModifyRecord := true;
+                JobsSetup."Job WIP Nos." := NoSeriesJobWIP;
+            end;
+
+            if JobsSetup."Default Job Posting Group" <> DefaultJobPostingGroup then begin
+                ModifyRecord := true;
+                JobsSetup."Default Job Posting Group" := DefaultJobPostingGroup;
+            end;
+
+            if JobsSetup."Default WIP Method" <> DefaultWIPMethod then begin
+                ModifyRecord := true;
+                JobsSetup."Default WIP Method" := DefaultWIPMethod;
+            end;
+
+            if ModifyRecord = true then
+                JobsSetup.Modify();
+        end;
     end;
 
     local procedure SaveResourceInformation()
     begin
         SaveNoSeriesResourceTimeSheet();
-        with ResourcesSetup do
-            if CreateTimesheetYes then
-                if not FindFirst() then begin
-                    Init();
-                    "Time Sheet First Weekday" := FirstWeekday;
-                    "Time Sheet by Job Approval" := SuiteJobApproval;
-                    Insert();
-                end else begin
-                    Get();
-                    if "Time Sheet First Weekday" <> FirstWeekday then begin
-                        ModifyRecord := true;
-                        "Time Sheet First Weekday" := FirstWeekday;
-                    end;
+        if CreateTimesheetYes then
+            if not ResourcesSetup.FindFirst() then begin
+                ResourcesSetup.Init();
+                ResourcesSetup."Time Sheet First Weekday" := FirstWeekday;
+                ResourcesSetup."Time Sheet by Job Approval" := SuiteJobApproval;
+                ResourcesSetup.Insert();
+            end else begin
+                ResourcesSetup.Get();
+                if ResourcesSetup."Time Sheet First Weekday" <> FirstWeekday then begin
+                    ModifyRecord := true;
+                    ResourcesSetup."Time Sheet First Weekday" := FirstWeekday;
+                end;
 
-                    if "Time Sheet by Job Approval" <> SuiteJobApproval then begin
-                        ModifyRecord := true;
-                        "Time Sheet by Job Approval" := SuiteJobApproval;
-                    end;
+                if ResourcesSetup."Time Sheet by Job Approval" <> SuiteJobApproval then begin
+                    ModifyRecord := true;
+                    ResourcesSetup."Time Sheet by Job Approval" := SuiteJobApproval;
+                end;
 
-                    if ModifyRecord = true then
-                        Modify();
-                end
+                if ModifyRecord = true then
+                    ResourcesSetup.Modify();
+            end
     end;
 
     local procedure CreateAJobAction()
@@ -808,27 +809,26 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure SaveNoSeriesResourceTimeSheet()
     begin
-        with ResourcesSetup do
-            if not FindFirst() then begin
-                Init();
-                "Resource Nos." := NoSeriesResource;
-                "Time Sheet Nos." := NoSeriesTimeSheet;
-                Insert();
-            end else begin
-                Get();
-                if "Resource Nos." <> NoSeriesResource then begin
-                    ModifyRecord := true;
-                    "Resource Nos." := NoSeriesResource;
-                end;
-
-                if "Time Sheet Nos." <> NoSeriesTimeSheet then begin
-                    ModifyRecord := true;
-                    "Time Sheet Nos." := NoSeriesTimeSheet;
-                end;
-
-                if ModifyRecord = true then
-                    Modify();
+        if not ResourcesSetup.FindFirst() then begin
+            ResourcesSetup.Init();
+            ResourcesSetup."Resource Nos." := NoSeriesResource;
+            ResourcesSetup."Time Sheet Nos." := NoSeriesTimeSheet;
+            ResourcesSetup.Insert();
+        end else begin
+            ResourcesSetup.Get();
+            if ResourcesSetup."Resource Nos." <> NoSeriesResource then begin
+                ModifyRecord := true;
+                ResourcesSetup."Resource Nos." := NoSeriesResource;
             end;
+
+            if ResourcesSetup."Time Sheet Nos." <> NoSeriesTimeSheet then begin
+                ModifyRecord := true;
+                ResourcesSetup."Time Sheet Nos." := NoSeriesTimeSheet;
+            end;
+
+            if ModifyRecord = true then
+                ResourcesSetup.Modify();
+        end;
     end;
 }
 

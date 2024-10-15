@@ -54,13 +54,13 @@ codeunit 144033 "Test Vendor Balance to Date"
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vend', Vendor."No.");
 
         // Expect 2 rows for the vendor - one detailed line for the sales invoice, and one aggregation
-        Assert.AreEqual(2, LibraryReportDataset.RowCount, 'Expected 2 rows to be found in the report');
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), 'Expected 2 rows to be found in the report');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmtLCY', AppliesToGenJournalLine."Amount (LCY)");
     end;
 
@@ -93,14 +93,14 @@ codeunit 144033 "Test Vendor Balance to Date"
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vend', Vendor."No.");
         LibraryReportDataset.SetRange('DocNo_VendLedgEntry', VendorLedgerEntry."Document No.");
 
-        Assert.AreEqual(2, LibraryReportDataset.RowCount, 'Expected 2 rows to be found in the report');
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), 'Expected 2 rows to be found in the report');
 
         VendorLedgerEntry.CalcFields("Original Amt. (LCY)");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmtLCY', VendorLedgerEntry."Original Amt. (LCY)");
     end;
 
@@ -130,7 +130,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [THEN] Row[1]."ConsNo_DtldVendLedgEntry" = 1
         // [THEN] Row[2]."ConsNo_DtldVendLedgEntry" = 2
         // [THEN] Row[3] - TAG "ConsNo_DtldVendLedgEntry" does not exist
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(VendorNoTagTxt, Vendor."No.");
         VerifyTagOnRows(ConsNoDtldVendLedgEntryTagTxt);
     end;
@@ -173,13 +173,13 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
         Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
+        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName(), Vendor);
 
         // [THEN] 1st line: "I1".Amount = -900,00
         // [THEN] 2nd line: "P1".Amount = 300,00
         // [THEN] 3rd line: "P2".Amount = 200,00
         // [THEN] 4th line: "I1".Remaining Amount = -500,00
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 15, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 15, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 15, Format(Amount[3]));
@@ -229,7 +229,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
         Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
+        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName(), Vendor);
 
         // [THEN] 1st line: "I1".Amount = -1000
         // [THEN] 2nd line: "P1".Amount =  300
@@ -237,7 +237,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [THEN] 4th line: "I2".Amount = -2000
         // [THEN] 5th line: "P2".Amount = 200
         // [THEN] 6rd line: "I2".Remaining Amount = -1800
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 15, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 15, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 15, Format(Amount[1] + Amount[2]));
@@ -297,7 +297,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
         Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
+        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName(), Vendor);
 
         // [THEN] 1st line: "I1".Amount = -900
         // [THEN] 2nd line: "P1".Amount = 200
@@ -307,7 +307,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [THEN] 6st line: "I2".Amount = -300
         // [THEN] 7th line: "I3".Amount = -400
         // [THEN] 8th line: "P3".Remaining Amount = 100
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(14, 15, Format(Amount[1]));
         LibraryReportValidation.VerifyCellValue(15, 15, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(16, 15, Format(Amount[3]));
@@ -386,8 +386,8 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryReportValidation.VerifyCellValue(17, 15, Format(Amount[2]));
         LibraryReportValidation.VerifyCellValue(18, 15, Format(Amount[4]));
         LibraryReportValidation.VerifyCellValue(19, 15, Format(Amount[2] + Amount[4]));
-	
-	LibraryVariableStorage.AssertEmpty();
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [GIVEN] Purchase Invoice "PI1" for vendor "V1"
         // [GIVEN] Vendor "V2", "V2"."Vendor Posting Group" = "VPG"
         // [GIVEN] Purchase Invoice "PI2" for vendor "V2"
-        VendorPostingGroupCode := TwoPurchaseInvoicesWithVendorPostingGroup;
+        VendorPostingGroupCode := TwoPurchaseInvoicesWithVendorPostingGroup();
 
         Commit();
 
@@ -416,8 +416,8 @@ codeunit 144033 "Test Vendor Balance to Date"
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // [THEN] 5 rows are generated
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(5, LibraryReportDataset.RowCount, StrSubstNo(ReportEndDatasetErr, 5));
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(5, LibraryReportDataset.RowCount(), StrSubstNo(ReportEndDatasetErr, 5));
 
         // [THEN] Row[1]."OutputNo" = 1
         LibraryReportDataset.MoveToRow(1);
@@ -430,7 +430,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Assert.AreEqual(3, RowValue, StrSubstNo(ReportRowsErr, OutputNoTagTxt, 2));
 
         // [THEN] Row[5] is the total row
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalTagTxt, 'Total');
     end;
 
@@ -451,7 +451,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // [GIVEN] Purchase Invoice "PI1" for vendor "V1"
         // [GIVEN] Vendor "V2", "V2"."Vendor Posting Group" = "VPG"
         // [GIVEN] Purchase Invoice "PI2" for vendor "V2"
-        VendorPostingGroupCode := TwoPurchaseInvoicesWithVendorPostingGroup;
+        VendorPostingGroupCode := TwoPurchaseInvoicesWithVendorPostingGroup();
 
         Commit();
 
@@ -459,11 +459,11 @@ codeunit 144033 "Test Vendor Balance to Date"
         Vendor.Init();
         Vendor.SetFilter("Vendor Posting Group", VendorPostingGroupCode);
         LibraryReportValidation.SetFileName(VendorPostingGroupCode);
-        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
+        REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName(), Vendor);
 
         // [THEN] 3 excel worksheets are generated
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(3, LibraryReportValidation.CountWorksheets, CountOfSheetsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(3, LibraryReportValidation.CountWorksheets(), CountOfSheetsErr);
     end;
 
     [Test]
@@ -489,11 +489,11 @@ codeunit 144033 "Test Vendor Balance to Date"
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // [THEN] Report contains 1 page, because Totals part is situated on the same page with Vendor.
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, CountOfPagesWithTotalsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), CountOfPagesWithTotalsErr);
 
         // Tear Down.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -519,11 +519,11 @@ codeunit 144033 "Test Vendor Balance to Date"
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // [THEN] Report contains 2 pages, one for Vendor and one for Totals.
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(2, LibraryReportValidation.CountWorksheets, CountOfPagesWithTotalsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(2, LibraryReportValidation.CountWorksheets(), CountOfPagesWithTotalsErr);
 
         // Tear Down.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -578,7 +578,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentType,
@@ -588,7 +588,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; AppliedDocNo: Code[20])
+    local procedure ApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Document Type"; AppliedDocNo: Code[20])
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", Type);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliedDocNo);
@@ -596,7 +596,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure PostPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -614,7 +614,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostAppliedPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; AppliedToGenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal)
+    local procedure PostAppliedPurchaseDocument(var GenJournalLine: Record "Gen. Journal Line"; AppliedToGenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -639,7 +639,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         VerifyTagOneRow(XMLTag, 1);
         VerifyTagOneRow(XMLTag, 2);
         Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement(XMLTag), ReportNoRowsErr);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, StrSubstNo(ReportEndDatasetErr, 3));
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), StrSubstNo(ReportEndDatasetErr, 3));
     end;
 
     local procedure VerifyTagOneRow(XMLTag: Text; RowNo: Integer)
@@ -648,7 +648,7 @@ codeunit 144033 "Test Vendor Balance to Date"
     begin
         LibraryReportDataset.FindCurrentRowValue(XMLTag, RowValue);
         Assert.AreEqual(RowValue, RowNo, StrSubstNo(ReportRowsErr, XMLTag, RowNo));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
     end;
 
     [RequestPageHandler]
@@ -659,7 +659,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         SRVendorBalanceToDateRequestPage.PrintOnePerPage.SetValue(true);
         SRVendorBalanceToDateRequestPage.CheckGLPayables.SetValue(true);
         SRVendorBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
-        SRVendorBalanceToDateRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRVendorBalanceToDateRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -667,10 +667,10 @@ codeunit 144033 "Test Vendor Balance to Date"
     procedure VendorBalanceToDateRequestPageHandlerSaveAsExcel(var SRVendorBalanceToDateRequestPage: TestRequestPage "SR Vendor - Balance to Date")
     begin
         SRVendorBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
-        SRVendorBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean);
+        SRVendorBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean());
         SRVendorBalanceToDateRequestPage.CheckGLPayables.SetValue(true);
         SRVendorBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
-        SRVendorBalanceToDateRequestPage.SaveAsExcel(LibraryReportValidation.GetFileName);
+        SRVendorBalanceToDateRequestPage.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

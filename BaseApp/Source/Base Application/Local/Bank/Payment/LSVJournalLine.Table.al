@@ -17,6 +17,7 @@ table 3010834 "LSV Journal Line"
     DrillDownPageID = "LSV Journal Line List";
     LookupPageID = "LSV Journal Line List";
     Permissions = TableData "Cust. Ledger Entry" = rm;
+    DataClassification = CustomerContent;
 
     fields
     {

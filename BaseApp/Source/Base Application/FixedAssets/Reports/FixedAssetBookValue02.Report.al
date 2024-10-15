@@ -1466,29 +1466,28 @@ report 5606 "Fixed Asset - Book Value 02"
             ReclassGroupNetChangeAmounts[J] := 0;
             ReclassGroupDisposalAmounts[J] := 0;
         end;
-        with "Fixed Asset" do
-            case GroupTotals of
-                GroupTotals::"FA Class":
-                    GroupHeadLine := "FA Class Code";
-                GroupTotals::"FA Subclass":
-                    GroupHeadLine := "FA Subclass Code";
-                GroupTotals::"FA Location":
-                    GroupHeadLine := "FA Location Code";
-                GroupTotals::"Main Asset":
-                    begin
-                        FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
-                        GroupHeadLine :=
-                          StrSubstNo('%1 %2', Format(FA."Main Asset/Component"), "Component of Main Asset");
-                        if "Component of Main Asset" = '' then
-                            GroupHeadLine := StrSubstNo('%1 %2', GroupHeadLine, '*****');
-                    end;
-                GroupTotals::"Global Dimension 1":
-                    GroupHeadLine := "Global Dimension 1 Code";
-                GroupTotals::"Global Dimension 2":
-                    GroupHeadLine := "Global Dimension 2 Code";
-                GroupTotals::"FA Posting Group":
-                    GroupHeadLine := "FA Posting Group";
-            end;
+        case GroupTotals of
+            GroupTotals::"FA Class":
+                GroupHeadLine := "Fixed Asset"."FA Class Code";
+            GroupTotals::"FA Subclass":
+                GroupHeadLine := "Fixed Asset"."FA Subclass Code";
+            GroupTotals::"FA Location":
+                GroupHeadLine := "Fixed Asset"."FA Location Code";
+            GroupTotals::"Main Asset":
+                begin
+                    FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
+                    GroupHeadLine :=
+                      StrSubstNo('%1 %2', Format(FA."Main Asset/Component"), "Fixed Asset"."Component of Main Asset");
+                    if "Fixed Asset"."Component of Main Asset" = '' then
+                        GroupHeadLine := StrSubstNo('%1 %2', GroupHeadLine, '*****');
+                end;
+            GroupTotals::"Global Dimension 1":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 1 Code";
+            GroupTotals::"Global Dimension 2":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 2 Code";
+            GroupTotals::"FA Posting Group":
+                GroupHeadLine := "Fixed Asset"."FA Posting Group";
+        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
 

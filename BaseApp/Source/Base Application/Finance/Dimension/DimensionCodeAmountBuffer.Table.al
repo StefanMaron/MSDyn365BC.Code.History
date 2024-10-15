@@ -4,6 +4,7 @@ table 375 "Dimension Code Amount Buffer"
 {
     Caption = 'Dimension Code Amount Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

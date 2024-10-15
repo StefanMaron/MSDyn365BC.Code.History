@@ -69,16 +69,28 @@ report 11521 "SR G/L Entries Foreign Currenc"
             column(AdditionalCurrencyAmount_GLEntry; "Additional-Currency Amount")
             {
             }
+#if not CLEAN24
             column(Amount_GLEntryFCY; "Amount (FCY)")
             {
             }
+#else
+            column(Amount_GLEntryFCY; "Source Currency Amount")
+            {
+            }
+#endif
             column(Exrate; Exrate)
             {
                 DecimalPlaces = 2 : 3;
             }
+#if not CLEAN24
             column(GlAccCurrencyCode; GlAcc."Currency Code")
             {
             }
+#else
+            column(GlAccCurrencyCode; GlAcc."Source Currency Code")
+            {
+            }
+#endif
             column(BalAccType; BalAccType)
             {
             }
@@ -133,7 +145,11 @@ report 11521 "SR G/L Entries Foreign Currenc"
 
             trigger OnAfterGetRecord()
             begin
+#if not CLEAN24
                 CalcExrate("Amount (FCY)", Amount);
+#else
+                CalcExrate("Source Currency Amount", Amount);
+#endif
 
                 if not GlAcc.Get("G/L Account No.") then
                     GlAcc.Init();
@@ -248,10 +264,10 @@ report 11521 "SR G/L Entries Foreign Currenc"
         TotalDebitCreditBalanceCaptionLbl: Label 'Total Debit / Credit / Balance';
 
     [Scope('OnPrem')]
-    procedure CalcExrate(_FcyAmt: Decimal; _LcyAmt: Decimal): Decimal
+    procedure CalcExrate(FcyAmt: Decimal; LcyAmt: Decimal): Decimal
     begin
-        if _FcyAmt <> 0 then
-            exit(Round(_LcyAmt * 100 / _FcyAmt, 0.001));
+        if FcyAmt <> 0 then
+            exit(Round(LcyAmt * 100 / FcyAmt, 0.001));
         exit(0);
     end;
 

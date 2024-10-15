@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Entity;
 
+#pragma warning disable AL0659
 enum 5507 "Sales Cr. Memo Entity Buffer Status"
+#pragma warning restore AL0659
 {
     Extensible = false;
     AssignmentCompatibility = true;

@@ -18,7 +18,6 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        Assert: Codeunit Assert;
         HeaderText: Label 'All amounts are in %1';
 
     [Test]
@@ -40,7 +39,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         CreateItemWithTariffNumber(Item);
 
         // Create Intrastat Journal Line with Transaction specification.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Receipt);
+        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10(), IntrastatJnlLine.Type::Receipt);
         UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
 
         // Exercise: Run Report Intrastat - Checklist AT.
@@ -69,7 +68,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         CreateItemWithTariffNumber(Item);
 
         // Create Intrastat Journal Line with Transaction specification.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Receipt);
+        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10(), IntrastatJnlLine.Type::Receipt);
         UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
 
         // Exercise: Run Report Intrastat - Checklist AT.
@@ -81,19 +80,19 @@ codeunit 142037 "UT REP INTRASTAT AT"
 
     local procedure CreateItemWithTariffNumber(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
-        Item."Tariff No." := LibraryUTUtility.GetNewCode10;
+        Item."Tariff No." := LibraryUTUtility.GetNewCode10();
         Item.Modify();
     end;
 
     local procedure CreateIntrastatJnlTemplateAndBatch()
     begin
-        IntrastatJnlTemplate.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlTemplate.Name := LibraryUTUtility.GetNewCode10();
         IntrastatJnlTemplate.Insert();
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
-        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10();
         IntrastatJnlBatch.Insert();
     end;
 
@@ -101,7 +100,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion.Insert();
         CountryRegion."Intrastat Code" := CountryRegion.Code;
         CountryRegion.Modify();
@@ -112,8 +111,8 @@ codeunit 142037 "UT REP INTRASTAT AT"
     var
         CountryRegionCode: Code[10];
     begin
-        CreateIntrastatJnlTemplateAndBatch;
-        CountryRegionCode := CreateCountryRegion;
+        CreateIntrastatJnlTemplateAndBatch();
+        CountryRegionCode := CreateCountryRegion();
 
         IntrastatJnlLine."Journal Template Name" := IntrastatJnlTemplate.Name;
         IntrastatJnlLine."Journal Batch Name" := IntrastatJnlBatch.Name;
@@ -123,7 +122,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatJnlLine.Type := Type;
         IntrastatJnlLine."Tariff No." := Item."Tariff No.";
         IntrastatJnlLine."Country/Region Code" := CountryRegionCode;
-        IntrastatJnlLine."Transaction Type" := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Transaction Type" := LibraryUTUtility.GetNewCode10();
         IntrastatJnlLine."Transport Method" := TransportMethod;
         IntrastatJnlLine."Country/Region of Origin Code" := CountryRegionCode;
         IntrastatJnlLine."Item No." := Item."No.";
@@ -138,13 +137,13 @@ codeunit 142037 "UT REP INTRASTAT AT"
 
     local procedure VerifyIntrastatChecklistATReport(HeaderText: Text[30])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeaderText', HeaderText);
     end;
 
     local procedure VerifyIntrastatChecklistATReportForShipment(ElementName: Text; ExpectedValue: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -157,7 +156,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatChecklistAT."Intrastat Jnl. Batch".SetFilter("Journal Template Name", IntrastatJnlTemplate.Name);
         IntrastatChecklistAT."Intrastat Jnl. Batch".SetFilter(Name, IntrastatJnlBatch.Name);
         IntrastatChecklistAT."Intrastat Jnl. Line".SetFilter(Type, Format(Type::Receipt));
-        IntrastatChecklistAT.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatChecklistAT.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -169,7 +168,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatFormAT."Intrastat Jnl. Batch".SetFilter("Journal Template Name", IntrastatJnlTemplate.Name);
         IntrastatFormAT."Intrastat Jnl. Batch".SetFilter(Name, IntrastatJnlBatch.Name);
         IntrastatFormAT."Intrastat Jnl. Line".SetFilter(Type, Format(Type::Receipt));
-        IntrastatFormAT.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatFormAT.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -181,7 +180,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         IntrastatChecklistAT."Intrastat Jnl. Batch".SetFilter("Journal Template Name", IntrastatJnlTemplate.Name);
         IntrastatChecklistAT."Intrastat Jnl. Batch".SetFilter(Name, IntrastatJnlBatch.Name);
         IntrastatChecklistAT."Intrastat Jnl. Line".SetFilter(Type, Format(Type::Shipment));
-        IntrastatChecklistAT.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatChecklistAT.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

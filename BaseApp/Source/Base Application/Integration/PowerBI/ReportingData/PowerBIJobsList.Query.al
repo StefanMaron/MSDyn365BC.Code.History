@@ -9,7 +9,7 @@ using Microsoft.Projects.Project.Ledger;
 
 query 54 "Power BI Jobs List"
 {
-    Caption = 'Power BI Jobs List';
+    Caption = 'Power BI Projects List';
 
     elements
     {

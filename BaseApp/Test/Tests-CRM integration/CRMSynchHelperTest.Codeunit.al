@@ -33,19 +33,19 @@ codeunit 139173 "CRM Synch. Helper Test"
         CRMConnectionSetup.DeleteAll();
         CRMConnectionSetup.BaseCurrencyPrecision := 0;
         CRMConnectionSetup.Insert();
-        Assert.AreEqual(1, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 0');
+        Assert.AreEqual(1, CRMSynchHelper.GetBaseCurrencyPrecision(), 'for BaseCurrencyPrecision = 0');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 1;
         CRMConnectionSetup.Modify();
-        Assert.AreEqual(0.1, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 1');
+        Assert.AreEqual(0.1, CRMSynchHelper.GetBaseCurrencyPrecision(), 'for BaseCurrencyPrecision = 1');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 2;
         CRMConnectionSetup.Modify();
-        Assert.AreEqual(0.01, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 2');
+        Assert.AreEqual(0.01, CRMSynchHelper.GetBaseCurrencyPrecision(), 'for BaseCurrencyPrecision = 2');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 10;
         CRMConnectionSetup.Modify();
-        Assert.AreEqual(0.0000000001, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 10');
+        Assert.AreEqual(0.0000000001, CRMSynchHelper.GetBaseCurrencyPrecision(), 'for BaseCurrencyPrecision = 10');
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [FEATURE] [Currency]
         // [SCENARIO] GetCRMCurrencyDefaultPrecision() should return CRM Currency default precision
         // [GIVEN] CRM enabled, CRM default precision is defined
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
         CurrencyPrecision := LibraryRandom.RandIntInRange(0, 20);
         CRMConnectionSetup.Get();
         CRMConnectionSetup.CurrencyDecimalPrecision := CurrencyPrecision;
@@ -67,7 +67,7 @@ codeunit 139173 "CRM Synch. Helper Test"
 
         // [WHEN] GetCRMCurrencyDefaultPrecision() is called
         // [THEN] The correct currency precision is retrieved
-        Assert.AreEqual(CurrencyPrecision, CRMSynchHelper.GetCRMCurrencyDefaultPrecision, 'Unexpected CRM default currency precision');
+        Assert.AreEqual(CurrencyPrecision, CRMSynchHelper.GetCRMCurrencyDefaultPrecision(), 'Unexpected CRM default currency precision');
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [GIVEN] CRM enabled, CRM base currency is set
         InitializeCRMIntegration();
         ResetDefaultCRMSetupConfiguration();
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         ISOCurrencyCode := LibraryCRMIntegration.GetBaseCRMTestCurrencySymbol();
         LibraryERM.SetLCYCode(ISOCurrencyCode);
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, ISOCurrencyCode);
@@ -233,11 +233,11 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] FindCRMDefaultPriceList() should create the default NAV Price List in CRM, if it doesn't exist
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] There is no NAV default price list in CRM
         // [WHEN] FindCRMDefaultPriceList is called
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMSynchHelper.FindCRMDefaultPriceList(CRMPricelevel);
 
         // [THEN] The correct price list is created
@@ -253,10 +253,10 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] FindCRMDefaultPriceList() should return the default NAV Price List in CRM, if it does already exist
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] There is no NAV default price list in CRM
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         LibraryCRMIntegration.SetCRMDefaultPriceList(CRMPricelevel);
         Clear(CRMPricelevel);
 
@@ -277,14 +277,14 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] "CRM Connection Setup"."Default CRM Price List ID" is cleared on reset default CRM setup configuration
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] CRM Connection setup has non-empty "Default CRM Price List ID"
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         LibraryCRMIntegration.SetCRMDefaultPriceList(CRMPricelevel);
 
         // [WHEN] Reset default CRM setup configuration
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [THEN] "Default CRM Price List ID" is empty in CRM Connection Setup
         CRMConnectionSetup.Get();
@@ -302,14 +302,14 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] Blank "Default CRM Price List ID" is restored to the found Default Price List if it alreay exists
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] CRM Connection setup has non-empty "Default CRM Price List ID"
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         LibraryCRMIntegration.SetCRMDefaultPriceList(CRMPricelevel);
         ExpectedGUID := CRMPricelevel.PriceLevelId;
         // [GIVEN] Reset default CRM setup configuration
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [WHEN] FindCRMDefaultPriceList is called
         Clear(CRMPricelevel);
@@ -352,7 +352,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] UpdateCRMPriceListItem() should create a new price list item in CRM
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] A coupled Resource and CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
@@ -365,7 +365,7 @@ codeunit 139173 "CRM Synch. Helper Test"
 
         // [THEN] The correct price list item is created
         CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-        Assert.IsTrue(CRMProductpricelevel.FindFirst, 'The expected price list was not created in CRM.');
+        Assert.IsTrue(CRMProductpricelevel.FindFirst(), 'The expected price list was not created in CRM.');
 
         // [THEN] The price list item has correct values
         AssertProductAndPriceListItemAreConsistent(CRMProduct, CRMProductpricelevel);
@@ -384,7 +384,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO 381363] UpdateCRMPriceListItem() should create a default price list and new price list item in CRM if Price List ID is blank
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
         // [GIVEN] "Default CRM Price List ID" is blank
         CRMConnectionSetup.Get();
         Clear(CRMConnectionSetup."Default CRM Price List ID");
@@ -407,7 +407,7 @@ codeunit 139173 "CRM Synch. Helper Test"
 
         // [THEN] The correct price list item is created
         CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-        Assert.IsTrue(CRMProductpricelevel.FindFirst, 'The expected price list was not created in CRM.');
+        Assert.IsTrue(CRMProductpricelevel.FindFirst(), 'The expected price list was not created in CRM.');
 
         // [THEN] The price list item has correct values
         AssertProductAndPriceListItemAreConsistent(CRMProduct, CRMProductpricelevel);
@@ -424,7 +424,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] UpdateCRMPriceListItem() should update an existing price list item in CRM
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] A coupled Resource and CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
@@ -441,7 +441,7 @@ codeunit 139173 "CRM Synch. Helper Test"
 
         // [THEN] The price list item has correct values
         CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-        Assert.IsTrue(CRMProductpricelevel.FindFirst, 'The expected price list was not created in CRM.');
+        Assert.IsTrue(CRMProductpricelevel.FindFirst(), 'The expected price list was not created in CRM.');
         AssertProductAndPriceListItemAreConsistent(CRMProduct, CRMProductpricelevel);
     end;
 
@@ -457,7 +457,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO] FindNAVLocalCurrencyInCRM() should insert a LCY CRMTransactioncurrency if NAV LCY does not exist in CRMTransactioncurrency
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] NAV LCY = CRMOrganization.BaseCurrencySymbol
         CurrencyPrecision := LibraryRandom.RandIntInRange(1, 2);
@@ -492,7 +492,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO] FindNAVLocalCurrencyInCRM() should return a LCY CRMTransactioncurrency if NAV LCY exists in CRMTransactioncurrency
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] NAV LCY = DKK
         ISOCurrencyCode := 'DKK';
@@ -655,7 +655,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [CRM Account]
         // [SCENARIO] UpdateOwnerIfChanged() should not update OwnerId if source is not changed
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] Customer coupled to CRM Account.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Salesperson coupled CRM SystemUser
@@ -697,7 +697,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [CRM Account]
         // [SCENARIO] UpdateOwnerIfChanged() should update OwnerId and OwnerIdType if source's OwnerId is changed
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] Customer coupled to CRM Account.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Salesperson A coupled CRM SystemUser A
@@ -737,7 +737,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Synch. Helper Test");
 
         // [SCENARIO 201236] Update the state and status on the CRM Invoice, when not paid and Payment Method has "Create Bills" flag in Spanish version
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
 
         // [GIVEN] Payment Method "PM" with "Create Bills" flag, activated in ES version
         // [GIVEN] A posted NAV sales invoice "SI", not paid
@@ -763,8 +763,8 @@ codeunit 139173 "CRM Synch. Helper Test"
 
     local procedure InitializeCRMIntegration()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
     end;
 
     local procedure AssertProductAndPriceListItemAreConsistent(CRMProduct: Record "CRM Product"; CRMProductpricelevel: Record "CRM Productpricelevel")

@@ -424,7 +424,7 @@ codeunit 6502 "Late Binding Management"
         if TempTrackingSpecification.FindSet() then
             repeat
                 ReservEntry.SetTrackingFilterFromTrackingSpecIfNotBlank(TempTrackingSpecification);
-                if ReservEntry.FindSet(true, true) then
+                if ReservEntry.FindSet(true) then
                     repeat
                         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive); // Get demand
                         if not ReservEntry2.TrackingExists() then begin

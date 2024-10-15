@@ -71,7 +71,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     procedure MoveUpFirstRecord()
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
         NewLineNo := DataExportRecordField.MoveRecordUp(DataExportRecordField);
@@ -80,7 +80,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
         Assert.AreEqual(1, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     procedure MoveUpLastRecord()
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
         NewLineNo := DataExportRecordField.MoveRecordUp(DataExportRecordField);
@@ -102,7 +102,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
         Assert.AreEqual(1, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     begin
         Initialize();
 
-        InitializeTestData;
+        InitializeTestData();
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
 
         NewLineNo := DataExportRecordField.MoveRecordDown(DataExportRecordField);
@@ -125,7 +125,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
         Assert.AreEqual(2, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     procedure MoveDownFirstRecord()
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
         NewLineNo := DataExportRecordField.MoveRecordDown(DataExportRecordField);
@@ -145,7 +145,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
         Assert.AreEqual(2, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         Fields.SetRange(TableNo, TableNo);
         Fields.SetFilter("No.", '3|4');
@@ -175,7 +175,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 4000);
         Assert.AreEqual(2, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         Fields.SetRange(TableNo, TableNo);
         Fields.SetFilter("No.", '3|4');
@@ -205,7 +205,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 4000);
         Assert.AreEqual(4, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -215,13 +215,13 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         Fields.SetRange(TableNo, TableNo);
         Fields.SetFilter("No.", '1');
         asserterror DataExportRecordField.InsertSelectedFields(Fields, ExportCode, RecordCode, SourceLineNo, 1000);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -231,10 +231,10 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         Fields.SetRange(TableNo, TableNo);
-        Fields.SetRange("No.", GetFlowFieldNoFromTestData);
+        Fields.SetRange("No.", GetFlowFieldNoFromTestData());
         DataExportRecordField.InsertSelectedFields(Fields, ExportCode, RecordCode, SourceLineNo, 1000);
         DataExportRecordField.InsertSelectedFields(Fields, ExportCode, RecordCode, SourceLineNo, 1000);
 
@@ -246,13 +246,13 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
         Assert.AreEqual(1, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
-        Assert.AreEqual(GetFlowFieldNoFromTestData, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
+        Assert.AreEqual(GetFlowFieldNoFromTestData(), DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 3000);
-        Assert.AreEqual(GetFlowFieldNoFromTestData, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
+        Assert.AreEqual(GetFlowFieldNoFromTestData(), DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 4000);
         Assert.AreEqual(2, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -262,9 +262,9 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
-        DeleteTestData;
+        DeleteTestData();
         Fields.SetRange(TableNo, TableNo);
         Fields.SetFilter("No.", '1|2');
         DataExportRecordField.InsertSelectedFields(Fields, ExportCode, RecordCode, SourceLineNo, 0);
@@ -277,7 +277,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
         Assert.AreEqual(2, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         "Fields": Record "Field";
     begin
         Initialize();
-        InitializeTestData;
+        InitializeTestData();
 
         InsertTestRecord(-9999, 3);
         Fields.SetRange(TableNo, TableNo);
@@ -302,7 +302,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
         Assert.AreEqual(4, DataExportRecordField."Field No.", FieldNoNotAsExpectedText);
 
-        TearDown;
+        TearDown();
     end;
 
     [Normal]
@@ -316,9 +316,9 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         // Delete the testdata and insert two records.
         ExportCode := 'TestCode';
         RecordCode := 'UnitTstRec';
-        TableNo := GetTestDataTableNo;
+        TableNo := GetTestDataTableNo();
         SourceLineNo := 10000;
-        DeleteTestData;
+        DeleteTestData();
 
         InsertTestRecord(1000, 1);
         InsertTestRecord(2000, 2);
@@ -339,7 +339,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
         RecRef: RecordRef;
     begin
         // Field 58 'Balance' of Table 'Customer' is a FlowField, and will be used as test data.
-        RecRef.Open(GetTestDataTableNo);
+        RecRef.Open(GetTestDataTableNo());
         if not (RecRef.Field(58).Class = FieldClass::FlowField) then
             Error('The testdata is wrong. FlowField is needed for the testcase.');
         exit(58);

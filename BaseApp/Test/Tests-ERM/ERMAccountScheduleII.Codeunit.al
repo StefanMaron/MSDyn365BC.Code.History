@@ -62,7 +62,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
 
         // 3.Verify: Verify that names of columns are the same as they are in the Column Layout set.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
         ColumnLayout.FindSet();
         repeat
@@ -93,7 +93,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
 
         // 3.Verify: Verify that the report was saved successfully.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
         AccScheduleLine.FindFirst();
         LibraryReportDataset.AssertElementWithValueExists('AccScheduleName_Name', AccScheduleLine."Schedule Name");
@@ -125,7 +125,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
 
         // 3.Verify: Verify report header.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('AccScheduleName_Name', AccScheduleName.Name);
         LibraryReportDataset.AssertElementWithValueExists('ColumnLayoutName', ColumnLayoutName.Name);
     end;
@@ -203,7 +203,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
         if ColumnLayout.FindSet() then
             repeat
@@ -286,19 +286,19 @@ codeunit 134994 "ERM Account Schedule II"
 
         // [WHEN] User clicks Indent / Outdent,
         // [THEN] Indentation value on the line increases/decreases by 1 and cannot become negative
-        AccountSchedule.OpenEdit;
+        AccountSchedule.OpenEdit();
         AccountSchedule.CurrentSchedName.SetValue(AccScheduleName.Name);
-        AccountSchedule.First;
+        AccountSchedule.First();
 
-        AccountSchedule.Indent.Invoke;
+        AccountSchedule.Indent.Invoke();
         AccScheduleLine.Find();
         Assert.AreEqual(1, AccScheduleLine.Indentation, '');
 
-        AccountSchedule.Outdent.Invoke;
+        AccountSchedule.Outdent.Invoke();
         AccScheduleLine.Find();
         Assert.AreEqual(0, AccScheduleLine.Indentation, '');
 
-        AccountSchedule.Outdent.Invoke;
+        AccountSchedule.Outdent.Invoke();
         AccScheduleLine.Find();
         Assert.AreEqual(0, AccScheduleLine.Indentation, '');
     end;
@@ -624,7 +624,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunExportAccScheduleToExcel(AccScheduleName, DimensionValue);
 
         // [THEN] Excel file exported
-        Assert.IsTrue(FILE.Exists(LibraryReportValidation.GetFileName), AccScheduleExportErr);
+        Assert.IsTrue(FILE.Exists(LibraryReportValidation.GetFileName()), AccScheduleExportErr);
     end;
 
     [Test]
@@ -655,7 +655,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunExportAccScheduleWithDimFilter(AccScheduleName, DimFilterValue);
 
         // [THEN] Excel file contans values of dimensions filter
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(13, 1,
           StrSubstNo(DimFilterStringTok, DimFilterValue[1], DimFilterValue[2], DimFilterValue[3], DimFilterValue[4]));
     end;
@@ -689,7 +689,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunExportAccScheduleToExcel(AccScheduleName, DimensionValue);
 
         // [THEN] Excel file exported without error
-        Assert.IsTrue(FILE.Exists(LibraryReportValidation.GetFileName), AccScheduleExportErr);
+        Assert.IsTrue(FILE.Exists(LibraryReportValidation.GetFileName()), AccScheduleExportErr);
     end;
 
     [Test]
@@ -731,7 +731,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunExportAccSchedule(AccScheduleLine, AccScheduleName);
 
         // [THEN] Excel file contains filers for "Center", "Object" and "CashFlow"
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(2, 1, AccScheduleLine.FieldCaption("Cost Center Filter"));
         LibraryReportValidation.VerifyCellValue(2, 2, CostCenter.Code);
         LibraryReportValidation.VerifyCellValue(3, 1, AccScheduleLine.FieldCaption("Cost Object Filter"));
@@ -753,7 +753,7 @@ codeunit 134994 "ERM Account Schedule II"
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo(), AccScheduleLine.Show::Yes);
         NewAccountScheduleName := LibraryUtility.GenerateGUID();
 
         // Exercise
@@ -766,7 +766,7 @@ codeunit 134994 "ERM Account Schedule II"
         AssertAccountScheduleLineCopyEqualsAccountScheduleLine(NewAccountScheduleName, AccScheduleName.Name);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -781,7 +781,7 @@ codeunit 134994 "ERM Account Schedule II"
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo(), AccScheduleLine.Show::Yes);
 
         // Exercise
         Commit();
@@ -803,7 +803,7 @@ codeunit 134994 "ERM Account Schedule II"
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo(), AccScheduleLine.Show::Yes);
 
         // Exercise
         Commit();
@@ -814,7 +814,7 @@ codeunit 134994 "ERM Account Schedule II"
         Assert.ExpectedError(TargetExistsErr);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -840,7 +840,7 @@ codeunit 134994 "ERM Account Schedule II"
         Assert.ExpectedError(CopySourceNameMissingErr);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -857,10 +857,10 @@ codeunit 134994 "ERM Account Schedule II"
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo(), AccScheduleLine.Show::Yes);
 
         LibraryERM.CreateAccScheduleName(AccScheduleName2);
-        CreateAccScheduleLineWithGLAcc(AccScheduleLine2, AccScheduleName2.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine2.Show::Yes);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine2, AccScheduleName2.Name, LibraryERM.CreateGLAccountNo(), AccScheduleLine2.Show::Yes);
 
         // Exercise
         Commit();
@@ -870,7 +870,7 @@ codeunit 134994 "ERM Account Schedule II"
         Assert.ExpectedError(MultipleSourcesErr);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -893,9 +893,9 @@ codeunit 134994 "ERM Account Schedule II"
         Commit();
         LibraryVariableStorage.Enqueue(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
 
-        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.OpenEdit();
         AccountScheduleNames.FILTER.SetFilter(Name, GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
-        AccountScheduleNames.EditAccountSchedule.Invoke;
+        AccountScheduleNames.EditAccountSchedule.Invoke();
 
         // Verify
         Assert.RecordCount(AccScheduleName, OriginalCount);
@@ -922,9 +922,9 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Once for the Copy Account Schedule request page handler
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Another for the Account Schedule page handler
 
-        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.OpenEdit();
         AccountScheduleNames.FILTER.SetFilter(Name, GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
-        AccountScheduleNames.EditAccountSchedule.Invoke;
+        AccountScheduleNames.EditAccountSchedule.Invoke();
 
         // Verify
         AssertAccountScheduleCopyEqualsAccountSchedule(
@@ -933,7 +933,7 @@ codeunit 134994 "ERM Account Schedule II"
           NewAccountScheduleName, GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -957,9 +957,9 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Once for the Copy Account Schedule request page handler
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Another for the Account Schedule page handler
 
-        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.OpenEdit();
         AccountScheduleNames.FILTER.SetFilter(Name, GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
-        AccountScheduleNames.EditAccountSchedule.Invoke;
+        AccountScheduleNames.EditAccountSchedule.Invoke();
 
         // Verify
         AssertAccountScheduleCopyEqualsAccountSchedule(
@@ -968,7 +968,7 @@ codeunit 134994 "ERM Account Schedule II"
           NewAccountScheduleName, GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1008,7 +1008,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Post the gen. journal for "X" LCY to g/l account "A".
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(10, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Dimension Set ID", DimSetID);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1031,7 +1031,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportWithDims(AccScheduleName.Name, ColumnLayoutName.Name, TotalingDimensionValue);
 
         // [THEN] The report shows the account schedule line with amount = "X".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Acc__Schedule_Line_Description', AccScheduleLine.Description);
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', Format(GenJournalLine.Amount));
@@ -1072,7 +1072,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Post the gen. journal for "X" LCY to g/l account "A".
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(10, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Dimension Set ID", DimSetID);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1091,7 +1091,7 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportWithDims(AccScheduleName.Name, ColumnLayoutName.Name, TotalingDimensionValue);
 
         // [THEN] The report shows the account schedule line with amount = "X".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Acc__Schedule_Line_Description', AccScheduleLine.Description);
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', Format(GenJournalLine.Amount));
@@ -1132,7 +1132,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccSchedManagement.DrillDownFromOverviewPage(ColumnLayout, AccScheduleLine, PeriodType::Year);
 
         // [THEN] The message prints formula from column layout.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1245,7 +1245,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
-        GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         GLAccount: Record "G/L Account";
         ExchRate: Decimal;
@@ -1293,8 +1292,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
-        AccountNo: Code[20];
-        Amount: Decimal;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for empty Totaling line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
@@ -1328,7 +1325,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         AccountNo: Code[20];
-        Amount: Decimal;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for zero cell value line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
@@ -1364,7 +1360,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         AccountNo: Code[20];
-        Amount: Decimal;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for zero cell value line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Dash
@@ -1399,7 +1394,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
-        Amount: Decimal;
     begin
         // [FEATURE] [Report]
         // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for empty line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Zero
@@ -1435,7 +1429,6 @@ codeunit 134994 "ERM Account Schedule II"
         LocalCurrencySymbol: Text[10];
         MatrixMgt: Codeunit "Matrix Management";
         AccountNo: Code[20];
-        Amount: Decimal;
         ZeroDecimal: Decimal;
     begin
         // [FEATURE] [Report]
@@ -1649,7 +1642,7 @@ codeunit 134994 "ERM Account Schedule II"
         FinancialReports.Overview.Invoke();
 
         // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1) 
-        AccountSchedule1CurrentColumnName := AccScheduleOverview.CurrentColumnName.Value;
+        AccountSchedule1CurrentColumnName := AccScheduleOverview.CurrentColumnName.Value();
         AccScheduleOverview.Close();
 
         // [WHEN] Account Schedule Overview page is opened for "AS2"
@@ -1744,7 +1737,7 @@ codeunit 134994 "ERM Account Schedule II"
         Initialize();
 
         // [GIVEN] Column Layout "CL"
-        ColumnLayoutName.GET(CreateColumnLayoutWithName(LibraryUtility.GenerateGUID));
+        ColumnLayoutName.GET(CreateColumnLayoutWithName(LibraryUtility.GenerateGUID()));
 
         // [GIVEN] Account Schedule "AS1" with with "Default Column Layout" = "CL", Account Schedule "AS2" with empty Default Column Layout
         LibraryERM.CreateAccScheduleName(AccScheduleName[1]);
@@ -1764,7 +1757,7 @@ codeunit 134994 "ERM Account Schedule II"
         FinancialReports.Overview.Invoke();
 
         // [GIVEN] As "AS" has empty "Default Column Layout", Current Column Name = "Default" (w1)
-        AccountScheduleCurrentColumnName := AccScheduleOverview.CurrentColumnName.Value;
+        AccountScheduleCurrentColumnName := AccScheduleOverview.CurrentColumnName.Value();
         AccScheduleOverview.Close();
 
         // [WHEN] Account Schedule Overview page is opened for "AS1"
@@ -1791,7 +1784,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         LocalCurrencySymbol: Text[10];
-        RequestPageXML: Text;
         AccountNo: Code[20];
         Amount: Decimal;
     begin
@@ -2080,9 +2072,9 @@ codeunit 134994 "ERM Account Schedule II"
     var
         AccountScheduleNames: TestPage "Account Schedule Names";
     begin
-        AccountScheduleNames.OpenView;
+        AccountScheduleNames.OpenView();
         AccountScheduleNames.FILTER.SetFilter(Name, SourceAccountScheduleName);
-        AccountScheduleNames.CopyAccountSchedule.Invoke;
+        AccountScheduleNames.CopyAccountSchedule.Invoke();
     end;
 
     local procedure CopyMultipleAccountSchedule(SourceAccountScheduleName1: Code[10]; SourceAccountScheduleName2: Code[10])
@@ -2146,7 +2138,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetFinancialReportName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
         AccountSchedule.SetFilters(Format(WorkDate()), '', '', '', '', '', '', '');
-        AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName);
+        AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure RunExportAccScheduleToExcel(AccScheduleName: Record "Acc. Schedule Name"; DimensionValue: array[4] of Record "Dimension Value")
@@ -2168,7 +2160,7 @@ codeunit 134994 "ERM Account Schedule II"
         ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
     begin
         FinancialReport.Get(AccScheduleName.Name);
-        ExportAccSchedToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ExportAccSchedToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false);
         ExportAccSchedToExcel.SetTestMode(true);
         ExportAccSchedToExcel.UseRequestPage(false);
@@ -2183,7 +2175,7 @@ codeunit 134994 "ERM Account Schedule II"
         Clear(AccountSchedule);
         AccountSchedule.SetFinancialReportName(AccScheduleName.Name);
         AccountSchedule.SetFilters(Format(WorkDate()), '', '', '', DimFilterValue[1], DimFilterValue[2], DimFilterValue[3], DimFilterValue[4]);
-        AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName);
+        AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure RunAccountScheduleReportAndLoad(AccScheduleName: Record "Acc. Schedule Name")
@@ -2225,7 +2217,7 @@ codeunit 134994 "ERM Account Schedule II"
 
     local procedure VerifyDimensionsAndValueInExcel(DimensionValue: array[4] of Record "Dimension Value")
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         VerifyDimFilterAndDimValue(DimensionValue[1], 3);
         VerifyDimFilterAndDimValue(DimensionValue[2], 4);
         VerifyDimFilterAndDimValue(DimensionValue[3], 5);
@@ -2358,7 +2350,6 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure OpenAccountScheduleOverviewPage(Name: Code[10])
     var
         FinancialReports: TestPage "Financial Reports";
-        AccountSchedulePage: TestPage "Account Schedule";
     begin
         FinancialReports.OpenEdit();
         FinancialReports.FILTER.SetFilter(Name, Name);
@@ -2369,7 +2360,7 @@ codeunit 134994 "ERM Account Schedule II"
     [Scope('OnPrem')]
     procedure RHAccountSchedule(var AccountSchedule: TestRequestPage "Account Schedule")
     begin
-        AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2381,7 +2372,7 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Dequeue(AccScheduleName);
         AccountSchedule.AccSchedNam.SetValue(AccScheduleName);
         AccountSchedule.FinancialReport.SetValue(AccountSchedule.AccSchedNam);
-        AccountSchedule.Dim1Filter.Lookup;
+        AccountSchedule.Dim1Filter.Lookup();
     end;
 
     [ModalPageHandler]
@@ -2419,10 +2410,10 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         NewAccountScheduleName: Code[10];
     begin
-        NewAccountScheduleName := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name));
+        NewAccountScheduleName := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name));
 
         CopyAccountSchedule.NewAccountScheduleName.SetValue(NewAccountScheduleName);
-        CopyAccountSchedule.OK.Invoke;
+        CopyAccountSchedule.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2432,17 +2423,17 @@ codeunit 134994 "ERM Account Schedule II"
         ColumnLayoutName: Record "Column Layout Name";
         NewAccountScheduleName: Code[10];
     begin
-        NewAccountScheduleName := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(ColumnLayoutName.Name));
+        NewAccountScheduleName := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ColumnLayoutName.Name));
 
         CopyColumnLayout.NewColumnLayout.SetValue(NewAccountScheduleName);
-        CopyColumnLayout.OK.Invoke;
+        CopyColumnLayout.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopyAccountScheduleMissingNewNameRequestPageHandler(var CopyAccountSchedule: TestRequestPage "Copy Account Schedule")
     begin
-        CopyAccountSchedule.OK.Invoke;
+        CopyAccountSchedule.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2451,7 +2442,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name)));
+        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
     end;
 
     [PageHandler]
@@ -2460,7 +2451,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name)));
+        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
     end;
 
     [PageHandler]
@@ -2470,7 +2461,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name)));
+        AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
     end;
 
@@ -2553,7 +2544,7 @@ codeunit 134994 "ERM Account Schedule II"
     [Scope('OnPrem')]
     procedure AccScheduleLineRowFormulaMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [MessageHandler]

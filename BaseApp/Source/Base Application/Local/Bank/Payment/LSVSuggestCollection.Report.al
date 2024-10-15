@@ -223,40 +223,39 @@ report 3010831 "LSV Suggest Collection"
     procedure WritePmtSuggestLines(ActCustLedgEntry: Record "Cust. Ledger Entry")
     begin
         // Collection amt: Cust. Entry amount - Cash disc. possible
-        with ToLSVJourLine do
-            if CustLedgEntry."Posting Date" <= CollectionDate then begin
-                // Ensure, that the Entry is only once in the LSV Journal Line
-                LSVJourLineCheck.SetCurrentKey("Applies-to Doc. No.");
-                LSVJourLineCheck.SetRange("Applies-to Doc. No.", ActCustLedgEntry."Document No.");
-                LSVJourLineCheck.SetRange("LSV Status", "LSV Status"::Open, "LSV Status"::"Transferred to Pmt. Journal");
-                if LSVJourLineCheck.FindFirst() then
-                    exit;
+        if CustLedgEntry."Posting Date" <= CollectionDate then begin
+            // Ensure, that the Entry is only once in the LSV Journal Line
+            LSVJourLineCheck.SetCurrentKey("Applies-to Doc. No.");
+            LSVJourLineCheck.SetRange("Applies-to Doc. No.", ActCustLedgEntry."Document No.");
+            LSVJourLineCheck.SetRange("LSV Status", ToLSVJourLine."LSV Status"::Open, ToLSVJourLine."LSV Status"::"Transferred to Pmt. Journal");
+            if LSVJourLineCheck.FindFirst() then
+                exit;
 
-                Init();
-                "LSV Journal No." := LsvJournal."No.";
-                Validate("Customer No.", ActCustLedgEntry."Customer No.");
-                Validate("Currency Code", ActCustLedgEntry."Currency Code");
-                ActCustLedgEntry.CalcFields("Remaining Amount");
-                "Remaining Amount" := ActCustLedgEntry."Remaining Amount";
-                "Pmt. Discount" := ActCustLedgEntry."Remaining Pmt. Disc. Possible";
-                "Collection Amount" := ActCustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
-                "Applies-to Doc. No." := ActCustLedgEntry."Document No.";
-                "Cust. Ledg. Entry No." := ActCustLedgEntry."Entry No.";
-                Name := Customer.Name;
-                "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
+            ToLSVJourLine.Init();
+            ToLSVJourLine."LSV Journal No." := LsvJournal."No.";
+            ToLSVJourLine.Validate("Customer No.", ActCustLedgEntry."Customer No.");
+            ToLSVJourLine.Validate("Currency Code", ActCustLedgEntry."Currency Code");
+            ActCustLedgEntry.CalcFields("Remaining Amount");
+            ToLSVJourLine."Remaining Amount" := ActCustLedgEntry."Remaining Amount";
+            ToLSVJourLine."Pmt. Discount" := ActCustLedgEntry."Remaining Pmt. Disc. Possible";
+            ToLSVJourLine."Collection Amount" := ActCustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
+            ToLSVJourLine."Applies-to Doc. No." := ActCustLedgEntry."Document No.";
+            ToLSVJourLine."Cust. Ledg. Entry No." := ActCustLedgEntry."Entry No.";
+            ToLSVJourLine.Name := Customer.Name;
+            ToLSVJourLine."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
 
-                Insert(true);
+            ToLSVJourLine.Insert(true);
 
-                NoOfLinesInserted := NoOfLinesInserted + 1;
-                Window.Update(2, NoOfLinesInserted);
-                TotalAmt := TotalAmt + "Collection Amount";
-                Window.Update(3, TotalAmt);
+            NoOfLinesInserted := NoOfLinesInserted + 1;
+            Window.Update(2, NoOfLinesInserted);
+            TotalAmt := TotalAmt + ToLSVJourLine."Collection Amount";
+            Window.Update(3, TotalAmt);
 
-                EntriesPerCust := EntriesPerCust + 1;
-            end else begin
-                TempCustLedgEntry := CustLedgEntry;
-                TempCustLedgEntry.Insert();
-            end;
+            EntriesPerCust := EntriesPerCust + 1;
+        end else begin
+            TempCustLedgEntry := CustLedgEntry;
+            TempCustLedgEntry.Insert();
+        end;
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -296,7 +296,6 @@ report 11512 "Sales Picking List"
         ReqCopies: Integer;
         CopiesToPrint: Integer;
         ML_PickList: Label 'Picking List for Order';
-        ML_Page: Label 'Page';
         TitleTxt: Text[50];
         CopyTxt: Text[30];
         HeaderLabel: array[20] of Text[30];

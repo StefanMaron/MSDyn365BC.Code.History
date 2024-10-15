@@ -8,7 +8,6 @@ codeunit 132864 "User Groups Data Setup"
         TestUserSecId1Lbl: Label '24b82390-152d-40d8-8ccd-e85a9e087cb9';
         TestUserSecId2Lbl: Label '96923896-daad-4782-b4f1-893f0c20ad5e';
         TestUserSecId3Lbl: Label 'f781c995-3386-4f55-9b07-a3902a70acaa';
-        TestUserSecId4Lbl: Label '46d9d1a0-75f2-444a-a386-9657da1fe204';
         NoPermissionsNoMembersUserGroupCodeTxt: Label 'UG1';
         PermissionsButNoMembersUserGroupCodeTxt: Label 'UG2';
         NoPermissionsButWithMembersUserGroupCodeTxt: Label 'UG3';

@@ -30,8 +30,8 @@ report 3010541 "DTA File"
                 if ("Account No." = '') or (Amount = 0) then  // incomplete lne
                     CurrReport.Skip();
 
-                ClearVars;
-                CheckDebitBank;
+                ClearVars();
+                CheckDebitBank();
 
                 if not VendBank.Get("Account No.", "Recipient Bank Account") then  // Bank connection
                     Error(Text007, "Recipient Bank Account", "Account No.");
@@ -230,17 +230,14 @@ report 3010541 "DTA File"
 
     local procedure CheckDebitBank()
     begin
-        with "Gen. Journal Line" do begin
-            // Get Debit Bank
-            TestField("Debit Bank");
-
-            // Only Pmt. for Debit Bank with identical sender and customer id
-            DtaSetup.Get("Debit Bank");
-            if (FileBank."DTA Sender ID" <> DtaSetup."DTA Sender ID") or
-               (FileBank."DTA Customer ID" <> DtaSetup."DTA Customer ID")
-            then
-                Error(Text010, FileBank."Bank Code", DtaSetup."Bank Code");
-        end;
+        // Get Debit Bank
+        "Gen. Journal Line".TestField("Debit Bank");
+        // Only Pmt. for Debit Bank with identical sender and customer id
+        DtaSetup.Get("Gen. Journal Line"."Debit Bank");
+        if (FileBank."DTA Sender ID" <> DtaSetup."DTA Sender ID") or
+           (FileBank."DTA Customer ID" <> DtaSetup."DTA Customer ID")
+        then
+            Error(Text010, FileBank."Bank Code", DtaSetup."Bank Code");
     end;
 
     local procedure PrepareFile(_Bankcode: Code[20])
@@ -267,24 +264,25 @@ report 3010541 "DTA File"
     local procedure PrepareSummaryPmt()
     begin
         // Text and summary pmt text prepare
-        with "Gen. Journal Line" do begin
-            VendEntry.SetCurrentKey("Document No.");
-            VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
-            VendEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            VendEntry.SetRange("Vendor No.", "Account No.");
-            if VendEntry.FindFirst() then begin
-                if SummaryPmtTxt = '' then
-                    SummaryPmtTxt := VendEntry."External Document No." // 1. Line: Ext. No.
+        VendEntry.SetCurrentKey("Document No.");
+        VendEntry.SetRange("Document Type", VendEntry."Document Type"::Invoice);
+        VendEntry.SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
+        VendEntry.SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
+        if VendEntry.FindFirst() then begin
+            if SummaryPmtTxt = '' then
+                SummaryPmtTxt := VendEntry."External Document No."
+            // 1. Line: Ext. No.
+            else
+                if StrLen(SummaryPmtTxt) < 50 then
+                    // Additional lines with free space: + Ext. No.
+                    SummaryPmtTxt := CopyStr(SummaryPmtTxt + ', ' + VendEntry."External Document No.", 1, 60)
                 else
-                    if StrLen(SummaryPmtTxt) < 50 then  // Additional lines with free space: + Ext. No.
-                        SummaryPmtTxt := CopyStr(SummaryPmtTxt + ', ' + VendEntry."External Document No.", 1, 60)
-                    else
-                        if StrPos(SummaryPmtTxt, Text015) = 0 then  // etc. not yet added
-                            SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 51) + Text016;
-                if VendEntry."On Hold" = '' then begin
-                    VendEntry."On Hold" := 'DTA';
-                    VendEntry.Modify();
-                end;
+                    if StrPos(SummaryPmtTxt, Text015) = 0 then
+                        // etc. not yet added
+                        SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 51) + Text016;
+            if VendEntry."On Hold" = '' then begin
+                VendEntry."On Hold" := 'DTA';
+                VendEntry.Modify();
             end;
         end;
     end;
@@ -293,13 +291,14 @@ report 3010541 "DTA File"
     procedure AdjustSummaryPmtText()
     begin
         // Adjust text and summary text before DTA record is written
-        with "Gen. Journal Line" do
-            if SummaryPmtTxt = VendEntry."External Document No." then  // Only one Pmt.
-                SummaryPmtTxt := ''
-            else begin
-                if StrPos(Description, VendEntry."External Document No.") > 0 then // Remove Ext. No in text
-                    Description := CopyStr(Description, 1, StrPos(Description, VendEntry."External Document No.") - 3);
-            end;
+        if SummaryPmtTxt = VendEntry."External Document No." then
+            // Only one Pmt.
+            SummaryPmtTxt := ''
+        else begin
+            if StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") > 0 then
+                // Remove Ext. No in text
+                "Gen. Journal Line".Description := CopyStr("Gen. Journal Line".Description, 1, StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") - 3);
+        end;
     end;
 
     local procedure DtaRecordWrite(_Vendor: Code[20]; _VendBank: Code[20]; _Curr: Code[10]; _Amt: Decimal; _PostDate: Date; _DocNo: Code[20]; _AppDocNo: Code[20]; _PostTxt: Text[100]; _PostTxt2: Text[60])
@@ -623,39 +622,37 @@ report 3010541 "DTA File"
         TestDocNo := 'TEST0000';
         TestDate := CalcDate('<1W>', Today);
         TestAmt := 1.0;
-        TestFile := true;  // Bei ESR/ESR+ Ref. Nr von Dummy Record
+        TestFile := true;
+        // Bei ESR/ESR+ Ref. Nr von Dummy Record
+        TestVendBank.Reset();
 
-        with TestVendBank do begin
-            Reset();
+        if TestVendBank.Find('-') then
+            repeat
+                if not ((TestVendBank."Vendor No." = '') or
+                        (TestVendBank."Payment Form" in [TestVendBank."Payment Form"::"Cash Outpayment Order Domestic", TestVendBank."Payment Form"::"Post Payment Abroad",
+                                            TestVendBank."Payment Form"::"Cash Outpayment Order Abroad"]) or (TestVendBank."ESR Type" = TestVendBank."ESR Type"::"5/15") or
+                        ((TestVendBank."Payment Form" in [TestVendBank."Payment Form"::ESR, TestVendBank."Payment Form"::"ESR+"]) and (TestVendBank."ESR Account No." = '')))
+                then begin
+                    if not TestVendor.Get(TestVendBank."Vendor No.") then
+                        Error(Text054, TestVendBank."Vendor No.", TestVendBank.Code);
 
-            if Find('-') then
-                repeat
-                    if not (("Vendor No." = '') or
-                            ("Payment Form" in ["Payment Form"::"Cash Outpayment Order Domestic", "Payment Form"::"Post Payment Abroad",
-                                                "Payment Form"::"Cash Outpayment Order Abroad"]) or ("ESR Type" = "ESR Type"::"5/15") or
-                            (("Payment Form" in ["Payment Form"::ESR, "Payment Form"::"ESR+"]) and ("ESR Account No." = '')))
-                    then begin
-                        if not TestVendor.Get("Vendor No.") then
-                            Error(Text054, "Vendor No.", Code);
+                    ClearVars();
+                    TestDocNo := IncStr(TestDocNo);
+                    TestTxt := CopyStr(Text055 + TestVendBank."Vendor No." + ' ' + TestVendBank.Code + ' ' + Format(TestVendBank."Payment Form"), 1, 50);
 
-                        ClearVars();
-                        TestDocNo := IncStr(TestDocNo);
-                        TestTxt := CopyStr(Text055 + "Vendor No." + ' ' + Code + ' ' + Format("Payment Form"), 1, 50);
-
-                        case "ESR Type" of
-                            "ESR Type"::"9/27":
-                                VendEntry."Reference No." := '330002000000000097010075184';
-                            "ESR Type"::"9/16":
-                                VendEntry."Reference No." := '4097160015679962';
-                        end;
-
-                        DtaRecordWrite(
-                          "Vendor No.", Code, TestVendor."Currency Code", TestAmt,
-                          TestDate, TestDocNo, '', TestTxt, '');
+                    case TestVendBank."ESR Type" of
+                        TestVendBank."ESR Type"::"9/27":
+                            VendEntry."Reference No." := '330002000000000097010075184';
+                        TestVendBank."ESR Type"::"9/16":
+                            VendEntry."Reference No." := '4097160015679962';
                     end;
 
-                until Next() = 0;
-        end;
+                    DtaRecordWrite(
+                      TestVendBank."Vendor No.", TestVendBank.Code, TestVendor."Currency Code", TestAmt,
+                      TestDate, TestDocNo, '', TestTxt, '');
+                end;
+
+            until TestVendBank.Next() = 0;
 
         WriteTotalRecord();
 

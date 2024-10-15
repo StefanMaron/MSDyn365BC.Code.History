@@ -92,9 +92,9 @@ codeunit 144057 "Test CH Sales Quote Reports"
         CalcSalesStatistics(SalesHeader);
 
         // Exercise.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Statistics.Invoke();
 
         // Verify. In page handler.
     end;
@@ -114,9 +114,9 @@ codeunit 144057 "Test CH Sales Quote Reports"
         CalcSalesStatistics(SalesHeader);
 
         // Exercise.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // Verify. In page handler.
     end;
@@ -158,9 +158,9 @@ codeunit 144057 "Test CH Sales Quote Reports"
 
         // Exercise.
         Commit();
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder."Test Report".Invoke;
+        SalesOrder."Test Report".Invoke();
 
         // Verify.
         VerifySalesOrderReport(SalesHeader);
@@ -338,9 +338,9 @@ codeunit 144057 "Test CH Sales Quote Reports"
 
         // [WHEN] Print the sales quote
         Commit();
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.Print.Invoke;
+        SalesQuote.Print.Invoke();
         SalesQuote.Close();
 
         // [THEN] "Classification", "Subtotal Net" and "Subtotal Gross" fields are updated in "End-Total" line
@@ -418,7 +418,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         until SalesLine.Next() = 0;
     end;
 
-    local procedure SetupSalesOrderWithSpecialLines(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure SetupSalesOrderWithSpecialLines(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
@@ -435,7 +435,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SetupSalesLine(SalesHeader, SalesLine."Quote Variant"::" ");
     end;
 
-    local procedure SetupSalesOrderWithTotals(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure SetupSalesOrderWithTotals(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Customer: Record Customer;
@@ -486,7 +486,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentCopyText', Format(SalesHeader."Document Type"));
         LibraryReportDataset.SetRange('DocumentNo', SalesHeader."No.");
 
@@ -500,7 +500,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         repeat
             LibraryReportDataset.SetRange('Type_Line', Format(SalesLine.Type));
             LibraryReportDataset.SetRange('LineNo_Line', SalesLine."Line No.");
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Special lines should be printed.');
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Special lines should be printed.');
             LibraryReportDataset.AssertCurrentRowValueEquals('ItemNo_Line', SalesLine."No.");
             if SalesLine.Type = SalesLine.Type::"item" then begin
                 LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', '0');
@@ -520,7 +520,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Sales_Header_Document_Type', Format(SalesHeader."Document Type"));
         LibraryReportDataset.SetRange('Sales_Header_No_', SalesHeader."No.");
 
@@ -530,7 +530,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('Sales_Line__Type', Format(SalesLine.Type));
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Special lines should be printed.');
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Special lines should be printed.');
             LibraryReportDataset.AssertCurrentRowValueEquals('Sales_Line__Quantity', 0);
             LibraryReportDataset.AssertCurrentRowValueEquals('Sales_Line___Line_Amount_', 0);
         until SalesLine.Next() = 0;
@@ -573,7 +573,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     [Scope('OnPrem')]
     procedure StandardSalesQuoteRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -584,7 +584,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesDocumentTest.InvOnNextPostReq.SetValue(true);
         SalesDocumentTest.ShowDim.SetValue(true);
         SalesDocumentTest.ShowItemChargeAssignment.SetValue(true);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -601,11 +601,11 @@ codeunit 144057 "Test CH Sales Quote Reports"
         LibraryVariableStorage.Dequeue(TotalQty);
         LibraryVariableStorage.Dequeue(TotalCost);
 
-        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics.LineAmountGeneral.AsDEcimal,
+        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics.LineAmountGeneral.AsDecimal(),
           GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics."TotalAmount1[1]".AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalQty, SalesOrderStatistics."TotalSalesLine[1].Quantity".AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalCost, SalesOrderStatistics."TotalAdjCostLCY[1]".AsDEcimal,
+        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics."TotalAmount1[1]".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalQty, SalesOrderStatistics."TotalSalesLine[1].Quantity".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalCost, SalesOrderStatistics."TotalAdjCostLCY[1]".AsDecimal(),
           GeneralLedgerSetup."Amount Rounding Precision", '');
     end;
 
@@ -623,10 +623,10 @@ codeunit 144057 "Test CH Sales Quote Reports"
         LibraryVariableStorage.Dequeue(TotalQty);
         LibraryVariableStorage.Dequeue(TotalCost);
 
-        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.Amount.AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.TotalAmount1.AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalQty, SalesStatistics."TotalSalesLine.Quantity".AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
-        Assert.AreNearlyEqual(TotalCost, SalesStatistics.TotalAdjCostLCY.AsDEcimal, GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.Amount.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.TotalAmount1.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalQty, SalesStatistics."TotalSalesLine.Quantity".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalCost, SalesStatistics.TotalAdjCostLCY.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
     end;
 
     [ConfirmHandler]

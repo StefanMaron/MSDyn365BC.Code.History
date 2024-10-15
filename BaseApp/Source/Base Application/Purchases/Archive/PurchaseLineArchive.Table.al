@@ -38,6 +38,7 @@ table 5110 "Purchase Line Archive"
 {
     Caption = 'Purchase Line Archive';
     PasteIsValid = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -224,7 +225,7 @@ table 5110 "Purchase Line Archive"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -586,85 +587,85 @@ table 5110 "Purchase Line Archive"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             Editable = false;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Type';
+            Caption = 'Project Line Type';
         }
         field(1003; "Job Unit Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Unit Price';
+            Caption = 'Project Unit Price';
         }
         field(1004; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Total Price';
+            Caption = 'Project Total Price';
         }
         field(1005; "Job Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
-            Caption = 'Job Line Amount';
+            Caption = 'Project Line Amount';
         }
         field(1006; "Job Line Discount Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
-            Caption = 'Job Line Discount Amount';
+            Caption = 'Project Line Discount Amount';
         }
         field(1007; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Discount %';
+            Caption = 'Project Line Discount %';
             DecimalPlaces = 0 : 5;
         }
         field(1008; "Job Unit Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Unit Price (LCY)';
+            Caption = 'Project Unit Price (LCY)';
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Total Price (LCY)';
+            Caption = 'Project Total Price (LCY)';
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Amount (LCY)';
+            Caption = 'Project Line Amount (LCY)';
         }
         field(1011; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Disc. Amount (LCY)';
+            Caption = 'Project Line Disc. Amount (LCY)';
         }
         field(1012; "Job Currency Factor"; Decimal)
         {
-            Caption = 'Job Currency Factor';
+            Caption = 'Project Currency Factor';
         }
         field(1013; "Job Currency Code"; Code[20])
         {
-            Caption = 'Job Currency Code';
+            Caption = 'Project Currency Code';
         }
         field(1019; "Job Planning Line No."; Integer)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
         }
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Remaining Qty.';
+            Caption = 'Project Remaining Qty.';
             DecimalPlaces = 0 : 5;
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
         {
-            Caption = 'Job Remaining Qty. (Base)';
+            Caption = 'Project Remaining Qty. (Base)';
         }
         field(1700; "Deferral Code"; Code[10])
         {

@@ -23,7 +23,9 @@ page 9125 "Item Application FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of the item in the entry.';
             }
+#pragma warning disable AA0100
             field("Item.""Costing Method"""; Item."Costing Method")
+#pragma warning restore AA0100
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Costing Method';

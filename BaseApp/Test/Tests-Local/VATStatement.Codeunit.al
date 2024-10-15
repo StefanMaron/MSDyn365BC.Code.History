@@ -181,7 +181,7 @@ codeunit 144005 "VAT Statement"
         Assert.ExpectedError(
           StrSubstNo(TestFieldErr, VATCipherSetup.FieldCaption("Total Revenue"), VATCipherSetup.TableCaption()));
         Assert.ExpectedErrorCode('TestField');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -223,36 +223,36 @@ codeunit 144005 "VAT Statement"
         // [SCENARIO 235785] All fields in VAT Cipher Setup are editable
         Initialize();
 
-        VATCipherSetup.OpenEdit;
-        Assert.IsTrue(VATCipherSetup."Total Revenue".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Revenue of Non-Tax. Services".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Deduction of Tax-Exempt".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Deduction of Services Abroad".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Deduction of Transfer".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Deduction of Non-Tax. Services".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Reduction in Payments".Editable, '');
-        Assert.IsTrue(VATCipherSetup.Miscellaneous.Editable, '');
-        Assert.IsTrue(VATCipherSetup."Total Deductions".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Total Taxable Revenue".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Normal Rate Serv. Before".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Reduced Rate Serv. Before".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Hotel Rate Serv. Before".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Acquisition Tax Before".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Total Owned Tax".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Normal Rate Serv. After".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Reduced Rate Serv. After".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Hotel Rate Serv. After".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Acquisition Tax After".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Input Tax on Material and Serv".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Input Tax on Investsments".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Deposit Tax".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Input Tax Corrections".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Input Tax Cutbacks".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Total Input Tax".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Tax Amount to Pay".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Credit of Taxable Person".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Cash Flow Taxes".Editable, '');
-        Assert.IsTrue(VATCipherSetup."Cash Flow Compensations".Editable, '');
+        VATCipherSetup.OpenEdit();
+        Assert.IsTrue(VATCipherSetup."Total Revenue".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Revenue of Non-Tax. Services".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Deduction of Tax-Exempt".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Deduction of Services Abroad".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Deduction of Transfer".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Deduction of Non-Tax. Services".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Reduction in Payments".Editable(), '');
+        Assert.IsTrue(VATCipherSetup.Miscellaneous.Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Total Deductions".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Total Taxable Revenue".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Normal Rate Serv. Before".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Reduced Rate Serv. Before".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Hotel Rate Serv. Before".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Acquisition Tax Before".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Total Owned Tax".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Normal Rate Serv. After".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Reduced Rate Serv. After".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Hotel Rate Serv. After".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Acquisition Tax After".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Input Tax on Material and Serv".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Input Tax on Investsments".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Deposit Tax".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Input Tax Corrections".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Input Tax Cutbacks".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Total Input Tax".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Tax Amount to Pay".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Credit of Taxable Person".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Cash Flow Taxes".Editable(), '');
+        Assert.IsTrue(VATCipherSetup."Cash Flow Compensations".Editable(), '');
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 144005 "VAT Statement"
         VATEntrySales: Record "VAT Entry";
         TotalTaxAmount: Decimal;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Normal and Reduced Rates
         LibraryReportDataset.AssertElementWithValueExists('FORMAT_NormalRateCur', StrSubstNo('%1%', NormalRate));
@@ -333,9 +333,9 @@ codeunit 144005 "VAT Statement"
         LibraryReportDataset.AssertElementWithValueExists(
           'ABS_Cipher510Amt_', Abs(TotalTaxAmount));
 
-        VerifySalesCipherCodes;
-        VerifyPurchaseCipherCodes;
-        VerifyTaxCalculationDates;
+        VerifySalesCipherCodes();
+        VerifyPurchaseCipherCodes();
+        VerifyTaxCalculationDates();
     end;
 
     local procedure CreateAndPostSalesOrder(GenBusPostGr: Code[20]; VATBusPostGr: Code[20]; GLAccountNo: Code[20]): Code[20]
@@ -460,7 +460,7 @@ codeunit 144005 "VAT Statement"
 
     local procedure VerifySalesCipherCodes()
     begin
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('V300Caption', '302');
         LibraryReportDataset.AssertCurrentRowValueEquals('V301Caption', '303');
         LibraryReportDataset.AssertCurrentRowValueEquals('V310Caption', '312');
@@ -473,7 +473,7 @@ codeunit 144005 "VAT Statement"
 
     local procedure VerifyPurchaseCipherCodes()
     begin
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('V400Caption', '400');
         LibraryReportDataset.AssertCurrentRowValueEquals('V405Caption', '405');
         LibraryReportDataset.AssertCurrentRowValueEquals('V410Caption', '410');
@@ -519,8 +519,8 @@ codeunit 144005 "VAT Statement"
         SwissVATStatement.NormalRateOldPct.SetValue(NormalRateOld);
         SwissVATStatement.ReducedRateOldPct.SetValue(ReducedRateOld);
         SwissVATStatement.HotelRateOldPct.SetValue(LibraryRandom.RandInt(10));
-        SwissVATStatement."VAT Statement Name".SetFilter("Statement Template Name", LibraryVariableStorage.DequeueText);
-        SwissVATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SwissVATStatement."VAT Statement Name".SetFilter("Statement Template Name", LibraryVariableStorage.DequeueText());
+        SwissVATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -544,10 +544,10 @@ codeunit 144005 "VAT Statement"
             SwissVATStatement.EndingDate.SetValue(WorkDate());
             SwissVATStatement.ClosedRgstrNo.SetValue(GLRegister."No.");
 
-            Date := SwissVATStatement.StartingDate.Value;
+            Date := SwissVATStatement.StartingDate.Value();
             Assert.AreEqual('', Date, DatesShouldBeBlankedErr);
 
-            Date := SwissVATStatement.EndingDate.Value;
+            Date := SwissVATStatement.EndingDate.Value();
             Assert.AreEqual('', Date, DatesShouldBeBlankedErr);
         end else begin
             SwissVATStatement.ClosedRgstrNo.SetValue(GLRegister."No.");
@@ -573,7 +573,7 @@ codeunit 144005 "VAT Statement"
         CalcAndPostVATSettlement.SettlementAcc.SetValue(SettlementAccountNo);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);
         CalcAndPostVATSettlement.Post.SetValue(true);
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -586,14 +586,14 @@ codeunit 144005 "VAT Statement"
         SwissVATStatement.EndingDate.SetValue('');
         SwissVATStatement.EndDateOfOldRates.SetValue('');
 
-        EndDate := LibraryVariableStorage.DequeueDate;
+        EndDate := LibraryVariableStorage.DequeueDate();
         SwissVATStatement.EndingDate.SetValue(EndDate);
         SwissVATStatement.EndDateOfOldRates.AssertEquals(CalcDate('<-CY>', EndDate) - 1);
 
         SwissVATStatement.EndDateOfOldRates.SetValue(EndDate);
         SwissVATStatement.EndDateOfOldRates.AssertEquals(CalcDate('<CY>', EndDate));
 
-        SwissVATStatement.Cancel.Invoke;
+        SwissVATStatement.Cancel().Invoke();
     end;
 
     [ConfirmHandler]

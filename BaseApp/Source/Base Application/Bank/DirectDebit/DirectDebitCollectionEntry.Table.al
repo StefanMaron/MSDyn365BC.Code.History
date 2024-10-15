@@ -11,6 +11,7 @@ table 1208 "Direct Debit Collection Entry"
     DataCaptionFields = "Customer No.", "Transaction ID";
     DrillDownPageID = "Direct Debit Collect. Entries";
     LookupPageID = "Direct Debit Collect. Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -145,7 +146,7 @@ table 1208 "Direct Debit Collection Entry"
         }
         field(12; "Mandate Type of Payment"; Option)
         {
-            CalcFormula = Lookup("SEPA Direct Debit Mandate"."Type of Payment" where(ID = field("Mandate ID")));
+            CalcFormula = lookup("SEPA Direct Debit Mandate"."Type of Payment" where(ID = field("Mandate ID")));
             Caption = 'Mandate Type of Payment';
             Editable = false;
             FieldClass = FlowField;
@@ -154,35 +155,35 @@ table 1208 "Direct Debit Collection Entry"
         }
         field(13; "Customer Name"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Customer Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(14; "Applies-to Entry Document No."; Code[20])
         {
-            CalcFormula = Lookup("Cust. Ledger Entry"."Document No." where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry"."Document No." where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Applies-to Entry Document No.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Applies-to Entry Description"; Text[100])
         {
-            CalcFormula = Lookup("Cust. Ledger Entry".Description where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry".Description where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Applies-to Entry Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "Applies-to Entry Posting Date"; Date)
         {
-            CalcFormula = Lookup("Cust. Ledger Entry"."Posting Date" where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry"."Posting Date" where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Applies-to Entry Posting Date';
             Editable = false;
             FieldClass = FlowField;
         }
         field(17; "Applies-to Entry Currency Code"; Code[10])
         {
-            CalcFormula = Lookup("Cust. Ledger Entry"."Currency Code" where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry"."Currency Code" where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Applies-to Entry Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -209,14 +210,14 @@ table 1208 "Direct Debit Collection Entry"
         }
         field(20; "Applies-to Entry Open"; Boolean)
         {
-            CalcFormula = Lookup("Cust. Ledger Entry".Open where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry".Open where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Applies-to Entry Open';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Direct Debit Collection Status"; Option)
         {
-            CalcFormula = Lookup("Direct Debit Collection".Status where("No." = field("Direct Debit Collection No.")));
+            CalcFormula = lookup("Direct Debit Collection".Status where("No." = field("Direct Debit Collection No.")));
             Caption = 'Direct Debit Collection Status';
             FieldClass = FlowField;
             OptionCaption = 'New,Canceled,File Created,Posted,Closed';
@@ -224,7 +225,7 @@ table 1208 "Direct Debit Collection Entry"
         }
         field(22; "Payment Reference"; Code[50])
         {
-            CalcFormula = Lookup("Cust. Ledger Entry"."Payment Reference" where("Entry No." = field("Applies-to Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry"."Payment Reference" where("Entry No." = field("Applies-to Entry No.")));
             Caption = 'Payment Reference';
             Editable = false;
             FieldClass = FlowField;

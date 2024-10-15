@@ -29,7 +29,7 @@ codeunit 134826 "UT Contact Table"
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
         // [FEATURE] [CLIENTTYPE::Phone]
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [GIVEN] Client is "Phone"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
@@ -39,7 +39,7 @@ codeunit 134826 "UT Contact Table"
         Contact."Mobile Phone No." := '222222';
 
         // [WHEN] call GetDefaultPhoneNo()
-        Assert.AreEqual(Contact."Mobile Phone No.", Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
+        Assert.AreEqual(Contact."Mobile Phone No.", Contact.GetDefaultPhoneNo(), 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns 'Y'
     end;
 
@@ -49,13 +49,13 @@ codeunit 134826 "UT Contact Table"
     var
         Contact: Record Contact;
     begin
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [GIVEN] Contact, where "Phone No." = <blank>, "Mobile Phone No." = 'Y'
         Contact.Init();
         Contact."Mobile Phone No." := '222222';
 
         // [WHEN] call GetDefaultPhoneNo()
-        Assert.AreEqual(Contact."Mobile Phone No.", Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
+        Assert.AreEqual(Contact."Mobile Phone No.", Contact.GetDefaultPhoneNo(), 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns 'Y'
     end;
 
@@ -65,14 +65,14 @@ codeunit 134826 "UT Contact Table"
     var
         Contact: Record Contact;
     begin
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [GIVEN] Contact, where "Phone No." = 'X', "Mobile Phone No." = 'Y'
         Contact.Init();
         Contact."Phone No." := '111111';
         Contact."Mobile Phone No." := '222222';
 
         // [WHEN] call GetDefaultPhoneNo()
-        Assert.AreEqual(Contact."Phone No.", Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
+        Assert.AreEqual(Contact."Phone No.", Contact.GetDefaultPhoneNo(), 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns 'X'
     end;
 
@@ -84,7 +84,7 @@ codeunit 134826 "UT Contact Table"
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
         // [FEATURE] [CLIENTTYPE::Phone]
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [GIVEN] Client is "Phone"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
@@ -93,7 +93,7 @@ codeunit 134826 "UT Contact Table"
         Contact."Phone No." := '111111';
 
         // [WHEN] call GetDefaultPhoneNo()
-        Assert.AreEqual(Contact."Phone No.", Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
+        Assert.AreEqual(Contact."Phone No.", Contact.GetDefaultPhoneNo(), 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns 'X'
     end;
 
@@ -103,11 +103,11 @@ codeunit 134826 "UT Contact Table"
     var
         Contact: Record Contact;
     begin
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [GIVEN] Contact, where both "Phone No." and "Mobile Phone No." are <blank>
         Contact.Init();
         // [WHEN] call GetDefaultPhoneNo()
-        Assert.AreEqual('', Contact.GetDefaultPhoneNo, 'GetDefaultPhoneNo()');
+        Assert.AreEqual('', Contact.GetDefaultPhoneNo(), 'GetDefaultPhoneNo()');
         // [THEN] GetDefaultPhoneNo() returns ''
     end;
 
@@ -144,7 +144,7 @@ codeunit 134826 "UT Contact Table"
 
         MockContact(Contact, Contact.Type::Person);
 
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         Contact.Delete(true);
         VerifyContactRelatedRecordsDeleted(Contact."No.");
@@ -161,7 +161,7 @@ codeunit 134826 "UT Contact Table"
 
         MockContact(Contact, Contact.Type::Company);
 
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         Contact.Delete(true);
         VerifyContactRelatedRecordsDeleted(Contact."No.");
@@ -414,7 +414,7 @@ codeunit 134826 "UT Contact Table"
         Assert.AreEqual(0DT, Contact.GetLastDateTimeModified(), '');
 
         ExpectedDateTime := CurrentDateTime;
-        Contact.SetLastDateTimeModified;
+        Contact.SetLastDateTimeModified();
 
         Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
     end;
@@ -424,7 +424,6 @@ codeunit 134826 "UT Contact Table"
     procedure Contact_GetLastDateTimeModified_02()
     var
         Contact: Record "Contact";
-        TypeHelper: Codeunit "Type Helper";
         ExpectedDateTime: DateTime;
         LocalTimeZoneOffset: Duration;
     begin
@@ -447,7 +446,6 @@ codeunit 134826 "UT Contact Table"
     procedure ContactCard_LastDateTimeModified()
     var
         Contact: Record "Contact";
-        TypeHelper: Codeunit "Type Helper";
         ContactCard: TestPage "Contact Card";
         ExpectedDateTime: DateTime;
         LocalTimeZoneOffset: Duration;
@@ -485,7 +483,7 @@ codeunit 134826 "UT Contact Table"
         Assert.AreEqual(0DT, Contact.GetLastDateTimeModified(), '');
 
         ExpectedDateTime := CurrentDateTime;
-        Contact.SetLastDateTimeModified;
+        Contact.SetLastDateTimeModified();
 
         Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
     end;

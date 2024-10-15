@@ -1,6 +1,7 @@
 table 136605 OptionAndEnumRS
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

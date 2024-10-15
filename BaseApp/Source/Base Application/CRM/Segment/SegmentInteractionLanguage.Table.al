@@ -9,6 +9,7 @@ using System.Utilities;
 table 5104 "Segment Interaction Language"
 {
     Caption = 'Segment Interaction Language';
+    DataClassification = CustomerContent;
     LookupPageID = "Segment Interaction Languages";
 
     fields

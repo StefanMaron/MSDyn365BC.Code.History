@@ -920,8 +920,8 @@ report 1303 "Standard Sales - Draft Invoice"
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 CalcFields("Work Description");
@@ -1052,7 +1052,7 @@ report 1303 "Standard Sales - Draft Invoice"
         layout("StandardDraftSalesInvoiceEmail.docx")
         {
             Type = Word;
-            LayoutFile = './Sales/Document/StandardSalesDraftInvoice.docx';
+            LayoutFile = './Sales/Document/StandardDraftSalesInvoiceEmail.docx';
             Caption = 'Standard Sales Draft Invoice Email (Word)';
             Summary = 'The Standard Sales Draft Invoice Email (Word) provides a email body layout.';
         }
@@ -1122,8 +1122,7 @@ report 1303 "Standard Sales - Draft Invoice"
     var
         DummyCompanyInfo: Record "Company Information";
         VATClause: Record "VAT Clause";
-        Language: Codeunit Language;
-        FormatAddr: Codeunit "Format Address";
+        LanguageMgt: Codeunit Language;
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         WorkDescriptionInstream: InStream;
@@ -1147,14 +1146,10 @@ report 1303 "Standard Sales - Draft Invoice"
         PrevLineAmount: Decimal;
         PmtDiscText: Text;
         PaymentInstructionsTxt: Text;
-        YourDocumentTitleText: Text;
-        DocumentTitleText: Text;
-        InvoiceNoText: Text;
         VATClausesText: Text;
-        BodyContentText: Text;
         NextInvoiceNo: Text;
         SalesConfirmationLbl: Label 'Draft Invoice';
-        YourDocLbl: Label 'Your %1', Comment = 'Your Draft Invoice or Your Invoice';
+        YourDocLbl: Label 'Your %1', Comment = '%1 - Your Draft Invoice or Your Invoice';
         SalespersonLbl: Label 'Sales person';
         CompanyInfoBankAccNoLbl: Label 'Account No.';
         CompanyInfoBankNameLbl: Label 'Bank';
@@ -1209,7 +1204,6 @@ report 1303 "Standard Sales - Draft Invoice"
         PricePerLbl: Label 'Price per';
         LCYTxt: label ' (LCY)';
         VATClauseText: Text;
-        LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl : Text;
 
     protected var
         GLSetup: Record "General Ledger Setup";
@@ -1224,6 +1218,7 @@ report 1303 "Standard Sales - Draft Invoice"
         RespCenter: Record "Responsibility Center";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        FormatAddr: Codeunit "Format Address";
         TotalText: Text[50];
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
@@ -1244,6 +1239,11 @@ report 1303 "Standard Sales - Draft Invoice"
         TotalPaymentDiscOnVAT: Decimal;
         TransHeaderAmount: Decimal;
         FirstLineHasBeenOutput: Boolean;
+        YourDocumentTitleText: Text;
+        DocumentTitleText: Text;
+        InvoiceNoText: Text;
+        BodyContentText: Text;
+        LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl : Text;
 
     local procedure InitLogInteraction()
     begin
@@ -1252,13 +1252,11 @@ report 1303 "Standard Sales - Draft Invoice"
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatDocument.SetTotalLabels(GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-        end;
+        FormatDocument.SetTotalLabels(SalesHeader.GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalespersonPurchaser, SalesHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesHeader."Payment Terms Code", SalesHeader."Language Code");
+        FormatDocument.SetPaymentMethod(PaymentMethod, SalesHeader."Payment Method Code", SalesHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeader."Shipment Method Code", SalesHeader."Language Code");
     end;
 
     protected procedure IsReportInPreviewMode(): Boolean
@@ -1272,14 +1270,14 @@ report 1303 "Standard Sales - Draft Invoice"
     begin
         ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
-            ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
+            ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false, Header."Currency Code");
         if TotalInvDiscAmount <> 0 then begin
-            ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false);
+            ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false, Header."Currency Code");
             if TotalAmountVAT <> 0 then
-                ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
+                ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false, Header."Currency Code");
         end;
         if TotalAmountVAT <> 0 then begin
-            ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
+            ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false, Header."Currency Code");
             if TotalVATAmountLCY <> TotalAmountVAT then
                 ReportTotalsLine.Add(VATAmountLine.VATAmountText() + LCYTxt, TotalVATAmountLCY, false, true, false);
         end;

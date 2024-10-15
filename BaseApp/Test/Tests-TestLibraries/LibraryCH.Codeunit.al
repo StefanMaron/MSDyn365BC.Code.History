@@ -12,7 +12,7 @@ codeunit 143001 "Library - CH"
         LibraryPurchase: Codeunit "Library - Purchase";
 
     [Scope('OnPrem')]
-    procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20]; VATStatementCipher: Code[20]; AmountType: Option; VATPostingType: Option)
+    procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20]; VATStatementCipher: Code[20]; AmountType: Enum "VAT Statement Line Amount Type"; VATPostingType: Enum "General Posting Type")
     var
         VATStatementName: Record "VAT Statement Name";
     begin
@@ -31,7 +31,7 @@ codeunit 143001 "Library - CH"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; SalesVATStatCipher: Code[20]; PurchaseVATStatCipher: Code[20])
+    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; SalesVATStatCipher: Code[20]; PurchaseVATStatCipher: Code[20])
     var
         GLAccount: Record "G/L Account";
         VATBusPostingGroup: Record "VAT Business Posting Group";

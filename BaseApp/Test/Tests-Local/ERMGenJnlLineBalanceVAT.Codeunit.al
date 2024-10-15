@@ -30,7 +30,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Sales "Invoice" Gen. Jnl. Line
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
         // [GIVEN] Sales "Payment" Gen. Jnl. Line with VAT in balance account and applied to "Invoice" Gen. Jnl. Line
         CreatePmtGenJnlLine(
           PmtGenJnlLine, InvGenJnlLine, CreateBalanceGLAcountNo(PmtGenJnlLine."Gen. Posting Type"::Sale));
@@ -54,7 +54,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Purchase "Invoice" Gen. Jnl. Line
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandInt(100));
         // [GIVEN] Purchase "Payment" Gen. Jnl. Line with VAT in balance account and applied to "Invoice" Gen. Jnl. Line
         CreatePmtGenJnlLine(
           PmtGenJnlLine, InvGenJnlLine, CreateBalanceGLAcountNo(PmtGenJnlLine."Gen. Posting Type"::Purchase));
@@ -79,11 +79,11 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Posted Sales Invoice
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
         PostInvoice(InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[1] with "Document No." = 1, without VAT in balance account and applied to posted invoice
-        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo);
+        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo());
         ApplyPmtToInvGenJnlLine(PmtGenJnlLine, InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[2] with "Document No." = 2 and with VAT in balance account
@@ -108,11 +108,11 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Posted Purchase Invoice
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandInt(100));
         PostInvoice(InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[1] with "Document No." = 1, without VAT in balance account and applied to posted invoice
-        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo);
+        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo());
         ApplyPmtToInvGenJnlLine(PmtGenJnlLine, InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[2] with "Document No." = 2 and with VAT in balance account
@@ -139,7 +139,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Posted Sales Invoice
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
         PostInvoice(InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[1] with "Document No." = 1, without VAT in balance account and applied to posted invoice. Balance = 0
@@ -171,7 +171,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
         // [GIVEN] Posted Purchase Invoice
         CreateInvGenJnlLine(
-          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandInt(100));
+          InvGenJnlLine, InvGenJnlLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandInt(100));
         PostInvoice(InvGenJnlLine);
 
         // [GIVEN] Payment Journal Line[1] with "Document No." = 1, without VAT in balance account and applied to posted invoice. Balance = 0
@@ -208,7 +208,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
           InvoiceGenJournalLine."Document Type"::Invoice,
           InvoiceGenJournalLine."Account Type"::"G/L Account",
           CreateBalanceGLAcountNo(InvoiceGenJournalLine."Gen. Posting Type"::Sale),
-          InvoiceGenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          InvoiceGenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandIntInRange(100, 200));
 
         LibraryERM.PostGeneralJnlLine(InvoiceGenJournalLine);
@@ -258,7 +258,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
           InvoiceGenJournalLine."Document Type"::Invoice,
           InvoiceGenJournalLine."Account Type"::"G/L Account",
           CreateBalanceGLAcountNo(InvoiceGenJournalLine."Gen. Posting Type"::Purchase),
-          InvoiceGenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          InvoiceGenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandIntInRange(100, 200));
 
         LibraryERM.PostGeneralJnlLine(InvoiceGenJournalLine);
@@ -324,7 +324,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
     var
         DocNo: Code[20];
     begin
-        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo);
+        CreatePmtGenJnlLine(PmtGenJnlLine, InvGenJnlLine, LibraryERM.CreateGLAccountNo());
         ApplyPmtToInvGenJnlLine(PmtGenJnlLine, InvGenJnlLine);
         DocNo := PmtGenJnlLine."Document No.";
         BalAccountNo[1] := PmtGenJnlLine."Bal. Account No.";

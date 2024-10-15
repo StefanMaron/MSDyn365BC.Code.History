@@ -7,6 +7,7 @@ namespace Microsoft.Finance.AuditFileExport;
 table 11010 "Data Exp. Primary Key Buffer"
 {
     Caption = 'Data Exp. Primary Key Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,7 @@ table 11504 "Swiss QRBill Billing Info"
     ObsoleteReason = 'moved to Swiss QR-Bill extension table 11511 Swiss QR-Bill Billing Info';
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

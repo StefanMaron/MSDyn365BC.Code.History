@@ -27,7 +27,7 @@ codeunit 132496 MockOnPostNotificationRequest
                 Error(ReceivedErr);
             'ErrorSuccess':
                 begin
-                    if Sender.GetCurrentRetryCounter = 1 then
+                    if Sender.GetCurrentRetryCounter() = 1 then
                         Error(ReceivedErr);
                     exit;
                 end;
@@ -35,7 +35,7 @@ codeunit 132496 MockOnPostNotificationRequest
                 HttpWebRequest := HttpWebRequest.Create('d');
             'WebException':
                 begin
-                    if Sender.GetCurrentRetryCounter = 1 then begin
+                    if Sender.GetCurrentRetryCounter() = 1 then begin
                         HttpWebRequest := HttpWebRequest.Create('https://www.bingsdf.com');
                         HttpWebRequest.Method := 'POST';
                         HttpWebRequest.ContentType('application/json');

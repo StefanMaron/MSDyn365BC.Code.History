@@ -21,7 +21,7 @@ codeunit 142029 "UT TAB DELIVREM"
     begin
         // Purpose of the test is to validate Trigger OnDelete on Issued Deliv. Reminder Header Table.
         // Setup: Create Issued Delivery Reminder Header and Delivery Reminder Comment Line.
-        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedDelivReminderHeader."No. Printed" := 1;
         IssuedDelivReminderHeader.Insert();
 
@@ -117,7 +117,7 @@ codeunit 142029 "UT TAB DELIVREM"
     begin
         // Purpose of the test is to validate Trigger OnDelete on Delivery Reminder Line Table.
         // Setup: Create two Delivery Reminder Line with relation Attached to Line No.
-        CreateDeliveryReminderLine(DeliveryReminderLine, LibraryUTUtility.GetNewCode, 1);  // Line No as 1.
+        CreateDeliveryReminderLine(DeliveryReminderLine, LibraryUTUtility.GetNewCode(), 1);  // Line No as 1.
         CreateDeliveryReminderLine(DeliveryReminderLine2, DeliveryReminderLine."Document No.", 2);  // Line No as 2.
         DeliveryReminderLine2."Attached to Line No." := DeliveryReminderLine."Line No.";
         DeliveryReminderLine2.Modify();

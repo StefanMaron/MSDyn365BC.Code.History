@@ -168,7 +168,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         SRVenDueAmountPerPeriod."Period Length".SetValue(PeriodLength);
         SRVenDueAmountPerPeriod.Layout.SetValue(Layout);
         SRVenDueAmountPerPeriod.ShowAmtInLCY.SetValue(ShowLCY);
-        SRVenDueAmountPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SRVenDueAmountPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure PostPurchaseInvoiceWithGivenDate(Vendor: Record Vendor; DueDate: Date; Amount: Decimal; CurrencyCode: Code[10])
@@ -243,10 +243,10 @@ codeunit 144028 "Test Vend. Due Amt. Report"
 
     local procedure VerifyReportDataBeforeKeyDate(Vendor: Record Vendor; Balance: array[5] of Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vend', Vendor."No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one vendor line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one vendor line in the report.');
+        LibraryReportDataset.GetNextRow();
 
         Vendor.CalcFields(Balance, "Balance (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY1', Balance[4] + Balance[5]);
@@ -260,10 +260,10 @@ codeunit 144028 "Test Vend. Due Amt. Report"
 
     local procedure VerifyReportDataAfterKeyDate(Vendor: Record Vendor; Balance: array[5] of Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vend', Vendor."No.");
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should only be one vendor line in the report.');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should only be one vendor line in the report.');
+        LibraryReportDataset.GetNextRow();
 
         Vendor.CalcFields(Balance, "Balance (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY1', 0);
@@ -282,7 +282,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         AllTotalAmountLCY: Decimal;
         "Count": Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         AllTotalAmountLCY := 0;
         for Count := 1 to ArrayLen(TotalAmountLCY) do begin

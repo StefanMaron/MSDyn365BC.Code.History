@@ -25,64 +25,64 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
-                "Document Exchange Status"::"Sent to Document Exchange Service",
-                "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet() then
-                repeat
-                    DocExchLinks.CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader);
-                    Commit();
-                until Next() = 0;
-        end;
+        SalesInvoiceHeader.SetFilter(
+            "Document Exchange Status",
+            StrSubstNo('%1|%2',
+                SalesInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service",
+                SalesInvoiceHeader."Document Exchange Status"::"Pending Connection to Recipient"));
+        if SalesInvoiceHeader.FindSet() then
+            repeat
+                DocExchLinks.CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader);
+                Commit();
+            until SalesInvoiceHeader.Next() = 0;
     end;
 
     local procedure CheckPostedCrMemos()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with SalesCrMemoHeader do begin
-            SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
-                "Document Exchange Status"::"Sent to Document Exchange Service",
-                "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet() then
-                repeat
-                    DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
-                    Commit();
-                until Next() = 0;
-        end;
+        SalesCrMemoHeader.SetFilter(
+            "Document Exchange Status",
+            StrSubstNo('%1|%2',
+                SalesCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service",
+                SalesCrMemoHeader."Document Exchange Status"::"Pending Connection to Recipient"));
+        if SalesCrMemoHeader.FindSet() then
+            repeat
+                DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
+                Commit();
+            until SalesCrMemoHeader.Next() = 0;
     end;
 
     local procedure CheckPostedServiceInvoices()
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        with ServiceInvoiceHeader do begin
-            SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
-                "Document Exchange Status"::"Sent to Document Exchange Service",
-                "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet() then
-                repeat
-                    DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
-                    Commit();
-                until Next() = 0;
-        end;
+        ServiceInvoiceHeader.SetFilter(
+            "Document Exchange Status",
+            StrSubstNo('%1|%2',
+                ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service",
+                ServiceInvoiceHeader."Document Exchange Status"::"Pending Connection to Recipient"));
+        if ServiceInvoiceHeader.FindSet() then
+            repeat
+                DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
+                Commit();
+            until ServiceInvoiceHeader.Next() = 0;
     end;
 
     local procedure CheckPostedServiceCrMemos()
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with ServiceCrMemoHeader do begin
-            SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
-                "Document Exchange Status"::"Sent to Document Exchange Service",
-                "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet() then
-                repeat
-                    DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
-                    Commit();
-                until Next() = 0;
-        end;
+        ServiceCrMemoHeader.SetFilter(
+            "Document Exchange Status",
+            StrSubstNo('%1|%2',
+                ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service",
+                ServiceCrMemoHeader."Document Exchange Status"::"Pending Connection to Recipient"));
+        if ServiceCrMemoHeader.FindSet() then
+            repeat
+                DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
+                Commit();
+            until ServiceCrMemoHeader.Next() = 0;
     end;
 
     local procedure CheckAndUpdateDocExchStatus(DocRecRef: RecordRef)
@@ -149,7 +149,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             exit;
         DataTypeManagement.FindFieldByName(DocRecRef, StatusFieldRef, 'Document Exchange Status');
         Options := StatusFieldRef.OptionMembers;
-        DocExchStatus := StatusFieldRef.Value;
+        DocExchStatus := StatusFieldRef.Value();
         case DocExchStatus of
             TypeHelper.GetOptionNo(Format(SalesInvoiceHeader."Document Exchange Status"::"Not Sent"), Options):
                 exit;
@@ -160,7 +160,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             TypeHelper.GetOptionNo(Format(SalesInvoiceHeader."Document Exchange Status"::"Delivered to Recipient"), Options):
                 begin
                     DataTypeManagement.FindFieldByName(DocRecRef, IdentifierFieldRef, 'Document Exchange Identifier');
-                    DocExchIdentifier := IdentifierFieldRef.Value;
+                    DocExchIdentifier := IdentifierFieldRef.Value();
                     HyperLink(DocExchServiceMgt.GetExternalDocURL(DocExchIdentifier));
                     exit;
                 end;

@@ -33,7 +33,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Recording");
 
         // [THEN] Verify Order No, Recording No, Status and Description on Report Physical Inventory Recording.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Phys__Invt__Recording_Header_Order_No_', PhysInvtRecordHeader."Order No.");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -62,7 +62,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Recording");
 
         // [THEN] Verify Report runs for all the Physical Inventory Order which exists in database.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         PhysInvtRecordHeader.FindFirst();
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
@@ -90,7 +90,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         REPORT.Run(REPORT::"Posted Phys. Invt. Recording");
 
         // [THEN] Verify Order No, Recording No and Description on Report Posted Physical Inventory Recording.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Posted_Phys__Invt__Rec__Header___Order_No__', PstdPhysInvtRecordHdr."Order No.");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -117,7 +117,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         REPORT.Run(REPORT::"Posted Phys. Invt. Recording");
 
         // [THEN] Verify Report runs for all the Physical Inventory Order which exists in database.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         PstdPhysInvtRecordHdr.FindFirst();
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
@@ -132,7 +132,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
     end;
 
@@ -164,7 +164,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         PhysInvtRecording."Phys. Invt. Record Header".SetFilter("Recording No.", Format(1));
         PhysInvtRecording."Phys. Invt. Record Header".SetFilter(Status, Format(Status::Open));
         PhysInvtRecording."Phys. Invt. Record Header".SetFilter(Description, 'Description');
-        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -177,21 +177,21 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         PostedPhysInvtRecording."Posted Phys. Invt. Record Hdr".SetFilter("Order No.", PostedPhysInvtRecHeaderOrderNo);
         PostedPhysInvtRecording."Posted Phys. Invt. Record Hdr".SetFilter("Recording No.", Format(1));
         PostedPhysInvtRecording."Posted Phys. Invt. Record Hdr".SetFilter(Description, 'Description');
-        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PhysInvtRecordingWithoutFilterRequestPageHandler(var PhysInvtRecording: TestRequestPage "Phys. Invt. Recording")
     begin
-        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PostedPhysInvtRecordingWithoutFilterRequestPageHandler(var PostedPhysInvtRecording: TestRequestPage "Posted Phys. Invt. Recording")
     begin
-        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

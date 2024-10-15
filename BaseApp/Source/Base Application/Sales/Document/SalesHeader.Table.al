@@ -80,6 +80,7 @@ table 36 "Sales Header"
     LookupPageID = "Sales List";
     Permissions = tabledata "Assemble-to-Order Link" = rmid,
                   tabledata "Assembly Header" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -208,7 +209,7 @@ table 36 "Sales Header"
                    (xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group")
                 then
                     RecreateSalesLines(SellToCustomerTxt);
-                  
+
                 OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(Rec, xRec, Customer, SkipSellToContact);
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
@@ -226,10 +227,12 @@ table 36 "Sales Header"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     GetSalesSetup();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -334,7 +337,7 @@ table 36 "Sales Header"
                 if "Bill-to Customer No." <> '' then
                     Customer.Get("Bill-to Customer No.");
 
-                if Customer.LookupCustomer(Customer) then begin
+                if Customer.SelectCustomer(Customer) then begin
                     xRec := Rec;
                     "Bill-to Name" := Customer.Name;
                     Validate("Bill-to Customer No.", Customer."No.");
@@ -472,6 +475,7 @@ table 36 "Sales Header"
                             CopyShipToCustomerAddressFieldsFromCust(Customer);
                         end;
 
+                UpdateShipToSalespersonCode();
                 GetShipmentMethodCode();
                 GetShippingTime(FieldNo("Ship-to Code"));
 
@@ -760,7 +764,8 @@ table 36 "Sales Header"
 
                 UpdateShipToAddress();
                 UpdateOutboundWhseHandlingTime();
-                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                if "Location Code" <> xRec."Location Code" then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -1255,6 +1260,11 @@ table 36 "Sales Header"
         {
             Caption = 'Combine Shipments';
         }
+        field(72; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+            DataClassification = CustomerContent;
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -1726,10 +1736,22 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Code"), CurrFieldNo <> 0);
             end;
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -1742,23 +1764,25 @@ table 36 "Sales Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
-                with SalesHeader do begin
-                    SalesHeader := Rec;
-                    GetSalesSetup();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
-                        Validate("Posting No. Series");
-                    Rec := SalesHeader;
-                end;
+                SalesHeader := Rec;
+                GetSalesSetup();
+                SalesHeader.TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetPostingNoSeriesCode(), SalesHeader."Posting No. Series") then
+                    SalesHeader.Validate("Posting No. Series");
+                Rec := SalesHeader;
             end;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Posting No. Series" <> '' then begin
                     GetSalesSetup();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
+                    NoSeries.TestAreRelated(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -1770,6 +1794,7 @@ table 36 "Sales Header"
 
             trigger OnLookup()
             var
+                NoSeries: Codeunit "No. Series";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1777,18 +1802,17 @@ table 36 "Sales Header"
                 if IsHandled then
                     exit;
 
-                with SalesHeader do begin
-                    SalesHeader := Rec;
-                    GetSalesSetup();
-                    SalesSetup.TestField("Posted Shipment Nos.");
-                    if NoSeriesMgt.LookupSeries(SalesSetup."Posted Shipment Nos.", "Shipping No. Series") then
-                        Validate("Shipping No. Series");
-                    Rec := SalesHeader;
-                end;
+                SalesHeader := Rec;
+                GetSalesSetup();
+                SalesSetup.TestField("Posted Shipment Nos.");
+                if NoSeries.LookupRelatedNoSeries(SalesSetup."Posted Shipment Nos.", SalesHeader."Shipping No. Series") then
+                    SalesHeader.Validate("Shipping No. Series");
+                Rec := SalesHeader;
             end;
 
             trigger OnValidate()
             var
+                NoSeries: Codeunit "No. Series";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1799,7 +1823,7 @@ table 36 "Sales Header"
                 if "Shipping No. Series" <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Shipment Nos.");
-                    NoSeriesMgt.TestSeries(SalesSetup."Posted Shipment Nos.", "Shipping No. Series");
+                    NoSeries.TestAreRelated(SalesSetup."Posted Shipment Nos.", "Shipping No. Series");
                 end;
                 TestField("Shipping No.", '');
             end;
@@ -1936,7 +1960,7 @@ table 36 "Sales Header"
                         TestField("Sell-to IC Partner Code");
                     IsHandled := false;
                     OnValidateSendICDocumentOnBeforeCheckICDirection(Rec, IsHandled);
-                    If not IsHandled then
+                    if not IsHandled then
                         TestField("IC Direction", "IC Direction"::Outgoing);
                 end;
             end;
@@ -1993,23 +2017,25 @@ table 36 "Sales Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
-                with SalesHeader do begin
-                    SalesHeader := Rec;
-                    GetSalesSetup();
-                    SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
-                    if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series") then
-                        Validate("Prepayment No. Series");
-                    Rec := SalesHeader;
-                end;
+                SalesHeader := Rec;
+                GetSalesSetup();
+                SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
+                if NoSeries.LookupRelatedNoSeries(GetPostingPrepaymentNoSeriesCode(), SalesHeader."Prepayment No. Series") then
+                    SalesHeader.Validate("Prepayment No. Series");
+                Rec := SalesHeader;
             end;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Prepayment No. Series" <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
-                    NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series");
+                    NoSeries.TestAreRelated(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series");
                 end;
                 TestField("Prepayment No.", '');
             end;
@@ -2034,23 +2060,25 @@ table 36 "Sales Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
-                with SalesHeader do begin
-                    SalesHeader := Rec;
-                    GetSalesSetup();
-                    SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
-                    if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series") then
-                        Validate("Prepmt. Cr. Memo No. Series");
-                    Rec := SalesHeader;
-                end;
+                SalesHeader := Rec;
+                GetSalesSetup();
+                SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
+                if NoSeries.LookupRelatedNoSeries(GetPostingPrepaymentNoSeriesCode(), SalesHeader."Prepmt. Cr. Memo No. Series") then
+                    SalesHeader.Validate("Prepmt. Cr. Memo No. Series");
+                Rec := SalesHeader;
             end;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Prepmt. Cr. Memo No." <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
-                    NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series");
+                    NoSeries.TestAreRelated(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series");
                 end;
                 TestField("Prepmt. Cr. Memo No.", '');
             end;
@@ -2162,12 +2190,10 @@ table 36 "Sales Header"
             Caption = 'Quote Accepted Date';
             Editable = false;
         }
-        field(160; "Job Queue Status"; Option)
+        field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
             Editable = false;
-            OptionCaption = ' ,Scheduled for Posting,Error,Posting';
-            OptionMembers = " ","Scheduled for Posting",Error,Posting;
 
             trigger OnLookup()
             var
@@ -2210,75 +2236,6 @@ table 36 "Sales Header"
                 else
                     IncomingDocument.SetSalesDoc(Rec);
             end;
-        }
-        field(166; "Last Email Sent Time"; DateTime)
-        {
-            CalcFormula = max("O365 Document Sent History"."Created Date-Time" where("Document Type" = field("Document Type"),
-                                                                                      "Document No." = field("No."),
-                                                                                      Posted = const(false)));
-            Caption = 'Last Email Sent Time';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(167; "Last Email Sent Status"; Option)
-        {
-            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" where("Document Type" = field("Document Type"),
-                                                                                       "Document No." = field("No."),
-                                                                                       Posted = const(false),
-                                                                                       "Created Date-Time" = field("Last Email Sent Time")));
-            Caption = 'Last Email Sent Status';
-            FieldClass = FlowField;
-            OptionCaption = 'Not Sent,In Process,Finished,Error';
-            OptionMembers = "Not Sent","In Process",Finished,Error;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(168; "Sent as Email"; Boolean)
-        {
-            CalcFormula = exist("O365 Document Sent History" where("Document Type" = field("Document Type"),
-                                                                    "Document No." = field("No."),
-                                                                    Posted = const(false),
-                                                                    "Job Last Status" = const(Finished)));
-            Caption = 'Sent as Email';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(169; "Last Email Notif Cleared"; Boolean)
-        {
-            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared where("Document Type" = field("Document Type"),
-                                                                                         "Document No." = field("No."),
-                                                                                         Posted = const(false),
-                                                                                         "Created Date-Time" = field("Last Email Sent Time")));
-            Caption = 'Last Email Notif Cleared';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
         }
         field(170; IsTest; Boolean)
         {
@@ -2807,7 +2764,7 @@ table 36 "Sales Header"
         }
         field(5756; "Last Shipment Date"; Date)
         {
-            CalcFormula = Lookup("Sales Shipment Header"."Shipment Date" where("No." = field("Last Shipping No.")));
+            CalcFormula = lookup("Sales Shipment Header"."Shipment Date" where("No." = field("Last Shipping No.")));
             Caption = 'Last Shipment Date';
             FieldClass = FlowField;
         }
@@ -2930,6 +2887,7 @@ table 36 "Sales Header"
 
             trigger OnLookup()
             var
+                NoSeries: Codeunit "No. Series";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -2937,18 +2895,17 @@ table 36 "Sales Header"
                 if IsHandled then
                     exit;
 
-                with SalesHeader do begin
-                    SalesHeader := Rec;
-                    GetSalesSetup();
-                    SalesSetup.TestField("Posted Return Receipt Nos.");
-                    if NoSeriesMgt.LookupSeries(SalesSetup."Posted Return Receipt Nos.", "Return Receipt No. Series") then
-                        Validate("Return Receipt No. Series");
-                    Rec := SalesHeader;
-                end;
+                SalesHeader := Rec;
+                GetSalesSetup();
+                SalesSetup.TestField("Posted Return Receipt Nos.");
+                if NoSeries.LookupRelatedNoSeries(SalesSetup."Posted Return Receipt Nos.", SalesHeader."Return Receipt No. Series") then
+                    SalesHeader.Validate("Return Receipt No. Series");
+                Rec := SalesHeader;
             end;
 
             trigger OnValidate()
             var
+                NoSeries: Codeunit "No. Series";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -2959,7 +2916,7 @@ table 36 "Sales Header"
                 if "Return Receipt No. Series" <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Return Receipt Nos.");
-                    NoSeriesMgt.TestSeries(SalesSetup."Posted Return Receipt Nos.", "Return Receipt No. Series");
+                    NoSeries.TestAreRelated(SalesSetup."Posted Return Receipt Nos.", "Return Receipt No. Series");
                 end;
                 TestField("Return Receipt No.", '');
             end;
@@ -3247,7 +3204,7 @@ table 36 "Sales Header"
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         GenJournalTemplate: Record "Gen. Journal Template";
-        NoSeries: Record "No. Series";
+        GlobalNoSeries: Record "No. Series";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
@@ -3324,7 +3281,12 @@ table 36 "Sales Header"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+#if not CLEAN24
+#pragma warning disable AA0137, AL0432
+        [Obsolete('This variable is no longer used. Please us codeunit "No. Series" instead.', '24.0')]
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#pragma warning restore AA0137, AL0432
+#endif
         HideCreditCheckDialogue: Boolean;
         HideValidationDialog: Boolean;
         InsertMode: Boolean;
@@ -3336,6 +3298,12 @@ table 36 "Sales Header"
 
     procedure InitInsert()
     var
+        SalesHeader2: Record "Sales Header";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt2: Codeunit NoSeriesManagement;
+#endif
+        NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3343,7 +3311,23 @@ table 36 "Sales Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+                NoSeriesCode := GetNoSeriesCode();
+#if not CLEAN24
+                NoSeriesMgt2.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                "No. Series" := NoSeriesCode;
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                SalesHeader2.SetLoadFields("No.");
+                while SalesHeader2.Get("Document Type", "No.") do
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt2.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
+                end;
+#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -3500,6 +3484,7 @@ table 36 "Sales Header"
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesHeader2: Record "Sales Header";
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3507,22 +3492,20 @@ table 36 "Sales Header"
         if IsHandled then
             exit;
 
-        with SalesHeader do begin
-            Copy(Rec);
-            GetSalesSetup();
-            TestNoSeries();
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldSalesHeader."No. Series", "No. Series") then begin
-                if ("Sell-to Customer No." = '') and ("Sell-to Contact No." = '') then begin
-                    HideCreditCheckDialogue := false;
-                    Rec.CheckCreditMaxBeforeInsert();
-                    HideCreditCheckDialogue := true;
-                end;
-                NoSeriesMgt.SetSeries("No.");
-                if SalesHeader2.Get("Document Type", "No.") then
-                    Error(Text051, LowerCase(Format("Document Type")), "No.");
-                Rec := SalesHeader;
-                exit(true);
+        SalesHeader.Copy(Rec);
+        GetSalesSetup();
+        SalesHeader.TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(SalesHeader.GetNoSeriesCode(), OldSalesHeader."No. Series", SalesHeader."No. Series") then begin
+            if (SalesHeader."Sell-to Customer No." = '') and (SalesHeader."Sell-to Contact No." = '') then begin
+                HideCreditCheckDialogue := false;
+                Rec.CheckCreditMaxBeforeInsert();
+                HideCreditCheckDialogue := true;
             end;
+            SalesHeader."No." := NoSeries.GetNextNo(SalesHeader."No. Series");
+            if SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.") then
+                Error(Text051, LowerCase(Format(SalesHeader."Document Type")), SalesHeader."No.");
+            Rec := SalesHeader;
+            exit(true);
         end;
     end;
 
@@ -3572,8 +3555,8 @@ table 36 "Sales Header"
                         GenJournalTemplate.Get("Journal Templ. Name");
                 end;
                 GenJournalTemplate.TestField("Posting No. Series");
-                NoSeries.Get(GenJournalTemplate."Posting No. Series");
-                NoSeries.TestField("Default Nos.", true);
+                GlobalNoSeries.Get(GenJournalTemplate."Posting No. Series");
+                GlobalNoSeries.TestField("Default Nos.", true);
             end;
         end;
 
@@ -3582,6 +3565,7 @@ table 36 "Sales Header"
 
     procedure GetNoSeriesCode(): Code[20]
     var
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
@@ -3606,7 +3590,17 @@ table 36 "Sales Header"
                 NoSeriesCode := SalesSetup."Blanket Order Nos.";
         end;
         OnAfterGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode);
-        exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
+        if not SelectNoSeriesAllowed then
+            exit(NoSeriesCode);
+
+        if NoSeries.IsAutomatic(NoSeriesCode) then
+            exit(NoSeriesCode);
+
+        if NoSeries.HasRelatedSeries(NoSeriesCode) then
+            if NoSeries.LookupRelatedNoSeries(NoSeriesCode, "No. Series") then
+                exit("No. Series");
+
+        exit(NoSeriesCode);
     end;
 
     local procedure GetPostingNoSeriesCode() PostingNos: Code[20]
@@ -3645,12 +3639,12 @@ table 36 "Sales Header"
     procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
-            NoSeries.Get(NoSeriesCode);
-            if NoSeries."Date Order" then
+            GlobalNoSeries.Get(NoSeriesCode);
+            if GlobalNoSeries."Date Order" then
                 Error(
                   Text045,
                   FieldCaption("Posting Date"), NoSeriesCapt, NoSeriesCode,
-                  NoSeries.FieldCaption("Date Order"), NoSeries."Date Order", "Document Type",
+                  GlobalNoSeries.FieldCaption("Date Order"), GlobalNoSeries."Date Order", "Document Type",
                   NoCapt, No);
         end;
     end;
@@ -4477,7 +4471,7 @@ table 36 "Sales Header"
     var
         Cont: Record Contact;
         ConfirmManagement: Codeunit "Confirm Management";
-        IsHandled, Result: Boolean;
+        IsHandled, Result : Boolean;
     begin
         if ("Bill-to Customer No." <> '') and ("Sell-to Customer No." <> '') then
             exit(true);
@@ -4774,7 +4768,7 @@ table 36 "Sales Header"
         if not ContactBusinessRelationFound then begin
             IsHandled := false;
             OnUpdateSellToCustOnBeforeFindContactBusinessRelation(Cont, ContBusinessRelation, ContactBusinessRelationFound, IsHandled);
-            IF not IsHandled THEN
+            if not IsHandled then
                 ContactBusinessRelationFound :=
                     ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
         end;
@@ -4914,7 +4908,7 @@ table 36 "Sales Header"
         if not ContactBusinessRelationFound then begin
             IsHandled := false;
             OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Cont, ContBusinessRelation, ContactBusinessRelationFound, IsHandled);
-            IF not IsHandled THEN
+            if not IsHandled then
                 ContactBusinessRelationFound :=
                     ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
         end;
@@ -4942,6 +4936,7 @@ table 36 "Sales Header"
                 "Bill-to County" := SearchContact.County;
                 "Bill-to Country/Region Code" := SearchContact."Country/Region Code";
                 "VAT Registration No." := SearchContact."VAT Registration No.";
+                "Registration Number" := SearchContact."Registration Number";
                 Validate("Currency Code", SearchContact."Currency Code");
                 "Language Code" := SearchContact."Language Code";
                 "Format Region" := SearchContact."Format Region";
@@ -5279,58 +5274,56 @@ table 36 "Sales Header"
                 begin
                     if SalesLine.FindSet() then
                         repeat
-                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then
-                                with SalesShptLine do begin
-                                    if SalesLine."Shipment No." <> '' then begin
-                                        SetRange("Document No.", SalesLine."Shipment No.");
-                                        SetRange("Line No.", SalesLine."Shipment Line No.");
-                                    end else begin
-                                        SetCurrentKey("Order No.", "Order Line No.");
-                                        SetRange("Order No.", SalesLine."Document No.");
-                                        SetRange("Order Line No.", SalesLine."Line No.");
-                                    end;
-                                    SetRange(Correction, false);
-                                    if QtyType = QtyType::Invoicing then
-                                        SetFilter("Qty. Shipped Not Invoiced", '<>0');
-
-                                    if FindSet() then
-                                        repeat
-                                            FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                            if ItemLedgEntry.FindSet() then
-                                                repeat
-                                                    CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                                until ItemLedgEntry.Next() = 0;
-                                        until Next() = 0;
+                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
+                                if SalesLine."Shipment No." <> '' then begin
+                                    SalesShptLine.SetRange("Document No.", SalesLine."Shipment No.");
+                                    SalesShptLine.SetRange("Line No.", SalesLine."Shipment Line No.");
+                                end else begin
+                                    SalesShptLine.SetCurrentKey("Order No.", "Order Line No.");
+                                    SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
+                                    SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
                                 end;
+                                SalesShptLine.SetRange(Correction, false);
+                                if QtyType = QtyType::Invoicing then
+                                    SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+
+                                if SalesShptLine.FindSet() then
+                                    repeat
+                                        SalesShptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+                                        if ItemLedgEntry.FindSet() then
+                                            repeat
+                                                CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
+                                            until ItemLedgEntry.Next() = 0;
+                                    until SalesShptLine.Next() = 0;
+                            end;
                         until SalesLine.Next() = 0;
                 end;
             "Document Type"::"Return Order", "Document Type"::"Credit Memo":
                 begin
                     if SalesLine.FindSet() then
                         repeat
-                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then
-                                with ReturnRcptLine do begin
-                                    if SalesLine."Return Receipt No." <> '' then begin
-                                        SetRange("Document No.", SalesLine."Return Receipt No.");
-                                        SetRange("Line No.", SalesLine."Return Receipt Line No.");
-                                    end else begin
-                                        SetCurrentKey("Return Order No.", "Return Order Line No.");
-                                        SetRange("Return Order No.", SalesLine."Document No.");
-                                        SetRange("Return Order Line No.", SalesLine."Line No.");
-                                    end;
-                                    SetRange(Correction, false);
-                                    if QtyType = QtyType::Invoicing then
-                                        SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
-
-                                    if FindSet() then
-                                        repeat
-                                            FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                            if ItemLedgEntry.FindSet() then
-                                                repeat
-                                                    CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                                until ItemLedgEntry.Next() = 0;
-                                        until Next() = 0;
+                            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then begin
+                                if SalesLine."Return Receipt No." <> '' then begin
+                                    ReturnRcptLine.SetRange("Document No.", SalesLine."Return Receipt No.");
+                                    ReturnRcptLine.SetRange("Line No.", SalesLine."Return Receipt Line No.");
+                                end else begin
+                                    ReturnRcptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
+                                    ReturnRcptLine.SetRange("Return Order No.", SalesLine."Document No.");
+                                    ReturnRcptLine.SetRange("Return Order Line No.", SalesLine."Line No.");
                                 end;
+                                ReturnRcptLine.SetRange(Correction, false);
+                                if QtyType = QtyType::Invoicing then
+                                    ReturnRcptLine.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
+
+                                if ReturnRcptLine.FindSet() then
+                                    repeat
+                                        ReturnRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+                                        if ItemLedgEntry.FindSet() then
+                                            repeat
+                                                CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
+                                            until ItemLedgEntry.Next() = 0;
+                                    until ReturnRcptLine.Next() = 0;
+                            end;
                         until SalesLine.Next() = 0;
                 end;
             else
@@ -5387,17 +5380,15 @@ table 36 "Sales Header"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-            if FindSet() then
-                repeat
-                    if Adjustment then begin
-                        TempValueEntry := ValueEntry;
-                        if TempValueEntry.Insert() then;
-                    end;
-                until Next() = 0;
-        end;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
+        if ValueEntry.FindSet() then
+            repeat
+                if ValueEntry.Adjustment then begin
+                    TempValueEntry := ValueEntry;
+                    if TempValueEntry.Insert() then;
+                end;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure GetPstdDocLinesToReverse()
@@ -6260,7 +6251,7 @@ table 36 "Sales Header"
                 "Outbound Whse. Handling Time" := InvtSetup."Outbound Whse. Handling Time";
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     procedure OnCheckSalesPostRestrictions()
     begin
     end;
@@ -6270,7 +6261,7 @@ table 36 "Sales Header"
         OnCheckSalesPostRestrictions();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     procedure OnCustomerCreditLimitExceeded(NotificationId: Guid)
     begin
     end;
@@ -6287,7 +6278,7 @@ table 36 "Sales Header"
         OnCustomerCreditLimitExceeded(NotificationId);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     procedure OnCustomerCreditLimitNotExceeded()
     begin
     end;
@@ -6297,7 +6288,7 @@ table 36 "Sales Header"
         OnCustomerCreditLimitNotExceeded();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckSalesReleaseRestrictions()
     begin
     end;
@@ -6621,6 +6612,7 @@ table 36 "Sales Header"
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
             "VAT Registration No." := SellToCustomer."VAT Registration No.";
+            "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             IsHandled := false;
@@ -6785,6 +6777,7 @@ table 36 "Sales Header"
                 "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
             "VAT Country/Region Code" := BillToCustomer."Country/Region Code";
             "VAT Registration No." := BillToCustomer."VAT Registration No.";
+            "Registration Number" := BillToCustomer."Registration Number";
             "Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
         end;
         "Customer Posting Group" := BillToCustomer."Customer Posting Group";
@@ -6800,7 +6793,7 @@ table 36 "Sales Header"
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
         "Combine Shipments" := BillToCustomer."Combine Shipments";
         Reserve := BillToCustomer.Reserve;
-        if "Document Type" In ["Document Type"::Order, "Document Type"::Quote] then
+        if "Document Type" in ["Document Type"::Order, "Document Type"::Quote] then
             "Prepayment %" := BillToCustomer."Prepayment %";
         "Tax Area Code" := BillToCustomer."Tax Area Code";
         if ("Ship-to Code" = '') or ("Sell-to Customer No." <> BillToCustomer."No.") then
@@ -6853,7 +6846,7 @@ table 36 "Sales Header"
     begin
         IsHandled := false;
         OnBeforeBillToCustomerIsReplaced(Rec, xRec, Result, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit(Result);
 
         exit((xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No."));
@@ -7491,6 +7484,38 @@ table 36 "Sales Header"
         exit("Currency Code");
     end;
 
+    procedure UpdateShipToSalespersonCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        IsHandled: Boolean;
+        IsSalesPersonCodeAssigned: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateShipToSalespersonCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Salesperson Code");
+            ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
+            if ShipToAddress."Salesperson Code" <> '' then begin
+                SetSalespersonCode(ShipToAddress."Salesperson Code", "Salesperson Code");
+                IsSalesPersonCodeAssigned := true;
+            end;
+        end;
+
+        if not IsSalesPersonCodeAssigned then begin
+            IsHandled := false;
+            OnUpdateShiptoSalespersonCodeNotAssigned(Rec, IsHandled);
+            if not IsHandled then
+                if ("Bill-to Customer No." <> '') then begin
+                    GetCust("Bill-to Customer No.");
+                    SetSalespersonCode(Customer."Salesperson Code", "Salesperson Code");
+                end else
+                    SetDefaultSalesperson();
+        end;
+    end;
+
     procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         IsHandled: Boolean;
@@ -7724,7 +7749,7 @@ table 36 "Sales Header"
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 
-        if Customer.LookupCustomer(Customer) then begin
+        if Customer.SelectCustomer(Customer) then begin
             if Rec."Sell-to Customer Name" = Customer.Name then
                 CustomerName := SearchCustomerName
             else
@@ -7827,6 +7852,11 @@ table 36 "Sales Header"
 
     procedure InitPostingNoSeries()
     var
+#if CLEAN24
+        NoSeries: Codeunit "No. Series";
+#else
+        NoSeriesMgt2: Codeunit NoSeriesManagement;
+#endif
         PostingNoSeries: Code[20];
     begin
         GLSetup.GetRecordOnce();
@@ -7849,35 +7879,86 @@ table 36 "Sales Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
+                        "Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Prepmt. Inv. Nos.") then
+                        "Prepayment No. Series" := SalesSetup."Posted Prepmt. Inv. Nos.";
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Prepmt. Cr. Memo Nos.") then
+                        "Prepmt. Cr. Memo No. Series" := SalesSetup."Posted Prepmt. Cr. Memo Nos.";
+#else
+#pragma warning disable AL0432
+                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
                     if "Document Type" = "Document Type"::Order then begin
-                        NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
+                        NoSeriesMgt2.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
+                        NoSeriesMgt2.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
                     end;
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#if CLEAN24
+                        if NoSeries.IsAutomatic(PostingNoSeries) then
+                            "Posting No. Series" := PostingNoSeries;
+
+#else
+#pragma warning disable AL0432
+                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                     if SalesSetup."Shipment on Invoice" then
-                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
+#if CLEAN24
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
+                            "Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
+#else
+#pragma warning disable AL0432
+                        NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::"Return Order":
                 begin
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
+                        "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos.";
+#else
+#pragma warning disable AL0432
+                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#if CLEAN24
+                        if NoSeries.IsAutomatic(PostingNoSeries) then
+                            "Posting No. Series" := PostingNoSeries;
+#else
+#pragma warning disable AL0432
+                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                     if SalesSetup."Return Receipt on Credit Memo" then
-                        NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+#if CLEAN24
+                    if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
+                            "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos."
+#else
+#pragma warning disable AL0432
+                        NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
         end;
 
@@ -7965,6 +8046,8 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
+# if not CLEAN24
+    [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     internal procedure SetTrackInfoForCancellation()
     var
         CancelledDocument: Record "Cancelled Document";
@@ -7993,7 +8076,36 @@ table 36 "Sales Header"
             CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
     end;
 
-    procedure UpdateSalesOrderLineIfExist()
+    local procedure SetTrackInfoForCancellDocumentsWithAppliesToID() Connected: Boolean
+    var
+        CancelledDocument: Record "Cancelled Document";
+        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        Connected := false;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if SalesCreditMemoHeader.FindFirst() then begin
+            CustLedgerEntry.SetLoadFields("Entry No.", "Document No.");
+            CustLedgerEntry.Setrange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
+            CustLedgerEntry.Setrange("Document No.", SalesCreditMemoHeader."No.");
+            if CustLedgerEntry.FindFirst() then begin
+                ClosedCustLedgerEntry.SetLoadFields("Document No.");
+                ClosedCustLedgerEntry.SetRange("Document Type", ClosedCustLedgerEntry."Document Type"::"Invoice");
+                ClosedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+                ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
+                if ClosedCustLedgerEntry.FindFirst() then
+                    if (ClosedCustLedgerEntry."Remaining Amt. (LCY)" = 0) and (ClosedCustLedgerEntry."Remaining Amount" = 0) then begin
+                        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(ClosedCustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
+                        Connected := true;
+                    end;
+            end;
+        end;
+        exit(Connected);
+    end;
+# endif
+
+    internal procedure UpdateSalesOrderLineIfExist()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
@@ -8027,34 +8139,6 @@ table 36 "Sales Header"
             if ClosedCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
                 exit((ClosedCustLedgerEntry."Remaining Amt. (LCY)" <> 0) and (ClosedCustLedgerEntry."Remaining Amount" <> 0));
         end;
-    end;
-
-    local procedure SetTrackInfoForCancellDocumentsWithAppliesToID() Connected: Boolean
-    var
-        CancelledDocument: Record "Cancelled Document";
-        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        Connected := false;
-        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
-        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
-        if SalesCreditMemoHeader.FindFirst() then begin
-            CustLedgerEntry.SetLoadFields("Entry No.", "Document No.");
-            CustLedgerEntry.Setrange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
-            CustLedgerEntry.Setrange("Document No.", SalesCreditMemoHeader."No.");
-            if CustLedgerEntry.FindFirst() then begin
-                ClosedCustLedgerEntry.SetLoadFields("Document No.");
-                ClosedCustLedgerEntry.SetRange("Document Type", ClosedCustLedgerEntry."Document Type"::"Invoice");
-                ClosedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-                ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
-                if ClosedCustLedgerEntry.FindFirst() then
-                    if (ClosedCustLedgerEntry."Remaining Amt. (LCY)" = 0) and (ClosedCustLedgerEntry."Remaining Amount" = 0) then begin
-                        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(ClosedCustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
-                        Connected := true;
-                    end;
-            end;
-        end;
-        exit(Connected);
     end;
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
@@ -9145,12 +9229,12 @@ table 36 "Sales Header"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterTestStatusOpen(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -9466,7 +9550,17 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShipToSalespersonCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode(var SalesHeader: Record "Sales Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateShiptoSalespersonCodeNotAssigned(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9775,10 +9869,13 @@ table 36 "Sales Header"
     begin
     end;
 
+# if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
+# endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)

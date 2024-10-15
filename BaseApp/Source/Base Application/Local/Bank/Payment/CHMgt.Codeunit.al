@@ -307,42 +307,36 @@ codeunit 11503 CHMgt
         if VendorLedgerEntry."Reference No." = '' then
             exit;
 
-        with VendorBankAccount do begin
-            Get(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Recipient Bank Account");
-            if ("Payment Form" = "Payment Form"::ESR) and ("ESR Type" = "ESR Type"::"5/15") then begin
-                GenJournalLine."Reference No." := CopyStr(VendorLedgerEntry."Reference No.", 1, 15);
-                if StrLen(GenJournalLine."Reference No.") > 15 then
-                    GenJournalLine.Checksum := CopyStr(VendorLedgerEntry."Reference No.", 17, 2);
-            end else
-                GenJournalLine."Reference No." := VendorLedgerEntry."Reference No.";
-        end;
+        VendorBankAccount.Get(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Recipient Bank Account");
+        if (VendorBankAccount."Payment Form" = VendorBankAccount."Payment Form"::ESR) and (VendorBankAccount."ESR Type" = VendorBankAccount."ESR Type"::"5/15") then begin
+            GenJournalLine."Reference No." := CopyStr(VendorLedgerEntry."Reference No.", 1, 15);
+            if StrLen(GenJournalLine."Reference No.") > 15 then
+                GenJournalLine.Checksum := CopyStr(VendorLedgerEntry."Reference No.", 17, 2);
+        end else
+            GenJournalLine."Reference No." := VendorLedgerEntry."Reference No.";
 
         GenJournalLine."Recipient Bank Account" := VendorLedgerEntry."Recipient Bank Account";
     end;
 
     local procedure FindFirstVendLedgEntryWithAppliesToID(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliesToID: Code[50]): Boolean
     begin
-        with VendorLedgerEntry do begin
-            Reset();
-            SetCurrentKey("Vendor No.", "Applies-to ID", Open);
-            SetRange("Vendor No.", AccNo);
-            SetRange("Applies-to ID", AppliesToID);
-            SetRange(Open, true);
-            exit(FindSet());
-        end;
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open);
+        VendorLedgerEntry.SetRange("Vendor No.", AccNo);
+        VendorLedgerEntry.SetRange("Applies-to ID", AppliesToID);
+        VendorLedgerEntry.SetRange(Open, true);
+        exit(VendorLedgerEntry.FindSet());
     end;
 
     local procedure FindFirstVendLedgEntryWithAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliestoDocType: Enum "Gen. Journal Document Type"; AppliestoDocNo: Code[20]): Boolean
     begin
-        with VendorLedgerEntry do begin
-            Reset();
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", AppliestoDocNo);
-            SetRange("Document Type", AppliestoDocType);
-            SetRange("Vendor No.", AccNo);
-            SetRange(Open, true);
-            exit(FindFirst());
-        end;
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetCurrentKey("Document No.");
+        VendorLedgerEntry.SetRange("Document No.", AppliestoDocNo);
+        VendorLedgerEntry.SetRange("Document Type", AppliestoDocType);
+        VendorLedgerEntry.SetRange("Vendor No.", AccNo);
+        VendorLedgerEntry.SetRange(Open, true);
+        exit(VendorLedgerEntry.FindFirst());
     end;
 
     local procedure SendReferenceNoCollisionNotification()

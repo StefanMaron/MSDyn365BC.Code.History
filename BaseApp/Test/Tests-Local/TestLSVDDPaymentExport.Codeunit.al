@@ -100,8 +100,8 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetup.Validate("DebitDirect Customerno.",
           CopyStr(Customer."No.", 1, MaxStrLen(LSVSetup."DebitDirect Customerno.")));
         LSVSetup.Validate("Backup Folder", Path);
-        LSVSetup.Validate("DebitDirect Import Filename", CreateGuid);
-        LSVSetup.Validate("Yellownet Home Page", CreateGuid);
+        LSVSetup.Validate("DebitDirect Import Filename", CreateGuid());
+        LSVSetup.Validate("Yellownet Home Page", CreateGuid());
         LSVSetup.Insert(true);
 
         // Verify.
@@ -580,7 +580,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
         LSVJnlLine: Record "LSV Journal Line";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         CollectionAmount: Decimal;
     begin
         Initialize();
@@ -590,7 +589,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CollectionAmount := FindCustLedgerEntries(CustLedgEntry, Customer."No.");
         SpecifyLSVCustomerForCollection(Customer."No.");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Invoice", CustLedgEntry."Document No.", true, true);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", CustLedgEntry."Document No.", true, true);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("No.", '<>%1', '');
@@ -783,7 +782,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnl: Record "LSV Journal";
         LSVJnlLine: Record "LSV Journal Line";
         LSVSetup: Record "LSV Setup";
-        FileMgt: Codeunit "File Management";
         FileName: Text;
     begin
         Initialize();
@@ -844,7 +842,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         Customer: Record Customer;
         LSVJnl: Record "LSV Journal";
         LSVSetup: Record "LSV Setup";
-        FileMgt: Codeunit "File Management";
         LSVSetupPage: TestPage "LSV Setup";
         Path: Text;
     begin
@@ -854,9 +851,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         PrepareLSVSalesDocsForCollection(Customer, LSVJnl, LSVSetup, '');
 
         // Exercise.
-        LSVSetupPage.OpenView;
+        LSVSetupPage.OpenView();
         LSVSetupPage.GotoRecord(LSVSetup);
-        LSVSetupPage."&Write DebiDirect Testfile".Invoke;
+        LSVSetupPage."&Write DebiDirect Testfile".Invoke();
 
         // Verify.
         Path := LSVSetup."LSV File Folder" + LSVSetup."LSV Filename";
@@ -883,9 +880,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         RunWriteLSVFile(LSVJnl, false);
 
         // Exercise
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournalList."LSV &Collection Order".Invoke;
+        LSVJournalList."LSV &Collection Order".Invoke();
 
         // Verify
         VerifyLSVCollectionOrderReport(LSVJnl, LSVSetup);
@@ -909,9 +906,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         SuggestLSVJournalLines(LSVJnl);
 
         // Exercise
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournalList."LSV Collection &Advice".Invoke;
+        LSVJournalList."LSV Collection &Advice".Invoke();
 
         // Verify
         VerifyLSVCollectionAdviceReport(LSVJnl);
@@ -964,7 +961,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         // [THEN] DataSet."LSVCustID_LsvSetup" = "Customer 1"
         // [THEN] DataSet."LSVCurrCode_LsvSetup" = "CC 1"
         VerifyLSVCollectionAuthReportXML(Customer, LSVSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -991,7 +988,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         // [THEN] Excel."B1" cell = "Customer 1"
         // [THEN] Excel."AF1" cell = "CC 1"
         VerifyLSVCollectionAuthReportExcel(Customer, LSVSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1012,9 +1009,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         SuggestLSVJournalLines(LSVJnl);
 
         // Exercise
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournalList."P&rint Journal".Invoke;
+        LSVJournalList."P&rint Journal".Invoke();
 
         // Verify
         VerifyLSVCollectionJournalReport(LSVJnl);
@@ -1041,9 +1038,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         // Exercise
         NewDate := LSVJnl."Credit Date" + LibraryRandom.RandInt(10);
         LibraryVariableStorage.Enqueue(NewDate);
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournalList."Modify &Posting Date".Invoke;
+        LSVJournalList."Modify &Posting Date".Invoke();
 
         // Verify.
         LSVJnl.Find();
@@ -1069,9 +1066,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         CollectLSVJournalLinesFromLSVJournal(LSVJnl);
 
         // Exercise
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournalList."LSV Re&open Collection".Invoke;
+        LSVJournalList."LSV Re&open Collection".Invoke();
 
         // Verify
         LSVJnl.Find();
@@ -1158,7 +1155,6 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         ESRSetup: Record "ESR Setup";
         SalesHeader: Record "Sales Header";
-        FileMgt: Codeunit "File Management";
     begin
         LibraryLSV.CreateESRSetup(ESRSetup);
         LibraryLSV.CreateLSVSetup(LSVSetup, ESRSetup);
@@ -1178,7 +1174,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
+    local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1201,9 +1197,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlList: TestPage "LSV Journal List";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.LSVSuggestCollection.Invoke;
+        LSVJnlList.LSVSuggestCollection.Invoke();
     end;
 
     local procedure SuggestLSVJournalLinesFromLSVJournal(var LSVJnl: Record "LSV Journal")
@@ -1212,11 +1208,11 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJournal: TestPage "LSV Journal";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJournal.Trap;
-        LSVJnlList."LSV Journal Line".Invoke;
-        LSVJournal."LSV Suggest Collection".Invoke;
+        LSVJournal.Trap();
+        LSVJnlList."LSV Journal Line".Invoke();
+        LSVJournal."LSV Suggest Collection".Invoke();
     end;
 
     local procedure CollectLSVJournalLinesFromLSVJournalList(var LSVJnl: Record "LSV Journal")
@@ -1224,9 +1220,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlList: TestPage "LSV Journal List";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.LSVCloseCollection.Invoke;
+        LSVJnlList.LSVCloseCollection.Invoke();
     end;
 
     local procedure CollectLSVJournalLinesFromLSVJournal(var LSVJnl: Record "LSV Journal")
@@ -1235,11 +1231,11 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlList: TestPage "LSV Journal List";
     begin
         Commit();
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJournal.Trap;
-        LSVJnlList."LSV Journal Line".Invoke;
-        LSVJournal."&Close Collection".Invoke;
+        LSVJournal.Trap();
+        LSVJnlList."LSV Journal Line".Invoke();
+        LSVJournal."&Close Collection".Invoke();
     end;
 
     local procedure CreateLSVCollection(var CustLedgerEntry: Record "Cust. Ledger Entry"; var LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup") CollectionAmount: Decimal
@@ -1248,22 +1244,22 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJournalList: TestPage "LSV Journal List";
     begin
         LibraryLSV.CreateLSVJournal(LSVJnl, LSVSetup);
-        LSVJournalList.OpenView;
+        LSVJournalList.OpenView();
         LSVJournalList.GotoRecord(LSVJnl);
-        LSVJournal.Trap;
-        LSVJournalList."LSV Journal Line".Invoke;
+        LSVJournal.Trap();
+        LSVJournalList."LSV Journal Line".Invoke();
         CustLedgerEntry.FindSet();
         repeat
-            LSVJournal.New;
+            LSVJournal.New();
             LSVJournal."Customer No.".SetValue(CustLedgerEntry."Customer No.");
-            LSVJournal."Applies-to Doc. No.".Lookup;
-            LSVJournal."Cust. Ledg. Entry No.".Lookup;
+            LSVJournal."Applies-to Doc. No.".Lookup();
+            LSVJournal."Cust. Ledg. Entry No.".Lookup();
             LSVJournal."Cust. Ledg. Entry No.".SetValue(CustLedgerEntry."Entry No.");
             LSVJournal."Applies-to Doc. No.".SetValue(CustLedgerEntry."Document No.");
             LSVJournal."Collection Amount".SetValue(
               LibraryRandom.RandDecInDecimalRange(1,
                 CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible", 2));
-            CollectionAmount += LSVJournal."Collection Amount".AsDEcimal;
+            CollectionAmount += LSVJournal."Collection Amount".AsDecimal();
             LSVJournal.Next();
         until CustLedgerEntry.Next() = 0;
         LSVJournal.Close();
@@ -1303,9 +1299,9 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         LSVJnlList: TestPage "LSV Journal List";
     begin
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.WriteLSVFile.Invoke;
+        LSVJnlList.WriteLSVFile.Invoke();
     end;
 
     local procedure WriteDDFile(var LSVJnl: Record "LSV Journal"; CombinePerCust: Boolean)
@@ -1314,9 +1310,9 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         LibraryVariableStorage.Enqueue(CombinePerCust);
         LibraryVariableStorage.Enqueue(ConfirmCreateFileQst);
-        LSVJnlList.OpenView;
+        LSVJnlList.OpenView();
         LSVJnlList.GotoRecord(LSVJnl);
-        LSVJnlList.WriteDebitDirectFile.Invoke;
+        LSVJnlList.WriteDebitDirectFile.Invoke();
     end;
 
     local procedure CheckColumnValue(Expected: Text; Line: Text; StartingPosition: Integer; Length: Integer)
@@ -1401,7 +1397,6 @@ codeunit 144040 "Test LSV DD Payment Export"
         Customer: Record Customer;
         CustomerBankAccount: Record "Customer Bank Account";
         GeneralMgt: Codeunit GeneralMgt;
-        FileMgt: Codeunit "File Management";
         Line: Text;
     begin
         CheckColumnValue('8750', Line, 1, 4);
@@ -1431,7 +1426,6 @@ codeunit 144040 "Test LSV DD Payment Export"
 
     local procedure VerifyDDFile(var LSVJnlLine: Record "LSV Journal Line"; LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup")
     var
-        FileMgt: Codeunit "File Management";
         Line: Text;
         FileName: Text;
         LineNo: Integer;
@@ -1476,9 +1470,9 @@ codeunit 144040 "Test LSV DD Payment Export"
     local procedure VerifyLSVCollectionOrderReport(LSVJnl: Record "LSV Journal"; LSVSetup: Record "LSV Setup")
     begin
         LSVJnl.CalcFields("Amount Plus");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_LSVJnl', LSVJnl."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('AmtPlus_LSVJnl', LSVJnl."Amount Plus");
         LibraryReportDataset.AssertCurrentRowValueEquals('CreditDate_LSVJnl', Format(LSVJnl."Credit Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('LsvSetupLSVSenderIBAN', LSVSetup."LSV Sender IBAN");
@@ -1494,14 +1488,14 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJnlLine: Record "LSV Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
         repeat
             CustLedgerEntry.Get(LSVJnlLine."Cust. Ledg. Entry No.");
             CustLedgerEntry.CalcFields("Remaining Amount");
             LibraryReportDataset.SetRange('EntryNo_CustLedgerEntry', LSVJnlLine."Cust. Ledg. Entry No.");
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one line per ledger entry.');
-            LibraryReportDataset.GetNextRow;
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one line per ledger entry.');
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('No_Customer', CustLedgerEntry."Customer No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('PostingDateFormatted', Format(CustLedgerEntry."Posting Date"));
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_CustLedgerEntry', CustLedgerEntry.Description);
@@ -1520,9 +1514,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         CustomerBankAccount.SetRange("Customer No.", CustomerNo);
         CustomerBankAccount.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Code_CustBankAcct', CustomerBankAccount.Code);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CustNo_CustBankAcct', CustomerNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('BankBranchNo_CustBankAcct', CustomerBankAccount."Bank Branch No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('GiroAccountNo_CustBankAcct', CustomerBankAccount."Giro Account No.");
@@ -1534,8 +1528,8 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         CompanyInformation.Get();
 
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Cust', Customer.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals('LSVCustID_LsvSetup', LSVSetup."LSV Customer ID");
         LibraryReportDataset.AssertCurrentRowValueEquals('Adr1', Customer.Name);
@@ -1558,7 +1552,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         CompanyInformation.Get();
 
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.VerifyCellValueByRef('E', 1, 1, LSVSetup."LSV Customer ID");
         LibraryReportValidation.VerifyCellValueByRef('C', 6, 1, CompanyInformation.Name);
         LibraryReportValidation.VerifyCellValueByRef('AK', 6, 1, Customer.Name);
@@ -1569,13 +1563,13 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         LSVJnlLine: Record "LSV Journal Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
         repeat
             LibraryReportDataset.SetRange('LSVJnlNo_LSVJnlLine', LSVJnl."No.");
             LibraryReportDataset.SetRange('LineNo_LSVJnlLine', LSVJnlLine."Line No.");
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'There should be one line per journal line.');
-            LibraryReportDataset.GetNextRow;
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'There should be one line per journal line.');
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('CustNo_LSVJnlLine', LSVJnlLine."Customer No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('AppliesToDocNo_LSVJnlLine', LSVJnlLine."Applies-to Doc. No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('CollectionAmt_LSVJnlLine', LSVJnlLine."Collection Amount");
@@ -1589,15 +1583,15 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
         LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
-        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
-        LSVSuggestCollection.OK.Invoke;
+        LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection());
+        LSVSuggestCollection.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCloseCollectionReqPageHandler(var LSVCloseCollection: TestRequestPage "LSV Close Collection")
     begin
-        LSVCloseCollection.OK.Invoke;
+        LSVCloseCollection.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1608,7 +1602,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         LibraryVariableStorage.Dequeue(TestSending);
         WriteLSVFile.TestSending.SetValue(TestSending);
-        WriteLSVFile.OK.Invoke;
+        WriteLSVFile.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1619,36 +1613,36 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         LibraryVariableStorage.Dequeue(CombinePerCust);
         LSVWriteDebitDirectFile.Combine.SetValue(CombinePerCust);
-        LSVWriteDebitDirectFile.OK.Invoke;
+        LSVWriteDebitDirectFile.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCollectionOrderReqPageHandler(var LSVCollectionOrder: TestRequestPage "LSV Collection Order")
     begin
-        LSVCollectionOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LSVCollectionOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCollectionAdviceReqPageHandler(var LSVCollectionAdvice: TestRequestPage "LSV Collection Advice")
     begin
-        LSVCollectionAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LSVCollectionAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCustomerbankListReqPageHandler(var LSVCustomerbankList: TestRequestPage "LSV Customerbank List")
     begin
-        LSVCustomerbankList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LSVCustomerbankList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure XmlLSVCollectionAuthorisationReqPageHandler(var LSVCollectionAuthorisation: TestRequestPage "LSV Collection Authorisation")
     begin
-        LSVCollectionAuthorisation."LsvSetup.""Bank Code""".SetValue(LibraryVariableStorage.DequeueText);
-        LSVCollectionAuthorisation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LSVCollectionAuthorisation."LsvSetup.""Bank Code""".SetValue(LibraryVariableStorage.DequeueText());
+        LSVCollectionAuthorisation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1658,22 +1652,22 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileManagement: Codeunit "File Management";
     begin
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
-        LSVCollectionAuthorisation."LsvSetup.""Bank Code""".SetValue(LibraryVariableStorage.DequeueText);
-        LSVCollectionAuthorisation.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LSVCollectionAuthorisation."LsvSetup.""Bank Code""".SetValue(LibraryVariableStorage.DequeueText());
+        LSVCollectionAuthorisation.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVCollectionJournalReqPageHandler(var LSVCollectionJournal: TestRequestPage "LSV Collection Journal")
     begin
-        LSVCollectionJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LSVCollectionJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure CreateFileConfirmHandlerTrue(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(UpperCase(LibraryVariableStorage.DequeueText), UpperCase(Question));
+        Assert.ExpectedMessage(UpperCase(LibraryVariableStorage.DequeueText()), UpperCase(Question));
         Reply := true;
     end;
 
@@ -1701,7 +1695,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     [Scope('OnPrem')]
     procedure CustLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.OK.Invoke;
+        CustomerLedgerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1734,7 +1728,7 @@ codeunit 144040 "Test LSV DD Payment Export"
     begin
         LibraryVariableStorage.Dequeue(NewDate);
         ModifyPostingDayInput.NewPostingDate.SetValue(NewDate);
-        ModifyPostingDayInput.OK.Invoke;
+        ModifyPostingDayInput.OK().Invoke();
     end;
 
     [ConfirmHandler]

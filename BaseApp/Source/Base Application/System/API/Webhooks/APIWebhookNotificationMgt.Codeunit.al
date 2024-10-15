@@ -25,6 +25,7 @@ codeunit 6153 "API Webhook Notification Mgt."
     end;
 
     var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         APIWebhookCategoryLbl: Label 'AL API Webhook', Locked = true;
         JobQueueCategoryCodeLbl: Label 'APIWEBHOOK', Locked = true;
         JobQueueCategoryDescLbl: Label 'Send API Webhook Notifications';
@@ -347,7 +348,7 @@ codeunit 6153 "API Webhook Notification Mgt."
     begin
         if FromFieldRef.Class = FieldClass::Normal then begin
             ToFieldRef := ToRecordRef.Field(FromFieldRef.Number);
-            ToFieldRef.Value := FromFieldRef.Value;
+            ToFieldRef.Value := FromFieldRef.Value();
         end;
     end;
 
@@ -410,7 +411,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         NumberOfRetries := 5;
         WaitBetweenDeletes := 1000;
 
-        for I := 1 TO NumberOfRetries do begin
+        for I := 1 to NumberOfRetries do begin
             ClearLastError();
             Commit();
             OnDeleteAPIWebhookNotifications(APIWebhookNotification, Success);
@@ -457,7 +458,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit(false);
         end;
 
-        if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue) then begin
+        if TryGetEntityKeyValue(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldValue, RecordSystemId) then begin
             APIWebhookNotification.SetRange("Subscription ID");
             APIWebhookNotification.ID := CreateGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
@@ -504,12 +505,17 @@ codeunit 6153 "API Webhook Notification Mgt."
         exit(true);
     end;
 
-    local procedure TryGetEntityKeyValue(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldValue: Text): Boolean
+    local procedure TryGetEntityKeyValue(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldValue: Text; RecordSystemId: Guid): Boolean
     var
         FieldRef: FieldRef;
     begin
         if not TryGetEntityKeyField(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldRef) then
             exit(false);
+
+        if FieldRef.Number = RecRef.SystemIdNo then begin
+            FieldValue := LowerCase(GraphMgtGeneralTools.GetIdWithoutBrackets(RecordSystemId));
+            exit(true);
+        end;
 
         if not GetRawFieldValue(FieldRef, FieldValue) then
             exit(false);
@@ -519,7 +525,6 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     local procedure GetRawFieldValue(var FieldRef: FieldRef; var Value: Text): Boolean
     var
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         Date: Date;
         Time: Time;
         DateTime: DateTime;
@@ -532,12 +537,12 @@ codeunit 6153 "API Webhook Notification Mgt."
         case FieldRef.Type of
             FieldType::GUID:
                 begin
-                    Guid := FieldRef.Value;
+                    Guid := FieldRef.Value();
                     Value := LowerCase(GraphMgtGeneralTools.GetIdWithoutBrackets(Guid));
                 end;
             FieldType::Code, FieldType::Text:
                 begin
-                    Value := FieldRef.Value;
+                    Value := FieldRef.Value();
                     if Value <> '' then
                         Value := Format(FieldRef.Value);
                 end;
@@ -547,27 +552,27 @@ codeunit 6153 "API Webhook Notification Mgt."
                 Value := Format(FieldRef.Value);
             FieldType::Boolean:
                 begin
-                    Bool := FieldRef.Value;
+                    Bool := FieldRef.Value();
                     Value := SetBoolFormat(Bool);
                 end;
             FieldType::Date:
                 begin
-                    Date := FieldRef.Value;
+                    Date := FieldRef.Value();
                     Value := SetDateFormat(Date);
                 end;
             FieldType::Time:
                 begin
-                    Time := FieldRef.Value;
+                    Time := FieldRef.Value();
                     Value := SetTimeFormat(Time);
                 end;
             FieldType::DateTime:
                 begin
-                    DateTime := FieldRef.Value;
+                    DateTime := FieldRef.Value();
                     Value := SetDateTimeFormat(DateTime);
                 end;
             FieldType::Duration:
                 begin
-                    BigInt := FieldRef.Value;
+                    BigInt := FieldRef.Value();
                     // Use round to avoid conversion errors due to the conversion from decimal to long.
                     BigInt := Round(BigInt / 60000, 1);
                     Value := Format(BigInt);
@@ -576,7 +581,7 @@ codeunit 6153 "API Webhook Notification Mgt."
                 Value := Format(FieldRef.Value);
             FieldType::Decimal:
                 begin
-                    Decimal := FieldRef.Value;
+                    Decimal := FieldRef.Value();
                     Value := SetDecimalFormat(Decimal);
                 end;
             else begin

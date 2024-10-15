@@ -128,7 +128,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
           ItemRef."Replenishment System"::Assembly, StockkeepingUnitRef."Replenishment System"::Assembly);
     end;
 
-    local procedure CheckValidateRequsitionLine(ItemReplenishmentSystem: Option; ExpectedReqLineReplenishmentSystem: Option)
+    local procedure CheckValidateRequsitionLine(ItemReplenishmentSystem: Enum "Replenishment System"; ExpectedReqLineReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -144,7 +144,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         Assert.AreEqual(ExpectedReqLineReplenishmentSystem, RequisitionLine."Replenishment System", ReplSysIsIncorrectErr);
     end;
 
-    local procedure CheckValidateStokkeepingUnit(ItemReplenishmentSystem: Option; ExpectedReqLineReplenishmentSystem: Option)
+    local procedure CheckValidateStokkeepingUnit(ItemReplenishmentSystem: Enum "Replenishment System"; ExpectedReqLineReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -160,7 +160,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         Assert.AreEqual(ExpectedReqLineReplenishmentSystem, StockkeepingUnit."Replenishment System", ReplSysIsIncorrectErr);
     end;
 
-    local procedure CheckCreateStokkeepingUnit(ItemReplenishmentSystem: Option; ExpectedReqLineReplenishmentSystem: Option)
+    local procedure CheckCreateStokkeepingUnit(ItemReplenishmentSystem: Enum "Replenishment System"; ExpectedReqLineReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         StockkeepingUnit: Record "Stockkeeping Unit";
@@ -190,7 +190,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
         RequisitionLine.Validate("No.", ItemNo);
     end;
 
-    local procedure CreateItemWithReplenishmentSystem(var Item: Record Item; ItemReplenishmentSystem: Option)
+    local procedure CreateItemWithReplenishmentSystem(var Item: Record Item; ItemReplenishmentSystem: Enum "Replenishment System")
     var
         LibraryInventory: Codeunit "Library - Inventory";
     begin
@@ -203,14 +203,14 @@ codeunit 144004 "SCM Replenish. System Mapping"
     begin
         StockkeepingUnit.Init();
         StockkeepingUnit.Validate("Item No.", ItemNo);
-        StockkeepingUnit.Validate("Location Code", CreateLocation);
+        StockkeepingUnit.Validate("Location Code", CreateLocation());
     end;
 
     local procedure CreateStockkeepingUnitByReport(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     var
         Location: Record Location;
     begin
-        Location.Get(CreateLocation);
+        Location.Get(CreateLocation());
         Item.SetRange("Location Filter", Location.Code);
         Item.SetRecFilter();
         REPORT.Run(REPORT::"Create Stockkeeping Unit", false, false, Item);

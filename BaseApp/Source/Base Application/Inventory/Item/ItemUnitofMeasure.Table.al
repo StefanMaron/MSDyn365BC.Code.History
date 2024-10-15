@@ -17,6 +17,7 @@ table 5404 "Item Unit of Measure"
 {
     Caption = 'Item Unit of Measure';
     LookupPageID = "Item Units of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -81,7 +82,7 @@ table 5404 "Item Unit of Measure"
                         repeat
                             CheckQtyPerUoMPrecision(ItemUoM, Rec."Qty. Rounding Precision");
                         until (ItemUoM.Next() = 0);
-                    Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPercisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", Item.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
+                    Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPrecisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", Item.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
                 end;
             end;
         }
@@ -190,7 +191,7 @@ table 5404 "Item Unit of Measure"
         CannotModifyUOMWithWhseEntriesErr: Label 'You cannot modify %1 %2 for item %3 because there are one or more warehouse adjustment entries for the item.', Comment = '%1 = Item Unit of Measure %2 = Code %3 = Item No.';
         QtyPerUoMRoundPrecisionNotAlignedErr: Label 'The quantity per unit of measure %1 for item %2 does not align with the quantity rounding precision %3 for the current base unit of measure.', Comment = '%1 = Qty. per Unit of Measure value, %2 = Item Code, %3 = Qty. Rounding Precision value';
         UoMLoggingTelemetryCategoryTxt: Label 'AL UoM Logging.', Locked = true;
-        UoMQtyRoundingPercisionChangedTxt: Label 'Base UoM Qty. Rounding Precision changed from %1 to %2, for item: %3.', Locked = true;
+        UoMQtyRoundingPrecisionChangedTxt: Label 'Base UoM Qty. Rounding Precision changed from %1 to %2, for item: %3.', Locked = true;
 
     local procedure CalcCubage()
     var
@@ -474,7 +475,7 @@ table 5404 "Item Unit of Measure"
             exit;
 
         if BaseRoundingPrecision <> 0 then
-            if ItemUoM."Qty. per Unit of Measure" MOD BaseRoundingPrecision <> 0 then
+            if ItemUoM."Qty. per Unit of Measure" mod BaseRoundingPrecision <> 0 then
                 Error(QtyPerUoMRoundPrecisionNotAlignedErr,
                     ItemUoM."Qty. per Unit of Measure",
                     ItemUoM.Code,

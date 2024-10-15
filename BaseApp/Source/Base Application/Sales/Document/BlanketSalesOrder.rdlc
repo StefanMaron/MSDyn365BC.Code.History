@@ -10517,6 +10517,12 @@ End Function
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
         </Field>
+        <Field Name="CompanyAddr_7_">
+          <DataField>CompanyAddr_7_</DataField>
+        </Field>
+        <Field Name="CompanyAddr_8_">
+          <DataField>CompanyAddr_8_</DataField>
+        </Field>
         <Field Name="SalesHeaderPricesIncludingVAT">
           <DataField>SalesHeaderPricesIncludingVAT</DataField>
         </Field>

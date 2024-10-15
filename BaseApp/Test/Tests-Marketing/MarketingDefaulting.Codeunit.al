@@ -123,7 +123,7 @@ codeunit 136217 "Marketing Defaulting"
         CreateUserSetup(UserSetup);
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Quote Nos." = '' then begin
-            SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+            SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode();
             SalesReceivablesSetup.Modify();
         end;
 
@@ -149,7 +149,7 @@ codeunit 136217 "Marketing Defaulting"
         CreateUserSetup(UserSetup);
         PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Quote Nos." = '' then begin
-            PurchasesPayablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+            PurchasesPayablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode();
             PurchasesPayablesSetup.Modify();
         end;
 

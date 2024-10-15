@@ -9,7 +9,6 @@ codeunit 137035 "SCM PS Bugs-I"
     end;
 
     var
-        LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -29,7 +28,6 @@ codeunit 137035 "SCM PS Bugs-I"
         ErrMessageNotFoundZeroAmt: Label 'The WIP amount totals must be Zero.';
         ErrMessageCostNotSame: Label 'Cost must be Equal.';
         ErrInventoryValueCalculated: Label 'Inventory Value Calculated must be equal.';
-        ErrCrossReferenceNo: Label 'There are no items with cross reference %1.';
         ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same.';
         ExpectedOutputMissing: Label 'You cannot finish line %1 on Production Order %2. It has consumption or capacity posted with no output.';
         ErrNoOfLinesMustBeEqual: Label 'No. of Line Must Be Equal.';
@@ -174,8 +172,6 @@ codeunit 137035 "SCM PS Bugs-I"
         GeneralLedgerSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
         InventoryValueCalculated: Decimal;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         // 1. Setup : Update Sales Setup.Create Item and Update Inventory.Random values used are not important for test.
         Initialize(false);
@@ -204,7 +200,7 @@ codeunit 137035 "SCM PS Bugs-I"
         CreateItemJournalBatch(ItemJournalBatch);
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false);
 
         // 3. Verify : Inventory Value (Calculated) in Revaluation Journal with Inventory Value at Item card.
         InventoryValueCalculated := GetInventoryValue(Item."No.");
@@ -357,7 +353,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryPlanning.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
         ProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+          LibraryManufacturing.ChangeProuctionOrderStatus(
             ProductionOrder."No.", ProductionOrder.Status, ProductionOrder.Status::Released);
 
         // 2. Execute : Change Status from Released to Finished.
@@ -387,10 +383,10 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Setup: Create and modify Location and Items.Post Item Journal.
         Initialize(false);
-        LocationCode := CreateAndModifyLocationCode;
+        LocationCode := CreateAndModifyLocationCode();
         CreateAndModifyItem(Item, Item."Replenishment System"::"Prod. Order", '', '', '');
         CreateAndModifyItem(
-          Item2, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode, LibraryUtility.GetGlobalNoSeriesCode, '');
+          Item2, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode(), LibraryUtility.GetGlobalNoSeriesCode(), '');
         Quantity := LibraryRandom.RandIntInRange(2, 10);
 
         // Exercise: Create and Post Item Journal.
@@ -423,7 +419,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LocationCode := CreateAndModifyLocationCode();
         CreateAndModifyItem(Item, Item."Replenishment System"::"Prod. Order", '', '', '');
         CreateAndModifyItem(
-          Item2, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode, LibraryUtility.GetGlobalNoSeriesCode, '');
+          Item2, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode(), LibraryUtility.GetGlobalNoSeriesCode(), '');
         CreateAndModifyItem(
           Item3, Item."Replenishment System"::Purchase, '', '',
           CreateAndModifyProductionBOM(Item."Base Unit of Measure", Item."No.", Item2."No."));
@@ -511,7 +507,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // 2. Execute : Find firm planned order and Change Status to released with Update unit cost as TRUE.
         ProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+          LibraryManufacturing.ChangeProuctionOrderStatus(
             ProductionOrder."No.", ProductionOrder.Status, ProductionOrder.Status::Released);
 
         // 3. Verify : Sales Order Unit Cost.
@@ -596,7 +592,7 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrder(RequisitionLine, Item."No.");
         UpdateReqLine(RequisitionLine, Vendor."No.", Item."No.");
         LibraryPlanning.CarryOutReqWksh(
-          RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate,
+          RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(),
           StrSubstNo(RefText, RequisitionLine.FieldCaption("Vendor No."), RequisitionLine."Vendor No."));
 
         // Find Purchase Order and Post Reciept.Post Shipment,
@@ -870,10 +866,10 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Create Output Journal and Post it.
         // LibraryInventory.CreateItemJournal(ItemJournalBatch,Item."No.",ItemJournalBatch."Template Type"::Output,ProdOrderNo);
-        OutputJournal.OpenEdit;
+        OutputJournal.OpenEdit();
         OutputJournal."Order No.".SetValue(ProductionOrder."No.");
         OutputJournal."Order Line No.".SetValue(ProdOrderLine2."Line No.");
-        OutputJournal."Item No.".Lookup;
+        OutputJournal."Item No.".Lookup();
         OutputJournal."Order Line No.".AssertEquals(ProdOrderLine2."Line No.");
         OutputJournal.Close();
     end;
@@ -896,10 +892,10 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // [GIVEN] Lot tracked item "I"
         CreateAndModifyItem(
-          Item, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode, LibraryUtility.GetGlobalNoSeriesCode, '');
+          Item, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode(), LibraryUtility.GetGlobalNoSeriesCode(), '');
 
         // [GIVEN] Purchase order for the item "I"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
         ReceiptDate := PurchaseLine."Expected Receipt Date";
 
@@ -907,10 +903,10 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchaseLine.OpenItemTrackingLines();
 
         // [WHEN] Move expected receipt date in the order line to an earlier day
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PurchLines."Expected Receipt Date".SetValue(PurchaseLine."Expected Receipt Date" - 1);
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrder.OK().Invoke();
 
         // [THEN] Expected receipt date is updated without warning
         PurchaseLine.Find();
@@ -929,7 +925,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize(false);
 
         // [GIVEN] Released production order.
-        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
 
         // [WHEN] Change status of the production order to "Finished" and choose "No" when warned of missed output.
         LibraryVariableStorage.Enqueue(OutputIsMissingQst);
@@ -939,7 +935,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [THEN] Finishing the production order is interrupted to respect the warning.
         Assert.ExpectedError(UpdateInterruptedErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -956,7 +952,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize(false);
 
         // [GIVEN] Released production order.
-        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
 
         // [GIVEN] Nothing is left to output in the order.
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
@@ -974,7 +970,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [THEN] The production order is finished.
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -990,7 +986,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize(false);
 
         // [GIVEN] Released production order.
-        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
 
         // [GIVEN] Nothing is left to output in the order.
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
@@ -1058,7 +1054,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize(false);
 
         // [GIVEN] Released production order.
-        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
 
         CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
@@ -1073,7 +1069,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [THEN] Finishing the production order is interrupted to respect the warning.
         Assert.ExpectedError(UpdateInterruptedErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1089,7 +1085,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Initialize(false);
 
         // [GIVEN] Released production order.
-        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, '');
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
 
         // [GIVEN] First prod. order line is set up to "Backward" flushing method.
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
@@ -1097,7 +1093,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // [GIVEN] Second prod. order line has "Manual" flushing method and is completely posted.
         LibraryManufacturing.CreateProdOrderLine(
-          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
+          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo(), '', '', LibraryRandom.RandInt(10));
         ProdOrderLine."Remaining Quantity" := 0;
         ProdOrderLine.Modify();
         MockProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine, ProdOrderRoutingLine."Flushing Method"::Manual);
@@ -1243,9 +1239,9 @@ codeunit 137035 "SCM PS Bugs-I"
         CreateAndModifyItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemNo2, LocationCode, Quantity);
         CreateAndModifyItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemNo, LocationCode, Quantity);
         Commit();  // Due to a limitation in Page Testability, COMMIT is needed in this case.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalBatch.Name);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
@@ -1291,10 +1287,10 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-        ProdOrderComponents.OpenView;
+        ProdOrderComponents.OpenView();
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo2);
-        ProdOrderComponents.ItemTrackingLines.Invoke;
-        ProductionOrder.CreateInvtPutAwayPick;
+        ProdOrderComponents.ItemTrackingLines.Invoke();
+        ProductionOrder.CreateInvtPutAwayPick();
     end;
 
     local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ManufacturingPolicy: Enum "Manufacturing Policy"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
@@ -1338,7 +1334,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1385,7 +1381,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-        ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo);
+        ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo());
         ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(10));
         ProdOrderComponent.Modify(true);
     end;
@@ -1474,10 +1470,9 @@ codeunit 137035 "SCM PS Bugs-I"
     local procedure CreateSKUAndUpdateUnitCost(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20])
     var
         Item: Record Item;
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("No.", ItemNo);
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::Location, false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
 
         // Update SKU Unit Cost.Random values used are not important for test.
         StockkeepingUnit.SetRange("Item No.", ItemNo);
@@ -1641,15 +1636,15 @@ codeunit 137035 "SCM PS Bugs-I"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1900,8 +1895,8 @@ codeunit 137035 "SCM PS Bugs-I"
     [Scope('OnPrem')]
     procedure ManagedConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [RequestPageHandler]
@@ -1910,7 +1905,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
         CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true);
-        CreateInvtPutawayPickMvmt.OK.Invoke;
+        CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1924,7 +1919,7 @@ codeunit 137035 "SCM PS Bugs-I"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemtrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemtrackingLines."Assign Lot No.".Invoke;
+        ItemtrackingLines."Assign Lot No.".Invoke();
     end;
 
     [MessageHandler]
@@ -1945,7 +1940,7 @@ codeunit 137035 "SCM PS Bugs-I"
     [Scope('OnPrem')]
     procedure OutputJournalItemLookupHandler(var ProdOrderLineList: TestPage "Prod. Order Line List")
     begin
-        ProdOrderLineList.First;
+        ProdOrderLineList.First();
     end;
 
     [MessageHandler]

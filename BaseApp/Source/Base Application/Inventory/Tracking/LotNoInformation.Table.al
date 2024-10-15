@@ -12,6 +12,7 @@ table 6505 "Lot No. Information"
     DataCaptionFields = "Item No.", "Variant Code", "Lot No.", Description;
     DrillDownPageID = "Lot No. Information List";
     LookupPageID = "Lot No. Information List";
+    DataClassification = CustomerContent;
 
     fields
     {

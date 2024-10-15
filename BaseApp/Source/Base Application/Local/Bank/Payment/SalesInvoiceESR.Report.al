@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -615,7 +615,6 @@ report 3010532 "Sales Invoice ESR"
         i: Integer;
         IndentStr: Text[30];
         ML_Invoice: Label 'Invoice';
-        ML_Page: Label 'Page';
         TitleTxt: Text[50];
         CopyTxt: Text[30];
         HeaderLabel: array[20] of Text[30];
@@ -628,9 +627,6 @@ report 3010532 "Sales Invoice ESR"
         ML_VatRate: Label 'VAT Rate';
         ML_VatBase: Label 'VAT Base';
         ML_VatAmt: Label 'VAT Amount';
-        Lbl_VatRate: Text[30];
-        Lbl_VatBase: Text[30];
-        Lbl_VatAmt: Text[30];
         Lbl_TotalInvDisc: Text[30];
         Text001: Label 'You cannot print documents with more than 3 VAT rates.';
         TotalInvDisc: Decimal;
@@ -689,22 +685,19 @@ report 3010532 "Sales Invoice ESR"
     [Scope('OnPrem')]
     procedure SumVat()
     begin
-        with Line do begin
-            // Skip lines w/o VAT
-            if "VAT %" = 0 then
-                exit;
+        // Skip lines w/o VAT
+        if Line."VAT %" = 0 then
+            exit;
+        // Find VAT Arrayposition. Empty or same %
+        i := 1;
+        while (VatRate[i] <> Line."VAT %") and (VatRate[i] <> 0) do
+            i := i + 1;
+        if i = 4 then
+            Error(Text001);
 
-            // Find VAT Arrayposition. Empty or same %
-            i := 1;
-            while (VatRate[i] <> "VAT %") and (VatRate[i] <> 0) do
-                i := i + 1;
-            if i = 4 then
-                Error(Text001);
-
-            VatRate[i] := "VAT %";
-            VatBase[i] := VatBase[i] + Amount;
-            VatAmt[i] := VatAmt[i] + ("Amount Including VAT" - Amount);
-        end;
+        VatRate[i] := Line."VAT %";
+        VatBase[i] := VatBase[i] + Line.Amount;
+        VatAmt[i] := VatAmt[i] + (Line."Amount Including VAT" - Line.Amount);
     end;
 
     [Scope('OnPrem')]

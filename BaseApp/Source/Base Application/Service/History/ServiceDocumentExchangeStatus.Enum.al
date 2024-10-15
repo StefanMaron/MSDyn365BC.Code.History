@@ -1,6 +1,8 @@
 namespace Microsoft.Service.History;
 
+#pragma warning disable AL0659
 enum 712 "Service Document Exchange Status"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

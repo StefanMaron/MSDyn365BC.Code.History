@@ -93,8 +93,8 @@ codeunit 144045 "Sales Document Confirmation"
         if not IsInitialized then begin
             IsInitialized := true;
 
-            PaymentTermsCode := CreatePaymentTermCode;
-            ShipmentMethodCode := CreateShipmentMethodCode;
+            PaymentTermsCode := CreatePaymentTermCode();
+            ShipmentMethodCode := CreateShipmentMethodCode();
 
             // Add Payment Term Translation
             CreatePaymentTermTranslation(PaymentTermsCode);
@@ -158,7 +158,7 @@ codeunit 144045 "Sales Document Confirmation"
         ShipmentMethodTranslation.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -178,7 +178,7 @@ codeunit 144045 "Sales Document Confirmation"
         ReturnOrderConfirmation.ShowInternalInfo.SetValue(false);
         ReturnOrderConfirmation.LogInteraction.SetValue(true);
 
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -190,7 +190,7 @@ codeunit 144045 "Sales Document Confirmation"
         BlanketSalesOrder.ArchiveDocument.SetValue(false);
         BlanketSalesOrder.LogInteraction.SetValue(true);
 
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -203,7 +203,7 @@ codeunit 144045 "Sales Document Confirmation"
         SalesShipment."Show Correction Lines".SetValue(false);
         SalesShipment.ShowLotSN.SetValue(false);
 
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -216,8 +216,8 @@ codeunit 144045 "Sales Document Confirmation"
     local procedure VerifyReportData(SalesHeader: Record "Sales Header")
     begin
         // Verify the XML
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('FooterTxt1', Format(TestPaymentTxt));
 
