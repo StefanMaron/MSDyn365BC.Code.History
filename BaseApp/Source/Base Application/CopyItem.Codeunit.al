@@ -125,14 +125,13 @@ codeunit 730 "Copy Item"
         CopyTroubleshootingSetup(SourceItem."No.", TargetItem."No.");
         CopyItemResourceSkills(SourceItem."No.", TargetItem."No.");
         CopyItemPriceListLines(SourceItem."No.", TargetItem."No.");
+#if not CLEAN19
         CopyItemSalesPrices(SourceItem."No.", TargetItem."No.");
         CopySalesLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
         CopyPurchaseLineDiscounts(SourceItem."No.", TargetItem."No.");
-        CopyItemAttributes(SourceItem."No.", TargetItem."No.");
-#if not CLEAN16
-        CopyItemCrossReferences(SourceItem."No.", TargetItem."No.");
 #endif
+        CopyItemAttributes(SourceItem."No.", TargetItem."No.");
         CopyItemReferences(SourceItem."No.", TargetItem."No.");
 
         OnAfterCopyItem(CopyItemBuffer, SourceItem, TargetItem);
@@ -400,6 +399,7 @@ codeunit 730 "Copy Item"
             until PriceListLine.Next() = 0;
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
@@ -447,6 +447,7 @@ codeunit 730 "Copy Item"
 
         CopyItemRelatedTable(DATABASE::"Purchase Line Discount", PurchLineDiscount.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
+#endif
 
     local procedure CopyItemAttributes(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
@@ -461,18 +462,6 @@ codeunit 730 "Copy Item"
         RecRef.GetTable(ItemAttributeValueMapping);
         CopyItemRelatedTableFromRecRef(RecRef, ItemAttributeValueMapping.FieldNo("No."), FromItemNo, ToItemNo);
     end;
-
-#if not CLEAN16
-    local procedure CopyItemCrossReferences(FromItemNo: Code[20]; ToItemNo: Code[20])
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        if not CopyItemBuffer."Item Cross References" then
-            exit;
-
-        CopyItemRelatedTable(DATABASE::"Item Cross Reference", ItemCrossReference.FieldNo("Item No."), FromItemNo, ToItemNo);
-    end;
-#endif
 
     local procedure CopyItemReferences(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
@@ -552,15 +541,6 @@ codeunit 730 "Copy Item"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitSeries(var Item: Record Item; var InventorySetup: Record "Inventory Setup")
     begin
-    end;
-
-    [Obsolete('This is a backward compatibility call of event from the obsolete report Copy Item', '16.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Item", 'OnAfterCopyItem', '', false, false)]
-    local procedure OnAfterCopyItemBackward(var CopyItemBuffer: Record "Copy Item Buffer"; SourceItem: Record Item; var TargetItem: Record Item);
-    var
-        CopyItemReport: Report "Copy Item";
-    begin
-        CopyItemReport.AfterCopyItem(SourceItem, TargetItem);
     end;
 
     [IntegrationEvent(false, false)]

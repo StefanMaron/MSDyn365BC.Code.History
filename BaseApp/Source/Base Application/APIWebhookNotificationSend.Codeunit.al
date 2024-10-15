@@ -169,6 +169,8 @@ codeunit 6154 "API Webhook Notification Send"
         NotificationFailedTitleTxt: Label 'Notification failed.', Locked = true;
         JobFailedTitleTxt: Label 'Job failed.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
+        PostEmittedTxt: Label 'Notification POST emitted to URL %1.', Locked = true;
+        PostFailedTxt: Label 'Notification POST failed. Notification URL: %1. Response code %2.', Locked = true;
 
     local procedure Initialize()
     begin
@@ -1028,7 +1030,7 @@ codeunit 6154 "API Webhook Notification Send"
                     EarliestScheduledDateTime := ScheduledDateTime;
             end;
             if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-                Session.LogMessage('000070F', StrSubstNo(SaveFailedNotificationMsg, GetSystemIdBySubscriptionId(APIWebhookNotificationAggr.SystemId), APIWebhookNotificationAggr."Entity ID", ChangeTypeToString(APIWebhookNotificationAggr."Change Type"),
+                Session.LogMessage('000070F', StrSubstNo(SaveFailedNotificationMsg, GetSystemIdBySubscriptionId(APIWebhookNotificationAggr."Subscription ID"), APIWebhookNotificationAggr."Entity ID", ChangeTypeToString(APIWebhookNotificationAggr."Change Type"),
                     DateTimeToString(APIWebhookNotificationAggr."Last Modified Date Time"), APIWebhookNotificationAggr."Attempt No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             if not APIWebhookNotificationAggr.Insert(true) then begin
                 Session.LogMessage('000073A', StrSubstNo(CannotInsertAggregateNotificationErr, GetSystemIdBySubscriptionId(APIWebhookNotificationAggr."Subscription ID"),
@@ -1046,6 +1048,7 @@ codeunit 6154 "API Webhook Notification Send"
     local procedure SendNotification(NotificationUrlNumber: Integer; NotificationUrl: Text; NotificationPayload: Text; var Reschedule: Boolean): Boolean
     var
         HttpStatusCode: DotNet HttpStatusCode;
+        HttpStatusCodeNumber: Integer;
         ResponseBody: Text;
         ErrorMessage: Text;
         ErrorDetails: Text;
@@ -1068,8 +1071,11 @@ codeunit 6154 "API Webhook Notification Send"
             NotificationUrlNumber, NotificationUrl, NotificationPayload, ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode);
         if not Success then
             ErrorMessage += GetLastErrorText + ErrorMessage;
+        if not IsNull(HttpStatusCode) then
+            HttpStatusCodeNumber := HttpStatusCode;
 
         OnAfterSendNotification(ErrorMessage, ErrorDetails, HttpStatusCode);
+        OnAfterSendNotificationWithStatusNumber(ErrorMessage, ErrorDetails, HttpStatusCodeNumber);
 
         if not Success then begin
             Reschedule := ShouldReschedule(HttpStatusCode);
@@ -1094,6 +1100,10 @@ codeunit 6154 "API Webhook Notification Send"
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
         ResponseHeaders: DotNet NameValueCollection;
+        UTF8Encoding: DotNet UTF8Encoding;
+        MaskedUrl: Text;
+        HttpStatusCodeNumber: Integer;
+        HttpStatusCodeText: Integer;
     begin
         if NotificationUrl = '' then begin
             Session.LogMessage('00002A1', StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
@@ -1111,14 +1121,57 @@ codeunit 6154 "API Webhook Notification Send"
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.SetContentType('application/json');
         HttpWebRequestMgt.SetTimeout((GetSendingNotificationTimeout()));
-        HttpWebRequestMgt.AddBodyAsText(NotificationPayload);
+        // false is to do not add byte order mark
+        UTF8Encoding := UTF8Encoding.UTF8Encoding(false);
+        HttpWebRequestMgt.AddBodyAsTextWithEncoding(NotificationPayload, UTF8Encoding);
 
         OnSendRequestOnBeforeSendRequestAndReadTextResponse(HttpWebRequestMgt);
+        MaskedUrl := GetMaskedUrl(NotificationUrl);
+        Session.LogMessage('0000FBA', StrSubstNo(PostEmittedTxt, MaskedUrl), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
             if IsNull(HttpStatusCode) then
-                Session.LogMessage('00002A3', StrSubstNo(CannotGetResponseErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+                Session.LogMessage('00002A3', StrSubstNo(CannotGetResponseErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl)
+            else begin
+                HttpStatusCodeNumber := HttpStatusCode;
+                HttpStatusCodeText := HttpStatusCodeNumber;
+            end;
+            Session.LogMessage('0000FBB', StrSubstNo(PostFailedTxt, GetMaskedUrl(MaskedUrl), HttpStatusCodeText), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Error(CannotGetResponseErr, NotificationUrlNumber);
         end;
+    end;
+
+    local procedure GetMaskedUrl(Url: Text): Text
+    var
+        Uri: DotNet Uri;
+        UriKind: DotNet UriKind;
+        Mask: Text;
+        Www: Text;
+        Host: Text;
+        Path: Text;
+        MaskedUrl: Text;
+    begin
+        Mask := '***';
+        Www := 'www.';
+        if not Uri.TryCreate(Url, UriKind.Absolute, Uri) then
+            exit(Mask);
+
+        MaskedUrl := Uri.Scheme.ToLower() + '://';
+
+        Host := Uri.Host.ToLower();
+        if Host.StartsWith(Www) then begin
+            MaskedUrl += Www;
+            Host := CopyStr(Host, StrLen(Www));
+        end;
+        if StrLen(Host) >= 2 then
+            MaskedUrl += CopyStr(Host, 1, 2);
+        MaskedUrl += Mask;
+
+        Path := Uri.AbsolutePath.ToLower();
+        if StrLen(Path) >= 2 then
+            MaskedUrl += CopyStr(Path, 1, 2);
+        MaskedUrl += Mask;
+
+        exit(MaskedUrl);
     end;
 
     local procedure ShouldReschedule(var HttpStatusCode: DotNet HttpStatusCode): Boolean
@@ -1684,6 +1737,11 @@ codeunit 6154 "API Webhook Notification Send"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSendNotification(var ErrorMessage: Text; var ErrorDetails: Text; var HttpStatusCode: DotNet HttpStatusCode)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSendNotificationWithStatusNumber(var ErrorMessage: Text; var ErrorDetails: Text; HttpStatusCode: Integer)
     begin
     end;
 

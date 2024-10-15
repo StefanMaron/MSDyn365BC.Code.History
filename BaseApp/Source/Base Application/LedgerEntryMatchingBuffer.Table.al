@@ -10,12 +10,10 @@ table 1248 "Ledger Entry Matching Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(2; "Account Type"; Option)
+        field(2; "Account Type"; Enum "Matching Ledger Account Type")
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Customer,Vendor,G/L Account,Bank Account,Employee';
-            OptionMembers = Customer,Vendor,"G/L Account","Bank Account",Employee;
         }
         field(3; "Account No."; Code[20])
         {

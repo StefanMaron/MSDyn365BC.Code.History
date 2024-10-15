@@ -1,4 +1,4 @@
-page 42 "Sales Order"
+﻿page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -6,6 +6,9 @@ page 42 "Sales Order"
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER(Order));
+
+    AboutTitle = 'About sales order details';
+    AboutText = 'Choose the order details and fill in order lines with quantities of what you are selling. Post the order when you are ready to ship or invoice. This creates posted sales shipments and posted sales invoices.';
 
     layout
     {
@@ -46,6 +49,9 @@ page 42 "Sales Order"
                     Caption = 'Customer Name';
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
+
+                    AboutTitle = 'Who are you selling to?';
+                    AboutText = 'You can choose existing customers, or add new customers when you create orders. Orders can automatically choose special prices and discounts that you have set for each customer.';
 
                     trigger OnValidate()
                     begin
@@ -219,6 +225,9 @@ page 42 "Sales Order"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when the related sales invoice must be paid.';
+
+                    AboutTitle = 'When is payment due?';
+                    AboutText = 'When you post an order, the invoice gets it''s due date. You can set default due dates for orders by assigning payment terms to customers.';
                 }
                 field("Requested Delivery Date"; "Requested Delivery Date")
                 {
@@ -1114,9 +1123,9 @@ page 42 "Sales Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1817,6 +1826,9 @@ page 42 "Sales Order"
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
+                    AboutTitle = 'Posting the order';
+                    AboutText = 'Posting will ship or invoice the quantities on the order, or both. Post and Send can save the order as a file, print it, or attach it to an email, all in one go.';
+
                     trigger OnAction()
                     begin
                         PostSalesOrder(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
@@ -1886,6 +1898,7 @@ page 42 "Sales Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -2138,8 +2151,8 @@ page 42 "Sales Order"
         SetControlVisibility;
         UpdateShipToBillToGroupVisibility;
         WorkDescription := GetWorkDescription;
-        if BillToContact.Get("Bill-to Contact No.") then;
-        if SellToContact.Get("Sell-to Contact No.") then;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear("Sell-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2183,11 +2196,7 @@ page 42 "Sales Order"
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -2282,7 +2291,7 @@ page 42 "Sales Order"
         PostSalesOrder(PostingCodeunitID, "Navigate After Posting".FromInteger(Navigate));
     end;
 
-    local procedure PostSalesOrder(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
+    protected procedure PostSalesOrder(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         SalesHeader: Record "Sales Header";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";

@@ -385,42 +385,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ReportHandlerOrderConfirmation')]
-    [Scope('OnPrem')]
-    procedure SalesLineWithFullQtyToInvoice()
-    var
-        Quantity: Decimal;
-    begin
-        // Verify VAT and Inv. Discount Amounts on Order Confirmation Report when Quantity equal to Quantity to Invoice.
-        Initialize;
-        Quantity := LibraryRandom.RandDec(10, 2);
-        VerifyAmountsOnOrderConfirmationTestReport(Quantity, Quantity);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerOrderConfirmation')]
-    [Scope('OnPrem')]
-    procedure SalesLineWithPartialQtyToInvoice()
-    var
-        Quantity: Decimal;
-    begin
-        // Verify VAT and Inv. Discount Amounts on Order Confirmation Report when Quantity to Invoice Less than Quantity.
-        Initialize;
-        Quantity := LibraryRandom.RandDec(10, 2);
-        VerifyAmountsOnOrderConfirmationTestReport(Quantity, Quantity / LibraryRandom.RandIntInRange(2, 5));
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerOrderConfirmation')]
-    [Scope('OnPrem')]
-    procedure SalesLineWithZeroQtyToInvoice()
-    begin
-        // Verify VAT and Inv. Discount Amounts on Order Confirmation Report when Quantity to Invoice is Zero.
-        Initialize;
-        VerifyAmountsOnOrderConfirmationTestReport(LibraryRandom.RandDec(10, 2), 0);
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmMessageHandler,MessageHandler,ReportHandlerArchivedSalesOrder')]
     [Scope('OnPrem')]
     procedure VerifyVATAmountOnArchiveSalesOrderReport()
@@ -443,34 +407,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // Verify: VAT Amount is correct.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('VATAmount_Control134', Round(VATAmount, LibraryERM.GetAmountRoundingPrecision));
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerSalesCreditMemo')]
-    [Scope('OnPrem')]
-    procedure SaleCreditMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-        VATIdentifier: Code[20];
-        OldPrintVATSpecInLCY: Boolean;
-    begin
-        // Test that "VAT Amount Specification" and  "VAT Amount Specification in (Local Currency)" in Sales - Credit Memo Report
-        // should be shown when VAT Amount = 0.
-
-        // Setup: Create and Post Sales Credit Memo.
-        Initialize;
-        VATIdentifier := CreateAndPostSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        OldPrintVATSpecInLCY := UpdateGeneralLedgerSetup(true); // Check "Print VAT specification in LCY" option in General Ledger Setup.
-
-        // Exercise: Generate Sales Credit Memo Nos. Report.
-        RunSalesCreditMemo(SalesHeader."No.");
-
-        // Verify: verify that "VAT Amount Specification" and  "VAT Amount Specification in (Local Currency)" in Sales - Credit Memo Report
-        // should be shown when VAT Amount = 0.
-        VerifySalesCreditMemoReport(VATIdentifier, 0); // 0 means VAT Amount = 0.
-
-        // Tear Down: Set Print VAT Specification in LCY as default in General Ledger Setup.
-        UpdateGeneralLedgerSetup(OldPrintVATSpecInLCY);
     end;
 
     [Test]
@@ -1097,20 +1033,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         ReturnOrderConfirmation.Run;
     end;
 
-    local procedure RunSalesCreditMemo(SalesHeaderNo: Code[20])
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemo: Report "Sales - Credit Memo";
-    begin
-        Commit();
-        Clear(SalesCreditMemo);
-        SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeaderNo);
-        SalesCrMemoHeader.FindFirst;
-        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemo.InitializeRequest(1, false, false, true);
-        SalesCreditMemo.Run;
-    end;
-
     local procedure RunPurchCreditMemo(VendorCrMemoNo: Code[35])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -1199,30 +1121,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmountLine."VAT Amount");
     end;
 
-    local procedure VerifyAmountsOnOrderConfirmationTestReport(Quantity: Decimal; QuantityToInvoice: Decimal)
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // Create Sales Order and Update Quantity To Invoice and Inv. Discount Amount.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order,
-          CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
-        LibraryVariableStorage.Enqueue(SalesHeader."No.");
-        UpdateSalesLine(SalesLine, QuantityToInvoice);
-
-        // Exercise: Run Order Confirmation Report.
-        Commit();
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // Verify: Verify Inv. Discount Amounts on Order Confiramtion Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('NNCSalesLineInvDiscAmt', SalesLine."Inv. Discount Amount");
-    end;
-
     local procedure VerifySalesCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
     begin
         with LibraryReportDataset do begin
@@ -1302,27 +1200,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ReportHandlerOrderConfirmation(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    var
-        SalesHeaderNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(SalesHeaderNo);
-        OrderConfirmation."Sales Header".SetFilter("No.", SalesHeaderNo);
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure ReportHandlerArchivedSalesOrder(var ArchivedSalesOrder: TestRequestPage "Archived Sales Order")
     begin
         ArchivedSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerSalesCreditMemo(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

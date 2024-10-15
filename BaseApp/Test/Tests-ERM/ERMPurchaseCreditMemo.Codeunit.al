@@ -274,6 +274,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Location.Modify(true);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPurchaseCreditMemo()
@@ -309,7 +310,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
           PurchaseLine, PostedDocumentNo,
           (PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLineDiscount."Line Discount %" / 100);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure InvDiscountPurchaseCreditMemo()
@@ -1129,6 +1130,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Verification done in handler PostedPurchaseDocumentLinesWithSpecificCrMemoValidationHandler
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1209,6 +1211,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // [THEN] "Line Discount %" is 10
         PurchaseLine.TestField("Line Discount %", PurchaseLineDiscount."Line Discount %");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1288,6 +1291,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1375,6 +1379,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GetPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         Assert.AreEqual(InitialUnitCost, PurchaseLine."Unit Cost", PurchaseLine.FieldCaption("Unit Cost"));
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1598,6 +1603,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1610,7 +1616,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
-
+#endif
     local procedure SetupInvoiceDiscount(var VendorInvoiceDisc: Record "Vendor Invoice Disc.")
     begin
         // Enter Random Values for "Minimum Amount" and "Discount %".

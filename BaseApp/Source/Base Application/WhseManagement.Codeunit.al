@@ -11,22 +11,94 @@ codeunit 5775 "Whse. Management"
 
     procedure GetWhseActivSourceDocument(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Activity Source Document"
     begin
-        exit("Warehouse Activity Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+        exit(GetSourceDocumentType(SourceType, SourceSubtype));
     end;
 
     procedure GetWhseJnlSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Journal Source Document"
     begin
-        exit("Warehouse Journal Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+        exit(GetSourceDocumentType(SourceType, SourceSubtype));
     end;
 
     procedure GetWhseRqstSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Request Source Document"
     begin
-        exit("Warehouse Request Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+        exit(GetSourceDocumentType(SourceType, SourceSubtype));
+    end;
+
+    procedure GetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Journal Source Document"
+    var
+        SourceDocument: Option;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
+        if IsHandled then
+            exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
+
+        case SourceType of
+            DATABASE::"Sales Line":
+                case SourceSubtype of
+                    1:
+                        exit("Warehouse Journal Source Document"::"S. Order");
+                    2:
+                        exit("Warehouse Journal Source Document"::"S. Invoice");
+                    3:
+                        exit("Warehouse Journal Source Document"::"S. Credit Memo");
+                    5:
+                        exit("Warehouse Journal Source Document"::"S. Return Order");
+                end;
+            DATABASE::"Purchase Line":
+                case SourceSubtype of
+                    1:
+                        exit("Warehouse Journal Source Document"::"P. Order");
+                    2:
+                        exit("Warehouse Journal Source Document"::"P. Invoice");
+                    3:
+                        exit("Warehouse Journal Source Document"::"P. Credit Memo");
+                    5:
+                        exit("Warehouse Journal Source Document"::"P. Return Order");
+                end;
+            DATABASE::"Service Line":
+                exit("Warehouse Journal Source Document"::"Serv. Order");
+            DATABASE::"Prod. Order Component":
+                exit("Warehouse Journal Source Document"::"Prod. Consumption");
+            DATABASE::"Assembly Line":
+                exit("Warehouse Journal Source Document"::"Assembly Consumption");
+            DATABASE::"Assembly Header":
+                exit("Warehouse Journal Source Document"::"Assembly Order");
+            DATABASE::"Transfer Line":
+                case SourceSubtype of
+                    0:
+                        exit("Warehouse Journal Source Document"::"Outb. Transfer");
+                    1:
+                        exit("Warehouse Journal Source Document"::"Inb. Transfer");
+                end;
+            DATABASE::"Item Journal Line":
+                case SourceSubtype of
+                    0:
+                        exit("Warehouse Journal Source Document"::"Item Jnl.");
+                    1:
+                        exit("Warehouse Journal Source Document"::"Reclass. Jnl.");
+                    2:
+                        exit("Warehouse Journal Source Document"::"Phys. Invt. Jnl.");
+                    4:
+                        exit("Warehouse Journal Source Document"::"Consumption Jnl.");
+                    5:
+                        exit("Warehouse Journal Source Document"::"Output Jnl.");
+                end;
+            DATABASE::"Job Journal Line":
+                exit("Warehouse Journal Source Document"::"Job Jnl.");
+        end;
+
+        OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
+        if IsHandled then
+            exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
+
+        Error(Text000);
     end;
 
     procedure GetSourceDocument(SourceType: Integer; SourceSubtype: Integer): Integer
     var
-        SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
+        SourceDocument: Option;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -34,63 +106,12 @@ codeunit 5775 "Whse. Management"
         if IsHandled then
             exit(SourceDocument);
 
-        case SourceType of
-            DATABASE::"Sales Line":
-                case SourceSubtype of
-                    1:
-                        exit(SourceDocument::"S. Order");
-                    2:
-                        exit(SourceDocument::"S. Invoice");
-                    3:
-                        exit(SourceDocument::"S. Credit Memo");
-                    5:
-                        exit(SourceDocument::"S. Return Order");
-                end;
-            DATABASE::"Purchase Line":
-                case SourceSubtype of
-                    1:
-                        exit(SourceDocument::"P. Order");
-                    2:
-                        exit(SourceDocument::"P. Invoice");
-                    3:
-                        exit(SourceDocument::"P. Credit Memo");
-                    5:
-                        exit(SourceDocument::"P. Return Order");
-                end;
-            DATABASE::"Service Line":
-                exit(SourceDocument::"Serv. Order");
-            DATABASE::"Prod. Order Component":
-                exit(SourceDocument::"Prod. Consumption");
-            DATABASE::"Assembly Line":
-                exit(SourceDocument::"Assembly Consumption");
-            DATABASE::"Assembly Header":
-                exit(SourceDocument::"Assembly Order");
-            DATABASE::"Transfer Line":
-                case SourceSubtype of
-                    0:
-                        exit(SourceDocument::"Outb. Transfer");
-                    1:
-                        exit(SourceDocument::"Inb. Transfer");
-                end;
-            DATABASE::"Item Journal Line":
-                case SourceSubtype of
-                    0:
-                        exit(SourceDocument::"Item Jnl.");
-                    1:
-                        exit(SourceDocument::"Reclass. Jnl.");
-                    2:
-                        exit(SourceDocument::"Phys. Invt. Jnl.");
-                    4:
-                        exit(SourceDocument::"Consumption Jnl.");
-                    5:
-                        exit(SourceDocument::"Output Jnl.");
-                end;
-            DATABASE::"Job Journal Line":
-                exit(SourceDocument::"Job Jnl.");
-        end;
+        SourceDocument := GetSourceDocumentType(SourceType, SourceSubtype).AsInteger();
+
         OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
         if IsHandled then
             exit(SourceDocument);
+
         Error(Text000);
     end;
 

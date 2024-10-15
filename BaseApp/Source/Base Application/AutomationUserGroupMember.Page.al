@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5442 "Automation User Group Member"
 {
     Caption = 'userGroupMember', Locked = true;
@@ -63,4 +64,4 @@ page 5442 "Automation User Group Member"
         UserIDNotSpecifiedForLinesErr: Label 'You must specify a User Security ID to access user groups members.';
         LinesLoaded: Boolean;
 }
-
+#endif

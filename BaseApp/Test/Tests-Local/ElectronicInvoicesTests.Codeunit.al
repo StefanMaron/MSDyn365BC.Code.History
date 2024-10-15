@@ -46,7 +46,7 @@ codeunit 141001 "Electronic Invoices - Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,SalesQuoteRequestHandler,ConfirmHandler')]
+    [HandlerFunctions('MsgHandler,SalesQuoteRequestHandler')]
     [Scope('OnPrem')]
     procedure SalesQuote_ElectronicInvoicing()
     var
@@ -60,57 +60,11 @@ codeunit 141001 "Electronic Invoices - Tests"
         for IsElectronicInvoicing := false to true do begin
             // Exercise
             SetElectronicInvoicing(IsElectronicInvoicing);
-            REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
+            REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
             // Verify
             asserterror VerifyElectronicInvInDataset(IsElectronicInvoicing);
             Assert.ExpectedError('ElectronicInvoicing');
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,SalesInvoiceRequestHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoice_ElectronicInvoicing()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        IsElectronicInvoicing: Boolean;
-    begin
-        Initialize;
-
-        CreateSalesInvAndPost(SalesInvoiceHeader);
-
-        for IsElectronicInvoicing := false to true do begin
-            // Exercise
-            SetElectronicInvoicing(IsElectronicInvoicing);
-            SalesInvoiceHeader.SetRecFilter;
-            REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-            // Verify
-            VerifyElectronicInvInDataset(IsElectronicInvoicing);
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,SalesCrMemoRequestHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCrMemo_ElectronicInvoicing()
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        IsElectronicInvoicing: Boolean;
-    begin
-        Initialize;
-
-        CreateSalesCrMemoAndPost(SalesCrMemoHeader);
-
-        for IsElectronicInvoicing := false to true do begin
-            // Exercise
-            SetElectronicInvoicing(IsElectronicInvoicing);
-            SalesCrMemoHeader.SetRecFilter;
-            REPORT.Run(REPORT::"Sales - Credit Memo", true, false, SalesCrMemoHeader);
-
-            // Verify
-            VerifyElectronicInvInDataset(IsElectronicInvoicing);
         end;
     end;
 
@@ -165,23 +119,9 @@ codeunit 141001 "Electronic Invoices - Tests"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesQuoteRequestHandler(var SalesQuote: TestRequestPage "Sales - Quote")
+    procedure SalesQuoteRequestHandler(var SalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCrMemoRequestHandler(var SalesCrMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [MessageHandler]

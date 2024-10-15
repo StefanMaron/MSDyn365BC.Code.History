@@ -874,36 +874,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesOrderConfirmReport()
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-        DefaultPostingDate: Enum "Default Posting Date";
-        FilePath: Text[1024];
-    begin
-        // Check Order Confirmation Report when Sales Order is created with Foreign Currency and Blank Posting Date.
-
-        // Setup.
-        Initialize;
-        SetupAndCreateSalesDocument(SalesHeader, DefaultPostingDate, SalesHeader."Document Type"::Order);
-
-        // Exercise: Run and Save Order Confirmation Report.
-        Clear(OrderConfirmation);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        OrderConfirmation.SetTableView(SalesHeader);
-        FilePath := TemporaryPath + Format(SalesHeader."Document Type") + SalesHeader."No." + '.xlsx';
-        OrderConfirmation.SaveAsExcel(FilePath);
-
-        // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
-
-        // Tear Down: Cleanup of Setup Done.
-        UpdateSalesReceivableSetup(DefaultPostingDate, DefaultPostingDate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesReturnOrderConfirmReport()
     var
         SalesHeader: Record "Sales Header";

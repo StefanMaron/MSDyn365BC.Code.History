@@ -428,11 +428,7 @@ table 5093 "Opportunity Entry"
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
 
         if not ContBusRel.FindFirst then
-#if not CLEAN18
-            Cont.CreateCustomer('');
-#else
             Cont.CreateCustomerFromTemplate('');
-#endif
     end;
 
     procedure InitOpportunityEntry(Opp: Record Opportunity)

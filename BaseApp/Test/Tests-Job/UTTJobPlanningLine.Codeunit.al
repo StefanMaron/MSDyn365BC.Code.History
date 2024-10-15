@@ -13,6 +13,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: codeunit "Library - Price Calculation";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -35,6 +36,7 @@ codeunit 136353 "UT T Job Planning Line"
         FBTotalErr: Label 'Wrong Job Planning Lines';
         FBPlanningDrillDownErr: Label 'Wrong Job Planning Lines';
         FBLedgerDrillDownErr: Label 'Wrong Job Ledger Entries';
+        RoundingTo0Err: Label 'Rounding of the field';
 
     [Test]
     [Scope('OnPrem')]
@@ -514,6 +516,7 @@ codeunit 136353 "UT T Job Planning Line"
         Assert.ExpectedError(CannotRemoveJobPlanningLineErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPctInJobPlanningLineWhenAllowLineDiscDefinedInCustPriceGroup()
@@ -583,6 +586,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [THEN] "Line Discount %" in Job Planning Line is zero
         JobPlanningLine.TestField("Line Discount %", 0);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1046,6 +1050,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Description 2", ItemVariant."Description 2");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure NoLineDiscountInJobPlanningLineWhenNoAllowLineDiscInSalesPriceForAllCustomersAndVariant()
@@ -1110,6 +1115,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [THEN] "Line Discount %" in Job Planning Line is 0%
         JobPlanningLine.TestField("Line Discount %", 0);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1371,31 +1377,362 @@ codeunit 136353 "UT T Job Planning Line"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnJobPlanningLine()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Job Planning Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Planning Line where the unit of measure code is set to the non-base unit of measure.
+        CreateJobPlanningLineWithType(JobPlanningLine, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        asserterror JobPlanningLine.Validate(Quantity, 1 / (LibraryRandom.RandIntInRange(300, 1000)));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnJobPlanningLine()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Job Planning Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+        QtyToSet := LibraryRandom.RandDec(10, 2);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Planning Line where the unit of measure code is set to the non-base unit of measure.
+        CreateJobPlanningLineWithType(JobPlanningLine, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobPlanningLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), JobPlanningLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnJobPlanningLine()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Job Planning Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Planning Line where the unit of measure code is set to the non-base unit of measure.
+        CreateJobPlanningLineWithType(JobPlanningLine, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobPlanningLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity is rounded with the default rounding precision
+        Assert.AreEqual(Round(QtyToSet, 0.00001), JobPlanningLine.Quantity, 'Qty. is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the default rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * JobPlanningLine.Quantity, 0.00001),
+                        JobPlanningLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnJobPlanningLine()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Job Planning Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(5, 10), QtyRoundingPrecision);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Planning Line where the unit of measure code is set to the non-base unit of measure.
+        CreateJobPlanningLineWithType(JobPlanningLine, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobPlanningLine.Validate(Quantity, (NonBaseQtyPerUOM - 1) / NonBaseQtyPerUOM);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM - 1, QtyRoundingPrecision),
+                        JobPlanningLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
     procedure QuantityValidationUpdatesUnitPriceByCostFactor()
     var
+        Item: Record Item;
         Job: Record Job;
         JobTask: Record "Job Task";
+#if not CLEAN19
+        JobItemPrice: Record "Job Item Price";
+#else
+        PriceListLine: Record "Price List Line";
+#endif
         JobPlanningLine: Record "Job Planning Line";
+        CostFactor: Decimal;
         UnitPrice: Decimal;
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor" 
         Initialize();
-        // [GIVEN] A job with job tasks containing one job planning line, where "Unit Price" is 15, calculated by "Cost Factor"
+        // [GIVEN] A job with a job task
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(
             JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
-        JobPlanningLine.TestField("Unit Cost");
-        JobPlanningLine.Validate("Cost Factor", LibraryRandom.RandDec(10, 1));
-        JobPlanningLine.TestField("Unit Price");
+
+        // [GIVEN] Price line for Job and Item, where "Cost Factor" is set
+        CostFactor := LibraryRandom.RandDec(10, 1);
+        Item.Get(JobPlanningLine."No.");
+#if not CLEAN19
+        LibraryJob.CreateJobItemPrice(
+            JobItemPrice, Job."No.", JobTask."Job Task No.", JobPlanningLine."No.", '', '', Item."Base Unit of Measure");
+        JobItemPrice.Validate("Unit Cost Factor", CostFactor);
+        JobItemPrice.Modify();
+#else
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Job, Job."No.", "Price Asset Type"::Item, JobPlanningLine."No.");
+        PriceListLine.Validate("Cost Factor", CostFactor);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+#endif
+
+        // [GIVEN] Job planning line, where "Unit Price" is 15, calculated by "Cost Factor"
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.TestField("Cost Factor", CostFactor);
         UnitPrice := JobPlanningLine."Unit Price";
 
-        // [WHEN] blank "Unit Price" and increase Quantity by 5
-        JobPlanningLine.Validate("Unit Price", 0);
-        JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity + 5);
+        // [WHEN] Increase Quantity by 3
+        JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity + 3);
 
         // [THEN] "Unit Price" is still 15
         JobPlanningLine.TestField("Unit Price", UnitPrice);
+    end;
+
+    [Test]
+    procedure LocationForNonInventoryItemsAllowed()
+    var
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine1: Record "Job Journal Line";
+        JobJournalLine2: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+    begin
+        // [SCENARIO] Job planning lines for non-inventory items with location set. 
+        // Location should be transfered to job journal lines.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] A job with job tasks containing two job planning lines for the non-inventory items with location set.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine1."Line Type"::Budget, JobPlanningLine1.Type::Item, JobTask, JobPlanningLine1);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine2."Line Type"::Budget, JobPlanningLine2.Type::Item, JobTask, JobPlanningLine2);
+
+        JobPlanningLine1.Validate("No.", ServiceItem."No.");
+        JobPlanningLine1.Validate(Quantity, 1);
+        JobPlanningLine1.Validate("Location Code", Location.Code);
+        JobPlanningLine1.Modify(true);
+
+        JobPlanningLine2.Validate("No.", NonInventoryItem."No.");
+        JobPlanningLine2.Validate(Quantity, 1);
+        JobPlanningLine2.Validate("Location Code", Location.Code);
+        JobPlanningLine2.Modify(true);
+
+        // [WHEN] Creating job journal lines from the job planning lines.
+        LibraryJob.GetJobJournalTemplate(JobJournalTemplate);
+        LibraryJob.CreateJobJournalBatch(LibraryJob.GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch);
+        JobTransferLine.FromPlanningLineToJnlLine(
+            JobPlanningLine1, WorkDate(), JobJournalTemplate.Name, JobJournalBatch.Name, JobJournalLine1);
+        JobTransferLine.FromPlanningLineToJnlLine(
+            JobPlanningLine2, WorkDate(), JobJournalTemplate.Name, JobJournalBatch.Name, JobJournalLine2);
+
+        // [THEN] The location is transfered to the job journal lines for each non-inventory item.
+        Assert.AreEqual(ServiceItem."No.", JobJournalLine1."No.", 'Expected service item to be transfered');
+        Assert.AreEqual(Location.Code, JobJournalLine1."Location Code", 'Expected location code to be transfered');
+
+        Assert.AreEqual(NonInventoryItem."No.", JobJournalLine2."No.", 'Expected non-inventory item to be transfered');
+        Assert.AreEqual(Location.Code, JobJournalLine2."Location Code", 'Expected location code to be transfered');
+    end;
+
+    [Test]
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        JobPlanningLine3: Record "Job Planning Line";
+    begin
+        // [SCENARIO] Bin code is not allowed for non-inventory items in job planning line.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location with require bin and a default bin code.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] A job with job tasks containing 3 job planning lines for for the item and non-inventory items.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine1."Line Type"::Budget, JobPlanningLine1.Type::Item, JobTask, JobPlanningLine1);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine2."Line Type"::Budget, JobPlanningLine2.Type::Item, JobTask, JobPlanningLine2);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine3."Line Type"::Budget, JobPlanningLine3.Type::Item, JobTask, JobPlanningLine3);
+
+        // [WHEN] Settings the location code for the job planning lines.
+        JobPlanningLine1.Validate("No.", Item."No.");
+        JobPlanningLine1.Validate(Quantity, 1);
+        JobPlanningLine1.Validate("Location Code", Location.Code);
+        JobPlanningLine2.Modify(true);
+
+        JobPlanningLine2.Validate("No.", ServiceItem."No.");
+        JobPlanningLine2.Validate(Quantity, 1);
+        JobPlanningLine2.Validate("Location Code", Location.Code);
+        JobPlanningLine2.Modify(true);
+
+        JobPlanningLine3.Validate("No.", NonInventoryItem."No.");
+        JobPlanningLine3.Validate(Quantity, 1);
+        JobPlanningLine3.Validate("Location Code", Location.Code);
+        JobPlanningLine3.Modify(true);
+
+        // [THEN] Bin code is set for the item.
+        Assert.AreEqual(Bin.Code, JobPlanningLine1."Bin Code", 'Expected bin code to be set');
+        Assert.AreEqual('', JobPlanningLine2."Bin Code", 'Expected no bin code set');
+        Assert.AreEqual('', JobPlanningLine3."Bin Code", 'Expected no bin code set');
+
+        // [WHEN] Setting bin code on non-inventory items.
+        asserterror JobPlanningLine2.Validate("Bin Code", Bin.Code);
+        asserterror JobPlanningLine3.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
     end;
 
     [Test]
@@ -1495,6 +1832,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Planning Line");
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscScenario(var JobPlanningLine: Record "Job Planning Line"; var SalesLineDiscount: Record "Sales Line Discount"; JobTask: Record "Job Task"; CustNo: Code[20]; CustomerPriceGroupCode: Code[10])
     var
         Item: Record Item;
@@ -1512,6 +1850,7 @@ codeunit 136353 "UT T Job Planning Line"
         CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
     end;
+#endif
 
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; ApplyUsageLink: Boolean)
     var
@@ -1674,6 +2013,7 @@ codeunit 136353 "UT T Job Planning Line"
         MockJobLedgEntry(Job."No.", ArrAmount[11], -ArrAmount[12], JobLedgerEntry.Type::"G/L Account", JobLedgerEntry."Entry Type"::Sale);
     end;
 
+#if not CLEAN19
     local procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; CustNo: Code[20])
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -1682,6 +2022,7 @@ codeunit 136353 "UT T Job Planning Line"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateJobPlanningLineWithType(var JobPlanningLine: Record "Job Planning Line"; ConsumableType: Enum "Job Planning Line Type")
     var

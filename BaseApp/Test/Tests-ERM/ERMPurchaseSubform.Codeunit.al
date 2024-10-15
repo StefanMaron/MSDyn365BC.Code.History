@@ -3744,6 +3744,509 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        BlanketPurchaseOrder.OpenNew();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        BlanketPurchaseOrder.PurchLines.First();
+        BlanketPurchaseOrder.PurchLines.Type.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        PurchaseInvoice.PurchLines.First();
+        PurchaseInvoice.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseCreditMemo.OpenNew();
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        PurchaseCreditMemo.PurchLines.First();
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseQuote.OpenNew();
+        PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        PurchaseQuote.PurchLines.First();
+        PurchaseQuote.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseRetOrderDefaultLineType()
+    var
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseReturnOrder.OpenNew();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = "Resource"
+        PurchaseReturnOrder.PurchLines.First();
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        BlanketPurchaseOrder.OpenNew();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        BlanketPurchaseOrder.PurchLines.First();
+        BlanketPurchaseOrder.PurchLines.Type.AssertEquals(PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        PurchaseInvoice.PurchLines.First();
+        PurchaseInvoice.PurchLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseCreditMemo.OpenNew();
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        PurchaseCreditMemo.PurchLines.First();
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseQuote.OpenNew();
+        PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        PurchaseQuote.PurchLines.First();
+        PurchaseQuote.PurchLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseRetOrderDefaultLineType_Empty()
+    var
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] First Purchase document line "Type" = "Document Default Line Type" from purchase setup when create new Purchase document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Create new Purchase document
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseReturnOrder.OpenNew();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+
+        // [THEN] First Purchase document line "Type" = " "
+        PurchaseReturnOrder.PurchLines.First();
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        PurchaseOrder.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        BlanketPurchaseOrder.OpenNew();
+        BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+        BlanketPurchaseOrder.PurchLines.First();
+        BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        BlanketPurchaseOrder.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        BlanketPurchaseOrder.PurchLines.Type.AssertEquals(PurchaseLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseQuote.OpenNew();
+        PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseQuote.PurchLines.First();
+        PurchaseQuote.PurchLines.FilteredTypeField.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        PurchaseQuote.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        PurchaseQuote.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseInvoice.PurchLines.First();
+        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        PurchaseInvoice.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        PurchaseInvoice.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseCreditMemo.OpenNew();
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseCreditMemo.PurchLines.First();
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        PurchaseCreditMemo.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseRetOrderDefaultLineType_SecondLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        PurchaseLineType: array[2] of Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from purchase setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Resource"
+        PurchaseLineType[1] := PurchaseLineType[1] ::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType[1]);
+
+        // [GIVEN] New Purchase document with first line "Type" = "G/L Account"
+        PurchaseLineType[2] := PurchaseLineType[2] ::"G/L Account";
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseReturnOrder.OpenNew();
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseReturnOrder.PurchLines.First();
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(PurchaseLineType[2]);
+        Commit();
+
+        // [WHEN] Create Purchase document second line
+        PurchaseReturnOrder.PurchLines.New();
+
+        // [THEN] Purchase document second line "Type" = "G/L Account"
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -4458,6 +4961,15 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(
           StrSubstNo(ChangeCurrencyConfirmQst, PurchaseHeader.FieldCaption("Currency Code")));
         LibraryVariableStorage.Enqueue(true);
+    end;
+
+    local procedure SetDocumentDefaultLineType(PurchaseLineType: Enum "Purchase Line Type")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Document Default Line Type" := PurchaseLineType;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure CheckPostedInvoiceStatistics(PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")

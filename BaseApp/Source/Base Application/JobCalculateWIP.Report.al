@@ -76,6 +76,7 @@ report 1086 "Job Calculate WIP"
     var
         WIPPosted: Boolean;
         WIPQst: Text;
+        InfoMsg: Text;
     begin
         JobWIPEntry.SetCurrentKey("Job No.");
         JobWIPEntry.SetFilter("Job No.", Job.GetFilter("No."));
@@ -84,16 +85,16 @@ report 1086 "Job Calculate WIP"
 
         if WIPPosted then begin
             if WIPPostedWithWarnings then
-                Message(Text002)
+                InfoMsg := Text002
             else
-                Message(Text000);
-            if DIALOG.Confirm(PreviewQst) then begin
+                InfoMsg := Text000;
+            if DIALOG.Confirm(InfoMsg + PreviewQst) then begin
                 JobWIPEntry.SetRange("Job No.", Job."No.");
                 PAGE.RunModal(PAGE::"Job WIP Entries", JobWIPEntry);
 
                 WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Job Post WIP to G/L');
                 if DIALOG.Confirm(WIPQst) then
-                    REPORT.Run(REPORT::"Job Post WIP to G/L", true, false, Job);
+                    REPORT.RunModal(REPORT::"Job Post WIP to G/L", true, false, Job);
             end;
         end else
             Message(Text001);
@@ -123,9 +124,9 @@ report 1086 "Job Calculate WIP"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         PostingDate: Date;
         DocNo: Code[20];
-        Text000: Label 'WIP was successfully calculated.';
+        Text000: Label 'WIP was successfully calculated.\';
         Text001: Label 'There were no new WIP entries created.';
-        Text002: Label 'WIP was calculated with warnings.';
+        Text002: Label 'WIP was calculated with warnings.\';
         WIPPostedWithWarnings: Boolean;
         PreviewQst: Label 'Do you want to preview the posting accounts?';
         RunWIPFunctionsQst: Label 'You must run the %1 function to post the completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Post WIP to G/L report';

@@ -100,7 +100,9 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyItemAnalysisViewEntry;
         ClassifyTokenCache;
         ClassifyTenantLicenseState;
+#if not CLEAN19
         ClassifyOutlookSynchUserSetup;
+#endif
         ClassifyFAJournalSetup;
         ClassifyCustomizedCalendarEntry;
         ClassifyOfficeContactDetails;
@@ -213,7 +215,8 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyCreditTransferRegister;
         ClassifyPhysInventoryLedgerEntry;
         ClassifyBankAccReconciliationLine;
-        ClassifyTimeSheetLine;
+        ClassifyBankAccRecMatchBuffer();
+        ClassifyTimeSheetLine();
         ClassifyCheckLedgerEntry;
         ClassifyBankAccountLedgerEntry;
         ClassifyBookingSync;
@@ -303,6 +306,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifySupportInformation;
         ClassifyCRMSynchStatus;
         ClassifyRetentionPolicyLogEntry();
+        ClassifyDocumentSharing();
         ClassifyEmailConnectorLogo();
         ClassifyEmailError();
         ClassifyEmailOutbox();
@@ -313,6 +317,54 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyEmailRelatedAttachments();
         ClassifyPostedGenJournalLine();
         ClassifyWordTemplate();
+        ClassifyBatchProcessingSessionMap();
+        ClassifyConfigPackageError();
+        ClassifyBankAccount();
+        ClassifyCRMOptionMapping();
+        ClassifyDataExch();
+        ClassifyDataMigrationError();
+        ClassifyDataMigrationParameters();
+        ClassifyErrorMessage();
+        ClassifyIntegrationRecord();
+        ClassifyIntegrationRecordArchive();
+        ClassifyIntegrationSynchJobErrors();
+        ClassifyInventoryPageData();
+        ClassifyNotificationContext();
+        ClassifyPaymentReportingArgument();
+        ClassifyPaymentServiceSetup();
+        ClassifyRestrictedRecord();
+        ClassifyServiceConnection();
+        ClassifyStandardAddress();
+        ClassifyTempStack();
+        ClassifyTimelineEvent();
+        ClassifyVATRateChangeLogEntry();
+        ClassifyWorkflowEventQueue();
+        ClassifyWorkflowRecordChange();
+        ClassifyWorkflowRecordChangeArchive();
+        ClassifyWorkflowTableRelationValue();
+        ClassifyWorkflowWebhookEntry();
+        ClassifyTenantWebServiceOData();
+        ClassifyTenantWebServiceColumns();
+        ClassifyTenantWebServiceFilter();
+        ClassifyCouplingRecordBuffer();
+        ClassifyCRMAnnotationBuffer();
+        ClassifyCRMAnnotationCoupling();
+        ClassifyCRMPostBuffer();
+        ClassifyCRMSynchConflictBuffer();
+        ClassifyInventoryEventBuffer();
+        ClassifyItemTracingBuffer();
+        ClassifyMergeDuplicatesBuffer();
+        ClassifyMergeDuplicatesConflict();
+        ClassifyRecordSetBuffer();
+        ClassifyRecordBuffer();
+        ClassifyRecordExportBuffer();
+        ClassifyParallelSessionEntry();
+        ClassifyWorkflowsEntriesBuffer();
+        ClassifyRecordSetTree();
+#if not CLEAN19
+        ClassifyOutlookSynchLink();
+#endif
+        ClassifyExtraSettings();
     end;
 
     local procedure ClassifyTablesToNormalPart1()
@@ -338,7 +390,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Sales Comment Line");
         SetTableFieldsToNormal(DATABASE::"Accounting Period");
         SetTableFieldsToNormal(DATABASE::"Batch Processing Parameter");
-        SetTableFieldsToNormal(DATABASE::"Batch Processing Session Map");
         SetTableFieldsToNormal(DATABASE::"Document Sending Profile");
         SetTableFieldsToNormal(DATABASE::"Electronic Document Format");
         SetTableFieldsToNormal(DATABASE::"Report Selections");
@@ -372,8 +423,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Standard Vendor Purchase Code");
         SetTableFieldsToNormal(DATABASE::"G/L Account Where-Used");
         SetTableFieldsToNormal(DATABASE::"Work Type");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Resource Price");
         SetTableFieldsToNormal(DATABASE::"Resource Cost");
+#endif
         SetTableFieldsToNormal(DATABASE::"Unit of Measure");
         SetTableFieldsToNormal(DATABASE::"Resource Unit of Measure");
         SetTableFieldsToNormal(DATABASE::"Res. Journal Template");
@@ -418,7 +471,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Vendor Amount");
         SetTableFieldsToNormal(DATABASE::"Item Amount");
         SetTableFieldsToNormal(DATABASE::"G/L Account Net Change");
-        SetTableFieldsToNormal(DATABASE::"Bank Account");
         SetTableFieldsToNormal(DATABASE::"Bank Acc. Reconciliation");
         SetTableFieldsToNormal(DATABASE::"Bank Account Statement");
         SetTableFieldsToNormal(DATABASE::"Bank Account Statement Line");
@@ -474,7 +526,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Currency Exchange Rate");
         SetTableFieldsToNormal(DATABASE::"Column Layout Name");
         SetTableFieldsToNormal(DATABASE::"Column Layout");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Resource Price Change");
+#endif
         SetTableFieldsToNormal(DATABASE::"Tracking Specification");
         SetTableFieldsToNormal(DATABASE::"Customer Discount Group");
         SetTableFieldsToNormal(DATABASE::"Item Discount Group");
@@ -550,8 +604,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"VAT Clause by Doc. Type");
         SetTableFieldsToNormal(DATABASE::"VAT Clause by Doc. Type Trans.");
         SetTableFieldsToNormal(DATABASE::"G/L Account Category");
-        SetTableFieldsToNormal(DATABASE::"Error Message");
-        SetTableFieldsToNormal(DATABASE::"Standard Address");
         SetTableFieldsToNormal(DATABASE::"VAT Statement Report Line");
         SetTableFieldsToNormal(DATABASE::"VAT Report Setup");
         SetTableFieldsToNormal(DATABASE::"VAT Report Line Relation");
@@ -591,9 +643,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Job Task Dimension");
         SetTableFieldsToNormal(DATABASE::"Job WIP Method");
         SetTableFieldsToNormal(DATABASE::"Job WIP Warning");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Job Resource Price");
         SetTableFieldsToNormal(DATABASE::"Job Item Price");
         SetTableFieldsToNormal(DATABASE::"Job G/L Account Price");
+#endif
         SetTableFieldsToNormal(DATABASE::"Job Usage Link");
         SetTableFieldsToNormal(DATABASE::"Job WIP Total");
         SetTableFieldsToNormal(DATABASE::"Job Planning Line Invoice");
@@ -602,8 +656,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Sorting Table");
         SetTableFieldsToNormal(DATABASE::"Reminder Terms Translation");
         SetTableFieldsToNormal(DATABASE::"Line Fee Note on Report Hist.");
-        SetTableFieldsToNormal(DATABASE::"Payment Service Setup");
-        SetTableFieldsToNormal(DATABASE::"Payment Reporting Argument");
         SetTableFieldsToNormal(DATABASE::"Cost Journal Template");
         SetTableFieldsToNormal(DATABASE::"Cost Journal Line");
         SetTableFieldsToNormal(DATABASE::"Cost Journal Batch");
@@ -615,7 +667,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Bank Export/Import Setup");
         SetTableFieldsToNormal(DATABASE::"Data Exchange Type");
         SetTableFieldsToNormal(DATABASE::"Intermediate Data Import");
-        SetTableFieldsToNormal(DATABASE::"Data Exch.");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Field");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Def");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Column Def");
@@ -654,28 +705,21 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Trial Balance Setup");
         SetTableFieldsToNormal(DATABASE::"Activities Cue");
         SetTableFieldsToNormal(DATABASE::"Approvals Activities Cue");
-        SetTableFieldsToNormal(DATABASE::"Service Connection");
         SetTableFieldsToNormal(1432); // Net Promoter Score Setup
         SetTableFieldsToNormal(1471); // Table "Product Video Category"
         SetTableFieldsToNormal(DATABASE::Workflow);
         SetTableFieldsToNormal(DATABASE::"Workflow Step");
         SetTableFieldsToNormal(DATABASE::"Workflow - Table Relation");
-        SetTableFieldsToNormal(DATABASE::"Workflow Table Relation Value");
         SetTableFieldsToNormal(DATABASE::"Workflow Category");
         SetTableFieldsToNormal(DATABASE::"WF Event/Response Combination");
         SetTableFieldsToNormal(DATABASE::"Dynamic Request Page Entity");
         SetTableFieldsToNormal(DATABASE::"Dynamic Request Page Field");
-        SetTableFieldsToNormal(DATABASE::"Notification Context");
         SetTableFieldsToNormal(DATABASE::"Workflow Event");
         SetTableFieldsToNormal(DATABASE::"Workflow Response");
-        SetTableFieldsToNormal(DATABASE::"Workflow Event Queue");
         SetTableFieldsToNormal(DATABASE::"Workflow Rule");
-        SetTableFieldsToNormal(DATABASE::"Workflow - Record Change");
-        SetTableFieldsToNormal(DATABASE::"Workflow Record Change Archive");
         SetTableFieldsToNormal(DATABASE::"Workflow User Group");
         SetTableFieldsToNormal(DATABASE::"Flow Service Configuration");
         SetTableFieldsToNormal(DATABASE::"Flow User Environment Config");
-        SetTableFieldsToNormal(DATABASE::"Restricted Record");
         SetTableFieldsToNormal(DATABASE::"Office Add-in Context");
         SetTableFieldsToNormal(DATABASE::"Office Add-in Setup");
         SetTableFieldsToNormal(DATABASE::"Office Invoice");
@@ -692,8 +736,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Deferral Line");
         SetTableFieldsToNormal(DATABASE::"Posted Deferral Header");
         SetTableFieldsToNormal(DATABASE::"Posted Deferral Line");
-        SetTableFieldsToNormal(DATABASE::"Data Migration Error");
-        SetTableFieldsToNormal(DATABASE::"Data Migration Parameters");
         SetTableFieldsToNormal(DATABASE::"Data Migration Status");
         SetTableFieldsToNormal(DATABASE::"Data Migrator Registration");
         SetTableFieldsToNormal(DATABASE::"Data Migration Entity");
@@ -803,8 +845,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Sales Comment Line Archive");
         SetTableFieldsToNormal(DATABASE::"Deferral Header Archive");
         SetTableFieldsToNormal(DATABASE::"Deferral Line Archive");
-        SetTableFieldsToNormal(DATABASE::"Integration Record");
-        SetTableFieldsToNormal(DATABASE::"Integration Record Archive");
         SetTableFieldsToNormal(DATABASE::"Alternative Address");
         SetTableFieldsToNormal(DATABASE::Qualification);
         SetTableFieldsToNormal(DATABASE::Relative);
@@ -820,6 +860,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Human Resources Setup");
         SetTableFieldsToNormal(DATABASE::"HR Confidential Comment Line");
         SetTableFieldsToNormal(DATABASE::"Human Resource Unit of Measure");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Entity");
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Entity Element");
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Filter");
@@ -827,16 +868,15 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Lookup Name");
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Option Correl.");
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Dependency");
+#endif
         SetTableFieldsToNormal(DATABASE::"Exchange Folder");
         SetTableFieldsToNormal(DATABASE::"Exchange Service Setup");
         SetTableFieldsToNormal(DATABASE::"CRM Redirect");
         SetTableFieldsToNormal(DATABASE::"CRM Integration Record");
-        SetTableFieldsToNormal(DATABASE::"CRM Option Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Field Mapping");
         SetTableFieldsToNormal(DATABASE::"Temp Integration Field Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Synch. Job");
-        SetTableFieldsToNormal(DATABASE::"Integration Synch. Job Errors");
         SetTableFieldsToNormal(DATABASE::"CRM Systemuser");
         SetTableFieldsToNormal(DATABASE::"CRM Account");
         SetTableFieldsToNormal(DATABASE::"CRM Contact");
@@ -901,8 +941,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Aged Report Entity");
         SetTableFieldsToNormal(DATABASE::"Acc. Schedule Line Entity");
         SetTableFieldsToNormal(DATABASE::"Unplanned Demand");
-        SetTableFieldsToNormal(DATABASE::"Inventory Page Data");
-        SetTableFieldsToNormal(DATABASE::"Timeline Event");
         SetTableFieldsToNormal(DATABASE::"Timeline Event Change");
         SetTableFieldsToNormal(DATABASE::"Fixed Asset");
         SetTableFieldsToNormal(DATABASE::"FA Setup");
@@ -938,7 +976,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Responsibility Center");
         SetTableFieldsToNormal(DATABASE::"Item Substitution");
         SetTableFieldsToNormal(DATABASE::"Substitution Condition");
-#if not CLEAN16
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Item Cross Reference");
 #endif
         SetTableFieldsToNormal(DATABASE::"Item Reference");
@@ -1044,9 +1082,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Booking Staff");
         SetTableFieldsToNormal(DATABASE::"Booking Service Mapping");
         SetTableFieldsToNormal(DATABASE::"Booking Item");
-        SetTableFieldsToNormal(DATABASE::"Tenant Web Service OData");
-        SetTableFieldsToNormal(DATABASE::"Tenant Web Service Columns");
-        SetTableFieldsToNormal(DATABASE::"Tenant Web Service Filter");
         SetTableFieldsToNormal(DATABASE::"Booking Mgr. Setup");
         SetTableFieldsToNormal(DATABASE::"Price Calculation Buffer");
         SetTableFieldsToNormal(DATABASE::"Price Calculation Setup");
@@ -1056,11 +1091,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Price Asset");
         SetTableFieldsToNormal(DATABASE::"Price Source");
         SetTableFieldsToNormal(DATABASE::"Price Worksheet Line");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Sales Price");
         SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
         SetTableFieldsToNormal(DATABASE::"Purchase Price");
         SetTableFieldsToNormal(DATABASE::"Purchase Line Discount");
         SetTableFieldsToNormal(DATABASE::"Sales Price Worksheet");
+#endif
         SetTableFieldsToNormal(DATABASE::"Campaign Target Group");
         SetTableFieldsToNormal(DATABASE::"Analysis Field Value");
         SetTableFieldsToNormal(DATABASE::"Analysis Report Name");
@@ -1145,14 +1182,12 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"MS-QBD Setup");
         SetTableFieldsToNormal(DATABASE::"Dimensions Field Map");
         SetTableFieldsToNormal(DATABASE::"Record Set Definition");
-        SetTableFieldsToNormal(DATABASE::"Record Set Tree");
         SetTableFieldsToNormal(DATABASE::"Config. Questionnaire");
         SetTableFieldsToNormal(DATABASE::"Config. Question Area");
         SetTableFieldsToNormal(DATABASE::"Config. Question");
         SetTableFieldsToNormal(DATABASE::"Config. Package Record");
         SetTableFieldsToNormal(DATABASE::"Config. Package Data");
         SetTableFieldsToNormal(DATABASE::"Config. Package Field");
-        SetTableFieldsToNormal(DATABASE::"Config. Package Error");
         SetTableFieldsToNormal(DATABASE::"Config. Template Header");
         SetTableFieldsToNormal(DATABASE::"Config. Template Line");
         SetTableFieldsToNormal(DATABASE::"Config. Tmpl. Selection Rules");
@@ -1162,7 +1197,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Config. Related Table");
         SetTableFieldsToNormal(DATABASE::"Config. Package Filter");
         SetTableFieldsToNormal(DATABASE::"Config. Setup");
-        SetTableFieldsToNormal(DATABASE::"Config. Field Mapping");
+        SetTableFieldsToNormal(DATABASE::"Config. Field Map");
         SetTableFieldsToNormal(DATABASE::"Config. Table Processing Rule");
         SetTableFieldsToNormal(DATABASE::"Config. Record For Processing");
         SetTableFieldsToNormal(DATABASE::"User Group");
@@ -1192,7 +1227,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Accounting Services Cue");
         SetTableFieldsToNormal(DATABASE::"Autocomplete Address");
         SetTableFieldsToNormal(DATABASE::"Postcode Service Config");
-        SetTableFieldsToNormal(DATABASE::TempStack);
         SetTableFieldsToNormal(DATABASE::"Experience Tier Setup");
         SetTableFieldsToNormal(DATABASE::"Generic Chart Setup");
         SetTableFieldsToNormal(DATABASE::"Generic Chart Filter");
@@ -1279,14 +1313,12 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Analysis View Entry");
         SetTableFieldsToNormal(DATABASE::"Analysis View Budget Entry");
         SetTableFieldsToNormal(DATABASE::"SMTP Mail Setup");
-        SetTableFieldsToNormal(DATABASE::"Workflow Webhook Entry");
         SetTableFieldsToNormal(DATABASE::"Workflow Webhook Notification");
         SetTableFieldsToNormal(DATABASE::"Workflow Webhook Subscription");
         SetTableFieldsToNormal(DATABASE::"Report Inbox");
         SetTableFieldsToNormal(DATABASE::"Dimension Set Entry");
         SetTableFieldsToNormal(DATABASE::"Change Global Dim. Log Entry");
         SetTableFieldsToNormal(DATABASE::"Business Chart User Setup");
-        SetTableFieldsToNormal(DATABASE::"VAT Rate Change Log Entry");
         SetTableFieldsToNormal(DATABASE::"Finance Charge Interest Rate");
         SetTableFieldsToNormal(DATABASE::"VAT Report Line");
         SetTableFieldsToNormal(DATABASE::"Trailing Sales Orders Setup");
@@ -1334,8 +1366,9 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         SetTableFieldsToNormal(DATABASE::"Inter. Log Entry Comment Line");
         SetTableFieldsToNormal(DATABASE::"To-do Interaction Language");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Link");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Outlook Synch. Setup Detail");
+#endif
         SetTableFieldsToNormal(DATABASE::"CRM Connection Setup");
         SetTableFieldsToNormal(DATABASE::"Production Order");
         SetTableFieldsToNormal(DATABASE::"Transfer Header");
@@ -1345,6 +1378,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Inventory Report Entry");
         SetTableFieldsToNormal(DATABASE::"Inventory Adjmt. Entry (Order)");
         SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
+        SetTableFieldsToNormal(DATABASE::"Power BI Report Buffer");
+        SetTableFieldsToNormal(DATABASE::"Power BI Selection Element");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
         SetTableFieldsToNormal(DATABASE::"Power BI User Status");
@@ -1452,6 +1487,468 @@ codeunit 1751 "Data Classification Eval. Data"
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, FieldNo);
     end;
 
+    local procedure ClassifyCouplingRecordBuffer()
+    var
+        DummyCouplingRecordBuffer: Record "Coupling Record Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Coupling Record Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCouplingRecordBuffer.FieldNo("NAV Record ID"));
+    end;
+
+    local procedure ClassifyCRMAnnotationBuffer()
+    var
+        DummyCRMAnnotationBuffer: Record "CRM Annotation Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"CRM Annotation Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCRMAnnotationBuffer.FieldNo("Related Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyCRMAnnotationBuffer.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyCRMAnnotationCoupling()
+    var
+        DummyCRMAnnotationCoupling: Record "CRM Annotation Coupling";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"CRM Annotation Coupling";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCRMAnnotationCoupling.FieldNo("Record Link Record ID"));
+    end;
+
+    local procedure ClassifyCRMPostBuffer()
+    var
+        DummyCRMPostBuffer: Record "CRM Post Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"CRM Post Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCRMPostBuffer.FieldNo(RecId));
+    end;
+
+    local procedure ClassifyCRMSynchConflictBuffer()
+    var
+        DummyCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"CRM Synch. Conflict Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCRMSynchConflictBuffer.FieldNo("Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyCRMSynchConflictBuffer.FieldNo("Int. Record ID"));
+    end;
+
+    local procedure ClassifyInventoryEventBuffer()
+    var
+        DummyInventoryEventBuffer: Record "Inventory Event Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Inventory Event Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyInventoryEventBuffer.FieldNo("Source Line ID"));
+    end;
+
+    local procedure ClassifyItemTracingBuffer()
+    var
+        DummyItemTracingBuffer: Record "Item Tracing Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Item Tracing Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyItemTracingBuffer.FieldNo("Record Identifier"));
+    end;
+
+    local procedure ClassifyMergeDuplicatesBuffer()
+    var
+        DummyMergeDuplicatesBuffer: Record "Merge Duplicates Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Merge Duplicates Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyMergeDuplicatesBuffer.FieldNo("Duplicate Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyMergeDuplicatesBuffer.FieldNo("Current Record ID"));
+    end;
+
+    local procedure ClassifyMergeDuplicatesConflict()
+    var
+        DummyMergeDuplicatesConflict: Record "Merge Duplicates Conflict";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Merge Duplicates Conflict";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyMergeDuplicatesConflict.FieldNo(Duplicate));
+        SetFieldToCompanyConfidential(TableNo, DummyMergeDuplicatesConflict.FieldNo(Current));
+    end;
+
+    local procedure ClassifyRecordSetBuffer()
+    var
+        DummyRecordSetBuffer: Record "Record Set Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Record Set Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyRecordSetBuffer.FieldNo("Value RecordID"));
+    end;
+
+    local procedure ClassifyRecordBuffer()
+    var
+        DummyRecordBuffer: Record "Record Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Record Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyRecordBuffer.FieldNo("Record Identifier"));
+    end;
+
+    local procedure ClassifyRecordExportBuffer()
+    var
+        DummyRecordExportBuffer: Record "Record Export Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Record Export Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyRecordExportBuffer.FieldNo(RecordID));
+    end;
+
+    local procedure ClassifyParallelSessionEntry()
+    var
+        DummyParallelSessionEntry: Record "Parallel Session Entry";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Parallel Session Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyParallelSessionEntry.FieldNo("Record ID to Process"));
+    end;
+
+    local procedure ClassifyWorkflowsEntriesBuffer()
+    var
+        DummyWorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflows Entries Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowsEntriesBuffer.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyTenantWebServiceOData()
+    var
+        DummyTenantWebServiceOData: Record "Tenant Web Service OData";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Tenant Web Service OData";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyTenantWebServiceOData.FieldNo(TenantWebServiceID));
+    end;
+
+    local procedure ClassifyTenantWebServiceColumns()
+    var
+        DummyTenantWebServiceColumns: Record "Tenant Web Service Columns";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Tenant Web Service Columns";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyTenantWebServiceColumns.FieldNo(TenantWebServiceID));
+    end;
+
+    local procedure ClassifyTenantWebServiceFilter()
+    var
+        DummyTenantWebServiceFilter: Record "Tenant Web Service Filter";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Tenant Web Service Filter";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyTenantWebServiceFilter.FieldNo(TenantWebServiceID));
+    end;
+
+    local procedure ClassifyWorkflowWebhookEntry()
+    var
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflow Webhook Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowWebhookEntry.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyWorkflowTableRelationValue()
+    var
+        DummyWorkflowTableRelationValue: Record "Workflow Table Relation Value";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflow Table Relation Value";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowTableRelationValue.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyWorkflowRecordChangeArchive()
+    var
+        DummyWorkflowRecordChangeArchive: Record "Workflow Record Change Archive";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflow Record Change Archive";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowRecordChangeArchive.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyWorkflowRecordChange()
+    var
+        DummyWorkflowWorkflowRecordChange: Record "Workflow - Record Change";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflow - Record Change";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowWorkflowRecordChange.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyWorkflowEventQueue()
+    var
+        DummyWorkflowEventQueue: Record "Workflow Event Queue";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Workflow Event Queue";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowEventQueue.FieldNo("Step Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowEventQueue.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyVATRateChangeLogEntry()
+    var
+        DummyVATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"VAT Rate Change Log Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyVATRateChangeLogEntry.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyTimelineEvent()
+    var
+        DummyTimelineEvent: Record "Timeline Event";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Timeline Event";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyTimelineEvent.FieldNo("Source Line ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyTimelineEvent.FieldNo("Source Document ID"));
+    end;
+
+    local procedure ClassifyTempStack()
+    var
+        DummyTempStack: Record TempStack;
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::TempStack;
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyTempStack.FieldNo(Value));
+    end;
+
+    local procedure ClassifyStandardAddress()
+    var
+        DummyStandardAddress: Record "Standard Address";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Standard Address";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyStandardAddress.FieldNo("Related RecordID"));
+    end;
+
+    local procedure ClassifyServiceConnection()
+    var
+        DummyServiceConnection: Record "Service Connection";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Service Connection";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyServiceConnection.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyRestrictedRecord()
+    var
+        DummyRestrictedRecord: Record "Restricted Record";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Restricted Record";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyRestrictedRecord.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyRecordSetTree()
+    var
+        DummyRecordSetTree: Record "Record Set Tree";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Record Set Tree";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyRecordSetTree.FieldNo(Value));
+    end;
+
+    local procedure ClassifyPaymentServiceSetup()
+    var
+        DummyPaymentServiceSetup: Record "Payment Service Setup";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Payment Service Setup";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyPaymentServiceSetup.FieldNo("Setup Record ID"));
+    end;
+
+    local procedure ClassifyPaymentReportingArgument()
+    var
+        DummyPaymentReportingArgument: Record "Payment Reporting Argument";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Payment Reporting Argument";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyPaymentReportingArgument.FieldNo("Document Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyPaymentReportingArgument.FieldNo("Setup Record ID"));
+    end;
+
+    local procedure ClassifyNotificationContext()
+    var
+        DummyClassifyNotificationContext: Record "Notification Context";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Notification Context";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyClassifyNotificationContext.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyInventoryPageData()
+    var
+        DummyInventoryPageData: Record "Inventory Page Data";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Inventory Page Data";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyInventoryPageData.FieldNo("Source Line ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyInventoryPageData.FieldNo("Source Document ID"));
+    end;
+
+    local procedure ClassifyIntegrationSynchJobErrors()
+    var
+        DummyIntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Integration Synch. Job Errors";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyIntegrationSynchJobErrors.FieldNo("Source Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyIntegrationSynchJobErrors.FieldNo("Destination Record ID"));
+    end;
+
+    local procedure ClassifyIntegrationRecordArchive()
+    var
+        DummyIntegrationRecordArchive: Record "Integration Record Archive";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Integration Record Archive";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyIntegrationRecordArchive.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyIntegrationRecord()
+    var
+        DummyIntegrationRecord: Record "Integration Record";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Integration Record";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyIntegrationRecord.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyErrorMessage()
+    var
+        DummyErrorMessage: Record "Error Message";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Error Message";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyErrorMessage.FieldNo("Record ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyErrorMessage.FieldNo("Context Record ID"));
+    end;
+
+    local procedure ClassifyDataMigrationParameters()
+    var
+        DummyDataMigrationParameters: Record "Data Migration Parameters";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Data Migration Parameters";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyDataMigrationParameters.FieldNo("Staging Table RecId To Process"));
+    end;
+
+    local procedure ClassifyDataMigrationError()
+    var
+        DummyDataMigrationError: Record "Data Migration Error";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Data Migration Error";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyDataMigrationError.FieldNo("Source Staging Table Record ID"));
+    end;
+
+    local procedure ClassifyDataExch()
+    var
+        DummyDataExch: Record "Data Exch.";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Data Exch.";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyDataExch.FieldNo("Related Record"));
+    end;
+
+    local procedure ClassifyCRMOptionMapping()
+    var
+        DummyCRMOptionMapping: Record "CRM Option Mapping";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"CRM Option Mapping";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyCRMOptionMapping.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyBatchProcessingSessionMap()
+    var
+        DummyBatchProcessingSessionMap: Record "Batch Processing Session Map";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Batch Processing Session Map";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyBatchProcessingSessionMap.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyConfigPackageError()
+    var
+        DummyConfigPackageError: Record "Config. Package Error";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Config. Package Error";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyConfigPackageError.FieldNo("Record ID"));
+    end;
+
+    local procedure ClassifyBankAccount()
+    var
+        DummyBankAccount: Record "Bank Account";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Bank Account";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyBankAccount.FieldNo("Bank Stmt. Service Record ID"));
+    end;
+
+#if not CLEAN19
+    local procedure ClassifyOutlookSynchLink()
+    var
+        DummyOutlookSynchLink: Record "Outlook Synch. Link";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Outlook Synch. Link";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyOutlookSynchLink.FieldNo("Record ID"));
+    end;
+#endif
+
     local procedure ClassifyCreditTransferEntry()
     var
         DummyCreditTransferEntry: Record "Credit Transfer Entry";
@@ -1461,6 +1958,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Message to Recipient"));
         SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Recipient Bank Acc. No."));
+        SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Recipient Bank Account No."));
+        SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Recipient IBAN"));
+        SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Recipient Name"));
         SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Transaction ID"));
         SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Transfer Amount"));
         SetFieldToCompanyConfidential(TableNo, DummyCreditTransferEntry.FieldNo("Currency Code"));
@@ -1837,6 +2337,7 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         TableNo := DATABASE::"Activity Log";
         SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyActivityLog.FieldNo("Record ID"));
         SetFieldToPersonal(TableNo, DummyActivityLog.FieldNo("User ID"));
     end;
 
@@ -1961,6 +2462,16 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyAADApplication.FieldNo("User ID"));
     end;
 
+    local procedure ClassifyExtraSettings()
+    var
+        TableNo: Integer;
+    begin
+        // Cannot reference Internal table through DATABASE::<Table name>
+        TableNo := 9173; // Extra Settings
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, 1); // User Security ID
+    end;
+
     local procedure ClassifyAnalysisSelectedDimension()
     var
         DummyAnalysisSelectedDimension: Record "Analysis Selected Dimension";
@@ -2046,6 +2557,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyTenantLicenseState.FieldNo("User Security ID"));
     end;
 
+#if not CLEAN19
     local procedure ClassifyOutlookSynchUserSetup()
     var
         DummyOutlookSynchUserSetup: Record "Outlook Synch. User Setup";
@@ -2055,6 +2567,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyOutlookSynchUserSetup.FieldNo("User ID"));
     end;
+#endif
 
     local procedure ClassifyFAJournalSetup()
     var
@@ -2222,6 +2735,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyOverdueApprovalEntry.FieldNo("Document No."));
         SetFieldToCompanyConfidential(TableNo, DummyOverdueApprovalEntry.FieldNo("Document Type"));
         SetFieldToCompanyConfidential(TableNo, DummyOverdueApprovalEntry.FieldNo("Table ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyOverdueApprovalEntry.FieldNo("Record ID to Approve"));
     end;
 
     local procedure ClassifyApplicationAreaSetup()
@@ -2272,6 +2786,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyWorkflowStepInstanceArchive.FieldNo("Last Modified By User ID"));
         SetFieldToPersonal(TableNo, DummyWorkflowStepInstanceArchive.FieldNo("Created By User ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowStepInstanceArchive.FieldNo("Record ID"));
     end;
 
     local procedure ClassifyMyJob()
@@ -2343,6 +2858,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummySentNotificationEntry.FieldNo("Recipient User ID"));
         SetFieldToCompanyConfidential(TableNo, DummySentNotificationEntry.FieldNo(Type));
         SetFieldToCompanyConfidential(TableNo, DummySentNotificationEntry.FieldNo(ID));
+        SetFieldToCompanyConfidential(TableNo, DummySentNotificationEntry.FieldNo("Triggered By Record"));
     end;
 
     local procedure ClassifyICOutboxPurchaseHeader()
@@ -2384,6 +2900,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyNotificationEntry.FieldNo("Recipient User ID"));
         SetFieldToCompanyConfidential(TableNo, DummyNotificationEntry.FieldNo(Type));
         SetFieldToCompanyConfidential(TableNo, DummyNotificationEntry.FieldNo(ID));
+        SetFieldToCompanyConfidential(TableNo, DummyNotificationEntry.FieldNo("Triggered By Record"));
     end;
 
     local procedure ClassifyUserPersonalization()
@@ -2405,6 +2922,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyWorkflowStepInstance.FieldNo("Last Modified By User ID"));
         SetFieldToPersonal(TableNo, DummyWorkflowStepInstance.FieldNo("Created By User ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowStepInstance.FieldNo("Record ID"));
     end;
 
     local procedure ClassifyWorkCenter()
@@ -2577,6 +3095,7 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         TableNo := DATABASE::"Approval Comment Line";
         SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyApprovalCommentLine.FieldNo("Record ID to Approve"));
         SetFieldToPersonal(TableNo, DummyApprovalCommentLine.FieldNo("User ID"));
     end;
 
@@ -2871,6 +3390,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo(XML));
         SetFieldToPersonal(TableNo, DummyJobQueueEntry.FieldNo("User ID"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo(ID));
+        SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo("Record ID to Process"));
     end;
 
     local procedure ClassifyInteractionLogEntry()
@@ -2942,6 +3462,7 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Posted Approval Comment Line";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyPostedApprovalCommentLine.FieldNo("User ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyPostedApprovalCommentLine.FieldNo("Posted Record ID"));
     end;
 
     local procedure ClassifyPostedApprovalEntry()
@@ -2974,6 +3495,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyPostedApprovalEntry.FieldNo("Sequence No."));
         SetFieldToCompanyConfidential(TableNo, DummyPostedApprovalEntry.FieldNo("Document No."));
         SetFieldToCompanyConfidential(TableNo, DummyPostedApprovalEntry.FieldNo("Table ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyPostedApprovalEntry.FieldNo("Posted Record ID"));
     end;
 
     local procedure ClassifyContact()
@@ -3038,6 +3560,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyApprovalEntry.FieldNo("Document No."));
         SetFieldToCompanyConfidential(TableNo, DummyApprovalEntry.FieldNo("Document Type"));
         SetFieldToCompanyConfidential(TableNo, DummyApprovalEntry.FieldNo("Table ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyApprovalEntry.FieldNo("Record ID to Approve"));
     end;
 
     local procedure ClassifyContractChangeLog()
@@ -3255,6 +3778,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyChangeLogEntry.FieldNo(Time));
         SetFieldToCompanyConfidential(TableNo, DummyChangeLogEntry.FieldNo("Date and Time"));
         SetFieldToCompanyConfidential(TableNo, DummyChangeLogEntry.FieldNo("Entry No."));
+        SetFieldToCompanyConfidential(TableNo, DummyChangeLogEntry.FieldNo("Record ID"));
     end;
 
     local procedure ClassifyInsCoverageLedgerEntry()
@@ -3480,6 +4004,16 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(9988, 4); // Template
         SetFieldToPersonal(9990, 1); // Code
         SetFieldToPersonal(9990, 7); // Related Table Code
+    end;
+
+    local procedure ClassifyDocumentSharing()
+    begin
+        SetFieldToPersonal(9560, 2); // Data
+        SetFieldToPersonal(9560, 3); // Name
+        SetFieldToPersonal(9560, 6); // Token
+        SetFieldToPersonal(9560, 7); // Document Root Uri
+        SetFieldToPersonal(9560, 8); // Document Uri
+        SetFieldToPersonal(9560, 9); // Document Preview Uri
     end;
 
     local procedure ClassifyEmailRelatedAttachments()
@@ -3815,6 +4349,7 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Calendar Event";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyCalendarEvent.FieldNo(User));
+        SetFieldToCompanyConfidential(TableNo, DummyCalendarEvent.FieldNo("Record ID to Process"));
     end;
 
     local procedure ClassifyCapacityLedgerEntry()
@@ -4310,6 +4845,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Bank Account Ledger Entry No."));
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Bank Account No."));
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Entry No."));
+        SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Record ID to Print"));
     end;
 
     local procedure ClassifyBankAccountLedgerEntry()
@@ -5071,6 +5607,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyIncomingDocument.FieldNo("Last Modified By User ID"));
         SetFieldToPersonal(TableNo, DummyIncomingDocument.FieldNo("Released By User ID"));
         SetFieldToPersonal(TableNo, DummyIncomingDocument.FieldNo("Created By User ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyIncomingDocument.FieldNo("Related Record ID"));
     end;
 
     local procedure ClassifyWarehouseRegister()
@@ -5442,6 +5979,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyWorkflowStepArgumentArchive.FieldNo("Response User ID"));
         SetFieldToPersonal(TableNo, DummyWorkflowStepArgumentArchive.FieldNo("Approver User ID"));
         SetFieldToPersonal(TableNo, DummyWorkflowStepArgumentArchive.FieldNo("Notification User ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyWorkflowStepArgumentArchive.FieldNo("Original Record ID"));
     end;
 
     local procedure ClassifyGLBudgetEntry()
@@ -5801,7 +6339,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Out-of-Stock Substitution"));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Originally Ordered Var. Code"));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Originally Ordered No."));
+#if not CLEAN19
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Cross-Reference No."));
+#endif
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Item Reference No."));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Order Line No."));
         SetFieldToCompanyConfidential(TableNo, DummyItemLedgerEntry.FieldNo("Order Type"));
@@ -6078,7 +6618,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo(County));
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo("Post Code"));
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo(GLN));
-        SetFieldToPersonal(TableNo, DummyCustomer.FieldNo(Picture));
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo("VAT Registration No."));
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo("Telex Answer Back"));
         SetFieldToPersonal(TableNo, DummyCustomer.FieldNo("Fax No."));
@@ -6464,5 +7003,17 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to County"));
         SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Country/Region Code"));
     end;
-}
 
+    local procedure ClassifyBankAccRecMatchBuffer()
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Bank Acc. Rec. Match Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, BankAccRecMatchBuffer.FieldNo("Statement Line No."));
+        SetFieldToCompanyConfidential(TableNo, BankAccRecMatchBuffer.FieldNo("Statement No."));
+        SetFieldToCompanyConfidential(TableNo, BankAccRecMatchBuffer.FieldNo("Ledger Entry No."));
+        SetFieldToCompanyConfidential(TableNo, BankAccRecMatchBuffer.FieldNo("Bank Account No."));
+    end;
+}

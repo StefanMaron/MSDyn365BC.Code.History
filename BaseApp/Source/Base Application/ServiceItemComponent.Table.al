@@ -250,7 +250,7 @@ table 5941 "Service Item Component"
             ServItemComponent."Line No." := NextNo;
             ServItemComponent."From Line No." := "Line No.";
             ServItemComponent."Last Date Modified" := Today;
-            ServItemComponent.Insert();
+            ServItemComponent.Insert(true);
         end;
     end;
 

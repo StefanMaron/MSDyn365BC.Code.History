@@ -877,7 +877,7 @@ report 7151 "Item Dimensions - Total"
                           ("Column Type" <> "Column Type"::Formula);
                         if Level > 0 then
                             ColumnValuesAsText[i, Level] :=
-                              MatrixMgt.FormatValue(ColumnValuesDisplayed[i], "Rounding Factor", false);
+                              MatrixMgt.FormatAmount(ColumnValuesDisplayed[i], "Rounding Factor", false);
                     end;
                     Finished := (NonZero and (Level = 0)) or (i >= MaxColumnsDisplayed) or (Next() = 0);
                 until Finished;

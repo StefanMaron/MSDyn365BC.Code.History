@@ -48,18 +48,30 @@ report 5754 "Create Pick"
                     CheckPickActivity;
                 end else begin
                     IsHandled := false;
-                    OnBeforeNothingToHandedErr(IsHandled);
+                    OnBeforeNothingToHandedErr(IsHandled, PickWhseWkshLineFilter);
                     if not IsHandled then
                         Error(NothingToHandedErr);
                 end;
             end;
 
             trigger OnPreDataItem()
+            var
+                CreatePickParameters: Record "Create Pick Parameters";
             begin
                 Clear(CreatePick);
-                CreatePick.SetValues(
-                  AssignedID, 0, SortPick, 1, MaxNoOfSourceDoc, MaxNoOfLines, PerZone,
-                  DoNotFillQtytoHandle, BreakbulkFilter, PerBin);
+                CreatePickParameters."Assigned ID" := AssignedID;
+                CreatePickParameters."Sorting Method" := SortPick;
+                CreatePickParameters."Max No. of Lines" := MaxNoOfLines;
+                CreatePickParameters."Max No. of Source Doc." := MaxNoOfSourceDoc;
+                CreatePickParameters."Do Not Fill Qty. to Handle" := DoNotFillQtytoHandle;
+                CreatePickParameters."Breakbulk Filter" := BreakbulkFilter;
+                CreatePickParameters."Per Bin" := PerBin;
+                CreatePickParameters."Per Zone" := PerZone;
+                CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::"Pick Worksheet";
+                CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+                OnPreDataItemOnBeforeCreatePickSetParameters(CreatePickParameters);
+
+                CreatePick.SetParameters(CreatePickParameters);
 
                 OnAfterIntegerOnPreDataItem();
             end;
@@ -222,10 +234,8 @@ report 5754 "Create Pick"
         Text001: Label 'Pick activity no. %1 has been created.';
         Text002: Label 'Pick activities no. %1 to %2 have been created.';
         Location: Record Location;
-        PickWhseWkshLine: Record "Whse. Worksheet Line";
         PickWhseWkshLineFilter: Record "Whse. Worksheet Line";
         Cust: Record Customer;
-        CreatePick: Codeunit "Create Pick";
         LocationCode: Code[10];
         AssignedID: Code[50];
         FirstPickNo: Code[20];
@@ -246,6 +256,10 @@ report 5754 "Create Pick"
         Text003: Label 'You can create a Pick only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
         BreakbulkFilter: Boolean;
         NothingToHandleErr: Label 'There is nothing to handle. %1.';
+
+    protected var
+        PickWhseWkshLine: Record "Whse. Worksheet Line";
+        CreatePick: Codeunit "Create Pick";
 
     local procedure CreateTempLine()
     var
@@ -333,7 +347,8 @@ report 5754 "Create Pick"
             OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine);
             with PickWhseWkshLine do
                 CreatePick.CreateTempLine("Location Code", "Item No.", "Variant Code",
-                  "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure", PickQty, PickQtyBase);
+                  "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure",
+                  "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
 
             TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase;
 
@@ -407,7 +422,15 @@ report 5754 "Create Pick"
         exit(ReturnValue);
     end;
 
-    procedure InitializeReport(AssignedID2: Code[50]; MaxNoOfLines2: Integer; MaxNoOfSourceDoc2: Integer; SortPick2: Enum "Whse. Activity Sorting Method"; PerDestination2: Boolean; PerItem2: Boolean; PerZone2: Boolean; PerBin2: Boolean; PerWhseDoc2: Boolean; PerDate2: Boolean; PrintPick2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
+    procedure InitializeReport(AssignedID2: Code[50]; MaxNoOfLines2: Integer; MaxNoOfSourceDoc2: Integer; SortPick2: Enum "Whse. Activity Sorting Method"; PerDestination2: Boolean;
+                                                                                                                         PerItem2: Boolean;
+                                                                                                                         PerZone2: Boolean;
+                                                                                                                         PerBin2: Boolean;
+                                                                                                                         PerWhseDoc2: Boolean;
+                                                                                                                         PerDate2: Boolean;
+                                                                                                                         PrintPick2: Boolean;
+                                                                                                                         DoNotFillQtytoHandle2: Boolean;
+                                                                                                                         BreakbulkFilter2: Boolean)
     begin
         AssignedID := AssignedID2;
         MaxNoOfLines := MaxNoOfLines2;
@@ -429,7 +452,7 @@ report 5754 "Create Pick"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPickActivity(IsHandled);
+        OnBeforeCheckPickActivity(IsHandled, FirstPickNo);
         if IsHandled then
             exit;
 
@@ -519,7 +542,7 @@ report 5754 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPickActivity(var IsHandled: Boolean)
+    local procedure OnBeforeCheckPickActivity(var IsHandled: Boolean; FirstPickNo: Code[20])
     begin
     end;
 
@@ -529,7 +552,7 @@ report 5754 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNothingToHandedErr(var IsHandled: Boolean);
+    local procedure OnBeforeNothingToHandedErr(var IsHandled: Boolean; var PickWhseWkshLineFilter: Record "Whse. Worksheet Line");
     begin
     end;
 
@@ -560,6 +583,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterPickWhseWkshLineFilterSetFilters(var PickWhseWkshLineFilter: Record "Whse. Worksheet Line"; var PickWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemOnBeforeCreatePickSetParameters(var CreatePickParameters: Record "Create Pick Parameters")
     begin
     end;
 

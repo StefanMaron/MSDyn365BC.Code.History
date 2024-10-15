@@ -195,7 +195,7 @@ codeunit 137097 "SCM Kitting - Undo"
             LibraryInventory.CreateItem(Item);
             LibraryAssembly.AddEntityDimensions(AssemblyLine.Type::Item, Item."No.");
             AddComponentToAssemblyList(
-              BOMComponent, BOMComponent.Type::Item, Item."No.", ParentItem."No.", '',
+              BOMComponent, "BOM Component Type"::Item, Item."No.", ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, Item."Base Unit of Measure", QtyPer);
         end;
 
@@ -204,13 +204,13 @@ codeunit 137097 "SCM Kitting - Undo"
             LibraryAssembly.CreateResource(Resource, true, GenProdPostingGr);
             LibraryAssembly.AddEntityDimensions(AssemblyLine.Type::Resource, Resource."No.");
             AddComponentToAssemblyList(
-              BOMComponent, BOMComponent.Type::Resource, Resource."No.", ParentItem."No.", '',
+              BOMComponent, "BOM Component Type"::Resource, Resource."No.", ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, Resource."Base Unit of Measure", QtyPer);
         end;
 
         // Add simple text
         for CompCount := 1 to NoOfTexts do
-            AddComponentToAssemblyList(BOMComponent, BOMComponent.Type::" ", '', ParentItem."No.", '',
+            AddComponentToAssemblyList(BOMComponent, "BOM Component Type"::" ", '', ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, '', 0);
     end;
 
@@ -221,10 +221,10 @@ codeunit 137097 "SCM Kitting - Undo"
     end;
 
     [Normal]
-    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
+    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
-        if ComponentType = BOMComponent.Type::Resource then
+        if ComponentType = "BOM Component Type"::Resource then
             BOMComponent.Validate("Resource Usage Type", ResourceUsage);
         BOMComponent.Validate("Variant Code", VariantCode);
         if ComponentNo = '' then
@@ -657,7 +657,7 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         ReservationManagement: Codeunit "Reservation Management";
     begin
-        ReservationManagement.SetSalesLine(SalesLine);
+        ReservationManagement.SetReservSource(SalesLine);
         ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
           Round(QtyToReserve / SalesLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -1398,10 +1398,10 @@ codeunit 137097 "SCM Kitting - Undo"
         case ChangeOption of
             ChangeOption::"New Line":
                 LibraryAssembly.CreateAssemblyLine(
-                  AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, NewItem."No.", NewItem."Base Unit of Measure",
+                  AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, NewItem."No.", NewItem."Base Unit of Measure",
                   LibraryRandom.RandDec(1000, 2), 0, NewItem.Description);
             ChangeOption::"Delete Line":
-                LibraryAssembly.DeleteAssemblyLine(AssemblyLine.Type::Item, AssemblyHeader."No.");
+                LibraryAssembly.DeleteAssemblyLine("BOM Component Type"::Item, AssemblyHeader."No.");
             ChangeOption::"Change Location Lines": // Assumes current function is called with Location <> Location Silver as param
                 SetLocAndBinCodeOnAsmLines(AssemblyHeader, BinSilver1);
             ChangeOption::"Change Bin Lines": // Assumes current function is called with Location Silver as param

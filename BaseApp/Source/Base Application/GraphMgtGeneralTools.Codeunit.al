@@ -1,5 +1,6 @@
 codeunit 5465 "Graph Mgt - General Tools"
 {
+    SingleInstance = true;
     Permissions = TableData "Sales Invoice Header" = rimd,
                   TableData "Sales Cr.Memo Header" = rimd,
                   TableData "Purch. Inv. Header" = rimd;

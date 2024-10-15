@@ -63,6 +63,8 @@ report 7398 "Date Compress Whse. Entries"
                         Delete;
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(3, DateComprReg."No. Records Deleted");
+                        if UseDataArchive then
+                            DataArchive.SaveRecord(WhseEntry2);
                     until not FindFirst;
 
                     if PosQtyBaseonBin > 0 then begin
@@ -90,6 +92,8 @@ report 7398 "Date Compress Whse. Entries"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(WhseReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -119,6 +123,9 @@ report 7398 "Date Compress Whse. Entries"
                 RetainSerialNo := RetainNo(FieldNo("Serial No."));
                 RetainLotNo := RetainNo(FieldNo("Lot No."));
                 RetainPackageNo := RetainNo(FieldNo("Package No."));
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Whse. Entries"));
             end;
         }
     }
@@ -182,6 +189,13 @@ report 7398 "Date Compress Whse. Entries"
                             ToolTip = 'Specifies if you want to retain the package number in the compression.';
                         }
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -213,6 +227,14 @@ report 7398 "Date Compress Whse. Entries"
                 InsertField(FieldNo("Lot No."), FieldCaption("Lot No."));
                 InsertField(FieldNo("Package No."), FieldCaption("Package No."));
             end;
+
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+            UseDataArchive := DataArchiveProviderExists;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -249,6 +271,7 @@ report 7398 "Date Compress Whse. Entries"
         NewWhseEntry: Record "Warehouse Entry";
         WhseEntry2: Record "Warehouse Entry";
         DateComprMgt: Codeunit DateComprMgt;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         WhseEntryFilter: Text[250];
         PosQtyonBin: Decimal;
@@ -272,6 +295,9 @@ report 7398 "Date Compress Whse. Entries"
         RetainPackageNo: Boolean;
         Text008: Label 'Date Compressed';
         HideDialog: Boolean;
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -511,16 +537,22 @@ report 7398 "Date Compress Whse. Entries"
         WhseEntry.Insert();
     end;
 
+    [Obsolete('Replaced by SetParameters().', '19.0')]
     procedure InitializeReport(EntrdDateComprReg2: Record "Date Compr. Register"; SerialNo: Boolean; LotNo: Boolean)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         ItemTrackingSetup."Serial No. Required" := SerialNo;
         ItemTrackingSetup."Lot No. Required" := LotNo;
-        SetParameters(EntrdDateComprReg2, ItemTrackingSetup);
+        SetParameters(EntrdDateComprReg2, ItemTrackingSetup, true);
     end;
 
     procedure SetParameters(EntrdDateComprReg2: Record "Date Compr. Register"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetParameters(EntrdDateComprReg2, ItemTrackingSetup, true)
+    end;
+
+    procedure SetParameters(EntrdDateComprReg2: Record "Date Compr. Register"; ItemTrackingSetup: Record "Item Tracking Setup"; DoUseDataArchive: Boolean)
     begin
         EntrdDateComprReg.Copy(EntrdDateComprReg2);
         InsertField(WhseEntry2.FieldNo("Serial No."), WhseEntry2.FieldCaption("Serial No."));
@@ -529,6 +561,8 @@ report 7398 "Date Compress Whse. Entries"
         RetainFields[1] := ItemTrackingSetup."Serial No. Required";
         RetainFields[2] := ItemTrackingSetup."Lot No. Required";
         RetainFields[3] := ItemTrackingSetup."Package No. Required";
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
@@ -540,7 +574,6 @@ report 7398 "Date Compress Whse. Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
@@ -550,7 +583,7 @@ report 7398 "Date Compress Whse. Entries"
         TelemetryDimensions.Add('SerialNoRequired', Format(RetainFields[1], 0, 9));
         TelemetryDimensions.Add('LotNoRequired', Format(RetainFields[2], 0, 9));
         TelemetryDimensions.Add('PackageNoRequired', Format(RetainFields[3], 0, 9));
-        // TelemetryDimensions.Add('Filters', "Warehouse Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F50', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -559,7 +592,6 @@ report 7398 "Date Compress Whse. Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

@@ -5,19 +5,18 @@ codeunit 1332 "Template Feature Mgt."
     end;
 
     procedure IsEnabled() Result: Boolean
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if FeatureKey.Get(GetFeatureKey()) then
-            Result := FeatureKey.Enabled = FeatureKey.Enabled::"All Users";
-
+        Result := true;
         OnAfterIsEnabled(Result);
     end;
 
+#if not CLEAN19
+    [Obsolete('Feature key is not required anymore and will be removed.', '19.0')]
     procedure GetFeatureKey(): Text[50]
     begin
         exit('NewTemplates');
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)

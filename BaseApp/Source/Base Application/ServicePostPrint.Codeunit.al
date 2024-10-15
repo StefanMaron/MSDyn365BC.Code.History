@@ -1,8 +1,10 @@
 codeunit 5982 "Service-Post+Print"
 {
+    TableNo = "Service Header";
 
     trigger OnRun()
     begin
+        PostDocument(Rec);
     end;
 
     var

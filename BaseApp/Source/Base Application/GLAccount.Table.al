@@ -26,11 +26,9 @@ table 15 "G/L Account"
         {
             Caption = 'Search Name';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
 
             trigger OnValidate()
             var
@@ -946,6 +944,8 @@ table 15 "G/L Account"
 
     procedure CheckGenProdPostingGroup()
     var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -953,8 +953,13 @@ table 15 "G/L Account"
         if IsHandled then
             exit;
 
-        if "Gen. Prod. Posting Group" = '' then
-            Error(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No.");
+        if "Gen. Prod. Posting Group" = '' then 
+            ErrorMessageManagement.LogContextFieldError(
+                0,
+                StrSubstNo(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No."),
+                Rec,
+                FieldNo("Gen. Prod. Posting Group"),
+                ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
     end;
 
     local procedure SetLastModifiedDateTime()

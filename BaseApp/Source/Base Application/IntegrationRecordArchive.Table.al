@@ -18,7 +18,7 @@ table 5152 "Integration Record Archive"
         field(3; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(194; "Webhook Notification"; BLOB)
         {

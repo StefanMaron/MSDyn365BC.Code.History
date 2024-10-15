@@ -28,7 +28,7 @@ codeunit 7 "GLBudget-Open"
         GLBudgetName: Record "G/L Budget Name";
         SearchForName: Boolean;
 
-    procedure SetupFiltersOnGLAccBudgetPage(var GlobalDim1Filter: Text; var GlobalDim2Filter: Text; var GlobalDim1FilterEnable: Boolean; var GlobalDim2FilterEnable: Boolean; var PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; var DateFilter: Text; var GLAccount: Record "G/L Account")
+    procedure SetupFiltersOnGLAccBudgetPage(var GlobalDim1Filter: Text; var GlobalDim2Filter: Text; var GlobalDim1FilterEnable: Boolean; var GlobalDim2FilterEnable: Boolean; var PeriodType: Enum "Analysis Period Type"; var DateFilter: Text; var GLAccount: Record "G/L Account")
     var
         GLSetup: Record "General Ledger Setup";
     begin

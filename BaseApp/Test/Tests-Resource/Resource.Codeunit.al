@@ -71,7 +71,7 @@ codeunit 136907 Resource
         LibraryVariableStorage.Enqueue(false);  // Enqueue for Confirm Handler.
 
         // Exercise.
-        TemplateCode := Contact.ChooseCustomerTemplate;
+        TemplateCode := Contact.ChooseNewCustomerTemplate();
 
         // Verify.
         Assert.AreEqual('', TemplateCode, TemplateCodeErr);

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135511 "Sales Invoice Line E2E Test"
 {
     Subtype = Test;
@@ -1387,4 +1388,4 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         Assert.AreEqual(UnitOfMeasure.Code, UoMCodeValue, 'UnitOfMeasure code complex type should not be null in ' + JSONTxt);
     end;
 }
-
+#endif

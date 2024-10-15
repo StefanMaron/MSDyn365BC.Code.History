@@ -135,6 +135,7 @@ page 1828 "Extend Trial Wizard"
         ExtendTrialConfirmQst: Label 'You''ll have 30 days from right now. Are you sure?';
         ExtendedTrialSuccessMsg: Label 'Congratulations, your trial period has been extended. The new expiration date is %1.', Comment = '%1=New expiration date';
         DocumentationURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2039763', Locked = true;
+        BuyThroughPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=860971', Locked = true;
 
     local procedure ExtendTrialAction()
     var
@@ -164,7 +165,7 @@ page 1828 "Extend Trial Wizard"
 
     local procedure BuySubscription()
     begin
-        PAGE.Run(PAGE::"Buy Subscription");
+        HyperLink(BuyThroughPartnerURLTxt);
     end;
 
     [IntegrationEvent(false, false)]
