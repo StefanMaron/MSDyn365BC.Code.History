@@ -104,12 +104,17 @@
         BodyText: Text;
         MailSubject: Text;
         IsEmailedSuccessfully: Boolean;
+        IsHandled: Boolean;
     begin
         if not GetHTMLBodyText(NotificationEntry, BodyText) then
             exit;
 
         MailSubject := NotificationMailSubjectTxt;
-        OnBeforeCreateMailAndDispatch(NotificationEntry, MailSubject, Email);
+        IsHandled := false;
+        OnBeforeCreateMailAndDispatch(NotificationEntry, MailSubject, Email, IsHandled);
+        if IsHandled then
+            exit;
+
         if EmailFeature.IsEnabled() then
             IsEmailedSuccessfully := DocumentMailing.EmailFile(
              '', '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification")
@@ -320,7 +325,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; var MailSubject: Text; var Email: Text)
+    local procedure OnBeforeCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; var MailSubject: Text; var Email: Text; var IsHandled: Boolean)
     begin
     end;
 

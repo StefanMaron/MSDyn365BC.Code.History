@@ -9,6 +9,7 @@ page 1366 "Field Monitoring Setup"
     Extensible = false;
     AccessByPermission = tabledata "Field Monitoring Setup" = M;
     RefreshOnActivate = true;
+    Caption = 'Field Monitoring Setup';
 
     layout
     {

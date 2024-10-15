@@ -910,21 +910,9 @@ page 232 "Apply Customer Entries"
     end;
 
     procedure SetCustApplId(CurrentRec: Boolean)
-    var
-        RaiseError: Boolean;
     begin
-        if CalcType = CalcType::GenJnlLine then begin
-            RaiseError := ApplyingCustLedgEntry."Posting Date" < "Posting Date";
-            OnBeforeEarlierPostingDateError(ApplyingCustLedgEntry, Rec, RaiseError, CalcType);
-            if RaiseError then
-                Error(
-                  EarlierPostingDateErr, ApplyingCustLedgEntry."Document Type", ApplyingCustLedgEntry."Document No.",
-                  "Document Type", "Document No.");
-        end;
-
-        if ApplyingCustLedgEntry."Entry No." <> 0 then
-            GenJnlApply.CheckAgainstApplnCurrency(
-              ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Customer, true);
+        CurrPage.SetSelectionFilter(CustLedgEntry);
+        CheckCustLedgEntry(CustLedgEntry);
 
         OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType, GenJnlLine);
         CustLedgEntry.Copy(Rec);
@@ -937,6 +925,27 @@ page 232 "Apply Customer Entries"
         end;
 
         CalcApplnAmount;
+    end;
+
+    procedure CheckCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        RaiseError: Boolean;
+    begin
+        if CustLedgerEntry.FindSet() then
+            repeat
+                if CalcType = CalcType::GenJnlLine then begin
+                    RaiseError := ApplyingCustLedgEntry."Posting Date" < CustLedgerEntry."Posting Date";
+                    OnBeforeEarlierPostingDateError(ApplyingCustLedgEntry, CustLedgerEntry, RaiseError, CalcType);
+                    if RaiseError then
+                        Error(
+                            EarlierPostingDateErr, ApplyingCustLedgEntry."Document Type", ApplyingCustLedgEntry."Document No.",
+                            CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
+                end;
+
+                if ApplyingCustLedgEntry."Entry No." <> 0 then
+                    GenJnlApply.CheckAgainstApplnCurrency(
+                        ApplnCurrencyCode, CustLedgerEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure GetAppliesToID() AppliesToID: Code[50]

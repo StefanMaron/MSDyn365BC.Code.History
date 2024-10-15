@@ -1,4 +1,4 @@
-codeunit 134327 "ERM Purchase Order"
+﻿codeunit 134327 "ERM Purchase Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3316,8 +3316,8 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
         PurchaseLineCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Validate("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Modify(true);
         PurchaseHeader.Validate("Prepmt. Payment Terms Code", PurchaseHeader."Payment Terms Code");
         PurchaseHeader.CalcFields("Amount Including VAT");

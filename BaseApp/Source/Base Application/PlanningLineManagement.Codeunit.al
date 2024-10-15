@@ -1,4 +1,4 @@
-codeunit 99000809 "Planning Line Management"
+﻿codeunit 99000809 "Planning Line Management"
 {
     Permissions = TableData "Manufacturing Setup" = rm,
                   TableData "Routing Header" = r,
@@ -641,6 +641,8 @@ codeunit 99000809 "Planning Line Management"
                     ReqLine."Ref. Order Type");
         ReqLine.UpdateDatetime;
         ReqLine2 := ReqLine;
+
+        OnAfterRecalculateWithOptionalModify(ReqLine2, Direction);
     end;
 
     local procedure CheckRoutingLine(RoutingHeader: Record "Routing Header"; RoutingLine: Record "Routing Line")
@@ -963,6 +965,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsPlannedAsmCompFound(PlanningComp: Record "Planning Component"; AsmBOMComp: Record "BOM Component"; var IsFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculateWithOptionalModify(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
     begin
     end;
 

@@ -61,6 +61,7 @@ codeunit 12182 "Datifattura Export"
 
         XMLDoc.Save(ServerFilePath);
         SuggestedFileName := StrSubstNo(FileFormat, GetSubmitterID, FileNameSuffix);
+#if not CLEAN17
         if not ServerFilePathAlreadySet then
             if not FileManagement.IsLocalFileSystemAccessible then
                 TempNameValueBuffer.AddNewEntry(
@@ -69,6 +70,12 @@ codeunit 12182 "Datifattura Export"
             else
                 Download(ServerFilePath, SaveXmlAsLbl, '',
                   FileManagement.GetToFilterText('', SuggestedFileName), SuggestedFileName);
+#else
+        if not ServerFilePathAlreadySet then
+            TempNameValueBuffer.AddNewEntry(
+              CopyStr(ServerFilePath, 1, MaxStrLen(TempNameValueBuffer.Name)),
+              CopyStr(SuggestedFileName, 1, MaxStrLen(TempNameValueBuffer.Value)));
+#endif
 
         OnAfterSaveFileOnClient(SuggestedFileName);
         ServerFilePath := '';
@@ -532,7 +539,7 @@ codeunit 12182 "Datifattura Export"
         if (not IsResident) or (Vendor."Post Code" <> '') then begin
             ErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo("Post Code"), ErrorMessage."Message Type"::Error);
             if Vendor."Country/Region Code" <> 'IT' then
-                XMLDOMManagement.AddElement(AddressXmlNode, 'CAP', '00000', '' ,XmlNode)
+                XMLDOMManagement.AddElement(AddressXmlNode, 'CAP', '00000', '', XmlNode)
             else
                 XMLDOMManagement.AddElement(AddressXmlNode, 'CAP', Vendor."Post Code", '', XmlNode);
         end;

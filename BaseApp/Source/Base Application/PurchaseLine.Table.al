@@ -2502,7 +2502,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 if "Quantity (Base)" <> xRec."Quantity (Base)" then
                     PlanPriceCalcByField(FieldNo("Quantity (Base)"));
@@ -4193,7 +4200,7 @@
             "Posting Group" := Item."Inventory Posting Group";
         end;
 
-        OnCopyFromItemOnAfterCheck(Rec, Item);
+        OnCopyFromItemOnAfterCheck(Rec, Item, CurrFieldNo);
 
         Description := Item.Description;
         "Description 2" := Item."Description 2";
@@ -6590,7 +6597,13 @@
     procedure UpdateJobPrices()
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateJobPrices(Rec, TempJobJnlLine, PurchRcptLine, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Receipt No." = '' then begin
             "Job Unit Price" := TempJobJnlLine."Unit Price";
             "Job Total Price" := TempJobJnlLine."Total Price";
@@ -7490,7 +7503,8 @@
         Reset;
         SetRange(Type, LineType);
         SetRange("No.", OldNo);
-        ModifyAll("No.", NewNo, true);
+        if not Rec.IsEmpty() then
+            ModifyAll("No.", NewNo, true);
     end;
 
     local procedure UpdateLineDiscPct()
@@ -8234,6 +8248,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobPrices(var PurchLine: Record "Purchase Line"; JobJnlLine: Record "Job Journal Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLeadTimeFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8374,7 +8393,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromItemOnAfterCheck(PurchaseLine: Record "Purchase Line"; Item: Record Item)
+    local procedure OnCopyFromItemOnAfterCheck(PurchaseLine: Record "Purchase Line"; Item: Record Item; CallingFieldNo: Integer)
     begin
     end;
 
@@ -8688,22 +8707,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckReceiptRelation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnAfterCalcDoInitOutstanding(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var DoInitOutstanding: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeCheckRcptRetShptRelation(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckRetShptRelation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateQuantityOnAfterCalcDoInitOutstanding(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var DoInitOutstanding: Boolean)
     begin
     end;
 
@@ -8718,7 +8727,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetOverheadRateFCY(var PurchaseLine: Record "Purchase Line"; var QtyPerUOM: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeValidateQuantityBase(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -8733,12 +8742,27 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteOnBeforePurchaseLineDelete(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateRequestedReceiptDate(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateRequestedReceiptDate(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckReceiptRelation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRetShptRelation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetOverheadRateFCY(var PurchaseLine: Record "Purchase Line"; var QtyPerUOM: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforePurchaseLineDelete(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8748,7 +8772,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnSelectItemEntryOnBeforeSetRangeLocationCode(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8758,17 +8787,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectItemEntryOnBeforeSetRangeLocationCode(var PurchaseLine: Record "Purchase Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeProcessPurchLines(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var LineWasModified: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeInitType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

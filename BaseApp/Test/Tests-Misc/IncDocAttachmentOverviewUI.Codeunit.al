@@ -84,7 +84,11 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
         AnyXMLTxt: Text;
     begin
         AnyXMLTxt := '<test><test2 /></test>';
+#if not CLEAN17
         IncomingDocument.AddXmlAttachmentFromXmlText(IncomingDocumentAttachment, FileManagement.ClientTempFileName('XML'), AnyXMLTxt);
+#else
+        IncomingDocument.AddXmlAttachmentFromXmlText(IncomingDocumentAttachment, FileManagement.CreateFileNameWithExtension(Format(CreateGuid()), 'XML'), AnyXMLTxt);
+#endif
     end;
 }
 
