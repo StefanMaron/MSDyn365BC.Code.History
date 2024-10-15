@@ -249,7 +249,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         if IsHandled then
             exit(ReturnValue);
 
-        exit(true);
+        exit(Find(Which));
     end;
 
     trigger OnOpenPage()
