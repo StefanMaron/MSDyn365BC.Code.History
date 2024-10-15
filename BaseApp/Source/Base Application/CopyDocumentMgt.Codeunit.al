@@ -2774,7 +2774,11 @@
                     OnCopySalesInvLinesToDocOnBeforeCopySalesLine(ToSalesHeader, FromSalesLine2);
 
                     AsmHdrExistsForFromDocLine := false;
-                    if Type = Type::Item then
+                    if (Type = Type::Item) and
+                       (ToSalesHeader."Document Type" in [ToSalesHeader."Document Type"::Quote,
+                                                          ToSalesHeader."Document Type"::Order,
+                                                          ToSalesHeader."Document Type"::"Blanket Order"])
+                    then
                         CheckAsmHdrExistsForFromDocLine(ToSalesHeader, FromSalesLine2, BufferCount, SalesLineCount = SalesInvLineCount);
 
                     if CopySalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine2, NextLineNo, LinesNotCopied,

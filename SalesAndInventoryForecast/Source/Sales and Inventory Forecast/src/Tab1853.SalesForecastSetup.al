@@ -178,6 +178,7 @@ table 1853 "MS - Sales Forecast Setup"
             CryptographyManagement.EnableEncryption(FALSE);
     end;
 
+    [NonDebuggable]
     procedure URIOrKeyEmpty(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -192,6 +193,7 @@ table 1853 "MS - Sales Forecast Setup"
         exit((((H * 60) + M) * 60 + S) * 1000);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetUserDefinedAPIKey(): Text[250]
     begin
@@ -203,6 +205,7 @@ table 1853 "MS - Sales Forecast Setup"
         exit(TryReadAPICredential("API Key ID"));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetUserDefinedAPIKey(UserDefinedAPIKey: Text[250])
     begin
@@ -214,6 +217,7 @@ table 1853 "MS - Sales Forecast Setup"
         "API Key ID" := InsertAPICredential(UserDefinedAPIKey);
     end;
 
+    [NonDebuggable]
     procedure GetAPIKey(): Text[250]
     var
         UserDefinedAPIKey: Text[250];
@@ -233,6 +237,7 @@ table 1853 "MS - Sales Forecast Setup"
         exit('');
     end;
 
+    [NonDebuggable]
     local procedure TryReadAPICredential(CredentialGUID: Guid): Text[250]
     var
         CredentialValue: Text;
@@ -247,6 +252,7 @@ table 1853 "MS - Sales Forecast Setup"
         exit(CopyStr(CredentialValue, 1, 250));
     end;
 
+    [NonDebuggable]
     local procedure InsertAPICredential(NewValue: Text[250]): Guid
     var
         NewKey: Text;
