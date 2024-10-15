@@ -39,9 +39,7 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Environment;
-#if not CLEAN22
 using System.Environment.Configuration;
-#endif
 using System.Privacy;
 using System.Security.User;
 using System.Utilities;
@@ -960,6 +958,8 @@ page 42 "Sales Order"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
+                Visible = BasicEUEnabled;
+
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
@@ -2636,6 +2636,7 @@ page 42 "Sales Order"
         EnvironmentInfo: Codeunit "Environment Information";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -2659,6 +2660,7 @@ page 42 "Sales Order"
             CheckShowBackgrValidationNotification();
         RejectICSalesOrderEnabled := ICInboxOutboxMgt.IsSalesHeaderFromIncomingIC(Rec);
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        BasicEUEnabled := ApplicationAreaMgmtFacade.IsBasicCountryEnabled('EU');
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2744,6 +2746,7 @@ page 42 "Sales Order"
         IsBidirectionalSyncEnabled: Boolean;
         RejectICSalesOrderEnabled: Boolean;
         VATDateEnabled: Boolean;
+        BasicEUEnabled: Boolean;
 
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";

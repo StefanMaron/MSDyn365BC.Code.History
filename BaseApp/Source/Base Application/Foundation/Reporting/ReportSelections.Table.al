@@ -642,6 +642,7 @@ table 77 "Report Selections"
         TempBodyReportSelections: Record "Report Selections" temporary;
         O365HTMLTemplMgt: Codeunit "O365 HTML Templ. Mgt.";
         IsHandled: Boolean;
+        EmailBodyUsageFound: Boolean;
     begin
         ServerEmailBodyFilePath := '';
 
@@ -661,11 +662,14 @@ table 77 "Report Selections"
 
         if not FindEmailBodyUsageForCust(ReportUsage, CustNo, TempBodyReportSelections) then begin
             IsHandled := false;
+            EmailBodyUsageFound := false;
             OnGetEmailBodyCustomerTextOnAfterNotFindEmailBodyUsage(
-                ReportUsage.AsInteger(), RecordVariant, CustNo, TempBodyReportSelections, IsHandled);
-            if IsHandled then
-                exit(true);
-            exit(false);
+                ReportUsage.AsInteger(), RecordVariant, CustNo, TempBodyReportSelections, IsHandled, EmailBodyUsageFound);
+            if not EmailBodyUsageFound then begin
+                if IsHandled then
+                    exit(true);
+                exit(false);
+            end;
         end;
 
         case "Email Body Layout Type" of
@@ -2352,7 +2356,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetEmailBodyCustomerTextOnAfterNotFindEmailBodyUsage(ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var TempBodyReportSelections: Record "Report Selections" temporary; var IsHandled: Boolean)
+    local procedure OnGetEmailBodyCustomerTextOnAfterNotFindEmailBodyUsage(ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var TempBodyReportSelections: Record "Report Selections" temporary; var IsHandled: Boolean; var EmailBodyUsageFound: Boolean)
     begin
     end;
 

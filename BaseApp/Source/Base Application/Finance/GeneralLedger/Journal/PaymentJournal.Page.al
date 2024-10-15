@@ -2109,7 +2109,6 @@ page 256 "Payment Journal"
     var
         AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
         ServerSetting: Codeunit "Server Setting";
-        ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInformation: Codeunit "Environment Information";
         JnlSelected: Boolean;
     begin
@@ -2150,6 +2149,7 @@ page 256 "Payment Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
 	    ApprovalMgmt: Codeunit "Approvals Mgmt.";
         DtaMgt: Codeunit DtaMgt;
+	    ClientTypeManagement: Codeunit "Client Type Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         AccName: Text[100];
@@ -2304,6 +2304,9 @@ page 256 "Payment Journal"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         CanRequestFlowApprovalForAllLines: Boolean;
     begin
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
+
         if not GenJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
 
