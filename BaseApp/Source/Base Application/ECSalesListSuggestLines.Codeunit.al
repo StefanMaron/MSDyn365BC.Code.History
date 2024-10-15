@@ -21,7 +21,7 @@ codeunit 140 "EC Sales List Suggest Lines"
         EUVATEntries: Query "EU VAT Entries";
     begin
         CompanyInformation.Get();
-        EUVATEntries.SetRange(PostingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
+        EUVATEntries.SetRange(VATReportingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
         EUVATEntries.SetFilter(CountryCode, '<>%1', CompanyInformation."Country/Region Code");
 
         EUVATEntries.Open();

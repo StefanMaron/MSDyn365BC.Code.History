@@ -137,6 +137,7 @@ page 138 "Posted Purchase Invoice"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
                     ToolTip = 'Specifies the VAT date on the invoice.';
                     Visible = false;
                 }
@@ -690,7 +691,7 @@ page 138 "Posted Purchase Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(122),
+                SubPageLink = "Table ID" = CONST(Database::"Purch. Inv. Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -1135,12 +1136,14 @@ page 138 "Posted Purchase Invoice"
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetSecurityFilterOnRespCenter();
         if GuiAllowed() then
             IsOfficeAddin := OfficeMgt.IsAvailable();
 
         ActivateFields();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1155,6 +1158,8 @@ page 138 "Posted Purchase Invoice"
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsRemitToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

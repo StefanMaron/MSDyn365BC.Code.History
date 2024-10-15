@@ -836,9 +836,9 @@ codeunit 144176 "ERM Reverse"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 
     [ConfirmHandler]

@@ -168,6 +168,7 @@ table 172 "Standard Customer Sales Code"
             StdCustSalesCodes.GetSelected(StdCustSalesCode);
             if StdCustSalesCode.FindSet() then
                 repeat
+                    OnInsertSalesLineOnBeforeApplyStdCodesToSalesLines(StdCustSalesCode);
                     ApplyStdCodesToSalesLines(SalesHeader, StdCustSalesCode);
                 until StdCustSalesCode.Next() = 0;
         end;
@@ -219,6 +220,7 @@ table 172 "Standard Customer Sales Code"
                         if not StdSalesLine.EmptyLine() then begin
                             StdSalesLine.TestField("No.");
                             SalesLine.Validate("No.", StdSalesLine."No.");
+                            OnApplyStdCodesToSalesLinesOnAfterValidateSalesLineNo(StdCustSalesCode, SalesLine);
                             if StdSalesLine."Variant Code" <> '' then
                                 SalesLine.Validate("Variant Code", StdSalesLine."Variant Code");
                             SalesLine.Validate(Quantity, StdSalesLine.Quantity);
@@ -242,10 +244,14 @@ table 172 "Standard Customer Sales Code"
                     OnBeforeApplyStdCodesToSalesLines(SalesLine, StdSalesLine);
                     if StdSalesLine.InsertLine() then begin
                         SalesLine."Line No." := GetNextLineNo(SalesLine);
-                        SalesLine.Insert(true);
+                        IsHandled := false;
+                        OnApplyStdCodesToSalesLinesOnAfterSetSalesLineLineNo(Rec, SalesLine, IsHandled);
+                        if not IsHandled then
+                            SalesLine.Insert(true);
                         OnAfterSalesLineInsert(StdSalesLine, SalesLine);
                         SalesLine.AutoAsmToOrder();
                         InsertExtendedText(SalesLine, SalesHeader);
+                        OnApplyStdCodesToSalesLinesOnAfterInsertExtendedText(Rec, StdSalesLine, SalesLine);
                     end;
                 until StdSalesLine.Next() = 0;
         end;
@@ -395,6 +401,26 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyStdCodesToSalesLinesProcedure(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesLineOnBeforeApplyStdCodesToSalesLines(StdCustSalesCode: Record "Standard Customer Sales Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToSalesLinesOnAfterValidateSalesLineNo(StdCustSalesCode: Record "Standard Customer Sales Code"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToSalesLinesOnAfterSetSalesLineLineNo(var StdCustSalesCode: Record "Standard Customer Sales Code"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToSalesLinesOnAfterInsertExtendedText(var StdCustSalesCode: Record "Standard Customer Sales Code"; var StdSalesLine: Record "Standard Sales Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

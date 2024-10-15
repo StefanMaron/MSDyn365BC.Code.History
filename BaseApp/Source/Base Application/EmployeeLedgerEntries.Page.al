@@ -349,13 +349,9 @@ page 5237 "Employee Ledger Entries"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
+                        ReversePaymentRec: Codeunit "Reverse Payment Rec. Journal";
                     begin
-                        Clear(ReversalEntry);
-                        if Reversed then
-                            ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
-                        if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError();
-                        TestField("Transaction No.");
+                        ReversePaymentRec.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction("Transaction No.");
                     end;
                 }

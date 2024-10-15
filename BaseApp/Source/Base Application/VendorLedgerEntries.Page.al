@@ -570,14 +570,10 @@ page 29 "Vendor Ledger Entries"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
+                        ReversePaymentRec: Codeunit "Reverse Payment Rec. Journal";
                     begin
-                        Clear(ReversalEntry);
-                        if Reversed then
-                            ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
                         ReversalEntry.CheckReverseDocumentType("Entry No.", "Document Type");
-                        if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError();
-                        TestField("Transaction No.");
+                        ReversePaymentRec.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction("Transaction No.");
                     end;
                 }

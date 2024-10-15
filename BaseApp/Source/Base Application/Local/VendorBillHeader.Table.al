@@ -91,7 +91,14 @@ table 12181 "Vendor Bill Header"
             Caption = 'Beneficiary Value Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBeneficiaryValueDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Beneficiary Value Date" = xRec."Beneficiary Value Date" then
                     exit;
 
@@ -272,6 +279,11 @@ table 12181 "Vendor Bill Header"
         CODEUNIT.Run(BankAccount.GetPaymentExportCodeunitID(), GenJnlLine);
         "Exported to File" := true;
         Modify();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBeneficiaryValueDate(var VendorBillHeader: Record "Vendor Bill Header"; xVendorBillHeader: Record "Vendor Bill Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

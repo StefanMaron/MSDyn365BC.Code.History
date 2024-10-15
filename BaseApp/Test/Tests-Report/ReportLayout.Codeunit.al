@@ -319,18 +319,6 @@ codeunit 132600 "Report Layout"
     end;
 
     [Test]
-    [HandlerFunctions('RHTrialBalancebyPeriod')]
-    [Scope('OnPrem')]
-    procedure TestTrialBalancebyPeriodAndBalance()
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        Initialize();
-        GLAccount.SetFilter(Balance, '<>0');
-        Report.Run(Report::"Trial Balance by Period", true, false, GLAccount);
-    end;
-
-    [Test]
     [HandlerFunctions('RHBalanceCompPrevYear')]
     [Scope('OnPrem')]
     procedure TestBalanceCompPrevYear()

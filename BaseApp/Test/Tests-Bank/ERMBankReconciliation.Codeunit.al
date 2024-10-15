@@ -3962,8 +3962,8 @@ codeunit 134141 "ERM Bank Reconciliation"
             CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied":
                 begin
                     CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
-                    CheckLedgerEntry.TestField("Statement No.", '');
-                    CheckLedgerEntry.TestField("Statement Line No.", 0);
+                    CheckLedgerEntry.TestField("Statement No.", NewStatementNo);
+                    CheckLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
                 end;
         end;
 
@@ -3973,8 +3973,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         case BankAccountLedgerEntry."Statement Status" of
             CheckLedgerEntry."Statement Status"::"Check Entry Applied":
                 begin
-                    BankAccountLedgerEntry.TestField("Statement No.", '');
-                    BankAccountLedgerEntry.TestField("Statement Line No.", 0);
+                    BankAccountLedgerEntry.TestField("Statement No.", NewStatementNo);
+                    BankAccountLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
                 end;
             BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied":
                 begin
@@ -3993,8 +3993,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
         CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
-        CheckLedgerEntry.TestField("Statement No.", '');
-        CheckLedgerEntry.TestField("Statement Line No.", 0);
+        CheckLedgerEntry.TestField("Statement No.", NewStatementNo);
 
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);

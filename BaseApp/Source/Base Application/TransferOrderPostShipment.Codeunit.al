@@ -53,7 +53,7 @@
                 HasLinesToShip := not TransLine.IsEmpty();
                 if not HasLinesToShip and not WipToShip then
                     Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-    
+
                 WhseShip := TempWhseShptHeader.FindFirst();
                 InvtPickPutaway := WhseReference <> 0;
                 if HasLinesToShip then
@@ -134,8 +134,9 @@
 
                 OnBeforeCopyTransLines(TransHeader);
 
+                TransLine.SetRange("Qty. to Ship");
                 TransLine.SetFilter("WIP Qty. To Ship", '<>0');
-                if TransLine.FindFirst() then begin
+                if TransLine.FindSet(true) then begin
                     repeat
                         TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
                         TransLine.Modify();

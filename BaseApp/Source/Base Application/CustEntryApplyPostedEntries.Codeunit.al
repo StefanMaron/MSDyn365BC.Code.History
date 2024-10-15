@@ -144,6 +144,7 @@
         GenJnlLine.Init();
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Document Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := CustLedgEntry."Customer No.";
@@ -259,16 +260,23 @@
         UnApplyCustomer(DtldCustLedgEntry);
     end;
 
-    procedure UnApplyCustLedgEntry(CustLedgEntryNo: Integer)
+    procedure CheckCustLedgEntryToUnapply(CustLedgEntryNo: Integer; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
-        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         ApplicationEntryNo: Integer;
     begin
         CheckReversal(CustLedgEntryNo);
         ApplicationEntryNo := FindLastApplEntry(CustLedgEntryNo);
         if ApplicationEntryNo = 0 then
             Error(NoApplicationEntryErr, CustLedgEntryNo);
-        DtldCustLedgEntry.Get(ApplicationEntryNo);
+        DetailedCustLedgEntry.Get(ApplicationEntryNo);
+    end;
+
+
+    procedure UnApplyCustLedgEntry(CustLedgEntryNo: Integer)
+    var
+        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        CheckCustLedgEntryToUnapply(CustLedgEntryNo, DtldCustLedgEntry);
         UnApplyCustomer(DtldCustLedgEntry);
     end;
 
@@ -381,6 +389,7 @@
         CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := DtldCustLedgEntry2."Customer No.";
         GenJnlLine.Correction := true;

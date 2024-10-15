@@ -657,14 +657,10 @@ page 25 "Customer Ledger Entries"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
+                        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
                     begin
-                        Clear(ReversalEntry);
-                        if Reversed then
-                            ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
                         ReversalEntry.CheckReverseDocumentType("Entry No.", "Document Type");
-                        if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError();
-                        TestField("Transaction No.");
+                        ReversePaymentRecJournal.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction("Transaction No.");
                     end;
                 }

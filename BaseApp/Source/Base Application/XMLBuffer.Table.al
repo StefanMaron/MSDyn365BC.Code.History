@@ -464,7 +464,8 @@ table 1235 "XML Buffer"
     begin
         Clear("Value BLOB");
         NormalizeElementValue(NewValue);
-        Value := CopyStr(NewValue, 1, MaxStrLen(Value));
+        Rec.Value := CopyStr(NewValue, 1, MaxStrLen(Rec.Value));
+        OnSetValueWithoutModifyingOnAfterAssignValue(Rec, NewValue);
         if StrLen(NewValue) <= MaxStrLen(Value) then
             exit; // No need to store anything in the blob
         if NewValue = '' then
@@ -480,6 +481,11 @@ table 1235 "XML Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnNormalizeElementValue(var ElementValue: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetValueWithoutModifyingOnAfterAssignValue(var XMLBuffer: Record "XML Buffer"; NewValue: Text)
     begin
     end;
 }

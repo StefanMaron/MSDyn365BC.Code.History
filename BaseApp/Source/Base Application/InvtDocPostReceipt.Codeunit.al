@@ -87,9 +87,13 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             InvtRcptHeader."Receipt No." := "No.";
             InvtRcptHeader."External Document No." := "External Document No.";
             InvtRcptHeader."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            if "Posting No." = '' then
-                "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
-            InvtRcptHeader."No." := "Posting No.";
+            if "No. Series" = "Posting No. Series" then
+                InvtRcptHeader."No." := "No."
+            else begin
+                if "Posting No." = '' then
+                    "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
+                InvtRcptHeader."No." := "Posting No.";
+            end;
             InvtRcptHeader."No. Series" := "Posting No. Series";
             InvtRcptHeader."Posting Description" := "Posting Description";
             InvtRcptHeader.Correction := Correction;

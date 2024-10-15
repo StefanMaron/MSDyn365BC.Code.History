@@ -2892,6 +2892,7 @@
 
             trigger OnLookup()
             begin
+                OnBeforeLookupOperationType(Rec, xRec, NoSeries);
                 if PAGE.RunModal(PAGE::"Operation Types", NoSeries) = ACTION::LookupOK then
                     Validate("Operation Type", NoSeries.Code);
             end;
@@ -3432,7 +3433,7 @@
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
-        RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
+        RecreateSalesLinesCancelErr: Label 'Change in the existing sales lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
         SalesLinesCategoryLbl: Label 'Sales Lines', Locked = true;
         SalesHeaderIsTemporaryLbl: Label 'Sales Header must be not temporary.', Locked = true;
         SalesHeaderDoesNotExistLbl: Label 'Sales Header must exist.', Locked = true;
@@ -6798,6 +6799,8 @@
             UpdateSalesLinesByFieldNo(SalesLine.FieldNo("Deferral Code"), false);
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by BatchConfirmUpdateDeferralDate with VAT Date parameters.', '22.0')]
     procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date)
     begin
         if (not ReplacePostingDate) or (PostingDateReq = "Posting Date") or (BatchConfirm = BatchConfirm::Skip) then
@@ -6807,6 +6810,36 @@
             exit;
 
         "Posting Date" := PostingDateReq;
+        case BatchConfirm of
+            BatchConfirm::" ":
+                begin
+                    ConfirmUpdateDeferralDate();
+                    if Confirmed then
+                        BatchConfirm := BatchConfirm::Update
+                    else
+                        BatchConfirm := BatchConfirm::Skip;
+                end;
+            BatchConfirm::Update:
+                UpdateSalesLinesByFieldNo(SalesLine.FieldNo("Deferral Code"), false);
+        end;
+        Commit();
+    end;
+#endif
+
+    procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceVATDate: Boolean; VATDateReq: Date)
+    begin
+        if ((not ReplacePostingDate) and (not ReplaceVATDate)) or (BatchConfirm = BatchConfirm::Skip) then
+            exit;
+        if (PostingDateReq = "Posting Date") and (VATDateReq = "VAT Reporting Date") then
+            exit; 
+        if not DeferralHeadersExist() then
+            exit;
+
+        if ReplacePostingDate then 
+            "Posting Date" := PostingDateReq;
+        if ReplaceVATDate then 
+            "VAT Reporting Date" := VATDateReq;
+        
         case BatchConfirm of
             BatchConfirm::" ":
                 begin
@@ -6964,7 +6997,10 @@
             if not SkipSellToContact then
                 "Sell-to Contact" := SellToCustomer.Contact;
             "Gen. Bus. Posting Group" := SellToCustomer."Gen. Bus. Posting Group";
-            "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group";
+            if "VAT Bus. Posting Group" = '' then
+                "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group"
+            else
+                Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
@@ -7127,7 +7163,10 @@
 
         GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
-            "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
+            if ("VAT Bus. Posting Group" <> '') and ("VAT Bus. Posting Group" <> BillToCustomer."VAT Bus. Posting Group") then
+                Validate("VAT Bus. Posting Group", BillToCustomer."VAT Bus. Posting Group")
+            else
+                "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
             "VAT Country/Region Code" := BillToCustomer."Country/Region Code";
             AssignVATRegistrationNo(BillToCustomer."No.");
             "Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
@@ -7915,21 +7954,21 @@
 
     procedure TestStatusIsNotPendingApproval() NotPending: Boolean;
     begin
-        NotPending := Status in [Status::Open, Status::"Pending Prepayment", Status::Released];
+        NotPending := Status <> Status::"Pending Approval";
 
         OnTestStatusIsNotPendingApproval(Rec, NotPending);
     end;
 
     procedure TestStatusIsNotPendingPrepayment() NotPending: Boolean;
     begin
-        NotPending := Status in [Status::Open, Status::"Pending Approval", Status::Released];
+        NotPending := Status <> Status::"Pending Prepayment";
 
         OnTestStatusIsNotPendingPrepayment(Rec, NotPending);
     end;
 
     procedure TestStatusIsNotReleased() NotReleased: Boolean;
     begin
-        NotReleased := Status in [Status::Open, Status::"Pending Approval", Status::"Pending Prepayment"];
+        NotReleased := Status <> Status::Released;
 
         OnTestStatusIsNotReleased(Rec, NotReleased);
     end;
@@ -8915,6 +8954,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupOperationType(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var NoSeries: Record "No. Series")
     begin
     end;
 

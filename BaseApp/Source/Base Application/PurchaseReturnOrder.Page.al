@@ -209,9 +209,9 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
-                    Visible = false;
                 }
                 field("No. of Archived Versions"; Rec."No. of Archived Versions")
                 {
@@ -809,7 +809,7 @@ page 6640 "Purchase Return Order"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -1640,6 +1640,8 @@ page 6640 "Purchase Return Order"
     end;
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetDocNoVisible();
 
@@ -1652,6 +1654,7 @@ page 6640 "Purchase Return Order"
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1698,6 +1701,8 @@ page 6640 "Purchase Return Order"
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";

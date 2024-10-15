@@ -1430,7 +1430,13 @@
             trigger OnValidate()
             var
                 LocalAppMgt: Codeunit LocalApplicationManagement;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateFiscalCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Resident, Resident::Resident);
                 if "Fiscal Code" <> '' then
                     LocalAppMgt.CheckDigit("Fiscal Code");
@@ -2933,6 +2939,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFiscalCode(var Vendor: Record Vendor; xVendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

@@ -261,9 +261,9 @@ codeunit 144075 "ERM Fiscal Book"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 
     [RequestPageHandler]

@@ -37,6 +37,7 @@
         BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
         EmptyBlanketOrderLineNoErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4, Line No.=%5. It cannot be zero or empty.';
         DocumentDateError: Label '%1 cannot be greater than %2';
+        DirectCostIsChangedErr: Label 'Direct Cost is changed on Quantity update.';
 
     [Test]
     [Scope('OnPrem')]
@@ -457,7 +458,7 @@
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Credit Memo line
         VerifyBlanketOrderDetailsOnPurchaseLine(
-          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", '', 0);
+          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -517,7 +518,7 @@
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Credit Memo line
         VerifyBlanketOrderDetailsOnPurchaseLine(
-          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", '', 0);
+          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -649,7 +650,7 @@
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Posted Purchase Invoice line
-        VerifyBlanketOrderFieldsOnPurchaseInvoiceLine(InvoiceNo, '', 0);
+        VerifyBlanketOrderFieldsOnPurchaseInvoiceLine(InvoiceNo, PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
         // [THEN] Quantity Received in Blanket Order is equal to "X"
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", PurchaseLineOrder."Buy-from Vendor No.");
         PurchaseLine.TestField("Quantity Received", PurchaseLineOrder.Quantity);
@@ -1283,6 +1284,33 @@
         asserterror FindPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
     end;
 
+    [Test]
+    procedure VerifyUnitCostOnPurchaseLineIsNotChangedOnUpdatQtyForPurchaseOrderRelatedToBlanketOrder()
+    var
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseHeader: Record "Purchase Header";
+        DocumentNo: Code[20];
+        DirectCost: Decimal;
+    begin
+        // [SCENARIO 453119] Verify Unit Cost is not changed on Qty. update for Purchase Order related to Blanket Order
+        Initialize();
+
+        // [GIVEN] Create random Direct Cost
+        DirectCost := LibraryRandom.RandDec(10, 2);
+
+        // [GIVEN] Create Blanked Purchase Order
+        CreatePurchaseBlanketOrder(BlanketPurchaseHeader, DirectCost);
+
+        // [GIVEN] Create Purchase Order From Purchase Blanket Order
+        DocumentNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(BlanketPurchaseHeader);
+
+        // [WHEN] Update Qty. on Purchase Line
+        UpdateQuantityOnPurchaseOrderLine(PurchaseLine, DocumentNo);
+
+        // [THEN] Verify Unit Cost is not changed if Purchase Order is related to Blanket Purchase Order
+        Assert.IsTrue(PurchaseLine."Direct Unit Cost" = DirectCost, DirectCostIsChangedErr);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1506,6 +1534,26 @@
         PurchaseLine.SetRange("Buy-from Vendor No.", BlanketPurchaseHeader."Buy-from Vendor No.");
         PurchaseLine.SetRange("Blanket Order No.", BlanketPurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+    end;
+
+    local procedure CreatePurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; DirectCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", DirectCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateQuantityOnPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Modify(true);
     end;
 
     [MessageHandler]

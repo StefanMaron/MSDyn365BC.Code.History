@@ -528,6 +528,7 @@ codeunit 144174 "UT Quarter VAT"
         VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
         VATEntry.Amount := -Amount;
         VATEntry."Operation Occurred Date" := PostingDate;
         VATEntry.Insert();

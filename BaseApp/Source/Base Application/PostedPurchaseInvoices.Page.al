@@ -270,7 +270,7 @@ page 146 "Posted Purchase Invoices"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(122),
+                SubPageLink = "Table ID" = CONST(Database::"Purch. Inv. Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")

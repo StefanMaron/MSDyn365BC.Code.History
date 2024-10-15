@@ -1335,14 +1335,55 @@
 
     local procedure UpgradeDefaultDimensions()
     var
+        DefaultDimension: Record "Default Dimension";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        APIDataUpgrade: Codeunit "API Data Upgrade";
+        DefaultDimensionDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag()) then
             exit;
 
-        APIDataUpgrade.UpgradeDefaultDimensions();
+        DefaultDimension.SetRange("Table ID", Database::Item);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Item);
+            DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Item, DefaultDimension.FieldNo("Parent Type"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+            Clear(DefaultDimensionDataTransfer);
+        end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetRange("Table ID", Database::Customer);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Customer);
+            DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Customer, DefaultDimension.FieldNo("Parent Type"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+            Clear(DefaultDimensionDataTransfer);
+        end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetRange("Table ID", Database::Vendor);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Vendor);
+            DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Vendor, DefaultDimension.FieldNo("Parent Type"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+            Clear(DefaultDimensionDataTransfer);
+        end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetRange("Table ID", Database::Employee);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Employee);
+            DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Employee, DefaultDimension.FieldNo("Parent Type"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag());
     end;

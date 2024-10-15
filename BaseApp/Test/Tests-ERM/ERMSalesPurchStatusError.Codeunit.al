@@ -1879,10 +1879,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        NoSerMgmt: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
         DocumentNo: Code[20];
-        PostingNo: code[20];
     begin
         // [FEATURE] [No. Series] [Sales] [Credit Memo]
         // [SCENARIO 368758] Stan can post Sales Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
@@ -1908,10 +1906,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
-        if SalesHeader."Posting No. Series" <> '' then
-            PostingNo := NoSerMgmt.DoGetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false, false)
-        else
-            PostingNo := NoSerMgmt.DoGetNextNo(NoSeriesCode, SalesHeader."Posting Date", false, false);
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
@@ -1920,9 +1914,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        SalesCrMemoHeader.Reset();
-        SalesCrMemoHeader.SetFilter("No.", PostingNo);
-        Assert.RecordCount(SalesCrMemoHeader, 1);// IT uses another no. series
+        Assert.RecordCount(SalesCrMemoHeader, 0);// IT uses another no. series
     end;
 
     [Test]
@@ -2114,6 +2106,50 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseLine.Validate("Planned Receipt Date", NewDate);
 
         PurchaseLine.TestField("Planned Receipt Date", NewDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesCreditMemoPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostCorrectiveCreditMemoWithDefaultNoSetToFalseOnNoSeries()
+    var
+        Item: Record Item;
+        Cust: Record Customer;
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        SalesRecvSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [SCENARIO 448855] Hole in the Numbering of Sales Credit Memos
+        Initialize();
+
+        // [GIVEN] Create  and Post sales Invoice
+        CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
+
+        // [GIVEN] Create No. Series "Y" with "Default Nos" = No and no. series line setup
+        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        // [GIVEN] Update No. series on Sales Setup and "Journal Templ. Name Mandatory" is false on GL Setup 
+        SalesRecvSetup.Get();
+        SalesRecvSetup."Posted Credit Memo Nos." := NoSeries.Code;
+        SalesRecvSetup.Modify();
+        GLSetup.Get();
+        GLSetup."Journal Templ. Name Mandatory" := false;
+        GLSetup.Modify();
+
+        // [THEN] Create Corrective Credit memo 
+        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.GotoRecord(SalesInvHeader);
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
+
+        // [VERIFY] Verify No Sales Credit memo has been posted.
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", Cust."No.");
+        Assert.RecordIsNotEmpty(SalesCrMemoHeader); // No Series error not in IT
     end;
 
     local procedure Initialize()
@@ -2671,6 +2707,35 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         end;
     end;
 
+    local procedure CreateAndPostSalesInvForNewItemAndCust(var Item: Record Item; var Cust: Record Customer; UnitPrice: Decimal; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        CreateItemWithPrice(Item, UnitPrice);
+        LibrarySales.CreateCustomer(Cust);
+        SellItem(Cust, Item, Qty, SalesInvoiceHeader);
+    end;
+
+    local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Price" := UnitPrice;
+        Item.Modify();
+    end;
+
+    local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesInvoiceForItem(SellToCust, Item, Qty, SalesHeader, SalesLine);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateSalesInvoiceForItem(Cust: Record Customer; Item: Record Item; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowMatrixPageHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
@@ -2736,6 +2801,19 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [PageHandler]
+    procedure SalesCreditMemoPageHandler(var SalesCreditMemo: TestPage "Sales Credit Memo")
+    begin
+        SalesCreditMemo.Post.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

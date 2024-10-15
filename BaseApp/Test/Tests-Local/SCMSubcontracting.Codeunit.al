@@ -97,6 +97,7 @@ codeunit 144081 "SCM Subcontracting"
         UnexpectedErr: Label 'More than 1 Subcontracting Invoices are not exist.';
         VendorErr: Label 'Vendor %1 on Work Center %2 does not exist.';
         RowInNotInTheTestPageErr: Label 'The row does not exist on the TestPage.';
+        NotShippedQtyForWIPItemErr: Label 'WIP Qty. is not Shipped.';
 
     [Test]
     [HandlerFunctions('CalculatePlanningWkshRequestPageHandler,CarryOutActionMsgPlanRequestPageHandler')]
@@ -815,6 +816,45 @@ codeunit 144081 "SCM Subcontracting"
         // [THEN] Transfer Receipt Header's "No. Series" = "X"
         VerifyNoOnTransferReceiptHeader(
           SubcontractingTransferHeader."No.", NoSeriesLine."Starting No.", NoSeriesLine."Series Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('CarryOutActionMsgRequisitionRequestPageHandler,SubcontrTransferOrderModalPageHandler')]
+    procedure VerifyPostReceiveOnSubcontractingTransferOrderForWIPItem()
+    var
+        SubcontractingTransferHeader: Record "Transfer Header";
+        CompItem: Record Item;
+        TransferRoute: Record "Transfer Route";
+        VendorNo: Code[20];
+        OptionString: Option Open,Post;
+    begin
+        // [FEATURE] [Subcontracting] [WIP Item]
+        // [SCENARIO 452922] Verify Post Receive on Subcontracting Transfer Order for WIP Item
+        Initialize();
+
+        // [GIVEN] Create Subcontracting Location and Subcontracting Order
+        CreateSubconLocationWithTransferRoute(TransferRoute);
+        VendorNo := CreateSubcontractingOrderWithSetup(TransferRoute."Transfer-to Code", TransferRoute."Transfer-from Code", true);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(CompItem);
+        CreateAndPostItemJournalLine(CompItem."No.", TransferRoute."Transfer-from Code", '', LibraryRandom.RandIntInRange(50, 100));
+
+        // Enqueue value for SubcontrTransferOrderPageHandler.
+        LibraryVariableStorage.Enqueue(OptionString::Open);
+        LibraryVariableStorage.Enqueue(TransferRoute."Transfer-from Code");
+
+        // [GIVEN] Transfer Order to the subcontractor's location.
+        CreateSubcontractingTransferOrderWithWIPAndOrdinaryItems(SubcontractingTransferHeader, CompItem, TransferRoute."Transfer-from Code", TransferRoute."Transfer-to Code");
+
+        // [WHEN] Ship the Subcontracting Transfer Order        
+        LibraryInventory.PostTransferHeader(SubcontractingTransferHeader, true, false);
+
+        // [THEN] Verify WIP Shipped Qty. on Subcontracting Transfer Line        
+        VerifyShippedQty(SubcontractingTransferHeader);
+
+        // [THEN] Receive the Subcontracting Transfer Order        
+        LibraryInventory.PostTransferHeader(SubcontractingTransferHeader, false, true);
     end;
 
     local procedure Initialize()
@@ -1672,6 +1712,23 @@ codeunit 144081 "SCM Subcontracting"
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.CalcSums(Quantity);
         WarehouseEntry.TestField(Quantity, Qty);
+    end;
+
+    local procedure VerifyShippedQty(var SubcontractingTransferHeader: Record "Transfer Header")
+    var
+        SubcontractingTransferLine: Record "Transfer Line";
+    begin
+        SubcontractingTransferLine.SetRange("Document No.", SubcontractingTransferHeader."No.");
+        SubcontractingTransferLine.SetRange("WIP Item", true);
+        SubcontractingTransferLine.FindFirst();
+        Assert.AreEqual(SubcontractingTransferLine."WIP Qty. Shipped", SubcontractingTransferLine."WIP Quantity", NotShippedQtyForWIPItemErr);
+        Assert.AreEqual(SubcontractingTransferLine."WIP Qty. To Ship", 0, NotShippedQtyForWIPItemErr);
+    end;
+
+    local procedure FindSubcontractingTransferOrder(var SubcontractingTransferHeader: Record "Transfer Header"; VendorNo: Code[20])
+    begin
+        SubcontractingTransferHeader.SetRange("Source No.", VendorNo);
+        SubcontractingTransferHeader.FindFirst();
     end;
 
     [RequestPageHandler]

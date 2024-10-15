@@ -255,7 +255,16 @@ page 116 "G/L Registers"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
+                        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+                        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
                     begin
+                        if GetPostedPaymentReconHdr(Rec, PostedPaymentReconHdr) then begin
+                            if not PostedPaymentReconHdr."Is Reversed" then 
+                                ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr)
+                            else
+                                Error(PaymentRecJournalAlreadyReversedMsg);
+                            exit;
+                        end;
                         TestField("No.");
                         ReversalEntry.ReverseRegister("No.");
                     end;
@@ -371,6 +380,9 @@ page 116 "G/L Registers"
         }
     }
 
+    var
+        PaymentRecJournalAlreadyReversedMsg: Label 'This Payment Reconciliation Journal has already been reversed.';
+
     trigger OnOpenPage()
     begin
         if FindSet() then;
@@ -383,6 +395,7 @@ page 116 "G/L Registers"
 
     local procedure GetReverseRegisterEnabled(): Boolean
     var
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
         IsHandled: Boolean;
         ReverseEnabled: Boolean;
     begin
@@ -394,10 +407,28 @@ page 116 "G/L Registers"
         if Reversed then
             exit(false);
 
-        if "Journal Batch Name" = '' then
+        if Rec."Journal Batch Name" <> '' then
+            exit(true);
+
+        exit(GetPostedPaymentReconHdr(Rec, PostedPaymentReconHdr));
+    end;
+
+    local procedure GetPostedPaymentReconHdr(var GLRegister: Record "G/L Register"; var PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr"): Boolean
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        if not SourceCodeSetup.Get() then
             exit(false);
 
-        exit(true);
+        if GLRegister."Source Code" <> SourceCodeSetup."Payment Reconciliation Journal" then
+            exit(false);
+        BankAccountLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        if not BankAccountLedgerEntry.FindFirst() then
+            exit(false);
+        if (BankAccountLedgerEntry."Bank Account No." = '') or (BankAccountLedgerEntry."Statement No." = '') then
+            exit(false);
+        exit(PostedPaymentReconHdr.Get(BankAccountLedgerEntry."Bank Account No.", BankAccountLedgerEntry."Statement No."));
     end;
 
     var

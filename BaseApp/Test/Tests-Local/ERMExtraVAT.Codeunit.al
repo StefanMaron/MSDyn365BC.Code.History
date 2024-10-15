@@ -2617,10 +2617,10 @@ codeunit 144078 "ERM Extra VAT"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
-        ReverseEntries.Close();
+        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Close();
     end;
 
     [ModalPageHandler]

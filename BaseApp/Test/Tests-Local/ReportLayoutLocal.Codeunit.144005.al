@@ -2410,9 +2410,11 @@ codeunit 144005 "Report Layout - Local"
         if IsInitialized then
             exit;
 
+        SetFiscalCodeAndRegCompanyNoOnCompanyInfo();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
+        Commit();
     end;
 
     local procedure InitAmounts(var Amount: array[2] of Decimal; var PaidAmount: array[2] of Decimal; var AppliedAmount: array[4] of Decimal; Divisor: Integer)
@@ -3106,6 +3108,16 @@ codeunit 144005 "Report Layout - Local"
         VendorLedgerEntry.Validate("Amount to Apply", AmountToApply);
         VendorLedgerEntry.Modify(true);
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+    end;
+
+    local procedure SetFiscalCodeAndRegCompanyNoOnCompanyInfo()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Fiscal Code", '01369030935');
+        CompanyInformation.Validate("Register Company No.", Format(LibraryRandom.RandInt(10)));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateSalesSetup()

@@ -267,6 +267,12 @@ page 9311 "Purchase Return Order List"
                 SubPageLink = "No." = FIELD("Buy-from Vendor No."),
                               "Date Filter" = FIELD("Date Filter");
             }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"), "No." = FIELD("No."), "Document Type" = FIELD("Document Type");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
