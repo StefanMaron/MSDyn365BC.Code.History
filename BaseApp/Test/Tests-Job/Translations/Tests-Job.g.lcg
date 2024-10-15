@@ -1481,6 +1481,15 @@
       <Cmt Name="Dev"><![CDATA[Remaining Quantity, Document Type, No.]D;]A;(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType RemainingQtyGreaterThanErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1292684493 - NamedType 2101146428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Job Contract Entry No. is empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType ZeroJobContractLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3185217834 - NamedType 2750183112" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot change %1 because one or more entries are associated with this %2.]]></Val>
@@ -2118,6 +2127,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Planning Line - NamedType FBTotalErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3251676635 - NamedType 2374582356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line]D;]A;(LookupHint=Codeunit UT T Job Planning Line - NamedType NoJobPlanningLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3251676635 - NamedType 2292478285" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

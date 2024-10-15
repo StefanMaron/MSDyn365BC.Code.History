@@ -353,6 +353,8 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     local procedure ReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; ItemJnlLine: Record "Item Journal Line"; var TempApplyToEntryList: Record "Item Ledger Entry" temporary)
     var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ShowAppliedEntries: Codeunit "Show Applied Entries";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -362,7 +364,15 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
         if TempApplyToEntryList.FindSet() then
             repeat
-                UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
+                //negative purchase receipt linked with job
+                if (TempApplyToEntryList."Entry Type" = TempApplyToEntryList."Entry Type"::Purchase) and (TempApplyToEntryList."Document Type" = TempApplyToEntryList."Document Type"::"Purchase Receipt") and (TempApplyToEntryList.Quantity < 0) and (TempApplyToEntryList."Job No." <> '') then begin
+                    ShowAppliedEntries.FindAppliedEntries(TempApplyToEntryList, TempItemLedgerEntry);
+                    TempItemLedgerEntry.FindSet();
+                    repeat
+                        UndoPostingMgt.ReapplyJobConsumption(TempItemLedgerEntry."Entry No.");
+                    until TempItemLedgerEntry.Next() = 0;
+                end else
+                    UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
             until TempApplyToEntryList.Next() = 0;
     end;
 

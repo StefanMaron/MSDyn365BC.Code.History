@@ -446,6 +446,7 @@ codeunit 1004 "Job Transfer Line"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         OnBeforeFromGenJnlLineToJnlLine(JobJnlLine, GenJnlLine);
 
@@ -490,6 +491,13 @@ codeunit 1004 "Job Transfer Line"
 
         JobJnlLine."Total Cost (LCY)" := GenJnlLine."Job Total Cost (LCY)";
         JobJnlLine."Total Cost" := GenJnlLine."Job Total Cost";
+
+        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then begin
+            JobJnlLine."Unit Cost (LCY)" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount LCY" / JobJnlLine.Quantity));
+            JobJnlLine."Unit Cost" += Abs(Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity));
+            JobJnlLine."Total Cost (LCY)" += Abs(GenJnlLine."Non-Deductible VAT Amount LCY");
+            JobJnlLine."Total Cost" += Abs(GenJnlLine."Non-Deductible VAT Amount");
+        end;
 
         JobJnlLine."Unit Price (LCY)" := GenJnlLine."Job Unit Price (LCY)";
         JobJnlLine."Unit Price" := GenJnlLine."Job Unit Price";
@@ -767,8 +775,10 @@ codeunit 1004 "Job Transfer Line"
         end;
 
         JobJnlLine."Job Planning Line No." := PurchLine."Job Planning Line No.";
-        JobJnlLine."Remaining Qty." := PurchLine."Job Remaining Qty.";
-        JobJnlLine."Remaining Qty. (Base)" := PurchLine."Job Remaining Qty. (Base)";
+        if PurchLine.Type <> PurchLine.Type::"G/L Account" then begin
+            JobJnlLine."Remaining Qty." := PurchLine."Job Remaining Qty.";
+            JobJnlLine."Remaining Qty. (Base)" := PurchLine."Job Remaining Qty. (Base)";
+        end;
         JobJnlLine."Location Code" := PurchLine."Location Code";
         JobJnlLine."Bin Code" := PurchLine."Bin Code";
         JobJnlLine."Line Type" := PurchLine."Job Line Type";

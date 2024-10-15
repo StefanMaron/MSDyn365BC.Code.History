@@ -251,18 +251,21 @@ table 246 "Requisition Line"
                             Validate("Order Date", WorkDate());
 
                         Validate("Currency Code", Vend."Currency Code");
-                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                        if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                            "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
                         SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
                     end else begin
                         if ValidateFields() then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
                         "Vendor No." := '';
-                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                        if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                            "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                     end
                 else begin
                     UpdateDescription();
-                    "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                    if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
+                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                 end;
                 UpdateDescription();
 

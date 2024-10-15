@@ -17,9 +17,10 @@ codeunit 411 "Dimension Buffer Management"
     var
         NewEntryNo: Integer;
     begin
-        if DimBuf.Find('-') then begin
+        if DimBuf.FindSet() then begin
             TempDimBuf.Reset();
-            if TempDimBuf.Find('+') then
+            TempDimBuf.SetCurrentKey("Entry No.");
+            if TempDimBuf.FindLast() then
                 NewEntryNo := TempDimBuf."Entry No." + 1
             else
                 NewEntryNo := 1;
