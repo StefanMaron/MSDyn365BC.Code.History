@@ -2243,6 +2243,120 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseHeader.TestField("Document Date", WorkDate() - 1);
     end;
 
+    [Test]
+    procedure ItemChargeAssignmentPurchClearQtyAndAmountBeforeDistribution()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[3] of Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        // [FEATURE] [Purchase] [Item Charge] [Suggest Assignment]
+        // [SCENARIO 400286] "Qty. to Assign" and "Amount to Assign" is cleared on item charge assignment for purchase before new distribution.
+        Initialize(false);
+
+        // [GIVEN] Purchase order with two item lines "1", "2" and an item charge line "3".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLine(
+          PurchaseHeader, PurchaseLine[1], PurchaseLine[1].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        CreatePurchaseLine(
+          PurchaseHeader, PurchaseLine[2], PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        CreatePurchaseLine(
+          PurchaseHeader, PurchaseLine[3], PurchaseLine[3].Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(),
+          LibraryRandom.RandInt(10));
+        PurchaseLine[3].Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine[3].Modify(true);
+
+        // [GIVEN] Create item charge assignment.
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine[3], PurchaseLine[1]."Document Type", PurchaseLine[1]."Document No.",
+          PurchaseLine[1]."Line No.", PurchaseLine[1]."No.");
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine[3], PurchaseLine[2]."Document Type", PurchaseLine[2]."Document No.",
+          PurchaseLine[2]."Line No.", PurchaseLine[2]."No.");
+
+        // [GIVEN] Distribute item charge equally to item lines "1" and "2" by using "Suggest item charge assignment" function.
+        ItemChargeAssgntPurch.AssignItemCharges(
+          PurchaseLine[3], PurchaseLine[3].Quantity, PurchaseLine[3].Amount, ItemChargeAssgntPurch.AssignEquallyMenuText());
+
+        // [GIVEN] Receive and invoice item line "1".
+        UpdateQtyToReceiveOnPurchaseLine(PurchaseLine[2], 0);
+        UpdateQtyToReceiveOnPurchaseLine(PurchaseLine[3], 0);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run "Suggest item charge assignment" again.
+        PurchaseLine[3].Find();
+        ItemChargeAssgntPurch.AssignItemCharges(
+          PurchaseLine[3], PurchaseLine[3].Quantity, PurchaseLine[3].Amount, ItemChargeAssgntPurch.AssignEquallyMenuText());
+
+        // [THEN] "Qty. to Assign" and "Amount to Assign" for the invoiced line "1" have been reset to 0.
+        FindItemChargeAssignmentPurch(ItemChargeAssignmentPurch, PurchaseLine[1]);
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", 0);
+        ItemChargeAssignmentPurch.TestField("Amount to Assign", 0);
+
+        // [THEN] Full item charge quantity and amount are assigned to line "2".
+        FindItemChargeAssignmentPurch(ItemChargeAssignmentPurch, PurchaseLine[2]);
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", PurchaseLine[3].Quantity);
+        ItemChargeAssignmentPurch.TestField("Amount to Assign", PurchaseLine[3].Amount);
+    end;
+
+    [Test]
+    procedure ItemChargeAssignmentSalesClearQtyAndAmountBeforeDistribution()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
+    begin
+        // [FEATURE] [Sales] [Item Charge] [Suggest Assignment]
+        // [SCENARIO 400286] "Qty. to Assign" and "Amount to Assign" is cleared on item charge assignment for sales before new distribution.
+        Initialize(false);
+
+        // [GIVEN] Sales order with two item lines "1", "2" and an item charge line "3".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        CreateSalesLine(
+          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        CreateSalesLine(
+          SalesLine[3], SalesHeader, SalesLine[3].Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(),
+          LibraryRandom.RandInt(10));
+        SalesLine[3].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[3].Modify(true);
+
+        // [GIVEN] Create item charge assignment.
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLine[3], SalesLine[1]."Document Type", SalesLine[1]."Document No.",
+          SalesLine[1]."Line No.", SalesLine[1]."No.");
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLine[3], SalesLine[2]."Document Type", SalesLine[2]."Document No.",
+          SalesLine[2]."Line No.", SalesLine[2]."No.");
+
+        // [GIVEN] Distribute item charge equally to item lines "1" and "2" by using "Suggest item charge assignment" function.
+        ItemChargeAssgntSales.AssignItemCharges(
+          SalesLine[3], SalesLine[3].Quantity, SalesLine[3].Amount, ItemChargeAssgntSales.AssignEquallyMenuText());
+
+        // [GIVEN] Ship and invoice item line "1".
+        UpdateQtyToShipOnSalesLine(SalesLine[2], 0);
+        UpdateQtyToShipOnSalesLine(SalesLine[3], 0);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run "Suggest item charge assignment" again.
+        SalesLine[3].Find();
+        ItemChargeAssgntSales.AssignItemCharges(
+          SalesLine[3], SalesLine[3].Quantity, SalesLine[3].Amount, ItemChargeAssgntSales.AssignEquallyMenuText());
+
+        // [THEN] "Qty. to Assign" and "Amount to Assign" for the invoiced line "1" have been reset to 0.
+        FindItemChargeAssignmentSales(ItemChargeAssignmentSales, SalesLine[1]);
+        ItemChargeAssignmentSales.TestField("Qty. to Assign", 0);
+        ItemChargeAssignmentSales.TestField("Amount to Assign", 0);
+
+        // [THEN] Full item charge quantity and amount are assigned to line "2".
+        FindItemChargeAssignmentSales(ItemChargeAssignmentSales, SalesLine[2]);
+        ItemChargeAssignmentSales.TestField("Qty. to Assign", SalesLine[3].Quantity);
+        ItemChargeAssignmentSales.TestField("Amount to Assign", SalesLine[3].Amount);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2795,6 +2909,22 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         ShippingAgentServices.SetFilter("Shipping Agent Code", '<>%1', '');
         ShippingAgentServices.FindFirst;
+    end;
+
+    local procedure FindItemChargeAssignmentPurch(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line")
+    begin
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. Type", PurchaseLine."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.FindFirst();
+    end;
+
+    local procedure FindItemChargeAssignmentSales(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line")
+    begin
+        ItemChargeAssignmentSales.SetRange("Applies-to Doc. Type", SalesLine."Document Type");
+        ItemChargeAssignmentSales.SetRange("Applies-to Doc. No.", SalesLine."Document No.");
+        ItemChargeAssignmentSales.SetRange("Applies-to Doc. Line No.", SalesLine."Line No.");
+        ItemChargeAssignmentSales.FindFirst();
     end;
 
     local procedure GetDropShipmentLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
