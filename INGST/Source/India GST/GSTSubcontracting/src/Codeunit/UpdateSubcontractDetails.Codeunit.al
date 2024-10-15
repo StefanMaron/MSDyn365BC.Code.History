@@ -34,6 +34,7 @@ codeunit 18471 "Update Subcontract Details"
                 SubOrderComponents."Quantity To Send" := ProdOrderComponent."Expected Quantity";
 
                 Item.Get(SubOrderComponents."Item No.");
+                SubOrderComponents."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
                 SubOrderComponents."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, SubOrderComponents."Unit of Measure Code");
                 SubOrderComponents."Quantity (Base)" := Round(
                     SubOrderComponents."Quantity To Send" *
@@ -45,7 +46,6 @@ codeunit 18471 "Update Subcontract Details"
 
                 Item.Get(SubOrderComponents."Parent Item No.");
                 SubOrderComponents."Company Location" := UpdateSubCompLocation(Item);
-                SubOrderComponents."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
 
                 Vendor.Get(PurchLine."Buy-from Vendor No.");
                 Vendor.TestField("Vendor Location");
@@ -79,14 +79,13 @@ codeunit 18471 "Update Subcontract Details"
                 SubOrderCompListVend."Quantity per" := ProdOrderComponent."Quantity per";
 
                 Item.Get(SubOrderCompListVend."Item No.");
-
+                SubOrderCompListVend."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
                 SubOrderCompListVend."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, SubOrderCompListVend."Unit of Measure");
                 SubOrderCompListVend.Description := CopyStr(ProdOrderComponent.Description, 1, 30);
                 SubOrderCompListVend.Validate("Scrap %", ProdOrderComponent."Scrap %");
                 SubOrderCompListVend."Variant Code" := ProdOrderComponent."Variant Code";
                 Item.Get(SubOrderCompListVend."Parent Item No.");
                 SubOrderCompListVend."Company Location" := UpdateSubCompLocation(Item);
-                SubOrderCompListVend."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
 
                 Vendor.Get(PurchLine."Buy-from Vendor No.");
                 Vendor.TestField("Vendor Location");

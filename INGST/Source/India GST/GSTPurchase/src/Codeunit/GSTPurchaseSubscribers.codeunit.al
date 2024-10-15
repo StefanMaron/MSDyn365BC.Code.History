@@ -841,6 +841,7 @@ codeunit 18080 "GST Purchase Subscribers"
         if PurchaseLine.FindSet() then
             repeat
                 PurchaseLine."Bill to-Location(POS)" := PurchaseHeader."Bill to-Location(POS)";
+                UpdateCurrGSTJurisdictionType(PurchaseHeader, PurchaseLine);
                 PurchaseLine.Modify();
             until PurchaseLine.Next() = 0;
 
@@ -1472,6 +1473,28 @@ codeunit 18080 "GST Purchase Subscribers"
                     if (PurchaseHeader."Location State Code" <> '') and (PurchaseHeader."State" = '') then
                         PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate;
         end;
+    end;
+
+    local procedure UpdateCurrGSTJurisdictionType(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin        
+        if PurchaseHeader."GST Vendor Type" in [PurchaseHeader."GST Vendor Type"::SEZ, PurchaseHeader."GST Vendor Type"::Import] then begin
+            PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate;
+            exit;
+        end;
+
+        if PurchaseHeader."POS Out Of India" then begin
+            PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate;
+            exit;
+        end;
+
+        if PurchaseHeader."Location State Code" <> PurchaseHeader."State" then
+            PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate
+        else
+            if PurchaseHeader."Location State Code" = PurchaseHeader."State" then
+                PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Intrastate
+            else
+                if (PurchaseHeader."Location State Code" <> '') and (PurchaseHeader."State" = '') then
+                    PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate;
     end;
 
     local procedure PurchaseHeaderDocumentType2DocumentTypeEnum(PurchaseDocumentType: Enum "Purchase Document Type"): Enum "Document Type Enum";

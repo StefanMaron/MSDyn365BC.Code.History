@@ -1308,7 +1308,7 @@ codeunit 18430 "GST Application Handler"
                         ApplyingCustLedgEntry,
                         CustLedgerEntry,
                         AmountToApply,
-                        CVLedgerEntryBuffer."Remaining Amt. (LCY)",
+                        OldCVLedgerEntryBuffer."Remaining Amt. (LCY)",
                         InvoiceGSTAmount,
                         AppliedGSTAmount,
                         InvoiceAmount)
@@ -1317,7 +1317,7 @@ codeunit 18430 "GST Application Handler"
                         ApplyingCustLedgEntry,
                         CustLedgerEntry,
                         AmountToApply,
-                        CVLedgerEntryBuffer."Remaining Amt. (LCY)",
+                        OldCVLedgerEntryBuffer."Remaining Amt. (LCY)",
                         InvoiceGSTAmount,
                         AppliedGSTAmount,
                         InvoiceAmount);
