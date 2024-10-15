@@ -3621,6 +3621,36 @@
         VerifyVendLedgerEntryForPurchPrepayment(PurchaseHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPrepaymentInvoiceWithInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 470549] Post and Verify Prepayment Sales Invoice Amount When there is an Invoice Discount in Sales Order.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesDocument(SalesHeader, SalesLine);
+
+        // [GIVEN] Update the Prepayment % in Sales Header and Invoice Discount Amount in Sales Line.
+        UpdatePrepaymentPercentageAndInvoiceDiscountAmount(
+            SalesHeader,
+            SalesLine,
+            LibraryRandom.RandInt(90),
+            LibraryRandom.RandInt(100));
+
+        // [THEN] Post the Prepayment Invoice.
+        PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [VERIFY] Verify the Prepayment Sales Invoice Amount.
+        Assert.AreEqual(
+            CalculateTotalPrepaymentAmount(SalesHeader),
+            GetSalesPrepaymentInvoiceAmount(SalesHeader),
+            PrepaymentAmountInvErr + ' ' + Format(CalculateTotalPrepaymentAmount(SalesHeader)));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6024,6 +6054,29 @@
         VendLedgerEntry.SetRange("Document No.", PurchInvoiceHeader."No.");
         VendLedgerEntry.FindFirst();
         VendLedgerEntry.TestField("Payment Method Code");
+    end;
+
+    local procedure UpdatePrepaymentPercentageAndInvoiceDiscountAmount(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        PrepaymentPercent: Decimal;
+        InvoiceDiscountAmount: Decimal)
+    begin
+        SalesLine.Validate("Inv. Discount Amount", InvoiceDiscountAmount);
+        SalesLine.Modify(true);
+
+        SalesHeader.Validate("Prepayment %", PrepaymentPercent);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure GetSalesPrepaymentInvoiceAmount(SalesHeader: Record "Sales Header"): Decimal
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", FindSalesPrepmtInvoiceNo(SalesHeader."No."));
+        SalesInvoiceLine.CalcSums("Amount Including VAT");
+
+        exit(SalesInvoiceLine."Amount Including VAT");
     end;
 
     [ConfirmHandler]
