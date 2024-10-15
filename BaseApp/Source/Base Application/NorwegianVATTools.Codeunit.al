@@ -121,42 +121,202 @@ codeunit 10600 "Norwegian VAT Tools"
         exit(Amount);
     end;
 
+    procedure VATEntrySetVATInformation(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        case GenJournalLine."VAT Base Amount Type" of
+            GenJournalLine."VAT Base Amount Type"::Automatic:
+                if VATEntry.Amount = 0 then begin
+                    VATProductPostingGroup.Get(GenJournalLine."VAT Prod. Posting Group");
+                    if VATProductPostingGroup."Outside Tax Area" then
+                        VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Outside Tax Area"
+                    else
+                        VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Without VAT";
+                end else
+                    VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"With VAT";
+            GenJournalLine."VAT Base Amount Type"::"With VAT":
+                VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"With VAT";
+            GenJournalLine."VAT Base Amount Type"::"Without VAT":
+                VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Without VAT";
+        end;
+        VATEntry."VAT Number" := GenJournalLine."VAT Number";
+
+        // Test the Gen. Posting Type against the setup
+        if VATEntry."VAT Number" <> '' then begin
+            VATReportingCode.Get(VATEntry."VAT Number");
+            case VATReportingCode."Test Gen. Posting Type" of
+                VATReportingCode."Test Gen. Posting Type"::Mandatory:
+                    GenJournalLine.TestField("Gen. Posting Type");
+                VATReportingCode."Test Gen. Posting Type"::Same:
+                    GenJournalLine.TestField("Gen. Posting Type", VATReportingCode."Gen. Posting Type");
+            end;
+        end;
+    end;
+
+    procedure InitVATCodeGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; UseBalanceFields: Boolean)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        with GenJournalLine do
+            if UseBalanceFields then begin
+                if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then begin
+                    "Bal. VAT Number" := VATPostingSetup."VAT Number";
+                    if VATPostingSetup."VAT Number" <> '' then begin
+                        VATReportingCode.Get(VATPostingSetup."VAT Number");
+                        "Bal. Gen. Posting Type" := VATReportingCode."Gen. Posting Type";
+                    end;
+                end else
+                    "Bal. VAT Number" := '';
+            end else
+                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
+                    "VAT Number" := VATPostingSetup."VAT Number";
+                    if VATPostingSetup."VAT Number" <> '' then begin
+                        VATReportingCode.Get(VATPostingSetup."VAT Number");
+                        "Gen. Posting Type" := VATReportingCode."Gen. Posting Type";
+                    end;
+                end else
+                    "VAT Number" := '';
+    end;
+
+    procedure InitVATCodeSalesLine(var SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then begin
+            SalesLine."VAT Number" := VATPostingSetup."VAT Number";
+            if VATPostingSetup."VAT Number" <> '' then
+                VATReportingCode.Get(VATPostingSetup."VAT Number");
+        end else
+            SalesLine."VAT Number" := '';
+    end;
+
+    procedure InitVATCodePurchaseLine(var PurchaseLine: Record "Purchase Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        if VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then begin
+            PurchaseLine."VAT Number" := VATPostingSetup."VAT Number";
+            if VATPostingSetup."VAT Number" <> '' then
+                VATReportingCode.Get(VATPostingSetup."VAT Number");
+        end else
+            PurchaseLine."VAT Number" := '';
+    end;
+
+    procedure InitPostingGroupsGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; UseBalanceFields: Boolean)
+    var
+        VATReportingCode: Record "VAT Reporting Code";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with GenJournalLine do
+            if UseBalanceFields then
+                if "Bal. VAT Number" = '' then begin
+                    Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
+                    Validate("Bal. VAT Bus. Posting Group", '');
+                    Validate("Bal. VAT Prod. Posting Group", '');
+                end else begin
+                    VATReportingCode.Get("Bal. VAT Number");
+                    VATPostingSetup.SetCurrentKey("VAT Number");
+                    VATPostingSetup.SetRange("VAT Number", "Bal. VAT Number");
+                    VATPostingSetup.FindFirst();
+                    Validate("Bal. Gen. Posting Type", VATReportingCode."Gen. Posting Type");
+                    Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                    Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+                end
+            else
+                if "VAT Number" = '' then begin
+                    Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
+                    Validate("VAT Bus. Posting Group", '');
+                    Validate("VAT Prod. Posting Group", '');
+                end else begin
+                    VATReportingCode.Get("VAT Number");
+                    VATPostingSetup.SetCurrentKey("VAT Number");
+                    VATPostingSetup.SetRange("VAT Number", "VAT Number");
+                    VATPostingSetup.FindFirst();
+                    Validate("Gen. Posting Type", VATReportingCode."Gen. Posting Type");
+                    Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+                    Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+                end;
+    end;
+
+    procedure InitPostingGroupsSalesLine(var SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if SalesLine."VAT Number" = '' then begin
+            SalesLine.Validate("VAT Bus. Posting Group", '');
+            SalesLine.Validate("VAT Prod. Posting Group", '');
+        end else begin
+            VATPostingSetup.SetCurrentKey("VAT Number");
+            VATPostingSetup.SetRange("VAT Number", SalesLine."VAT Number");
+            VATPostingSetup.FindFirst();
+            SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+            SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+            SalesLine.Validate("VAT Bus. Posting Group");
+            SalesLine.Validate("VAT Prod. Posting Group");
+        end;
+    end;
+
+    procedure InitPostingGroupsPurchaseLine(var PurchaseLine: Record "Purchase Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if PurchaseLine."VAT Number" = '' then begin
+            PurchaseLine.Validate("VAT Bus. Posting Group", '');
+            PurchaseLine.Validate("VAT Prod. Posting Group", '');
+        end else begin
+            VATPostingSetup.SetCurrentKey("VAT Number");
+            VATPostingSetup.SetRange("VAT Number", PurchaseLine."VAT Number");
+            VATPostingSetup.FindFirst();
+            PurchaseLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+            PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+            PurchaseLine.Validate("VAT Bus. Posting Group");
+            PurchaseLine.Validate("VAT Prod. Posting Group");
+        end;
+    end;
+#if not CLEAN23
     [Scope('OnPrem')]
-    procedure VATEntrySetVATInfo(var VATEntry: Record "VAT Entry"; GenJnlLine: Record "Gen. Journal Line")
+    [Obsolete('Use the VATEntrySetVATInformation procedure instead', '23.0')]
+    procedure VATEntrySetVATInfo(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
     var
         VATProdPostGrp: Record "VAT Product Posting Group";
         VATCode: Record "VAT Code";
     begin
-        case GenJnlLine."VAT Base Amount Type" of
-            GenJnlLine."VAT Base Amount Type"::Automatic:
+        case GenJournalLine."VAT Base Amount Type" of
+            GenJournalLine."VAT Base Amount Type"::Automatic:
                 if VATEntry.Amount = 0 then begin
-                    VATProdPostGrp.Get(GenJnlLine."VAT Prod. Posting Group");
+                    VATProdPostGrp.Get(GenJournalLine."VAT Prod. Posting Group");
                     if VATProdPostGrp."Outside Tax Area" then
                         VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Outside Tax Area"
                     else
                         VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Without VAT";
                 end else
                     VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"With VAT";
-            GenJnlLine."VAT Base Amount Type"::"With VAT":
+            GenJournalLine."VAT Base Amount Type"::"With VAT":
                 VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"With VAT";
-            GenJnlLine."VAT Base Amount Type"::"Without VAT":
+            GenJournalLine."VAT Base Amount Type"::"Without VAT":
                 VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Without VAT";
         end;
-        VATEntry."VAT Code" := GenJnlLine."VAT Code";
+        VATEntry."VAT Code" := GenJournalLine."VAT Code";
 
         // Test the Gen. Posting Type against the setup
         if VATEntry."VAT Code" <> '' then begin
             VATCode.Get(VATEntry."VAT Code");
             case VATCode."Test Gen. Posting Type" of
                 VATCode."Test Gen. Posting Type"::Mandatory:
-                    GenJnlLine.TestField("Gen. Posting Type");
+                    GenJournalLine.TestField("Gen. Posting Type");
                 VATCode."Test Gen. Posting Type"::Same:
-                    GenJnlLine.TestField("Gen. Posting Type", VATCode."Gen. Posting Type");
+                    GenJournalLine.TestField("Gen. Posting Type", VATCode."Gen. Posting Type");
             end;
         end;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitVATCodeGenJournalLine procedure instead', '23.0')]
     procedure InitVATCode_GenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; UseBalanceFields: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -172,7 +332,7 @@ codeunit 10600 "Norwegian VAT Tools"
                     end;
                 end else
                     "Bal. VAT Code" := '';
-            end else begin
+            end else
                 if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                     "VAT Code" := VATPostingSetup."VAT Code";
                     if VATPostingSetup."VAT Code" <> '' then begin
@@ -181,10 +341,10 @@ codeunit 10600 "Norwegian VAT Tools"
                     end;
                 end else
                     "VAT Code" := '';
-            end;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitVATCodeSalesLine procedure instead', '23.0')]
     procedure InitVATCode_SalesLine(var SalesLine: Record "Sales Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -199,6 +359,7 @@ codeunit 10600 "Norwegian VAT Tools"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitVATCodePurchaseLine procedure instead', '23.0')]
     procedure InitVATCode_PurchaseLine(var PurchaseLine: Record "Purchase Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -213,6 +374,7 @@ codeunit 10600 "Norwegian VAT Tools"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitPostingGroupsGenJnlLine procedure instead', '23.0')]
     procedure InitPostingGrps_GenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; UseBalanceFields: Boolean)
     var
         VATCode: Record "VAT Code";
@@ -250,6 +412,7 @@ codeunit 10600 "Norwegian VAT Tools"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitPostingGroupsSalesLine procedure instead', '23.0')]
     procedure InitPostingGrps_SalesLine(var SalesLine: Record "Sales Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -269,6 +432,7 @@ codeunit 10600 "Norwegian VAT Tools"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the InitPostingGroupsPurchaseLine procedure instead', '23.0')]
     procedure InitPostingGrps_PurchaseLine(var PurchaseLine: Record "Purchase Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -286,7 +450,7 @@ codeunit 10600 "Norwegian VAT Tools"
             PurchaseLine.Validate("VAT Prod. Posting Group");
         end;
     end;
-
+#endif
     [Scope('OnPrem')]
     procedure CreateStdVATPeriods(AskUser: Boolean)
     var
@@ -489,6 +653,41 @@ codeunit 10600 "Norwegian VAT Tools"
         exit(PassengerVehiclesTok);
     end;
 
+    procedure GetVATReportingCodes2022(var TempVATReportingCode: Record "VAT Reporting Code" temporary)
+    begin
+        AddTempVATReportingCode(TempVATReportingCode, '31U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '31');
+        AddTempVATReportingCode(TempVATReportingCode, '33U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '33');
+        AddTempVATReportingCode(TempVATReportingCode, '3U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '3');
+        AddTempVATReportingCode(TempVATReportingCode, '5U', NoOutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '5');
+        AddTempVATReportingCode(TempVATReportingCode, '11U', InputVATDeductDomDescrTxt, GetWithdrawalSpecificationCode(), '', '11');
+        AddTempVATReportingCode(TempVATReportingCode, '11T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '11');
+        AddTempVATReportingCode(TempVATReportingCode, '13T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '13');
+        AddTempVATReportingCode(TempVATReportingCode, '1T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '1');
+        AddTempVATReportingCode(TempVATReportingCode, '1J', InputVATDeductDomDescrTxt, GetAdjustmentCode(), '', '1');
+        AddTempVATReportingCode(TempVATReportingCode, '1TF', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetRealPropertyTok(), '1');
+        AddTempVATReportingCode(TempVATReportingCode, '1TP', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '1');
+        AddTempVATReportingCode(TempVATReportingCode, '81TP', ImportOfGoodsDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '81');
+        AddTempVATReportingCode(TempVATReportingCode, '12T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '12');
+    end;
+
+    local procedure AddTempVATReportingCode(var TempVATReportingCode: Record "VAT Reporting Code" temporary; Code: Code[10]; Description: Text[30]; VATSpecificationCode: Code[50]; VATNoteCode: Code[50]; SAFTVATCode: Code[10])
+    var
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        if SAFTVATCode <> '' then
+            if VATReportingCode.Get(SAFTVATCode) then
+                TempVATReportingCode := VATReportingCode
+            else
+                exit;
+        TempVATReportingCode.Validate(Code, Code);
+        TempVATReportingCode.Validate(Description, Description);
+        TempVATReportingCode.Validate("VAT Specification Code", VATSpecificationCode);
+        TempVATReportingCode.Validate("SAF-T VAT Code", SAFTVATCode);
+        TempVATReportingCode.Validate("VAT Note Code", VATNoteCode);
+        TempVATReportingCode.Insert(true);
+    end;
+#if not CLEAN23
+    [Obsolete('Use the GetVATReportingCodes2022 procedure instead', '23.0')]
     procedure GetVATCodes2022(var TempVATCode: Record "VAT Code" temporary)
     begin
         AddTempVATCode(TempVATCode, '31U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '31');
@@ -522,7 +721,7 @@ codeunit 10600 "Norwegian VAT Tools"
         TempVATCode.Validate("VAT Note Code", VATNoteCode);
         TempVATCode.Insert(true);
     end;
-
+#endif
 #if not CLEAN20
     [Obsolete('Use VAT Business and VAT Product posting groups for filtering.', '23.0')]
     local procedure SetVATCodeFilterInsteadOfPostingGroups(var VATEntry: Record "VAT Entry"; VATStatementLine: Record "VAT Statement Line")

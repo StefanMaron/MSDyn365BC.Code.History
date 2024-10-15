@@ -21,7 +21,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Return File" = R,
                   tabledata "Return File Setup" = R,
                   tabledata "Settled VAT Period" = R,
+#if not CLEAN23
                   tabledata "VAT Code" = R,
+#endif
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Specification" = R,
                   tabledata "VAT Note" = R,
                   tabledata "VAT Period" = R,

@@ -47,20 +47,49 @@ page 472 "VAT Posting Setup"
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
                     Width = 1;
                 }
+#if not CLEAN23
                 field("VAT Code"; "VAT Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT Code to be used with this VAT posting setup.';
+                    ObsoleteReason = 'Use the field "VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
                 }
                 field("Sales VAT Reporting Code"; "Sales VAT Reporting Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for sales reporting.';
+                    ObsoleteReason = 'Use the field "Sale VAT Reporting Code" in BaseApp W1.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
                 }
                 field("Purchase VAT Reporting Code"; "Purchase VAT Reporting Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for purchase reporting.';
+                    ObsoleteReason = 'Use the field "Purch. VAT Reporting Code" in BaseApp W1.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("VAT Number"; Rec."VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used with this VAT posting setup.';
+                    Visible = false;
+                }
+                field("Sale VAT Reporting Code"; Rec."Sale VAT Reporting Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for sales reporting.';
+                    Visible = false;
+                }
+                field("Purch. VAT Reporting Code"; Rec."Purch. VAT Reporting Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for purchase reporting.';
+                    Visible = false;
                 }
                 field("VAT Settlement Rate"; "VAT Settlement Rate")
                 {

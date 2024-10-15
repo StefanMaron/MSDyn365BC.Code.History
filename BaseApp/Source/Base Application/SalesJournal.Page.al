@@ -186,10 +186,21 @@ page 253 "Sales Journal"
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = NOT IsSimplePage;
                 }
+#if not CLEAN23
                 field("VAT Code"; "VAT Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    ObsoleteReason = 'Use the field "VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("VAT Number"; Rec."VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
+                    Visible = false;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
@@ -331,10 +342,21 @@ page 253 "Sales Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
+#if not CLEAN23
                 field("Bal. VAT Code"; "Bal. VAT Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Bal. VAT Number"; Rec."Bal. VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
+                    Visible = false;
                 }
                 field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
                 {

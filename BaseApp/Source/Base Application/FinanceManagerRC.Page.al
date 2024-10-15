@@ -2450,11 +2450,22 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "VAT Periods";
                         Tooltip = 'Open the VAT Periods page.';
                     }
+#if not CLEAN23
                     action("VAT Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Codes';
                         RunObject = page "VAT Codes";
+                        ObsoleteReason = 'Use the page "VAT Reporting Codes" instead';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '23.0';
+                    }
+#endif
+                    action("VAT Reporting Codes")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Codes';
+                        RunObject = page "VAT Reporting Codes";
                     }
                     action("VAT Clauses")
                     {

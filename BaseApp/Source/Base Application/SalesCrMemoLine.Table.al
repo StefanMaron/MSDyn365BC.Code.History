@@ -575,10 +575,22 @@ table 115 "Sales Cr.Memo Line"
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
+        }
+        field(10610; "VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
         }
     }
 

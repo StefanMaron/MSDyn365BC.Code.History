@@ -151,7 +151,11 @@ report 10618 "Trade Settlement 2017"
                 trigger OnAfterGetRecord()
                 var
                     VATPostingSetup: Record "VAT Posting Setup";
+#if not CLEAN23
                     VATCode: Record "VAT Code";
+#else
+                    VATCode: Record "VAT Reporting Code";
+#endif
                 begin
                     ShowGroupHeader := true;
                     ClearBases;
@@ -172,7 +176,11 @@ report 10618 "Trade Settlement 2017"
                     VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     case Type of
                         Type::Sale:
+#if not CLEAN23
                             if VATCode.Get(VATPostingSetup."Sales VAT Reporting Code") then
+#else
+                            if VATCode.Get(VATPostingSetup."Sale VAT Reporting Code") then
+#endif
                                 case VATCode."Trade Settlement 2017 Box No." of
                                     VATCode."Trade Settlement 2017 Box No."::"3":
                                         begin
@@ -195,7 +203,11 @@ report 10618 "Trade Settlement 2017"
                                         ExportNoVAT -= Base;
                                 end;
                         Type::Purchase:
+#if not CLEAN23
                             if VATCode.Get(VATPostingSetup."Purchase VAT Reporting Code") then begin
+#else
+                            if VATCode.Get(VATPostingSetup."Purch. VAT Reporting Code") then begin
+#endif
                                 case VATCode."Trade Settlement 2017 Box No." of
                                     VATCode."Trade Settlement 2017 Box No."::"7":
                                         begin

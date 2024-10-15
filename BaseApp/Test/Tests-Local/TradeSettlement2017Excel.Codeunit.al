@@ -1145,6 +1145,36 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         exit(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
     end;
 
+#if CLEAN23
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal; VATSettlementRate: Option; SalesVATReportingCode: Code[20]; PurchaseVATReportingCode: Code[20])
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
+        with VATPostingSetup do begin
+            Validate("VAT Settlement Rate", VATSettlementRate);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sale VAT Reporting Code", SalesVATReportingCode);
+            Validate("Purch. VAT Reporting Code", PurchaseVATReportingCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateVATCode(ReportBoxNo: Option; ReverseChargeBoxNo: Option): Code[20]
+    var
+        VATReportingCode: Record "VAT Reporting Code";
+    begin
+        with VATReportingCode do begin
+            Init();
+            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), Database::"VAT Reporting Code");
+            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
+            "Trade Settlement 2017 Box No." := ReportBoxNo;
+            "Reverse Charge Report Box No." := ReverseChargeBoxNo;
+            Insert(true);
+            exit(Code);
+        end;
+    end;
+#else
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPct: Decimal; VATSettlementRate: Option; SalesVATReportingCode: Code[10]; PurchaseVATReportingCode: Code[10])
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPct);
@@ -1173,7 +1203,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
             exit(Code);
         end;
     end;
-
+#endif
     local procedure CreatePostSalesInvoice(var VATBase: Decimal; var VATAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";

@@ -188,7 +188,18 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN23
                 field("VAT Code"; "VAT Code")
+                {
+                    ApplicationArea = VAT;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies a VAT code.';
+                    ObsoleteReason = 'Use the field "VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("VAT Number"; Rec."VAT Number")
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;

@@ -137,10 +137,21 @@ page 255 "Cash Receipt Journal"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN23
                 field("VAT Code"; "VAT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the field "VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("VAT Number"; Rec."VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
                     Visible = false;
                 }
                 field("Gen. Posting Type"; "Gen. Posting Type")
@@ -237,10 +248,21 @@ page 255 "Cash Receipt Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
+#if not CLEAN23
                 field("Bal. VAT Code"; "Bal. VAT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT Code to be used on the line.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Bal. VAT Number"; Rec."Bal. VAT Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT number to be used on the line.';
                     Visible = false;
                 }
                 field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")

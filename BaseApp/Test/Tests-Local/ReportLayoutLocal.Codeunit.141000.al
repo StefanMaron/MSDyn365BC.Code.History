@@ -43,11 +43,11 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure VerifyDemoData_VATCodes()
     var
-        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
     begin
         // [FEATURE] [VAT] [Trade Settlement] [DEMO]
-        // [SCENARIO 168591] Demodata "VAT Code" list
-        with VATCode do begin
+        // [SCENARIO 168591] Demodata "VAT Reporting Code" list
+        with VATReportingCode do begin
             VerifyDemoDataVATCodePurch('0', "Trade Settlement 2017 Box No."::" ", "Reverse Charge Report Box No."::" ");
             VerifyDemoDataVATCodePurch('1', "Trade Settlement 2017 Box No."::"14", "Reverse Charge Report Box No."::" ");
             VerifyDemoDataVATCodePurch('11', "Trade Settlement 2017 Box No."::"15", "Reverse Charge Report Box No."::" ");
@@ -117,24 +117,24 @@ codeunit 141000 "Report Layout - Local"
 
     local procedure VerifyDemoDataVATCodeSales(ExpectedCode: Code[10]; BoxNo: Option; ReverseChargeBoxNo: Option)
     var
-        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
     begin
-        VATCode.Get(ExpectedCode);
-        Assert.AreEqual(VATCode."Test Gen. Posting Type"::" ", VATCode."Test Gen. Posting Type", '');
-        Assert.AreEqual(VATCode."Gen. Posting Type"::Sale, VATCode."Gen. Posting Type", '');
-        Assert.AreEqual(BoxNo, VATCode."Trade Settlement 2017 Box No.", '');
-        Assert.AreEqual(ReverseChargeBoxNo, VATCode."Reverse Charge Report Box No.", '');
+        VATReportingCode.Get(ExpectedCode);
+        Assert.AreEqual(VATReportingCode."Test Gen. Posting Type"::" ", VATReportingCode."Test Gen. Posting Type", '');
+        Assert.AreEqual(VATReportingCode."Gen. Posting Type"::Sale, VATReportingCode."Gen. Posting Type", '');
+        Assert.AreEqual(BoxNo, VATReportingCode."Trade Settlement 2017 Box No.", '');
+        Assert.AreEqual(ReverseChargeBoxNo, VATReportingCode."Reverse Charge Report Box No.", '');
     end;
 
     local procedure VerifyDemoDataVATCodePurch(ExpectedCode: Code[10]; BoxNo: Option; ReverseChargeBoxNo: Option)
     var
-        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
     begin
-        VATCode.Get(ExpectedCode);
-        Assert.AreEqual(VATCode."Test Gen. Posting Type"::" ", VATCode."Test Gen. Posting Type", '');
-        Assert.AreEqual(VATCode."Gen. Posting Type"::Purchase, VATCode."Gen. Posting Type", '');
-        Assert.AreEqual(BoxNo, VATCode."Trade Settlement 2017 Box No.", '');
-        Assert.AreEqual(ReverseChargeBoxNo, VATCode."Reverse Charge Report Box No.", '');
+        VATReportingCode.Get(ExpectedCode);
+        Assert.AreEqual(VATReportingCode."Test Gen. Posting Type"::" ", VATReportingCode."Test Gen. Posting Type", '');
+        Assert.AreEqual(VATReportingCode."Gen. Posting Type"::Purchase, VATReportingCode."Gen. Posting Type", '');
+        Assert.AreEqual(BoxNo, VATReportingCode."Trade Settlement 2017 Box No.", '');
+        Assert.AreEqual(ReverseChargeBoxNo, VATReportingCode."Reverse Charge Report Box No.", '');
     end;
 
     local procedure VerifyDemoDataVATPostingSetup(VATBusPostingGroupCode: Code[10]; VATProdPostingGroupCode: Code[10]; VATCode: Code[10]; SalesVATReportingCode: Code[10]; PurchaseVATReportingCode: Code[10])
@@ -142,9 +142,9 @@ codeunit 141000 "Report Layout - Local"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.Get(VATBusPostingGroupCode, VATProdPostingGroupCode);
-        Assert.AreEqual(VATCode, VATPostingSetup."VAT Code", '');
-        Assert.AreEqual(SalesVATReportingCode, VATPostingSetup."Sales VAT Reporting Code", '');
-        Assert.AreEqual(PurchaseVATReportingCode, VATPostingSetup."Purchase VAT Reporting Code", '');
+        Assert.AreEqual(VATCode, VATPostingSetup."VAT Number", '');
+        Assert.AreEqual(SalesVATReportingCode, VATPostingSetup."Sale VAT Reporting Code", '');
+        Assert.AreEqual(PurchaseVATReportingCode, VATPostingSetup."Purch. VAT Reporting Code", '');
     end;
 
     [RequestPageHandler]
