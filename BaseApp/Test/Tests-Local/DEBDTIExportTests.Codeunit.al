@@ -42,7 +42,7 @@ codeunit 144000 "DEB DTI Export Tests"
         InitReader(FileName);
         VerifyXMLFileHeader;
         VerifyXMLDeclarationHeader;
-        // TFS ID 351484: Intrastat xml file has information about "Entry/Exit Point" and Area
+        // TFS ID 399429: Intrastat xml file has: "MSConsDestCode" = "Entry/Exit Point", "regionCode" = "Area"
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyNoOptionalXMLItemContent;
 
@@ -1064,8 +1064,8 @@ codeunit 144000 "DEB DTI Export Tests"
         LibraryXMLRead.VerifyNodeValue('itemNumber', Format(1, 0, '<Integer,6><Filler Character,0>'));
         LibraryXMLRead.VerifyNodeValue('invoicedAmount', Format(Round(IntrastatJnlLine."Statistical Value", 1), 0, 9));
         LibraryXMLRead.VerifyNodeValue('statisticalProcedureCode', Format(IntrastatJnlLine."Transaction Specification", 0, 9));
-        LibraryXMLRead.VerifyNodeValue('paysProvenance', IntrastatJnlLine."Entry/Exit Point");
-        LibraryXMLRead.VerifyNodeValue('departement', IntrastatJnlLine.Area);
+        LibraryXMLRead.VerifyNodeValue('MSConsDestCode', IntrastatJnlLine."Entry/Exit Point");
+        LibraryXMLRead.VerifyNodeValue('regionCode', IntrastatJnlLine.Area);
     end;
 
     local procedure VerifyObligationLevelIsSetOnReqPage(var ExportDEBDTI: TestRequestPage "Export DEB DTI"; ExpectedValue: Integer)

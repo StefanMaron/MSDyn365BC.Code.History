@@ -1525,6 +1525,41 @@ codeunit 144036 "UT REP Legal Report"
         // [THEN] No RDLC rendering errors
     end;
 
+    
+    [Test]
+    [HandlerFunctions('GLTrialBalanceRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GLTrialBalRepShowsCorrectBeginningBalanceOfIncomeStatementGLAcc()
+    var
+        GLAccount: Record "G/L Account";
+        DebitAmount: Decimal;
+        CreditAmount: Decimal;
+    begin
+        // [SCENARIO 402709] "G/L Trial Balance" report shows correct beginning balance of the income statement G/L account
+
+        Initialize();
+
+        // [GIVEN] G/L account with "Income/Balance" = "Income Statement"
+        CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.Modify(true);
+
+        // [GIVEN] G/L account has debit balance of "X" and credit balance of "Y" in year 2020
+        DebitAmount := LibraryRandom.RandDec(100, 2);
+        CreditAmount := LibraryRandom.RandDec(100, 2);
+        CreateGLEntryCustom(GLAccount."No.", CalcDate('<-1Y>', WorkDate()), DebitAmount, CreditAmount);
+
+        // [WHEN] Run "G/L Trial Balance" report for year 2021
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
+
+        // [THEN] Exported beginning debit balance is "X" - "Y"
+        // [THEN] Exported beginning credit balance is "Y" - "X"
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyReportCapAndValue(
+          GLAccountNoCap, GLAccount."No.", 'GLAcc2CreditAmtDebitAmt', CreditAmount - DebitAmount,
+          'GLAcc2DebitAmtCreditAmt', DebitAmount - CreditAmount);
+    end;
     local procedure Initialize()
     var
         PageDataPersonalization: Record "Page Data Personalization";
@@ -1695,6 +1730,11 @@ codeunit 144036 "UT REP Legal Report"
     end;
 
     local procedure CreateGLEntryWithAmounts(GLAccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal): Integer
+    begin
+        exit(CreateGLEntryCustom(GLAccountNo, WorkDate(), DebitAmount, CreditAmount));
+    end;
+
+    local procedure CreateGLEntryCustom(GLAccountNo: Code[20]; PostingDate: Date; DebitAmount: Decimal; CreditAmount: Decimal): Integer
     var
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
@@ -1708,9 +1748,9 @@ codeunit 144036 "UT REP Legal Report"
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := PostingDate;
         GLEntry.Insert();
-        exit(GLEntry."Entry No.")
+        exit(GLEntry."Entry No.");
     end;
 
     local procedure CreateSourceCode(): Code[10]
