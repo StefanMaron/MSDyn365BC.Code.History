@@ -1085,6 +1085,63 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         Assert.ExpectedError(DifferentCurrenciesErr);
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler,ApplyVendorEntriesWithAppliesToIDModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure EnsureAppliesToIDIsNotRemovedWhenCopyJournalLines()
+    var
+        GenJournalLineInv: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        PaymentJournal: TestPage "Payment Journal";
+        VendorLedgerEntryNo: Integer;
+    begin
+        // [SCENARIO 449685] Applies-to ID is removed when copying lines to Journal
+        Initialize();
+
+        // [GIVEN] Create two invoices
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateAndPostTwoGenJournalLinesForSameVendor(GenJournalLineInv);
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLineInv."Account No.");
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+
+        // [GIVEN] Create two payment journals
+        CreatePaymentJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, GenJournalLineInv."Account No.",
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine.Insert();
+        Commit();
+
+        // [GIVEN] Set Applies-to ID on first payment journal Line 
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        PaymentJournal.OpenEdit();
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry."Document No.");
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry.Amount);
+        PaymentJournal.ApplyEntries.Invoke();
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+
+        // [WHEN] Set Account No. on second payment journal line 
+        PaymentJournal.Next();
+        PaymentJournal."Account No.".SetValue(Vendor."No.");
+
+        // [THEN] Verify Applies to ID is not removed on Gen Journal Line & Vendor Ledger Entry
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Applies-to ID");
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.Get(LibraryVariableStorage.DequeueInteger());
+        VendorLedgerEntry.TestField("Applies-to ID");
+        PaymentJournal.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2068,6 +2125,23 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
         GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesWithAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocNo: Text;
+    begin
+        DocNo := LibraryVariableStorage.DequeueText();
+        ApplyVendorEntries.FILTER.SetFilter("Document No.", DocNo);
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
+        ApplyVendorEntries.OK.Invoke;
+        VendorLedgerEntry.SetRange("Document No.", DocNo);
+        VendorLedgerEntry.FindFirst();
+        LibraryVariableStorage.Enqueue(VendorLedgerEntry."Entry No.");
     end;
 }
 

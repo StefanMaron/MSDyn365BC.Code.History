@@ -2072,13 +2072,13 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', SalesLine[1]."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[1]."Line Amount"));
-        VATAmount := Round(SalesLine[1].Amount * SalesLine[1]."VAT %" / 100 * SalesLine[1]."Qty. to Invoice" / SalesLine[1].Quantity);
+        VATAmount := SalesLine[1]."Amount Including VAT" - SalesLine[1].Amount;
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
 
         Assert.IsTrue(LibraryReportDataset.GetNextRow, Rep1302DatasetErr);
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[2]."Line Amount"));
-        VATAmount := Round(SalesLine[2].Amount * SalesLine[2]."VAT %" / 100 * SalesLine[2]."Qty. to Invoice" / SalesLine[2].Quantity);
+        VATAmount := SalesLine[2]."Amount Including VAT" - SalesLine[2].Amount;
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
@@ -4318,7 +4318,7 @@ codeunit 134984 "ERM Sales Report III"
         with SalesLine do begin
             Item.Get("No.");
             LineAmount := Round(Amount * "Qty. to Invoice" / Quantity);
-            VATAmount := Round(("Amount Including VAT" - Amount) * "Qty. to Invoice" / Quantity);
+            VATAmount := "Amount Including VAT" - Amount;
             LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', "No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
