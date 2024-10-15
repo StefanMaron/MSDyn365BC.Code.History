@@ -124,8 +124,9 @@
                     until TempInteger.Next() = 0
                 else
                     CreateNewCreditTransferEntry(
-                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, "Entry No.", TempGenJnlLine.GetAppliesToDocEntryNo());
-            until TempGenJnlLine.Next = 0;
+                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine,
+                        CreditTransferEntry."Entry No." + 1, TempGenJnlLine.GetAppliesToDocEntryNo());
+            until TempGenJnlLine.Next() = 0;
 
             RefPmtExp.SetRange(Transferred, false);
             RefPmtExp.SetRange("Applied Payments", false);

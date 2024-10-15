@@ -499,6 +499,90 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T040_ValidateCurrencyCodeDifferentFromSource()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+
+        // [GIVEN] Customer 'C', where "Currency Code" is 'USD'
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCurrency(Currency);
+        Customer."Currency Code" := Currency.Code;
+        Customer.Modify();
+        // [GIVEN] Price List header for Customer 'C', but set "Currency Code" to 'EUR'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+        LibraryERM.CreateCurrency(Currency);
+        PriceListHeader.Validate("Currency Code", Currency.Code);
+        PriceListHeader.Modify();
+
+        // [WHEN] Add new price list line for a g/l account
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
+
+        // [THEN] Price list line added, where "Currency Code" is 'EUR'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Currency Code", Currency.Code);
+    end;
+
+    [Test]
+    procedure T041_ValidateCurrencyCodeInLineAllowUpdatingDefaults()
+    var
+        Currency: array[2] of Record Currency;
+        Vendor: array[2] of Record Vendor;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+
+        // [GIVEN] Vendor 'C', where "Currency Code" is 'USD'
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryERM.CreateCurrency(Currency[1]);
+        Vendor[1]."Currency Code" := Currency[1].Code;
+        Vendor[1].Modify();
+        // [GIVEN] Vendor 'L', where "Currency Code" is 'EUR'
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        LibraryERM.CreateCurrency(Currency[2]);
+        Vendor[2]."Currency Code" := Currency[2].Code;
+        Vendor[2].Modify();
+        // [GIVEN] Price List header for Vendor 'C', where "Allow Updating Defaults" is 'Yes'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor[1]."No.");
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+
+        // [WHEN] Add new price list line for Vendor 'L' and a g/l account
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines.SourceType.SetValue("Price Source Type"::Vendor);
+        PurchasePriceList.Lines.SourceNo.SetValue(Vendor[2]."No.");
+        PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
+
+        // [THEN] Price list line added, where "Currency Code" is 'EUR'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Currency Code", Currency[2].Code);
+    end;
+
+    [Test]
     procedure T050_PurchasePriceListsPageIsNotEditable()
     var
         PriceListHeader: Record "Price List Header";
@@ -1842,6 +1926,68 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceList.Lines."Unit of Measure Code".Editable(), '"Unit of Measure Code".Editable');
     end;
 
+    [Test]
+    procedure PriceListCustomerShowForBillToCustomerNo()
+    var
+        Customer: Array[2] of Record Customer;
+        PriceUXManagement: Codeunit "Price UX Management";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceLists: TestPage "Sales Price Lists";
+        AmountType: Enum "Price Amount Type";
+    begin
+        // [SCENARIO 398417] Prices should be shown for "Bill-to Customer No"
+        Initialize(true);
+
+        // [GIVEN] Two Customers 'A' and 'B'. Customer "A"."Bill-to Customer No." = 'B'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+        Customer[1].Validate("Bill-to Customer No.", Customer[2]."No.");
+        Customer[1].Modify();
+
+        // [WHEN] Show Price List for Customer 'A'
+        BindSubscription(PriceListsUI);
+        PriceListsUI.ClearVariableStorage();
+        PriceListsUI.Enqueue(Customer[2]."No.");  //enqueue Customer 'B' for OnAfterGetPriceSource subscriber
+        SalesPriceLists.Trap();
+
+        // [THEN] Price List shows Prices for Customer 'B'
+        PriceUXManagement.ShowPriceLists(Customer[1], AmountType::Any);
+        SalesPriceLists.Close();
+        Assert.AreEqual(1, PriceListsUI.DequeueInteger(), 'Wrong Customer No.'); // returns TempPriceSource count containing Customer 'B'
+        UnbindSubscription(PriceListsUI);
+    end;
+
+    [Test]
+    procedure PriceListVendorShowForPayToVendorNo()
+    var
+        Vendor: Array[2] of Record Vendor;
+        PriceUXManagement: Codeunit "Price UX Management";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchPriceLists: TestPage "Purchase Price Lists";
+        AmountType: Enum "Price Amount Type";
+    begin
+        // [SCENARIO 398417] Prices should be shown for "Pay-to Vendor No"
+        Initialize(true);
+
+        // [GIVEN] Two Vendors 'A' and 'B'. Vendor "A"."Pay-to Vendor No." = 'B'
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        Vendor[1].Validate("Pay-to Vendor No.", Vendor[2]."No.");
+        Vendor[1].Modify();
+
+        // [WHEN] Show Price List for Vendor 'A'
+        BindSubscription(PriceListsUI);
+        PriceListsUI.ClearVariableStorage();
+        PriceListsUI.Enqueue(Vendor[2]."No."); //enqueue Vendor 'B' for OnAfterGetPriceSource subscriber
+        PurchPriceLists.Trap();
+
+        // [THEN] Price List shows Prices for Vendor 'B'
+        PriceUXManagement.ShowPriceLists(Vendor[1], AmountType::Any);
+        PurchPriceLists.Close();
+        Assert.AreEqual(1, PriceListsUI.DequeueInteger(), 'Wrong Vendor No.'); // returns TempPriceSource count containing Vendor 'B'
+        UnbindSubscription(PriceListsUI);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
@@ -2025,6 +2171,24 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
     end;
 
+    [Scope('OnPrem')]
+    procedure ClearVariableStorage()
+    begin
+        LibraryVariableStorage.Clear;
+    end;
+
+    [Scope('OnPrem')]
+    procedure Enqueue(EnqueueValue: Variant)
+    begin
+        LibraryVariableStorage.Enqueue(EnqueueValue);
+    end;
+
+    [Scope('OnPrem')]
+    procedure DequeueInteger(): Integer
+    begin
+        exit(LibraryVariableStorage.DequeueInteger());
+    end;
+
     [ConfirmHandler]
     procedure ConfirmYesHandler(Question: text; var Reply: Boolean)
     begin
@@ -2057,5 +2221,15 @@ codeunit 134117 "Price Lists UI"
     local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
     begin
         SkipActivate := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price UX Management", 'OnAfterGetPriceSource', '', false, false)]
+    local procedure OnAfterGetPriceSource(FromRecord: Variant; var PriceSourceList: Codeunit "Price Source List");
+    var
+        TempPriceSource: Record "Price Source" temporary;
+    begin
+        PriceSourceList.GetList(TempPriceSource);
+        TempPriceSource.SetRange("Source No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(TempPriceSource.Count);
     end;
 }
