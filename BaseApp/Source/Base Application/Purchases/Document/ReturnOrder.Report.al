@@ -24,6 +24,7 @@ report 6641 "Return Order"
     RDLCLayout = './Purchases/Document/ReturnOrder.rdlc';
     Caption = 'Return Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
@@ -874,7 +875,6 @@ report 6641 "Return Order"
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
         TotalAmountInclVAT: Decimal;
-        LogInteraction: Boolean;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
@@ -924,6 +924,9 @@ report 6641 "Return Order"
         VATBaseCaption2Lbl: Label 'VAT Base';
         VATAmountCaptionLbl: Label 'VAT Amount';
         TotalCaption1Lbl: Label 'Total';
+
+    protected var
+        LogInteraction: Boolean;
 
     local procedure InitLogInteraction()
     begin

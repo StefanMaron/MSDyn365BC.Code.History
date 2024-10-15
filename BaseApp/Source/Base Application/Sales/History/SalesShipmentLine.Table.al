@@ -845,12 +845,19 @@ table 111 "Sales Shipment Line"
 
                 if SalesOrderLine.Quantity = 0 then
                     SalesLine.Validate("Inv. Discount Amount", 0)
-                else
-                    SalesLine.Validate(
-                      "Inv. Discount Amount",
-                      Round(
-                        SalesOrderLine."Inv. Discount Amount" * SalesLine.Quantity / SalesOrderLine.Quantity,
-                        Currency."Amount Rounding Precision"));
+                else begin
+                    if not SalesLine."Allow Invoice Disc." then
+                        if SalesLine."VAT Calculation Type" <> SalesLine."VAT Calculation Type"::"Full VAT" then
+                            SalesLine."Allow Invoice Disc." := SalesOrderLine."Allow Invoice Disc.";
+                    if SalesLine."Allow Invoice Disc." then
+                        SalesLine.Validate(
+                          "Inv. Discount Amount",
+                          Round(
+                            SalesOrderLine."Inv. Discount Amount" * SalesLine.Quantity / SalesOrderLine.Quantity,
+                            Currency."Amount Rounding Precision"))
+                    else
+                        SalesLine.Validate("Inv. Discount Amount", 0);
+                end;
 
                 OnInsertInvLineFromShptLineOnAfterValidateInvDiscountAmount(SalesLine, SalesOrderLine, Rec, SalesInvHeader);
             end;

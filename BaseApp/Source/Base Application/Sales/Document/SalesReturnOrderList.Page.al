@@ -684,6 +684,7 @@ page 9304 "Sales Return Order List"
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
+                        OnAfterPostingSetSelectionFilter(SalesHeader, Rec);
                         if SalesHeader.Count > 1 then begin
                             BatchProcessingMgt.SetParametersForPageID(Page::"Sales Return Order List");
 
@@ -904,6 +905,11 @@ page 9304 "Sales Return Order List"
     begin
         if not Rec.Find() then
             Error(NoSalesOrderErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostingSetSelectionFilter(var SalesHeaderToPost: Record "Sales Header"; CurrPageSalesHeader: Record "Sales Header")
+    begin
     end;
 }
 

@@ -15,6 +15,7 @@ report 411 "Vendor - Payment Receipt"
     Caption = 'Vendor - Payment Receipt';
     ApplicationArea = Suite;
     UsageCategory = Documents;
+    WordMergeDataItem = "Vendor Ledger Entry";
 
     dataset
     {

@@ -81,12 +81,12 @@ page 6327 "Power BI Embed Setup Wizard"
 
                 group("Para1.1")
                 {
-                    Caption = 'Connect with Azure';
+                    Caption = 'Connect with Microsoft Entra ID';
 
                     label("Para1.1.1")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'To display Power BI reports inside Business Central on-premises, you''ll first need a registered application for Business Central in Azure Active Directory (Azure AD).';
+                        Caption = 'To display Power BI reports inside Business Central on-premises, you''ll first need a registered application for Business Central in Microsoft Entra ID.';
                     }
                     field("Para1.1.3"; LearnMoreAzureAppTxt)
                     {
@@ -102,7 +102,7 @@ page 6327 "Power BI Embed Setup Wizard"
                     label("Para1.1.2")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Once an Microsoft Entra application has been registered, you''re ready to continue with this setup. During setup, you''ll provide information about Azure AD application. Choose Next to continue.';
+                        Caption = 'Once an Microsoft Entra application has been registered, you''re ready to continue with this setup. During setup, you''ll provide information about the Microsoft Entra application. Choose Next to continue.';
                     }
                 }
             }
@@ -283,11 +283,11 @@ page 6327 "Power BI Embed Setup Wizard"
 
     trigger OnInit()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         LoadTopBanners();
 
-        IsOnPrem := not EnvironmentInfo.IsSaas();
+        IsSaaS := EnvironmentInformation.IsSaaSInfrastructure(); // SaaS but not Docker
     end;
 
     trigger OnOpenPage()
@@ -313,17 +313,17 @@ page 6327 "Power BI Embed Setup Wizard"
         NextEnabled: Boolean;
         BackEnabled: Boolean;
         FinishEnabled: Boolean;
-        IsOnPrem: Boolean;
+        IsSaaS: Boolean;
         IsDeploying: Boolean;
         ParentPageContext: Text[30];
         StepOutOfRangeErr: Label 'Wizard step out of range.';
         NoLicenseErr: Label 'We could not check your license for Power BI. Make sure you have an active Power BI license for your user account.\\If you just activated a license, it might take a few minutes for Power BI to update.';
-        NoTokenForOnPremErr: Label 'We couldn''t connect to Power BI using your Azure AD application registration. Run the Set Up Azure Active Directory assisted setup again, and make sure all the values are set correctly.';
+        NoTokenForOnPremErr: Label 'We couldn''t connect to Power BI using your Microsoft Entra application. This typically happens when your Microsoft Entra application is not configured correctly to connect to %1. Run the "Set up Microsoft Entra ID" assisted setup again, and make sure your setup matches the documentation at https://aka.ms/bcpbi.', Comment = '%1=the product name, e.g. Business Central';
         NoTablePermissionsErr: Label 'You do not have the necessary table permissions to access Power BI. Ask your system administrator for permissions, then run this page again.';
         AzureAppLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2150045', Locked = true;
         StepOutOfRangeTelemetryTxt: Label 'Step out of range from %1, Forward=%2', Locked = true;
         WizardOpenedForContextTxt: Label 'Power BI Wizard opened for context: %1.', Locked = true;
-        LearnMoreAzureAppTxt: Label 'Learn more about registering an Azure AD application';
+        LearnMoreAzureAppTxt: Label 'Learn more about registering a Microsoft Entra application.';
         PowerBIHomePageTxt: Label 'Go to Power BI home page';
         PrivacyStatementTxt: Label 'Privacy and cookies';
 
@@ -415,7 +415,7 @@ page 6327 "Power BI Embed Setup Wizard"
     local procedure AadOnpremSetup()
     begin
         if not TryAzureAdMgtGetAccessToken(true) then
-            Error(NoTokenForOnPremErr);
+            Error(NoTokenForOnPremErr, ProductName.Short());
     end;
 
     [NonDebuggable]
@@ -446,7 +446,7 @@ page 6327 "Power BI Embed Setup Wizard"
     local procedure ShowOnPremAadSetupStep(): Boolean
     begin
         // Show only if OnPrem and the setup is not done
-        if IsOnPrem then
+        if not IsSaaS then
             if not TryAzureAdMgtGetAccessToken(false) then
                 exit(true);
 

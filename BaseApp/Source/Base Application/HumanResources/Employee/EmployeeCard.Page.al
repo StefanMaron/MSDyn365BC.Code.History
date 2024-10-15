@@ -74,7 +74,7 @@ page 5200 "Employee Card"
                 field(Gender; Rec.Gender)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the employee''s gender.';
+                    ToolTip = 'Specifies the gender with which the employee identifies.';
                 }
                 field("Phone No.2"; Rec."Phone No.")
                 {

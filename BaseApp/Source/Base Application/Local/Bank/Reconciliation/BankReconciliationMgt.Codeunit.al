@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Statement;
 
 codeunit 10130 "Bank Reconciliation Mgt."
 {
@@ -124,6 +125,16 @@ codeunit 10130 "Bank Reconciliation Mgt."
         if BankAccReconciliation.IsEmpty() then
             exit(true);
         exit(Dialog.Confirm(StrSubstNo(IgnoreExistingBankAccReconciliationAndContinueQst)));
+    end;
+
+    internal procedure OpenBankStatementsPage(Notification: Notification)
+    begin
+        Page.Run(Page::"Bank Account Statement List");
+    end;
+
+    internal procedure OpenPostedBankDepositsPage(Notification: Notification)
+    begin
+        Page.Run(1696); // BankDeposits: PostedBankDepositList.Page.al
     end;
 
     var

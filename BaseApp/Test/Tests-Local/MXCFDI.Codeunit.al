@@ -6050,6 +6050,7 @@
     procedure ErrorWhenRequestStampTransferShipmentCartaPorte()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6061,7 +6062,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
 
         // [WHEN] Request Stamp for the Transfer Shipment
         ErrorMessages.Trap;
@@ -6121,12 +6122,12 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document 
-        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor, DomicilioFiscalReceptor taken from Company Information (TFS 473426, 487886)
         VerifyPartyInformation(
           OriginalStr,
-          CompanyInformation."RFC Number", CompanyInformation.Name, GetSATPostalCode(SalesShipmentHeader."SAT Address ID"), CompanyInformation."SAT Tax Regime Classification", 15, 18);
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValues(
-            OriginalStr, SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", 29);
+            OriginalStr, SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", SalesLine."Gross Weight" * SalesLine.Quantity, 29);
     end;
 
     [Test]
@@ -6134,6 +6135,7 @@
     procedure TransferShipmentCartaPorteRequestStamp()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6148,7 +6150,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
         UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
         Location.get(TransferShipmentHeader."Transfer-to Code");
         CompanyInformation.Get();
@@ -6165,12 +6167,12 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
-        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor, DomicilioFiscalReceptor taken from Company Information (TFS 473426, 487886)
         VerifyPartyInformation(
           OriginalStr,
-          CompanyInformation."RFC Number", CompanyInformation.Name, GetSATPostalCodeFromLocation(TransferShipmentHeader."Transfer-to Code"), CompanyInformation."SAT Tax Regime Classification", 15, 18);
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValues(
-          OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", 29);
+          OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", TransferLine."Gross Weight" * TransferLine.Quantity, 29);
         LibraryXPathXMLReader.VerityAttributeFromRootNode('Exportacion', '01'); // TFS 471371
     end;
 
@@ -6220,6 +6222,7 @@
     procedure TransferShipmentCartaPortePrint()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6231,7 +6234,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
         UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
 
         // [GIVEN] Request Stamp for the Transfer Shipment
@@ -6484,6 +6487,7 @@
         SalesLine: Record "Sales Line";
         SalesShipmentHeader: Record "Sales Shipment Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6512,7 +6516,7 @@
             DATABASE::"Transfer Shipment Header":
                 begin
                     CreateTransferItem(LocationFrom, LocationTo, Item);
-                    CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+                    CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
                     UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
                     PostedDocumentNo := TransferShipmentHeader."No.";
                 end;
@@ -6786,10 +6790,9 @@
         ItemLedgerEntry.Modify(true);
     end;
 
-    local procedure CreateTransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; LocationFrom: Record Location; LocationTo: Record Location; ItemNo: Code[20])
+    local procedure CreateTransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; var TransferLine: Record "Transfer Line"; LocationFrom: Record Location; LocationTo: Record Location; ItemNo: Code[20])
     var
         TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
         LocationInTransit: Record Location;
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
@@ -8880,7 +8883,7 @@
         Assert.AreEqual('.pdf', CopyStr(FilePath, StrLen(FilePath) - 3), '');
     end;
 
-    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer; VehicleNo: Code[20]; StartPosition: Integer)
+    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer; VehicleNo: Code[20]; GrossWeight: Decimal; StartPosition: Integer)
     var
         CompanyInformation: Record "Company Information";
         FixedAsset: Record "Fixed Asset";
@@ -8924,6 +8927,18 @@
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:FiguraTransporte/cartaporte:TiposFigura', 'TipoFigura', '01');
         Assert.AreEqual('01', SelectStr(StartPosition + 44, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+
+        // Mercancia - Weight
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'PesoBrutoTotal', FormatDecimal(GrossWeight, 3));
+        Assert.AreEqual(
+          FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoBrutoTotal', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Mercancia',
+          'PesoEnKg', FormatDecimal(GrossWeight, 3));
+        Assert.AreEqual(
+          FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoEnKg', OriginalStr));
 
         // Vehicle
         FixedAsset.Get(VehicleNo);

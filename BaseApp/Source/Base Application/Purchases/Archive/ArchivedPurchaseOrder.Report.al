@@ -22,6 +22,7 @@ report 416 "Archived Purchase Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Archive/ArchivedPurchaseOrder.rdlc';
     Caption = 'Archived Purchase Order';
+    WordMergeDataItem = "Purchase Header Archive";
 
     dataset
     {

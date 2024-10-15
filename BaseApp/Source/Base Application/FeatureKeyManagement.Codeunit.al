@@ -6,6 +6,7 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Sales.Posting;
 using Microsoft.Service.Posting;
+using System.Apps;
 using System.Environment;
 using System.Telemetry;
 using System.Reflection;
@@ -22,7 +23,6 @@ codeunit 265 "Feature Key Management"
         FeatureManagementFacade: Codeunit "Feature Management Facade";
 #if not CLEAN23
         FeatureEventConflictErr: Label 'Feature ''%1'' cannot be enabled because there are extensions with subscriptions to old Invoice Posting implementation. If you enable now, these extensions will stop working properly.', Comment = '%1 - feature description';
-
         AllowMultipleCustVendPostingGroupsLbl: Label 'AllowMultipleCustVendPostingGroups', Locked = true;
         ExtensibleExchangeRateAdjustmentLbl: Label 'ExtensibleExchangeRateAdjustment', Locked = true;
         ExtensibleInvoicePostingEngineLbl: Label 'ExtensibleInvoicePostingEngine', Locked = true;
@@ -35,6 +35,7 @@ codeunit 265 "Feature Key Management"
 #if not CLEAN23
         EU3PartyTradePurchaseTxt: Label 'EU3PartyTradePurchase', Locked = true;
 #endif
+
 #if not CLEAN23
     [Obsolete('Feature Multiple Posting Groups enabled by default.', '23.0')]
     procedure IsAllowMultipleCustVendPostingGroupsEnabled(): Boolean
@@ -135,11 +136,9 @@ codeunit 265 "Feature Key Management"
         // Check feature dependencies and if feature can be enabled for Production environment
         case FeatureKey.ID of
             ExtensibleExchangeRateAdjustmentLbl:
-                if not CheckOldAdjustExchangeRatesEvents() then
-                    error(FeatureEventConflictErr, FeatureKey.Description);
+                CheckAdjustExchangeRatesEventSubscribers();
             ExtensibleInvoicePostingEngineLbl:
-                if not CheckOldInvoicePostingEvents() then
-                    error(FeatureEventConflictErr, FeatureKey.Description);
+                CheckInvoicePostingEventSubscribers();
         end;
         // Log feature uptake
         case FeatureKey.ID of
@@ -177,51 +176,57 @@ codeunit 265 "Feature Key Management"
 #endif
 
 #if not CLEAN23
-    local procedure CheckOldAdjustExchangeRatesEvents(): Boolean;
+    local procedure CheckAdjustExchangeRatesEventSubscribers()
     var
         EventSubscription: Record "Event Subscription";
-        TempEventSubscription: Record "Event Subscription" temporary;
-        IsHandled: Boolean;
-        Result: Boolean;
+        TempOldEventSubscription: Record "Event Subscription" temporary;
+        TempNewEventSubscription: Record "Event Subscription" temporary;
+        TempPublishedApplication: Record "Published Application" temporary;
     begin
-        IsHandled := false;
-        OnBeforeCheckOldAdjustExchangeRatesEvents(Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        // add all subsctibers to events from table 49 "Invoice Post. Buffer"
+        // add all subscribers to events from report 595 Adjust Exchange Rates
         EventSubscription.Reset();
         EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Report);
         EventSubscription.SetRange("Publisher Object ID", Report::"Adjust Exchange Rates");
         EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
         if EventSubscription.FindSet() then
             repeat
-                TempEventSubscription := EventSubscription;
-                TempEventSubscription.Insert();
+                TempOldEventSubscription := EventSubscription;
+                TempOldEventSubscription.Insert();
             until EventSubscription.Next() = 0;
 
-        if not TempEventSubscription.IsEmpty() then
-            Page.RunModal(Page::"Event Subscriptions", TempEventSubscription);
+        // add all subscribers to events from codeunit Exch. Rate Adjmt. Process
+        EventSubscription.Reset();
+        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Codeunit);
+        EventSubscription.SetRange("Publisher Object ID", Codeunit::"Exch. Rate Adjmt. Process");
+        EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
+        if EventSubscription.FindSet() then
+            repeat
+                TempNewEventSubscription := EventSubscription;
+                TempNewEventSubscription.Insert();
+            until EventSubscription.Next() = 0;
 
-        exit(TempEventSubscription.IsEmpty());
+        // Analyse each published application for presence of subscribers for old and new implementation
+        // Raise error if there is application with subscribers to old implementation but without subscribers to new impementation
+        BuildPublishedApplicationList(TempPublishedApplication, TempOldEventSubscription, TempNewEventSubscription);
+
+        if not TempPublishedApplication.IsEmpty() then begin
+            Message(FeatureEventConflictErr, GetExtensibleExchangeRateAdjustmentFeatureKey());
+            ShowEventSubscriptionBuffers(TempOldEventSubscription, TempNewEventSubscription);
+            error('');
+        end;
     end;
 #endif
 
 #if not CLEAN23
-    local procedure CheckOldInvoicePostingEvents(): Boolean;
+    local procedure CheckInvoicePostingEventSubscribers()
     var
         EventSubscription: Record "Event Subscription";
-        TempPublisherBuffer: Record "Event Subscription" temporary;
-        TempEventSubscription: Record "Event Subscription" temporary;
-        IsHandled: Boolean;
-        Result: Boolean;
+        TempPublisherForEventSubscription: Record "Event Subscription" temporary;
+        TempOldEventSubscription: Record "Event Subscription" temporary;
+        TempNewEventSubscription: Record "Event Subscription" temporary;
+        TempPublishedApplication: Record "Published Application" temporary;
     begin
-        IsHandled := false;
-        OnBeforeCheckOldInvoicePostingEvents(Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        // add all subsctibers to events from table 49 "Invoice Post. Buffer"
+        // add all subscribers to events from table 49 "Invoice Post. Buffer"
         EventSubscription.Reset();
         EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Table);
         EventSubscription.SetRange("Publisher Object ID", Database::"Invoice Post. Buffer");
@@ -229,12 +234,15 @@ codeunit 265 "Feature Key Management"
         EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
         if EventSubscription.FindSet() then
             repeat
-                TempEventSubscription := EventSubscription;
-                TempEventSubscription.Insert();
+                TempOldEventSubscription.Init();
+                TempOldEventSubscription := EventSubscription;
+                TempOldEventSubscription.Insert();
             until EventSubscription.Next() = 0;
 
-        // all all Invoice Posting related subscribers from Purchase/Sales/Services posting codeunits
-        BuildInvoicePostingCheckList(TempPublisherBuffer);
+        // Build list of events for old implementation
+        BuildInvoicePostingCheckList(TempPublisherForEventSubscription);
+
+        // add all old Invoice Posting related subscribers from old Purchase/Sales/Services posting codeunits
         EventSubscription.Reset();
         EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Codeunit);
         EventSubscription.SetFilter("Publisher Object ID", '80|90|5986|5987|5988');
@@ -242,146 +250,203 @@ codeunit 265 "Feature Key Management"
         EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
         if EventSubscription.FindSet() then
             repeat
-                TempPublisherBuffer.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type");
-                TempPublisherBuffer.SetRange("Publisher Object ID", EventSubscription."Publisher Object ID");
-                TempPublisherBuffer.SetRange("Published Function", EventSubscription."Published Function");
-                if not TempPublisherBuffer.IsEmpty() then begin
-                    TempEventSubscription := EventSubscription;
-                    TempEventSubscription.Insert();
+                TempPublisherForEventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type");
+                TempPublisherForEventSubscription.SetRange("Publisher Object ID", EventSubscription."Publisher Object ID");
+                TempPublisherForEventSubscription.SetRange("Published Function", EventSubscription."Published Function");
+                if not TempPublisherForEventSubscription.IsEmpty() then begin
+                    TempOldEventSubscription.Init();
+                    TempOldEventSubscription := EventSubscription;
+                    TempOldEventSubscription.Insert();
                 end;
             until EventSubscription.Next() = 0;
 
-        if not TempEventSubscription.IsEmpty() then
-            Page.RunModal(Page::"Event Subscriptions", TempEventSubscription);
+        // add all subscribers to events from table 55 "Invoice Posting Buffer"
+        EventSubscription.Reset();
+        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Table);
+        EventSubscription.SetRange("Publisher Object ID", Database::"Invoice Posting Buffer");
+        EventSubscription.SetRange("Subscriber Instance", 'Static-Automatic');
+        // EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
+        if EventSubscription.FindSet() then
+            repeat
+                TempNewEventSubscription.Init();
+                TempNewEventSubscription := EventSubscription;
+                TempNewEventSubscription.Insert();
+            until EventSubscription.Next() = 0;
 
-        exit(TempEventSubscription.IsEmpty());
+        // add all old Invoice Posting related subscribers from new Purchase/Sales/Services posting codeunits
+        EventSubscription.Reset();
+        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Codeunit);
+        EventSubscription.SetFilter("Publisher Object ID", '825|826|827');
+        EventSubscription.SetRange("Subscriber Instance", 'Static-Automatic');
+        EventSubscription.SetFilter("Subscriber Codeunit ID", '150000..'); // filter out MS objects
+        if EventSubscription.FindSet() then
+            repeat
+                TempNewEventSubscription.Init();
+                TempNewEventSubscription := EventSubscription;
+                TempNewEventSubscription.Insert();
+            until EventSubscription.Next() = 0;
+
+        // Analyse each published application for presence of subscribers for old and new implementation
+        // Raise error if there is application with subscribers to old implementation but without subscribers to new impementation
+        BuildPublishedApplicationList(TempPublishedApplication, TempOldEventSubscription, TempNewEventSubscription);
+
+        if not TempPublishedApplication.IsEmpty() then begin
+            Message(FeatureEventConflictErr, GetExtensibleInvoicePostingEngineFeatureKey());
+            ShowEventSubscriptionBuffers(TempOldEventSubscription, TempNewEventSubscription);
+            error('');
+        end;
     end;
 
-    local procedure BuildInvoicePostingCheckList(var TempPublisherBuffer: Record "Event Subscription" temporary)
+    local procedure BuildPublishedApplicationList(var TempPublishedApplication: Record "Published Application"; var TempOldEventSubscription: Record "Event Subscription" temporary; var TempNewEventSubscription: Record "Event Subscription" temporary)
+    var
+        PublishedApplication: Record "Published Application";
+        OldEventExists: Boolean;
+        NewEventExists: Boolean;
+    begin
+        TempPublishedApplication.DeleteAll();
+        if PublishedApplication.FindSet() then
+            repeat
+                TempOldEventSubscription.SetRange("Originating Package ID", PublishedApplication."Package ID");
+                OldEventExists := not TempOldEventSubscription.IsEmpty();
+                TempNewEventSubscription.SetRange("Originating Package ID", PublishedApplication."Package ID");
+                NewEventExists := not TempNewEventSubscription.IsEmpty();
+                if OldEventExists and not NewEventExists then begin
+                    TempPublishedApplication.Init();
+                    TempPublishedApplication := PublishedApplication;
+                    TempPublishedApplication.Insert();
+                end;
+            until PublishedApplication.Next() = 0;
+    end;
+
+    local procedure ShowEventSubscriptionBuffers(var TempEventSubscription: Record "Event Subscription" temporary; var TempNewEventSubscription: Record "Event Subscription" temporary)
+    var
+        EventSubscriptions: Page "Event Subscriptions";
+    begin
+        if TempNewEventSubscription.FindFirst() then
+            repeat
+                TempEventSubscription.Init();
+                TempEventSubscription := TempNewEventSubscription;
+                TempEventSubscription.Insert();
+            until TempNewEventSubscription.Next() = 0;
+
+        EventSubscriptions.SetTableView(TempEventSubscription);
+        EventSubscriptions.RunModal();
+        Clear(EventSubscriptions);
+    end;
+
+    local procedure BuildInvoicePostingCheckList(var TempPublisherForEventSubscription: Record "Event Subscription" temporary)
     begin
         // Sales
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterCreatePostedDeferralScheduleFromSalesDoc', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterGetSalesAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeGetSalesAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterFillDeferralPostingBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterInvoicePostingBufferAssignAmounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterInvoicePostingBufferSetAmounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostCustomerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostInvPostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostCustomerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeRunPostCustomerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeRunGenJnlPostLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostInvPostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnAfterSetApplyToDocNo', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcInvoiceDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcInvoiceDiscountPostingProcedure', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnCalcLineDiscountPostingProcedure', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcLineDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeSetAmountsForBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeTempDeferralLineInsert', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeDeferrals', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeFillDeferralPostingBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnBeforeFillInvoicePostingBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterSetLineDiscAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterSetInvDiscAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterCalcInvoiceDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterCalcLineDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetInvDiscAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetLineDiscAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnAfterInitNewLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnAfterFindCustLedgEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnBeforeFindCustLedgEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferOnAfterPostSalesGLAccounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferOnBeforeTempInvoicePostBufferDeleteAll', TempPublisherBuffer);
-        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer', TempPublisherBuffer);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterCreatePostedDeferralScheduleFromSalesDoc', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterGetSalesAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeGetSalesAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterFillDeferralPostingBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterInvoicePostingBufferAssignAmounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterInvoicePostingBufferSetAmounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostCustomerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterPostInvPostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostCustomerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeRunPostCustomerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeRunGenJnlPostLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostInvPostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforePostInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnAfterSetApplyToDocNo', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcInvoiceDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcInvoiceDiscountPostingProcedure', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnCalcLineDiscountPostingProcedure', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeCalcLineDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeSetAmountsForBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeTempDeferralLineInsert', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeDeferrals', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeFillDeferralPostingBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnBeforeFillInvoicePostingBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterSetLineDiscAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterSetInvDiscAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterCalcInvoiceDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnAfterCalcLineDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetInvDiscAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnFillInvoicePostingBufferOnBeforeSetLineDiscAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnAfterInitNewLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnAfterFindCustLedgEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostBalancingEntryOnBeforeFindCustLedgEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferOnAfterPostSalesGLAccounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferOnBeforeTempInvoicePostBufferDeleteAll', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Sales-Post", 'OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer', TempPublisherForEventSubscription);
 
         // Purchase
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterCalcInvoiceDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterCreatePostedDeferralScheduleFromPurchDoc', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterFillInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterInitVATBase', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostVendorEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostInvPostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnAfterSetApplyToDocNo', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCalcLineDiscountPosting', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCalculateVATAmountInBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInitNewGenJnlLineFromPostInvoicePostBufferLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInitGenJnlLineAmountFieldsFromTotalPurchLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInvoicePostingBufferSetAmounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvoicePostBufferLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvPostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeTempDeferralLineInsert', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillDeferralPostingBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillInvoicePostBufferFADiscount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnCalcDeferralAmountsOnAfterTempDeferralHeaderInsert', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnAfterInitAmounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnAfterSetLineDiscAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnAfterSetShouldCalcDiscounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnBeforeSetAccount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostBalancingEntryOnAfterInitNewLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostInvoicePostingBufferOnAfterVATPostingSetupGet', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostVendorEntryOnAfterInitNewLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostVendorEntryOnBeforeInitNewLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeRunGenJnlPostLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnBeforePreparePurchase', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillDeferralPostingBufferOnAfterInitFromDeferralLine', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnBeforeProcessInvoiceDiscounts', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnPostGLAndVendorOnBeforePostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCheckItemQuantityPurchCredit', TempPublisherBuffer);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterCalcInvoiceDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterCreatePostedDeferralScheduleFromPurchDoc', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterFillInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterInitVATBase', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostVendorEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterPostInvPostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnAfterSetApplyToDocNo', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCalcLineDiscountPosting', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCalculateVATAmountInBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInitNewGenJnlLineFromPostInvoicePostBufferLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInitGenJnlLineAmountFieldsFromTotalPurchLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeInvoicePostingBufferSetAmounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvoicePostBufferLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvPostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforePostInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeTempDeferralLineInsert', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillDeferralPostingBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeFillInvoicePostBufferFADiscount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnCalcDeferralAmountsOnAfterTempDeferralHeaderInsert', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnAfterInitAmounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnAfterSetLineDiscAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnAfterSetShouldCalcDiscounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostingBufferOnBeforeSetAccount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostBalancingEntryOnAfterInitNewLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostInvoicePostingBufferOnAfterVATPostingSetupGet', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostVendorEntryOnAfterInitNewLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostVendorEntryOnBeforeInitNewLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeRunGenJnlPostLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnBeforePreparePurchase', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillDeferralPostingBufferOnAfterInitFromDeferralLine', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnFillInvoicePostBufferOnBeforeProcessInvoiceDiscounts', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnPostGLAndVendorOnBeforePostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Purch.-Post", 'OnBeforeCheckItemQuantityPurchCredit', TempPublisherForEventSubscription);
 
         // Service
-        AddEvent(Codeunit::"Serv-Documents Mgt.", 'OnPostDocumentLinesOnBeforePostInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostCustomerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostCustomerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostBalancingEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnPostBalancingEntryOnBeforeFindCustLedgerEntry', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterFillInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterFillInvoicePostBufferProcedure', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterUpdateInvPostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeFillInvPostingBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeFillInvoicePostBuffer', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeInvPostingBufferCalcInvoiceDiscountAmount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeInvPostingBufferCalcLineDiscountAmount', TempPublisherBuffer);
-        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeUpdateInvPostBuffer', TempPublisherBuffer);
+        AddEvent(Codeunit::"Serv-Documents Mgt.", 'OnPostDocumentLinesOnBeforePostInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostCustomerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnAfterPostInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostCustomerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostBalancingEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnBeforePostInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Posting Journals Mgt.", 'OnPostBalancingEntryOnBeforeFindCustLedgerEntry', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterFillInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterFillInvoicePostBufferProcedure', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnAfterUpdateInvPostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeFillInvPostingBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeFillInvoicePostBuffer', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeInvPostingBufferCalcInvoiceDiscountAmount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeInvPostingBufferCalcLineDiscountAmount', TempPublisherForEventSubscription);
+        AddEvent(Codeunit::"Serv-Amounts Mgt.", 'OnBeforeUpdateInvPostBuffer', TempPublisherForEventSubscription);
     end;
 
-    local procedure AddEvent(ObjectID: Integer; EventName: Text[250]; var TempPublisherBuffer: Record "Event Subscription" temporary)
+    local procedure AddEvent(ObjectID: Integer; EventName: Text[250]; var TempPublisherForEventSubscription: Record "Event Subscription" temporary)
     begin
-        TempPublisherBuffer.Init();
-        TempPublisherBuffer."Publisher Object Type" := TempPublisherBuffer."Publisher Object Type"::Codeunit;
-        TempPublisherBuffer."Publisher Object ID" := ObjectID;
-        TempPublisherBuffer."Published Function" := EventName;
-        TempPublisherBuffer."Subscriber Codeunit ID" := ObjectID;
-        TempPublisherBuffer."Subscriber Function" := EventName;
-        TempPublisherBuffer.Insert();
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Will be removed together with old Adjust Exchange rate implementation.', '23.0')]
-    local procedure OnBeforeCheckOldAdjustExchangeRatesEvents(var Result: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Will be removed together with old Invoice Posting implementation.', '23.0')]
-    local procedure OnBeforeCheckOldInvoicePostingEvents(var Result: Boolean; var IsHandled: Boolean)
-    begin
+        TempPublisherForEventSubscription.Init();
+        TempPublisherForEventSubscription."Publisher Object Type" := TempPublisherForEventSubscription."Publisher Object Type"::Codeunit;
+        TempPublisherForEventSubscription."Publisher Object ID" := ObjectID;
+        TempPublisherForEventSubscription."Published Function" := EventName;
+        TempPublisherForEventSubscription."Subscriber Codeunit ID" := ObjectID;
+        TempPublisherForEventSubscription."Subscriber Function" := EventName;
+        TempPublisherForEventSubscription.Insert();
     end;
 #endif
 }

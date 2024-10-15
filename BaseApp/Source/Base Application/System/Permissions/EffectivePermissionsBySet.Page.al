@@ -29,16 +29,16 @@ page 9853 "Effective Permissions By Set"
                         if Rec.Source in [Rec.Source::Entitlement, Rec.Source::Inherent] then
                             exit;
                         Rec.OpenPermissionsPage(true);
-                        if Rec.Type = Rec.Type::"User-Defined" then begin
-                            TenantPermission.Get(Rec.GetAppID(), Rec."Permission Set", CurrObjectType, CurrObjectID);
-                            Rec."Read Permission" := TenantPermission."Read Permission";
-                            Rec."Insert Permission" := TenantPermission."Insert Permission";
-                            Rec."Modify Permission" := TenantPermission."Modify Permission";
-                            Rec."Delete Permission" := TenantPermission."Delete Permission";
-                            Rec."Execute Permission" := TenantPermission."Execute Permission";
-                            Rec.Modify();
-                            RefreshDisplayTexts();
-                        end;
+                        if Rec.Type = Rec.Type::"User-Defined" then
+                            if TenantPermission.Get(Rec.GetAppID(), Rec."Permission Set", CurrObjectType, CurrObjectID) then begin
+                                Rec."Read Permission" := TenantPermission."Read Permission";
+                                Rec."Insert Permission" := TenantPermission."Insert Permission";
+                                Rec."Modify Permission" := TenantPermission."Modify Permission";
+                                Rec."Delete Permission" := TenantPermission."Delete Permission";
+                                Rec."Execute Permission" := TenantPermission."Execute Permission";
+                                Rec.Modify();
+                                RefreshDisplayTexts();
+                            end;
                     end;
                 }
                 field(Source; Rec.Source)

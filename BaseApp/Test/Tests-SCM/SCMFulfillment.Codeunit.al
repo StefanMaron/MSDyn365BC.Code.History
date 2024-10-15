@@ -1635,6 +1635,198 @@ codeunit 137014 "SCM Fulfillment"
           Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('WhseSourceCreateDocumentRequestPageHandler,MessageHandler')]
+    procedure CreatingWhsePickOnlyForReservedProdOrderComponent()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Reservation] [Production] [Component] [Warehouse Pick]
+        // [SCENARIO 471183] Creating warehouse pick only for reserved prod. order component.
+        Initialize();
+
+        // [GIVEN] Always reserve item.
+        CreateAlwaysReserveItem(Item);
+
+        // [GIVEN] Location set up for production consumption pick.
+        CreateWMSLocation(Location, false, false, false, false, false);
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Post inventory at the location.
+        PostItemToInventory(Item."No.", Location.Code, '', 15);
+
+        // [GIVEN] Production Order with 2 component lines - 1 reserved, 1 not reserved.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), 10);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item."No.", 1);
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify(true);
+        ProdOrderComponent.AutoReserve();
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item."No.", 1);
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify(true);
+
+        // [WHEN] Create warehouse pick with "Reserved from Stock" = "Full".
+        ProductionOrder.CreatePick(UserId(), 0, false, false, false);
+
+        // [THEN] Warehouse pick is created only for the reserved component line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source Type", Database::"Prod. Order Component");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        Assert.RecordCount(WarehouseActivityLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSourceCreateDocumentRequestPageHandler,MessageHandler')]
+    procedure CreatingWhsePickOnlyForReservedAssemblyLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Reservation] [Assembly] [Component] [Warehouse Pick]
+        // [SCENARIO 471183] Creating warehouse pick only for reserved assembly line.
+        Initialize();
+
+        // [GIVEN] Always reserve item.
+        CreateAlwaysReserveItem(Item);
+
+        // [GIVEN] Location set up for assembly consumption pick.
+        CreateWMSLocation(Location, false, false, false, false, false);
+        Location.Validate("Asm. Consump. Whse. Handling", "Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Post inventory at the location.
+        PostItemToInventory(Item."No.", Location.Code, '', 15);
+
+        // [GIVEN] Assembly Order with 2 component lines - 1 reserved, 1 not reserved.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 10, LibraryInventory.CreateItemNo(), Location.Code, 10, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 10, 0, '');
+        AssemblyLine.AutoReserve();
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 10, 0, '');
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [WHEN] Create warehouse pick with "Reserved from Stock" = "Full".
+        AssemblyHeader.CreatePick(true, UserId(), 0, false, false, false);
+
+        // [THEN] Warehouse pick is created only for the reserved assembly line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source Type", Database::"Assembly Line");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        Assert.RecordCount(WarehouseActivityLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSourceCreateDocumentRequestPageHandler,MessageHandler')]
+    procedure CreatingWhsePickOnlyForReservedJobPlanningLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Reservation] [Job] [Warehouse Pick]
+        // [SCENARIO 471183] Creating warehouse pick only for reserved job planning line.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location set up for job consumption pick.
+        CreateWMSLocation(Location, false, false, false, false, false);
+        Location.Validate("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Post inventory at the location.
+        PostItemToInventory(Item."No.", Location.Code, '', 15);
+
+        // [GIVEN] Job with 2 planning lines - 1 reserved, 1 not reserved.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Validate(Quantity, 10);
+        JobPlanningLine.Modify(true);
+        JobPlanningLine.AutoReserve();
+
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Validate(Quantity, 10);
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Create warehouse pick with "Reserved from Stock" = "Full".
+        Job.CreateWarehousePick();
+
+        // [THEN] Warehouse pick is created only for the reserved assembly line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source Type", Database::Job);
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        Assert.RecordCount(WarehouseActivityLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('JobCalcRemainingUsageHandler,MessageHandler')]
+    procedure JobCalcRemainingUsageForReservedJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        // [FEATURE] [Reservation] [Job] [Job Journal] [Job Calc. Remaining Usage]
+        // [SCENARIO 485096] "Reserved from Stock" filter in Job Calc. Remaining Usage report.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post 15 pcs to inventory.
+        PostItemToInventory(Item."No.", '', '', 15);
+
+        // [GIVEN] Job with 2 planning lines for 10 pcs each - 1 reserved, 1 not reserved.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate(Quantity, 10);
+        JobPlanningLine.Modify(true);
+        JobPlanningLine.AutoReserve();
+
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate(Quantity, 10);
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Open job journal and run Job Calc. Remaining Usage with "Reserved from Stock" = "Full".
+        LibraryVariableStorage.Enqueue("Reservation From Stock"::Full.AsInteger());
+        CreateJobJournalBatch(JobJournalBatch);
+        RunJobCalcRemainingUsage(JobJournalBatch, JobTask);
+
+        // [THEN] Job Journal for 10 pcs is created.
+        JobJournalLine.SetRange("Journal Template Name", JobJournalBatch."Journal Template Name");
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalBatch.Name);
+        JobJournalLine.SetRange("No.", Item."No.");
+        JobJournalLine.FindFirst();
+        JobJournalLine.TestField(Quantity, 10);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Fulfillment");
@@ -1723,6 +1915,27 @@ codeunit 137014 "SCM Fulfillment"
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Location Code", LocationCode);
         WarehouseShipmentLine.FindSet();
+    end;
+
+    local procedure CreateJobJournalBatch(var JobJournalBatch: Record "Job Journal Batch")
+    var
+        JobJournalTemplate: Record "Job Journal Template";
+    begin
+        LibraryJob.GetJobJournalTemplate(JobJournalTemplate);
+        LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
+    end;
+
+    local procedure RunJobCalcRemainingUsage(JobJournalBatch: Record "Job Journal Batch"; JobTask: Record "Job Task")
+    var
+        JobCalcRemainingUsage: Report "Job Calc. Remaining Usage";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        JobTask.SetRecFilter();
+        Commit();
+        JobCalcRemainingUsage.SetBatch(JobJournalBatch."Journal Template Name", JobJournalBatch.Name);
+        JobCalcRemainingUsage.SetDocNo(NoSeriesManagement.GetNextNo(JobJournalBatch."No. Series", WorkDate(), false));
+        JobCalcRemainingUsage.SetTableView(JobTask);
+        JobCalcRemainingUsage.Run();
     end;
 
     local procedure RunCreateWarehouseShipmentReportForSalesOrder(SourceNoFilter: Text; ReservedFromStock: Enum "Reservation From Stock")
@@ -1816,12 +2029,27 @@ codeunit 137014 "SCM Fulfillment"
         CreateInvtPutAwayPickMvmt.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    procedure JobCalcRemainingUsageHandler(var JobCalcRemainingUsage: TestRequestPage "Job Calc. Remaining Usage")
+    begin
+        JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
+        JobCalcRemainingUsage."Reserved From Stock".SetValue(LibraryVariableStorage.DequeueInteger());
+        JobCalcRemainingUsage.OK().Invoke();
+    end;
+
     [ModalPageHandler]
     procedure JobTransferJobPlanningLinePageHandler(var JobTransferJobPlanningLine: TestPage "Job Transfer Job Planning Line")
     begin
         JobTransferJobPlanningLine.JobJournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
         JobTransferJobPlanningLine.JobJournalBatchName.SetValue(LibraryVariableStorage.DequeueText());
         JobTransferJobPlanningLine.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure WhseSourceCreateDocumentRequestPageHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        WhseSourceCreateDocument."Reserved From Stock".SetValue("Reservation From Stock"::Full);
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 
     [ConfirmHandler]

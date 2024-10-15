@@ -85,12 +85,13 @@ codeunit 5334 "CRM Setup Defaults"
         ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
         ResetOpportunityMapping('OPPORTUNITY', IsTeamOwnershipModel);
-        if not CRMConnectionSetup."Bidirectional Sales Order Int." then begin
+        if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
             ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
             RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
             RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
             CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
-        end else begin
+        end;
+        if CRMConnectionSetup."Bidirectional Sales Order Int." then begin
             ResetBidirectionalSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
             ResetBidirectionalSalesOrderLineMapping('SOLINE-ORDERDETAIL');
             RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
@@ -1425,7 +1426,8 @@ codeunit 5334 "CRM Setup Defaults"
             JobQueueEntry.DeleteAll();
             RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
             RecreateArchivedSalesOrdersJobQueueEntry(EnqueueJobQueueEntries);
-        end else begin
+        end;
+        if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
             ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
             if IntegrationTableMapping.Get('SOLINE-ORDERDETAIL') then begin
                 JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);

@@ -220,9 +220,8 @@ page 1392 "Help And Chart Wrapper"
     trigger OnOpenPage()
     var
         LastUsedChart: Record "Last Used Chart";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        IsSaaS := EnvironmentInfo.IsSaaS();
+        BusinessChartBuffer.Initialize();
         if LastUsedChart.Get(UserId) then
             if SelectedChartDefinition.Get(LastUsedChart."Code Unit ID", LastUsedChart."Chart Name") then;
 
@@ -238,7 +237,6 @@ page 1392 "Help And Chart Wrapper"
         PreviousNextActionEnabled: Boolean;
         NoDescriptionMsg: Label 'A description was not specified for this chart.';
         IsChartAddInReady: Boolean;
-        IsSaaS: Boolean;
 
     local procedure InitializeSelectedChart()
     var

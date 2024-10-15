@@ -13,6 +13,7 @@ report 211 "Customer - Payment Receipt"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Reports/CustomerPaymentReceipt.rdlc';
     Caption = 'Customer - Payment Receipt';
+    WordMergeDataItem = "Cust. Ledger Entry";
 
     dataset
     {

@@ -28,7 +28,7 @@ codeunit 1240 "Read Data Exch. from File"
 
     var
         ImportBankStmtTxt: Label 'Select a file to import';
-        FileFilterTxt: Label 'All Files(*.*)|*.*|XML Files(*.xml)|*.xml|Text Files(*.txt;*.csv;*.asc)|*.txt;*.csv;*.asc,*.nda';
+        FileFilterTxt: Label 'All Files(*.*)|*.*|XML Files(*.xml)|*.xml|Text Files(*.txt;*.csv;*.asc)|*.txt;*.csv;*.asc;*.nda';
         FileFilterExtensionTxt: Label 'txt,csv,asc,xml,nda', Locked = true;
 
     [IntegrationEvent(false, false)]
