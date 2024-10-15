@@ -121,6 +121,7 @@ table 10010 "IRS 1099 Form-Box"
                 InsertIRS1099('MISC-14', 'Nonqualified deferred compensation', 0.0);
                 InsertIRS1099('MISC-15', 'State tax withheld', 0.0);
                 InsertIRS1099('NEC-01', 'Nonemployee compensation', 600.0);
+                InsertIRS1099('NEC-04', 'Federal income tax withheld', 0.0);
                 InsertIRS1099('R', 'Pensions/Ann./Retirement/Profit-Shar.Plans/IRAs...', 0.0);
                 InsertIRS1099('R-01', 'Gross distribution', 0.0);
                 InsertIRS1099('R-02A', 'Taxable Amount', 0.0);

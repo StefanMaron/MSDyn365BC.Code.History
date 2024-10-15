@@ -17,7 +17,8 @@ codeunit 142087 "ERM Nec Report"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        IRS1099CodeNecLbl: Label 'NEC-01';
+        IRS1099CodeNec01Lbl: Label 'NEC-01';
+        IRS1099CodeNec04Lbl: Label 'NEC-04';
         SuggestedVendorPaymentLinesCreatedMsg: Label 'You have created suggested vendor payment lines for all currencies.';
 
     [Test]
@@ -32,15 +33,38 @@ codeunit 142087 "ERM Nec Report"
 
         // [GIVEN] Purchase invoice with NEC-01 code
         Initialize();
-        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine);
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, IRS1099CodeNec01Lbl);
         PostGenJournalLineAfterSuggestVendorPaymentMsg(PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] Run Vendor 1099 NEC Report
         REPORT.Run(REPORT::"Vendor 1099 Nec");
 
-        // [THEN] "Misc 07" values does not exists in the Report
-        LibraryReportDataset.LoadDataSetFile();
+        // [THEN] "NEC-01" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC01', PurchaseLine."Line Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,Vendor1099NecRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Vendor1099NecReportHasNec04Amount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 374401] A "Vendor 1099 NEC" report has NEC-04 amount
+
+        // [GIVEN] Purchase invoice with NEC-04 code
+        Initialize();
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine, IRS1099CodeNec04Lbl);
+        PostGenJournalLineAfterSuggestVendorPaymentMsg(PurchaseHeader."Buy-from Vendor No.");
+
+        // [WHEN] Run Vendor 1099 NEC Report
+        REPORT.Run(REPORT::"Vendor 1099 Nec");
+
+        // [THEN] "NEC-04" value exists in the Report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC04', PurchaseLine."Line Amount");
     end;
 
     local procedure Initialize()
@@ -53,11 +77,11 @@ codeunit 142087 "ERM Nec Report"
         LibraryERMCountryData.CreateVATData;
     end;
 
-    local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; IRS1099Code: Code[10])
     var
         Item: Record Item;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithNECCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithNECCode(IRS1099Code));
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("VAT %", 0);
@@ -102,12 +126,12 @@ codeunit 142087 "ERM Nec Report"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateVendorWithNECCode(): Code[20]
+    local procedure CreateVendorWithNECCode(IRS1099Code: Code[10]): Code[20]
     var
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("IRS 1099 Code", IRS1099CodeNecLbl);
+        Vendor.Validate("IRS 1099 Code", IRS1099Code);
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;

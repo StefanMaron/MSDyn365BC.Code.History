@@ -7,7 +7,7 @@ codeunit 10500 "IRS 1099 Management"
 
     var
         BlockIfUpgradeNeededErr: Label 'You must update the form boxes in the 1099 Forms-Boxes window before you can run this report.';
-        UpgradeFormBoxesNotificationMsg: Label 'The list of 1099 form boxes is not up to date for the year %1.', Comment = '%1 = year';
+        UpgradeFormBoxesNotificationMsg: Label 'The list of 1099 form boxes is not up to date. Update: %1.', Comment = '%1 = year';
         UpgradeFormBoxesMsg: Label 'Upgrade the form boxes.';
         ScheduleUpgradeFormBoxesMsg: Label 'Schedule an update of the form boxes.';
         UpgradeFormBoxesScheduledMsg: Label 'A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.';
@@ -15,6 +15,7 @@ codeunit 10500 "IRS 1099 Management"
         FormBoxesUpgradedMsg: Label 'The 1099 form boxes are successfully updated.';
         UnkownCodeErr: Label 'Invoice %1 for vendor %2 has unknown 1099 code %3.', Comment = '%1 = document number;%2 = vendor number;%3 = IRS 1099 code.';
         IRS1099CodeHasNotBeenSetupErr: Label 'IRS1099 code %1 was not set up during the initialization.', Comment = '%1 = misc code';
+        February2020Lbl: Label 'February 2020';
 
     procedure Calculate1099Amount(var Invoice1099Amount: Decimal; var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
     begin
@@ -40,7 +41,6 @@ codeunit 10500 "IRS 1099 Management"
     [Scope('OnPrem')]
     procedure ShowUpgradeFormBoxesNotificationIfUpgradeNeeded()
     var
-        UpgradeFormBoxes: Notification;
         UpgradeYear: Text;
     begin
         case true of
@@ -48,10 +48,19 @@ codeunit 10500 "IRS 1099 Management"
                 UpgradeYear := '2019';
             Upgrade2020Needed():
                 UpgradeYear := '2020';
+            Upgrade2020FebruaryNeeded():
+                UpgradeYear := February2020Lbl;
             else
                 exit;
         end;
 
+        SendIRS1099UpgradeNotification(UpgradeYear);
+    end;
+
+    local procedure SendIRS1099UpgradeNotification(UpgradeYear: Text)
+    var
+        UpgradeFormBoxes: Notification;
+    begin
         UpgradeFormBoxes.Id := GetUpgradeFormBoxesNotificationID;
         UpgradeFormBoxes.Message := StrSubstNo(UpgradeFormBoxesNotificationMsg, UpgradeYear);
         UpgradeFormBoxes.Scope := NOTIFICATIONSCOPE::LocalScope;
@@ -75,9 +84,16 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     [Scope('OnPrem')]
+    procedure ThrowErrorfUpgrade2020FebruaryNeeded()
+    begin
+        if Upgrade2020FebruaryNeeded() then
+            Error(BlockIfUpgradeNeededErr);
+    end;
+
+    [Scope('OnPrem')]
     procedure UpgradeNeeded(): Boolean
     begin
-        exit(Upgrade2019Needed() or Upgrade2020Needed());
+        exit(Upgrade2019Needed() or Upgrade2020Needed() or Upgrade2020FebruaryNeeded());
     end;
 
     [Scope('OnPrem')]
@@ -94,6 +110,14 @@ codeunit 10500 "IRS 1099 Management"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         exit(not IRS1099FormBox.Get('NEC-01'));
+    end;
+
+    [Scope('OnPrem')]
+    procedure Upgrade2020FebruaryNeeded(): Boolean
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        exit(not IRS1099FormBox.Get('NEC-04'));
     end;
 
     local procedure GetUpgradeFormBoxesNotificationID(): Text
