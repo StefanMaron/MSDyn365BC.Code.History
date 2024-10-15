@@ -589,7 +589,9 @@ codeunit 10756 "SII Management"
     procedure FindPaymentDetailedCustomerLedgerEntries(var PaymentDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     begin
         PaymentDetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        PaymentDetailedCustLedgEntry.SetRange("Document Type", PaymentDetailedCustLedgEntry."Document Type"::Payment);
+        PaymentDetailedCustLedgEntry.SetFilter(
+          "Document Type", '%1|%2',
+          PaymentDetailedCustLedgEntry."Document Type"::Payment, PaymentDetailedCustLedgEntry."Document Type"::Refund);
         PaymentDetailedCustLedgEntry.SetRange(Unapplied, false);
         exit(PaymentDetailedCustLedgEntry.FindSet);
     end;
@@ -598,7 +600,9 @@ codeunit 10756 "SII Management"
     procedure FindPaymentDetailedVendorLedgerEntries(var PaymentDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     begin
         PaymentDetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-        PaymentDetailedVendorLedgEntry.SetRange("Document Type", PaymentDetailedVendorLedgEntry."Document Type"::Payment);
+        PaymentDetailedVendorLedgEntry.SetFilter(
+          "Document Type", '%1|%2',
+          PaymentDetailedVendorLedgEntry."Document Type"::Payment, PaymentDetailedVendorLedgEntry."Document Type"::Refund);
         PaymentDetailedVendorLedgEntry.SetRange(Unapplied, false);
         exit(PaymentDetailedVendorLedgEntry.FindSet);
     end;

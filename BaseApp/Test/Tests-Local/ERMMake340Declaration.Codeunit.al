@@ -1943,7 +1943,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         // make the unique name to simplify the search of file line
         Customer.Name := LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer);
         Customer.Validate("Country/Region Code", CountryRegionCode);
-        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegionCode); // to skip validation error
+        Customer."VAT Registration No." := 
+            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0'); 
         Customer.Modify(true);
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue value for handler - Make340DeclarationHandler.
 
@@ -1958,7 +1959,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         // make the unique name to simplify the search of file line
         Vendor.Name := LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Customer);
         Vendor.Validate("Country/Region Code", CountryRegionCode);
-        Vendor."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegionCode); // to skip validation error
+        Vendor."VAT Registration No." := 
+            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0'); 
         Vendor.Modify(true);
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for handler - Make340DeclarationHandler.
 

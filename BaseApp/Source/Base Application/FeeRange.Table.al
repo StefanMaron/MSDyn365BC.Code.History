@@ -442,7 +442,6 @@ table 7000019 "Fee Range"
         value := RejExpenses;
     end;
 
-    [Scope('OnPrem')]
     procedure InitPmtOrdCollExpenses(Code2: Code[20]; CurrencyCode2: Code[10])
     begin
         "Currency Code" := CurrencyCode2;
@@ -455,11 +454,10 @@ table 7000019 "Fee Range"
         PmtOrdCollExpenses.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure CalcPmtOrdCollExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
     begin
         "Currency Code" := CurrencyCode2;
-        InitCurrency;
+        InitCurrency();
         SetRange(Code, Code2);
         SetRange("Currency Code", CurrencyCode2);
         SetRange("Type of Fee", "Type of Fee"::"Payment Order Expenses");
@@ -484,7 +482,6 @@ table 7000019 "Fee Range"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTotalPmtOrdCollExpensesAmt(): Decimal
     begin
         exit(TotalPmtOrdCollExpensesAmt);

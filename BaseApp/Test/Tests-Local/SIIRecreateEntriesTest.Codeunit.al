@@ -154,6 +154,8 @@ codeunit 147558 "SII Recreate Entries Test"
     var
         SIISetup: Record "SII Setup";
         SIIMissingEntriesState: Record "SII Missing Entries State";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         CustLedgEntryNo: Integer;
         VendLedgEntryNo: Integer;
         DtldCustLedgEntryNo: Integer;
@@ -168,16 +170,28 @@ codeunit 147558 "SII Recreate Entries Test"
         EnableSIISetup(SIISetup, false);
 
         // [GIVEN] Sales Payment with "Posting Date" = 14.01.2017
-        MockDtldCustLedgEntry(SIISetup."Starting Date" - 1);
+        MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Payment, SIISetup."Starting Date" - 1);
 
         // [GIVEN] Sales Payment with "Posting Date" = 15.01.2017
-        DtldCustLedgEntryNo := MockDtldCustLedgEntry(SIISetup."Starting Date");
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Sales Refund with "Posting Date" = 14.01.2017
+        MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Refund, SIISetup."Starting Date" - 1);
+
+        // [GIVEN] Sales Refund with "Posting Date" = 15.01.2017
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] Purchase Payment with "Posting Date" = 14.01.2017
-        MockDtldVendLedgEntry(SIISetup."Starting Date" - 1);
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Payment, SIISetup."Starting Date" - 1);
 
         // [GIVEN] Purchase Payment with "Posting Date" = 15.01.2017
-        DtldVendLedgEntryNo := MockDtldVendLedgEntry(SIISetup."Starting Date");
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Purchase Refund with "Posting Date" = 14.01.2017
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Refund, SIISetup."Starting Date" - 1);
+
+        // [GIVEN] Purchase Refund with "Posting Date" = 15.01.2017
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] Sales Invoice with "Posting Date" = 14.01.2017
         MockCustLedgEntry(SIISetup."Starting Date" - 1);
@@ -197,9 +211,10 @@ codeunit 147558 "SII Recreate Entries Test"
         // [WHEN] Run "SII Recreate Missing Entries" codeunit
         CODEUNIT.Run(CODEUNIT::"SII Recreate Missing Entries");
 
-        // [THEN] "Entries Missing" is 4, "Last Ledger Entry No." is equal to entries posted on 15.01 , "Last Missing Entries Check" is TODAY
+        // [THEN] "Entries Missing" is 6, "Last Ledger Entry No." is equal to entries posted on 15.01 , "Last Missing Entries Check" is TODAY
+        // TFS ID 398897: VAT cash refunds
         SIIMissingEntriesState.Get();
-        SIIMissingEntriesState.TestField("Entries Missing", 4);
+        SIIMissingEntriesState.TestField("Entries Missing", 6);
         SIIMissingEntriesState.TestField("Last CLE No.", CustLedgEntryNo);
         SIIMissingEntriesState.TestField("Last VLE No.", VendLedgEntryNo);
         SIIMissingEntriesState.TestField("Last DCLE No.", DtldCustLedgEntryNo);
@@ -244,6 +259,8 @@ codeunit 147558 "SII Recreate Entries Test"
     var
         SIISetup: Record "SII Setup";
         SIIMissingEntriesState: Record "SII Missing Entries State";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         RecreateMissingSIIEntries: TestPage "Recreate Missing SII Entries";
         CustLedgEntryNo: Integer;
         VendLedgEntryNo: Integer;
@@ -259,10 +276,17 @@ codeunit 147558 "SII Recreate Entries Test"
         EnableSIISetup(SIISetup, false);
 
         // [GIVEN] Sales Payment with "Posting Date" = 15.01.2017  and "Entry No." = "C"
-        DtldCustLedgEntryNo := MockDtldCustLedgEntry(SIISetup."Starting Date");
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Sales Refund with "Posting Date" = 15.01.2017  and "Entry No." = "C"
+        // TFS ID 398897: VAT cash refunds
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] Purchase Payment with "Posting Date" = 15.01.2017  and "Entry No." = "D"
-        DtldVendLedgEntryNo := MockDtldVendLedgEntry(SIISetup."Starting Date");
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Purchase Refund with "Posting Date" = 15.01.2017  and "Entry No." = "D"
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] Sales Invoice with "Posting Date" = 15.01.2017 and "Entry No." = "A"
         CustLedgEntryNo := MockCustLedgEntry(SIISetup."Starting Date");
@@ -295,6 +319,8 @@ codeunit 147558 "SII Recreate Entries Test"
     var
         SIISetup: Record "SII Setup";
         SIIMissingEntriesState: Record "SII Missing Entries State";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         RecreateMissingSIIEntries: TestPage "Recreate Missing SII Entries";
         CustLedgEntryNo: Integer;
         VendLedgEntryNo: Integer;
@@ -316,10 +342,16 @@ codeunit 147558 "SII Recreate Entries Test"
         VendLedgEntryNo := MockVendLedgEntry(SIISetup."Starting Date");
 
         // [GIVEN] Sales Payment with "Posting Date" = 15.01.2017  and "Entry No." = "C"
-        DtldCustLedgEntryNo := MockDtldCustLedgEntry(SIISetup."Starting Date");
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Sales Refund with "Posting Date" = 15.01.2017  and "Entry No." = "C"
+        DtldCustLedgEntryNo := MockDtldCustLedgEntry(DetailedCustLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] Purchase Payment with "Posting Date" = 15.01.2017  and "Entry No." = "D"
-        DtldVendLedgEntryNo := MockDtldVendLedgEntry(SIISetup."Starting Date");
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Payment, SIISetup."Starting Date");
+
+        // [GIVEN] Purchase Refund with "Posting Date" = 15.01.2017  and "Entry No." = "D"
+        DtldVendLedgEntryNo := MockDtldVendLedgEntry(DetailedVendorLedgEntry."Document Type"::Refund, SIISetup."Starting Date");
 
         // [GIVEN] SII Missing Entries Tracking with "Last Ledger Entry No." = "A","B","C","D" for different type of entries
         UpdateMissingEntriesTracking(CustLedgEntryNo, VendLedgEntryNo, DtldCustLedgEntryNo, DtldVendLedgEntryNo);
@@ -331,9 +363,10 @@ codeunit 147558 "SII Recreate Entries Test"
         RecreateMissingSIIEntries.OpenEdit;
         RecreateMissingSIIEntries.ScanAllEntries.DrillDown;
 
-        // [THEN] "Entries Missing" is 4
+        // [THEN] "Entries Missing" is 6
+        // TFS ID 398897: VAT cash refunds
         SIIMissingEntriesState.Get();
-        SIIMissingEntriesState.TestField("Entries Missing", 4);
+        SIIMissingEntriesState.TestField("Entries Missing", 6);
 
         RecreateMissingSIIEntries.Close;
     end;
@@ -391,7 +424,7 @@ codeunit 147558 "SII Recreate Entries Test"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
-    local procedure MockDtldCustLedgEntry(PostingDate: Date): Integer
+    local procedure MockDtldCustLedgEntry(DocType: Option; PostingDate: Date): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -400,7 +433,7 @@ codeunit 147558 "SII Recreate Entries Test"
           LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
         DetailedCustLedgEntry."Posting Date" := PostingDate;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::Application;
-        DetailedCustLedgEntry."Document Type" := DetailedCustLedgEntry."Document Type"::Payment;
+        DetailedCustLedgEntry."Document Type" := DocType;
         DetailedCustLedgEntry."Document No." := LibraryUtility.GenerateGUID;
         DetailedCustLedgEntry."Transaction No." := LibraryRandom.RandInt(100);
         DetailedCustLedgEntry."Initial Document Type" := DetailedCustLedgEntry."Initial Document Type"::Invoice;
@@ -411,7 +444,7 @@ codeunit 147558 "SII Recreate Entries Test"
         exit(DetailedCustLedgEntry."Entry No.");
     end;
 
-    local procedure MockDtldVendLedgEntry(PostingDate: Date): Integer
+    local procedure MockDtldVendLedgEntry(DocType: Option; PostingDate: Date): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -420,7 +453,7 @@ codeunit 147558 "SII Recreate Entries Test"
           LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
         DetailedVendorLedgEntry."Posting Date" := PostingDate;
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::Application;
-        DetailedVendorLedgEntry."Document Type" := DetailedVendorLedgEntry."Document Type"::Payment;
+        DetailedVendorLedgEntry."Document Type" := DocType;
         DetailedVendorLedgEntry."Document No." := LibraryUtility.GenerateGUID;
         DetailedVendorLedgEntry."Transaction No." := LibraryRandom.RandInt(100);
         DetailedVendorLedgEntry."Initial Document Type" := DetailedVendorLedgEntry."Initial Document Type"::Invoice;

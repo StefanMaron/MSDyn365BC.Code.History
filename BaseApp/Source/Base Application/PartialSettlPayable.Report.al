@@ -423,7 +423,6 @@ report 7000085 "Partial Settl. - Payable"
         ExistsNoRealVAT: Boolean;
         VendLedgEntryNo: Integer;
 
-    [Scope('OnPrem')]
     procedure SetInitValue(Amount: Decimal; CurrCode: Code[10]; EntryNo: Integer)
     begin
         CurrencyCode := CurrCode;

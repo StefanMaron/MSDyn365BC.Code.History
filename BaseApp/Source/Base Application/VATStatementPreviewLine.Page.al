@@ -65,7 +65,27 @@ page 475 "VAT Statement Preview Line"
                     ToolTip = 'Specifies the type of entries that will be included in the amounts in columns.';
 
                     trigger OnDrillDown()
+                    var
+                        VATPostingSetup: Record "VAT Posting Setup";
+                        NoTaxableEntry: Record "No Taxable Entry";
                     begin
+                        if Type in [Type::"VAT Entry Totaling", Type::"EC Entry Totaling"] then
+                            if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") and
+                               (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"No Taxable VAT") and
+                               (Type = Type::"VAT Entry Totaling")
+                            then begin
+                                NoTaxableEntry.SetRange(Type, "Gen. Posting Type");
+                                NoTaxableEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
+                                NoTaxableEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
+                                if GetFilter("Date Filter") <> '' then
+                                    if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                                        NoTaxableEntry.SetRange("Posting Date", 0D, GetRangeMax("Date Filter"))
+                                    else
+                                        CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+                                PAGE.Run(PAGE::"No Taxable Entries", NoTaxableEntry);
+                                exit;
+                            end;
+
                         case Type of
                             Type::"Account Totaling":
                                 begin

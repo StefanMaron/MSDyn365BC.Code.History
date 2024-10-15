@@ -389,7 +389,6 @@ codeunit 143006 "Library - SII"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
-        VATClause: Record "VAT Clause";
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProductPostingGroup.Code);
@@ -398,12 +397,20 @@ codeunit 143006 "Library - SII"
           LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("VAT Clause Code", CreateVATClauseWithSIIExemptionCode(ExemptionCode));
+        VATPostingSetup.Modify(true);
+        exit(VATProductPostingGroup.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateVATClauseWithSIIExemptionCode(ExemptionCode: Option): Code[20]
+    var
+        VATClause: Record "VAT Clause";
+    begin
         LibraryERM.CreateVATClause(VATClause);
         VATClause.Validate("SII Exemption Code", ExemptionCode);
         VATClause.Modify(true);
-        VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
-        VATPostingSetup.Modify(true);
-        exit(VATProductPostingGroup.Code);
+        exit(VATClause.Code);
     end;
 
     [Scope('OnPrem')]
@@ -459,6 +466,20 @@ codeunit 143006 "Library - SII"
         ServiceHeader.Validate("Operation Description", LibraryUtility.GenerateGUID);
         ServiceHeader.Validate("Operation Description 2", LibraryUtility.GenerateGUID);
         ServiceHeader.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateServiceLineWithUnitPrice(ServiceHeader: Record "Service Header"; ItemNo: Code[20])
+    var
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -1488,14 +1509,14 @@ codeunit 143006 "Library - SII"
 
     local procedure VerifyXMLCustomerPayment(XMLDoc: DotNet XmlDocument; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
-        ValidateElementByName(XMLDoc, 'sii:Importe', SIIXMLCreator.FormatNumber(Abs(DetailedCustLedgEntry.Amount)));
+        ValidateElementByName(XMLDoc, 'sii:Importe', SIIXMLCreator.FormatNumber(-DetailedCustLedgEntry.Amount));
         ValidateElementByName(XMLDoc, 'sii:Fecha', SIIXMLCreator.FormatDate(DetailedCustLedgEntry."Posting Date"));
         ValidateElementByName(XMLDoc, 'sii:Medio', '04');
     end;
 
     local procedure VerifyXMLVendorPayment(XMLDoc: DotNet XmlDocument; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
-        ValidateElementByName(XMLDoc, 'sii:Importe', SIIXMLCreator.FormatNumber(Abs(DetailedVendorLedgEntry.Amount)));
+        ValidateElementByName(XMLDoc, 'sii:Importe', SIIXMLCreator.FormatNumber(DetailedVendorLedgEntry.Amount));
         ValidateElementByName(XMLDoc, 'sii:Fecha', SIIXMLCreator.FormatDate(DetailedVendorLedgEntry."Posting Date"));
         ValidateElementByName(XMLDoc, 'sii:Medio', '04');
     end;

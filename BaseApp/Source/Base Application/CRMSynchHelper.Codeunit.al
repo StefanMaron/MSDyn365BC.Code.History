@@ -33,6 +33,8 @@ codeunit 5342 "CRM Synch. Helper"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         SetContactParentCompanyTxt: Label 'Setting contact parent company.', Locked = true;
         SetContactParentCompanySuccessfulTxt: Label 'Set contact parent company successfuly. Company No.: %1', Locked = true, Comment = '%1 = parent company no.';
+        ContactBusinessRelationOptionalTxt: Label 'Contact business relation is optional.', Locked = true;
+        ContactTypeCheckIgnoredTxt: Label 'Contact type check is ignored.', Locked = true;
 
     procedure ClearCache()
     begin
@@ -1445,6 +1447,26 @@ codeunit 5342 "CRM Synch. Helper"
         exit(not CRMOptionMapping.IsEmpty());
     end;
 
+    internal procedure IsContactBusinessRelationOptional(): Boolean
+    var
+        Optional: Boolean;
+    begin
+        OnGetIsContactBusinessRelationOptional(Optional);
+        if Optional then
+            Session.LogMessage('0000F1J', ContactBusinessRelationOptionalTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        exit(Optional);
+    end;
+
+    internal procedure IsContactTypeCheckIgnored(): Boolean
+    var
+        Ignored: Boolean;
+    begin
+        OnGetIsContactTypeCheckIgnored(Ignored);
+        if Ignored then
+            Session.LogMessage('0000F2F', ContactTypeCheckIgnoredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        exit(Ignored);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFieldRelation(RecRef: RecordRef; FldRef: FieldRef; var TableID: Integer)
     begin
@@ -1477,6 +1499,16 @@ codeunit 5342 "CRM Synch. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendorSyncEnabled(var Enabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetIsContactBusinessRelationOptional(var Optional: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetIsContactTypeCheckIgnored(var Ignored: Boolean)
     begin
     end;
 }

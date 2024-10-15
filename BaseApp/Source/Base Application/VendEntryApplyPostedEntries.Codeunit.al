@@ -44,7 +44,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     procedure Apply(VendLedgEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date): Boolean
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
     begin
         OnBeforeApply(VendLedgEntry, DocumentNo, ApplicationDate);
         with VendLedgEntry do begin
@@ -70,7 +69,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 DocumentNo := "Document No.";
 
             VendPostApplyVendLedgEntry(VendLedgEntry, DocumentNo, ApplicationDate);
-            SIIJobUploadPendingDocs.OnVendorEntriesApplied(VendLedgEntry);
             exit(true);
         end;
     end;
@@ -457,6 +455,9 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             SetRange("Vendor No.", DetailedVendorLedgEntry2."Vendor No.");
             SetRange(Unapplied, false);
             SetFilter("Entry Type", '<>%1', "Entry Type"::"Initial Entry");
+
+            OnCollectAffectedLedgerEntriesOnAfterSetFilters(DetailedVendorLedgEntry, DetailedVendorLedgEntry2);
+
             if FindSet then
                 repeat
                     TempVendorLedgerEntry."Entry No." := "Vendor Ledger Entry No.";
@@ -626,6 +627,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; LastTransactionNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectAffectedLedgerEntriesOnAfterSetFilters(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry")
     begin
     end;
 

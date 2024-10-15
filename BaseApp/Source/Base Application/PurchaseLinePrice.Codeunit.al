@@ -109,6 +109,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(PurchaseLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -244,6 +245,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(PurchaseLine: Record "Purchase Line"; var AssetType: Enum "Price Asset Type")
     begin
     end;
 

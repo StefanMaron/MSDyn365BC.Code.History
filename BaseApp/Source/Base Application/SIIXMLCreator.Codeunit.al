@@ -15,7 +15,7 @@
         DataTypeManagement: Codeunit "Data Type Management";
         LastXMLNode: DotNet XmlNode;
         ErrorMsg: Text;
-        DetailedLedgerEntryShouldBePaymentErr: Label 'Expected the detailed ledger entry to have a Payment document type, but got %1 instead.', Comment = '%1 is the actual value of the Detailed Ledger Entry document type';
+        DetailedLedgerEntryShouldBePaymentOrRefundErr: Label 'Expected the detailed ledger entry to have a Payment or Refund document type, but got %1 instead.', Comment = '%1 is the actual value of the Detailed Ledger Entry document type';
         RegistroDelPrimerSemestreTxt: Label 'Registro del primer semestre';
         IsInitialized: Boolean;
         RetryAccepted: Boolean;
@@ -33,20 +33,39 @@
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        XmlDocTempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
+        XmlDocumentOut: XmlDocument;
+        XmlDocOutStream: OutStream;
+        XmlDocInStream: InStream;
         IsHandled: Boolean;
         ResultValue: Boolean;
     begin
         IsHandled := false;
+
+#if not CLEAN19
         OnBeforeGenerateXML(LedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled, RetryAccepted, SIIVersion);
-        IF IsHandled THEN
-            EXIT(ResultValue);
+        if IsHandled then
+            exit(ResultValue);
+#endif
+
+        if not IsInitialized then
+            XMLDocOut := XMLDocOut.XmlDocument;
+
+        OnBeforeGenerateXmlDocument(LedgerEntry, XmlDocumentOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled, RetryAccepted, SIIVersion);
+        if IsHandled then begin
+            XmlDocTempBlob.CreateOutStream(XmlDocOutStream);
+            XmlDocumentOut.WriteTo(XmlDocOutStream);
+
+            XmlDocTempBlob.CreateInStream(XmlDocInStream);
+            XMLDocOut.Load(XmlDocInStream);
+
+            exit(ResultValue);
+        end;
 
         GetSIISetup;
         SiiTxt := SIISetup."SuministroInformacion Schema";
         SiiLRTxt := SIISetup."SuministroLR Schema";
-        if not IsInitialized then
-            XMLDocOut := XMLDocOut.XmlDocument;
 
         RecRef.GetTable(LedgerEntry);
         case RecRef.Number of
@@ -65,16 +84,20 @@
             DATABASE::"Detailed Cust. Ledg. Entry":
                 begin
                     RecRef.SetTable(DetailedCustLedgEntry);
-                    if DetailedCustLedgEntry."Document Type" <> DetailedCustLedgEntry."Document Type"::Payment then
-                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedCustLedgEntry."Document Type"));
+                    if not (DetailedCustLedgEntry."Document Type" in
+                            [DetailedCustLedgEntry."Document Type"::Payment, DetailedCustLedgEntry."Document Type"::Refund])
+                    then
+                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedCustLedgEntry."Document Type"));
                     CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
                     exit(CreateReceivedPaymentsXml(CustLedgerEntry, XMLDocOut))
                 end;
             DATABASE::"Detailed Vendor Ledg. Entry":
                 begin
                     RecRef.SetTable(DetailedVendorLedgEntry);
-                    if DetailedVendorLedgEntry."Document Type" <> DetailedVendorLedgEntry."Document Type"::Payment then
-                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedVendorLedgEntry."Document Type"));
+                    if not (DetailedVendorLedgEntry."Document Type" in
+                            [DetailedVendorLedgEntry."Document Type"::Payment, DetailedVendorLedgEntry."Document Type"::Refund])
+                    then
+                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedVendorLedgEntry."Document Type"));
                     VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                     exit(CreateEmittedPaymentsXml(VendorLedgerEntry, XMLDocOut))
                 end
@@ -186,7 +209,8 @@
                         repeat
                             AddPayment(
                               XMLNode, 'Pago', PaymentDetailedVendorLedgEntry."Posting Date",
-                              PaymentDetailedVendorLedgEntry.Amount, VendorLedgerEntry."Payment Method Code");
+                              PaymentDetailedVendorLedgEntry.Amount, VendorLedgerEntry."Payment Method Code",
+                              1, VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Refund);
                         until PaymentDetailedVendorLedgEntry.Next() = 0;
                 until VendorLedgerEntry.Next() = 0;
         end;
@@ -207,21 +231,28 @@
                         repeat
                             AddPayment(
                               XMLNode, 'Cobro', PaymentDetailedCustLedgEntry."Posting Date",
-                              PaymentDetailedCustLedgEntry.Amount, CustLedgerEntry."Payment Method Code");
+                              PaymentDetailedCustLedgEntry.Amount, CustLedgerEntry."Payment Method Code",
+                              -1, CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Refund);
                         until PaymentDetailedCustLedgEntry.Next() = 0;
                 until CustLedgerEntry.Next() = 0;
         end;
     end;
 
-    local procedure AddPayment(var XMLNode: DotNet XmlNode; PmtHeaderTxt: Text; PostingDate: Date; Amount: Decimal; PaymentMethodCode: Code[10])
+    local procedure AddPayment(var XMLNode: DotNet XmlNode; PmtHeaderTxt: Text; PostingDate: Date; Amount: Decimal; PaymentMethodCode: Code[10]; EntryTypeSign: Integer; Refund: Boolean)
     var
         TempXMLNode: DotNet XmlNode;
         BaseXMLNode: DotNet XmlNode;
+        DocTypeSign: Integer;
     begin
         BaseXMLNode := XMLNode;
         XMLDOMManagement.AddElementWithPrefix(XMLNode, PmtHeaderTxt, '', 'sii', SiiTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Fecha', FormatDate(PostingDate), 'sii', SiiTxt, TempXMLNode);
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Importe', FormatNumber(Abs(Amount)), 'sii', SiiTxt, TempXMLNode);
+        if Refund then
+            DocTypeSign := -1
+        else
+            DocTypeSign := 1;
+        XMLDOMManagement.AddElementWithPrefix(
+          XMLNode, 'Importe', FormatNumber(EntryTypeSign * DocTypeSign * Amount), 'sii', SiiTxt, TempXMLNode);
         InsertMedioNode(XMLNode, PaymentMethodCode);
         XMLNode := BaseXMLNode;
     end;
@@ -1011,6 +1042,12 @@
         NonTaxableAmount := CalculateNonTaxableAmountVendor(VendLedgEntry);
         if NonTaxableAmount = 0 then
             exit;
+        SIISetup.Get();
+        if SIISetup."Do Not Export Negative Lines" then
+            if ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) and (NonTaxableAmount < 0)) or
+               ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and (NonTaxableAmount > 0))
+            then
+                exit;
 
         TempVATEntryCalculated.Reset();
         if TempVATEntryCalculated.FindLast then;
@@ -2646,8 +2683,16 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnBeforeGenerateXmlDocument.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenerateXML(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; var IsHandled: Boolean; RetryAccepted: Boolean; SIIVersion: Option)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateXmlDocument(LedgerEntry: Variant; var XMLDocOut: XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; var IsHandled: Boolean; RetryAccepted: Boolean; SIIVersion: Option)
     begin
     end;
 

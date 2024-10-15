@@ -67,6 +67,11 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeSendSalesDoc(SalesHeader, Post, IsHandled);
+        if IsHandled then
+            exit;
+
+        IsHandled := false;
         OnSendSalesDocOnbeforeTestSendICDocument(SalesHeader, IsHandled);
         if not IsHandled then
             SalesHeader.TestField("Send IC Document");
@@ -94,7 +99,13 @@
     procedure SendPurchDoc(var PurchHeader: Record "Purchase Header"; Post: Boolean)
     var
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendPurchDoc(PurchHeader, Post, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchHeader.TestField("Send IC Document");
         ICPartner.Get(PurchHeader."Buy-from IC Partner Code");
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
@@ -897,8 +908,7 @@
                 SalesLine."Amount Including VAT" := "Amount Including VAT";
                 SalesLine."Line Discount %" := "Line Discount %";
                 SalesLine.UpdateAmounts;
-                SalesLine.Validate("Requested Delivery Date", "Requested Delivery Date");
-                SalesLine.Validate("Promised Delivery Date", "Promised Delivery Date");
+                ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
                 UpdateSalesLineICPartnerReference(SalesLine, SalesHeader, ICInboxSalesLine);
             end;
             SalesLine."Shortcut Dimension 1 Code" := '';
@@ -921,6 +931,19 @@
             OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine);
             SalesLine.Modify();
         end;
+    end;
+
+    local procedure ValidateSalesLineDeliveryDates(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
+        if IsHandled then
+            exit;
+
+        SalesLine.Validate("Requested Delivery Date", ICInboxSalesLine."Requested Delivery Date");
+        SalesLine.Validate("Promised Delivery Date", ICInboxSalesLine."Promised Delivery Date");
     end;
 
     procedure CreatePurchDocument(ICInboxPurchHeader: Record "IC Inbox Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date)
@@ -1913,7 +1936,13 @@
     var
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOutboxSalesHdrToInbox(ICInboxTrans, ICOutboxSalesHeader, ICInboxPurchHeader, ICPartner, IsHandled);
+        if IsHandled then
+            exit;
+
         GetCompanyInfo;
         if ICOutboxSalesHeader."IC Partner Code" = CompanyInfo."IC Partner Code" then
             ICPartner.Get(ICInboxTrans."IC Partner Code")
@@ -2775,6 +2804,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendPurchDoc(var PurchHeader: Record "Purchase Header"; var Post: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendSalesDoc(var SalesHeader: Record "Sales Header"; var Post: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSalesLineDeliveryDates(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesInvHdr: Record "Sales Invoice Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
@@ -2986,6 +3030,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CompanyInfo: Record "Company Information"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOutboxSalesHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICInboxPurchHeader: Record "IC Inbox Purchase Header"; var ICPartner: Record "IC Partner"; var IsHandled: Boolean)
     begin
     end;
 

@@ -86,7 +86,7 @@ report 10710 "Make 349 Declaration"
                                           Customer2."No.", Customer2.Name, VATCredSales."Posting Date",
                                           VATCredSales."Document Type", VATCredSales."Document No.",
                                           VATCredSales."EU 3-Party Trade", VATCredSales."EU Service", VATCredSales.Base >= 0,
-                                          VATCredSales."Entry No.", VATCredSales."Delivery Operation Code");
+                                          VATCredSales."Entry No.", 0, VATCredSales."Delivery Operation Code");
                                 end;
                             until VATCredSales.Next() = 0;
 
@@ -134,7 +134,7 @@ report 10710 "Make 349 Declaration"
                                         InsertVendWarning349(
                                           Vendor2."No.", Vendor2.Name, VATCredPurch."Posting Date",
                                           VATCredPurch."Document Type", VATCredPurch."Document No.",
-                                          VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.");
+                                          VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.", 0);
                                 end;
                             until VATCredPurch.Next() = 0;
 
@@ -1886,7 +1886,7 @@ report 10710 "Make 349 Declaration"
           Format(CountryRegion.GetVATRegistrationNoLimitedBySetup(VATRegistrationNo), MaxStrLen(CombinedVATRegNo));
     end;
 
-    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer)
+    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer)
     begin
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1903,6 +1903,8 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349."Original Declaration FY" := RectFiscalYear;
         CustVendWarning349."Original Declaration Period" := GetPeriodAsText;
         CustVendWarning349."VAT Entry No." := VATEntryNo;
+        CustVendWarning349."No Taxable Entry No." := NoTaxableEntryNo;
+
         if PositiveBase then
             CustVendWarning349.Sign := '-'
         else
@@ -1910,7 +1912,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349.Insert();
     end;
 
-    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; DeliveryOperationCode: Option)
+    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; DeliveryOperationCode: Option)
     begin
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1927,6 +1929,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349."Original Declaration FY" := RectFiscalYear;
         CustVendWarning349."Original Declaration Period" := GetPeriodAsText;
         CustVendWarning349."VAT Entry No." := VATEntryNo;
+        CustVendWarning349."No Taxable Entry No." := NoTaxableEntryNo;
         CustVendWarning349."Delivery Operation Code" := DeliveryOperationCode;
 
         if PositiveBase then
@@ -1951,7 +1954,7 @@ report 10710 "Make 349 Declaration"
             InsertCustWarning349(
               Customer2."No.", Customer2.Name, NoTaxableEntry."Posting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
-              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, 0);
+              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.", 0);
         until NoTaxableEntry.Next() = 0;
     end;
 
@@ -1970,7 +1973,7 @@ report 10710 "Make 349 Declaration"
             InsertVendWarning349(
               Vendor2."No.", Vendor2.Name, NoTaxableEntry."Posting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
-              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0);
+              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.");
         until NoTaxableEntry.Next() = 0;
     end;
 
@@ -2022,10 +2025,16 @@ report 10710 "Make 349 Declaration"
     end;
 
     local procedure InitVATEntry(var VATEntry: Record "VAT Entry"; CustVendWarning349VATEntryNo: Integer)
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
     begin
-        if CustVendWarning349VATEntryNo = 0 then
-            VATEntry.Init
-        else
+        if CustVendWarning349VATEntryNo = 0 then begin
+            VATEntry.Init;
+            if CustVendWarning349."No Taxable Entry No." <> 0 then begin
+                NoTaxableEntry.Get(CustVendWarning349."No Taxable Entry No.");
+                VATEntry.TransferFields(NoTaxableEntry);
+            end;
+        end else
             VATEntry.Get(CustVendWarning349VATEntryNo);
     end;
 

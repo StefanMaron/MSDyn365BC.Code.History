@@ -173,6 +173,11 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'VAT Clause Code';
             TableRelation = "VAT Clause";
+
+            trigger OnValidate()
+            begin
+                CheckSalesSpecialSchemeCode();
+            end;
         }
         field(16; "Certificate of Supply Required"; Boolean)
         {
@@ -242,6 +247,21 @@ table 325 "VAT Posting Setup"
                     end;
             end;
         }
+        field(10707; "Sales Special Scheme Code"; Option)
+        {
+            Caption = 'Sales Special Scheme Code';
+            OptionMembers = " ","01 General","02 Export","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Travel Agency Services","10 Third Party","11 Business Withholding","12 Business not Withholding","13 Business Withholding and not Withholding","14 Invoice Work Certification","15 Invoice of Consecutive Nature","16 First Half 2017";
+
+            trigger OnValidate()
+            begin
+                CheckSalesSpecialSchemeCode();
+            end;
+        }
+        field(10708; "Purch. Special Scheme Code"; Option)
+        {
+            Caption = 'Purch. Special Scheme Code';
+            OptionMembers = " ","01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
+        }
     }
 
     keys
@@ -278,6 +298,7 @@ table 325 "VAT Posting Setup"
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
         RequiredFieldNotActivatedErr: Label 'You cannot change %1 because %2 is empty.';
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
+        InconsitencyOfRegimeCodeAndVATClauseErr: Label 'If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.';
 
     procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -503,6 +524,25 @@ table 325 "VAT Posting Setup"
         exit(
           ("VAT Calculation Type" = "VAT Calculation Type"::"Normal VAT") and
           ("No Taxable Type" <> "No Taxable Type"::" "));
+    end;
+
+    local procedure CheckSalesSpecialSchemeCode()
+    var
+        VATClause: Record "VAT Clause";
+    begin
+        if "Sales Special Scheme Code" = "Sales Special Scheme Code"::" " then
+            exit;
+
+        if "VAT Clause Code" = '' then
+            exit;
+
+        VATClause.Get("VAT Clause Code");
+        if (VATClause."SII Exemption Code" in
+            [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
+             VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]) and
+           ("Sales Special Scheme Code" = "Sales Special Scheme Code"::"01 General")
+        then
+            Error(InconsitencyOfRegimeCodeAndVATClauseErr);
     end;
 
     [IntegrationEvent(false, false)]

@@ -518,6 +518,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource - NamedType WantToUndoConsumptionQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3566485718 - NamedType 3308798032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The end date %1 is not valid. You must keep at least %2 years uncompressed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is a date in short date format, %2 is an integer]D;]A;(LookupHint=Codeunit Resource Batch Jobs - NamedType DateCompressionEndingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3566485718 - NamedType 906751469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Ending Date must be specified.]]></Val>
@@ -525,6 +534,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Batch Jobs - NamedType EndingDateError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3566485718 - NamedType 359344854" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify an ending date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Batch Jobs - NamedType EndingDateMissingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3566485718 - NamedType 2935911565" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

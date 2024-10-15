@@ -166,6 +166,8 @@ report 12 "VAT Statement"
                         TotalBase := 0;
                         TotalECAmount := 0;
                         TotalVATAmount := 0;
+                        Amount := 0;
+                        Base := 0;
                         CalcLineTotal2C("VAT Statement Line", 0);
                         if "Print with" = "Print with"::"Opposite Sign" then begin
                             TotalAmount := -TotalAmount;
@@ -330,52 +332,8 @@ report 12 "VAT Statement"
             VATStmtLine2.Type::"EC Entry Totaling",
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    if VATEntry.SetCurrentKey(
-                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-                    then begin
-                        VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
-                    end else begin
-                        VATEntry.SetCurrentKey(
-                          Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                        VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine2."Tax Jurisdiction Code");
-                        VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
-                    end;
-                    VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-                    if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
-                        else
-                            "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
-                    case Selection of
-                        Selection::Open:
-                            VATEntry.SetRange(Closed, false);
-                        Selection::Closed:
-                            VATEntry.SetRange(Closed, true);
-                    end;
-                    if VATEntry.Find('-') then;
-                    case VATStmtLine2."Amount Type" of
-                        VATStmtLine2."Amount Type"::Amount:
-                            if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                                CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
-                                Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
-                            end;
-                        VATStmtLine2."Amount Type"::Base:
-                            begin
-                                VATEntry.CalcSums(Base, "Additional-Currency Base");
-                                Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                            end;
-                        VATStmtLine2."Amount Type"::"Amount+Base":
-                            begin
-                                VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
-                                Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
-                                if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT" then
-                                    Base := ConditionalAdd(0, CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry.Amount, UseAmtsInAddCurr),
-                                      CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry."Additional-Currency Amount", UseAmtsInAddCurr))
-                                else
-                                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                            end;
-                    end;
+                    if not CalcLineNoTaxable(VATStmtLine2, false) then
+                        CalcLineFromVATEntry2C(VATStmtLine2);
                     CalculateTotalAmount(VATStmtLine2);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -461,69 +419,8 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset();
-                    if VATEntry.SetCurrentKey(
-                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-                    then begin
-                        VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
-                    end else begin
-                        VATEntry.SetCurrentKey(
-                          Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                        VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine2."Tax Jurisdiction Code");
-                        VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
-                    end;
-                    VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-                    if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
-                        else
-                            "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
-                    case Selection of
-                        Selection::Open:
-                            VATEntry.SetRange(Closed, false);
-                        Selection::Closed:
-                            VATEntry.SetRange(Closed, true);
-                        else
-                            VATEntry.SetRange(Closed);
-                    end;
-                    if VATEntry.Find('-') then;
-                    case VATStmtLine2."Amount Type" of
-                        VATStmtLine2."Amount Type"::Amount:
-                            begin
-                                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
-                                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
-                                end;
-                            end;
-                        VATStmtLine2."Amount Type"::Base:
-                            begin
-                                VATEntry.CalcSums(Base, "Additional-Currency Base");
-                                Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                            end;
-                        VATStmtLine2."Amount Type"::"Unrealized Amount":
-                            begin
-                                VATEntry.CalcSums("Remaining Unrealized Amount", "Add.-Curr. Rem. Unreal. Amount");
-                                Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Amount", VATEntry."Add.-Curr. Rem. Unreal. Amount");
-                            end;
-                        VATStmtLine2."Amount Type"::"Unrealized Base":
-                            begin
-                                VATEntry.CalcSums("Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Base");
-                                Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
-                            end;
-                        VATStmtLine2."Amount Type"::"Amount+Base":
-                            begin
-                                VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
-                                Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
-                                if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT" then
-                                    Base := ConditionalAdd(0, CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry.Amount, UseAmtsInAddCurr),
-                                      CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry."Additional-Currency Amount", UseAmtsInAddCurr))
-                                else
-                                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                                Amount := Amount + Base;
-                            end;
-
-                    end;
+                    if not CalcLineNoTaxable(VATStmtLine2, true) then
+                        CalcLineFromVATEntry1C(VATStmtLine2);
                     OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
@@ -701,6 +598,159 @@ report 12 "VAT Statement"
                             VATAmountAC1 := VATAmountAC1 + "Additional-Currency Amount";
                         end;
                 until Next() = 0;
+        end;
+    end;
+
+    local procedure CalcLineNoTaxable(VATStatementLine: Record "VAT Statement Line"; ValueAsAmount: Boolean): Boolean
+    begin
+        if VATStatementLine.Type in [VATStatementLine.Type::"EC Entry Totaling", VATStatementLine.Type::"VAT Entry Totaling"] then
+            if VATPostSetup.Get(VATStatementLine."VAT Bus. Posting Group", VATStatementLine."VAT Prod. Posting Group") and
+               (VATPostSetup."VAT Calculation Type" = VATPostSetup."VAT Calculation Type"::"No Taxable VAT")
+            then begin
+                if ValueAsAmount then
+                    Amount := CalcLineFromNoTaxableEntry(VATStatementLine)
+                else
+                    Base := CalcLineFromNoTaxableEntry(VATStatementLine);
+                exit(true);
+            end;
+        exit(false);
+    end;
+
+    local procedure CalcLineFromNoTaxableEntry(VATStatementLine: Record "VAT Statement Line"): Decimal
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        NoTaxableEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
+        NoTaxableEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
+        NoTaxableEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
+        if "VAT Statement Line".GetFilter("Date Filter") <> '' then
+            if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                NoTaxableEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
+            else
+                "VAT Statement Line".CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+        if NoTaxableEntry.IsEmpty then
+            exit(0);
+
+        if VATStatementLine."Amount Type" in [VATStatementLine."Amount Type"::Base, VATStatementLine."Amount Type"::"Amount+Base"]
+        then begin
+            NoTaxableEntry.CalcSums(Base, "Base (ACY)");
+            exit(ConditionalAdd(0, NoTaxableEntry.Base, NoTaxableEntry."Base (ACY)"));
+        end;
+
+        exit(0);
+    end;
+
+    local procedure CalcLineFromVATEntry1C(VATStatementLine: Record "VAT Statement Line")
+    begin
+        VATEntry.Reset();
+        if VATEntry.SetCurrentKey(
+             Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
+        then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(
+              Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStatementLine."Use Tax");
+        end;
+        VATEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
+        if "VAT Statement Line".GetFilter("Date Filter") <> '' then
+            if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
+            else
+                "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+        case Selection of
+            Selection::Open:
+                VATEntry.SetRange(Closed, false);
+            Selection::Closed:
+                VATEntry.SetRange(Closed, true);
+            else
+                VATEntry.SetRange(Closed);
+        end;
+        if VATEntry.FindFirst() then;
+        case VATStatementLine."Amount Type" of
+            VATStatementLine."Amount Type"::Amount:
+                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
+                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
+                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
+                end;
+            VATStatementLine."Amount Type"::Base:
+                begin
+                    VATEntry.CalcSums(Base, "Additional-Currency Base");
+                    Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                end;
+            VATStatementLine."Amount Type"::"Unrealized Amount":
+                begin
+                    VATEntry.CalcSums("Remaining Unrealized Amount", "Add.-Curr. Rem. Unreal. Amount");
+                    Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Amount", VATEntry."Add.-Curr. Rem. Unreal. Amount");
+                end;
+            VATStatementLine."Amount Type"::"Unrealized Base":
+                begin
+                    VATEntry.CalcSums("Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Base");
+                    Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
+                end;
+            VATStatementLine."Amount Type"::"Amount+Base":
+                begin
+                    VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
+                    Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
+                    if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT" then
+                        Base := ConditionalAdd(0, CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry.Amount, UseAmtsInAddCurr),
+                            CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry."Additional-Currency Amount", UseAmtsInAddCurr))
+                    else
+                        Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                    Amount := Amount + Base;
+                end;
+        end;
+    end;
+
+    local procedure CalcLineFromVATEntry2C(VATStatementLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(
+             Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
+        then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(
+              Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStatementLine."Use Tax");
+        end;
+        VATEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
+        if "VAT Statement Line".GetFilter("Date Filter") <> '' then
+            if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
+            else
+                "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+        case Selection of
+            Selection::Open:
+                VATEntry.SetRange(Closed, false);
+            Selection::Closed:
+                VATEntry.SetRange(Closed, true);
+        end;
+        if VATEntry.FindFirst() then;
+        case VATStatementLine."Amount Type" of
+            VATStatementLine."Amount Type"::Amount:
+                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
+                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
+                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
+                end;
+            VATStatementLine."Amount Type"::Base:
+                begin
+                    VATEntry.CalcSums(Base, "Additional-Currency Base");
+                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                end;
+            VATStatementLine."Amount Type"::"Amount+Base":
+                begin
+                    VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
+                    Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
+                    if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT" then
+                        Base := ConditionalAdd(0, CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry.Amount, UseAmtsInAddCurr),
+                            CalcTotalVATBase(VATEntry."VAT %", VATEntry."EC %", VATEntry."Additional-Currency Amount", UseAmtsInAddCurr))
+                    else
+                        Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                end;
         end;
     end;
 

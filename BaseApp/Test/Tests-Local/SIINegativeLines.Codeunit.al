@@ -575,6 +575,122 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:ImportePorArticulos7_14_Otros', 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReportNonTaxableNegativeLineForPurchInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PositivePurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 394230] Negative line exports to the SII file for the purchase invoice with no taxable VAT when "Do Not Report Negative Lines" option disabled in the SII Setup
+
+        Initialize();
+
+        // [GIVEN] "Do Not Report Negative Lines" is disabled in the SII setup
+        SetDoNotReportNegativeLines(false);
+
+        // [GIVEN] Document with two lines - positive (normal VAT) and negative (no taxable VAT)
+        PostPurchDocWithPositiveAndNegativeNoTaxableLine(
+          VendorLedgerEntry, PositivePurchaseLine, PurchaseHeader."Document Type"::Invoice, 0);
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Two "BaseImponible" xml nodes exported
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReportNonTaxableNegativeLineForPurchCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PositivePurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 394230] Negative line exports to the SII file for the purchase credit memo with no taxable VAT when "Do Not Report Negative Lines" option disabled in the SII Setup
+
+        Initialize();
+
+        // [GIVEN] "Do Not Report Negative Lines" is disabled in the SII setup
+        SetDoNotReportNegativeLines(false);
+
+        // [GIVEN] Document with two lines - positive (normal VAT) and negative (no taxable VAT)
+        PostPurchDocWithPositiveAndNegativeNoTaxableLine(
+          VendorLedgerEntry, PositivePurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", 0);
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Two "BaseImponible" xml nodes exported
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DoNotReportNonTaxableNegativeLineForPurchInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PositivePurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 394230] Negative line does not export to the SII file for the purchase invoice with no taxable VAT when "Do Not Report Negative Lines" option enabled in the SII Setup
+
+        Initialize();
+
+        // [GIVEN] "Do Not Report Negative Lines" is enabled in the SII setup
+        SetDoNotReportNegativeLines(true);
+
+        // [GIVEN] Document with two lines - positive (normal VAT) and negative (no taxable VAT)
+        PostPurchDocWithPositiveAndNegativeNoTaxableLine(
+          VendorLedgerEntry, PositivePurchaseLine, PurchaseHeader."Document Type"::Invoice, 0);
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] One "BaseImponible" xml node exported
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DoNotReportNonTaxableNegativeLineForPurchCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PositivePurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 394230] Negative line does not export to the SII file for the purchase credit memo with no taxable VAT when "Do Not Report Negative Lines" option enabled in the SII Setup
+
+        Initialize();
+
+        // [GIVEN] "Do Not Report Negative Lines" is enabled in the SII setup
+        SetDoNotReportNegativeLines(true);
+
+        // [GIVEN] Document with two lines - positive (normal VAT) and negative (no taxable VAT)
+        PostPurchDocWithPositiveAndNegativeNoTaxableLine(
+          VendorLedgerEntry, PositivePurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", 0);
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] One "BaseImponible" xml node exported
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -630,6 +746,16 @@ codeunit 147563 "SII Negative Lines"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
+    local procedure PostPurchDocWithPositiveAndNegativeNoTaxableLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreatePurchDocWithNegativeNoTaxableLine(PurchaseHeader, PositivePurchaseLine, DocType, CorrType);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, PurchaseHeader."Document Type",
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
     local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var PositiveSalesLine: Record "Sales Line"; DocType: Option; CorrType: Option)
     var
         SalesLine: Record "Sales Line";
@@ -673,6 +799,24 @@ codeunit 147563 "SII Negative Lines"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group"), -1);
+        LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreatePurchDocWithNegativeNoTaxableLine(var PurchaseHeader: Record "Purchase Header"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Correction Type", CorrType);
+        PurchaseHeader.Modify(true);
+        LibrarySII.CreatePurchLineWithUnitCost(PurchaseHeader, LibraryInventory.CreateItemNo);
+        LibraryPurchase.FindFirstPurchLine(PositivePurchaseLine, PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+          CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group"), -1);
+        PurchaseLine.Validate(
+          "VAT Prod. Posting Group", LibrarySII.CreateSpecificNoTaxableVATSetup(PurchaseHeader."VAT Bus. Posting Group", false, 0));
+        PurchaseLine.Modify(true);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
     end;
 
