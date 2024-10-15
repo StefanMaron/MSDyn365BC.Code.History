@@ -2,7 +2,7 @@
 report 402 "Purchase Document - Test"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './PurchaseDocumentTest.rdlc';
+    RDLCLayout = './PurchasesPayables/PurchaseDocumentTest.rdlc';
     Caption = 'Purchase Document - Test';
 
     dataset

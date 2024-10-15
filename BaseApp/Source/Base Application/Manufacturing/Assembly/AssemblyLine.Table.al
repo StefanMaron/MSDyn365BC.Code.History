@@ -1690,6 +1690,8 @@ table 901 "Assembly Line"
             if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", NewBinCode);
         end;
+
+        OnAfterFindBin(Rec, NewBinCode);
     end;
 
     procedure TestStatusOpen()
@@ -2213,6 +2215,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindBin(var AssemblyLine: Record "Assembly Line"; var NewBinCode: Code[20])
     begin
     end;
 }

@@ -1,4 +1,4 @@
-#if not CLEAN21
+﻿#if not CLEAN21
 page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
@@ -1618,6 +1618,7 @@ page 52 "Purchase Credit Memo"
         CalculateCurrentShippingOption();
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

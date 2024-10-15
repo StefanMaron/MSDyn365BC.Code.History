@@ -931,7 +931,13 @@ table 156 Resource
     procedure CreateTimeSheets()
     var
         Resource: Record Resource;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTimeSheets(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Use Time Sheet", true);
         Resource.Get("No.");
         Resource.SetRecFilter();
@@ -1050,6 +1056,11 @@ table 156 Resource
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateResourceGroupNoOnBeforeConfirm(var Resource: Record "Resource"; xResource: Record "Resource"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTimeSheets(var Resource: Record "Resource"; var IsHandled: Boolean)
     begin
     end;
 }

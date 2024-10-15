@@ -725,7 +725,13 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     procedure CheckLine()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLine(Rec, IsHandled);
+        if IsHandled then
+            exit;
         TestField("Item No.");
         TestField("Qty. Exp. Calculated", true);
         TestQtyExpected();
@@ -1228,6 +1234,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyAndLastItemLedgExpected(var QtyExpected: Decimal; var LastItemLedgEntryNo: Integer; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

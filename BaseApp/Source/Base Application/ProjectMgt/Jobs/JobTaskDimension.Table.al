@@ -32,7 +32,7 @@ table 1002 "Job Task Dimension"
         field(4; "Dimension Value Code"; Code[20])
         {
             Caption = 'Dimension Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -82,7 +82,13 @@ table 1002 "Job Task Dimension"
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnRename(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Error(Text000, TableCaption);
     end;
 
@@ -107,6 +113,11 @@ table 1002 "Job Task Dimension"
                 JobTask."Global Dimension 2 Code" := DimensionValue;
                 JobTask.Modify(true);
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var JobTaskDimension: Record "Job Task Dimension"; var IsHandled: Boolean)
+    begin
     end;
 }
 

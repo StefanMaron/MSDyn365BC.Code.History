@@ -29,6 +29,7 @@ report 29 "Export Acc. Sched. to Excel"
                   '@1@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
                 AccSchedLine.SetFilter(Show, '<>%1', AccSchedLine.Show::No);
+                OnIntegerOnAfterGetRecordOnAfterAccSchedLineSetFilter(AccSchedLine);
                 TotalRecNo := AccSchedLine.Count();
                 RecNo := 0;
 
@@ -325,6 +326,11 @@ report 29 "Export Acc. Sched. to Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnAferCalcColumnValue(var UseAmtsInAddCurr: Boolean; var ColumnLayout: Record "Column Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIntegerOnAfterGetRecordOnAfterAccSchedLineSetFilter(var AccScheduleLine: Record "Acc. Schedule Line")
     begin
     end;
 }

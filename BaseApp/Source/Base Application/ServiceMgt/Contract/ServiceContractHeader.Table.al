@@ -39,103 +39,10 @@ table 5965 "Service Contract Header"
             Editable = true;
 
             trigger OnValidate()
-            var
-                ServLedgEntry: Record "Service Ledger Entry";
-                ConfirmManagement: Codeunit "Confirm Management";
-                AnyServItemInOtherContract: Boolean;
             begin
                 if Status <> xRec.Status then begin
                     CheckChangeStatus();
-                    case "Contract Type" of
-                        "Contract Type"::Contract:
-                            begin
-                                if Status <> Status::Cancelled then
-                                    Error(Text006, FieldCaption(Status));
-
-                                CalcFields("No. of Unposted Invoices", "No. of Unposted Credit Memos");
-                                case true of
-                                    ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" = 0):
-                                        if not ConfirmManagement.GetResponseOrDefault(Text048, true) then begin
-                                            Status := xRec.Status;
-                                            exit;
-                                        end;
-                                    ("No. of Unposted Invoices" = 0) and ("No. of Unposted Credit Memos" <> 0):
-                                        if not ConfirmManagement.GetResponseOrDefault(Text049, true) then begin
-                                            Status := xRec.Status;
-                                            exit;
-                                        end;
-                                    ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" <> 0):
-                                        if not ConfirmManagement.GetResponseOrDefault(Text055, true) then begin
-                                            Status := xRec.Status;
-                                            exit;
-                                        end;
-                                end;
-
-                                ServMgtSetup.Get();
-                                if ServMgtSetup."Use Contract Cancel Reason" then
-                                    TestField("Cancel Reason Code");
-
-                                ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
-                                ServLedgEntry.SetRange("No.", "Contract No.");
-                                ServLedgEntry.SetRange("Moved from Prepaid Acc.", false);
-                                ServLedgEntry.SetRange(Open, false);
-                                ServLedgEntry.CalcSums("Amount (LCY)");
-                                if ServLedgEntry."Amount (LCY)" <> 0 then
-                                    StrToInsert := OpenPrepaymentEntriesExistTxt;
-                                if not ConfirmManagement.GetResponseOrDefault(
-                                     StrSubstNo(CancelTheContractQst, StrToInsert), true)
-                                then begin
-                                    Status := xRec.Status;
-                                    exit;
-                                end;
-                                FiledServContract.FileContractBeforeCancellation(xRec);
-                            end;
-                        "Contract Type"::Quote:
-                            case Status of
-                                Status::" ":
-                                    if xRec.Status = xRec.Status::Cancelled then begin
-                                        ServContractLine.Reset();
-                                        ServContractLine.SetRange("Contract Type", "Contract Type");
-                                        ServContractLine.SetRange("Contract No.", "Contract No.");
-                                        if ServContractLine.Find('-') then
-                                            repeat
-                                                ServContractLine2.Reset();
-                                                ServContractLine2.SetCurrentKey("Service Item No.");
-                                                ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
-                                                ServContractLine2.SetRange("Contract Type", "Contract Type"::Contract);
-                                                if ServContractLine2.FindFirst() then begin
-                                                    AnyServItemInOtherContract := true;
-                                                    ServContractLine.Mark(true);
-                                                end;
-                                            until ServContractLine.Next() = 0;
-
-                                        "Change Status" := "Change Status"::Open;
-
-                                        if AnyServItemInOtherContract then
-                                            if ConfirmManagement.GetResponse(
-                                                 StrSubstNo(Text062, Format(xRec.Status), FieldCaption(Status)), true)
-                                            then begin
-                                                ServContractLine.MarkedOnly(true);
-                                                PAGE.RunModal(PAGE::"Service Contract Line List", ServContractLine);
-                                            end;
-                                    end;
-                                Status::Signed:
-                                    Error(
-                                      Text009,
-                                      FieldCaption(Status), Status, FieldCaption("Contract Type"), "Contract Type");
-                                Status::Cancelled:
-                                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text010, "Contract No."), true) then begin
-                                        Status := xRec.Status;
-                                        exit;
-                                    end;
-                            end;
-                    end;
-                    if Status = Status::Cancelled then
-                        "Change Status" := "Change Status"::Locked;
-                    ServContractLine.Reset();
-                    ServContractLine.SetRange("Contract Type", "Contract Type");
-                    ServContractLine.SetRange("Contract No.", "Contract No.");
-                    ServContractLine.ModifyAll("Contract Status", Status);
+                    ChangeContractStatus();
                 end;
             end;
         }
@@ -270,6 +177,7 @@ table 5965 "Service Contract Header"
             var
                 CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 CheckChangeStatus();
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
@@ -287,10 +195,16 @@ table 5965 "Service Contract Header"
                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                         if "Bill-to Customer No." <> '' then begin
                             Cust.Get("Bill-to Customer No.");
-                            if Cust."Privacy Blocked" then
-                                Cust.CustPrivacyBlockedErrorMessage(Cust, false);
-                            if Cust.Blocked = Cust.Blocked::All then
-                                Cust.CustBlockedErrorMessage(Cust, false);
+                            IsHandled := false;
+                            OnValidateBillToCustomerNoOnBeforePrivacyBlockedCheck(Rec, Cust, IsHandled);
+                            if not IsHandled then
+                                if Cust."Privacy Blocked" then
+                                    Cust.CustPrivacyBlockedErrorMessage(Cust, false);
+                            IsHandled := false;
+                            OnValidateBillToCustomerNoOnBeforeBlockedCheck(Rec, Cust, IsHandled);
+                            if not IsHandled then
+                                if Cust.Blocked = Cust.Blocked::All then
+                                    Cust.CustBlockedErrorMessage(Cust, false);
                         end;
 
                     if "Customer No." <> '' then begin
@@ -2581,12 +2495,119 @@ table 5965 "Service Contract Header"
             end;
     end;
 
-    local procedure CheckChangeStatus()
+    local procedure ChangeContractStatus()
+    var
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        ConfirmManagement: Codeunit "Confirm Management";
+        AnyServItemInOtherContract: Boolean;
+        IsHandled: Boolean;
     begin
-        if (Status <> Status::Cancelled) and
-           not SuspendChangeStatus
-        then
-            TestField("Change Status", "Change Status"::Open);
+        IsHandled := false;
+        OnBeforeChangeContractStatus(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        case "Contract Type" of
+            "Contract Type"::Contract:
+                begin
+                    if Status <> Status::Cancelled then
+                        Error(Text006, FieldCaption(Status));
+
+                    CalcFields("No. of Unposted Invoices", "No. of Unposted Credit Memos");
+                    case true of
+                        ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" = 0):
+                            if not ConfirmManagement.GetResponseOrDefault(Text048, true) then begin
+                                Status := xRec.Status;
+                                exit;
+                            end;
+                        ("No. of Unposted Invoices" = 0) and ("No. of Unposted Credit Memos" <> 0):
+                            if not ConfirmManagement.GetResponseOrDefault(Text049, true) then begin
+                                Status := xRec.Status;
+                                exit;
+                            end;
+                        ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" <> 0):
+                            if not ConfirmManagement.GetResponseOrDefault(Text055, true) then begin
+                                Status := xRec.Status;
+                                exit;
+                            end;
+                    end;
+
+                    ServMgtSetup.Get();
+                    if ServMgtSetup."Use Contract Cancel Reason" then
+                        TestField("Cancel Reason Code");
+
+                    ServiceLedgerEntry.SetRange(Type, ServiceLedgerEntry.Type::"Service Contract");
+                    ServiceLedgerEntry.SetRange("No.", "Contract No.");
+                    ServiceLedgerEntry.SetRange("Moved from Prepaid Acc.", false);
+                    ServiceLedgerEntry.SetRange(Open, false);
+                    ServiceLedgerEntry.CalcSums("Amount (LCY)");
+                    if ServiceLedgerEntry."Amount (LCY)" <> 0 then
+                        StrToInsert := OpenPrepaymentEntriesExistTxt;
+                    if not ConfirmManagement.GetResponseOrDefault(
+                            StrSubstNo(CancelTheContractQst, StrToInsert), true)
+                    then begin
+                        Status := xRec.Status;
+                        exit;
+                    end;
+                    FiledServContract.FileContractBeforeCancellation(xRec);
+                end;
+            "Contract Type"::Quote:
+                case Status of
+                    Status::" ":
+                        if xRec.Status = xRec.Status::Cancelled then begin
+                            ServContractLine.Reset();
+                            ServContractLine.SetRange("Contract Type", "Contract Type");
+                            ServContractLine.SetRange("Contract No.", "Contract No.");
+                            if ServContractLine.Find('-') then
+                                repeat
+                                    ServContractLine2.Reset();
+                                    ServContractLine2.SetCurrentKey("Service Item No.");
+                                    ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
+                                    ServContractLine2.SetRange("Contract Type", "Contract Type"::Contract);
+                                    if ServContractLine2.FindFirst() then begin
+                                        AnyServItemInOtherContract := true;
+                                        ServContractLine.Mark(true);
+                                    end;
+                                until ServContractLine.Next() = 0;
+
+                            "Change Status" := "Change Status"::Open;
+
+                            if AnyServItemInOtherContract then
+                                if ConfirmManagement.GetResponse(
+                                        StrSubstNo(Text062, Format(xRec.Status), FieldCaption(Status)), true)
+                                then begin
+                                    ServContractLine.MarkedOnly(true);
+                                    PAGE.RunModal(PAGE::"Service Contract Line List", ServContractLine);
+                                end;
+                        end;
+                    Status::Signed:
+                        Error(
+                            Text009,
+                            FieldCaption(Status), Status, FieldCaption("Contract Type"), "Contract Type");
+                    Status::Cancelled:
+                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text010, "Contract No."), true) then begin
+                            Status := xRec.Status;
+                            exit;
+                        end;
+                end;
+        end;
+        if Status = Status::Cancelled then
+            "Change Status" := "Change Status"::Locked;
+        ServContractLine.Reset();
+        ServContractLine.SetRange("Contract Type", "Contract Type");
+        ServContractLine.SetRange("Contract No.", "Contract No.");
+        ServContractLine.ModifyAll("Contract Status", Status);
+    end;
+
+    local procedure CheckChangeStatus()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckChangeStatus(Rec, IsHandled);
+        if not IsHandled then
+            if (Status <> Status::Cancelled) and not SuspendChangeStatus then
+                TestField("Change Status", "Change Status"::Open);
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
@@ -2848,6 +2869,26 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCont(var ServiceContractHeader: Record "Service Contract Header"; CustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeContractStatus(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckChangeStatus(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforePrivacyBlockedCheck(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeBlockedCheck(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

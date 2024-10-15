@@ -1581,6 +1581,8 @@
             if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code");
         end;
+
+        OnAfterGetDefaultBin(Rec);
     end;
 
     procedure GetFromAssemblyBin(Location: Record Location; var BinCode: Code[20]) BinCodeNotEmpty: Boolean
@@ -1640,17 +1642,18 @@
     begin
         IsHandled := false;
         OnBeforeRunWhseSourceCreateDocument(Rec, ShowRequestPage, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            WhseSourceCreateDocument.SetAssemblyOrder(Rec);
+            if not ShowRequestPage then
+                WhseSourceCreateDocument.Initialize(
+                    AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
+            WhseSourceCreateDocument.UseRequestPage(ShowRequestPage);
+            WhseSourceCreateDocument.RunModal();
+            WhseSourceCreateDocument.GetResultMessage(2);
+            Clear(WhseSourceCreateDocument);
+        end;
 
-        WhseSourceCreateDocument.SetAssemblyOrder(Rec);
-        if not ShowRequestPage then
-            WhseSourceCreateDocument.Initialize(
-                AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
-        WhseSourceCreateDocument.UseRequestPage(ShowRequestPage);
-        WhseSourceCreateDocument.RunModal();
-        WhseSourceCreateDocument.GetResultMessage(2);
-        Clear(WhseSourceCreateDocument);
+        OnAfterRunWhseSourceCreateDocument(Rec, ShowRequestPage, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument);
     end;
 
     procedure CreateInvtMovement(MakeATOInvtMvmt: Boolean; PrintDocumentForATOMvmt: Boolean; ShowErrorForATOMvmt: Boolean; var ATOMovementsCreated: Integer; var ATOTotalMovementsToBeCreated: Integer)
@@ -2171,7 +2174,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; DoNotValidateButJustAssign: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; var DoNotValidateButJustAssign: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunWhseSourceCreateDocument(var AssemblyHeader: Record "Assembly Header"; ShowRequestPage: Boolean; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
     begin
     end;
 }

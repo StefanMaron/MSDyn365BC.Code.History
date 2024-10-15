@@ -838,8 +838,8 @@
 
     var
         FAMoveEntries: Codeunit "FA MoveEntries";
-        FADateCalc: Codeunit "FA Date Calculation";
-        DepreciationCalc: Codeunit "Depreciation Calculation";
+        FADateCalculation: Codeunit "FA Date Calculation";
+        DepreciationCalculation: Codeunit "Depreciation Calculation";
 
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'must not be 100';
@@ -893,7 +893,7 @@
 
     procedure CalcDeprPeriod()
     var
-        DeprBook2: Record "Depreciation Book";
+        DepreciationBook2: Record "Depreciation Book";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -912,14 +912,14 @@
                     Error(
                       Text002,
                       FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
-                DeprBook2.Get("Depreciation Book Code");
-                if DeprBook2."Fiscal Year 365 Days" then begin
+                DepreciationBook2.Get("Depreciation Book Code");
+                if DepreciationBook2."Fiscal Year 365 Days" then begin
                     "No. of Depreciation Months" := 0;
                     "No. of Depreciation Years" := 0;
                 end;
-                if not DeprBook2."Fiscal Year 365 Days" then begin
+                if not DepreciationBook2."Fiscal Year 365 Days" then begin
                     "No. of Depreciation Months" :=
-                      DepreciationCalc.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false) / 30;
+                      DepreciationCalculation.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false) / 30;
                     "No. of Depreciation Months" := Round("No. of Depreciation Months", 0.00000001);
                     "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
                 end;
@@ -935,9 +935,9 @@
         if "No. of Depreciation Years" = 0 then
             EndingDate := 0D
         else begin
-            EndingDate := FADateCalc.CalculateDate(
+            EndingDate := FADateCalculation.CalculateDate(
                 "Depreciation Starting Date", Round("No. of Depreciation Years" * 360, 1), false);
-            EndingDate := DepreciationCalc.Yesterday(EndingDate, false);
+            EndingDate := DepreciationCalculation.Yesterday(EndingDate, false);
             if EndingDate < "Depreciation Starting Date" then
                 EndingDate := "Depreciation Starting Date";
         end;
@@ -946,14 +946,14 @@
 
     procedure GetExchangeRate(): Decimal
     var
-        DeprBook: Record "Depreciation Book";
+        DepreciationBook: Record "Depreciation Book";
     begin
-        DeprBook.Get("Depreciation Book Code");
-        if not DeprBook."Use FA Exch. Rate in Duplic." then
+        DepreciationBook.Get("Depreciation Book Code");
+        if not DepreciationBook."Use FA Exch. Rate in Duplic." then
             exit(0);
         if "FA Exchange Rate" > 0 then
             exit("FA Exchange Rate");
-        exit(DeprBook."Default Exchange Rate");
+        exit(DepreciationBook."Default Exchange Rate");
     end;
 
     protected procedure LinearMethod() Result: Boolean
@@ -998,7 +998,14 @@
     end;
 
     local procedure CheckApplyDeprBookDefaults()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckApplyDeprBookDefaults(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not "Ignore Def. Ending Book Value" and
            (DeprBook."Default Ending Book Value" <> 0) and
            ("Ending Book Value" = 0)
@@ -1010,21 +1017,21 @@
 
     procedure Caption(): Text
     var
-        FA: Record "Fixed Asset";
-        DeprBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
     begin
         if "FA No." = '' then
             exit(Text004);
-        FA.Get("FA No.");
-        DeprBook.Get("Depreciation Book Code");
+        FixedAsset.Get("FA No.");
+        DepreciationBook.Get("Depreciation Book Code");
         exit(
           StrSubstNo(
-            '%1 %2 %3 %4', "FA No.", FA.Description, "Depreciation Book Code", DeprBook.Description));
+            '%1 %2 %3 %4', "FA No.", FixedAsset.Description, "Depreciation Book Code", DepreciationBook.Description));
     end;
 
     procedure DrillDownOnBookValue()
     var
-        FALedgEntry: Record "FA Ledger Entry";
+        FALedgerEntry: Record "FA Ledger Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1035,15 +1042,15 @@
         if "Disposal Date" > 0D then
             ShowBookValueAfterDisposal()
         else begin
-            SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
-            PAGE.Run(0, FALedgEntry);
+            SetBookValueFiltersOnFALedgerEntry(FALedgerEntry);
+            PAGE.Run(0, FALedgerEntry);
         end;
     end;
 
     procedure ShowBookValueAfterDisposal()
     var
-        TempFALedgEntry: Record "FA Ledger Entry" temporary;
-        FALedgEntry: Record "FA Ledger Entry";
+        TempFALedgerEntry: Record "FA Ledger Entry" temporary;
+        FALedgerEntry: Record "FA Ledger Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1052,15 +1059,15 @@
             exit;
 
         if "Disposal Date" > 0D then begin
-            Clear(TempFALedgEntry);
-            TempFALedgEntry.DeleteAll();
-            TempFALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            DepreciationCalc.SetFAFilter(FALedgEntry, "FA No.", "Depreciation Book Code", false);
-            SetBookValueAfterDisposalFiltersOnFALedgerEntry(FALedgEntry);
-            PAGE.Run(0, FALedgEntry);
+            Clear(TempFALedgerEntry);
+            TempFALedgerEntry.DeleteAll();
+            TempFALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+            DepreciationCalculation.SetFAFilter(FALedgerEntry, "FA No.", "Depreciation Book Code", false);
+            SetBookValueAfterDisposalFiltersOnFALedgerEntry(FALedgerEntry);
+            PAGE.Run(0, FALedgerEntry);
         end else begin
-            SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
-            PAGE.Run(0, FALedgEntry);
+            SetBookValueFiltersOnFALedgerEntry(FALedgerEntry);
+            PAGE.Run(0, FALedgerEntry);
         end;
     end;
 
@@ -1079,13 +1086,13 @@
             CalcFields("Book Value");
     end;
 
-    procedure SetBookValueFiltersOnFALedgerEntry(var FALedgEntry: Record "FA Ledger Entry")
+    procedure SetBookValueFiltersOnFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry")
     begin
-        FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
-        FALedgEntry.SetRange("FA No.", "FA No.");
-        FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-        FALedgEntry.SetRange("Part of Book Value", true);
-        OnAfterSetBookValueFiltersOnFALedgerEntry(FALedgEntry);
+        FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
+        FALedgerEntry.SetRange("FA No.", "FA No.");
+        FALedgerEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
+        FALedgerEntry.SetRange("Part of Book Value", true);
+        OnAfterSetBookValueFiltersOnFALedgerEntry(FALedgerEntry);
     end;
 
     procedure LineIsReadyForAcquisition(FANo: Code[20]): Boolean
@@ -1129,12 +1136,12 @@
             "Book Value" := 0;
     end;
 
-    local procedure SetBookValueAfterDisposalFiltersOnFALedgerEntry(var FALedgEntry: Record "FA Ledger Entry")
+    local procedure SetBookValueAfterDisposalFiltersOnFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry")
     begin
-        SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
-        FALedgEntry.SetRange("Part of Book Value");
+        SetBookValueFiltersOnFALedgerEntry(FALedgerEntry);
+        FALedgerEntry.SetRange("Part of Book Value");
         if GetFilter("FA Posting Date Filter") <> '' then
-            FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
+            FALedgerEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
     end;
 
     [IntegrationEvent(false, false)]
@@ -1237,10 +1244,13 @@
     begin
     end;
 
-
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFADeprBook(FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplyDeprBookDefaults(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

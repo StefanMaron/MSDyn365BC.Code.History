@@ -4944,9 +4944,11 @@
         end;
     end;
 
-    procedure CalcChargeableQty(): Decimal
+    procedure CalcChargeableQty() ChargableQty: Decimal
     begin
-        exit(Quantity - "Quantity Consumed" - "Qty. to Consume");
+        ChargableQty := Quantity - "Quantity Consumed" - "Qty. to Consume";
+        OnAfterCalcChargeableQty(Rec, ChargableQty);
+        exit(ChargableQty);
     end;
 
     procedure SignedXX(Value: Decimal): Decimal
@@ -5431,9 +5433,17 @@
     end;
 
     procedure UpdateWithWarehouseShip()
+    var
+        IsHandled: Boolean;    
     begin
         if Type <> Type::Item then
             exit;
+
+        IsHandled := false;
+        OnBeforeUpdateWithWarehouseShipOnAfterVerifyType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+                        
         if "Document Type" in ["Document Type"::Quote, "Document Type"::Order] then
             if Location.RequireShipment("Location Code") then begin
                 Validate("Qty. to Ship", 0);
@@ -5448,7 +5458,13 @@
         WhseSetup: Record "Warehouse Setup";
         ShowDialog: Option " ",Message,Error;
         DialogText: Text[100];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         if "Location Code" = '' then begin
             WhseSetup.Get();
@@ -6692,6 +6708,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouse(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithWarehouseShipOnAfterVerifyType(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcChargeableQty(ServiceLine: Record "Service Line"; var ChargableQty: Decimal)
     begin
     end;
 }

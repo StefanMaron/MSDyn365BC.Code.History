@@ -1,4 +1,4 @@
-#if CLEAN20
+﻿#if CLEAN20
 table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
@@ -1914,7 +1914,7 @@ table 246 "Requisition Line"
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
-        OnBeforeUpdateDescription(Rec, CurrFieldNo, IsHandled);
+        OnBeforeUpdateDescription(Rec, CurrFieldNo, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -3885,7 +3885,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateDescription(RequisitionLine: Record "Requisition Line"; Item: Record Item; ItemVariant: Record "Item Variant"; FieldNo: Integer)
+    local procedure OnAfterUpdateDescription(var RequisitionLine: Record "Requisition Line"; Item: Record Item; ItemVariant: Record "Item Variant"; FieldNo: Integer)
     begin
     end;
 
@@ -4133,7 +4133,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateDescription(var RequisitionLine: Record "Requisition Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateDescription(var RequisitionLine: Record "Requisition Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; xRequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -4393,7 +4393,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(var ReqLine: Record "Requisition Line"; CurrExchRate: Record "Currency Exchange Rate")
+    local procedure OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(var ReqLine: Record "Requisition Line"; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 

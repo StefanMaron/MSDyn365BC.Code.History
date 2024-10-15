@@ -502,8 +502,8 @@ codeunit 395 "FinChrgMemo-Issue"
         // check whether VAT Date is within allowed VAT Periods
         GenJnlCheckLine.CheckVATDateAllowed(FinChrgMemoHeader."VAT Reporting Date");
 
-        // check whether VAT Date is within Allowed period fedined in Gen. Ledger Setup
-        if GenJnlCheckLine.IsDateNotAllowed(FinChrgMemoHeader."VAT Reporting Date", SetupRecID, FinChrgMemoHeader.Name) then
+        // check whether VAT Date is within Allowed period defined in Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(FinChrgMemoHeader."VAT Reporting Date", SetupRecID, '') then
             ErrorMessageMgt.LogContextFieldError(
               FinChrgMemoHeader.FieldNo("VAT Reporting Date"), StrSubstNo(VATDateNotAllowedErr, FinChrgMemoHeader.FieldCaption("VAT Reporting Date")),
               SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),

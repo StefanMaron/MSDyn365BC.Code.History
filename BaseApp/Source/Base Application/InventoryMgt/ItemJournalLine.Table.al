@@ -988,7 +988,7 @@
                                     begin
                                         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Order No.");
                                         Description := AssemblyHeader.Description;
-                                        OnValidateOrderNoOnAfterProcessOrderTypeAssembly(Rec, ProdOrder);
+                                        OnValidateOrderNoOnAfterProcessOrderTypeAssembly(Rec, ProdOrder, AssemblyHeader);
                                     end;
                             end;
 
@@ -1201,7 +1201,10 @@
                         Item.TestField(Type, Item.Type::Inventory);
                         GetBin("Location Code", "Bin Code");
                         GetLocation("Location Code");
-                        Location.TestField("Bin Mandatory");
+                        IsHandled := false;
+                        OnBinCodeOnBeforeTestBinMandatory(Rec, IsHandled);
+                        if not IsHandled then
+                            Location.TestField("Bin Mandatory");
                         if CurrFieldNo <> 0 then
                             WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Bin Code"));
                         TestField("Location Code", Bin."Location Code");
@@ -1724,6 +1727,7 @@
 
                 if Type in [Type::"Work Center", Type::"Machine Center"] then begin
                     "Work Center No." := WorkCenter."No.";
+                    ErrorIfSubcontractingWorkCenterUsed();
                     "Work Center Group Code" := WorkCenter."Work Center Group Code";
                     Validate("Cap. Unit of Measure Code", WorkCenter."Unit of Measure Code");
                 end;
@@ -1770,6 +1774,11 @@
             Caption = 'Work Center No.';
             Editable = false;
             TableRelation = "Work Center";
+
+            trigger OnValidate()
+            begin
+                ErrorIfSubcontractingWorkCenterUsed();
+            end;
         }
         field(5841; "Setup Time"; Decimal)
         {
@@ -3369,42 +3378,47 @@
     end;
 
     procedure CopyFromServLine(ServiceLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
     begin
-        "Item No." := ServiceLine."No.";
-        "Posting Date" := ServiceLine."Posting Date";
-        Description := ServiceLine.Description;
-        "Shortcut Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServiceLine."Dimension Set ID";
-        "Location Code" := ServiceLine."Location Code";
-        "Bin Code" := ServiceLine."Bin Code";
-        "Variant Code" := ServiceLine."Variant Code";
-        "Inventory Posting Group" := ServiceLine."Posting Group";
-        "Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
-        "Applies-to Entry" := ServiceLine."Appl.-to Item Entry";
-        "Transaction Type" := ServiceLine."Transaction Type";
-        "Transport Method" := ServiceLine."Transport Method";
-        "Entry/Exit Point" := ServiceLine."Exit Point";
-        Area := ServiceLine.Area;
-        "Transaction Specification" := ServiceLine."Transaction Specification";
-        "Entry Type" := "Entry Type"::Sale;
-        "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
-        "Qty. Rounding Precision" := ServiceLine."Qty. Rounding Precision";
-        "Qty. Rounding Precision (Base)" := ServiceLine."Qty. Rounding Precision (Base)";
-        "Derived from Blanket Order" := false;
-        "Item Category Code" := ServiceLine."Item Category Code";
-        Nonstock := ServiceLine.Nonstock;
-        "Return Reason Code" := ServiceLine."Return Reason Code";
-        "Order Type" := "Order Type"::Service;
-        "Order No." := ServiceLine."Document No.";
-        "Order Line No." := ServiceLine."Line No.";
-        "Job No." := ServiceLine."Job No.";
-        "Job Task No." := ServiceLine."Job Task No.";
-        "Price Calculation Method" := ServiceLine."Price Calculation Method";
-        "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
-
+        IsHandled := false;
+        OnBeforeCopyItemJnlLineFromServLine(Rec, ServiceLine, IsHandled);
+        if not IsHandled then begin
+            "Item No." := ServiceLine."No.";
+            "Posting Date" := ServiceLine."Posting Date";
+            Description := ServiceLine.Description;
+            "Shortcut Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
+            "Shortcut Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := ServiceLine."Dimension Set ID";
+            "Location Code" := ServiceLine."Location Code";
+            "Bin Code" := ServiceLine."Bin Code";
+            "Variant Code" := ServiceLine."Variant Code";
+            "Inventory Posting Group" := ServiceLine."Posting Group";
+            "Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
+            "Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
+            "Applies-to Entry" := ServiceLine."Appl.-to Item Entry";
+            "Transaction Type" := ServiceLine."Transaction Type";
+            "Transport Method" := ServiceLine."Transport Method";
+            "Entry/Exit Point" := ServiceLine."Exit Point";
+            Area := ServiceLine.Area;
+            "Transaction Specification" := ServiceLine."Transaction Specification";
+            "Entry Type" := "Entry Type"::Sale;
+            "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
+            "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
+            "Qty. Rounding Precision" := ServiceLine."Qty. Rounding Precision";
+            "Qty. Rounding Precision (Base)" := ServiceLine."Qty. Rounding Precision (Base)";
+            "Derived from Blanket Order" := false;
+            "Item Category Code" := ServiceLine."Item Category Code";
+            Nonstock := ServiceLine.Nonstock;
+            "Return Reason Code" := ServiceLine."Return Reason Code";
+            "Order Type" := "Order Type"::Service;
+            "Order No." := ServiceLine."Document No.";
+            "Order Line No." := ServiceLine."Line No.";
+            "Job No." := ServiceLine."Job No.";
+            "Job Task No." := ServiceLine."Job Task No.";
+            "Price Calculation Method" := ServiceLine."Price Calculation Method";
+            "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
+        end;
         OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
     end;
 
@@ -4297,6 +4311,18 @@
             if WorkCenter.Get("Work Center No.") then
                 Result := WorkCenter."Subcontractor No." <> '';
         OnAfterSubcontractingWorkCenterUsed(Rec, WorkCenter, Result);
+    end;
+
+    local procedure ErrorIfSubcontractingWorkCenterUsed()
+    begin
+        if not SubcontractingWorkCenterUsed() then
+            exit;        
+        if "Setup Time" <> 0 then
+            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Setup Time"), "Line No."), true));
+        if "Run Time" <> 0 then
+            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Run Time"), "Line No."), true));
+        if "Output Quantity" <> 0 then
+            Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Output Quantity"), "Line No."), true));
     end;
 
     procedure CheckItemJournalLineRestriction()
@@ -5259,7 +5285,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order")
+    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
 
@@ -5487,6 +5513,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinCodeOnBeforeTestBinMandatory(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

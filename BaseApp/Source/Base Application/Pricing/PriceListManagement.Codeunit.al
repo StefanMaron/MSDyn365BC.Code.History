@@ -156,18 +156,18 @@ codeunit 7017 "Price List Management"
     procedure CopyLines(var ToPriceListHeader: Record "Price List Header"; UpdateMultiplePriceLists: Boolean)
     var
         PriceLineFilters: Record "Price Line Filters";
-        SuggestPriceLine: Page "Suggest Price Lines";
+        SuggestPriceLines: Page "Suggest Price Lines";
     begin
         PriceLineFilters."Update Multiple Price Lists" := UpdateMultiplePriceLists;
         PriceLineFilters.Worksheet := ToPriceListHeader.IsTemporary();
         if PriceLineFilters.Worksheet then
-            SuggestPriceLine.SetDefaults(ToPriceListHeader);
+            SuggestPriceLines.SetDefaults(ToPriceListHeader);
         PriceLineFilters.Initialize(ToPriceListHeader, true);
-        SuggestPriceLine.SetRecord(PriceLineFilters);
-        if SuggestPriceLine.RunModal() = Action::OK then begin
-            SuggestPriceLine.GetRecord(PriceLineFilters);
+        SuggestPriceLines.SetRecord(PriceLineFilters);
+        if SuggestPriceLines.RunModal() = Action::OK then begin
+            SuggestPriceLines.GetRecord(PriceLineFilters);
             if PriceLineFilters."Copy As New Lines" then
-                SuggestPriceLine.GetDefaults(ToPriceListHeader);
+                SuggestPriceLines.GetDefaults(ToPriceListHeader);
             CopyLines(ToPriceListHeader, PriceLineFilters);
         end;
     end;
@@ -582,6 +582,8 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type"): Boolean;
+    var
+        MarkingIsUsed: Boolean;
     begin
         PriceListLine.FilterGroup(2);
         PriceListLine.SetRange(Status, "Price Status"::Draft, "Price Status"::Active);
@@ -595,16 +597,22 @@ codeunit 7017 "Price List Management"
             PriceListLine.SetRange("Source Type", PriceSource."Source Type");
             PriceListLine.SetRange("Source No.", PriceSource."Source No.");
         end;
-        BuildAssetFilters(PriceListLine, PriceAssetList);
-        PriceListLine.MarkedOnly(true);
+        BuildAssetFilters(PriceListLine, PriceAssetList, MarkingIsUsed);
+        if MarkingIsUsed then
+            PriceListLine.MarkedOnly(true);
         PriceListLine.FilterGroup(0);
     end;
 
-    local procedure BuildAssetFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List")
+    local procedure BuildAssetFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"; var MarkingIsUsed: Boolean)
     var
         PriceAsset: Record "Price Asset";
     begin
         PriceListLine.SetLoadFields("Price List Code");
+
+        MarkingIsUsed := true;
+        if not SearchIfPriceExists then
+            MarkingIsUsed := CheckIfPriceListLineMarkingIsNeeded(PriceListLine, PriceAssetList);
+
         if PriceAssetList.First(PriceAsset, 0) then
             repeat
                 PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
@@ -623,7 +631,11 @@ codeunit 7017 "Price List Management"
                         PriceListLine.SetLoadFields();
                         PriceIsFound := true;
                         exit;
-                    end;
+                    end else
+                        if not MarkingIsUsed then begin
+                            PriceListLine.SetLoadFields();
+                            exit;
+                        end;
                     repeat
                         PriceListLine.Mark(true);
                     until PriceListLine.Next() = 0;
@@ -631,6 +643,35 @@ codeunit 7017 "Price List Management"
             until not PriceAssetList.Next(PriceAsset);
         ClearAssetFilters(PriceListLine);
         PriceListLine.SetLoadFields();
+    end;
+
+    local procedure CheckIfPriceListLineMarkingIsNeeded(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"): Boolean;
+    var
+        PriceAsset: Record "Price Asset";
+        RecordSetsCounter: Integer;
+    begin
+        if PriceAssetList.First(PriceAsset, 0) then
+            repeat
+                PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
+                if PriceAsset."Asset No." <> '' then
+                    PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.")
+                else
+                    PriceListLine.SetRange("Asset No.");
+                if PriceAsset."Variant Code" <> '' then
+                    PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
+                else
+                    PriceListLine.SetRange("Variant Code");
+                if not PriceListLine.IsEmpty() then begin
+                    RecordSetsCounter += 1;
+                    if RecordSetsCounter > 1 then begin
+                        ClearAssetFilters(PriceListLine);
+                        exit(true);
+                    end;
+                end;
+            until not PriceAssetList.Next(PriceAsset);
+        ClearAssetFilters(PriceListLine);
+        if RecordSetsCounter = 0 then
+            exit(true);
     end;
 
     local procedure ClearAssetFilters(var PriceListLine: Record "Price List Line")
@@ -957,7 +998,7 @@ codeunit 7017 "Price List Management"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCopyLineOnAfterAdjustAmounts(var ToPriceListLine: Record "Price List Line"; PriceLineFilters: Record "Price Line Filters"; FromPriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header")
+    local procedure OnCopyLineOnAfterAdjustAmounts(var ToPriceListLine: Record "Price List Line"; PriceLineFilters: Record "Price Line Filters"; var FromPriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header")
     begin
     end;
 

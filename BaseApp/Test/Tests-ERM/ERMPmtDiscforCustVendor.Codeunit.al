@@ -20,6 +20,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         AmountLCYErr: Label '%1 should be %2 in %3.', Comment = '.';
@@ -1243,11 +1244,15 @@
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Pmt Disc for Cust/Vendor");
+
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Pmt Disc for Cust/Vendor");
 
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
@@ -1271,6 +1276,8 @@
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
         LibrarySetupStorage.SaveSalesSetup();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Pmt Disc for Cust/Vendor");
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20])

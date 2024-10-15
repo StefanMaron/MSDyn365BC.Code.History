@@ -251,6 +251,8 @@ table 60 "Document Sending Profile"
             RecordAsText := StrSubstNo(
                 RecordAsTextFormatterTxt, StrSubstNo(FieldCaptionContentFormatterTxt, FieldCaption(Disk), Disk), RecordAsText);
 
+        OnAfterGetRecordAsText(Rec, RecordAsText, RecordAsTextFormatterTxt, FieldCaptionContentFormatterTxt);
+
         exit(RecordAsText);
     end;
 
@@ -1066,6 +1068,11 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifySelectedOptionsValid(var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordAsText(DocumentSendingProfile: Record "Document Sending Profile"; var RecordAsText: Text; RecordAsTextFormatterTxt: Text; FieldCaptionContentFormatterTxt: Text)
     begin
     end;
 }

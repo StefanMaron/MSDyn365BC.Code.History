@@ -1011,7 +1011,10 @@
         if IsHandled then
             exit;
 
-        ToProdOrder.CopyLinks(FromProdOrder);
+        IsHandled := false;
+        OnTransferLinksOnBeforeCopyLinks(FromProdOrder, ToProdOrder, IsHandled);
+        if not IsHandled then
+            ToProdOrder.CopyLinks(FromProdOrder);
         RecordLink.SetRange("Record ID", FromProdOrder.RecordId);
         RecordLink.DeleteAll();
 
@@ -1393,6 +1396,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBeforeFinishProdOrderOnBeforeFindSet(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLinksOnBeforeCopyLinks(var FromProductionOrder: Record "Production Order"; var ToProductionOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 }

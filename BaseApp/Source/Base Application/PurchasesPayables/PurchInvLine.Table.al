@@ -793,13 +793,13 @@ table 123 "Purch. Inv. Line"
         key(Key1; "Document No.", "Line No.")
         {
             Clustered = true;
-            MaintainSIFTIndex = false;
         }
         key(Key2; "Blanket Order No.", "Blanket Order Line No.")
         {
         }
         key(Key3; Type, "No.", "Variant Code")
         {
+            IncludedFields = "Quantity (Base)";
         }
         key(Key4; "Buy-from Vendor No.")
         {
@@ -810,7 +810,7 @@ table 123 "Purch. Inv. Line"
         key(Key6; "Document No.", "Location Code")
         {
             MaintainSQLIndex = false;
-            SumIndexFields = Amount, "Amount Including VAT";
+            SumIndexFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
         }
     }
 

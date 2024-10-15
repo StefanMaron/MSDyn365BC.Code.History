@@ -110,6 +110,8 @@ report 6698 "Move Negative Purchase Lines"
             ToDocType := ToDocType2;
         ToPurchHeader."Document Type" := CopyDocMgt.GetPurchaseDocumentType("Purchase Document Type From".FromInteger(ToDocType));
         CopyDocMgt.CopyPurchDoc("Purchase Document Type From".FromInteger(FromDocType), FromPurchHeader."No.", ToPurchHeader);
+
+        OnAfterPreReport(CopyDocMgt);
     end;
 
     var
@@ -152,6 +154,11 @@ report 6698 "Move Negative Purchase Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPreReport(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
     begin
     end;
 }

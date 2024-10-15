@@ -868,6 +868,7 @@ page 6510 "Item Tracking Lines"
         TrackingSpec: Record "Tracking Specification";
         WMSManagement: Codeunit "WMS Management";
         AlreadyDeleted: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeDeleteRecord(Rec);
 
@@ -877,22 +878,23 @@ page 6510 "Item Tracking Lines"
         TrackingSpec."Source Subtype" := Rec."Source Subtype";
         WMSManagement.CheckItemTrackingChange(TrackingSpec, Rec);
 
-        OnDeleteRecordOnAfterWMSCheckTrackingChange(TrackingSpec, Rec);
+        IsHandled := false;
+        OnDeleteRecordOnAfterWMSCheckTrackingChange(TrackingSpec, Rec, xRec, DeleteIsBlocked, CurrentSignFactor, SourceQuantityArray[1] < 0, IsHandled);
+        if not IsHandled then
+            if not DeleteIsBlocked then begin
+                AlreadyDeleted := TempItemTrackLineDelete.Get(Rec."Entry No.");
+                TempItemTrackLineDelete.TransferFields(Rec);
+                Rec.Delete(true);
 
-        if not DeleteIsBlocked then begin
-            AlreadyDeleted := TempItemTrackLineDelete.Get(Rec."Entry No.");
-            TempItemTrackLineDelete.TransferFields(Rec);
-            Rec.Delete(true);
-
-            if not AlreadyDeleted then
-                TempItemTrackLineDelete.Insert();
-            ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
-              TempItemTrackLineDelete, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
-            if TempItemTrackLineInsert.Get(Rec."Entry No.") then
-                TempItemTrackLineInsert.Delete();
-            if TempItemTrackLineModify.Get(Rec."Entry No.") then
-                TempItemTrackLineModify.Delete();
-        end;
+                if not AlreadyDeleted then
+                    TempItemTrackLineDelete.Insert();
+                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
+                  TempItemTrackLineDelete, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
+                if TempItemTrackLineInsert.Get(Rec."Entry No.") then
+                    TempItemTrackLineInsert.Delete();
+                if TempItemTrackLineModify.Get(Rec."Entry No.") then
+                    TempItemTrackLineModify.Delete();
+            end;
         CalculateSums();
 
         exit(false);
@@ -2438,6 +2440,8 @@ page 6510 "Item Tracking Lines"
         if QtyToCreate < 0 then
             QtyToCreate := 0;
 
+        OnAssignTrackingNoOnAfterCalcQtyToCreate(Rec, SourceTrackingSpecification, TotalTrackingSpecification, QtyToCreate, Rec.FieldNo("Serial No."));
+
         if QtyToCreate mod 1 <> 0 then
             Error(Text008);
 
@@ -2522,6 +2526,8 @@ page 6510 "Item Tracking Lines"
         else
             QtyToCreate := UndefinedQtyArray[1];
 
+        OnAssignTrackingNoOnAfterCalcQtyToCreate(Rec, SourceTrackingSpecification, TotalTrackingSpecification, QtyToCreate, Rec.FieldNo("Lot No."));
+
         GetItem(Rec."Item No.");
 
         Rec.Validate("Quantity Handled (Base)", 0);
@@ -2581,6 +2587,8 @@ page 6510 "Item Tracking Lines"
             QtyToCreate := 0
         else
             QtyToCreate := UndefinedQtyArray[1];
+
+        OnAssignTrackingNoOnAfterCalcQtyToCreate(Rec, SourceTrackingSpecification, TotalTrackingSpecification, QtyToCreate, Rec.FieldNo("Package No."));
 
         GetItem(Rec."Item No.");
 
@@ -2645,6 +2653,8 @@ page 6510 "Item Tracking Lines"
         QtyToCreate := UndefinedQtyArray[1] * QtySignFactor();
         if QtyToCreate < 0 then
             QtyToCreate := 0;
+
+        OnAssignTrackingNoOnAfterCalcQtyToCreate(Rec, SourceTrackingSpecification, TotalTrackingSpecification, QtyToCreate, Rec.FieldNo("Serial No."));
 
         if QtyToCreate mod 1 <> 0 then
             Error(Text008);
@@ -2925,6 +2935,7 @@ page 6510 "Item Tracking Lines"
                             TempItemTrackLineInsert.Insert();
                         end;
                 end;
+                OnSelectEntriesOnBeforeResetStatus(Rec);
                 Rec."Buffer Status" := 0;
                 Rec.Modify();
             until Rec.Next() = 0;
@@ -3768,7 +3779,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteRecordOnAfterWMSCheckTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
+    local procedure OnDeleteRecordOnAfterWMSCheckTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; xRecTrackingSpecification: Record "Tracking Specification"; DeleteIsBlocked: Boolean; CurrentSignFactor: Integer; LineIsDemand: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -3804,6 +3815,16 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterItemTrackingLinesOnBeforeInsert(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SourceTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignTrackingNoOnAfterCalcQtyToCreate(var TrackingSpecification: Record "Tracking Specification"; var SourceTrackingSpecification: Record "Tracking Specification"; var TotalTrackingSpecification: Record "Tracking Specification"; var QtyToCreate: Decimal; FieldID: Integer)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectEntriesOnBeforeResetStatus(var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }
