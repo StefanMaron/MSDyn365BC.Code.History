@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 6620 "Copy Document Mgt."
 {
 
@@ -1278,7 +1278,7 @@ codeunit 6620 "Copy Document Mgt."
             TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Error);
             if TempErrorMessage.FindFirst() then begin
                 if SkipWarningNotification then
-                    Error(TempErrorMessage.Description);
+                    Error(TempErrorMessage."Message");
                 exit(true);
             end;
             exit(not SkipWarningNotification);
@@ -1535,6 +1535,7 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesDocLineOnAfterMoveNegLines(ToSalesLine, FromSalesLine);
         end;
 
+        OnCopySalesDocLineOnBeforeCopySalesJobFields(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, FromSalesDocType);
         if CopyJobData then
             CopySalesJobFields(ToSalesLine, ToSalesHeader, FromSalesLine);
 
@@ -1929,7 +1930,7 @@ codeunit 6620 "Copy Document Mgt."
             OnBeforeInsertToPurchLine(
                 ToPurchLine, FromPurchLine, FromPurchDocType.AsInteger(), RecalculateLines, ToPurchHeader, DocLineNo, NextLineNo);
             ToPurchLine.Insert();
-            OnAfterInsertToPurchLine(ToPurchLine, FromPurchLine, RecalculateLines, DocLineNo, FromPurchDocType, ToPurchHeader);
+            OnAfterInsertToPurchLine(ToPurchLine, FromPurchLine, RecalculateLines, DocLineNo, FromPurchDocType, ToPurchHeader, MoveNegLines);
         end else
             LinesNotCopied := LinesNotCopied + 1;
 
@@ -8768,7 +8769,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertToPurchLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromPurchDocType: Enum "Purchase Document Type From"; var ToPurchHeader: Record "Purchase Header")
+    local procedure OnAfterInsertToPurchLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromPurchDocType: Enum "Purchase Document Type From"; var ToPurchHeader: Record "Purchase Header"; MoveNegLines: Boolean)
     begin
     end;
 
@@ -9946,6 +9947,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTempReservationEntryOnBeforeInsert(var TempReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopySalesDocLineOnBeforeCopySalesJobFields(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; FromSalesDocType: Enum "Sales Document Type From")
     begin
     end;
 }

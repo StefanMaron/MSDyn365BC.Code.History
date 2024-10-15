@@ -4182,6 +4182,8 @@
             Validate("Currency Factor")
         else
             "Currency Factor" := xRec."Currency Factor";
+
+        OnAfterConfirmCurrencyFactorUpdate(Rec, Confirmed);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -4846,7 +4848,7 @@
         end else
             if Cust.Get(CustomerNo) then begin
                 if Cust."Primary Contact No." <> '' then
-                    "Sell-to Contact No." := Cust."Primary Contact No."
+                    Validate("Sell-to Contact No.", Cust."Primary Contact No.")
                 else begin
                     ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
@@ -8162,7 +8164,7 @@
     procedure SalesLinesEditable() IsEditable: Boolean;
     begin
         if "Document Type" = "Document Type"::Quote then
-            IsEditable := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Customer Templ. Code" <> '') or (Rec."Sell-to Contact No." <> '')
+            IsEditable := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Customer Templ. Code" <> '') or (Rec."Sell-to Contact No." <> '') or (Rec.GetFilter("Sell-to Contact No.") <> '')
         else
             IsEditable := Rec."Sell-to Customer No." <> '';
 
@@ -8268,6 +8270,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConfirmSalesPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConfirmCurrencyFactorUpdate(var SalesHeader: Record "Sales Header"; var Confirmed: Boolean)
     begin
     end;
 
@@ -9618,7 +9625,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetBillToCustomerNo(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnBeforeSetBillToCustomerNo(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var CurrentFieldNo: Integer)
     begin
     end;
 

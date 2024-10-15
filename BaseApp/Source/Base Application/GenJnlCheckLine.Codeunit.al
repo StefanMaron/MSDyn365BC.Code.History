@@ -1,7 +1,9 @@
 ﻿#if not CLEAN19
 codeunit 11 "Gen. Jnl.-Check Line"
 {
-    Permissions = TableData "General Posting Setup" = rimd;
+    Permissions = tabledata "General Posting Setup" = rimd,
+                  tabledata "Cost Accounting Setup" = R,
+                  tabledata "Payment Terms" = R;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()

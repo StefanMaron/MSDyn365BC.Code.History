@@ -252,6 +252,7 @@ page 973 "Time Sheet Card"
         TimeSheetMgt: Codeunit "Time Sheet Management";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         RefActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject;
+        EmploymentQst: Label 'Time Sheet: %1 for dates prior to the Employment Date: %2  for Resource user.Do you still want to submit open lines?', Comment = '%1=Time Sheet No; %2= Resource Employment Date';
         SubmitEnabled: Boolean;
         ReopenSubmittedEnabled: Boolean;
         ReopenApprovedEnabled: Boolean;
@@ -322,8 +323,9 @@ page 973 "Time Sheet Card"
         if IsHandled then
             exit;
 
-        if TimeSheetApprovalMgt.ConfirmAction(RefActionType::Submit) then
-            Process(RefActionType::Submit);
+        if not CheckResourceEmployment(RefActionType::Submit, Rec."Resource No.") then
+            if TimeSheetApprovalMgt.ConfirmAction(RefActionType::Submit) then
+                Process(RefActionType::Submit);
     end;
 
     local procedure ApproveLines()
@@ -335,8 +337,9 @@ page 973 "Time Sheet Card"
         if IsHandled then
             exit;
 
-        if TimeSheetApprovalMgt.ConfirmAction(RefActionType::Approve) then
-            Process(RefActionType::Approve);
+        if not CheckResourceEmployment(RefActionType::Approve, Rec."Resource No.") then
+            if TimeSheetApprovalMgt.ConfirmAction(RefActionType::Approve) then
+                Process(RefActionType::Approve);
     end;
 
     local procedure RejectLines()
@@ -376,6 +379,21 @@ page 973 "Time Sheet Card"
 
         if TimeSheetApprovalMgt.ConfirmAction(RefActionType::ReopenApproved) then
             Process(RefActionType::ReopenApproved);
+    end;
+
+    local procedure CheckResourceEmployment(ActionType: Option Submit,Reopen,Approve,ReopenApproved,Reject; ResourceNo: Code[20]): Boolean
+    var
+        Resource: Record Resource;
+    begin
+        if Resource.Get(ResourceNo) then
+            if Resource."Employment Date" <> 0D then
+                if Resource."Employment Date" > Rec."Starting Date" then begin
+                    if Confirm(EmploymentQst, false, Rec."No.", Resource."Employment Date") then
+                        Process(ActionType);
+                    exit(true);
+                end;
+
+        exit(false)
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)

@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN20
 codeunit 5704 "TransferOrder-Post Shipment"
 {
     Permissions = TableData "Item Entry Relation" = i;
@@ -32,9 +32,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 WhseReference := "Posting from Whse. Ref.";
                 "Posting from Whse. Ref." := 0;
 
-                if "Shipping Advice" = "Shipping Advice"::Complete then
-                    if not GetShippingAdvice() then
-                        Error(Text008);
+                CheckShippingAdvice(TransHeader);
 
                 CheckDim();
                 CheckLines(TransHeader, TransLine);
@@ -43,9 +41,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 InvtPickPutaway := WhseReference <> 0;
                 CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
-            GetLocation("Transfer-from Code");
-            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
-                WhsePosting := true;
+                GetLocation("Transfer-from Code");
+                if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+                    WhsePosting := true;
 
                 if GuiAllowed then begin
                     Window.Open(
@@ -69,7 +67,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 PostedWhseShptHeader.LockTable();
                 TransShptHeader.LockTable();
                 InsertTransShptHeader(TransShptHeader, TransHeader, InvtSetup."Posted Transfer Shpt. Nos.");
-                OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
 
                 if InvtSetup."Copy Comments Order to Shpt." then begin
                     InvtCommentLine.CopyCommentLines(
@@ -105,7 +102,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                             CheckItemNotBlocked(Item);
                         end;
 
-                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
+                        OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
 
                         InsertTransShptLine(TransShptHeader);
                     until TransLine.Next() = 0;
@@ -681,6 +678,20 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
     end;
 
+    local procedure CheckShippingAdvice(var TransferHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckHeaderShippingAdvice(TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferHeader."Shipping Advice" = TransferHeader."Shipping Advice"::Complete then
+            if not GetShippingAdvice() then
+                Error(Text008);
+    end;
+
     local procedure LockTables(AutoCostPosting: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -738,7 +749,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransferHeader.Status := TransferHeader.Status::Released;
         end;
     end;
-
 
     local procedure MakeInventoryAdjustment()
     var
@@ -968,6 +978,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckHeaderShippingAdvice(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

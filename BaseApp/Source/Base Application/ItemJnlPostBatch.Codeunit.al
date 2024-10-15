@@ -350,11 +350,12 @@ codeunit 23 "Item Jnl.-Post Batch"
     var
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
         IncrBatchName: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandleNonRecurringLine(ItemJnlLine, IsHandled);
+        OnBeforeHandleNonRecurringLine(ItemJnlLine, IsHandled, OldEntryType);
         if IsHandled then
             exit;
 
@@ -366,6 +367,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
             ItemJnlLine3.Copy(ItemJnlLine);
             OnHandleNonRecurringLineOnAfterCopyItemJnlLine3(ItemJnlLine, ItemJnlLine3);
+            RecordLinkManagement.RemoveLinks(ItemJnlLine3);
             ItemJnlLine3.DeleteAll();
             ItemJnlLine3.Reset();
             ItemJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
@@ -1026,7 +1028,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandleNonRecurringLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeHandleNonRecurringLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; var OldEntryType: Enum "Item Ledger Entry Type")
     begin
     end;
 

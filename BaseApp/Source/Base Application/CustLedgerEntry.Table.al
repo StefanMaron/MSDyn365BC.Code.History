@@ -3,6 +3,7 @@ table 21 "Cust. Ledger Entry"
     Caption = 'Cust. Ledger Entry';
     DrillDownPageID = "Customer Ledger Entries";
     LookupPageID = "Customer Ledger Entries";
+    Permissions = tabledata "Reminder/Fin. Charge Entry" = R;
 
     fields
     {

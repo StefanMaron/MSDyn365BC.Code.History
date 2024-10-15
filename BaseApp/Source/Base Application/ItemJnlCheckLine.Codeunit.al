@@ -31,12 +31,13 @@
         Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
 
-    procedure RunCheck(var ItemJnlLine: Record "Item Journal Line")
+    procedure RunCheck(var ItemJournalLine: Record "Item Journal Line")
     var
         WorkCenter: Record "Work Center";
         Item: Record Item;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         IsHandled: Boolean;
+        ShouldCheckApplication: Boolean;
         ShouldCheckDiscountAmount: Boolean;
         ShouldCheckLocationCode: Boolean;
         ShouldCheckItemNo: Boolean;
@@ -44,7 +45,7 @@
         GLSetup.Get();
         InvtSetup.Get();
 
-        with ItemJnlLine do begin
+        with ItemJournalLine do begin
             if EmptyLine() then begin
                 if not IsValueEntryForDeletedItem() then
                     exit;
@@ -56,17 +57,17 @@
                 Item.TestField("Base Unit of Measure", ErrorInfo.Create());
 
             IsHandled := false;
-            OnAfterGetItem(Item, ItemJnlLine, IsHandled);
+            OnAfterGetItem(Item, ItemJournalLine, IsHandled);
             if IsHandled then
                 exit;
 
             TestField("Document No.", ErrorInfo.Create());
             TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
-            CheckDates(ItemJnlLine);
+            CheckDates(ItemJournalLine);
 
             IsHandled := false;
-            OnBeforeCheckLocation(ItemJnlLine, IsHandled);
+            OnBeforeCheckLocation(ItemJournalLine, IsHandled);
             if not IsHandled then
                 if InvtSetup."Location Mandatory" and
                    ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
@@ -75,7 +76,7 @@
                 then begin
                     ShouldCheckLocationCode := (Type <> Type::Resource) and (Item.Type = Item.Type::Inventory) and
                        (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Shipment"));
-                    OnRunCheckOnAfterCalcShouldCheckLocationCode(ItemJnlLine, ShouldCheckLocationCode);
+                    OnRunCheckOnAfterCalcShouldCheckLocationCode(ItemJournalLine, ShouldCheckLocationCode);
                     if ShouldCheckLocationCode then
                         TestField("Location Code", ErrorInfo.Create());
                     if ("Entry Type" = "Entry Type"::Transfer) and
@@ -92,18 +93,21 @@
                     end;
                 end;
 
-            if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") and ("Item Charge No." = '') then
-                TestField("Variant Code");
+            IsHandled := false;
+            OnBeforeCheckVariantMandatory(ItemJournalLine, IsHandled);
+            if not IsHandled then
+                if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") and ("Item Charge No." = '') then
+                    TestField("Variant Code");
 
-            CheckInTransitLocations(ItemJnlLine);
+            CheckInTransitLocations(ItemJournalLine);
 
             if Item.IsInventoriableType() then
-                CheckBins(ItemJnlLine)
+                CheckBins(ItemJournalLine)
             else
-                ItemJnlLine.TestField("Bin Code", '', ErrorInfo.Create());
+                ItemJournalLine.TestField("Bin Code", '', ErrorInfo.Create());
 
             ShouldCheckDiscountAmount := "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."];
-            OnRunCheckOnAfterCalcShouldCheckDiscountAmount(ItemJnlLine, ShouldCheckDiscountAmount);
+            OnRunCheckOnAfterCalcShouldCheckDiscountAmount(ItemJournalLine, ShouldCheckDiscountAmount);
             if ShouldCheckDiscountAmount then
                 TestField("Discount Amount", 0, ErrorInfo.Create());
 
@@ -121,15 +125,17 @@
             end;
 
             if not "Phys. Inventory" then begin
-                CheckEmptyQuantity(ItemJnlLine);
+                CheckEmptyQuantity(ItemJournalLine);
                 TestField("Qty. (Calculated)", 0, ErrorInfo.Create());
                 TestField("Qty. (Phys. Inventory)", 0, ErrorInfo.Create());
             end else
-                CheckPhysInventory(ItemJnlLine);
+                CheckPhysInventory(ItemJournalLine);
 
-            CheckOutputFields(ItemJnlLine);
+            CheckOutputFields(ItemJournalLine);
 
-            if "Applies-from Entry" <> 0 then begin
+            ShouldCheckApplication := "Applies-from Entry" <> 0;
+            OnRunCheckOnAfterCalcShouldCheckApplication(ItemJournalLine, ShouldCheckApplication);
+            if ShouldCheckApplication then begin
                 ItemLedgEntry.Get("Applies-from Entry");
                 ItemLedgEntry.TestField("Item No.", "Item No.", ErrorInfo.Create());
                 ItemLedgEntry.TestField("Variant Code", "Variant Code", ErrorInfo.Create());
@@ -151,33 +157,33 @@
                 TestField("Source No.", ErrorInfo.Create());
                 TestField("Order Type", "Order Type"::Production, ErrorInfo.Create());
                 ShouldCheckItemNo := not CalledFromAdjustment and ("Entry Type" = "Entry Type"::Output);
-                OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJnlLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
+                OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
                 if ShouldCheckItemNo then
                     if CheckFindProdOrderLine(ProdOrderLine, "Order No.", "Order Line No.") then begin
                         TestField("Item No.", ProdOrderLine."Item No.", ErrorInfo.Create());
-                        OnAfterCheckFindProdOrderLine(ItemJnlLine, ProdOrderLine);
+                        OnAfterCheckFindProdOrderLine(ItemJournalLine, ProdOrderLine);
                     end;
 
                 if Subcontracting then begin
                     IsHandled := false;
-                    OnBeforeCheckSubcontracting(ItemJnlLine, IsHandled);
+                    OnBeforeCheckSubcontracting(ItemJournalLine, IsHandled);
                     if not IsHandled then begin
                         WorkCenter.Get("Work Center No.");
                         WorkCenter.TestField("Subcontractor No.", ErrorInfo.Create());
                     end;
                 end;
                 if not CalledFromInvtPutawayPick then
-                    CheckWarehouse(ItemJnlLine);
+                    CheckWarehouse(ItemJournalLine);
             end;
 
             if "Entry Type" = "Entry Type"::"Assembly Consumption" then
-                CheckWarehouse(ItemJnlLine);
+                CheckWarehouse(ItemJournalLine);
 
             if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or ("Item Charge No." <> '') then
                 if "Inventory Value Per" = "Inventory Value Per"::" " then
                     TestField("Applies-to Entry", ErrorInfo.Create());
 
-            CheckDimensions(ItemJnlLine);
+            CheckDimensions(ItemJournalLine);
 
             if ("Entry Type" in
                 ["Entry Type"::Purchase, "Entry Type"::Sale, "Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) and
@@ -186,7 +192,7 @@
                 CheckItemJournalLineRestriction();
         end;
 
-        OnAfterCheckItemJnlLine(ItemJnlLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
+        OnAfterCheckItemJnlLine(ItemJournalLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
     end;
 
     local procedure CheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
@@ -716,6 +722,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunCheckOnAfterCalcShouldCheckDiscountAmount(var ItemJournalLine: Record "Item Journal Line"; var ShouldCheckDiscountAmount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVariantMandatory(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnAfterCalcShouldCheckApplication(var ItemJournalLine: Record "Item Journal Line"; var ShouldCheckApplication: Boolean)
     begin
     end;
 }

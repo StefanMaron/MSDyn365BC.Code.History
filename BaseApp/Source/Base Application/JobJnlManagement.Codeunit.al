@@ -103,7 +103,13 @@ codeunit 1020 JobJnlManagement
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlLine: Record "Job Journal Line";
         JnlSelected: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenJnlBatch(JobJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
         if JobJnlBatch.GetFilter("Journal Template Name") <> '' then
             exit;
         JobJnlBatch.FilterGroup(2);
@@ -260,6 +266,11 @@ codeunit 1020 JobJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupNameOnAfterSetFilters(var JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnlBatch(var JobJournalBatch: Record "Job Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 

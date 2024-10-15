@@ -26,7 +26,6 @@ codeunit 393 "Reminder-Issue"
                 Validate("Posting Date", PostingDate);
             TestField("Customer No.");
             CheckIfBlocked("Customer No.");
-
             TestField("Posting Date");
             TestField("Document Date");
             TestField("Due Date");

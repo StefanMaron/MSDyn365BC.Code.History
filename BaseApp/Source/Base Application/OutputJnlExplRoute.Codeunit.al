@@ -61,6 +61,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
           "Journal Template Name", "Journal Template Name");
         ItemJnlLine.SetRange(
           "Journal Batch Name", "Journal Batch Name");
+        OnRunOnAfterItemJnlLineSetFilters(Rec, ProdOrderLine, ProdOrderRtngLine, ItemJnlLine);
 
         if ItemJnlLine.Find('>') then begin
             LineSpacing :=
@@ -240,6 +241,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnProdRtngLineLoopEnd(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line"; var NextLineNo: Integer; LineSpacing: Integer; var LastItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterItemJnlLineSetFilters(var ItemJournalLineRec: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-#if CLEAN21
+﻿#if CLEAN21
 codeunit 80 "Sales-Post"
 {
     Permissions = TableData "Sales Line" = imd,
@@ -898,7 +898,7 @@ codeunit 80 "Sales-Post"
                         end;
                         IsHandled := false;
                         OnBeforeSalesCrMemoLineInsert(
-                            SalesCrMemoLine, SalesCrMemoHeader, xSalesLine, SuppressCommit, IsHandled, SalesHeader, SalesShptHeader, ReturnRcptHeader);
+                            SalesCrMemoLine, SalesCrMemoHeader, xSalesLine, SuppressCommit, IsHandled, SalesHeader, SalesShptHeader, ReturnRcptHeader, SalesLine);
                         if IsHandled then
                             exit;
                         if not IsNullGuid(xSalesLine.SystemId) then begin
@@ -2681,6 +2681,7 @@ codeunit 80 "Sales-Post"
                     OnDeleteAfterPostingOnAfterDeleteLinks(TempSalesLine);
                 until TempSalesLine.Next() = 0;
 
+            SalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             OnBeforeSalesLineDeleteAll(SalesLine, SuppressCommit, SalesHeader);
@@ -2697,6 +2698,7 @@ codeunit 80 "Sales-Post"
 
     local procedure FinalizePosting(var SalesHeader: Record "Sales Header"; EverythingInvoiced: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         TempSalesLine: Record "Sales Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -2753,7 +2755,7 @@ codeunit 80 "Sales-Post"
                             until TempSalesLine.Next() = 0;
                         if ("Document Type" = "Document Type"::Order) and SalesSetup."Archive Orders" then begin
                             PostUpdateOrderLine(SalesHeader);
-                            if not OrderArchived then begin
+                            if (not OrderArchived) or (OrderArchived and CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled()) then begin
                                 ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
                                 OrderArchived := true;
                             end;
@@ -9003,7 +9005,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var ReturnRcptHeader: Record "Return Receipt Header")
+    local procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var PostingSalesLine: Record "Sales Line")
     begin
     end;
 

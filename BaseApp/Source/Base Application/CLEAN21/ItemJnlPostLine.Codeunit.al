@@ -225,12 +225,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 end;
             end;
 
-            if ("Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
-               ("Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
-            then begin
-                GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                GenPostingSetup.TestField(Blocked, false);
-            end;
+            GetGeneralPostingSetup(ItemJnlLine);
 
             if "Qty. per Unit of Measure" = 0 then
                 "Qty. per Unit of Measure" := 1;
@@ -540,7 +535,7 @@ codeunit 22 "Item Jnl.-Post Line"
                         MfgUnitCost := MfgSKU."Unit Cost"
                     else
                         MfgUnitCost := MfgItem."Unit Cost";
-                OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost);
+                    OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost, ProdOrderLine);
 
                 Amount := "Output Quantity" * MfgUnitCost;
                 "Amount (ACY)" := ACYMgt.CalcACYAmt(Amount, "Posting Date", false);
@@ -577,8 +572,10 @@ codeunit 22 "Item Jnl.-Post Line"
                     "Invoiced Quantity" := 0;
                 end;
 
-                OnPostOutputOnBeforePostItem(ItemJnlLine, ProdOrderLine);
-                PostItem();
+                IsHandled := false;
+                OnPostOutputOnBeforePostItem(ItemJnlLine, ProdOrderLine, IsHandled);
+                if not IsHandled then
+                    PostItem();
 
                 IsHandled := false;
                 OnPostOutputOnBeforeUpdateProdOrderLine(ItemJnlLine, IsHandled);
@@ -1123,7 +1120,7 @@ codeunit 22 "Item Jnl.-Post Line"
             OnBeforeInsertCapValueEntry(ValueEntry, ItemJnlLine);
 
             IsHandled := false;
-            OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry, IsHandled);
+            OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry, IsHandled, PostToGL);
             if not IsHandled then begin
                 InventoryPostingToGL.SetRunOnlyCheck(true, not InvtSetup."Automatic Cost Posting", false);
                 PostInvtBuffer(ValueEntry);
@@ -4117,7 +4114,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 until TempTrackingSpecification.Next() = 0;
             end;
         end else
-            InsertTempSplitItemJnlLine(ItemJnlLine2);
+            InsertTempSplitItemJnlLine(ItemJnlLine2, PostItemJnlLine);
 
         OnAfterSetupSplitJnlLine(
             ItemJnlLine2, TempSplitItemJnlLine, ItemJnlLineOrigin, TempTrackingSpecification,
@@ -4125,12 +4122,12 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(PostItemJnlLine);
     end;
 
-    local procedure InsertTempSplitItemJnlLine(ItemJnlLine2: Record "Item Journal Line")
+    local procedure InsertTempSplitItemJnlLine(ItemJnlLine2: Record "Item Journal Line"; var PostItemJnlLine: Boolean)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertTempSplitItemJnlLine(ItemJnlLine2, IsServUndoConsumption, PostponeReservationHandling, TempSplitItemJnlLine, IsHandled);
+        OnBeforeInsertTempSplitItemJnlLine(ItemJnlLine2, IsServUndoConsumption, PostponeReservationHandling, TempSplitItemJnlLine, PostItemJnlLine, IsHandled);
         if IsHandled then
             exit;
 
@@ -4376,6 +4373,23 @@ codeunit 22 "Item Jnl.-Post Line"
         GLSetupRead := true;
 
         OnAfterGetGLSetup(GLSetup);
+    end;
+
+    local procedure GetGeneralPostingSetup(ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetGeneralPostingSetup(ItemJournalLine, GenPostingSetup, PostToGL, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (ItemJournalLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
+            (ItemJournalLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
+        then begin
+            GenPostingSetup.Get(ItemJournalLine."Gen. Bus. Posting Group", ItemJournalLine."Gen. Prod. Posting Group");
+            GenPostingSetup.TestField(Blocked, false);
+        end;
     end;
 
     local procedure GetMfgSetup()
@@ -4693,6 +4707,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if GetItem(ItemNo, false) then begin
             if not CalledFromAdjustment then
                 Item.TestField(Blocked, false);
+            OnCheckItemOnAfterGetItem(Item, ItemJnlLine, CalledFromAdjustment);
         end else
             Item.Init();
     end;
@@ -6232,7 +6247,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; IsServUndoConsumption: Boolean; PostponeReservationHandling: Boolean; var TempSplitItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; IsServUndoConsumption: Boolean; PostponeReservationHandling: Boolean; var TempSplitItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var PostItemJnlLine: Boolean)
     begin
     end;
 
@@ -6659,7 +6674,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnAfterSetMfgUnitCost(var ItemJournalLine: Record "Item Journal Line"; var MfgUnitCost: Decimal)
+    local procedure OnPostOutputOnAfterSetMfgUnitCost(var ItemJournalLine: Record "Item Journal Line"; var MfgUnitCost: Decimal; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
@@ -6689,7 +6704,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnPostOutputOnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7433,7 +7448,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnInsertCapValueEntryOnBeforeInventoryPostingToGL(ValueEntry: Record "Value Entry"; var IsHandled: Boolean; PostToGL: Boolean)
     begin
     end;
 
@@ -7537,5 +7552,4 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 }
-
 #endif

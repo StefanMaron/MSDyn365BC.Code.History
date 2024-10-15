@@ -1,4 +1,4 @@
-#if CLEAN21
+﻿#if CLEAN21
 codeunit 13 "Gen. Jnl.-Post Batch"
 {
     Permissions = TableData "Gen. Journal Batch" = imd;
@@ -1267,6 +1267,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     local procedure UpdateAndDeleteLines(var GenJnlLine: Record "Gen. Journal Line")
     var
         TempGenJnlLine2: Record "Gen. Journal Line" temporary;
+        RecordLinkManagement: Codeunit "Record Link Management";
         OldVATAmount: Decimal;
         OldVATPct: Decimal;
         IsHandled: Boolean;
@@ -1312,6 +1313,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             if GenJnlLine2.FindLast() then; // Remember the last line
             GenJnlLine3.Copy(GenJnlLine);
             GenJnlLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
+            RecordLinkManagement.RemoveLinks(GenJnlLine3);
             GenJnlLine3.DeleteAll();
             GenJnlLine3.Reset();
             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -1433,7 +1435,14 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         ErrorMessageManagement: Codeunit "Error Message Management";
         ErrorContextElement: Codeunit "Error Context Element";
         IsModified: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLine(GenJnlLine, PostingAfterWorkingDateConfirmed, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlCheckLine.CheckVATDateAllowed(GenJnlLine."VAT Reporting Date");
         GenJournalLineToUpdate.Copy(GenJnlLine);
         CheckRecurringLine(GenJournalLineToUpdate);
         IsModified := UpdateRecurringAmt(GenJournalLineToUpdate);
@@ -2061,6 +2070,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(var GenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var PostingAfterWorkingDateConfirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

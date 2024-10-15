@@ -412,11 +412,11 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         // [SCENARIO] values on Item Tracking Comment using Recalss. Journal.
 
-        // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
+        // [GIVEN] Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking. [TFS 455537: Quantity = 1]
         Initialize();
-        ReclassificationJournalWithPurchaseOrder(
+        ReclassificationJournalWithPurchaseOrderWithQty(
           ReclassificationItemJournalLine, GlobalItemTrackingAction::ItemTrackingSerialAndLot, LibraryUtility.GetGlobalNoSeriesCode, true,
-          false, GlobalItemTrackingAction::AssignLotNo);
+          false, GlobalItemTrackingAction::AssignLotNo, 1);
 
         // Exercise.
         ReclassificationItemJournalLine.OpenItemTrackingLines(true);    // Assign Item Tracking on page handler.
@@ -1963,13 +1963,17 @@ codeunit 137275 "SCM Inventory Journals"
         end;
     end;
 
-    local procedure PostPurchaseOrderWithItemTracking(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction2: Option)
+    local procedure PostPurchaseOrderWithItemTracking(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction2: Option; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         GlobalItemNo := CreateTrackedItem(LotNos, SerialNos, LotSpecificTracking, SerialNoSpecificTracking);  // Assign Item No. to global variable and blank value is taken for Serial No.
-        GlobalOriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
+        if Quantity = 0 then
+            // Random Integer value greater than 1 required for test. Assign it to Global Variable.
+            GlobalOriginalQuantity := 1 + LibraryRandom.RandInt(10)
+        else
+            GlobalOriginalQuantity := Quantity;
         CreatePurchaseOrder(PurchaseHeader, GlobalItemNo, '', GlobalOriginalQuantity);
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
         GlobalItemTrackingAction := ItemTrackingAction2;
@@ -2003,8 +2007,15 @@ codeunit 137275 "SCM Inventory Journals"
     var
         Item: Record Item;
     begin
+        ReclassificationJournalWithPurchaseOrderWithQty(ReclassificationItemJournalLine, TrackingAction, LotNos, LotSpecific, SerialSpecific, GlobalAction, 0);
+    end;
+
+    local procedure ReclassificationJournalWithPurchaseOrderWithQty(var ReclassificationItemJournalLine: Record "Item Journal Line"; TrackingAction: Option; LotNos: Code[20]; LotSpecific: Boolean; SerialSpecific: Boolean; GlobalAction: Option; Quantity: Decimal)
+    var
+        Item: Record Item;
+    begin
         // Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
-        PostPurchaseOrderWithItemTracking(LotNos, LibraryUtility.GetGlobalNoSeriesCode, LotSpecific, SerialSpecific, GlobalAction);
+        PostPurchaseOrderWithItemTracking(LotNos, LibraryUtility.GetGlobalNoSeriesCode, LotSpecific, SerialSpecific, GlobalAction, Quantity);
         Item.Get(GlobalItemNo);
         GlobalExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());  // Assigned in global variable.
 

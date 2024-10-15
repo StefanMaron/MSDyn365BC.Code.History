@@ -1,4 +1,4 @@
-codeunit 416 "Release Service Document"
+﻿codeunit 416 "Release Service Document"
 {
     TableNo = "Service Header";
     Permissions = TableData "Service Header" = rm,
@@ -7,6 +7,7 @@ codeunit 416 "Release Service Document"
     trigger OnRun()
     begin
         ServiceHeader.Copy(Rec);
+        ServiceHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
         Code();
         Rec := ServiceHeader;
     end;

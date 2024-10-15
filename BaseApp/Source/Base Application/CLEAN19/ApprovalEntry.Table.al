@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 table 454 "Approval Entry"
 {
     Caption = 'Approval Entry';
@@ -331,6 +331,7 @@ table 454 "Approval Entry"
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
+        Vendor: Record Vendor;
         RecRef: RecordRef;
     begin
         if not RecRef.Get("Record ID to Approve") then
@@ -354,6 +355,12 @@ table 454 "Approval Entry"
                     RecRef.SetTable(Customer);
                     CustVendorNo := Customer."No.";
                     CustVendorName := Customer.Name;
+                end;
+            DATABASE::Vendor:
+                begin
+                    RecRef.SetTable(Vendor);
+                    CustVendorNo := Vendor."No.";
+                    CustVendorName := Vendor.Name;
                 end;
             else
         end;

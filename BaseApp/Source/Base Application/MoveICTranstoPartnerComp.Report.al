@@ -253,7 +253,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 PartnerInboxSalesHeader := TempInboxSalesHeader;
                 PartnerInboxSalesHeader."Sell-to Customer No." := PartnerICPartner."Customer No.";
                 PartnerInboxSalesHeader."Bill-to Customer No." := PartnerICPartner."Customer No.";
-                OnBeforePartnerInboxSalesHeaderInsert(PartnerInboxSalesHeader, CurrentPartner);
+                OnBeforePartnerInboxSalesHeaderInsert(PartnerInboxSalesHeader, CurrentPartner, TempInboxSalesHeader);
                 PartnerInboxSalesHeader.Insert();
             until TempInboxSalesHeader.Next() = 0;
 
@@ -461,7 +461,7 @@ report 513 "Move IC Trans. to Partner Comp"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePartnerInboxSalesHeaderInsert(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICPartner: Record "IC Partner")
+    local procedure OnBeforePartnerInboxSalesHeaderInsert(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICPartner: Record "IC Partner"; TempICInboxSalesHeader: Record "IC Inbox Sales Header" temporary)
     begin
     end;
 

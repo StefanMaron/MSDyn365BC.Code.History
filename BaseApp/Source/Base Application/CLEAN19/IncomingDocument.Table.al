@@ -2261,5 +2261,4 @@ table 130 "Incoming Document"
     begin
     end;
 }
-
 #endif
