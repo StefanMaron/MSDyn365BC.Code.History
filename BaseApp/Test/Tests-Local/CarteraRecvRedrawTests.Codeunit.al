@@ -16,6 +16,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileManagement: Codeunit "File Management";
         IsInitialized: Boolean;
         UnexpectedMessageErr: Label 'Unexpected Message.';
         UnexpectedConfirmDialogErr: Label 'Unexpected Confirmation handler appeared.';
@@ -337,6 +338,50 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
 
         // [THEN] Template Name and Batch Name fields are empty
         // verification is done in RedrawCarteraBillReqPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CarteraDocumentsActionModalPageHandler,BankRiskSaveAsPDFHandler')]
+    [Scope('OnPrem')]
+    procedure PrintBankRisk()
+    var
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        BillGroup: Record "Bill Group";
+        BankAccount: Record "Bank Account";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "Bank - Risk" can be printed without RDLC rendering errors
+        Initialize;
+
+        CreateCarteraCustumer(Customer);
+        PaymentTerms.Get(Customer."Payment Terms Code");
+        CreatePaymentTermsInstallment(PaymentTerms, 1);
+        CreateAndPostInvoice(Customer, InvoiceNo);
+        CreateBillGroupForInvoice(BillGroup, InvoiceNo);
+
+        // [WHEN] Report "Bank - Risk" is being printed to PDF
+        BankAccount.SetRange("No.", BillGroup."Bank Account No.");
+        REPORT.Run(REPORT::"Bank - Risk", true, false, BankAccount);
+        // [THEN] No RDLC rendering errors
+    end;
+
+    [Test]
+    [HandlerFunctions('NoticeAssignmentCreditsSaveAsPDFHandler')]
+    [Scope('OnPrem')]
+    procedure PrintNoticeAssignmentCredits()
+    var
+
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "Notice Assignment Credits" can be printed without RDLC rendering errors
+        Initialize;
+
+        // [WHEN] Report "Notice Assignment Credits" is being printed to PDF
+        Commit();
+        REPORT.Run(REPORT::"Notice Assignment Credits");
+        // [THEN] No RDLC rendering errors
     end;
 
     local procedure Initialize()
@@ -776,6 +821,20 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
                     RedrawReceivableBillsPage.Cancel.Invoke;
                 end;
         end;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BankRiskSaveAsPDFHandler(var BankRisk: TestRequestPage "Bank - Risk")
+    begin
+        BankRisk.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure NoticeAssignmentCreditsSaveAsPDFHandler(var NoticeAssignmentCredits: TestRequestPage "Notice Assignment Credits")
+    begin
+        NoticeAssignmentCredits.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

@@ -232,6 +232,8 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashAccountFilter := GLAccountCategory.GetTotaling;
         while GLAccountCategory.Next <> 0 do
             CashAccountFilter += '|' + GLAccountCategory.GetTotaling;
+
+        CashAccountFilter := CashAccountFilter.TrimStart('|').TrimEnd('|');
     end;
 
     [ConfirmHandler]

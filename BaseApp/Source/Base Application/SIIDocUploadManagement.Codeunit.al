@@ -51,6 +51,8 @@ codeunit 10752 "SII Doc. Upload Management"
                 WebServiceUrl := SIISetup.CollectionInCashEndpointUrl;
         end;
 
+        OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(RequestText);
+
         SIISession.StoreRequestXml(RequestText);
 
         HttpWebRequest := WebRequest.Create(Uri.Uri(WebServiceUrl));
@@ -617,6 +619,11 @@ codeunit 10752 "SII Doc. Upload Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDocStateFilters(var SIIDocUploadState: Record "SII Doc. Upload State")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(var RequestText: Text);
     begin
     end;
 }

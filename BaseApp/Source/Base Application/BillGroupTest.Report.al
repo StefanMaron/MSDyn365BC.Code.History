@@ -552,7 +552,7 @@ report 7000008 "Bill Group - Test"
                 column(FeeRange_GetTotalDiscInterestsAmt_Control86Caption_Control106; FeeRange_GetTotalDiscInterestsAmt_Control86Caption_Control106Lbl)
                 {
                 }
-                column(DataItem114; FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_Lbl)
+                column(FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114; FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_Lbl)
                 {
                 }
                 dataitem(BillGrBankAcc; "Bank Account")

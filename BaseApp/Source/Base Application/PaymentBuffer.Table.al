@@ -118,5 +118,37 @@ table 372 "Payment Buffer"
     fieldgroups
     {
     }
+
+    [Scope('OnPrem')]
+    procedure CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        "Creditor No." := VendorLedgerEntry."Creditor No.";
+        "Payment Reference" := VendorLedgerEntry."Payment Reference";
+        "Exported to Payment File" := VendorLedgerEntry."Exported to Payment File";
+        "Applies-to Ext. Doc. No." := VendorLedgerEntry."External Document No.";
+
+        OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CopyFieldsToGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine."Creditor No." := "Creditor No.";
+        GenJournalLine."Payment Reference" := "Payment Reference";
+        GenJournalLine."Exported to Payment File" := "Exported to Payment File";
+        GenJournalLine."Applies-to Ext. Doc. No." := "Applies-to Ext. Doc. No.";
+
+        OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFieldsToGenJournalLine(PaymentBufferSource: Record "Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
+    begin
+    end;
 }
 

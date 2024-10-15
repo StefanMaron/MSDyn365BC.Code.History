@@ -43,7 +43,13 @@ codeunit 5930 ServAllocationManagement
         AddReasonCodeCancelation: Page "Cancelled Allocation Reasons";
         ReasonCode: Code[10];
         RepairStatusCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCancelAllocation(ServOrderAlloc, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServOrderAlloc."Entry No." = 0 then
             exit;
         ServHeader.Get(ServOrderAlloc."Document Type", ServOrderAlloc."Document No.");
@@ -97,7 +103,13 @@ codeunit 5930 ServAllocationManagement
         ServHeader: Record "Service Header";
         ServOrderAlloc: Record "Service Order Allocation";
         NewServOrderAlloc: Record "Service Order Allocation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAllocationEntry(DocumentType, DocumentNo, ServItemLineNo, ServItemNo, ServSerialNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ServHeader.Get(DocumentType, DocumentNo);
         if ServHeader.Status <> ServHeader.Status::Finished then begin
             CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
@@ -297,6 +309,17 @@ codeunit 5930 ServAllocationManagement
                 ServOrderAlloc2.Posted := true;
                 ServOrderAlloc2.Modify;
             until ServOrderAlloc.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCancelAllocation(var ServOrderAllocation: Record "Service Order Allocation"; var IsHandled: Boolean);
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAllocationEntry(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; ServItemNo: Code[20]; ServSerialNo: Code[50]; var IsHandled: Boolean);
+    begin
     end;
 }
 

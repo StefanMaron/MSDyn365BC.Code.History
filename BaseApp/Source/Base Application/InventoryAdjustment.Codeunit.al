@@ -2396,7 +2396,7 @@ codeunit 5895 "Inventory Adjustment"
             SetCurrentKey("Order Type", "Order No.", "Order Line No.");
             SetRange("Order Type", InbndValueEntry."Order Type");
             SetRange("Order No.", InbndValueEntry."Order No.");
-            if "Order Type" = "Order Type"::Production then
+            if InbndValueEntry."Order Type" = InbndValueEntry."Order Type"::Production then
                 SetRange("Order Line No.", InbndValueEntry."Order Line No.");
 
             SetRange("Item No.", InbndValueEntry."Item No."); // self-consumption

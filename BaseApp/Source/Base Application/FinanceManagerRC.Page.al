@@ -42,18 +42,42 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Statements';
                         RunObject = page "VAT Statement";
                     }
+                    action("349 Declaration Labels")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = '349 Declaration Labels';
+                        RunObject = report 10709;
+                    }
+                    action("Make 340 Declaration")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Make 340 Declaration';
+                        RunObject = report 10743;
+                    }
+                    action("SII Requests History")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'SII History';
+                        RunObject = page 10752;
+                    }
+                    action("No Taxable Entries")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'No Taxable Entries';
+                        RunObject = page 10740;
+                    }
                     action("VAT Returns")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Returns';
                         RunObject = page "VAT Report List";
                     }
-                    // action("ECSL Report")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'EC Sales List Reports';
-                    //     RunObject = page "EC Sales List Reports"
-                    // }
+                    action("ECSL Report")
+                    {
+                        ApplicationArea =;
+                        Caption = 'ECSL Report List';
+                        RunObject = page "EC Sales List Reports";
+                    }
                     group("Group2")
                     {
                         Caption = 'Reports';
@@ -78,20 +102,20 @@ page 8901 "Finance Manager Role Center"
                         action("VAT Statement")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'VAT Statement';
+                            Caption = 'VAT Declaration';
                             RunObject = report "VAT Statement";
                         }
                         action("VAT- VIES Declaration Tax Auth")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'VAT- VIES Declaration Tax Auth';
-                            RunObject = report "VAT- VIES Declaration Tax Auth";
+                            Caption = 'Make 349 Declaration Disk';
+                            RunObject = report 10710;
                         }
                         action("VAT- VIES Declaration Disk")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'VAT- VIES Declaration Disk...';
-                            RunObject = report "VAT- VIES Declaration Disk";
+                            Caption = 'Make 349 Declaration Disk';
+                            RunObject = report 10710;
                         }
                         action("Day Book VAT Entry")
                         {
@@ -111,6 +135,28 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Day Book Vendor Ledger Entry';
                             RunObject = report "Day Book Vendor Ledger Entry";
                         }
+                    }
+                }
+                group("Group69")
+                {
+                    Caption = '347 Declaration';
+                    action("Make 347 Declaration Disk")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Make 347 Declaration';
+                        RunObject = report 10707;
+                    }
+                    action("347 Declaration Labels")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = '347 Declaration Labels';
+                        RunObject = report 10708;
+                    }
+                    action("Unapplied Payments for Cash")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Unapplied Payments for Cash';
+                        RunObject = report 10746;
                     }
                 }
                 group("Group3")
@@ -267,11 +313,17 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'G/L Register';
                             RunObject = report "G/L Register";
                         }
+                        action("Detail Account Statement")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Detail Account Statement';
+                            RunObject = report 10711;
+                        }
                         action("Detail Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Detail Trial Balance';
-                            RunObject = report "Detail Trial Balance";
+                            Caption = 'Main Accounting Book';
+                            RunObject = report 10723;
                         }
                         action("Dimensions - Detail")
                         {
@@ -300,6 +352,24 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Account Schedule';
                             RunObject = report "Account Schedule";
+                        }
+                        action("Normalized Account Schedule")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Normalized Account Schedule';
+                            RunObject = report 10717;
+                        }
+                        action("Account - Official Acc. Book")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Account - Official Acc. Book';
+                            RunObject = report 10706;
+                        }
+                        action("Official Acc.Summarized Book")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Official Acc.Summarized Book';
+                            RunObject = report 10716;
                         }
                         action("Trial Balance")
                         {
@@ -360,7 +430,6 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Comp. - Prev. Year';
                             RunObject = report "Balance Comp. - Prev. Year";
-
                         }
                         action("Balance Sheet")
                         {
@@ -405,6 +474,7 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
+                            Visible = false;
                         }
                         action("Foreign Currency Balance")
                         {
@@ -493,6 +563,238 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Report Setup';
                         RunObject = page "VAT Report Setup";
+                    }
+                }
+            }
+            group("Group62")
+            {
+                Caption = 'Cartera';
+                group("Group63")
+                {
+                    Caption = 'Receivables';
+                    action("Cartera Journal")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cartera Journal';
+                        RunObject = page 7000036;
+                    }
+                    action("Receivables Docs")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Receivables Docs';
+                        RunObject = page 7000001;
+                    }
+                    action("Bill Groups")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bill Groups';
+                        RunObject = page 7000011;
+                    }
+                    action("Posted Bill Group Select.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Bill Groups';
+                        RunObject = page 7000014;
+                    }
+                    action("Closed Receivables Docs")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Receivables Docs';
+                        RunObject = page 7000010;
+                    }
+                    action("Closed Bill Groups")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Bill Groups';
+                        RunObject = page 7000017;
+                    }
+                    group("Group64")
+                    {
+                        Caption = 'Batch Settlement';
+                        action("Posted Bill &Groups")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Posted Bill Groups (Batch)';
+                            RunObject = page 7000064;
+                        }
+                    }
+                }
+                group("Group65")
+                {
+                    Caption = 'Payables';
+                    action("Cartera Journal1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cartera Journal';
+                        RunObject = page 7000036;
+                    }
+                    action("Payables Docs")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payables Docs';
+                        RunObject = page 7000002;
+                    }
+                    action("Payment Orders")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payment Orders';
+                        RunObject = page 7000051;
+                    }
+                    action("Posted Payment Orders")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Payment Orders';
+                        RunObject = page 7000055;
+                    }
+                    action("Closed Payables Docs")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Payables Docs';
+                        RunObject = page 7000013;
+                    }
+                    action("Closed Payment Orders")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Payment Orders';
+                        RunObject = page 7000061;
+                    }
+                    group("Group66")
+                    {
+                        Caption = 'Batch Settlement';
+                        action("Posted Payment &Orders")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Posted Payment Orders (Batch)';
+                            RunObject = page 7000065;
+                        }
+                    }
+                }
+                group("Group67")
+                {
+                    Caption = 'Reports';
+                    action("Bank - Summ. Bill Group")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bank - Summ. Bill Group';
+                        RunObject = report 7000004;
+                    }
+                    action("Bank - Risk")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bank - Risk';
+                        RunObject = report 7000005;
+                    }
+                    action("Customer - Due Payments")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer - Due Payments';
+                        RunObject = report 7000006;
+                    }
+                    action("Payment Order Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payment Order Listing';
+                        RunObject = report 7000010;
+                    }
+                    action("Closed Payment Order Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Payment Order Listing';
+                        RunObject = report 7000012;
+                    }
+                    action("Posted Payment Order Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Payment Order Listing';
+                        RunObject = report 7000011;
+                    }
+                    action("Closed Bill Group Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Closed Bill Group Listing';
+                        RunObject = report 7000002;
+                    }
+                    action("Posted Bill Group Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Bill Group Listing';
+                        RunObject = report 7000001;
+                    }
+                    action("Bill Group Listing")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bill Group Listing';
+                        RunObject = report 7000000;
+                    }
+                    action("Notice Assignement Credits")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Notice Assignement Credits';
+                        RunObject = report 7000050;
+                    }
+                    action("Payment order - Export N34")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payment order - Export N34';
+                        RunObject = report 7000090;
+                    }
+                    action("PO - Export N34.1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'PO - Export N34.1';
+                        RunObject = report 7000060;
+                    }
+                    action("Void PO - Export")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Void PO - Export';
+                        RunObject = report 7000061;
+                    }
+                    action("Vendor - Due Payments")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Due Payments';
+                        RunObject = report 7000007;
+                    }
+                    action("Bill group - Export factoring")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bill group - Export factoring';
+                        RunObject = report 7000089;
+                    }
+                    action("Bill group - Export factoring1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bill group - Export factoring';
+                        RunObject = report 7000089;
+                    }
+                }
+                group("Group68")
+                {
+                    Caption = 'Setup';
+                    action("Cartera Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cartera Setup';
+                        RunObject = page 7000040;
+                    }
+                    action("Cartera Source Code Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cartera Source Code Setup';
+                        RunObject = page 7000041;
+                    }
+                    action("Category Codes")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Category Codes';
+                        RunObject = page 7000023;
+                    }
+                    action("Cartera Report Selections")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cartera Report Selections';
+                        RunObject = page 7000045;
                     }
                 }
             }
@@ -692,6 +994,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection - Bank Acc.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Bank Account';
                         RunObject = page "Report Selection - Bank Acc.";
                     }
@@ -849,6 +1152,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Cost Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Cost Journal Templates';
                         RunObject = page "Cost Journal Templates";
                     }
@@ -1048,6 +1352,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer - List';
                         RunObject = report "Customer - List";
                     }
+                    action("Customer - Annual Declaration")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer - Annual Declaration';
+                        RunObject = report 10702;
+                    }
                     action("Customer - Summary Aging")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1090,6 +1400,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Sales Statistics';
                         RunObject = report "Sales Statistics";
                     }
+                    action("Sales Invoice Book")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Sales Invoice Book';
+                        RunObject = report 10704;
+                    }
                     action("Customer/Item Sales")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1107,6 +1423,12 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Suite;
                         Caption = 'Salesperson Commission';
                         RunObject = report "Salesperson - Commission";
+                    }
+                    action("Customer - Overdue Payments")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer - Overdue Payments';
+                        RunObject = report 10747;
                     }
                     action("Customer - Sales List")
                     {
@@ -1150,6 +1472,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection Reminder and")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                     }
@@ -1271,12 +1594,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Employee Ledger Entries';
                         RunObject = page "Employee Ledger Entries";
                     }
-                    // action("Detailed Employee Ledger Entries")
-                    // {
-                    //     ApplicationArea = BasicHR;
-                    //     Caption = 'Detailed Employee Ledger Entries';
-                    //     RunObject = page "Detailed Empl. Ledger Entries";
-                    // }
+                    action("Detailed Employee Ledger Entries")
+                    {
+                        ApplicationArea = BasicHR;
+                        Caption = 'Detailed Employee Ledger Entries';
+                        RunObject = page "Detailed Empl. Ledger Entries";
+                    }
                 }
                 group("Group40")
                 {
@@ -1298,6 +1621,24 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Purchase Statistics';
                         RunObject = report "Purchase Statistics";
+                    }
+                    action("Purchases Invoice Book")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Purchases Invoice Book';
+                        RunObject = report 10705;
+                    }
+                    action("AutoInvoices List")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'AutoInvoices List';
+                        RunObject = report 10714;
+                    }
+                    action("Vendor - Overdue Payments")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor - Overdue Payments';
+                        RunObject = report 10748;
                     }
                     action("Vendor Item Catalog")
                     {
@@ -1386,6 +1727,12 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Purchases & Payables Setup';
                         RunObject = page "Purchases & Payables Setup";
+                    }
+                    action("Statistical Codes")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Statistical Codes';
+                        RunObject = page 10706;
                     }
                 }
             }
@@ -1939,6 +2286,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Incoming Documents Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Documents Setup';
                     RunObject = page "Incoming Documents Setup";
                 }
@@ -1959,6 +2307,18 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. Series';
                     RunObject = page "No. Series";
+                }
+                action("SII VAT Setup")
+                {
+                    ApplicationArea = All;
+                    Caption = 'SII Setup';
+                    RunObject = page 10751;
+                }
+                action("Operation Codes")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Operation Codes';
+                    RunObject = page 10745;
                 }
                 group("Group56")
                 {

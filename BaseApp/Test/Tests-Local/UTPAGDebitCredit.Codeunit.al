@@ -184,7 +184,6 @@ codeunit 144039 "UT PAG Debit Credit"
     end;
 
     [Test]
-    [HandlerFunctions('DocumentNoIsBlankMessageHandler')]
     [Scope('OnPrem')]
     procedure AmountCaptionsAvailableOnGeneralJournalPage()
     var
@@ -328,12 +327,6 @@ codeunit 144039 "UT PAG Debit Credit"
     begin
         Assert.AreEqual(StrSubstNo(DebitAmountCap), DebitAmount, CaptionMustBeSameMsg);
         Assert.AreEqual(StrSubstNo(CreditAmountCap), CreditAmount, CaptionMustBeSameMsg);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure DocumentNoIsBlankMessageHandler(Message: Text[1024])
-    begin
     end;
 }
 

@@ -786,6 +786,152 @@ codeunit 147552 "SII Update Doc. Info"
         LibrarySII.VerifyNodeCountWithValueByXPath(XMLDoc, XPathSalesIDOtroTok, 'sii:IDType', '04', 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SIIDocUploadStateGetsUpdatedOnSalesInvoiceUpdate()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        CompanyName: Text[10];
+        VATRegistrationNo: Text[10];
+    begin
+        // [FEAUTURE] [Sales] [Invoice]
+        // [SCENARIO 333224] Changes introduced in posted Sales Invoice reflects on the related SII Document Upload State record
+
+        Initialize;
+
+        // [GIVEN] Posted sales invoice with default values for Invoice Type, Special Scheme Code, IDType
+        PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.CreateCustomerNo, 0);
+        SalesInvoiceHeader.Get(CustLedgerEntry."Document No.");
+
+        // [GIVEN] Default values gets changed in posted document
+        SalesInvoiceHeader."Invoice Type" := SalesInvoiceHeader."Invoice Type"::"F2 Simplified Invoice";
+        SalesInvoiceHeader."Special Scheme Code" := SalesInvoiceHeader."Special Scheme Code"::"02 Export";
+        SalesInvoiceHeader."ID Type" := SalesInvoiceHeader."ID Type"::"02-VAT Registration No.";
+        CompanyName := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Succeeded Company Name" := CompanyName;
+        VATRegistrationNo := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Succeeded VAT Registration No." := VATRegistrationNo;
+
+        // [WHEN] Run codeunit "Sales Invoice Header - Edit" against posted document
+        CODEUNIT.Run(CODEUNIT::"Sales Invoice Header - Edit", SalesInvoiceHeader);
+
+        // [THEN] SII Document Upload State of the posted document has updated values
+        SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
+        SIIDocUploadState.TestField(
+          "Sales Invoice Type", SIIDocUploadState."Sales Invoice Type"::"F2 Simplified Invoice");
+        SIIDocUploadState.TestField(
+          "Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
+        SIIDocUploadState.TestField("Succeeded Company Name", CompanyName);
+        SIIDocUploadState.TestField("Succeeded VAT Registration No.", VATRegistrationNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SIIDocUploadStateGetsUpdatedOnSalesCrMemoUpdate()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        // [FEAUTURE] [Sales] [Credit Memo]
+        // [SCENARIO 333224] Changes introduced in posted Sales Credit Memo reflects on the related SII Document Upload State record
+
+        Initialize;
+
+        // [GIVEN] Posted sales credit memo with default values for Invoice Type and Special Scheme Code
+        PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo, 0);
+        SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
+
+        // [GIVEN] Default values gets changed in posted document
+        SalesCrMemoHeader."Cr. Memo Type" := SalesCrMemoHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+        SalesCrMemoHeader."Special Scheme Code" := SalesCrMemoHeader."Special Scheme Code"::"02 Export";
+
+        // [WHEN] Run codeunit "Sales Cr.Memo Header - Edit" against posted document
+        CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", SalesCrMemoHeader);
+
+        // [THEN] SII Document Upload State of the posted document has updated values
+        SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
+        SIIDocUploadState.TestField(
+          "Sales Cr. Memo Type", SIIDocUploadState."Sales Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+        SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SIIDocUploadStateGetsUpdatedOnPurchInvoiceUpdate()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        CompanyName: Text[10];
+        VATRegistrationNo: Text[10];
+    begin
+        // [FEAUTURE] [Purchase] [Invoice]
+        // [SCENARIO 333224] Changes introduced in posted Purchase Invoice reflects on the related SII Document Upload State record
+
+        Initialize;
+
+        // [GIVEN] Posted purchase invoice with default values for Invoice Type, Special Scheme Code, IDType
+        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, 0);
+        PurchInvHeader.Get(VendorLedgerEntry."Document No.");
+
+        // [GIVEN] Default values gets changed in posted document
+        PurchInvHeader."Invoice Type" := PurchInvHeader."Invoice Type"::"F2 Simplified Invoice";
+        PurchInvHeader."Special Scheme Code" := PurchInvHeader."Special Scheme Code"::"02 Special System Activities";
+        PurchInvHeader."ID Type" := PurchInvHeader."ID Type"::"02-VAT Registration No.";
+        CompanyName := LibraryUtility.GenerateGUID;
+        PurchInvHeader."Succeeded Company Name" := CompanyName;
+        VATRegistrationNo := LibraryUtility.GenerateGUID;
+        PurchInvHeader."Succeeded VAT Registration No." := VATRegistrationNo;
+
+        // [WHEN] Run codeunit "Purch. Inv. Header - Edit" against posted document
+        CODEUNIT.Run(CODEUNIT::"Purch. Inv. Header - Edit", PurchInvHeader);
+
+        // [THEN] SII Document Upload State of the posted document has updated values
+        SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
+        SIIDocUploadState.TestField("Purch. Invoice Type", SIIDocUploadState."Purch. Invoice Type"::"F2 Simplified Invoice");
+        SIIDocUploadState.TestField(
+          "Purch. Special Scheme Code", SIIDocUploadState."Purch. Special Scheme Code"::"02 Special System Activities");
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
+        SIIDocUploadState.TestField("Succeeded Company Name", CompanyName);
+        SIIDocUploadState.TestField("Succeeded VAT Registration No.", VATRegistrationNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SIIDocUploadStateGetsUpdatedOnPurchCrMemoUpdate()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        // [FEAUTURE] [Purchase] [Credit Memo]
+        // [SCENARIO 333224] Changes introduced in posted Purchase Credit Memo reflects on the related SII Document Upload State record
+
+        Initialize;
+
+        // [GIVEN] Posted purchase purchase memo with default values for Invoice Type and Special Scheme Code
+        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, 0);
+        PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
+
+        // [GIVEN] Default values gets changed in posted document
+        PurchCrMemoHdr."Cr. Memo Type" := PurchCrMemoHdr."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+        PurchCrMemoHdr."Special Scheme Code" := PurchCrMemoHdr."Special Scheme Code"::"02 Special System Activities";
+
+        // [WHEN] Run codeunit "Purch. Cr.Memo Header - Edit" against posted document
+        CODEUNIT.Run(CODEUNIT::"Purch. Cr. Memo Hdr. - Edit", PurchCrMemoHdr);
+
+        // [THEN] SII Document Upload State of the posted document has updated values
+        SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
+        SIIDocUploadState.TestField(
+          "Purch. Cr. Memo Type", SIIDocUploadState."Purch. Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+        SIIDocUploadState.TestField(
+          "Purch. Special Scheme Code", SIIDocUploadState."Purch. Special Scheme Code"::"02 Special System Activities");
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then

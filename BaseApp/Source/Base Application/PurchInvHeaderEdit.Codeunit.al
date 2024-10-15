@@ -22,6 +22,31 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader.TestField("No.", "No.");
         PurchInvHeader.Modify;
         Rec := PurchInvHeader;
+        UpdateSIIDocUploadState(Rec);
+    end;
+    
+    local procedure UpdateSIIDocUploadState(PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIManagement: Codeunit "SII Management";
+    begin
+        if not SIIManagement.IsSIISetupEnabled then
+            exit;
+
+        if not SIIDocUploadState.GetSIIDocUploadStateByDocument(
+             SIIDocUploadState."Document Source"::"Vendor Ledger",
+             SIIDocUploadState."Document Type"::Invoice,
+             PurchInvHeader."Posting Date",
+             PurchInvHeader."No.")
+        then
+            exit;
+
+        SIIDocUploadState."Purch. Invoice Type" := PurchInvHeader."Invoice Type" + 1;
+        SIIDocUploadState."Purch. Special Scheme Code" := PurchInvHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.IDType := PurchInvHeader."ID Type";
+        SIIDocUploadState."Succeeded Company Name" := PurchInvHeader."Succeeded Company Name";
+        SIIDocUploadState."Succeeded VAT Registration No." := PurchInvHeader."Succeeded VAT Registration No.";
+        SIIDocUploadState.Modify;
     end;
 
     [IntegrationEvent(false, false)]

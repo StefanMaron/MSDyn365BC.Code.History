@@ -3826,7 +3826,7 @@
                                                 <Color>LightGrey</Color>
                                                 <Style>None</Style>
                                               </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingLeft>10pt</PaddingLeft>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
@@ -4165,18 +4165,30 @@
                                             <KeepWithGroup>After</KeepWithGroup>
                                           </TablixMember>
                                           <TablixMember>
-                                            <Group Name="Details" />
                                             <Visibility>
                                               <Hidden>=Fields!Quantity_ShipmentLine.Value = 0</Hidden>
                                             </Visibility>
                                           </TablixMember>
+                                          <TablixMember>
+                                            <TablixMembers>
+                                              <TablixMember>
+                                                <Group Name="LineNo_AssemblyLine">
+                                                  <GroupExpressions>
+                                                    <GroupExpression>=Fields!LineNo_AssemblyLine.Value</GroupExpression>
+                                                  </GroupExpressions>
+                                                </Group>
+                                                <SortExpressions>
+                                                  <SortExpression>
+                                                    <Value>=Fields!CompanyAddress1.Value</Value>
+                                                  </SortExpression>
+                                                </SortExpressions>
+                                              </TablixMember>
+                                            </TablixMembers>
+                                            <Visibility>
+                                              <Hidden>=Fields!Quantity_AssemblyLine.Value = "0"</Hidden>
+                                            </Visibility>
+                                          </TablixMember>
                                         </TablixMembers>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <Visibility>
-                                          <Hidden>=Fields!Quantity_AssemblyLine.Value = 0</Hidden>
-                                        </Visibility>
-                                        <KeepWithGroup>Before</KeepWithGroup>
                                       </TablixMember>
                                     </TablixMembers>
                                   </TablixMember>

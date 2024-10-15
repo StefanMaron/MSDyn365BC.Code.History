@@ -447,6 +447,16 @@ table 10752 "SII Doc. Upload State"
     end;
 
     [Scope('OnPrem')]
+    procedure GetSIIDocUploadStateByDocument(DocSource: Option; DocType: Option; PostingDate: Date; DocNo: Code[20]): Boolean
+    begin
+        SetRange("Document Source", DocSource);
+        SetRange("Document Type", DocType);
+        SetRange("Posting Date", PostingDate);
+        SetRange("Document No.", DocNo);
+        exit(FindLast);
+    end;
+
+    [Scope('OnPrem')]
     procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";

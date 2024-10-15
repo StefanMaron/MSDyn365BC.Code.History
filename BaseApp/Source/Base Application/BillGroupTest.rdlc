@@ -781,13 +781,13 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_Control89Caption_Control114">
+                                          <Textbox Name="FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114">
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_Control89Caption_Control114.Value)</Value>
+                                                    <Value>=First(Fields!FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -799,7 +799,7 @@
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_Control89Caption_Control114</rd:DefaultName>
+                                            <rd:DefaultName>FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114</rd:DefaultName>
                                             <ZIndex>55</ZIndex>
                                             <Style>
                                               <VerticalAlign>Bottom</VerticalAlign>
@@ -5450,8 +5450,8 @@ End Function</Code>
         <Field Name="FeeRange_GetTotalDiscInterestsAmt_Control86Caption_Control106">
           <DataField>FeeRange_GetTotalDiscInterestsAmt_Control86Caption_Control106</DataField>
         </Field>
-        <Field Name="DataItem114">
-          <DataField>DataItem114</DataField>
+        <Field Name="FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114">
+          <DataField>FeeRange_GetTotalCollExpensesAmt_FeeRange_GetTotalDiscExpensesAmt_FeeRange_GetTotalDiscInterestsAmt_114</DataField>
         </Field>
         <Field Name="FORMAT_CreditLimitExceeded_">
           <DataField>FORMAT_CreditLimitExceeded_</DataField>

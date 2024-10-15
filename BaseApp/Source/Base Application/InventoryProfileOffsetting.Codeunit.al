@@ -2247,6 +2247,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         FromTrkgReservEntry.Binding := Binding;
         ToTrkgReservEntry.Binding := Binding;
 
+        OnPrepareTempTrackingOnBeforeInsertTempTracking(FromTrkgReservEntry, ToTrkgReservEntry, IsSurplus);
+
         if IsSurplus or (ToTrkgReservEntry."Reservation Status" = ToTrkgReservEntry."Reservation Status"::Surplus) then begin
             FromTrkgReservEntry."Reservation Status" := FromTrkgReservEntry."Reservation Status"::Surplus;
             FromTrkgReservEntry."Suppressed Action Msg." := ToTrkgReservEntry."Suppressed Action Msg.";
@@ -2325,6 +2327,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             TrkgReservEntry."Qty. to Handle (Base)" := TrkgReservEntry."Quantity (Base)";
             TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Quantity (Base)";
         end;
+
+        OnAfterSetQtyToHandle(TrkgReservEntry);
     end;
 
     local procedure CommitTracking()
@@ -2681,11 +2685,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
             until SalesOrderLine.Next = 0;
     end;
 
-    local procedure AdjustPlanLine(var Supply: Record "Inventory Profile")
+    local procedure AdjustPlanLine(var SupplyInventoryProfile: Record "Inventory Profile")
     begin
-        OnBeforeAdjustPlanLine(ReqLine, Supply);
+        OnBeforeAdjustPlanLine(ReqLine, SupplyInventoryProfile);
 
-        with Supply do begin
+        with SupplyInventoryProfile do begin
             ReqLine."Action Message" := "Action Message";
             ReqLine.BlockDynamicTracking(true);
             if "Action Message" in
@@ -2704,6 +2708,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ReqLine."Net Quantity (Base)" :=
                   (ReqLine."Remaining Quantity" - ReqLine."Original Quantity") *
                   ReqLine."Qty. per Unit of Measure";
+                OnAdjustPlanLineAfterValidateQuantity(ReqLine, SupplyInventoryProfile);
             end;
             ReqLine."Original Due Date" := "Original Due Date";
             ReqLine."Due Date" := "Due Date";
@@ -3963,7 +3968,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                         "Primary Order Status" := "Source Order Status";
                                         "Primary Order No." := "Source ID";
                                         if "Source Type" <> DATABASE::"Prod. Order Component" then
-                                            "Primary Order Line" := "Source Ref. No.";
+                                            "Primary Order Line" := "Source Ref. No."
+                                        else
+                                            "Primary Order Line" := "Source Prod. Order Line";
                                     end;
                                     Modify;
                                 end;
@@ -4601,6 +4608,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAdjustPlanLineAfterValidateQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatePlanFromWorksheet(var Item: Record Item)
     begin
     end;
@@ -4632,6 +4644,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSupplyToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ToDate: Date; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetQtyToHandle(var ReservationEntry: Record "Reservation Entry");
     begin
     end;
 
@@ -4837,6 +4854,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnMaintainPlanningLineOnBeforeAdjustPlanLine(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile"; StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareTempTrackingOnBeforeInsertTempTracking(var FromReservEntry: Record "Reservation Entry"; var ToReservEntry: Record "Reservation Entry"; IsSurplus: Boolean);
     begin
     end;
 }

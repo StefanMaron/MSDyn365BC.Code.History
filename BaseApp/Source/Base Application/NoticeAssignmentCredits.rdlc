@@ -226,13 +226,13 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="CompanyInfo_City_Text1100002_FORMAT_DeliveryDate_0_Text1100003__Text1100004_FORMAT_DeliveryDate_0_Text1100005__Text1100004_FORMAT_DeliveryDate_0_Text1100006_">
+                        <Textbox Name="CompanyInfo_City_Text1100002_FORMAT_DeliveryDate">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CompanyInfo_City_Text1100002_FORMAT_DeliveryDate_0_Text1100003__Text1100004_FORMAT_DeliveryDate_0_Text1100005__Text1100004_FORMAT_DeliveryDate_0_Text1100006_.Value</Value>
+                                  <Value>=Fields!CompanyInfo_City_Text1100002_FORMAT_DeliveryDate.Value</Value>
                                   <Style>
                                     <FontSize>9pt</FontSize>
                                   </Style>
@@ -3437,8 +3437,8 @@ End Function
         <Field Name="BankAddress2_1_____">
           <DataField>BankAddress2_1_____</DataField>
         </Field>
-        <Field Name="DataItem1">
-          <DataField>DataItem1</DataField>
+        <Field Name="CompanyInfo_City_Text1100002_FORMAT_DeliveryDate">
+          <DataField>CompanyInfo_City_Text1100002_FORMAT_DeliveryDate</DataField>
         </Field>
         <Field Name="BankAddress2_2_">
           <DataField>BankAddress2_2_</DataField>

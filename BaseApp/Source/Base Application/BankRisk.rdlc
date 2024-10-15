@@ -269,13 +269,13 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_______2Caption">
+                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount_Caption">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_______2Caption.Value)</Value>
+                                  <Value>=First(Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount_Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -325,13 +325,13 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt___2Caption">
+                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount_Caption">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt___2Caption.Value)</Value>
+                                  <Value>=First(Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount_Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -544,10 +544,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_______2.Value</Value>
+                                  <Value>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_______2Format.Value</Format>
+                                    <Format>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -595,17 +595,17 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt___2">
+                        <Textbox Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt___2.Value</Value>
+                                  <Value>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt___2Format.Value</Format>
+                                    <Format>=Fields!Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -768,17 +768,17 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_______2">
+                        <Textbox Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_______2.Value</Value>
+                                  <Value>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_______2Format.Value</Format>
+                                    <Format>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -826,17 +826,17 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY__ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY___2">
+                        <Textbox Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY__ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY___2.Value</Value>
+                                  <Value>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY__ABS_CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY___2Format.Value</Format>
+                                    <Format>=Fields!CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1659,26 +1659,26 @@ End Function
         <Field Name="NonPostedDiscAmtFormat">
           <DataField>NonPostedDiscAmtFormat</DataField>
         </Field>
-        <Field Name="DataItem11">
-          <DataField>DataItem11</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt</DataField>
         </Field>
-        <Field Name="DataItem11Format">
-          <DataField>DataItem11Format</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__AmtFormat">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__AmtFormat</DataField>
         </Field>
-        <Field Name="DataItem14">
-          <DataField>DataItem14</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt</DataField>
         </Field>
-        <Field Name="DataItem14Format">
-          <DataField>DataItem14Format</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmtFormat">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmtFormat</DataField>
         </Field>
         <Field Name="BankAcc__Currency_Code_">
           <DataField>BankAcc__Currency_Code_</DataField>
         </Field>
-        <Field Name="DataItem30">
-          <DataField>DataItem30</DataField>
+        <Field Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY">
+          <DataField>CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY</DataField>
         </Field>
-        <Field Name="DataItem30Format">
-          <DataField>DataItem30Format</DataField>
+        <Field Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCYFormat">
+          <DataField>CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCYFormat</DataField>
         </Field>
         <Field Name="NonPostedDiscAmtLCY">
           <DataField>NonPostedDiscAmtLCY</DataField>
@@ -1686,11 +1686,11 @@ End Function
         <Field Name="NonPostedDiscAmtLCYFormat">
           <DataField>NonPostedDiscAmtLCYFormat</DataField>
         </Field>
-        <Field Name="DataItem32">
-          <DataField>DataItem32</DataField>
+        <Field Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY">
+          <DataField>CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY</DataField>
         </Field>
-        <Field Name="DataItem32Format">
-          <DataField>DataItem32Format</DataField>
+        <Field Name="CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCYFormat">
+          <DataField>CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCYFormat</DataField>
         </Field>
         <Field Name="BankAcc__Posted_R_Bills_Rmg__Amt___LCY__">
           <DataField>BankAcc__Posted_R_Bills_Rmg__Amt___LCY__</DataField>
@@ -1797,11 +1797,11 @@ End Function
         <Field Name="NonPostedDiscAmtCaption">
           <DataField>NonPostedDiscAmtCaption</DataField>
         </Field>
-        <Field Name="DataItem12">
-          <DataField>DataItem12</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount_Caption">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount_Caption</DataField>
         </Field>
-        <Field Name="DataItem13">
-          <DataField>DataItem13</DataField>
+        <Field Name="Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount_Caption">
+          <DataField>Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount_Caption</DataField>
         </Field>
         <Field Name="BankAcc__Currency_Code_Caption">
           <DataField>BankAcc__Currency_Code_Caption</DataField>

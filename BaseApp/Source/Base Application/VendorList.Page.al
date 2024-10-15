@@ -28,6 +28,12 @@
                     ApplicationArea = All;
                     ToolTip = 'Specifies the vendor''s name. You can enter a maximum of 30 characters, both numbers and letters.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Responsibility Center"; "Responsibility Center")
                 {
                     ApplicationArea = Advanced;

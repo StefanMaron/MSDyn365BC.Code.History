@@ -55,12 +55,12 @@ report 7000005 "Bank - Risk"
                 AutoFormatExpression = "Currency Code";
                 AutoFormatType = 1;
             }
-            column(DataItem11; ("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." + Abs("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt.")) / 2)
+            column(Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt; ("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." + Abs("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt.")) / 2)
             {
                 AutoFormatExpression = "Currency Code";
                 AutoFormatType = 1;
             }
-            column(DataItem14; (("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." - NonPostedDiscAmt) + Abs("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." - NonPostedDiscAmt)) / 2)
+            column(Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt; (("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." - NonPostedDiscAmt) + Abs("Credit Limit for Discount" - "Posted Receiv. Bills Rmg. Amt." - NonPostedDiscAmt)) / 2)
             {
                 AutoFormatExpression = "Currency Code";
                 AutoFormatType = 1;
@@ -68,7 +68,7 @@ report 7000005 "Bank - Risk"
             column(BankAcc__Currency_Code_; "Currency Code")
             {
             }
-            column(DataItem30; ((CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" - NonPostedDiscAmtLCY) + Abs(CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" - NonPostedDiscAmtLCY)) / 2)
+            column(CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY___NonPostedDiscAmtLCY; ((CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" - NonPostedDiscAmtLCY) + Abs(CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" - NonPostedDiscAmtLCY)) / 2)
             {
                 AutoFormatType = 1;
             }
@@ -76,7 +76,7 @@ report 7000005 "Bank - Risk"
             {
                 AutoFormatType = 1;
             }
-            column(DataItem32; (CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" + Abs(CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)")) / 2)
+            column(CreditLimitForDiscLCY__Posted_R_Bills_Rmg__Amt___LCY_____ABS_CreditLimitForDiscLCY; (CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)" + Abs(CreditLimitForDiscLCY - "Posted R.Bills Rmg. Amt. (LCY)")) / 2)
             {
                 AutoFormatType = 1;
             }
@@ -166,10 +166,10 @@ report 7000005 "Bank - Risk"
             column(NonPostedDiscAmtCaption; NonPostedDiscAmtCaptionLbl)
             {
             }
-            column(DataItem12; ReminderInterestAmount_VAT_Amount_Issued_Reminder_Header_Additional_Fee_AddFeeInclVAT_VATInterest_100_1_VATInLbl)
+            column(Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt_____ABS__Credit_Limit_for_Discount_Caption; ReminderInterestAmount_VAT_Amount_Issued_Reminder_Header_Additional_Fee_AddFeeInclVAT_VATInterest_100_1_VATInLbl)
             {
             }
-            column(DataItem13; Credit_Limit_for_Discount_Posted_Receiv_Bills_Rmg_Amt_NonPostedDiscAmt_ABS_Credit_Limit_for_Discount_Posted_Receiv_Lbl)
+            column(Credit_Limit_for_Discount___Posted_Receiv__Bills_Rmg__Amt___NonPostedDiscAmt__ABS__Credit_Limit_for_Discount_Caption; Credit_Limit_for_Discount_Posted_Receiv_Bills_Rmg_Amt_NonPostedDiscAmt_ABS_Credit_Limit_for_Discount_Posted_Receiv_Lbl)
             {
             }
             column(BankAcc__Currency_Code_Caption; FieldCaption("Currency Code"))

@@ -2098,7 +2098,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
 
         // Verify - Notification.
-        VerifyNotificationEntry(ApprovalEntry, 1);
+        VerifyNotificationEntry(ApprovalEntry."Approver ID", 1);
     end;
 
     [Test]
@@ -2247,7 +2247,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
 
         // Verify - Notification.
-        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup);
+        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup, 2, 0);
     end;
 
     [Test]
@@ -2296,7 +2296,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
 
         // Verify - Notification.
-        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup);
+        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup, 1, 0);
     end;
 
     [Test]
@@ -2344,7 +2344,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
 
         // Verify - Notification.
-        VerifyNotificationEntry(ApprovalEntry, 1);
+        VerifyNotificationEntry(ApprovalEntry."Approver ID", 1);
     end;
 
     [Test]
@@ -2393,7 +2393,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
 
         // Verify - Notification.
-        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup);
+        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup, 2, 0);
     end;
 
     [Test]
@@ -2442,7 +2442,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
 
         // Verify - Notification.
-        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup);
+        VerifyNotificationsForApprovers(ApprovalEntry, Approver1UserSetup, Approver2UserSetup, 1, 0);
     end;
 
     [Test]
@@ -2495,7 +2495,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
 
         // Verify - Notification.
-        VerifyNotificationEntry(ApprovalEntry, 2);
+        VerifyNotificationEntry(ApprovalEntry."Approver ID", 2);
     end;
 
     [Test]
@@ -4197,25 +4197,37 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         ApprovalEntry.TestField("Due Date", CalcDate(DueDateFormula, Today));
     end;
 
-    local procedure VerifyNotificationEntry(ApprovalEntry: Record "Approval Entry"; NoOfEntries: Integer)
+    local procedure VerifyNotificationEntry(RecipientUserID: Code[50]; NoOfEntries: Integer)
     var
         NotificationEntry: Record "Notification Entry";
     begin
-        NotificationEntry.SetRange("Recipient User ID", ApprovalEntry."Approver ID");
+        NotificationEntry.SetRange("Recipient User ID", RecipientUserID);
+        Assert.RecordIsNotEmpty(NotificationEntry);
         Assert.RecordCount(NotificationEntry, NoOfEntries);
-        NotificationEntry.FindLast;
     end;
 
-    local procedure VerifyNotificationsForApprovers(var ApprovalEntry: Record "Approval Entry"; Approver1UserSetup: Record "User Setup"; Approver2UserSetup: Record "User Setup")
+    local procedure VerifyNotificationEntryIsEmptyForRecipient(RecipientUserID: Code[50])
+    var
+        NotificationEntry: Record "Notification Entry";
+    begin
+        NotificationEntry.SetRange("Recipient User ID", RecipientUserID);
+        Assert.RecordIsEmpty(NotificationEntry);
+    end;
+
+    local procedure VerifyNotificationsForApprovers(var ApprovalEntry: Record "Approval Entry"; Approver1UserSetup: Record "User Setup"; Approver2UserSetup: Record "User Setup"; ExpectedNotifQtyApprover1: Integer; ExpectedNotifQtyApprover2: Integer)
     begin
         ApprovalEntry.SetRange("Approver ID", Approver1UserSetup."User ID");
         ApprovalEntry.FindFirst;
-        VerifyNotificationEntry(ApprovalEntry, 2);
+        VerifyNotificationEntry(ApprovalEntry."Approver ID", ExpectedNotifQtyApprover1);
 
         ApprovalEntry.SetRange("Approver ID", Approver2UserSetup."User ID");
         ApprovalEntry.FindFirst;
-        asserterror VerifyNotificationEntry(ApprovalEntry, 0);
-        Assert.AssertNothingInsideFilter;
+        case ExpectedNotifQtyApprover2 of
+            0:
+                VerifyNotificationEntryIsEmptyForRecipient(ApprovalEntry."Approver ID");
+            else
+                VerifyNotificationEntry(ApprovalEntry."Approver ID", ExpectedNotifQtyApprover2);
+        end;
     end;
 
     local procedure GetApprovalEntriesForInv(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentNo: Code[20])

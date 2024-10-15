@@ -16,6 +16,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileManagement: Codeunit "File Management";
         ErrorElementNameTxt: Label 'ErrorText_Number_';
         CarteraDocumentErrorElementNameTxt: Label 'ErrorText_Number__Control56';
         DocRemainingAmountElementNameTxt: Label 'Doc__Remaining_Amount_';
@@ -24,12 +25,6 @@ codeunit 147539 "Bill - Group Test Report Tests"
         ValueMustBeTxt: Label '%1 must be %2.';
         ValueCannotBeTxt: Label '%1 cannot be %2.';
         LocalCurrencyCode: Code[10];
-
-    local procedure Initialize()
-    begin
-        LibraryVariableStorage.Clear;
-        LocalCurrencyCode := '';
-    end;
 
     [Test]
     [HandlerFunctions('CheckDiscountCreditLimitModalPageHandler,BillGroupTestReportRequestPageHandler')]
@@ -348,6 +343,30 @@ codeunit 147539 "Bill - Group Test Report Tests"
         Assert.AreEqual(6, CountErrorsInReportDataset, 'There should be 6 errors reported by Bill Group test report');
     end;
 
+    [Test]
+    [HandlerFunctions('CheckDiscountCreditLimitModalPageHandler,BillGroupTestSaveAsPDFReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintBillGroupTest()
+    var
+        BillGroup: Record "Bill Group";
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "Bill Group Test" can be printed without RDLC rendering errors
+        Initialize;
+
+        CreateBillGroupTestSetupData(BillGroup, TotalAmount);
+        // [WHEN] Report "Bill Group Test" is being printed to PDF
+        InvokeBillGroupTestReport(BillGroup);
+        // [THEN] No RDLC rendering errors
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryVariableStorage.Clear;
+        LocalCurrencyCode := '';
+    end;
+
     [Normal]
     local procedure CreateBillGroupTestSetupData(var BillGroup: Record "Bill Group"; var TotalAmount: Decimal)
     var
@@ -475,6 +494,13 @@ codeunit 147539 "Bill - Group Test Report Tests"
     procedure BillGroupTestReportRequestPageHandler(var BillGroupTest: TestRequestPage "Bill Group - Test")
     begin
         BillGroupTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BillGroupTestSaveAsPDFReportRequestPageHandler(var BillGroupTest: TestRequestPage "Bill Group - Test")
+    begin
+        BillGroupTest.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 
     [ModalPageHandler]

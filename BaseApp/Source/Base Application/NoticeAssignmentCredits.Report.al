@@ -76,7 +76,7 @@ report 7000050 "Notice Assignment Credits"
             column(BankAddress2_1_____; BankAddress2[1] + '.')
             {
             }
-            column(DataItem1; CompanyInfo.City + Text1100002 + Format(DeliveryDate, 0, Text1100003) + Text1100004 + Format(DeliveryDate, 0, Text1100005) + Text1100004 + Format(DeliveryDate, 0, Text1100006))
+            column(CompanyInfo_City_Text1100002_FORMAT_DeliveryDate; CompanyInfo.City + Text1100002 + Format(DeliveryDate, 0, Text1100003) + Text1100004 + Format(DeliveryDate, 0, Text1100005) + Text1100004 + Format(DeliveryDate, 0, Text1100006))
             {
             }
             column(BankAddress2_2_; BankAddress2[2])
