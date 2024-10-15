@@ -2415,11 +2415,7 @@
             trigger OnValidate()
             begin
                 TestStatusOpen;
-                if "Promised Delivery Date" <> 0D then
-                    Error(
-                      Text028,
-                      FieldCaption("Requested Delivery Date"),
-                      FieldCaption("Promised Delivery Date"));
+                CheckPromisedDeliveryDate();
 
                 if "Requested Delivery Date" <> xRec."Requested Delivery Date" then
                     UpdateSalesLinesByFieldNo(FieldNo("Requested Delivery Date"), CurrFieldNo <> 0);
@@ -3826,24 +3822,26 @@
                 ReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
                 ReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
                 ReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-                if ReqLine.FindSet then
+                if ReqLine.FindSet() then begin
                     repeat
                         TempReqLine := ReqLine;
                         TempReqLine.Insert();
-                    until ReqLine.Next = 0;
-                ReqLine.DeleteAll();
+                    until ReqLine.Next() = 0;
+                    ReqLine.DeleteAll();
+                end;
             end else begin
                 Clear(TempReqLine);
                 TempReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
                 TempReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
                 TempReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-                if TempReqLine.FindSet then
+                if TempReqLine.FindSet() then begin
                     repeat
                         ReqLine := TempReqLine;
                         ReqLine."Order Promising Line ID" := NewSourceRefNo;
                         ReqLine.Insert();
-                    until TempReqLine.Next = 0;
-                TempReqLine.DeleteAll();
+                    until TempReqLine.Next() = 0;
+                    TempReqLine.DeleteAll();
+                end;
             end;
     end;
 
@@ -4329,6 +4327,7 @@
         SalesLine.LockTable();
         if SalesLine.Find('-') then
             repeat
+                OnUpdateAllLineDimOnBeforeGetSalesLineNewDimsetID(SalesLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(SalesLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if SalesLine."Dimension Set ID" <> NewDimSetID then begin
                     SalesLine."Dimension Set ID" := NewDimSetID;
@@ -5735,7 +5734,13 @@
         Opp: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOpportunity(IsHandled);
+        if IsHandled then
+            exit;
+
         if not ("Opportunity No." <> '') or not ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) then
             exit;
 
@@ -6324,6 +6329,19 @@
             Result :=
               ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
+    end;
+
+    local procedure CheckPromisedDeliveryDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPromisedDeliveryDate(IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Promised Delivery Date" <> 0D then
+            Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
     [IntegrationEvent(false, false)]
@@ -7132,6 +7150,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetSalesLineNewDimSetID(var SalesLine: Record "Sales Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShippingNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7143,6 +7166,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupBillToContactNo(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateOpportunity(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckPromisedDeliveryDate(var IsHandled: Boolean)
     begin
     end;
 }

@@ -2,6 +2,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -46,9 +47,8 @@ codeunit 137068 "SCM Inventory Orders-II"
         TrackingMethod: Option "Serial No.",Lot;
         MultipleValueEntriesWithChargeMsg: Label 'More than one Item Charge is posted for each Item Ledger Entry.';
         PostedChargeCostAmountMsg: Label 'Wrong Cost Amount of posted Item Charge.';
-        WrongNoOfOrdersPrintedErr: Label 'Two orders must be printed';
+        WrongNoOfOrdersPrintedErr: Label 'Two orders must be printed together';
         WrongValueOfPurchCodeErr: Label 'Wrong value of purchasing code';
-        QuantitiesOfCreatedAndPrintedPurchaseOrdersMismatchErr: Label 'Quantities of created (%1) and printed (%2) purchase orders mismatch.', Comment = '%1: Quantity of created orders; %2: quantity of printed orders.';
         WrongNoOfOrdersCreatedErr: Label '%1 orders must be created.', Comment = '2 orders must be created.';
         WrongLocationCodeOnLineErr: Label 'Location code on the line must not be equal to location code on the header.';
         CannotCreateDocPrivacyBlockerErr: Label 'You cannot create this type of document when Vendor %1 is blocked for privacy.', Comment = 'You cannot create this type of document when Vendor GU0000000001 is blocked for privacy.';
@@ -513,6 +513,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         // Setup: Create Item and create vendor with Shipment Method Code and Create Sales Order with Purchasing Code.
         Initialize;
+
         CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, CreateItem);
         CreateVendorWithShipmentMethodCode(Vendor, SalesHeader."Shipment Method Code");
         CreateRequisitionLine(RequisitionLine);
@@ -1041,21 +1042,21 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
-    procedure SpecialOrdersFromReqWkshPrintedSeparately()
+    procedure SpecialOrdersFromReqWkshPrintedTogether()
     var
         Purchasing: Record Purchasing;
         SalesHeader: array[2] of Record "Sales Header";
         Item: Record Item;
         Location: Record Location;
+        SCMInventoryOrdersII: Codeunit "SCM Inventory Orders-II";
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet]
-        // [SCENARIO] When several purchase order are created for special sales orders via requisition worksheet, each order should be printer separately
+        // [SCENARIO 365286] When several Purchase Orders are created for special Sales Orders via Requisition Worksheet, they are printed together.
+        Initialize();
 
-        Initialize;
-
-        // [GIVEN] Two sales orders for the same customer, but on different locations
+        // [GIVEN] Two Sales Orders for the same Customer, but on different locations
         CreatePurchasingCodeWithSpecialOrder(Purchasing);
         LibraryInventory.CreateItem(Item);
         CreateSalesOrderWithPurchasingCodeOnLocation(
@@ -1064,34 +1065,36 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateSalesOrderWithPurchasingCodeOnLocation(
           SalesHeader[2], SalesHeader[1]."Sell-to Customer No.", Item."No.", LibraryWarehouse.CreateLocation(Location), Purchasing.Code);
 
-        // [GIVEN] Open requisition worksheet and run "Get Special Orders"
+        // [GIVEN] Open Requisition Worksheet and run "Get Special Orders"
         OpenRequisitionWorksheetAndRunGetSpecialOrders(SalesHeader);
 
         // [WHEN] Carry out action messages
+        BindSubscription(SCMInventoryOrdersII);
         CarryOutActionMessages(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", SalesHeader[1]."Posting Date");
 
-        // [THEN] Two orders are printed
-        Assert.AreEqual(2, LibraryVariableStorage.Length, WrongNoOfOrdersPrintedErr);
+        // [THEN] Two orders are printed together, it is check inside CheckTwoPurchaseOrdersOnBeforePrintDocument subscriber.
+        // [THEN] Report for printing orders is run once.
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongNoOfOrdersPrintedErr);
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
-    procedure SpecialOrdersFromReqWkshDiffPurchCodePrintedSeparately()
+    procedure SpecialOrdersFromReqWkshDiffPurchCodePrintedTogether()
     var
         Purchasing: array[2] of Record Purchasing;
         SalesHeader: array[2] of Record "Sales Header";
         PurchaseLine: array[2] of Record "Purchase Line";
         Item: Record Item;
         Location: Record Location;
+        SCMInventoryOrdersII: Codeunit "SCM Inventory Orders-II";
         LocationCode: Code[10];
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet]
-        // [SCENARIO] When several purchase orders are created for special sales orders with different purchasing codes via requisition worksheet, each order should be printed separately
+        // [SCENARIO 365286] When several Purchase Orders are created for special Sales Orders with different purchasing codes via Requisition Worksheet, they are printed together.
+        Initialize();
 
-        Initialize;
-
-        // [GIVEN] Two sales orders for the same customer, on the same locations, but with different Purchasing Codes
+        // [GIVEN] Two Sales Orders for the same Customer, on the same locations, but with different Purchasing Codes
         LocationCode := LibraryWarehouse.CreateLocation(Location);
         CreatePurchasingCodeWithSpecialOrder(Purchasing[1]);
         CreatePurchasingCodeWithSpecialOrder(Purchasing[2]);
@@ -1102,14 +1105,16 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateSalesOrderWithPurchasingCodeOnLocation(
           SalesHeader[2], SalesHeader[1]."Sell-to Customer No.", Item."No.", LocationCode, Purchasing[2].Code);
 
-        // [GIVEN] Open requisition worksheet and run "Get Special Orders"
+        // [GIVEN] Open Requisition Worksheet and run "Get Special Orders"
         OpenRequisitionWorksheetAndRunGetSpecialOrders(SalesHeader);
 
         // [WHEN] Carry out action messages
+        BindSubscription(SCMInventoryOrdersII);
         CarryOutActionMessages(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", SalesHeader[1]."Posting Date");
 
-        // [THEN] Two orders are printed
-        Assert.AreEqual(2, LibraryVariableStorage.Length, WrongNoOfOrdersPrintedErr);
+        // [THEN] Two orders are printed together, it is check inside CheckTwoPurchaseOrdersOnBeforePrintDocument subscriber.
+        // [THEN] Report for printing orders is run once.
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongNoOfOrdersPrintedErr);
 
         // [THEN] Two purchase line exist, each related with own sales line
         FindPurchaseLineBySalesSpecialOrder(PurchaseLine[1], SalesHeader[1]);
@@ -1121,7 +1126,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
     procedure SpecialOrdersFromReqWkshCreatedPrintedMatchDiffLocationsInLines()
     var
@@ -1131,18 +1136,18 @@ codeunit 137068 "SCM Inventory Orders-II"
         Vendor: Record Vendor;
         RequisitionLine: Record "Requisition Line";
         Location: Record Location;
+        SCMInventoryOrdersII: Codeunit "SCM Inventory Orders-II";
         GetSalesOrders: Report "Get Sales Orders";
         HeaderLocationCode: Code[10];
-        Printed: Integer;
         Created: Integer;
         i: Integer;
     begin
         // [FEATURE] [Special Order] [Requisition Worksheet]
-        // [SCENARIO 201608] When several purchase orders are created for special sales orders via requisition worksheet, the quantity of created and printed orders is the same.
+        // [SCENARIO 201608] When several Purchase Orders are created for special Sales Orders via Requisition Worksheet, the quantity of created and printed orders is the same.
+        // [SCENARIO 365286] When several Purchase Orders are created for special Sales Orders via Requisition Worksheet, they are printed together.
+        Initialize();
 
-        Initialize;
-
-        // [GIVEN] Two sales orders for the same customer, each with one line, with a same location in headers but with different locations in lines.
+        // [GIVEN] Two Sales Orders for the same Customer, each with one line, with a same location in headers but with different locations in lines.
         CreatePurchasingCodeWithSpecialOrder(Purchasing);
         LibraryInventory.CreateItem(Item);
         HeaderLocationCode := LibraryWarehouse.CreateLocation(Location);
@@ -1153,32 +1158,36 @@ codeunit 137068 "SCM Inventory Orders-II"
           SalesHeader[2], SalesHeader[1]."Sell-to Customer No.", Item."No.",
           HeaderLocationCode, LibraryWarehouse.CreateLocation(Location), Purchasing.Code);
 
-        // [GIVEN] Open requisition worksheet and run "Special Order - Get Sales Orders".
+        // [GIVEN] Open Requisition Worksheet and run "Special Order - Get Sales Orders".
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1); // Special Order.
         Commit();
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
 
         CreateVendorWithShipmentMethodCode(Vendor, SalesHeader[1]."Shipment Method Code");
         for i := 1 to 2 do
             UpdateVendorOnRequisitionLine(RequisitionLine, SalesHeader[i]."No.", Vendor."No.");
 
         // [WHEN] Carry out action messages.
+        BindSubscription(SCMInventoryOrdersII);
         UpdateReportSelection(REPORT::Order);
         RequisitionLine.SetFilter("Sales Order No.", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         CarryOutReqWkshWithRequestPage(
           RequisitionLine, RequisitionLine."Expiration Date", RequisitionLine."Order Date",
           SalesHeader[1]."Posting Date", SalesHeader[1]."Posting Date");
 
-        // [THEN] The quantity of created and printed orders is the same.
+        // [THEN] Two Purchase Orders are created.
         Created := CountPurchaseOrdersFromVendor(Vendor."No.");
-        Printed := LibraryVariableStorage.Length;
-        Assert.AreEqual(Created, Printed, StrSubstNo(QuantitiesOfCreatedAndPrintedPurchaseOrdersMismatchErr, Created, Printed));
+        Assert.AreEqual(2, Created, '');
+
+        // [THEN] These Orders are printed together, it is check inside CheckTwoPurchaseOrdersOnBeforePrintDocument subscriber.
+        // [THEN] Report for printing orders is run once.
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongNoOfOrdersPrintedErr);
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
     procedure DropShipmentFromReqWkshCreatedPrintedMatchDiffLocationsInLines()
     var
@@ -1187,16 +1196,16 @@ codeunit 137068 "SCM Inventory Orders-II"
         Item: Record Item;
         Customer: Record Customer;
         Vendor: Record Vendor;
+        SCMInventoryOrdersII: Codeunit "SCM Inventory Orders-II";
         RequisitionLine: Record "Requisition Line";
         GetSalesOrders: Report "Get Sales Orders";
-        Printed: Integer;
         Created: Integer;
         i: Integer;
     begin
         // [FEATURE] [Drop Shipment] [Requisition Worksheet]
         // [SCENARIO 201608] When several purchase orders are created for sales orders with drop shipment via requisition worksheet, the quantity of created and printed orders is the same.
-
-        Initialize;
+        // [SCENARIO 365286] When several Purchase Orders are created for Sales Orders with drop shipment via Requisition Worksheet, Purchase Oreders are printed together.
+        Initialize();
 
         // [GIVEN] Two sales orders "S1" and "S2" for the same customer, each with a single line with a same item, with a same Purchasing Code with Drop Shipment.
         CreatePurchasingCodeWithDropShipment(Purchasing);
@@ -1209,18 +1218,19 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] "S2"."Ship-to Address 2" is different from "S1"
         ModifySalesHeaderWithMultipleAddress(SalesHeader[2]);
 
-        // [GIVEN] Open requisition worksheet and run "Drop Shipment - Get Sales Orders".
+        // [GIVEN] Open Requisition Worksheet and run "Drop Shipment - Get Sales Orders".
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0); // No special Order.
         Commit();
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
 
         LibraryPurchase.CreateVendor(Vendor);
         for i := 1 to 2 do
             UpdateVendorOnRequisitionLine(RequisitionLine, SalesHeader[i]."No.", Vendor."No.");
 
         // [WHEN] Carry out action messages.
+        BindSubscription(SCMInventoryOrdersII);
         UpdateReportSelection(REPORT::Order);
         RequisitionLine.SetFilter("Sales Order No.", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         CarryOutReqWkshWithRequestPage(
@@ -1228,13 +1238,13 @@ codeunit 137068 "SCM Inventory Orders-II"
           SalesHeader[1]."Posting Date", SalesHeader[1]."Posting Date");
 
         Created := CountPurchaseOrdersFromVendor(Vendor."No.");
-        Printed := LibraryVariableStorage.Length;
 
-        // [THEN] Two orders are created.
+        // [THEN] Two Purchase Orders are created.
         Assert.AreEqual(2, Created, StrSubstNo(WrongNoOfOrdersCreatedErr, 2));
 
-        // [THEN] The quantity of created and printed orders is the same.
-        Assert.AreEqual(Created, Printed, StrSubstNo(QuantitiesOfCreatedAndPrintedPurchaseOrdersMismatchErr, Created, Printed));
+        // [THEN] These Orders are printed together, it is check inside CheckTwoPurchaseOrdersOnBeforePrintDocument subscriber.
+        // [THEN] Report for printing orders is run once.
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongNoOfOrdersPrintedErr);
     end;
 
     [Test]
@@ -1464,7 +1474,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
     procedure DropShptFromReqWkshWithDiffShipAddressInMultipleSalesOrders()
     var
@@ -1519,7 +1529,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler')]
     [Scope('OnPrem')]
     procedure SpecialOrderFromReqWkshWithDiffShipAddressInMultipleSalesOrders()
     var
@@ -1703,7 +1713,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,OrderReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
     procedure DropShipmentFromReqWkshCreatedPrintedMatchDiffCustomersBlankAddressDetails()
     var
@@ -1711,15 +1721,15 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesHeader: array[2] of Record "Sales Header";
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
+        SCMInventoryOrdersII: Codeunit "SCM Inventory Orders-II";
         GetSalesOrders: Report "Get Sales Orders";
-        Printed: Integer;
         Created: Integer;
         i: Integer;
     begin
         // [FEATURE] [Drop Shipment]
-        // [SCENARIO 234009] The purchase orders are created separately if they have different customers as source with drop shipment.
-
-        Initialize;
+        // [SCENARIO 234009] Purchase Orders are created separately if they have different customers as source with drop shipment.
+        // [SCENARIO 365286] All Purchase Orders are printed together.
+        Initialize();
 
         // [GIVEN] Two sales orders "S1" and "S2" for different customers, each with a single line with a same item, with a same Purchasing Code with Drop Shipment, no address details
         CreatePurchasingCodeWithDropShipment(Purchasing);
@@ -1735,17 +1745,18 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0); // No special Order.
         Commit();
-        GetSalesOrders.RunModal;
+        GetSalesOrders.RunModal();
 
         // [WHEN] Carry out action messages.
+        BindSubscription(SCMInventoryOrdersII);
         Created := UpdateAndCarryOut(RequisitionLine, SalesHeader);
-        Printed := LibraryVariableStorage.Length;
 
         // [THEN] Two orders are created.
         Assert.AreEqual(2, Created, StrSubstNo(WrongNoOfOrdersCreatedErr, 2));
 
-        // [THEN] The quantity of created and printed orders is the same.
-        Assert.AreEqual(Created, Printed, StrSubstNo(QuantitiesOfCreatedAndPrintedPurchaseOrdersMismatchErr, Created, Printed));
+        // [THEN] These Orders are printed together, it is check inside CheckTwoPurchaseOrdersOnBeforePrintDocument subscriber.
+        // [THEN] Report for printing orders is run once.
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongNoOfOrdersPrintedErr);
     end;
 
     [Test]
@@ -1877,7 +1888,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesOrdersReportHandler,StandardPurchaseOrderReportHandler,CarryOutActionMsgReqHandler')]
+    [HandlerFunctions('GetSalesOrdersReportHandler,CarryOutActionMsgReqHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderFromReqWkshWithDiffVendorThatIsBlocked()
     var
@@ -3176,14 +3187,14 @@ codeunit 137068 "SCM Inventory Orders-II"
         SavedReportSelections: Record "Report Selections";
     begin
         with ReportSelections do begin
-            SetRange(Usage, 6);  // Purchase Order. Number is used instead of an option value to avoid codeunit localization
-            FindFirst;
+            SetRange(Usage, Usage::"P.Order");  // Purchase Order. Number is used instead of an option value to avoid codeunit localization
+            FindFirst();
             SavedReportSelections := ReportSelections;
             DeleteAll();
 
-            Init;
+            Init();
             ReportSelections := SavedReportSelections;
-            Validate(Usage, 6);
+            Validate(Usage, Usage::"P.Order");
             Validate(Sequence, LibraryUtility.GenerateGUID);
             Validate("Report ID", ReportID);
             Insert(true);
@@ -3718,7 +3729,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure StandardPurchaseOrderReportHandler(var StandardPurchaseOrder: Report "Order")
+    procedure OrderReportHandler(var Order: Report "Order")
     begin
         LibraryVariableStorage.Enqueue(true);
     end;
@@ -3744,6 +3755,22 @@ codeunit 137068 "SCM Inventory Orders-II"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
+    local procedure CheckTwoPurchaseOrdersOnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RecRef: RecordRef;
+    begin
+        Assert.RecordCount(RecVarToPrint, 2);
+        RecRef := RecVarToPrint;
+        RecRef.SetTable(PurchaseHeader);
+        PurchaseHeader.FindSet();
+        repeat
+            Assert.AreEqual(PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type", '');
+        until PurchaseHeader.Next() = 0;
+        IsHandled := false;
     end;
 }
 

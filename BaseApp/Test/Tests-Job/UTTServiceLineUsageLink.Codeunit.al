@@ -17,19 +17,23 @@ codeunit 136360 "UT T Service Line Usage Link"
         Customer: Record Customer;
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryJob: Codeunit "Library - Job";
+        LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         Text001: Label 'Rolling back changes.';
 
     [Normal]
-    local procedure SetUp()
+    local procedure Initialize()
     var
-        Item: Record Item;
-        LibraryJob: Codeunit "Library - Job";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryInventory: Codeunit "Library - Inventory";
+        Item: Record Item;
     begin
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"UT T Service Line Usage Link");
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
         Job.Modify();
@@ -82,7 +86,7 @@ codeunit 136360 "UT T Service Line Usage Link"
     [Scope('OnPrem')]
     procedure TestInitialization()
     begin
-        SetUp;
+        Initialize();
 
         // Verify that "Job Planning Line No." is initialized correctly.
         Assert.AreEqual(0, ServiceLine."Job Planning Line No.", 'Job Planning Line No. is not 0 by default.');
@@ -100,7 +104,7 @@ codeunit 136360 "UT T Service Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldLineType()
     begin
-        SetUp;
+        Initialize();
 
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
         ServiceLine.Validate("Job Line Type", 0);
@@ -118,7 +122,7 @@ codeunit 136360 "UT T Service Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldJobPlanningLineNo()
     begin
-        SetUp;
+        Initialize();
 
         // Verify that "Job Planning Line No." and "Remaining Qty." are blanked when the No. changes.
         ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
@@ -130,7 +134,7 @@ codeunit 136360 "UT T Service Line Usage Link"
 
         TearDown;
 
-        SetUp;
+        Initialize();
 
         // Verify that "Job Planning Line No." is blanked when the Job No. changes.
         ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
@@ -150,14 +154,14 @@ codeunit 136360 "UT T Service Line Usage Link"
         QtyDelta: Decimal;
         OldRemainingQty: Decimal;
     begin
-        SetUp;
+        Initialize();
 
         // Verify that "Remaining Qty." can't be set if "Job Planning Line No." isn't set.
         asserterror ServiceLine.Validate("Job Remaining Qty.", LibraryRandom.RandInt(Round(ServiceLine.Quantity, 1)));
 
         TearDown;
 
-        SetUp;
+        Initialize();
 
         // Verify that "Remaining Qty." is set correctly when a "Job Planning Line No." is defined.
         ServiceLine.TestField("Job Planning Line No.", 0);

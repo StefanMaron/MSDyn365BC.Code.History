@@ -748,6 +748,11 @@ page 1811 "Setup Email Logging"
         CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         EmptyUserEmailErr: Label 'User email is empty.';
+        CannotConnectToExchangeTxt: Label 'Could not connect to Exchange. User: %1.', Locked = true;
+        CannotInitializeConnectionToExchangeTxt: Label 'Could not initialize connection to Exchange. User: %1.', Locked = true;
+        ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
+        ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
+        EmptyUserEmailTxt: Label 'User email is empty.', Locked = true;
         ValidateUserEmailLinkTxt: Label 'Check connection of behalf of the specified user';
         ValidEmailTxt: Label 'Connection check is successful.';
         InvalidEmailTxt: Label 'Connection check failed.';
@@ -890,19 +895,29 @@ page 1811 "Setup Email Logging"
         ProgressWindow: Dialog;
         ServiceUri: Text;
     begin
-        if UserEmail = '' then
+        if UserEmail = '' then begin
+            SendTraceTag('0000D9S', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyUserEmailTxt, DataClassification::SystemMetadata);
             Error(EmptyUserEmailErr);
+        end;
 
         ServiceUri := SetupEmailLogging.GetDomainFromEmail(UserEmail);
 
         ProgressWindow.Open('#1');
         ProgressWindow.Update(1, ConnectingToExchangeMsg);
 
-        if not ExchangeWebServicesServer.Initialize(UserEmail, ServiceUri, AdminOAuthCredentials, false) then
+        if not ExchangeWebServicesServer.Initialize(UserEmail, ServiceUri, AdminOAuthCredentials, false) then begin
+            SendTraceTag('0000D9T', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail), DataClassification::CustomerContent);
             Error(CannotInitializeConnectionToExchangeErr);
+        end;
 
-        if not ExchangeWebServicesServer.ValidCredentials() then
+        SendTraceTag('0000D9U', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
+
+        if not ExchangeWebServicesServer.ValidCredentials() then begin
+            SendTraceTag('0000D9V', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeTxt, UserEmail), DataClassification::CustomerContent);
             Error(CannotConnectToExchangeErr);
+        end;
+
+        SendTraceTag('0000D9W', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
 
         ProgressWindow.Close();
     end;
@@ -916,8 +931,10 @@ page 1811 "Setup Email Logging"
         ServiceUri: Text;
         Token: Text;
     begin
-        if UserEmail = '' then
+        if UserEmail = '' then begin
+            SendTraceTag('0000D9X', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyUserEmailTxt, DataClassification::SystemMetadata);
             Error(EmptyUserEmailErr);
+        end;
 
         ServiceUri := SetupEmailLogging.GetDomainFromEmail(UserEmail);
 
@@ -929,12 +946,19 @@ page 1811 "Setup Email Logging"
         SetupEmailLogging.GetClientCredentialsAccessToken(ClientId, ClientSecret, RedirectURL, TenantId, Token);
         ClientOAuthCredentials := ClientOAuthCredentials.OAuthCredentials(Token);
 
-        if not ExchangeWebServicesClient.InitializeOnServerWithImpersonation(UserEmail, ServiceUri, ClientOAuthCredentials) then
+        if not ExchangeWebServicesClient.InitializeOnServerWithImpersonation(UserEmail, ServiceUri, ClientOAuthCredentials) then begin
+            SendTraceTag('0000D9Y', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail), DataClassification::CustomerContent);
             Error(CannotInitializeConnectionToExchangeErr);
+        end;
 
-        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then
+        SendTraceTag('0000D9Z', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
+
+        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then begin
+            SendTraceTag('0000DA0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeTxt, UserEmail), DataClassification::CustomerContent);
             Error(CannotConnectToExchangeErr);
+        end;
 
+        SendTraceTag('0000DA1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
         ProgressWindow.Close();
     end;
 

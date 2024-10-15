@@ -184,6 +184,8 @@
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
+
+        OnAfterPerformManualCheckAndRelease(SalesHeader, PreviewMode);
     end;
 
     procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
@@ -298,7 +300,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineFind(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnBeforeSalesLineFind(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -309,6 +311,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterManualReOpenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPerformManualCheckAndRelease(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
     end;
 

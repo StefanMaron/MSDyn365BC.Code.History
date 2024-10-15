@@ -1014,6 +1014,46 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrepaymentVATFieldsUpdate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProdPostingGroupCode: Code[20];
+        VATProductPostingGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment]
+        // [SCENARIO 364192] Prepayment VAT fields are updated during the conversion
+
+        Initialize();
+
+        // [GIVEN] Setup two general posting setup "A" and "B". Each of this general posting setup has the Prepayment Account with the VAT Posting Setup, either "X" or "Z"
+        ERMVATToolHelper.CreatePostingGroupsPrepmtVAT(false);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ERMVATToolHelper.CreateVendor());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(5, 10));
+        PurchaseHeader.Modify(true);
+        ERMVATToolHelper.CreatePurchaseLines(PurchaseHeader, '', 1);
+
+        // [GIVEN] Setup conversion from "A" to "B" and from "X" to "Z"
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::Both, true, true);
+        GetPurchaseLine(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Run VAT Rate Change Tool
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        // [THEN] Prepayment VAT % and "Prepayment VAT Identifier" matches the "Z" VAT Posting Setup
+        PurchaseLine.Find();
+        ERMVATToolHelper.GetGroupsAfter(VATProductPostingGroupCode, GenProdPostingGroupCode, DATABASE::"Purchase Line");
+        VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", VATProductPostingGroupCode);
+        PurchaseLine.TestField("Prepayment VAT %", VATPostingSetup."VAT %");
+        PurchaseLine.TestField("Prepayment VAT Identifier", VATPostingSetup."VAT Identifier");
+
+        // Tear down
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
     local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Option; Partial: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
