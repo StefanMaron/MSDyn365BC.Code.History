@@ -36,6 +36,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         RollingBackChangesErr: Label 'Rolling back changes...';
         FieldValueIncorrectErr: Label 'Field %1 value is incorrect.';
@@ -50,20 +51,24 @@ codeunit 136300 "Job Consumption Basic"
         SalesPrice: Record "Sales Price";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Consumption Basic");
+
         Clear(DocumentType);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
 
-        LibraryJob.ConfigureGeneralPosting;
-        LibraryJob.ConfigureVATPosting;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryJob.ConfigureGeneralPosting();
+        LibraryJob.ConfigureVATPosting();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
@@ -71,7 +76,9 @@ codeunit 136300 "Job Consumption Basic"
         DummyJobsSetup.Modify;
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Job Consumption Basic");
     end;
 
     [Normal]

@@ -166,7 +166,8 @@ codeunit 99000886 "Capable to Promise"
                 ReqLine."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
                 ReqLine."Purchasing Code" := SalesLine."Purchasing Code";
             end;
-        ReqLine.Modify;
+        OnBeforeReqLineModify(ReqLine);
+        ReqLine.Modify();
     end;
 
     local procedure CheckDerivedDemandCTP(ReqLine: Record "Requisition Line"; PeriodType: Option Day,Week,Month,Quarter,Year): Boolean
@@ -357,6 +358,11 @@ codeunit 99000886 "Capable to Promise"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

@@ -172,6 +172,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -292,6 +293,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
@@ -299,6 +301,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
@@ -306,6 +309,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
@@ -313,6 +317,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
@@ -320,6 +325,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
@@ -379,30 +385,35 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
         field(11201; "Inward Posting Description"; Text[50])
         {
             Caption = 'Inward Posting Description';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11202; "Reverse Posting Description"; Text[50])
         {
             Caption = 'Reverse Posting Description';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11204; "Latest Return Date Calc."; DateFormula)
         {
             Caption = 'Latest Return Date Calc.';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11205; "Accumulated Inward Reg. Lines"; Boolean)
         {
             Caption = 'Accumulated Inward Reg. Lines';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11206; "Def. Inward Reg. Prod. Post Gr"; Code[20])
         {
@@ -410,12 +421,14 @@ table 312 "Purchases & Payables Setup"
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
             TableRelation = "Gen. Product Posting Group";
+            ObsoleteTag = '15.0';
         }
         field(11207; "Copy Dimensions to Inward Reg."; Boolean)
         {
             Caption = 'Copy Dimensions to Inward Reg.';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11214; "Part. Pay. Nos."; Code[20])
         {
@@ -427,6 +440,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Show Inward Reg. in Balances';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

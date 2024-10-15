@@ -390,6 +390,7 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Removed;
             TableRelation = "Source Code";
+            ObsoleteTag = '15.0';
         }
     }
 

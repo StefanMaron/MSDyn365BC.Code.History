@@ -3,6 +3,7 @@ table 11200 "Inward Reg. Header"
     Caption = 'Inward Reg. Header';
     ObsoleteReason = 'Replaced by extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

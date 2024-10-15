@@ -3,6 +3,7 @@ table 53 "Batch Processing Parameter Map"
     Caption = 'Batch Processing Parameter Map';
     ObsoleteReason = 'Moved to table Batch Processing Session Map';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

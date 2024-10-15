@@ -19,6 +19,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         InvoiceServiceNameTxt: Label 'purchaseInvoices';
         InvoiceServiceLinesNameTxt: Label 'purchaseInvoiceLines';
@@ -26,12 +27,14 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Invoice Line E2E Test");
+
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit;
     end;
@@ -45,7 +48,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the lines without providing a parent Invoice ID.
         // [GIVEN] the invoice API exposed
-        Initialize;
+        Initialize();
 
         // [WHEN] we GET all the lines without an ID from the web service
         TargetURL := LibraryGraphMgt
@@ -73,7 +76,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a unposted Invoice
         // [GIVEN] An invoice with lines.
-        Initialize;
+        Initialize();
         InvoiceId := CreatePurchaseInvoiceWithLines(PurchaseHeader);
 
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
@@ -110,7 +113,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a posted Invoice
         // [GIVEN] A posted invoice with lines.
-        Initialize;
+        Initialize();
         PostedInvoiceId := CreatePostedPurchaseInvoiceWithLines(PurchInvHeader);
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
@@ -148,7 +151,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Invoice
         // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line
-        Initialize;
+        Initialize();
         InvoiceID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -192,7 +195,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Invoice with a sequence number
         // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line
-        Initialize;
+        Initialize();
         InvoiceID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -241,7 +244,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
@@ -293,7 +296,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Invoice will fail if sequence is modified
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
@@ -328,7 +331,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] DELETE a line from an unposted Invoice
         // [GIVEN] An unposted invoice with lines
-        Initialize;
+        Initialize();
         InvoiceId := CreatePurchaseInvoiceWithLines(PurchaseHeader);
 
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
@@ -368,7 +371,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Call DELETE on a line of a posted Invoice
         // [GIVEN] A posted invoice with lines
-        Initialize;
+        Initialize();
         PostedInvoiceId := CreatePostedPurchaseInvoiceWithLines(PurchInvHeader);
 
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
@@ -416,7 +419,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Create an invoice both through the client UI and through the API and compare their final values.
         // [GIVEN] An unposted invoice and a JSON describing the line we want to create
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         VendorNo := Vendor."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
@@ -483,7 +486,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO] Creating a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for vendor with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(PurchaseHeader, Vendor, Item);
         PurchaseHeader.CalcFields(Amount);
         MinAmount := PurchaseHeader.Amount + Item."Unit Price" / 2;
@@ -525,7 +528,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO] Modifying a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for vendor with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(PurchaseHeader, Vendor, Item);
         PurchaseHeader.CalcFields(Amount);
         MinAmount := PurchaseHeader.Amount + Item."Unit Price" / 2;
@@ -570,7 +573,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for vendor with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(PurchaseHeader, Vendor, Item);
         PurchaseHeader.CalcFields(Amount);
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);
@@ -611,7 +614,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO] Adding an invoice through API will keep Discount Amount
         // [GIVEN] An unposted invoice for vendor with invoice discount amount
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(PurchaseHeader, DiscountAmount);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
@@ -644,7 +647,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] Posting a line with description only will get a type item
         // [GIVEN] A post request with description only
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceWithLines(PurchaseHeader);
 
         Commit;
@@ -686,7 +689,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [FEATURE] [Comment Line]
         // [SCENARIO] Posting a line with Type Comment and description will make a comment line
         // [GIVEN] A post request with type and description
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceWithLines(PurchaseHeader);
 
         InvoiceLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
@@ -731,7 +734,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);

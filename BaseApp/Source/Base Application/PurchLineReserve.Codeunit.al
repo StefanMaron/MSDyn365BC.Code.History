@@ -148,6 +148,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         TempReservEntry: Record "Reservation Entry";
         ShowError: Boolean;
         HasError: Boolean;
+        IsHandled: Boolean;
     begin
         if (NewPurchLine.Type <> NewPurchLine.Type::Item) and (OldPurchLine.Type <> OldPurchLine.Type::Item) then
             exit;
@@ -194,16 +195,22 @@ codeunit 99000834 "Purch. Line-Reserve"
                 NewPurchLine.FieldError("No.", Text003)
             else
                 HasError := true;
-        if NewPurchLine."Variant Code" <> OldPurchLine."Variant Code" then
-            if ShowError then
-                NewPurchLine.FieldError("Variant Code", Text003)
-            else
-                HasError := true;
+
+        IsHandled := false;
+        OnVerifyChangeOnBeforeTestVariantCode(NewPurchLine, OldPurchLine, IsHandled);
+        if not IsHandled then
+            if NewPurchLine."Variant Code" <> OldPurchLine."Variant Code" then
+                if ShowError then
+                    NewPurchLine.FieldError("Variant Code", Text003)
+                else
+                    HasError := true;
+
         if NewPurchLine."Location Code" <> OldPurchLine."Location Code" then
             if ShowError then
                 NewPurchLine.FieldError("Location Code", Text003)
             else
                 HasError := true;
+
         VerifyPurchLine(NewPurchLine, OldPurchLine, HasError);
 
         OnVerifyChangeOnBeforeHasError(NewPurchLine, OldPurchLine, HasError, ShowError);
@@ -546,6 +553,10 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewPurchLine: Record "Purchase Line"; OldPurchLine: Record "Purchase Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyChangeOnBeforeTestVariantCode(var NewPurchaseLine: Record "Purchase Line"; var OldPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -49,6 +49,7 @@ table 1235 "XML Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anomore';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(9; "Data Type"; Option)
         {
@@ -63,6 +64,7 @@ table 1235 "XML Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anymore';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11; "Node Name"; Text[250])
         {
@@ -70,6 +72,7 @@ table 1235 "XML Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anymore';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(12; "Has Attributes"; Boolean)
         {
@@ -78,6 +81,7 @@ table 1235 "XML Buffer"
             Editable = false;
             ObsoleteReason = 'Is not used anymore';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(13; "Node Number"; Integer)
         {

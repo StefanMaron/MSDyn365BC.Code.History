@@ -17,7 +17,7 @@ codeunit 900 "Assembly-Post"
         ValidatePostingDate(Rec);
 
         SavedSuppressCommit := SuppressCommit;
-        ClearAll;
+        ClearAll();
         SuppressCommit := SavedSuppressCommit;
 
         AssemblyHeader := Rec;
@@ -34,7 +34,7 @@ codeunit 900 "Assembly-Post"
         if not SuppressCommit then
             Commit;
 
-        Window.Close;
+        Window.Close();
         Rec := AssemblyHeader;
 
         OnAfterOnRun(AssemblyHeader, SuppressCommit);
@@ -93,7 +93,7 @@ codeunit 900 "Assembly-Post"
                 if "Document Type" = "Document Type"::Order then begin
                     TestField("Posting No. Series");
                     "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
-                    Modify;
+                    Modify();
                     if not GenJnlPostPreview.IsActive and not SuppressCommit then
                         Commit;
                 end;
@@ -103,7 +103,7 @@ codeunit 900 "Assembly-Post"
                 TestField(Status, Status::Released);
                 Status := Status::Open;
                 if not GenJnlPostPreview.IsActive then begin
-                    Modify;
+                    Modify();
                     if not SuppressCommit then
                         Commit;
                 end;
@@ -169,7 +169,7 @@ codeunit 900 "Assembly-Post"
     begin
         OnBeforeFinalizePost(AssemblyHeader);
 
-        MakeInvtAdjmt;
+        MakeInvtAdjmt();
 
         with AssemblyHeader do begin
             // Delete header and lines
@@ -178,22 +178,22 @@ codeunit 900 "Assembly-Post"
             AssemblyLine.SetRange("Document No.", "No.");
             if "Remaining Quantity (Base)" = 0 then begin
                 if HasLinks then
-                    DeleteLinks;
+                    DeleteLinks();
                 DeleteWhseRequest(AssemblyHeader);
                 Delete;
                 if AssemblyLine.Find('-') then
                     repeat
                         if AssemblyLine.HasLinks then
-                            DeleteLinks;
+                            DeleteLinks();
                         AssemblyLineReserve.SetDeleteItemTracking(true);
                         AssemblyLineReserve.DeleteLine(AssemblyLine);
-                    until AssemblyLine.Next = 0;
-                AssemblyLine.DeleteAll;
+                    until AssemblyLine.Next() = 0;
+                AssemblyLine.DeleteAll();
                 AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
                 AssemblyCommentLine.SetRange("Document Type", "Document Type");
                 AssemblyCommentLine.SetRange("Document No.", "No.");
-                if not AssemblyCommentLine.IsEmpty then
-                    AssemblyCommentLine.DeleteAll;
+                if not AssemblyCommentLine.IsEmpty() then
+                    AssemblyCommentLine.DeleteAll();
             end;
         end;
 
@@ -252,7 +252,7 @@ codeunit 900 "Assembly-Post"
                     CheckDimComb(AssemblyHeader, AssemblyLine);
                     CheckDimValuePosting(AssemblyHeader, AssemblyLine);
                 end;
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
     end;
 
     local procedure CheckDimComb(AssemblyHeader: Record "Assembly Header"; AssemblyLine: Record "Assembly Line")
@@ -303,7 +303,7 @@ codeunit 900 "Assembly-Post"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
 
         AssemblyLine.SetFilter(Type, '<>%1', AssemblyLine.Type::" ");
-        if AssemblyLine.IsEmpty then
+        if AssemblyLine.IsEmpty() then
             exit(false);
 
         AssemblyLine.SetFilter("Quantity to Consume", '<>0');
@@ -342,8 +342,8 @@ codeunit 900 "Assembly-Post"
                 AssemblyCommentLine2 := AssemblyCommentLine;
                 AssemblyCommentLine2."Document Type" := ToDocumentType;
                 AssemblyCommentLine2."Document No." := ToNumber;
-                AssemblyCommentLine2.Insert;
-            until AssemblyCommentLine.Next = 0;
+                AssemblyCommentLine2.Insert();
+            until AssemblyCommentLine.Next() = 0;
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -355,7 +355,7 @@ codeunit 900 "Assembly-Post"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup.OptimGLEntLockForMultiuserEnv then
             AssemblyLine.SetCurrentKey("Document Type", Type, "No.")
         else
@@ -366,7 +366,7 @@ codeunit 900 "Assembly-Post"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup.OptimGLEntLockForMultiuserEnv then
             PostedAsmLine.SetCurrentKey(Type, "No.")
         else
@@ -398,13 +398,13 @@ codeunit 900 "Assembly-Post"
         ItemLedgEntryNo: Integer;
     begin
         with AssemblyLine do begin
-            Reset;
+            Reset();
             SetRange("Document Type", AssemblyHeader."Document Type");
             SetRange("Document No.", AssemblyHeader."No.");
             SortLines(AssemblyLine);
 
             LineCounter := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("No." = '') and
                        (Description <> '') and
@@ -441,9 +441,10 @@ codeunit 900 "Assembly-Post"
                         // modify the lines
                         "Consumed Quantity" := "Consumed Quantity" + QtyToConsume;
                         "Consumed Quantity (Base)" := "Consumed Quantity (Base)" + QtyToConsumeBase;
-                        InitRemainingQty;
-                        InitQtyToConsume;
-                        Modify;
+                        InitRemainingQty();
+                        InitQtyToConsume();
+                        OnBeforeAssemblyLineModify(AssemblyLine, QtyToConsumeBase);
+                        Modify();
                     end;
 
                     // Insert posted assembly lines
@@ -459,7 +460,7 @@ codeunit 900 "Assembly-Post"
                     OnBeforePostedAssemblyLineInsert(PostedAssemblyLine, AssemblyLine);
                     PostedAssemblyLine.Insert;
                     OnAfterPostedAssemblyLineInsert(PostedAssemblyLine, AssemblyLine);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -485,11 +486,11 @@ codeunit 900 "Assembly-Post"
             // modify the header
             "Assembled Quantity" := "Assembled Quantity" + QtyToOutput;
             "Assembled Quantity (Base)" := "Assembled Quantity (Base)" + QtyToOutputBase;
-            InitRemainingQty;
-            InitQtyToAssemble;
+            InitRemainingQty();
+            InitQtyToAssemble();
             Validate("Quantity to Assemble");
             "Posting No." := '';
-            Modify;
+            Modify();
 
             WhseAssemblyRelease.Release(AssemblyHeader);
 
@@ -649,7 +650,7 @@ codeunit 900 "Assembly-Post"
           TempItemLedgEntry2, SourceType, ItemJnlLine."Document No.", ItemJnlLine."Document Line No.",
           Abs(ItemJnlLine."Quantity (Base)"), ApplyToEntry);
 
-        if TempItemLedgEntry2.FindSet then
+        if TempItemLedgEntry2.FindSet() then
             repeat
                 ItemTrackingMgt.RetrieveAppliedExpirationDate(TempItemLedgEntry2);
                 TempItemLedgEntry := TempItemLedgEntry2;
@@ -690,7 +691,7 @@ codeunit 900 "Assembly-Post"
 
                 ItemJnlPostLine.RunWithCheck(ItemJnlLine);
                 PostWhseJnlLine(AssemblyHeader, ItemJnlLine, ItemJnlPostLine, WhseJnlRegisterLine);
-            until TempItemLedgEntry2.Next = 0;
+            until TempItemLedgEntry2.Next() = 0;
     end;
 
     local procedure FindAppliesToATOUndoEntry(var ItemLedgEntryInChain: Record "Item Ledger Entry"): Integer
@@ -731,7 +732,7 @@ codeunit 900 "Assembly-Post"
         ItemTrackingMgt.CheckWhseItemTrkgSetup(ItemJnlLine."Item No.", WhseSNRequired, WhseLNRequired, false);
         if WhseSNRequired or WhseLNRequired then
             if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then
-                if TempTrackingSpecification.FindSet then
+                if TempTrackingSpecification.FindSet() then
                     repeat
                         case ItemJnlLine."Entry Type" of
                             ItemJnlLine."Entry Type"::"Assembly Consumption":
@@ -744,15 +745,15 @@ codeunit 900 "Assembly-Post"
                         TempTrackingSpecification."Source Batch Name" := '';
                         TempTrackingSpecification."Source Prod. Order Line" := 0;
                         TempTrackingSpecification."Source Ref. No." := ItemJnlLine."Order Line No.";
-                        TempTrackingSpecification.Modify;
-                    until TempTrackingSpecification.Next = 0;
+                        TempTrackingSpecification.Modify();
+                    until TempTrackingSpecification.Next() = 0;
 
         CreateWhseJnlLine(Location, TempWhseJnlLine, AssemblyHeader, ItemJnlLine);
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempTrackingSpecification, false);
-        if TempWhseJnlLine2.FindSet then
+        if TempWhseJnlLine2.FindSet() then
             repeat
                 WhseJnlRegisterLine.Run(TempWhseJnlLine2);
-            until TempWhseJnlLine2.Next = 0;
+            until TempWhseJnlLine2.Next() = 0;
     end;
 
     local procedure CreateWhseJnlLine(Location: Record Location; var WhseJnlLine: Record "Warehouse Journal Line"; AssemblyHeader: Record "Assembly Header"; ItemJnlLine: Record "Item Journal Line")
@@ -888,8 +889,8 @@ codeunit 900 "Assembly-Post"
                 repeat
                     ItemEntryRelation := TempItemEntryRelation;
                     ItemEntryRelation.TransferFieldsPostedAsmLine(PostedAssemblyLine);
-                    ItemEntryRelation.Insert;
-                until TempItemEntryRelation.Next = 0;
+                    ItemEntryRelation.Insert();
+                until TempItemEntryRelation.Next() = 0;
         end else
             PostedAssemblyLine."Item Shpt. Entry No." := ItemLedgEntryNo;
     end;
@@ -904,8 +905,8 @@ codeunit 900 "Assembly-Post"
                 repeat
                     ItemEntryRelation := TempItemEntryRelation;
                     ItemEntryRelation.TransferFieldsPostedAsmHeader(PostedAssemblyHeader);
-                    ItemEntryRelation.Insert;
-                until TempItemEntryRelation.Next = 0;
+                    ItemEntryRelation.Insert();
+                until TempItemEntryRelation.Next() = 0;
         end else
             PostedAssemblyHeader."Item Rcpt. Entry No." := ItemLedgEntryNo;
     end;
@@ -991,7 +992,7 @@ codeunit 900 "Assembly-Post"
             SortPostedLines(PostedAsmLine);
 
             LineCounter := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     AsmLine.TransferFields(PostedAsmLine);
                     OnUndoPostLinesOnAfterTransferFields(AsmLine, AsmHeader, PostedAsmHeader);
@@ -1022,9 +1023,9 @@ codeunit 900 "Assembly-Post"
                         end;
                         InsertLineItemEntryRelation(PostedAsmLine, ItemJnlPostLine, 0);
 
-                        Modify;
+                        Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1043,7 +1044,7 @@ codeunit 900 "Assembly-Post"
             InsertHeaderItemEntryRelation(PostedAsmHeader, ItemJnlPostLine, 0);
 
             Reversed := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1085,9 +1086,9 @@ codeunit 900 "Assembly-Post"
             Get("Document Type"::Order, PostedAsmHeader."Order No.");
             "Assembled Quantity" -= PostedAsmHeader.Quantity;
             "Assembled Quantity (Base)" -= PostedAsmHeader."Quantity (Base)";
-            InitRemainingQty;
-            InitQtyToAssemble;
-            Modify;
+            InitRemainingQty();
+            InitQtyToAssemble();
+            Modify();
 
             RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type", "Due Date", 0D);
             VerifyAsmHeaderReservAfterUndo(AsmHeader);
@@ -1095,7 +1096,7 @@ codeunit 900 "Assembly-Post"
 
         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
         PostedAsmLine.SetFilter("Quantity (Base)", '<>0');
-        if PostedAsmLine.FindSet then
+        if PostedAsmLine.FindSet() then
             repeat
                 with AsmLine do begin
                     Get(AsmHeader."Document Type", AsmHeader."No.", PostedAsmLine."Line No.");
@@ -1106,14 +1107,14 @@ codeunit 900 "Assembly-Post"
                         "Qty. Picked (Base)" -= PostedAsmLine."Quantity (Base)";
                     end;
 
-                    InitRemainingQty;
-                    InitQtyToConsume;
-                    Modify;
+                    InitRemainingQty();
+                    InitQtyToConsume();
+                    Modify();
 
                     RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type", 0D, "Due Date");
                     VerifyAsmLineReservAfterUndo(AsmLine);
                 end;
-            until PostedAsmLine.Next = 0;
+            until PostedAsmLine.Next() = 0;
 
         OnAfterUpdateAsmOrderWithUndo(PostedAsmHeader, AsmHeader);
     end;
@@ -1126,7 +1127,7 @@ codeunit 900 "Assembly-Post"
         AsmCommentLine: Record "Assembly Comment Line";
     begin
         with AsmHeader do begin
-            Init;
+            Init();
             TransferFields(PostedAsmHeader);
             "Document Type" := "Document Type"::Order;
             "No." := PostedAsmHeader."Order No.";
@@ -1135,11 +1136,11 @@ codeunit 900 "Assembly-Post"
             "Assembled Quantity" := Round("Assembled Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             Quantity := PostedAsmHeader.Quantity + "Assembled Quantity";
             "Quantity (Base)" := PostedAsmHeader."Quantity (Base)" + "Assembled Quantity (Base)";
-            InitRemainingQty;
-            InitQtyToAssemble;
+            InitRemainingQty();
+            InitQtyToAssemble();
 
             OnBeforeRecreatedAsmHeaderInsert(AsmHeader, PostedAsmHeader);
-            Insert;
+            Insert();
 
             CopyCommentLines(
               AsmCommentLine."Document Type"::"Posted Assembly", "Document Type",
@@ -1150,10 +1151,10 @@ codeunit 900 "Assembly-Post"
         end;
 
         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-        if PostedAsmLine.FindSet then
+        if PostedAsmLine.FindSet() then
             repeat
                 with AsmLine do begin
-                    Init;
+                    Init();
                     TransferFields(PostedAsmLine);
                     "Document Type" := "Document Type"::Order;
                     "Document No." := PostedAsmLine."Order No.";
@@ -1173,15 +1174,15 @@ codeunit 900 "Assembly-Post"
                             "Qty. Picked" := "Consumed Quantity";
                             "Qty. Picked (Base)" := "Consumed Quantity (Base)";
                         end;
-                        InitRemainingQty;
-                        InitQtyToConsume;
+                        InitRemainingQty();
+                        InitQtyToConsume();
                     end;
-                    Insert;
+                    Insert();
 
                     RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type", 0D, "Due Date");
                     VerifyAsmLineReservAfterUndo(AsmLine);
                 end;
-            until PostedAsmLine.Next = 0;
+            until PostedAsmLine.Next() = 0;
 
         OnAfterRecreateAsmOrderWithUndo(PostedAsmHeader, AsmHeader);
     end;
@@ -1241,7 +1242,7 @@ codeunit 900 "Assembly-Post"
                       TempItemLedgEntry, DATABASE::"Posted Assembly Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
                     UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
 
         if not AsmHeader.Get(AsmHeader."Document Type"::Order, PostedAsmHeader."Order No.") then
@@ -1260,15 +1261,15 @@ codeunit 900 "Assembly-Post"
             if PostedAsmLine.Count <> Count then
                 Error(Text011, PostedAsmHeader."No.", AsmHeader."No.");
 
-            FindSet;
-            PostedAsmLine.FindSet;
+            FindSet();
+            PostedAsmLine.FindSet();
             repeat
                 TestField(Type, PostedAsmLine.Type);
                 TestField("No.", PostedAsmLine."No.");
                 TestField("Variant Code", PostedAsmLine."Variant Code");
                 TestField("Location Code", PostedAsmLine."Location Code");
                 TestField("Bin Code", PostedAsmLine."Bin Code");
-            until (PostedAsmLine.Next = 0) and (Next = 0);
+            until (PostedAsmLine.Next() = 0) and (Next() = 0);
         end;
     end;
 
@@ -1290,7 +1291,7 @@ codeunit 900 "Assembly-Post"
             SetRange("Order Type", "Order Type"::Assembly);
             SetRange("Order No.", OrderNo);
             SetRange("Order Line No.", OrderLineNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if TrackingExists then begin
                         CreateReservEntry.SetDates("Warranty Date", "Expiration Date");
@@ -1317,8 +1318,8 @@ codeunit 900 "Assembly-Post"
                         CreateReservEntry.CreateEntry(
                           "Item No.", "Variant Code", "Location Code", '', RcptDate, ShptDate, 0, ReservStatus);
                     end;
-                until Next = 0;
-            DeleteAll;
+                until Next() = 0;
+            DeleteAll();
         end;
     end;
 
@@ -1368,7 +1369,7 @@ codeunit 900 "Assembly-Post"
            InvtSetup."Automatic Cost Adjustment"::Never
         then begin
             InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.MakeMultiLevelAdjmt;
+            InvtAdjmt.MakeMultiLevelAdjmt();
         end;
     end;
 
@@ -1381,7 +1382,7 @@ codeunit 900 "Assembly-Post"
             SetRange("Source Type", DATABASE::"Assembly Line");
             SetRange("Source Subtype", AssemblyHeader."Document Type");
             SetRange("Source No.", AssemblyHeader."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll(true);
         end;
     end;
@@ -1399,8 +1400,8 @@ codeunit 900 "Assembly-Post"
             with AsmHeader do begin
                 "Assembled Quantity" += QuantityDiff;
                 "Assembled Quantity (Base)" += QuantityDiffBase;
-                InitRemainingQty;
-                InitQtyToAssemble;
+                InitRemainingQty();
+                InitQtyToAssemble();
                 Modify(true);
             end;
             UpdateBlanketATOLines(AsmHeader, QuantityDiff);
@@ -1415,17 +1416,17 @@ codeunit 900 "Assembly-Post"
         with AsmLine do begin
             SetRange("Document Type", AsmHeader."Document Type");
             SetRange("Document No.", AsmHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     "Consumed Quantity" += UOMMgt.RoundQty(QuantityDiff * "Quantity per");
                     "Consumed Quantity (Base)" +=
                       UOMMgt.CalcBaseQty(
                         "No.", "Variant Code", "Unit of Measure Code",
                         QuantityDiff * "Quantity per", "Qty. per Unit of Measure");
-                    InitRemainingQty;
-                    InitQtyToConsume;
+                    InitRemainingQty();
+                    InitQtyToConsume();
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1504,6 +1505,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAsmOrderWithUndo(var PostedAssemblyHeader: Record "Posted Assembly Header"; var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssemblyLineModify(var AssemblyLine: Record "Assembly Line"; QtyToConsumeBase: Decimal)
     begin
     end;
 

@@ -393,6 +393,7 @@ table 252 "General Posting Setup"
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Removed;
             TableRelation = "G/L Account";
+            ObsoleteTag = '15.0';
         }
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {

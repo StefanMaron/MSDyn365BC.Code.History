@@ -168,6 +168,7 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'Multiple Interest Rates Entry';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

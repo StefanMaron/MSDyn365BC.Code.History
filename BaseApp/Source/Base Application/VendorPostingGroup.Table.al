@@ -289,6 +289,7 @@ table 93 "Vendor Posting Group"
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Removed;
             TableRelation = "G/L Account";
+            ObsoleteTag = '15.0';
         }
     }
 
