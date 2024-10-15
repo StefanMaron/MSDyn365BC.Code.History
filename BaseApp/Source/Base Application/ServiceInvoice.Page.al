@@ -433,6 +433,12 @@ page 5933 "Service Invoice"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the Special Scheme Code.';
+
+                        trigger OnValidate()
+                        begin
+                            SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+                            SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+                        end;
                     }
                     field("ID Type"; "ID Type")
                     {
@@ -448,6 +454,26 @@ page 5933 "Service Invoice"
                     {
                         ApplicationArea = VAT;
                         ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                    }
+                    field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                    {
+                        Caption = 'First Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                        end;
+                    }
+                    field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                    {
+                        Caption = 'Last Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                        end;
                     }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
@@ -965,6 +991,8 @@ page 5933 "Service Invoice"
         SellToContact.GetOrClear("Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
         UpdateDocHasRegimeCode();
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -989,6 +1017,8 @@ page 5933 "Service Invoice"
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure ActivateFields()
     begin

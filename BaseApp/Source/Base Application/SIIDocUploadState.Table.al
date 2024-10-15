@@ -83,8 +83,8 @@ table 10752 "SII Doc. Upload State"
         field(21; "Sales Cr. Memo Type"; Option)
         {
             Caption = 'Sales Cr. Memo Type';
-            OptionCaption = ' ,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices';
-            OptionMembers = " ","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices";
+            OptionCaption = ' ,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry';
+            OptionMembers = " ","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry";
 
             trigger OnValidate()
             begin
@@ -201,6 +201,12 @@ table 10752 "SII Doc. Upload State"
         field(62; "Issued By Third Party"; Boolean)
         {
             Caption = 'Issued By Third Party';
+        }
+        field(63; "First Summary Doc. No."; Text[250])
+        {
+        }
+        field(64; "Last Summary Doc. No."; Text[250])
+        {
         }
         field(70; "Version No."; Option)
         {
@@ -502,6 +508,8 @@ table 10752 "SII Doc. Upload State"
                                       ServiceHeader."Bill-to Customer No.", ServiceHeader."Invoice Type" + 1, 0, ServiceHeader."Special Scheme Code" + 1,
                                       ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
                                     TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
+                                    TempSIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+                                    TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceHeader.GetSIILastSummaryDocNo(), 1, 35);
                                 end else begin
                                     CustLedgerEntry.Get(EntryNo);
                                     TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
@@ -509,6 +517,8 @@ table 10752 "SII Doc. Upload State"
                                       CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
                                       CustLedgerEntry."ID Type");
                                     TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
+                                    TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
+                                    TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
                                 end;
                             end else begin
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
@@ -516,6 +526,8 @@ table 10752 "SII Doc. Upload State"
                                   SalesInvoiceHeader."Special Scheme Code" + 1, SalesInvoiceHeader."Succeeded Company Name",
                                   SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type");
                                 TempSIIDocUploadState."Issued By Third Party" := SalesInvoiceHeader."Issued By Third Party";
+                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
                             end;
                         end;
                     "Document Type"::"Credit Memo":
@@ -525,6 +537,8 @@ table 10752 "SII Doc. Upload State"
                               SalesCrMemoHeader."Special Scheme Code" + 1, SalesCrMemoHeader."Succeeded Company Name",
                               SalesCrMemoHeader."Succeeded VAT Registration No.", SalesCrMemoHeader."ID Type");
                             TempSIIDocUploadState."Issued By Third Party" := SalesCrMemoHeader."Issued By Third Party";
+                            TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+                            TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIILastSummaryDocNo(), 1, 35);
                         end else begin
                             ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
                             ServiceHeader.SetRange("Posting No.", DocumentNo);
@@ -533,6 +547,8 @@ table 10752 "SII Doc. Upload State"
                                   ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type" + 1, ServiceHeader."Special Scheme Code" + 1,
                                   ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
                                 TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
+                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceHeader.GetSIILastSummaryDocNo(), 1, 35);
                             end else begin
                                 CustLedgerEntry.Get(EntryNo);
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
@@ -540,6 +556,8 @@ table 10752 "SII Doc. Upload State"
                                   CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
                                   CustLedgerEntry."ID Type");
                                 TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
+                                TempSIIDocUploadState."First Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIIFirstSummaryDocNo(), 1, 35);
+                                TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(CustLedgerEntry.GetSIILastSummaryDocNo(), 1, 35);
                             end;
                         end;
                 end;
@@ -746,7 +764,7 @@ table 10752 "SII Doc. Upload State"
                 end;
         end;
     end;
-    	
+     
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     begin

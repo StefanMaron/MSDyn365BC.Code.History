@@ -68,11 +68,36 @@ page 10769 "Posted Serv. Cr. Memo - Update"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the Credit Memo Type.';
+                    trigger OnValidate()
+                    begin
+                        SIIFirstSummaryDocNo := '';
+                        SIILastSummaryDocNo := '';
+                    end;
                 }
                 field("Issued By Third Party"; "Issued By Third Party")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                }
+                field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                {
+                    Caption = 'First Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                    end;
+                }
+                field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                {
+                    Caption = 'Last Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                    end;
                 }
             }
         }
@@ -97,9 +122,17 @@ page 10769 "Posted Serv. Cr. Memo - Update"
                 Codeunit.Run(Codeunit::"Service Cr. Memo Header - Edit", Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+    end;
+
     var
         xServiceCrMemoHeader: Record "Service Cr.Memo Header";
         OperationDescription: Text[500];
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure RecordChanged() RecordIsChanged: Boolean
     begin
@@ -108,7 +141,9 @@ page 10769 "Posted Serv. Cr. Memo - Update"
           ("Operation Description 2" <> xServiceCrMemoHeader."Operation Description 2") or
           ("Special Scheme Code" <> xServiceCrMemoHeader."Special Scheme Code") or
           ("Cr. Memo Type" <> xServiceCrMemoHeader."Cr. Memo Type") or
-          ("Issued By Third Party" <> xServiceCrMemoHeader."Issued By Third Party");
+          ("Issued By Third Party" <> xServiceCrMemoHeader."Issued By Third Party") OR
+          (GetSIIFirstSummaryDocNo() <> xServiceCrMemoHeader.GetSIIFirstSummaryDocNo()) or
+          (GetSIILastSummaryDocNo() <> xServiceCrMemoHeader.GetSIILastSummaryDocNo());
 
         OnAfterRecordIsChanged(Rec, xServiceCrMemoHeader, RecordIsChanged);
     end;

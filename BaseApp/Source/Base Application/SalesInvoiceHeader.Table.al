@@ -711,7 +711,7 @@ table 112 "Sales Invoice Header"
         }
         field(10706; "SII Status"; Option)
         {
-            CalcFormula = Lookup ("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Customer Ledger"),
+            CalcFormula = Lookup("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Customer Ledger"),
                                                                        "Document Type" = CONST(Invoice),
                                                                        "Document No." = FIELD("No.")));
             Caption = 'SII Status';
@@ -738,6 +738,11 @@ table 112 "Sales Invoice Header"
             Caption = 'Invoice Type';
             OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
             OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
+            trigger OnValidate()
+            begin
+                SetSIIFirstSummaryDocNo('');
+                SetSIILastSummaryDocNo('');
+            end;
         }
         field(10708; "Cr. Memo Type"; Option)
         {
@@ -775,9 +780,9 @@ table 112 "Sales Invoice Header"
         }
         field(10723; "Sent to SII"; Boolean)
         {
-            CalcFormula = Exist ("SII Doc. Upload State" WHERE ("Document Source" = CONST ("Customer Ledger"),
-                                                               "Document Type" = CONST (Invoice),
-                                                               "Document No." = FIELD ("No.")));
+            CalcFormula = Exist("SII Doc. Upload State" WHERE("Document Source" = CONST("Customer Ledger"),
+                                                               "Document Type" = CONST(Invoice),
+                                                               "Document No." = FIELD("No.")));
             Editable = false;
             FieldClass = FlowField;
         }
@@ -788,6 +793,14 @@ table 112 "Sales Invoice Header"
         field(10725; "Issued By Third Party"; Boolean)
         {
             Caption = 'Issued By Third Party';
+        }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -897,6 +910,52 @@ table 112 "Sales Invoice Header"
     begin
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
+    end;
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry");
+
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        if SIISummaryDocNoText <> '' then
+            TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry");
+
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     procedure SendRecords()

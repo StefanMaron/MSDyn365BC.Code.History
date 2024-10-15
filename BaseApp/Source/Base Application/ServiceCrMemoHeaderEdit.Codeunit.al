@@ -16,6 +16,9 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         ServiceCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         OnRunOnBeforeServiceCrMemoHeaderModify(ServiceCrMemoHeader, Rec);
         ServiceCrMemoHeader."Issued By Third Party" := "Issued By Third Party";
+        ServiceCrMemoHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());  
+        ServiceCrMemoHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());
+
         ServiceCrMemoHeader.TestField("No.", "No.");
         ServiceCrMemoHeader.Modify();
         Rec := ServiceCrMemoHeader;
@@ -46,6 +49,8 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         SIISchemeCodeMgt.ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState."Is Credit Memo Removal" := SIIDocUploadState.IsCreditMemoRemoval();
         SIIDocUploadState."Issued By Third Party" := ServiceCrMemoHeader."Issued By Third Party";
+        SIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceCrMemoHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+        SIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceCrMemoHeader.GetSIILastSummaryDocNo(), 1, 35);
         SIIDocUploadState.Modify();
     end;
 
