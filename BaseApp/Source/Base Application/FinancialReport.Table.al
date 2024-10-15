@@ -72,6 +72,11 @@ table 88 "Financial Report"
             Caption = 'Cost Budget Filter';
             DataClassification = SystemMetadata;
         }
+        field(15; DateFilter; Text[2048])
+        {
+            Caption = 'Date Filter';
+            DataClassification = SystemMetadata;
+        }
         // Fields not in "FinancialReportUserFilters"
         field(50; Description; Text[80])
         {

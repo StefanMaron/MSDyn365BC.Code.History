@@ -977,9 +977,9 @@ codeunit 144054 "Test CH FCY"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 
     [RequestPageHandler]

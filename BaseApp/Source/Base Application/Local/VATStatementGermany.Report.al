@@ -207,12 +207,15 @@ report 11005 "VAT Statement Germany"
                 group(Options)
                 {
                     Caption = 'Options';
+#if not CLEAN22
                     field(VATDate; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the period for VAT statement lines in the report.';
+                        Visible = false;
                     }
+#endif
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
@@ -296,7 +299,9 @@ report 11005 "VAT Statement Germany"
         VATStmtLine: Record "VAT Statement Line";
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
+#if not CLEAN22
         VATDateType: Enum "VAT Date Type";
+#endif
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
@@ -332,32 +337,15 @@ report 11005 "VAT Statement Germany"
 
     local procedure SetVATEntryVATKey(var VATEntry: Record "VAT Entry")
     begin
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
-            VATDateType::"Posting Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-            VATDateType::"Document Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Document Date");
-        end
+        VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
     end;
 
     local procedure CreateVATDateFilter(var VATEntry: Record "VAT Entry")
     begin
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": 
-                if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                    VATEntry.SetRange("VAT Reporting Date", 0D, EndDate)
-                else
-                    VATEntry.SetRange("VAT Reporting Date", StartDate, EndDate);
-            VATDateType::"Posting Date":
-                if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                    VATEntry.SetRange("Posting Date", 0D, EndDate)
-                else
-                    VATEntry.SetRange("Posting Date", StartDate, EndDate);
-            VATDateType::"Document Date":
-                if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                    VATEntry.SetRange("Document Date", 0D, EndDate)
-                else
-                    VATEntry.SetRange("Document Date", StartDate, EndDate);
-        end
+        if PeriodSelection = PeriodSelection::"Before and Within Period" then
+            VATEntry.SetRange("VAT Reporting Date", 0D, EndDate)
+        else
+            VATEntry.SetRange("VAT Reporting Date", StartDate, EndDate);
     end;
 
 
@@ -493,9 +481,7 @@ report 11005 "VAT Statement Germany"
         end;
     end;
 
-#if not CLEAN21
     [Scope('OnPrem')]
-    [Obsolete('Replaced By InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewVATDateType: Enum "VAT Date Type"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)','21.0')]
     procedure InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
         "VAT Statement Name".Copy(NewVATStatementName);
@@ -514,9 +500,10 @@ report 11005 "VAT Statement Germany"
             EndDate := 99991231D
         end;
     end;
-#endif
 
+#if not CLEAN22
     [Scope('OnPrem')]
+    [Obsolete('Replaced by InitializeRequest with VAT Date parameter.','22.0')]
     procedure InitializeRequest(var NewVATStatementName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewVATDateType: Enum "VAT Date Type"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
         "VAT Statement Name".Copy(NewVATStatementName);
@@ -536,7 +523,7 @@ report 11005 "VAT Statement Germany"
             EndDate := 99991231D
         end;
     end;
-
+#endif
 
 
     [Scope('OnPrem')]

@@ -14,6 +14,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
@@ -1684,6 +1685,38 @@ codeunit 134379 "ERM Sales Quotes"
         asserterror SalesLine.Validate(Quantity, -1 * SalesLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestReleaseSalesQuoteWithPrepayment()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 455940] Sales Quote with Prepayment % can be release
+
+        Initialize();
+
+        // [GIVEN] Create Item and Customer
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 0));
+        Item.Modify(true);
+        LibrarySales.CreateCustomer(Customer);
+
+        // [THEN] Update Prepayment % on customer.
+        Customer.Validate("Prepayment %", LibraryRandom.RandDec(100, 2));
+        Customer.Modify();
+
+        // [GIVEN] Create Sales Quote
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        UpdateVatProdPostingGroup(Item, SalesHeader."Gen. Bus. Posting Group", SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [VERIFY] Sales Quote released succesfully
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1876,7 +1909,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.TestField("Posting Date", 0D);
     end;
 
-   local procedure UpdateVatProdPostingGroup(Item: Record Item; GenBusPostingGroup: Code[20]; VATBusPostingGrp: Code[20]; VATProdPostingGroup: Code[20])
+    local procedure UpdateVatProdPostingGroup(Item: Record Item; GenBusPostingGroup: Code[20]; VATBusPostingGrp: Code[20]; VATProdPostingGroup: Code[20])
     var
         GenPostingSetup: Record "General Posting Setup";
         GLAcc: Record "G/L Account";
@@ -1909,6 +1942,7 @@ codeunit 134379 "ERM Sales Quotes"
             VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
             VATPostingSetup.Validate("Tax Category", 'S');
             VATPostingSetup.Insert(true);
+
         end;
     end;
 

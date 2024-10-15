@@ -304,6 +304,79 @@ codeunit 133772 "Remittance Purch & Sales UT"
         LibraryReportDataset.AssertElementWithValueExists('LAmountWDiscCur', -(AmountToApply[1] + AmountToApply[2]));
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler,RemittanceAdviceEntriesNoParamsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RemittanceAdviceEntriesWithInvoiceWithDiffCurrencyExchangeRate()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BankAccount: Record "Bank Account";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PaymentJournal: TestPage "Payment Journal";
+        Assert: Codeunit Assert;
+        VendorNo: Code[20];
+        CurrencyCode: Code[10];
+        ExchRate: Decimal;
+        PaymentDiscAmount: Decimal;
+        XmlParameters: Text;
+    begin
+        // [SCENARIO 453527] Report 400 is not calculating payment discount correctly when vendor is in foreign currency
+        Initialize();
+
+        // [GIVEN] Create Currency, Bank Account, Vendor
+        ExchRate := LibraryRandom.RandDecInRange(5, 10, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate);
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
+        VendorNo := CreateVendorWithPaymentTermsAndCurrency(CurrencyCode);
+
+        // [GIVEN] Posted Purchase Invoice with Payment Discount
+        CreateAndPostPurchaseInvoiceForVendorWithCurrency(VendorNo, CurrencyCode);
+
+        // [GIVEN] Add New Exchange Rate to the currency 
+        ExchRate += LibraryRandom.RandDec(1, 1);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate() + LibraryRandom.RandInt(5), ExchRate, ExchRate);
+
+        // Enqueue value for Request Page handler - CreatePaymentWithPostingModalPageHandler 
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate());
+
+        // [GIVEN] Post Payment for Vendor Invoice
+        GenJournalLine.DeleteAll();
+        PaymentJournal.Trap();
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
+        VendorLedgerEntries."Create Payment".Invoke();
+
+        // [VERIFY] Vendor No. and Document Type as Payment
+        PaymentJournal."Account No.".AssertEquals(VendorNo);
+        PaymentJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Payment);
+        PaymentJournal.Close();
+
+        // [THEN] Filter and Post Payment Gen. Journal Line
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Payment);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(VendorNo);
+
+        // [WHEN] Run report "Remittance Advice - Entries" for Payment.
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange(Open, false);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindFirst();
+        XmlParameters := Report.RunRequestPage(Report::"Remittance Advice - Entries");
+        LibraryReportDataset.RunReportAndLoad(Report::"Remittance Advice - Entries", VendorLedgerEntry, XmlParameters);
+
+        // [VERIFY] Verify: Pmt. Disc. Taken column (which shows applied discount amount) with exact applied discount amount
+        PaymentDiscAmount := GetPaymentDiscountAmountForeignCurrency(VendorLedgerEntry."Entry No.", VendorLedgerEntry."Document No.");
+        LibraryReportDataset.AssertElementWithValueExists('LineDiscount_VendLedgEntry2', PaymentDiscAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -491,6 +564,57 @@ codeunit 133772 "Remittance Purch & Sales UT"
         exit(GLEntry."Transaction No." + 1);
     end;
 
+    local procedure CreateVendorWithPaymentTermsAndCurrency(CurrencyCode: Code[10]): Code[20]
+    var
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        Vendor: Record Vendor;
+    begin
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceForVendorWithCurrency(VendorNo: Code[20]; CurrencyCode: Code[10])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Pmt. Discount Date", LibraryRandom.RandDate(10));
+        PurchaseHeader.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", '', 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 15000));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure GetPaymentDiscountAmountForeignCurrency(VendLedgEntryNo: Integer; DocNo: Code[20]): Decimal
+    var
+        DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        DtldVendLedgEntry.LoadFields("Vendor Ledger Entry No.", "Entry Type", "Document Type", "Document No.", "Currency Code", Unapplied);
+        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntryNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+        DtldVendLedgEntry.SetRange("Document Type", DtldVendLedgEntry."Document Type"::Payment);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.SetFilter("Currency Code", '<>%1', '');
+        DtldVendLedgEntry.SetRange(Unapplied, false);
+        if DtldVendLedgEntry.IsEmpty() then
+            exit;
+
+        DtldVendLedgEntry.CalcSums(Amount);
+        exit(DtldVendLedgEntry.Amount);
+    end;
+
     local procedure UnapplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
@@ -547,6 +671,19 @@ codeunit 133772 "Remittance Purch & Sales UT"
     [RequestPageHandler]
     procedure RemittanceAdviceEntriesNoParamsRequestPageHandler(var RemittanceAdviceEntries: TestRequestPage "Remittance Advice - Entries")
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithPostingModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    var
+        StartingDocumentNo: Text;
+    begin
+        StartingDocumentNo := LibraryVariableStorage.DequeueText();
+        CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
+        CreatePayment."Starting Document No.".SetValue(StartingDocumentNo);
+        CreatePayment.OK.Invoke();
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

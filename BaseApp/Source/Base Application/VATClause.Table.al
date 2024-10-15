@@ -219,6 +219,7 @@ table 560 "VAT Clause"
             exit;
 
         TransferExtendedText.GetTempExtTextLine(TempExtendedTextLine);
+        OnGetDescriptionByExtendedTextOnAfterGetTempExtTextLine(Rec, RecRelatedVariant, ExtendedTextHeader, LanguageCode, DocDate, TempExtendedTextLine, Result);
         if not TempExtendedTextLine.FindSet() then
             exit;
 
@@ -283,10 +284,10 @@ table 560 "VAT Clause"
                     exit(true);
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
-                    exit(IsHandled);
-                end;
+                IsHandled := false;
+                OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
+                exit(IsHandled);
+            end;
         end;
     end;
 
@@ -300,6 +301,11 @@ table 560 "VAT Clause"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDescription(var VATClause: Record "VAT Clause"; DocumentType: Enum "VAT Clause Document Type"; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDescriptionByExtendedTextOnAfterGetTempExtTextLine(VATClause: Record "VAT Clause"; RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10]; DocDate: Date; var TempExtendedTextLine: Record "Extended Text Line" temporary; var Result: Text)
     begin
     end;
 

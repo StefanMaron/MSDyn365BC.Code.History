@@ -396,6 +396,13 @@
                         Importance = Additional;
                         ToolTip = 'Specifies that all the inventory costs for this item have been posted to the general ledger.';
                     }
+                    field("Inventory Value Zero"; Rec."Inventory Value Zero")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether the item on inventory must be excluded from inventory valuation. This is relevant if the item is kept on inventory on someone else''s behalf.';
+                        Visible = false;
+                    }
                     field(SpecialPurchPriceListTxt; PurchPriceListsText)
                     {
                         ApplicationArea = Suite;
@@ -1056,7 +1063,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(27),
+                SubPageLink = "Table ID" = CONST(Database::Item),
                               "No." = FIELD("No.");
             }
             part(ItemAttributesFactbox; "Item Attributes Factbox")
