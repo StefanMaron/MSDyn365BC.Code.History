@@ -18,6 +18,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         AmountError: Label 'Additional Fee Amount must be %1 for Issued Reminder No: %2.';
         ReminderEndingText: Label 'Balance %7';
@@ -488,6 +489,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // Clear global variable.
         Clear(ReminderLevelNo);
         DocumentNoVisibility.ClearState();
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
