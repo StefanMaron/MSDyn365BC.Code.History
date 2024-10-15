@@ -127,6 +127,8 @@ codeunit 7028 "Res. Journal Line - Price" implements "Line With Price"
         end;
         PriceCalculationBuffer."Work Type Code" := ResJournalLine."Work Type Code";
         PriceCalculationBuffer."Document Date" := ResJournalLine."Posting Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", '');
         PriceCalculationBuffer."Currency Factor" := 1;
 
@@ -166,7 +168,7 @@ codeunit 7028 "Res. Journal Line - Price" implements "Line With Price"
                     end;
                 CurrPriceType::Purchase:
                     begin
-                        ResJournalLine."Direct Unit Cost" := PriceListLine."Unit Price";
+                        ResJournalLine."Direct Unit Cost" := PriceListLine."Direct Unit Cost";
                         ResJournalLine."Unit Cost" := PriceListLine."Unit Cost";
                     end;
             end;

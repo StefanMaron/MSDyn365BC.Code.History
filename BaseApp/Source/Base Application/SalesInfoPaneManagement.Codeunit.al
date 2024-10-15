@@ -125,14 +125,12 @@ codeunit 7171 "Sales Info-Pane Management"
 
     procedure CalcNoOfSalesPrices(var SalesLine: Record "Sales Line"): Integer
     begin
-        if GetItem(SalesLine) then
-            exit(SalesLine.CountPrice(true));
+        exit(SalesLine.CountPrice(true));
     end;
 
     procedure CalcNoOfSalesLineDisc(var SalesLine: Record "Sales Line"): Integer
     begin
-        if GetItem(SalesLine) then
-            exit(SalesLine.CountDiscount(true));
+        exit(SalesLine.CountDiscount(true));
     end;
 
     local procedure ConvertQty(Qty: Decimal; PerUoMQty: Decimal) Result: Decimal

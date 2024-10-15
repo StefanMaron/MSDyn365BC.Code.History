@@ -53,6 +53,10 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetDefaultDimensionParentTypeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDimensionValueDimensionIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGLAccountAPITypeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPostCodeServiceKeyUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -331,6 +335,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-317694-AddBackupRestorePermissionset-20190812');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetAddFeatureDataUpdatePernissionsUpgradeTag(): Code[250];
+    begin
+        exit('MS-375048-AddBackupRestorePermissionset-20201028');
+    end;
+
     [Obsolete('Function will be removed', '16.0')]
     procedure GetCashFlowCortanaFieldsUpgradeTag(): Code[250];
     begin
@@ -484,6 +494,26 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetGLAccountAPITypeUpgradeTag(): Code[250];
     begin
         exit('MS-367190-GLAccountAPIType-20200816');
+    end;
+
+    procedure GetPostCodeServiceKeyUpgradeTag(): Code[250];
+    begin
+        exit('MS-369092-PostCodeServiceKey-20200915')
+    end;
+
+    procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPISalesInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetFixAPIPurchaseInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPIPurchaseInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetDeleteSalesOrdersOrphanedRecords(): Code[250];
+    begin
+        exit('MS-377433-DeleteSalesOrdersOrphanedRecords-20201102');
     end;
 }
 

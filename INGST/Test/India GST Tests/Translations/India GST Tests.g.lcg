@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="India GST Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 2276684240 - Method 3544521695 - NamedType 1995484542" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST on Advance Payment must be equal to 'No' in Gen. Journal Line: Journal Template Name= %1, Journal Batch Name= %2, Line No.= %3. Current value is 'Yes']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name,%2 = Journal Batch Name,%3= Line No.]D;]A;(LookupHint=Codeunit GST on Journals For Customer - Method PostFromBankReceiptVoucherWithGSTOnAdvanceReceiptForSEZDevelopment - NamedType GSTOnAdvanceReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276684240 - Method 320464498 - NamedType 1995484542" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST on Advance Payment must be equal to 'No' in Gen. Journal Line: Journal Template Name= %1, Journal Batch Name= %2, Line No.= %3. Current value is 'Yes']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name,%2 = Journal Batch Name,%3= Line No.]D;]A;(LookupHint=Codeunit GST on Journals For Customer - Method PostFromBankReceiptVoucherWithGSTOnAdvanceReceiptForExport - NamedType GSTOnAdvanceReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276684240 - Method 4028357111 - NamedType 1995484542" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST on Advance Payment must be equal to 'No' in Gen. Journal Line: Journal Template Name= %1, Journal Batch Name= %2, Line No.= %3. Current value is 'Yes']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name,%2 = Journal Batch Name,%3= Line No.]D;]A;(LookupHint=Codeunit GST on Journals For Customer - Method PostFromBankReceiptVoucherWithGSTOnAdvanceReceiptForDeemedExports - NamedType GSTOnAdvanceReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276684240 - Method 1784801108 - NamedType 1995484542" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST on Advance Payment must be equal to 'No' in Gen. Journal Line: Journal Template Name= %1, Journal Batch Name= %2, Line No.= %3. Current value is 'Yes']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name,%2 = Journal Batch Name,%3= Line No.]D;]A;(LookupHint=Codeunit GST on Journals For Customer - Method PostFromBankReceiptVoucherWithGSTOnAdvanceReceiptForSEZUnit - NamedType GSTOnAdvanceReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276684240 - Method 2664891362 - NamedType 1995484542" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST on Advance Payment must be equal to 'No' in Gen. Journal Line: Journal Template Name= %1, Journal Batch Name= %2, Line No.= %3. Current value is 'Yes']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name,%2 = Journal Batch Name,%3= Line No.]D;]A;(LookupHint=Codeunit GST on Journals For Customer - Method PostFromBankReceiptVoucherWithGSTOnAdvanceReceiptForExemptedCustomer - NamedType GSTOnAdvanceReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3364285805 - Method 3889473698 - NamedType 1612725874" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[POS as Vendor State is false]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Purchase Reg - Method CheckAfterChangeLocationCodeAndPOSonPurchaseHeader - NamedType POSLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3364285805 - Method 870464367 - NamedType 3941846598" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[State Code must have a value in Vendor: No.=%1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor No.]D;]A;(LookupHint=Codeunit GST Purchase Reg - Method CheckVendorRelatedValidations - NamedType ErrorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3404149101 - Method 3889473698 - NamedType 1612725874" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[POS as Vendor State is false]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Purchase Registered - Method CheckAfterChangeLocationCodeAndPOSonPurchaseHeader - NamedType POSLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3404149101 - Method 870464367 - NamedType 3941846598" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[State Code must have a value in Vendor: No.=%1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor No.]D;]A;(LookupHint=Codeunit GST Purchase Registered - Method CheckVendorRelatedValidations - NamedType ErrorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

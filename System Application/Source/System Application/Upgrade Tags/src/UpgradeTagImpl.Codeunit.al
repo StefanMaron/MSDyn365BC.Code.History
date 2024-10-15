@@ -84,12 +84,15 @@ codeunit 9996 "Upgrade Tag Impl."
         UpgradeTags.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000006, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateUpgradeTagsOnCompanyRename(var Rec: Record Company; var xRec: Record Company; RunTrigger: Boolean)
     var
         UpgradeTags: Record "Upgrade Tags";
         RenameUpgradeTags: Record "Upgrade Tags";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UpgradeTags.SetRange(Company, xRec.Name);
         if not UpgradeTags.FindSet(true) then
             exit;
@@ -98,6 +101,27 @@ codeunit 9996 "Upgrade Tag Impl."
             RenameUpgradeTags.GetBySystemId(UpgradeTags.SystemId);
             RenameUpgradeTags.Rename(RenameUpgradeTags.Tag, Rec.Name);
         until UpgradeTags.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterInsertEvent', '', false, false)]
+    local procedure UpdateUpgradeTagsOnInsertCompany(var Rec: Record Company; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        SetAllUpgradeTags(Rec.Name);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure UpdateUpgradeTagsOnCompanyDelete(var Rec: Record Company; RunTrigger: Boolean)
+    var
+        UpgradeTags: Record "Upgrade Tags";
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        UpgradeTags.SetRange(Company, Rec.Name);
+        UpgradeTags.DeleteAll();
     end;
 }
 

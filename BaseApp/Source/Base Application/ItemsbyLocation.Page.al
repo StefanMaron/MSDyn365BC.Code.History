@@ -1,4 +1,4 @@
-page 491 "Items by Location"
+﻿page 491 "Items by Location"
 {
     Caption = 'Items by Location';
     DataCaptionExpression = '';
@@ -124,6 +124,7 @@ page 491 "Items by Location"
         CurrentMatrixRecordOrdinal: Integer;
     begin
         SetTempMatrixLocationFilters();
+        OnSetColumnsOnAfterSetTempMatrixLocationFilters(TempMatrixLocation);
 
         Clear(MATRIX_CaptionSet);
         Clear(MatrixRecords);
@@ -181,8 +182,13 @@ page 491 "Items by Location"
         CurrPage.Update(false);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSetTempMatrixLocationFilters(var TempMatrixLocation: Record Location temporary);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSetColumnsOnAfterSetTempMatrixLocationFilters(var TempMatrixLocation: Record Location temporary)
     begin
     end;
 }

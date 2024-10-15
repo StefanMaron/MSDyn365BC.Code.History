@@ -1,4 +1,4 @@
-report 493 "Carry Out Action Msg. - Req."
+﻿report 493 "Carry Out Action Msg. - Req."
 {
     Caption = 'Carry Out Action Msg. - Req.';
     ProcessingOnly = true;
@@ -101,6 +101,7 @@ report 493 "Carry Out Action Msg. - Req."
             if ReqWkshTmpl.Recurring and (GetFilter("Order Date") <> '') then
                 FieldError("Order Date", Text000);
             TempJnlBatchName := "Journal Batch Name";
+            OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders);
             ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
             ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
             ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
@@ -156,6 +157,11 @@ report 493 "Carry Out Action Msg. - Req."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforePostReport(var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(var ReqLine: Record "Requisition Line"; var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order"; PurchOrderHeader: Record "Purchase Header"; EndOrderDate: Date; PrintOrders: Boolean)
     begin
     end;
 }

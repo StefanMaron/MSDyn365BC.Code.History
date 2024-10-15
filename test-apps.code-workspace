@@ -21,16 +21,25 @@
       "path": "./System Application/Source/System Application/Email/src/Test Email"
     },
     {
-      "path": "./TestFramework/TestLibraries"
+      "path": "./INTCS/Test/India TCS Tests"
     },
     {
-      "path": "./TestFramework/TestRunner/Test Runner"
+      "path": "./testframework/TestLibraries"
+    },
+    {
+      "path": "./testframework/TestRunner/Test Runner"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
       "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
+    },
+    {
+      "path": "./Email - Outlook REST API/Test"
+    },
+    {
+      "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
@@ -81,6 +90,9 @@
       "path": "./BaseApp/Test/Tests-Misc"
     },
     {
+      "path": "./BaseApp/Test/Tests-Monitor Sensitive Fields"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Permissions"
     },
     {
@@ -129,10 +141,37 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./BaseApp/Source/Base Application/Test Framework"
+    },
+    {
+      "path": "./INTDS/Test/India TDS Tests"
+    },
+    {
+      "path": "./INGST/Test/India GST Tests"
+    },
+    {
+      "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
+    },
+    {
       "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
+      "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
+    },
+    {
+      "path": "./INVoucherInterface/Test/India Voucher Interface Tests"
+    },
+    {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
+    },
+    {
+      "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
+    },
+    {
+      "path": "./INTaxEngine/Test/Tax Engine Test"
+    },
+    {
+      "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
   ]
 }

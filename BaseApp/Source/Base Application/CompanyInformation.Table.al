@@ -710,14 +710,17 @@ table 79 "Company Information"
         Get;
         if IsPaymentInfoAvailble then
             exit;
-        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(NoPaymentInfoQst, TableCaption), true) then begin
-            CompanyInformationPage.SetRecord(Rec);
-            CompanyInformationPage.Editable(true);
-            if CompanyInformationPage.RunModal = ACTION::OK then
-                CompanyInformationPage.GetRecord(Rec);
-        end;
-        if not IsPaymentInfoAvailble then
-            Message(NoPaymentInfoMsg, TableCaption);
+        if GuiAllowed then begin
+            if ConfirmManagement.GetResponseOrDefault(StrSubstNo(NoPaymentInfoQst, TableCaption), true) then begin
+                CompanyInformationPage.SetRecord(Rec);
+                CompanyInformationPage.Editable(true);
+                if CompanyInformationPage.RunModal = ACTION::OK then
+                    CompanyInformationPage.GetRecord(Rec);
+            end;
+            if not IsPaymentInfoAvailble then
+                Message(NoPaymentInfoMsg, TableCaption);
+        end else
+            Error(NoPaymentInfoMsg, TableCaption);
     end;
 
     procedure GetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)

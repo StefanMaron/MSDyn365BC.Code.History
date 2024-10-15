@@ -66,6 +66,7 @@ codeunit 1250 "Match General Journal Lines"
             repeat
                 Score := GetMatchScore(GenJournalLine, CustLedgerEntry."Document No.", Customer."No.", CustLedgerEntry."External Document No.",
                     Customer.Name, CustLedgerEntry."Remaining Amt. (LCY)", 1, CustLedgerEntry."Posting Date");
+                OnFindMatchingCustEntryOnAfterGetMatchScore(GenJournalLine, CustLedgerEntry, Score);
                 if Score > 5 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(GenJournalLine."Line No.", CustLedgerEntry."Entry No.", Score,
                       TempBankStatementMatchingBuffer."Account Type"::Customer, CustLedgerEntry."Customer No.");
@@ -418,6 +419,11 @@ codeunit 1250 "Match General Journal Lines"
     procedure GetNormalizingFactor(): Integer
     begin
         exit(NormalizingFactor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingCustEntryOnAfterGetMatchScore(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var Score: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

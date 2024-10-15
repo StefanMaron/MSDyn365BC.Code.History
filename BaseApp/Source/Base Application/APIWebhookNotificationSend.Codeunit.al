@@ -4,11 +4,25 @@ codeunit 6154 "API Webhook Notification Send"
     // 2. Generates notifications payload per notification URL
     // 3. Sends notifications
 
+    Permissions = TableData "API Webhook Subscription" = imd,
+                  TableData "API Webhook Notification" = imd,
+                  TableData "API Webhook Notification Aggr" = imd;
 
     trigger OnRun()
+    var
+        APIWebhookSubscription: Record "API Webhook Subscription";
+        APIWebhookNotification: Record "API Webhook Notification";
+        APIWebhookNotificationAggr: Record "API Webhook Notification Aggr";
     begin
         if not IsApiSubscriptionEnabled() then begin
             Session.LogMessage('000029V', DisabledSubscriptionMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit;
+        end;
+
+        if (not APIWebhookSubscription.WritePermission()) or
+           (not APIWebhookNotification.WritePermission()) or
+           (not APIWebhookNotificationAggr.WritePermission()) then begin
+            Session.LogMessage('0000DY0', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -129,6 +143,7 @@ codeunit 6154 "API Webhook Notification Send"
         IncreaseAttemptNumberTitleTxt: Label 'Increase attempt number.', Locked = true;
         NotificationFailedTitleTxt: Label 'Notification failed.', Locked = true;
         JobFailedTitleTxt: Label 'Job failed.', Locked = true;
+        NoPermissionsTxt: Label 'No permissions.', Locked = true;
 
     local procedure Initialize()
     begin
@@ -1269,17 +1284,26 @@ codeunit 6154 "API Webhook Notification Send"
     local procedure HasLastModifiedDateTimeField(var APIWebhookSubscription: Record "API Webhook Subscription"): Boolean
     var
         ApiWebhookEntity: Record "Api Webhook Entity";
+        PageControlField: Record "Page Control Field";
         RecordRef: RecordRef;
-        FieldRef: FieldRef;
-        Result: Boolean;
     begin
         if not APIWebhookNotificationMgt.GetEntity(APIWebhookSubscription, ApiWebhookEntity) then
             exit(false);
 
-        RecordRef.Open(ApiWebhookEntity."Table No.");
-        Result := APIWebhookNotificationMgt.FindLastModifiedDateTimeField(RecordRef, FieldRef);
+        if ApiWebhookEntity."Object Type" <> ApiWebhookEntity."Object Type"::Page then
+            exit(false);
 
-        exit(Result);
+        PageControlField.SetRange(PageNo, ApiWebhookEntity."Object ID");
+        PageControlField.SetRange(ControlName, 'lastModifiedDateTime');
+        PageControlField.SetFilter(Visible, '%1', '@true');
+        if not PageControlField.FindFirst() then
+            exit(false);
+
+        RecordRef.Open(PageControlField.TableNo);
+        if RecordRef.Field(PageControlField.FieldNo).Type <> FieldType::DateTime then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure GetActiveSubscriptions(): Boolean

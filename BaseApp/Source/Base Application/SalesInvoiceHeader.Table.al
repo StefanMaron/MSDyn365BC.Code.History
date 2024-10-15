@@ -1073,7 +1073,14 @@ table 112 "Sales Invoice Header"
     end;
 
     procedure ShowCanceledOrCorrCrMemo()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowCanceledOrCorrCrMemo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
@@ -1087,7 +1094,13 @@ table 112 "Sales Invoice Header"
     var
         CancelledDocument: Record "Cancelled Document";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowCorrectiveCreditMemo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields(Cancelled);
         if not Cancelled then
             exit;
@@ -1102,7 +1115,13 @@ table 112 "Sales Invoice Header"
     var
         CancelledDocument: Record "Cancelled Document";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowCancelledCreditMemo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields(Corrective);
         if not Corrective then
             exit;
@@ -1135,6 +1154,21 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCanceledOrCorrCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCorrectiveCreditMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCancelledCreditMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -2048,6 +2048,155 @@ codeunit 137077 "SCM Supply Planning -IV"
         SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningComponentIsReservedFromReqLineAfterPlanningViaCTP()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Capable to Promise] [Reservation] [Planning Component]
+        // [SCENARIO 375636] Planning component is reserved from requisition line for critical component when the planning is carried out with Capable-to-Promise.
+        Initialize();
+
+        // [GIVEN] Critical component item "C".
+        // [GIVEN] A critical component will be planned together with the parent item.
+        CreateOrderItem(CompItem);
+        CompItem.Validate(Critical, true);
+        CompItem.Modify(true);
+
+        // [GIVEN] Production BOM that includes component "C".
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P", select the created production BOM.
+        CreateOrderItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Sales order for item "P".
+        CreateSalesOrder(ProdItem."No.", '');
+
+        // [WHEN] Open Order Promising and accept "Capable to Promise".
+        FindSalesLine(SalesLine, ProdItem."No.");
+        OpenOrderPromisingPage(SalesLine."Document No.");
+
+        // [THEN] The planning component "C" is reserved from a planning line.
+        VerifyReservationBetweenSources(CompItem."No.", DATABASE::"Requisition Line", DATABASE::"Planning Component");
+
+        // [THEN] The sales line for item "P" is reserved from a planning line.
+        VerifyReservationBetweenSources(ProdItem."No.", DATABASE::"Requisition Line", DATABASE::"Sales Line");
+    end;
+
+    [Scope('OnPrem')]
+    procedure AvailableInventoryOnItemAvailabilityLines()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InventoryQty: Decimal;
+    begin
+        // [FEATURE] [Item Availability]
+        // [SCENARIO 361176] "Available Inventory" on Item Availability by Location Lines is calculated as Inventory - Reserved Quantity on Inventory
+        Initialize();
+
+        // [GIVEN] Item with Inventory = 10 PCS on Location "BLUE"
+        CreateItem(Item);
+        InventoryQty := LibraryRandom.RandIntInRange(10, 100);
+        UpdateInventory(Item."No.", InventoryQty, LocationBlue.Code);
+
+        // [GIVEN] Purchase Order Line with Quantity = 5 PCS with Expected Receipt Date = 10.01.2021 on Location "BLUE"
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
+        PurchaseLine.Validate("Location Code", LocationBlue.Code);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Sales Order Line with Quantity = 2 PCS on Location "BLUE", reserved on inventory
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(InventoryQty - 1));
+        SalesLine.Validate("Location Code", LocationBlue.Code);
+        SalesLine.Modify(true);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [WHEN] Run Item Availability for Location
+        // [THEN] Available Inventory = 8 on Item Availability by Location Line for Location "BLUE" on 11.01.2021
+        // [THEN] Available Inventory doesn't include Quantity on the Purchase Order
+        Item.SetRange("Date Filter", WorkDate() + 1);
+        Item.SetRange("Location Filter", LocationBlue.Code);
+        VerifyAvailableInventoryOnCalcAvailQuantities(
+            Item, InventoryQty - SalesLine.Quantity);
+    end;
+
+    [Scope('OnPrem')]
+    procedure PlanningComponentIsNotReservedFromReqLineOnDifferentLocation()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Reservation] [Planning Component] [Requisition Line] [Location]
+        // [SCENARIO 375636] Planning component cannot be reserved from requisition line at different location.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Set up "Components at Location" = "Blue" on the Manufacturing Setup.
+        UpdManufSetupComponentsAtLocation(LocationBlue.Code);
+
+        // [GIVEN] Component item "C".
+        CreateOrderItem(CompItem);
+
+        // [GIVEN] Production BOM that includes component "C".
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P", select just created production BOM.
+        CreateOrderItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and refresh planning line for "P".
+        CreateRequisitionLine(RequisitionLine, ProdItem."No.", ReqWkshTemplate.Type::Planning);
+        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Modify(true);
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, 0, false, true);
+
+        // [GIVEN] The planning component "C" is at location "Blue".
+        PlanningComponent.SetRange("Item No.", CompItem."No.");
+        PlanningComponent.FindFirst();
+        PlanningComponent.TestField("Location Code", LocationBlue.Code);
+
+        // [GIVEN] Create a new planning line on location "Red" to supply component "C".
+        LibraryPlanning.CreateRequisitionLine(
+          RequisitionLine, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", CompItem."No.");
+        RequisitionLine.Validate("Location Code", LocationRed.Code);
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Reserve the planning component from the planning line.
+        PlngComponentReserve.BindToRequisition(PlanningComponent, RequisitionLine, Qty, Qty);
+
+        // [THEN] The planning component is not reserved.
+        // [THEN] No error is thrown.
+        PlanningComponent.CalcFields("Reserved Quantity");
+        PlanningComponent.TestField("Reserved Quantity", 0);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -3319,6 +3468,24 @@ codeunit 137077 "SCM Supply Planning -IV"
         PlanningComponent.SetFilter("Item No.", ItemNo);
         PlanningComponent.SetFilter("Location Code", LocationCode);
         Assert.RecordIsNotEmpty(PlanningComponent);
+    end;
+
+    local procedure VerifyAvailableInventoryOnCalcAvailQuantities(var Item: Record Item; ExpectedAvailableInventory: Decimal)
+    var
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AvailableInventory: Decimal;
+        GrossRequirement: Decimal;
+        PlannedOrderRcpt: Decimal;
+        ScheduledRcpt: Decimal;
+        PlannedOrderReleases: Decimal;
+        ProjAvailableBalance: Decimal;
+        ExpectedInventory: Decimal;
+        QtyAvailable: Decimal;
+    begin
+        ItemAvailabilityFormsMgt.CalcAvailQuantities(
+          Item, false, GrossRequirement, PlannedOrderRcpt, ScheduledRcpt, PlannedOrderReleases,
+          ProjAvailableBalance, ExpectedInventory, QtyAvailable, AvailableInventory);
+        Assert.AreEqual(ExpectedAvailableInventory, AvailableInventory, 'Unexpected Available Inventory value');
     end;
 
     [RequestPageHandler]

@@ -600,13 +600,14 @@ page 7201 "CDS Connection Setup Wizard"
         EnvrionmentInfo: Codeunit "Environment Information";
     begin
         LoadTopBanners();
-        SoftwareAsAService := EnvrionmentInfo.IsSaaS();
+        SoftwareAsAService := EnvrionmentInfo.IsSaaSInfrastructure();
     end;
 
     trigger OnOpenPage()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        OAuth2: Codeunit "OAuth2";
+        RedirectURL: Text;
     begin
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
@@ -627,9 +628,13 @@ page 7201 "CDS Connection Setup Wizard"
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
             InitializeDefaultAuthenticationType();
         end;
+
         if not SoftwareAsAService then
-            if "Redirect URL" = '' then
-                "Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
+            if "Redirect URL" = '' then begin
+                OAuth2.GetDefaultRedirectUrl(RedirectUrl);
+                "Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Redirect URL"));
+            end;
+
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
         Insert();
@@ -951,7 +956,7 @@ page 7201 "CDS Connection Setup Wizard"
             Error(AdminUserShouldBesignedInErr);
 
         Window.Open('Getting things ready for you.');
-        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
+        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, true);
         Window.Close();
     end;
 

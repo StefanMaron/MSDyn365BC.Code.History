@@ -212,15 +212,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 BC To D365 BC Tests - NamedType EvaluationCompanyDoesNotExistsMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3733820527 - NamedType 1527510641" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BusinessCentralTrialVisibleForInv]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit O365 BC To D365 BC Tests - NamedType BusinessCentralTrialVisibleInvNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3998319659 - NamedType 1636015886" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[=><]]></Val>
@@ -761,15 +752,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = property that could not be find]D;]A;(LookupHint=Codeunit O365 Sales Auto. Setup Tests - NamedType CouldNotFindLineErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2953207776 - NamedType 1547981614" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TAXABLE]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit O365 Sales Auto. Setup Tests - NamedType TaxableCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2953207776 - NamedType 83466433" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[test@mail.com]]></Val>
@@ -869,15 +851,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Sales Totals Tests - NamedType OutsideFYErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1777605891 - NamedType 1564102331" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[INV]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit O365 Test Acc. Period Init - NamedType InvoiceTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3631275830 - NamedType 1795766537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[pAssWord1]]></Val>
@@ -885,15 +858,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Test Email Setup - NamedType PassWordTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3891919203 - NamedType 3182881481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[FRC]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit O365 Translation Tests - NamedType FRCTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3952233183 - NamedType 1950147054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

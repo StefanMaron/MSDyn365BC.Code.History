@@ -137,17 +137,18 @@ codeunit 134122 "Price Asset List UT"
         // [THEN] GetList returns three records
         PriceAssetList.GetList(TempPriceAsset);
         Assert.RecordCount(TempPriceAsset, 3);
-        // [THEN] Resource <blank> (for all resources), where Level is 7
+        // [THEN] Resource <blank> (for all resources), where Level is 3
+        TempPriceAsset.SetCurrentKey(Level);
         TempPriceAsset.FindSet();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", '');
-        TempPriceAsset.TestField(Level, Level + 2);
-        // [THEN] Resource Group 'G', where Level is 6
+        TempPriceAsset.TestField(Level, Level - 2);
+        // [THEN] Resource Group 'G', where Level is 4
         TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Resource Group");
         TempPriceAsset.TestField("Asset No.", ResourceGroup."No.");
-        TempPriceAsset.TestField(Level, Level + 1);
-        // [THEN] Resource Group 'G', where Level is 6
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] Resource 'R', where Level is 5
         TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", Resource."No.");
@@ -175,11 +176,11 @@ codeunit 134122 "Price Asset List UT"
         // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
         Assert.RecordCount(TempPriceAsset, 2);
-        // [THEN] Resource <blank> (for all resources), where Level is 6
+        // [THEN] Resource <blank> (for all resources), where Level is 4
         TempPriceAsset.FindSet();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", '');
-        TempPriceAsset.TestField(Level, Level + 1);
+        TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Resource 'R', where Level is 5
         TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
@@ -206,11 +207,11 @@ codeunit 134122 "Price Asset List UT"
         // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
         Assert.RecordCount(TempPriceAsset, 2);
-        // [THEN] Resource <blank> (for all resources), where Level is 6
+        // [THEN] Resource <blank> (for all resources), where Level is 4
         TempPriceAsset.FindSet();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", '');
-        TempPriceAsset.TestField(Level, Level + 1);
+        TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Resource Group 'R', where Level is 5
         TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Resource Group");

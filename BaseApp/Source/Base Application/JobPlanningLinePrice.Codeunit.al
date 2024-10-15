@@ -153,6 +153,8 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                 end;
         end;
         PriceCalculationBuffer."Document Date" := JobPlanningLine."Planning Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", JobPlanningLine."Currency Code");
         PriceCalculationBuffer."Currency Factor" := JobPlanningLine."Currency Factor";
 
@@ -214,14 +216,14 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                 CurrPriceType::Purchase:
                     case JobPlanningLine.Type of
                         JobPlanningLine.Type::Item:
-                            JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                            JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                         JobPlanningLine.Type::Resource:
                             begin
                                 JobPlanningLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
-                                JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Price";
+                                JobPlanningLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                             end;
                         JobPlanningLine.Type::"G/L Account":
-                            JobPlanningLine."Unit Cost" := PriceListLine."Unit Cost";
+                            JobPlanningLine."Unit Cost" := PriceListLine."Direct Unit Cost";
                     end;
             end;
         OnAfterSetPrice(JobPlanningLine, PriceListLine, AmountType);

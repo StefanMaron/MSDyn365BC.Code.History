@@ -34,8 +34,7 @@ table 336 "Tracking Specification"
                 InitQtyToShip();
                 CheckSerialNoQty();
 
-                if not QuantityToInvoiceIsSufficient then
-                    Validate("Appl.-to Item Entry", 0);
+                ClearApplyToEntryIfQuantityToInvoiceIsNotSufficient();
             end;
         }
         field(7; Description; Text[100])
@@ -1169,6 +1168,11 @@ table 336 "Tracking Specification"
     end;
 
     procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
+    begin
+        CheckItemTrackingQuantity(TableNo, DocumentType, DocumentNo, LineNo, -1, QtyToHandleBase, QtyToInvoiceBase, Handle, Invoice);
+    end;
+
+    procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; ProdOrderLineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -1179,6 +1183,8 @@ table 336 "Tracking Specification"
         if not (Handle or Invoice) then
             exit;
         ReservationEntry.SetSourceFilter(TableNo, DocumentType, DocumentNo, LineNo, true);
+        if ProdOrderLineNo >= 0 then
+            ReservationEntry.SetSourceFilter('', ProdOrderLineNo);
         ReservationEntry.SetFilter("Item Tracking", '%1|%2',
           ReservationEntry."Item Tracking"::"Lot and Serial No.",
           ReservationEntry."Item Tracking"::"Serial No.");
@@ -1275,6 +1281,19 @@ table 336 "Tracking Specification"
             if SalesLine.FindFirst then
                 exit("Quantity (Base)" < SalesLine."Qty. to Invoice (Base)");
         end;
+    end;
+
+    local procedure ClearApplyToEntryIfQuantityToInvoiceIsNotSufficient()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearApplyToEntryIfQuantityToInvoiceIsNotSufficient(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not QuantityToInvoiceIsSufficient() then
+            Validate("Appl.-to Item Entry", 0);
     end;
 
     procedure TestTrackingFieldsAreBlank();
@@ -1520,6 +1539,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSerialNoQty(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearApplyToEntryIfQuantityToInvoiceIsNotSufficient(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 
