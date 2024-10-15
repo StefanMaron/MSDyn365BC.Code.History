@@ -18,9 +18,15 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader."ID Type" := "ID Type";
         PurchInvHeader."Succeeded Company Name" := "Succeeded Company Name";
         PurchInvHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
+        OnBeforePurchInvHeaderModify(PurchInvHeader, Rec);
         PurchInvHeader.TestField("No.", "No.");
         PurchInvHeader.Modify;
         Rec := PurchInvHeader;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvHeaderModify(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeaderRec: Record "Purch. Inv. Header")
+    begin
     end;
 }
 

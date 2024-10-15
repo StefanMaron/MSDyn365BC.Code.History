@@ -48,7 +48,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the new customer to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Customer Posting Group"; "Customer Posting Group")

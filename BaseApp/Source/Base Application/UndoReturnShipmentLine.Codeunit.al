@@ -16,12 +16,6 @@ codeunit 5814 "Undo Return Shipment Line"
         if IsHandled then
             exit;
 
-        if not SkipTypeCheck then begin
-            SetRange(Type, Type::Item);
-            if not Find('-') then
-                Error(Text005);
-        end;
-
         if not HideDialog then
             if not Confirm(Text000) then
                 exit;
@@ -68,8 +62,11 @@ codeunit 5814 "Undo Return Shipment Line"
     begin
         with ReturnShptLine do begin
             Clear(ItemJnlPostLine);
+            SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
-
+            if IsEmpty then
+                Error(AlreadyReversedErr);
+            FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
@@ -88,17 +85,20 @@ codeunit 5814 "Undo Return Shipment Line"
                 if not HideDialog then
                     Window.Open(Text001);
 
-                PostedWhseShptLineFound :=
-                  WhseUndoQty.FindPostedWhseShptLine(
-                    PostedWhseShptLine,
-                    DATABASE::"Return Shipment Line",
-                    "Document No.",
-                    DATABASE::"Purchase Line",
-                    SalesLine."Document Type"::"Return Order",
-                    "Return Order No.",
-                    "Return Order Line No.");
+                if Type = Type::Item then begin
+                    PostedWhseShptLineFound :=
+                      WhseUndoQty.FindPostedWhseShptLine(
+                        PostedWhseShptLine,
+                        DATABASE::"Return Shipment Line",
+                        "Document No.",
+                        DATABASE::"Purchase Line",
+                        SalesLine."Document Type"::"Return Order",
+                        "Return Order No.",
+                        "Return Order Line No.");
 
-                ItemShptEntryNo := PostItemJnlLine(ReturnShptLine, DocLineNo);
+                    ItemShptEntryNo := PostItemJnlLine(ReturnShptLine, DocLineNo);
+                end else
+                    DocLineNo := GetCorrectionLineNo(ReturnShptLine);
 
                 InsertNewReturnShptLine(ReturnShptLine, ItemShptEntryNo, DocLineNo);
                 OnAfterInsertNewReturnShptLine(ReturnShptLine, PostedWhseShptLine, PostedWhseShptLineFound, DocLineNo);
@@ -149,37 +149,27 @@ codeunit 5814 "Undo Return Shipment Line"
             exit;
 
         with ReturnShptLine do begin
-            TestField(Type, Type::Item);
             if Correction then
                 Error(AlreadyReversedErr);
             if "Return Qty. Shipped Not Invd." <> Quantity then
                 Error(Text004);
-            TestField("Prod. Order No.", '');
 
-            UndoPostingMgt.TestReturnShptLine(ReturnShptLine);
-            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Shipment Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            if Type = Type::Item then begin
+                TestField("Prod. Order No.", '');
+
+                UndoPostingMgt.TestReturnShptLine(ReturnShptLine);
+                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Shipment Line",
+                  "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            end;
         end;
     end;
 
-    local procedure PostItemJnlLine(ReturnShptLine: Record "Return Shipment Line"; var DocLineNo: Integer): Integer
+    local procedure GetCorrectionLineNo(ReturnShptLine: Record "Return Shipment Line"): Integer
     var
-        ItemJnlLine: Record "Item Journal Line";
-        PurchLine: Record "Purchase Line";
-        ReturnShptHeader: Record "Return Shipment Header";
         ReturnShptLine2: Record "Return Shipment Line";
-        SourceCodeSetup: Record "Source Code Setup";
-        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
         LineSpacing: Integer;
-        ItemLedgEntryNo: Integer;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforePostItemJnlLine(ReturnShptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
-        if IsHandled then
-            exit(ItemLedgEntryNo);
-
         with ReturnShptLine do begin
             ReturnShptLine2.SetRange("Document No.", "Document No.");
             ReturnShptLine2."Document No." := "Document No.";
@@ -192,7 +182,28 @@ codeunit 5814 "Undo Return Shipment Line"
                     Error(Text002);
             end else
                 LineSpacing := 10000;
-            DocLineNo := "Line No." + LineSpacing;
+
+            exit("Line No." + LineSpacing);
+        end;
+    end;
+
+    local procedure PostItemJnlLine(ReturnShptLine: Record "Return Shipment Line"; var DocLineNo: Integer): Integer
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        PurchLine: Record "Purchase Line";
+        ReturnShptHeader: Record "Return Shipment Header";
+        SourceCodeSetup: Record "Source Code Setup";
+        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
+        ItemLedgEntryNo: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(ReturnShptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
+
+        with ReturnShptLine do begin
+            DocLineNo := GetCorrectionLineNo(ReturnShptLine);
 
             SourceCodeSetup.Get;
             ReturnShptHeader.Get("Document No.");
@@ -225,6 +236,7 @@ codeunit 5814 "Undo Return Shipment Line"
             ItemJnlLine.Quantity := "Quantity (Base)";
             ItemJnlLine."Quantity (Base)" := "Quantity (Base)";
             ItemJnlLine."Document Date" := ReturnShptHeader."Document Date";
+            ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
 
             OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine);
 

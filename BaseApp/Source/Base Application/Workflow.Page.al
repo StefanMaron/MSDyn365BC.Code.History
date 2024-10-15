@@ -208,6 +208,11 @@ page 1501 Workflow
             Clear(Rec);
 
         CurrPage.WorkflowResponses.PAGE.UpdateData;
+
+        if not TemplateValueSet then begin
+            TemplateValueSet := True;
+            SetRange(Template, Template);
+        end;
     end;
 
     trigger OnAfterGetRecord()
@@ -216,6 +221,7 @@ page 1501 Workflow
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
     begin
         IsNotTemplate := not Template;
+
         WorkflowStepInstance.SetRange("Workflow Code", Code);
         InstancesExist := not WorkflowStepInstance.IsEmpty;
 
@@ -256,6 +262,7 @@ page 1501 Workflow
         OpenNew: Boolean;
         OpenView: Boolean;
         HasWebhookClientLink: Boolean;
+        TemplateValueSet: Boolean;
 
     procedure SetOpenNew(NewOpenNew: Boolean)
     begin

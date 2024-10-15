@@ -27,6 +27,10 @@ codeunit 5750 "Whse.-Create Source Document"
                 TotalOutstandingWhseShptQtyBase -= ATOWhseShptLineQtyBase;
             end;
         end;
+
+        OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(
+          WhseShptHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase);
+
         if TotalOutstandingWhseShptQtyBase > 0 then
             exit(CreateShptLineFromSalesLine(WhseShptHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase, false));
         exit(true);
@@ -46,7 +50,7 @@ codeunit 5750 "Whse.-Create Source Document"
             SetItemData(
               SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
               SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure");
-            OnAfterInitNewWhseShptLine(WhseShptLine, WhseShptHeader, SalesLine);
+            OnAfterInitNewWhseShptLine(WhseShptLine, WhseShptHeader, SalesLine, AssembleToOrder);
             SetQtysOnShptLine(WhseShptLine, WhseShptLineQty, WhseShptLineQtyBase);
             "Assemble to Order" := AssembleToOrder;
             if SalesLine."Document Type" = SalesLine."Document Type"::Order then
@@ -103,6 +107,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if "Bin Code" = '' then
                 "Bin Code" := SalesLine."Bin Code";
             UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
+            OnBeforeCreateReceiptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
             CreateReceiptLine(WhseReceiptLine);
             OnAfterCreateRcptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
             exit(not HasErrorOccured);
@@ -271,7 +276,9 @@ codeunit 5750 "Whse.-Create Source Document"
             Validate("Qty. Received", TransLine."Quantity Received");
             TransLine.CalcFields("Whse. Inbnd. Otsdg. Qty (Base)");
             WhseInbndOtsdgQty :=
-              UnitOfMeasureMgt.CalcQtyFromBase(TransLine."Whse. Inbnd. Otsdg. Qty (Base)", TransLine."Qty. per Unit of Measure");
+              UnitOfMeasureMgt.CalcQtyFromBase(
+                TransLine."Item No.", TransLine."Variant Code", TransLine."Unit of Measure Code",
+                TransLine."Whse. Inbnd. Otsdg. Qty (Base)", TransLine."Qty. per Unit of Measure");
             SetQtysOnRcptLine(
               WhseReceiptLine,
               TransLine."Quantity Received" + TransLine."Qty. in Transit" - WhseInbndOtsdgQty,
@@ -345,7 +352,14 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     local procedure UpdateShptLine(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateShptLine(WhseShptLine, WhseShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             if WhseShptHeader."Zone Code" <> '' then
                 Validate("Zone Code", WhseShptHeader."Zone Code");
@@ -355,7 +369,14 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     local procedure UpdateReceiptLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; WhseReceiptHeader: Record "Warehouse Receipt Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseReceiptLine do begin
             if WhseReceiptHeader."Zone Code" <> '' then
                 Validate("Zone Code", WhseReceiptHeader."Zone Code");
@@ -531,7 +552,7 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitNewWhseShptLine(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line")
+    local procedure OnAfterInitNewWhseShptLine(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; AssembleToOrder: Boolean)
     begin
     end;
 
@@ -576,6 +597,11 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReceiptLineFromSalesLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateShptLineFromSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
@@ -587,6 +613,16 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateShptLineFromTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -642,6 +678,11 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransLine2ReceiptLineOnAfterInitNewLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; WhseReceiptHeader: Record "Warehouse Receipt Header"; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; var TotalOutstandingWhseShptQty: Decimal; var TotalOutstandingWhseShptQtyBase: Decimal)
     begin
     end;
 }

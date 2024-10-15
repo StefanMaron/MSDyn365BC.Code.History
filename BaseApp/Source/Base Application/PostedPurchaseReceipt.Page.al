@@ -484,6 +484,7 @@
 
                 trigger OnAction()
                 begin
+                    PurchRcptHeader := Rec;
                     CurrPage.SetSelectionFilter(PurchRcptHeader);
                     PurchRcptHeader.PrintRecords(true);
                 end;

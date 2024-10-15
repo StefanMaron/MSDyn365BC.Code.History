@@ -111,7 +111,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     (CalledByFieldNo = FieldNo("Variant Code")))
             then
                 Validate("Unit Amount", TempSalesPrice."Unit Price");
-            OnAfterFindItemJnlLinePrice(ItemJnlLine, TempSalesPrice, CalledByFieldNo);
+            OnAfterFindItemJnlLinePrice(ItemJnlLine, TempSalesPrice, CalledByFieldNo, FoundSalesPrice);
         end;
     end;
 
@@ -589,7 +589,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         QtyPerUOM := QtyPerUoM2;
     end;
 
-    local procedure SetLineDisc(LineDiscPerCent2: Decimal; AllowLineDisc2: Boolean; AllowInvDisc2: Boolean)
+    procedure SetLineDisc(LineDiscPerCent2: Decimal; AllowLineDisc2: Boolean; AllowInvDisc2: Boolean)
     begin
         LineDiscPerCent := LineDiscPerCent2;
         AllowLineDisc := AllowLineDisc2;
@@ -603,7 +603,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         exit(MinQty <= Qty);
     end;
 
-    local procedure ConvertPriceToVAT(FromPricesInclVAT: Boolean; FromVATProdPostingGr: Code[20]; FromVATBusPostingGr: Code[20]; var UnitPrice: Decimal)
+    procedure ConvertPriceToVAT(FromPricesInclVAT: Boolean; FromVATProdPostingGr: Code[20]; FromVATBusPostingGr: Code[20]; var UnitPrice: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -646,7 +646,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             UnitPrice := UnitPrice * QtyPerUOM;
     end;
 
-    local procedure ConvertPriceLCYToFCY(CurrencyCode: Code[10]; var UnitPrice: Decimal)
+    procedure ConvertPriceLCYToFCY(CurrencyCode: Code[10]; var UnitPrice: Decimal)
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
@@ -950,9 +950,15 @@ codeunit 7000 "Sales Price Calc. Mgt."
     var
         FromCampaignTargetGr: Record "Campaign Target Group";
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
         if not ToCampaignTargetGr.IsTemporary then
             Error(TempTableErr);
+
+        IsHandled := false;
+        OnBeforeActivatedCampaignExists(ToCampaignTargetGr, CustNo, ContNo, CampaignNo, IsHandled);
+        IF IsHandled then
+            exit;
 
         with FromCampaignTargetGr do begin
             ToCampaignTargetGr.Reset;
@@ -1124,6 +1130,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobItemPrice.SetRange("Unit of Measure Code", "Unit of Measure Code");
                         JobItemPrice.SetRange("Currency Code", "Currency Code");
                         JobItemPrice.SetRange("Job Task No.", "Job Task No.");
+                        OnJobPlanningLineFindJTPriceOnAfterSetJobItemPriceFilters(JobItemPrice, JobPlanningLine);
                         if JobItemPrice.FindFirst then
                             CopyJobItemPriceToJobPlanLine(JobPlanningLine, JobItemPrice)
                         else begin
@@ -1141,6 +1148,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobResPrice.SetRange("Job No.", "Job No.");
                         JobResPrice.SetRange("Currency Code", "Currency Code");
                         JobResPrice.SetRange("Job Task No.", "Job Task No.");
+                        OnJobPlanningLineFindJTPriceOnAfterSetJobResPriceFilters(JobResPrice, JobPlanningLine);
                         case true of
                             JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::Resource):
                                 CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
@@ -1167,6 +1175,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobGLAccPrice.SetRange("G/L Account No.", "No.");
                         JobGLAccPrice.SetRange("Currency Code", "Currency Code");
                         JobGLAccPrice.SetRange("Job Task No.", "Job Task No.");
+                        OnJobPlanningLineFindJTPriceOnAfterSetJobGLAccPriceFilters(JobGLAccPrice, JobPlanningLine);
                         if JobGLAccPrice.FindFirst then
                             CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice)
                         else begin
@@ -1518,7 +1527,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindItemJnlLinePrice(var ItemJournalLine: Record "Item Journal Line"; var SalesPrice: Record "Sales Price"; CalledByFieldNo: Integer)
+    local procedure OnAfterFindItemJnlLinePrice(var ItemJournalLine: Record "Item Journal Line"; var SalesPrice: Record "Sales Price"; CalledByFieldNo: Integer; FoundSalesPrice: Boolean)
     begin
     end;
 
@@ -1648,6 +1657,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivatedCampaignExists(var ToCampaignTargetGr: Record "Campaign Target Group"; CustNo: Code[20]; ContNo: Code[20]; CampaignNo: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBestUnitPrice(var SalesPrice: Record "Sales Price")
     begin
     end;
@@ -1764,6 +1778,21 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindSalesLineLineDiscOnBeforeCalcLineDisc(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var TempSalesLineDiscount: Record "Sales Line Discount" temporary; Qty: Decimal; QtyPerUOM: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineFindJTPriceOnAfterSetJobGLAccPriceFilters(var JobItemPrice: Record "Job G/L Account Price"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineFindJTPriceOnAfterSetJobItemPriceFilters(var JobItemPrice: Record "Job Item Price"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineFindJTPriceOnAfterSetJobResPriceFilters(var JobResPrice: Record "Job Resource Price"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

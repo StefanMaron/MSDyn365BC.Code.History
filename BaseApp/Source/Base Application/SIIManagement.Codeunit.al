@@ -192,6 +192,63 @@ codeunit 10756 "SII Management"
         exit(SIIDocUploadState.IDType::"06-Other Probative Document");
     end;
 
+    procedure GetVendFromLedgEntryByGLSetup(VendorLedgerEntry: Record "Vendor Ledger Entry"): Code[20]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get;
+        case GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." of
+            GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.":
+                exit(VendorLedgerEntry."Vendor No.");
+            GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.":
+                exit(VendorLedgerEntry."Buy-from Vendor No.");
+        end;
+    end;
+
+    procedure GetCustFromLedgEntryByGLSetup(CustLedgerEntry: Record "Cust. Ledger Entry"): Code[20]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get;
+        case GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." of
+            GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.":
+                exit(CustLedgerEntry."Customer No.");
+            GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.":
+                exit(CustLedgerEntry."Sell-to Customer No.");
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetNoTaxablePurchAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        if NoTaxableEntriesExistPurchase(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate) then begin
+            NoTaxableEntry.CalcSums("Amount (LCY)");
+            NoTaxableAmount := -NoTaxableEntry."Amount (LCY)";
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetNoTaxableSalesAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        if NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule) then begin
+            NoTaxableEntry.CalcSums("Amount (LCY)");
+            NoTaxableAmount := -NoTaxableEntry."Amount (LCY)";
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    procedure GetBaseImponibleACosteRegimeCode(): Text
+    begin
+        exit('06');
+    end;
+
     [Scope('OnPrem')]
     procedure SIIStateDrilldown(var SIIDocUploadState: Record "SII Doc. Upload State")
     var

@@ -1,23 +1,5 @@
 codeunit 144075 "ERM No Taxable VAT"
 {
-    // 1. Test to verify VAT Entry does not exists for Posted Sales Order with No Taxable VAT.
-    // 2. Test to verify VAT Entry does not exists for Posted Sales Credit Memo with No Taxable VAT.
-    // 3. Test to verify VAT Entry does not exists for Posted Purchase Order with No Taxable VAT.
-    // 4. Test to verify VAT Entry does not exists for Posted Purchase Credit Memo with No Taxable VAT.
-    // 5. Test to verify values on Sales Invoice Book report for posted Sales Invoice with VAT Calculation Type as No Taxable VAT.
-    // 6. Test to verify values on Sales Invoice Book report for posted Sales Credit Memo with VAT Calculation Type as No Taxable VAT.
-    // 7. Test to verify values on Purchase Invoice Book report for posted Purchase Invoice with VAT Calculation Type as No Taxable VAT.
-    // 8. Test to verify values on Purchase Invoice Book report for posted Purchase Credit Memo with VAT Calculation Type as No Taxable VAT.
-    // 
-    // Covers Test Cases for WI - 351894
-    // ---------------------------------------------------------------------------------------------------------
-    // Test Function Name                                                                                 TFS ID
-    // ---------------------------------------------------------------------------------------------------------
-    // PostSalesOrderWithNoTaxableVAT, PostSalesCreditMemoWithNoTaxableVAT                                282268
-    // PostPurchaseOrderWithNoTaxableVAT, PostPurchaseCreditMemoWithNoTaxableVAT                          282269
-    // SalesInvoiceBookReportForPostedSalesInvoice, SalesInvoiceBookReportForPostedSalesCreditMemo        282270
-    // PurchaseInvoiceBookReportForPostedPurchInvoice, PurchaseInvoiceBookReportForPostedPurchCreditMemo  282271
-
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -63,24 +45,6 @@ codeunit 144075 "ERM No Taxable VAT"
         PostSalesDocumentWithNoTaxableVAT(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostSalesDocumentWithNoTaxableVAT(DocumentType: Option)
-    var
-        SalesHeader: Record "Sales Header";
-        VATPostingSetup: Record "VAT Posting Setup";
-        DocumentNo: Code[20];
-    begin
-        // Setup.
-        Initialize;
-        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
-        CreateSalesDocument(SalesHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
-
-        // Exercise.
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
-
-        // Verify.
-        VerifyNoVATEntryExist(DocumentNo);
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure PostPurchaseOrderWithNoTaxableVAT()
@@ -103,24 +67,6 @@ codeunit 144075 "ERM No Taxable VAT"
         PostPurchaseDocumentWithNoTaxableVAT(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostPurchaseDocumentWithNoTaxableVAT(DocumentType: Option)
-    var
-        PurchaseHeader: Record "Purchase Header";
-        VATPostingSetup: Record "VAT Posting Setup";
-        DocumentNo: Code[20];
-    begin
-        // Setup.
-        Initialize;
-        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
-        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
-
-        // Exercise.
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
-
-        // Verify.
-        VerifyNoVATEntryExist(DocumentNo);
-    end;
-
     [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,SalesInvoiceBookRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceBookReportForPostedSalesInvoice()
@@ -132,7 +78,8 @@ codeunit 144075 "ERM No Taxable VAT"
         // [SCENARIO 293795] Sales Invoice Book report for posted Sales Invoice with VAT Calculation Type as No Taxable VAT.
         Initialize;
         Quantity := LibraryRandom.RandInt(10);
-        SalesInvoiceBookReportWithNoTaxableVAT(SalesHeader."Document Type"::Invoice, Quantity, Quantity);
+        SalesInvoiceBookReportWithNoTaxableVAT(
+          SalesHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
     end;
 
     [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,SalesInvoiceBookRequestPageHandler')]
@@ -146,37 +93,8 @@ codeunit 144075 "ERM No Taxable VAT"
         // [SCENARIO 293795] Sales Invoice Book report for posted Sales Credit Memo with VAT Calculation Type as No Taxable VAT.
         Initialize;
         Quantity := LibraryRandom.RandInt(10);
-        SalesInvoiceBookReportWithNoTaxableVAT(SalesHeader."Document Type"::"Credit Memo", Quantity, -Quantity);
-    end;
-
-    local procedure SalesInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; ExpectedQuantity: Decimal)
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesLine2: Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        DocumentNo: Code[20];
-        Amount: Decimal;
-        VATAmount: Decimal;
-    begin
-        // Setup: Create Sales Document with Normal VAT for Item and Item Charge, No Taxable VAT for G/L Account. Post Sales Document.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreateSalesDocument(SalesHeader, VATPostingSetup, DocumentType, Quantity);
-        CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
-        SalesLine.ShowItemChargeAssgnt;
-        CreateSalesLine(
-          SalesLine2, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccountWithNoTaxableVAT, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
-        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for SalesInvoiceBookRequestPageHandler.
-        Amount := ExpectedQuantity * SalesLine."Unit Price";
-        VATAmount := Amount * VATPostingSetup."VAT %" / 100;
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales Invoice Book");  // Opens SalesInvoiceBookRequestPageHandler.
-
-        // Verify: Sales Invoice Book report shows Amounts for Item and Item Charge Sales lines and not for G/L Account.
-        VerifyXmlValuesOnReport(VATAmount + VATAmount, Amount + Amount, DocumentNo, SalesLine2.Amount);
+        SalesInvoiceBookReportWithNoTaxableVAT(
+          SalesHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
     end;
 
     [Test]
@@ -191,7 +109,8 @@ codeunit 144075 "ERM No Taxable VAT"
         // [SCENARIO 293795] Purchase Invoice Book report for posted Purchase Invoice with VAT Calculation Type as No Taxable VAT.
         Initialize;
         Quantity := LibraryRandom.RandInt(10);
-        PurchaseInvoiceBookReportWithNoTaxableVAT(PurchaseHeader."Document Type"::Invoice, Quantity, Quantity);
+        PurchaseInvoiceBookReportWithNoTaxableVAT(
+          PurchaseHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
     end;
 
     [Test]
@@ -206,39 +125,63 @@ codeunit 144075 "ERM No Taxable VAT"
         // [SCENARIO 293795] Purchase Invoice Book report for posted Purchase Credit Memo with VAT Calculation Type as No Taxable VAT.
         Initialize;
         Quantity := LibraryRandom.RandInt(10);
-        PurchaseInvoiceBookReportWithNoTaxableVAT(PurchaseHeader."Document Type"::"Credit Memo", Quantity, -Quantity);
+        PurchaseInvoiceBookReportWithNoTaxableVAT(
+          PurchaseHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
     end;
 
-    local procedure PurchaseInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; ExpectedQuantity: Decimal)
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,SalesInvoiceBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceBookReportNotIn347()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineChargeItem: Record "Sales Line";
+        SalesLineGLAccount: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Report]
+        // [SCENARIO 323351] Sales Invoice Book report does not show No Taxable VAT that ignores in 347 report.
+
+        Initialize;
+
+        // [GIVEN] Posted sales invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
+        PostSalesDocForNoTaxableScenario(
+          DocumentNo, SalesLineChargeItem, SalesLineGLAccount,
+          SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report);
+        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for SalesInvoiceBookRequestPageHandler.
+
+        // [WHEN] Run Sales Invoice Book
+        REPORT.Run(REPORT::"Sales Invoice Book");  // Opens SalesInvoiceBookRequestPageHandler.
+
+        // [THEN] No information about posted invoice "A" in the report
+        VerifyNoXmlValuesOnReport(DocumentNo, SalesLineGLAccount."Sell-to Customer No.", SalesLineGLAccount.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler,PurchasesInvoiceBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceBookReportNotIn347()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseLine2: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        PurchaseLineGLAccount: Record "Purchase Line";
         DocumentNo: Code[20];
-        Amount: Decimal;
-        VATAmount: Decimal;
     begin
-        // Setup: Create Purchase Document with Normal VAT for Item and Item Charge, No Taxable VAT for G/L Account. Post Purchase Document.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, DocumentType, Quantity);
-        CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"),
-          Quantity);
-        PurchaseLine.ShowItemChargeAssgnt;
-        CreatePurchaseLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccountWithNoTaxableVAT,
-          LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
-        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for PurchasesInvoiceBookRequestPageHandler.
-        Amount := ExpectedQuantity * PurchaseLine."Direct Unit Cost";
-        VATAmount := Amount * VATPostingSetup."VAT %" / 100;
+        // [FEATURE] [Purchase] [Report]
+        // [SCENARIO 323351] Purchases Invoice Book report does not show No Taxable VAT that ignores in 347 report.
 
-        // Exercise.
+        Initialize;
+
+        // [GIVEN] Posted purchase invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
+        PostPurchDocForNoTaxableScenario(
+          DocumentNo, PurchaseLineChargeItem, PurchaseLineGLAccount,
+          PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report);
+        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for PurchasesInvoiceBookRequestPageHandler.
+
+        // [WHEN] Run Purchases Invoice Book
         REPORT.Run(REPORT::"Purchases Invoice Book");  // Opens PurchasesInvoiceBookRequestPageHandler.
 
-        // Verify: Purchases Invoice Book report shows Amounts for Item and Item Charge Purchase lines and not for G/L Account.
-        VerifyXmlValuesOnReport(VATAmount + VATAmount, Amount + Amount, DocumentNo, PurchaseLine2.Amount);
+        // [THEN] No information about posted invoice "A" in the report
+        VerifyNoXmlValuesOnReport(DocumentNo, PurchaseLineGLAccount."Buy-from Vendor No.", PurchaseLineGLAccount.Amount);
     end;
 
     local procedure Initialize()
@@ -260,6 +203,16 @@ codeunit 144075 "ERM No Taxable VAT"
         GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateNoTaxGLAccNotIn347Report(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(CreateGLAccountWithNoTaxableVAT);
+        GLAccount.Validate("Ignore in 347 Report", true);
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -333,6 +286,126 @@ codeunit 144075 "ERM No Taxable VAT"
         VATPostingSetup.FindFirst;
     end;
 
+    local procedure PostSalesDocumentWithNoTaxableVAT(DocumentType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+    begin
+        // Setup.
+        Initialize;
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreateSalesDocument(SalesHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
+
+        // Exercise.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
+
+        // Verify.
+        VerifyNoVATEntryExist(DocumentNo);
+    end;
+
+    local procedure SalesInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
+    var
+        SalesLineChargeItem: Record "Sales Line";
+        SalesLineGLAccount: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        VATAmount: Decimal;
+    begin
+        // Setup: Create Sales Document with Normal VAT for Item and Item Charge, No Taxable VAT for G/L Account. Post Sales Document.
+        PostSalesDocForNoTaxableScenario(
+          DocumentNo, SalesLineChargeItem, SalesLineGLAccount, DocumentType, Quantity, GLAccNo);
+        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for SalesInvoiceBookRequestPageHandler.
+        Amount := Sign * Quantity * SalesLineChargeItem."Unit Price";
+        VATPostingSetup.Get(SalesLineChargeItem."VAT Bus. Posting Group", SalesLineChargeItem."VAT Prod. Posting Group");
+        VATAmount := Amount * VATPostingSetup."VAT %" / 100;
+
+        // Exercise.
+        REPORT.Run(REPORT::"Sales Invoice Book");  // Opens SalesInvoiceBookRequestPageHandler.
+
+        // Verify: Sales Invoice Book report shows Amounts for Item and Item Charge Sales lines and not for G/L Account.
+        VerifyXmlValuesOnReport(
+          VATAmount + VATAmount, Amount + Amount, DocumentNo,
+          SalesLineGLAccount."Sell-to Customer No.", Sign * SalesLineGLAccount.Amount);
+    end;
+
+    local procedure PostPurchaseDocumentWithNoTaxableVAT(DocumentType: Option)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+    begin
+        // Setup.
+        Initialize;
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
+
+        // Exercise.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
+
+        // Verify.
+        VerifyNoVATEntryExist(DocumentNo);
+    end;
+
+    local procedure PurchaseInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
+    var
+        PurchaseLineChargeItem: Record "Purchase Line";
+        PurchaseLineGLAccount: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        VATAmount: Decimal;
+    begin
+        PostPurchDocForNoTaxableScenario(
+          DocumentNo, PurchaseLineChargeItem, PurchaseLineGLAccount, DocumentType, Quantity, GLAccNo);
+
+        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for PurchasesInvoiceBookRequestPageHandler.
+        Amount := Sign * Quantity * PurchaseLineChargeItem."Direct Unit Cost";
+        VATPostingSetup.Get(PurchaseLineChargeItem."VAT Bus. Posting Group", PurchaseLineChargeItem."VAT Prod. Posting Group");
+        VATAmount := Amount * VATPostingSetup."VAT %" / 100;
+
+        // Exercise.
+        REPORT.Run(REPORT::"Purchases Invoice Book");  // Opens PurchasesInvoiceBookRequestPageHandler.
+
+        // Verify: Purchases Invoice Book report shows Amounts for Item and Item Charge Purchase lines and not for G/L Account.
+        VerifyXmlValuesOnReport(
+          VATAmount + VATAmount, Amount + Amount, DocumentNo,
+          PurchaseLineGLAccount."Buy-from Vendor No.", Sign * PurchaseLineGLAccount.Amount);
+    end;
+
+    local procedure PostSalesDocForNoTaxableScenario(var DocumentNo: Code[20]; var SalesLineChargeItem: Record "Sales Line"; var SalesLineGLAccount: Record "Sales Line"; DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateSalesDocument(SalesHeader, VATPostingSetup, DocumentType, Quantity);
+        CreateSalesLine(
+          SalesLineChargeItem, SalesHeader, SalesLineChargeItem.Type::"Charge (Item)",
+          CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
+        SalesLineChargeItem.ShowItemChargeAssgnt;
+        CreateSalesLine(
+          SalesLineGLAccount, SalesHeader, SalesLineGLAccount.Type::"G/L Account", GLAccNo, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
+    end;
+
+    local procedure PostPurchDocForNoTaxableScenario(var DocumentNo: Code[20]; var PurchLineChargeItem: Record "Purchase Line"; var PurchLineGLAccount: Record "Purchase Line"; DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, DocumentType, Quantity);
+        CreatePurchaseLine(
+          PurchLineChargeItem, PurchaseHeader, PurchLineChargeItem.Type::"Charge (Item)",
+          CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
+        PurchLineChargeItem.ShowItemChargeAssgnt;
+        CreatePurchaseLine(
+          PurchLineGLAccount, PurchaseHeader, PurchLineGLAccount.Type::"G/L Account", GLAccNo, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.
+    end;
+
     local procedure VerifyNoVATEntryExist(DocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
@@ -341,14 +414,23 @@ codeunit 144075 "ERM No Taxable VAT"
         Assert.IsFalse(VATEntry.FindFirst, VATEntryMustNotExistMsg);
     end;
 
-    local procedure VerifyXmlValuesOnReport(Amount: Decimal; Base: Decimal; DocumentNo: Code[20]; NoTaxAmount: Decimal)
+    local procedure VerifyXmlValuesOnReport(Amount: Decimal; Base: Decimal; DocumentNo: Code[20]; SourceNo: Code[20]; NoTaxAmount: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(VATBufferAmountCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(VATBufferBaseCap, Base);
         LibraryReportDataset.AssertElementWithValueExists(VATBufferBaseAmountCap, Base + Amount);
+        LibraryReportDataset.SetRange('SourceNo_NoTaxableEntry', SourceNo);
         LibraryReportDataset.AssertElementWithValueExists('DocumentNo_NoTaxableEntry', DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('Base_NoTaxableEntry', NoTaxAmount);
+    end;
+
+    local procedure VerifyNoXmlValuesOnReport(DocumentNo: Code[20]; SourceNo: Code[20]; NoTaxAmount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('SourceNo_NoTaxableEntry', SourceNo);
+        LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_NoTaxableEntry', DocumentNo);
+        LibraryReportDataset.AssertElementWithValueNotExist('Base_NoTaxableEntry', NoTaxAmount);
     end;
 
     [ModalPageHandler]
@@ -374,6 +456,7 @@ codeunit 144075 "ERM No Taxable VAT"
         LibraryVariableStorage.Dequeue(DocumentNo);
         PurchasesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate));
         PurchasesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
+        PurchasesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
         PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -386,6 +469,7 @@ codeunit 144075 "ERM No Taxable VAT"
         LibraryVariableStorage.Dequeue(DocumentNo);
         SalesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate));
         SalesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
+        SalesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

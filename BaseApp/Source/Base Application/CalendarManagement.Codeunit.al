@@ -481,7 +481,8 @@ codeunit 7600 "Calendar Management"
         Evaluate(Formula, DateFormulaExpr);
         NewDateFormulaExpr := ConvertStr(Format(Formula), '+-', '-+');
         if not (DateFormulaExpr[1] in ['+', '-']) then
-            NewDateFormulaExpr := '-' + NewDateFormulaExpr;
+            if NewDateFormulaExpr <> '<0D>' then
+                NewDateFormulaExpr := '-' + NewDateFormulaExpr;
         exit(NewDateFormulaExpr);
     end;
 

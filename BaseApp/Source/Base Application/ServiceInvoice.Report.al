@@ -605,7 +605,7 @@ report 5911 "Service - Invoice"
                             VATAmountLine.GetLine(Number);
                             if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                                 CurrReport.Skip;
-                            VATClause.TranslateDescription("Service Invoice Header"."Language Code");
+                            VATClause.GetDescription("Service Invoice Header");
                         end;
 
                         trigger OnPreDataItem()
@@ -1088,7 +1088,7 @@ report 5911 "Service - Invoice"
         until DimSetEntry.Next = 0;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure GetCarteraInvoice(): Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";

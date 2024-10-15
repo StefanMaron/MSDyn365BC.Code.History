@@ -29,8 +29,11 @@ page 20041 "APIV1 - Time Registr. Entries"
                             EXIT;
                         END;
 
-                        Employee.SETRANGE(Id, "Employee Id");
-                        IF NOT Employee.FINDFIRST() THEN
+                        if HasFilter() then
+                            if "Employee Id" <> GetFilter("Employee Id") then
+                                Error(CannotChangeEmployeeIdErr);
+
+                        IF NOT Employee.GetBySystemId("Employee Id") THEN
                             ERROR(EmployeeIdDoesNotMatchAnEmployeeErr);
 
                         "Employee No" := Employee."No.";
@@ -56,7 +59,11 @@ page 20041 "APIV1 - Time Registr. Entries"
                         IF NOT Employee.GET("Employee No") THEN
                             ERROR(EmployeeNumberDoesNotMatchAnEmployeeErr);
 
-                        VALIDATE("Employee Id", Employee.Id);
+                        if HasFilter() then
+                            if Employee.SystemId <> GetFilter("Employee Id") then
+                                Error(CannotChangeEmployeeNumberErr);
+
+                        VALIDATE("Employee Id", Employee.SystemId);
                     end;
 
                 }
@@ -71,8 +78,7 @@ page 20041 "APIV1 - Time Registr. Entries"
                             EXIT;
                         END;
 
-                        Job.SETRANGE(Id, "Job Id");
-                        IF NOT Job.FINDFIRST() THEN
+                        IF NOT Job.GetBySystemId("Job Id") THEN
                             ERROR(JobIdDoesNotMatchAJobErr);
 
                         "Job No." := Job."No.";
@@ -98,7 +104,7 @@ page 20041 "APIV1 - Time Registr. Entries"
                         IF NOT Job.GET("Job No.") THEN
                             ERROR(JobNumberDoesNotMatchAJobErr);
 
-                        VALIDATE("Job Id", Job.Id);
+                        VALIDATE("Job Id", Job.SystemId);
                     end;
 
                 }
@@ -239,6 +245,8 @@ page 20041 "APIV1 - Time Registr. Entries"
         JobNumberDoesNotMatchAJobErr: label 'The "jobNumber" does not match to a Job.', Locked = true;
         CannotModifyEmployeeIdErr: Label 'The employee ID cannot be modified.', Locked = true;
         CannotModifyDateErr: Label 'The date cannot be modified.', Locked = true;
+        CannotChangeEmployeeIdErr: Label 'Value for employee ID cannot be modified.', Locked = true;
+        CannotChangeEmployeeNumberErr: Label 'Value for employee number cannot be modified.', Locked = true;
 
     local procedure SetCalculatedFields()
     var

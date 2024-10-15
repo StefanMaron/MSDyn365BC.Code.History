@@ -811,6 +811,70 @@ codeunit 147316 "Test 347 Declaration"
         SetGeneralLedgerSetupVATCashRegime(OldGeneralLedgerSetupVATCashRegime);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunFormatTextNameOnLongCustomerName()
+    var
+        Customer: Record Customer;
+        Make347Declaration: Report "Make 347 Declaration";
+        FormattedName: Text[100];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 328188] Run FormatTextName function of "Make 347 Declaration" report on long Customer Name.
+
+        // [GIVEN] Customer Name of length 100.
+        Customer.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer.Name), 0), 1, MaxStrLen(Customer.Name));
+
+        // [WHEN] Run FormatTextName function of "Make 347 Declaration" report.
+        FormattedName := Make347Declaration.FormatTextName(Customer.Name);
+
+        // [THEN] Fuction runs without errors.
+        Customer.TestField(Name, FormattedName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunFormatTextNameOnLongVendorName()
+    var
+        Vendor: Record Vendor;
+        Make347Declaration: Report "Make 347 Declaration";
+        FormattedName: Text[100];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 328188] Run FormatTextName function of "Make 347 Declaration" report on long Vendor Name.
+
+        // [GIVEN] Vendor Name of length 100.
+        Vendor.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0), 1, MaxStrLen(Vendor.Name));
+
+        // [WHEN] Run FormatTextName function of "Make 347 Declaration" report.
+        FormattedName := Make347Declaration.FormatTextName(Vendor.Name);
+
+        // [THEN] Fuction runs without errors.
+        Vendor.TestField(Name, FormattedName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunFormatTextNameOnLongComanyName()
+    var
+        CompanyInfo: Record "Company Information";
+        Make347Declaration: Report "Make 347 Declaration";
+        FormattedName: Text[100];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 328188] Run FormatTextName function of "Make 347 Declaration" report on long Company Name.
+
+        // [GIVEN] Company Name of length 100.
+        CompanyInfo.Name :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(CompanyInfo.Name), 0), 1, MaxStrLen(CompanyInfo.Name));
+
+        // [WHEN] Run FormatTextName function of "Make 347 Declaration" report.
+        FormattedName := Make347Declaration.FormatTextName(CompanyInfo.Name);
+
+        // [THEN] Fuction runs without errors.
+        CompanyInfo.TestField(Name, FormattedName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

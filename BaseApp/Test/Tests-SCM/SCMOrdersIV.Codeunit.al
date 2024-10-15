@@ -43,7 +43,6 @@ codeunit 137156 "SCM Orders IV"
         UndoShipmentMsg: Label 'Do you really want to undo the selected Shipment lines?';
         UndoReturnReceiptMsg: Label 'Do you really want to undo the selected Return Receipt lines?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
-        CannotUndoItemChargeLineForShipmentErr: Label 'Undo Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         CannotUndoReservedQuantityErr: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry';
         BlockedItemErrorMsg: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''', Comment = '%1 = Item No';
         SalesLineDiscountMustBeDeletedErr: Label 'Sales Line Discount must be deleted.';
@@ -270,29 +269,6 @@ codeunit 137156 "SCM Orders IV"
         // Setup.
         Initialize;
         CreateAndPostInventoryPutAwayAndPickFromSalesOrderWithShippingAdviceComplete(true);  // TRUE for Show Error.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CannotUndoSalesShipmentForItemCharge()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // Setup: Create and post Sales Order with Item Charge.
-        Initialize;
-        PostedDocumentNo :=
-          CreateAndPostSalesDocument(
-            SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::"Charge (Item)", LibrarySales.CreateCustomerNo,
-            LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(50, 2),
-            WorkDate, '', LibraryRandom.RandDec(50, 2), false);
-
-        // Exercise: Undo Sales Shipment.
-        asserterror UndoSalesShipmentLine(PostedDocumentNo);
-
-        // Verify: Error Message while Undo Return Shipment Line for Charge Item.
-        Assert.ExpectedError(CannotUndoItemChargeLineForShipmentErr);
     end;
 
     [Test]

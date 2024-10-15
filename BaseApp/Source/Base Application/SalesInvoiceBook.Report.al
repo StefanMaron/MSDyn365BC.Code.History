@@ -1009,7 +1009,8 @@ report 10704 "Sales Invoice Book"
             }
             dataitem("No Taxable Entry"; "No Taxable Entry")
             {
-                DataItemTableView = SORTING("Entry No.") WHERE(Type = CONST(Sale), Reversed = CONST(false));
+                DataItemTableView = SORTING("Entry No.") WHERE(Type = CONST(Sale), Reversed = CONST(false), "Not In 347" = CONST(false));
+                RequestFilterFields = "Posting Date", "Document Type", "Document No.";
                 column(PostingDate_NoTaxableEntry; Format("Posting Date"))
                 {
                 }

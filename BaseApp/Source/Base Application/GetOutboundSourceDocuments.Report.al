@@ -58,6 +58,8 @@ report 7304 "Get Outbound Source Documents"
                        "Whse. Pick Request"."Document Type"::Shipment
                     then
                         CurrReport.Break;
+
+                    OnWhseShipHeaderOnPreDataItem("Warehouse Shipment Header");
                 end;
             }
             dataitem("Whse. Internal Pick Header"; "Whse. Internal Pick Header")
@@ -158,6 +160,11 @@ report 7304 "Get Outbound Source Documents"
                         CurrReport.Break;
                 end;
             }
+
+            trigger OnAfterGetRecord()
+            begin
+                OnBeforeWhsePickRequestOnAfterGetRecord("Whse. Pick Request", PickWkshTemplate, PickWkshName, LocationCode, LineCreated);
+            end;
         }
     }
 
@@ -254,6 +261,16 @@ report 7304 "Get Outbound Source Documents"
         if IsPickToBeMadeForAsmLine(AsmLine) then
             if WhsePickWkshCreate.FromAssemblyLineInATOWhseShpt(PickWkshTemplate, PickWkshName, AsmLine, WhseShptLine) then
                 LineCreated := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhsePickRequestOnAfterGetRecord(var WhsePickRequest: Record "Whse. Pick Request"; PickWkshTemplate: Code[10]; PickWkshName: Code[10]; LocationCode: Code[10]; var LineCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseShipHeaderOnPreDataItem(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
     end;
 }
 

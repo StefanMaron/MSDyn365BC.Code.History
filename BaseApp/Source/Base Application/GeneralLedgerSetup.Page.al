@@ -125,7 +125,7 @@ page 118 "General Ledger Setup"
                 }
                 field("VAT Cash Regime"; "VAT Cash Regime")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if tax payment can be deferred to the time of receiving the billed amount. ';
                 }
                 field("Unrealized VAT"; "Unrealized VAT")
@@ -158,7 +158,7 @@ page 118 "General Ledger Setup"
                 }
                 field("VAT Rounding Type"; "VAT Rounding Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the program will round VAT when calculated for the local currency.';
                 }
                 field("Tax Invoice Renaming Threshold"; "Tax Invoice Renaming Threshold")
@@ -565,7 +565,7 @@ page 118 "General Ledger Setup"
                 Caption = 'VAT Posting';
                 action("VAT Posting Setup")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Posting Setup';
                     Image = VATPostingSetup;
                     Promoted = true;
@@ -576,7 +576,7 @@ page 118 "General Ledger Setup"
                 }
                 action("VAT Business Posting Groups")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Business Posting Groups';
                     Image = VATPostingSetup;
                     Promoted = true;
@@ -587,7 +587,7 @@ page 118 "General Ledger Setup"
                 }
                 action("VAT Product Posting Groups")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Product Posting Groups';
                     Image = VATPostingSetup;
                     Promoted = true;

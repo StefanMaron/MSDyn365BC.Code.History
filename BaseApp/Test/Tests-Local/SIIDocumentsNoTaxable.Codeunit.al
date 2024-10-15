@@ -2036,6 +2036,57 @@ codeunit 147524 "SII Documents No Taxable"
           SIIXMLCreator.FormatNumber(-LibrarySII.CalcSalesNoTaxableAmount(CustLedgerEntry)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReplacementCrMemoWithNonTaxableLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+        InvNo: Code[20];
+        InvNonTaxableAmount: Decimal;
+        CrMemoNonTaxableAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 327256] XML has nodes for non taxable amount if No Taxable VAT line exist in Replacement Sales Credit Memo
+
+        Initialize;
+
+        LibrarySII.CreateForeignCustWithVATSetup(Customer);
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateSpecificNoTaxableVATSetup(Customer."VAT Bus. Posting Group", false, 0));
+
+        // [GIVEN] Posted Replacement Sales Invoice "A" with "VAT Calculation Type" = "No Taxable VAT", "VAT %" = 0 and Amount = 500
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+        InvNonTaxableAmount := GetNonTaxableAmountSales(SalesHeader, SalesLine);
+        InvNo := LibrarySales.PostSalesDocument(SalesHeader, false, false);
+
+        // [GIVEN] Posted Replacement Sales Cr Memo with two lines and "Corrected Invoice No" = "A", "VAT Calculation Type" = "Normal VAT", "VAT %" = 21 and Amount = 300
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        SalesHeader.Validate("Correction Type", SalesHeader."Correction Type"::Replacement);
+        SalesHeader.Validate("Corrected Invoice No.", InvNo);
+        SalesHeader.Modify(true);
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+        CrMemoNonTaxableAmount := GetNonTaxableAmountSales(SalesHeader, SalesLine);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Replacement Sales Credit Memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has sii:ImportePorArticulos7_14_Otros node for non taxable amount 200
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, StrSubstNo(XPathEUSalesNoTaxTok, 'sii:Entrega'), '',
+          SIIXMLCreator.FormatNumber(Abs(InvNonTaxableAmount - CrMemoNonTaxableAmount)));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

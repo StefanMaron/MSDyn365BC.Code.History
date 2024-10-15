@@ -162,6 +162,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         VATInfoSourceLineIsInserted: Boolean;
         SkippedLine: Boolean;
         PostingAfterCurrentFiscalYearConfirmed: Boolean;
+        IsHandled: Boolean;
         ExistVATNOReal: Boolean;
         IsBillFromJournal: Boolean;
     begin
@@ -270,10 +271,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo);
 
             // Copy register no. and current journal batch name to general journal
-            if GLReg.FindLast then
-                GLRegNo := GLReg."No."
-            else
-                GLRegNo := 0;
+            IsHandled := false;
+            OnProcessLinesOnBeforeSetGLRegNoToZero(GenJnlLine, GLRegNo, IsHandled);
+            if not IsHandled then
+                if GLReg.FindLast then
+                    GLRegNo := GLReg."No."
+                else
+                    GLRegNo := 0;
 
             Init;
             "Line No." := GLRegNo;
@@ -724,10 +728,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     GenJnlLine2.Correction := Correction;
                     GenJnlLine2."Transaction No." := "Transaction No.";
                     GenJnlLine2."Recurring Method" := "Recurring Method";
-                    if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor] then begin
-                        GenJnlLine2."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
-                        GenJnlLine2."Ship-to/Order Address Code" := "Ship-to/Order Address Code";
-                    end;
+                    if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor] then
+                        CopyGenJnlLineBalancingData(GenJnlLine2, AllocateGenJnlLine);
                     OnPostAllocationsOnBeforeCopyFromGenJnlAlloc(GenJnlLine2, AllocateGenJnlLine, Reversing);
                     repeat
                         GenJnlLine2.CopyFromGenJnlAllocation(GenJnlAlloc);
@@ -735,6 +737,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         GenJnlLine2."Shortcut Dimension 2 Code" := GenJnlAlloc."Shortcut Dimension 2 Code";
                         GenJnlLine2."Dimension Set ID" := GenJnlAlloc."Dimension Set ID";
                         GenJnlLine2."Allow Zero-Amount Posting" := true;
+                        OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(GenJnlLine2, AllocateGenJnlLine);
                         PrepareGenJnlLineAddCurr(GenJnlLine2);
                         if GenJnlTemplate.Recurring then
                             GenJnlLine2."Bill-to/Pay-to No." := TestNoCustVend(GenJnlLine2, CurrGenJnlLine);
@@ -1639,6 +1642,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(var GenJournalLine: Record "Gen. Journal Line"; AllocateGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostReversingLinesOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
@@ -1650,6 +1658,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessLinesOnAfterPostGenJnlLines(GenJournalLine: Record "Gen. Journal Line"; GLRegister: Record "G/L Register"; var GLRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessLinesOnBeforeSetGLRegNoToZero(var GenJournalLine: Record "Gen. Journal Line"; var GLRegNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -347,7 +347,7 @@ table 77 "Report Selections"
                 IsHandled := false;
                 OnBeforePrintDocument(TempReportSelections, IsGUI, RecVarToPrint, IsHandled);
                 if not IsHandled then
-                REPORT.RunModal(TempReportSelections."Report ID", IsGUI, false, RecVarToPrint);
+                    REPORT.RunModal(TempReportSelections."Report ID", IsGUI, false, RecVarToPrint);
 
                 OnAfterPrintDocument(TempReportSelections, IsGUI, RecVarToPrint);
 
@@ -1013,7 +1013,7 @@ table 77 "Report Selections"
         ToAddress: Text[250];
         IsHandled: Boolean;
     begin
-        OnBeforeGetVendorEmailAddress(BuyFromVendorNo, ToAddress, ReportUsage, IsHandled);
+        OnBeforeGetVendorEmailAddress(BuyFromVendorNo, ToAddress, ReportUsage, IsHandled, RecVar);
         if IsHandled then
             exit(ToAddress);
 
@@ -1308,7 +1308,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetVendorEmailAddress(BuyFromVendorNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean)
+    local procedure OnBeforeGetVendorEmailAddress(BuyFromVendorNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean; RecVar: Variant)
     begin
     end;
 

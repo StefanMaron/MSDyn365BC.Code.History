@@ -803,7 +803,7 @@ report 10743 "Make 340 Declaration"
 
     local procedure FormatTextName(NameString: Text[100]) Result: Text[100]
     var
-        TempString: Text[50];
+        TempString: Text[100];
         TempString1: Text[1];
     begin
         Clear(Result);

@@ -1260,6 +1260,47 @@ codeunit 137087 "SCM Order Planning - II"
         WarehouseEntry.FindFirst;
     end;
 
+    [Test]
+    [HandlerFunctions('GetAlternativeSupplyPageHandler')]
+    [Scope('OnPrem')]
+    procedure QuantityAvailableForTransferWithPreviouslyPlannedTransfer()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: array[2] of Record "Sales Header";
+        OrderPlanning: TestPage "Order Planning";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Order Planning] [Transfer]
+        // [SCENARIO 328253] Quantity Available For Transfer on Order Planning page shows quantity can be transferred from another location with previously planned transfers.
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Item with 100 pcs stored on location "Blue".
+        LibraryInventory.CreateItem(Item);
+        UpdateItemInventory(2 * Qty, Item."No.", LocationBlue.Code);
+
+        // [GIVEN] Two sales orders "SO1", "SO2" on location "Red", each order for 50 pcs.
+        CreateSalesOrder(SalesHeader[1], Item."No.", LocationRed.Code, Qty, Qty);
+        CreateSalesOrder(SalesHeader[2], Item."No.", LocationRed.Code, Qty, Qty);
+
+        // [GIVEN] Calculate plan.
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // [GIVEN] Open order planning page and place position on order "SO1".
+        // [GIVEN] Open "Available for transfer" page and set "SO1" to be fulfilled by a transfer from location "Blue".
+        OpenOrderPlanningPage(OrderPlanning, SalesHeader[1]."No.", Item."No.");
+        OrderPlanning.AvailableForTransfer.AssistEdit;
+
+        // [WHEN] Place position on sales order "SO2".
+        OrderPlanning.FILTER.SetFilter("Demand Order No.", SalesHeader[2]."No.");
+        OrderPlanning.Expand(true);
+        OrderPlanning.FILTER.SetFilter("No.", Item."No.");
+
+        // [THEN] "Available for Transfer" shows 50 available pcs for this order (total of 100 pcs minus 50 pcs for order "SO1").
+        OrderPlanning.AvailableForTransfer.AssertEquals(Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

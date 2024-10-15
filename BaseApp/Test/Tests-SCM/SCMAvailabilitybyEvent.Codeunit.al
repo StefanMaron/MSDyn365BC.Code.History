@@ -22,9 +22,11 @@ codeunit 137009 "SCM Availability by Event"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Initialized: Boolean;
@@ -33,6 +35,8 @@ codeunit 137009 "SCM Availability by Event"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Availability by Event");
         if Initialized then
             exit;
@@ -44,6 +48,8 @@ codeunit 137009 "SCM Availability by Event"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         NoSeriesSetup;
+
+        LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
         Commit;
 
@@ -104,7 +110,7 @@ codeunit 137009 "SCM Availability by Event"
         AutoReserveSalesLine(SalesLine);
 
         // [WHEN] Item availability by event is calculated
-        CalculateAvailabilityByEvent(TempInvtPageData, Item);
+        CalculateAvailabilityByEvent(TempInvtPageData, Item, '');
 
         // [THEN] "Reserved Receipt" = "Q"
         FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Purchase);
@@ -136,7 +142,7 @@ codeunit 137009 "SCM Availability by Event"
         AutoReservePurchaseLine(PurchaseLine);
 
         // [WHEN] Item availability by event is calculated
-        CalculateAvailabilityByEvent(TempInvtPageData, Item);
+        CalculateAvailabilityByEvent(TempInvtPageData, Item, '');
 
         // [THEN] "Reserved Requirement" = -"Q"
         FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::"Purch. Return");
@@ -189,7 +195,7 @@ codeunit 137009 "SCM Availability by Event"
         TransferLine.CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Shipped (Base)");
 
         // [WHEN] Calculate item availability by event.
-        CalculateAvailabilityByEvent(TempInvtPageData, Item);
+        CalculateAvailabilityByEvent(TempInvtPageData, Item, '');
 
         // [THEN] "Reserved Receipt" on the availability line representing the transfer is equal to "Q".
         FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Transfer);
@@ -310,6 +316,53 @@ codeunit 137009 "SCM Availability by Event"
         // Verifications are done in ItemAvailabilityLineListPageHandler and ProdOrderComponentPageHandler.
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure NetForecastByAssemblyDemandInAvailByEvent()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        AssemblyHeader: Record "Assembly Header";
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        TempInvtPageData: Record "Inventory Page Data" temporary;
+        QtyAsm: Decimal;
+        QtyForecast: Decimal;
+    begin
+        // [FEATURE] [Demand Forecast] [Assembly]
+        // [SCENARIO 328549] Assembly demand nets forecast on item availability by event page.
+        Initialize;
+        QtyForecast := LibraryRandom.RandIntInRange(100, 200);
+        QtyAsm := LibraryRandom.RandIntInRange(10, 20);
+
+        LibraryAssembly.SetStockoutWarning(false);
+
+        // [GIVEN] Assembled item "A" with component "C".
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, CompItem."No.", AsmItem."No.", '', 0, 1, true);
+
+        // [GIVEN] Assembly order for item "A". Demand of component "C" = 10 pcs.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AsmItem."No.", '', QtyAsm, '');
+
+        // [GIVEN] Add a demand forecast entry with item "C" and "Forecast Quantity" = 100 pcs.
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        LibraryManufacturing.CreateProductionForecastEntry(
+          ProductionForecastEntry, ProductionForecastName.Name, CompItem."No.", '', CalcDate('<-CM>', WorkDate), true);
+        ProductionForecastEntry.Validate("Qty. per Unit of Measure", 1);
+        ProductionForecastEntry.Validate("Forecast Quantity", QtyForecast);
+        ProductionForecastEntry.Modify(true);
+
+        // [WHEN] Calculate item availability by event.
+        CalculateAvailabilityByEvent(TempInvtPageData, CompItem, ProductionForecastName.Name);
+
+        // [THEN] Remaining forecast quantity = -90 pcs (the assembly demand is netting the forecast).
+        FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Forecast);
+        TempInvtPageData.TestField("Remaining Forecast", QtyAsm - QtyForecast);
+    end;
+
     local procedure AutoReservePurchaseLine(PurchaseLine: Record "Purchase Line")
     var
         ReservMgt: Codeunit "Reservation Management";
@@ -388,12 +441,12 @@ codeunit 137009 "SCM Availability by Event"
         PurchPayablesSetup.Modify(true);
     end;
 
-    local procedure CalculateAvailabilityByEvent(var TempInvtPageData: Record "Inventory Page Data" temporary; Item: Record Item)
+    local procedure CalculateAvailabilityByEvent(var TempInvtPageData: Record "Inventory Page Data" temporary; Item: Record Item; ForecastName: Code[10])
     var
         CalcInventoryPageData: Codeunit "Calc. Inventory Page Data";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        CalcInventoryPageData.Initialize(Item, '', false, 0D, false);
+        CalcInventoryPageData.Initialize(Item, ForecastName, false, 0D, false);
         CalcInventoryPageData.CreatePeriodEntries(TempInvtPageData, PeriodType::Day);
         TempInvtPageData.SetRange(Level, 0);
         TempInvtPageData.FindSet;
@@ -488,6 +541,12 @@ codeunit 137009 "SCM Availability by Event"
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure DummyNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Text: Text)
     begin
     end;
 

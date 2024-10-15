@@ -115,9 +115,9 @@ page 1351 "Posted Purch. Invoice - Update"
     var
         xPurchInvHeader: Record "Purch. Inv. Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
+        IsChanged :=
           ("Payment Reference" <> xPurchInvHeader."Payment Reference") or
           ("Creditor No." <> xPurchInvHeader."Creditor No.") or
           ("Ship-to Code" <> xPurchInvHeader."Ship-to Code") or
@@ -125,7 +125,9 @@ page 1351 "Posted Purch. Invoice - Update"
           ("Invoice Type" <> xPurchInvHeader."Invoice Type") or
           ("ID Type" <> xPurchInvHeader."ID Type") or
           ("Succeeded Company Name" <> xPurchInvHeader."Succeeded Company Name") or
-          ("Succeeded VAT Registration No." <> xPurchInvHeader."Succeeded VAT Registration No."));
+          ("Succeeded VAT Registration No." <> xPurchInvHeader."Succeeded VAT Registration No.");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -133,6 +135,11 @@ page 1351 "Posted Purch. Invoice - Update"
     begin
         Rec := PurchInvHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

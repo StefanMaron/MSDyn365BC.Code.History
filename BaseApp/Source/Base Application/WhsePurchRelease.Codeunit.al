@@ -71,19 +71,22 @@ codeunit 5772 "Whse.-Purch. Release"
         OnBeforeReopen(PurchHeader);
 
         with PurchHeader do begin
-            case "Document Type" of
-                "Document Type"::Order:
-                    WhseRqst.Type := WhseRqst.Type::Inbound;
-                "Document Type"::"Return Order":
-                    WhseRqst.Type := WhseRqst.Type::Outbound;
-            end;
-
             FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
             if not WhseRqst.IsEmpty then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
         end;
 
         OnAfterReopen(PurchHeader);
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateExternalDocNoForReleasedOrder(PurchHeader: Record "Purchase Header")
+    begin
+        with PurchHeader do begin
+            FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
+            if not WhseRqst.IsEmpty then
+                WhseRqst.ModifyAll("External Document No.", "Vendor Shipment No.");
+        end;
     end;
 
     local procedure CreateWhseRqst(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; WhseType: Option Inbound,Outbound)
@@ -132,7 +135,6 @@ codeunit 5772 "Whse.-Purch. Release"
         with WarehouseRequest do begin
             Reset;
             SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            SetRange(Type, Type);
             SetRange("Source Type", DATABASE::"Purchase Line");
             SetRange("Source Subtype", PurchaseHeader."Document Type");
             SetRange("Source No.", PurchaseHeader."No.");

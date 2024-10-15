@@ -57,8 +57,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
-                        PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", Rec)
+                        DoDrillDown;
                     end;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
@@ -68,8 +67,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
-                        PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", Rec)
+                        DoDrillDown;
                     end;
                 }
                 field("Remaining Amount"; "Remaining Amount")
@@ -467,6 +465,15 @@
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         SIIStateVisible := SIISetup.IsEnabled;
+    end;
+
+    local procedure DoDrillDown()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+    begin
+        PurchCrMemoHdr.Copy(Rec);
+        PurchCrMemoHdr.SetRange("No.");
+        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
     end;
 
     var

@@ -100,7 +100,7 @@ page 1327 "Adjust Inventory"
         LineNo: Integer;
     begin
         GetLocationsIncludingUnspecifiedLocation(not ApplicationAreaMgmtFacade.IsLocationEnabled, true);
-        SetRange("Directed Put-away and Pick", false);
+        SetRange("Bin Mandatory", false);
         LocationCount := Count;
 
         FindSet;

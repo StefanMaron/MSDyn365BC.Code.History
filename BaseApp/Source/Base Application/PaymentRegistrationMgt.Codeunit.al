@@ -68,6 +68,7 @@ codeunit 980 "Payment Registration Mgt."
         CustLedgerEntry: Record "Cust. Ledger Entry";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
+        PaymentToleranceManagement: Codeunit "Payment Tolerance Management";
     begin
         with PaymentRegistrationSetup do begin
             Get(UserId);
@@ -111,9 +112,10 @@ codeunit 980 "Payment Registration Mgt."
                     Validate("Currency Code", BankAcc."Currency Code");
                 end;
                 CheckCurrencyCode(TempPaymentRegistrationBuffer, GenJournalLine, PaymentRegistrationSetup, LumpPayment);
-                if LumpPayment then
-                    "Applies-to ID" := "Document No."
-                else begin
+                if LumpPayment then begin
+                    "Applies-to ID" := "Document No.";
+                    PaymentToleranceManagement.PmtTolGenJnl(GenJournalLine);
+                end else begin
                     Validate("Applies-to Doc. Type", TempPaymentRegistrationBuffer."Document Type");
                     Validate("Applies-to Doc. No.", TempPaymentRegistrationBuffer."Document No.");
                     if TempPaymentRegistrationBuffer."Document Type" = TempPaymentRegistrationBuffer."Document Type"::Bill then

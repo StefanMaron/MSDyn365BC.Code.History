@@ -468,7 +468,7 @@ table 5093 "Opportunity Entry"
                 Error(Text012);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure FinishWizard()
     var
         OppEntry: Record "Opportunity Entry";
@@ -530,7 +530,7 @@ table 5093 "Opportunity Entry"
             Error(Text009);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure FinishWizard2()
     var
         CreateNewTask: Boolean;

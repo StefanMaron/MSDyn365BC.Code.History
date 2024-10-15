@@ -19,7 +19,7 @@ codeunit 147525 "SII Documents Exemption"
         Assert: Codeunit Assert;
         LibrarySII: Codeunit "Library - SII";
         SIIXMLCreator: Codeunit "SII XML Creator";
-        XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA';
+        XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         XPathSalesExentaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseFactura/sii:Sujeta/sii:Exenta/sii:DetalleExenta/';
@@ -48,7 +48,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] XML files has nodes with VAT Exemption details
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E5');
+          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E6');
         CustLedgerEntry.CalcFields(Amount);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
@@ -77,7 +77,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] XML files has nodes with VAT Exemption details
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E5');
+          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E6');
         CustLedgerEntry.CalcFields(Amount);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
@@ -109,7 +109,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] XML files has nodes with VAT Exemption details
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E5');
+          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E6');
         CustLedgerEntry.CalcFields(Amount);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-CustLedgerEntry.Amount));
@@ -151,7 +151,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] "BaseImponible" node with value 100.0 in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
+          XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;
@@ -190,7 +190,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] "BaseImponible" node with value -100.0 exists in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
+          XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;
@@ -231,7 +231,7 @@ codeunit 147525 "SII Documents Exemption"
 
         // [THEN] "BaseImponible" node with value 100.0 in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
+          XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;
@@ -501,6 +501,89 @@ codeunit 147525 "SII Documents Exemption"
           XMLDoc, XPathSalesNoExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(NormalSalesLine.Amount));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvZeroNormalVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 331968] XML nodes of normal zero VAT and exempt entries of Sales Invoice both located under correct parent node "Sujeta"
+
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with zero VAT % and VAT Base = 100
+        CreateSalesDocZeroVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, 0);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No VAT Exemption amount equals 100 exports in node "sii:DesgloseFactura/sii:Sujeta/sii:Exenta/sii:DetalleExenta/"
+        LibrarySII.VerifyNodeCountWithValueByXPath(
+          XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(SalesLine.Amount), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoZeroNormalVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 330227] XML nodes of normal zero VAT and exempt entries of Sales Credit Memo both located under correct parent node "Sujeta"
+
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with zero VAT % and VAT Base = 100
+        CreateSalesDocZeroVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", 0);
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No VAT Exemption amount equals -100 exports in node "sii:DesgloseFactura/sii:Sujeta/sii:Exenta/sii:DetalleExenta/"
+        LibrarySII.VerifyNodeCountWithValueByXPath(
+          XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-SalesLine.Amount), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReplacementSalesCrMemoZeroNormalVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 330227] XML nodes of normal zero VAT and exempt entries of Replacement Sales Credit Memo both located under correct parent node "Sujeta"
+
+        Initialize;
+
+        // [GIVEN] Posted Sales Replacement Credit Memo with zero VAT % and VAT Base = -100
+        CreateSalesDocZeroVAT(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No VAT Exemption amount equals 100 exports in node "sii:DesgloseFactura/sii:Sujeta/sii:Exenta/sii:DetalleExenta/"
+        LibrarySII.VerifyNodeCountWithValueByXPath(
+          XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(SalesLine.Amount), 0);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -544,7 +627,18 @@ codeunit 147525 "SII Documents Exemption"
     begin
         LibrarySII.CreateSalesDocWithVATClause(SalesHeader, DocType, CorrectionType);
         FindLastSalesLine(ExemptSalesLine, SalesHeader);
-        AddNormalVATSalesLine(NormalSalesLine, SalesHeader);
+        AddNormalVATSalesLine(NormalSalesLine, SalesHeader, LibraryRandom.RandInt(50));
+    end;
+
+    local procedure CreateSalesDocZeroVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; CorrectionType: Option)
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySII.CreateCustWithVATSetup(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
+        SalesHeader.Validate("Correction Type", CorrectionType);
+        SalesHeader.Modify(true);
+        AddNormalVATSalesLine(SalesLine, SalesHeader, 0);
     end;
 
     local procedure ModifySIIExemptCodeInVATClause(VATClauseCode: Code[20]; SIIExemptionCode: Integer)
@@ -570,7 +664,7 @@ codeunit 147525 "SII Documents Exemption"
         SalesLine.FindLast;
     end;
 
-    local procedure AddNormalVATSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure AddNormalVATSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATRate: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -578,6 +672,7 @@ codeunit 147525 "SII Documents Exemption"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("VAT %", VATRate);
         VATPostingSetup.Modify(true);
         LibrarySII.CreateSalesLineWithUnitPrice(
           SalesHeader,

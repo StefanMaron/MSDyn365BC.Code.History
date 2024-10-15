@@ -10,7 +10,7 @@ page 20014 "APIV1 - Accounts"
     EntitySetName = 'accounts';
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 15;
     Extensible = false;
@@ -21,7 +21,7 @@ page 20014 "APIV1 - Accounts"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

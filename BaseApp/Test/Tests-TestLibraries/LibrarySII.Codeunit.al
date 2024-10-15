@@ -229,6 +229,17 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
+    procedure CreateForeignVendWithVATSetup(var Vendor: Record Vendor)
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        CreateVendWithCountryAndVATReg(Vendor, GetForeignCountry, GetForeignVATRegNo);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Vendor.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure CreateCustWithCountryAndVATReg(var Customer: Record Customer; CustomerCountryCode: Code[10]; VATRegNo: Code[20])
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -367,7 +378,7 @@ codeunit 143006 "Library - SII"
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
         LibraryERM.CreateVATClause(VATClause);
-        VATClause.Validate("SII Exemption Code", VATClause."SII Exemption Code"::"E5 Exempt on account of Article 25");
+        VATClause.Validate("SII Exemption Code", VATClause."SII Exemption Code"::"E6 Exempt on other grounds");
         VATClause.Modify(true);
         VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
         VATPostingSetup.Modify(true);
