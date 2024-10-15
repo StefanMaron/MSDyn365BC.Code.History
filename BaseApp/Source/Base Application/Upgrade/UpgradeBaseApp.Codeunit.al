@@ -44,6 +44,7 @@
 
         UpgradeAPIs();
         UpgradePurchaseRcptLineOverReceiptCode();
+        UpgradeIntrastatJnlLine();
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -268,6 +269,7 @@
         UpgradeSalesOrderShipmentMethod;
         UpgradeSalesCrMemoShipmentMethod;
         UpdateItemVariants();
+        UpgradeInvoicesCreatedFromOrders();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -319,6 +321,24 @@
             UNTIL SalesInvoiceEntityAggregate.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesInvoiceEntityAggregateUpgradeTag());
+    end;
+
+    local procedure UpgradeInvoicesCreatedFromOrders()
+    var
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPISalesInvoicesCreatedFromOrders())) then
+            SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
+
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders())) then
+            PurchInvAggregator.FixInvoicesCreatedFromOrders();
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeleteSalesOrdersOrphanedRecords()) then
+            GraphMgtSalesOrderBuffer.DeleteOrphanedRecords();
     end;
 
     local procedure UpgradePurchInvEntityAggregate()
@@ -1060,6 +1080,26 @@
             until PurchRcptLine.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag());
+    end;
+
+    local procedure UpgradeIntrastatJnlLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+      if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag()) THEN
+        exit;
+
+      IntrastatJnlLine.SetRange(Type,IntrastatJnlLine.Type::Shipment);
+      if IntrastatJnlLine.FindSet() then
+        repeat
+          IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+          IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+          IntrastatJnlLine.Modify();
+        until IntrastatJnlLine.Next() = 0;
+
+      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 }
 

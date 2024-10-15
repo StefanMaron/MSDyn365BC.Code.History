@@ -155,6 +155,9 @@
         OnRunOnBeforeFinalizePosting(
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, GenJnlPostLine, SuppressCommit);
 
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"]) then
+            EnableAggregateTableUpdate(DisableAggregateTableUpdate);
+
         FinalizePosting(SalesHeader, EverythingInvoiced, TempDropShptPostBuffer);
 
         Rec := SalesHeader;
@@ -366,6 +369,11 @@
         DisableAggregateTableUpdate.SetAggregateTableIDDisabled(AggregateTableID);
         DisableAggregateTableUpdate.SetTableSystemIDDisabled(SalesHeader.SystemId);
         BindSubscription(DisableAggregateTableUpdate);
+    end;
+
+    local procedure EnableAggregateTableUpdate(var DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update")
+    begin
+        if UnbindSubscription(DisableAggregateTableUpdate) then;
     end;
 
     local procedure ModifyTempLine(var TempSalesLineLocal: Record "Sales Line" temporary)
@@ -5674,7 +5682,10 @@
             SalesInvHeader."Source Code" := SrcCode;
             SalesInvHeader."User ID" := UserId;
             SalesInvHeader."No. Printed" := 0;
-            SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
+
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+                SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
+                
             SetPaymentInstructions(SalesHeader);
             OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
             SalesInvHeader.Insert(true);
