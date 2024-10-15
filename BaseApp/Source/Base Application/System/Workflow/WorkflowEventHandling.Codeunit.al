@@ -693,7 +693,11 @@ codeunit 1520 "Workflow Event Handling"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init();
+        ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetFilter("Due Date", '<%1', Today);
+        if not ApprovalEntry.FindSet() then
+            ApprovalEntry.Init();
+
         WorkflowManagement.HandleEvent(RunWorkflowOnSendOverdueNotificationsCode(), ApprovalEntry);
     end;
 

@@ -25,6 +25,12 @@ page 330 "Reservation Wksh. Factbox"
                         ReservationWorksheetMgt.ShowSourceDocument(Rec);
                     end;
                 }
+                field(Priority; Rec.Priority)
+                {
+                    Caption = 'Priority';
+                    Visible = false;
+                    ToolTip = 'Specifies the priority of the customer.';
+                }
                 field("Outstanding Qty."; OutstandingQty)
                 {
                     Caption = 'Outstanding quantity';

@@ -30,6 +30,9 @@ codeunit 1509 "Notification Entry Dispatcher"
         NotificationManagement: Codeunit "Notification Management";
         NotificationMailSubjectTxt: Label 'Notification overview';
         NoEmailAccountsErr: Label 'Cannot send the email. No email accounts have been added.';
+        EmailBodyFailedToGenerateErr: Label 'Notification (%1)''s email body failed to generate due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
+        EmailFailedToSendErr: Label 'Notification (%1)''s email failed to send due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
+        NoteFailedToAddErr: Label 'Notification (%1)''s note failed to add due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
         HtmlBodyFilePath: Text;
 
     local procedure DispatchInstantNotifications()
@@ -137,6 +140,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         MailSubject: Text;
         ErrorText: Text;
         IsEmailedSuccessfully: Boolean;
+        MaximumRelatedEntriesReached: Boolean;
         IsHandled: Boolean;
         AttachmentStream: InStream;
         SourceTables, SourceRelationTypes : List of [Integer];
@@ -167,7 +171,10 @@ codeunit 1509 "Notification Entry Dispatcher"
                 SourceTables.Add(DocumentRecRef.Number());
                 SourceIDs.Add(DocumentRecRef.Field(DocumentRecRef.SystemIdNo()).Value());
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
-            until NotificationEntry.Next() = 0;
+
+                // Limit how many related entities will be added to avoid edge cases with large number of notification entries.
+                MaximumRelatedEntriesReached := SourceIDs.Count() >= MaximumRelatedEntries();
+            until MaximumRelatedEntriesReached or (NotificationEntry.Next() = 0);
 
         IsEmailedSuccessfully := DocumentMailing.EmailFile(
          AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceTables, SourceIDs, SourceRelationTypes);
@@ -184,9 +191,9 @@ codeunit 1509 "Notification Entry Dispatcher"
                     if not MailManagement.IsEnabled() then
                         ErrorText := NoEmailAccountsErr;
 
-                NotificationEntry."Error Message" := ErrorText;
+                NotificationEntry."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(NotificationEntry."Error Message"));
                 NotificationEntry.Modify(true);
-                ErrorMessageMgt.LogError(NotificationEntry, ErrorText, '');
+                ErrorMessageMgt.LogError(NotificationEntry, StrSubstNo(EmailFailedToSendErr, NotificationEntry.ID, ErrorText), '');
             end;
         end;
 
@@ -214,33 +221,29 @@ codeunit 1509 "Notification Entry Dispatcher"
         RecRefLink: RecordRef;
         Link: Text;
     begin
-        with RecordLink do begin
-            Init();
-            "Link ID" := 0;
-            GetTargetRecRef(NotificationEntry, RecRefLink);
-            if not RecRefLink.HasFilter then
-                RecRefLink.SetRecFilter();
-            "Record ID" := RecRefLink.RecordId;
-            Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecRefLink), RecRefLink, true);
-            OnAddNoteOnAfterGetUrl(Link, NotificationEntry, RecRefLink);
-            URL1 := CopyStr(Link, 1, MaxStrLen(URL1));
-            Description := CopyStr(Format(NotificationEntry."Triggered By Record"), 1, 250);
-            Type := Type::Note;
-            CreateNoteBody(NotificationEntry, Body);
-            RecordLinkManagement.WriteNote(RecordLink, Body);
-            Created := CurrentDateTime;
-            "User ID" := NotificationEntry."Created By";
-            Company := CompanyName;
-            Notify := true;
-            "To User ID" := NotificationEntry."Recipient User ID";
-            if not Insert(true) then begin
-                ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
-                exit(false);
-            end;
-            exit(true);
+        RecordLink.Init();
+        RecordLink."Link ID" := 0;
+        GetTargetRecRef(NotificationEntry, RecRefLink);
+        if not RecRefLink.HasFilter then
+            RecRefLink.SetRecFilter();
+        RecordLink."Record ID" := RecRefLink.RecordId;
+        Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecRefLink), RecRefLink, true);
+        OnAddNoteOnAfterGetUrl(Link, NotificationEntry, RecRefLink);
+        RecordLink.URL1 := CopyStr(Link, 1, MaxStrLen(RecordLink.URL1));
+        RecordLink.Description := CopyStr(Format(NotificationEntry."Triggered By Record"), 1, 250);
+        RecordLink.Type := RecordLink.Type::Note;
+        CreateNoteBody(NotificationEntry, Body);
+        RecordLinkManagement.WriteNote(RecordLink, Body);
+        RecordLink.Created := CurrentDateTime;
+        RecordLink."User ID" := NotificationEntry."Created By";
+        RecordLink.Company := CopyStr(CompanyName, 1, MaxStrLen(RecordLink.Company));
+        RecordLink.Notify := true;
+        RecordLink."To User ID" := NotificationEntry."Recipient User ID";
+        if not RecordLink.Insert(true) then begin
+            ErrorMessageMgt.LogError(NotificationEntry, StrSubstNo(NoteFailedToAddErr, NotificationEntry.ID, GetLastErrorText()), '');
+            exit(false);
         end;
-
-        exit(false);
+        exit(true);
     end;
 
     local procedure FilterToActiveNotificationEntries(var NotificationEntry: Record "Notification Entry")
@@ -298,9 +301,9 @@ codeunit 1509 "Notification Entry Dispatcher"
         OnGetHTMLBodyTextOnAfterSetTempLayoutCode(NotificationEntry, BodyTextOut, TempLayoutCode);
         ReportLayoutSelection.SetTempLayoutSelected(TempLayoutCode);
         if not REPORT.SaveAsHtml(REPORT::"Notification Email", HtmlBodyFilePath, NotificationEntry) then begin
-            NotificationEntry."Error Message" := GetLastErrorText;
+            NotificationEntry."Error Message" := CopyStr(GetLastErrorText(), 1, MaxStrLen(NotificationEntry."Error Message"));
             NotificationEntry.Modify(true);
-            ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
+            ErrorMessageMgt.LogError(NotificationEntry, StrSubstNo(EmailBodyFailedToGenerateErr, NotificationEntry.ID, GetLastErrorText()), '');
             ClearLastError();
             exit(false);
         end;
@@ -402,6 +405,11 @@ codeunit 1509 "Notification Entry Dispatcher"
                     TempNotificationEntryFromTo.Insert();
                 end;
             until NotificationEntry.Next() = 0;
+    end;
+
+    local procedure MaximumRelatedEntries(): Integer
+    begin
+        exit(100);
     end;
 
     [IntegrationEvent(false, false)]

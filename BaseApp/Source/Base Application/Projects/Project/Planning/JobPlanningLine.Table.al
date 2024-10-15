@@ -2407,6 +2407,8 @@ table 1003 "Job Planning Line"
 
         UpdateQtyToTransfer();
         UpdateQtyToInvoice();
+
+        OnAfterControlUsageLink(Rec, Job, CurrFieldNo);
     end;
 
     local procedure CalcLineAmount(Qty: Decimal): Decimal
@@ -2712,6 +2714,8 @@ table 1003 "Job Planning Line"
         "Posted Total Cost (LCY)" := 0;
         "Posted Line Amount" := 0;
         "Posted Line Amount (LCY)" := 0;
+
+        OnAfterClearValues(Rec);
     end;
 
     procedure ClearTracking()
@@ -3285,6 +3289,16 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTotalCost(var JobPlanningLine: Record "Job Planning Line"; AmountRoundingPrecisionFCY: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearValues(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterControlUsageLink(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; CurrFieldNo: Integer)
     begin
     end;
 }

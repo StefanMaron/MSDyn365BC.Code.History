@@ -9,6 +9,8 @@ codeunit 372 "Bank Acc. Recon. Post+Print"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
+
         BankAccRecon.Copy(Rec);
 
         if not Confirm(Text000, false) then
@@ -26,7 +28,11 @@ codeunit 372 "Bank Acc. Recon. Post+Print"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccStmt: Record "Bank Account Statement";
         DocPrint: Codeunit "Document-Print";
-
         Text000: Label 'Do you want to post and print the Reconciliation?';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
 }
 

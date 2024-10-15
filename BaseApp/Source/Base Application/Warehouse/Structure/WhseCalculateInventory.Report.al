@@ -5,6 +5,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
@@ -274,18 +275,27 @@ report 7390 "Whse. Calculate Inventory"
 
             GetLocation(BinContent."Location Code");
 
-            WhseEntry.SetCurrentKey(
-              "Item No.", "Bin Code", "Location Code", "Variant Code",
-              "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.", "Entry Type");
+            if CheckSerialTrackingEnabled(BinContent."Item No.") then
+                WhseEntry.SetCurrentKey(
+                  "Item No.", "Bin Code", "Location Code", "Variant Code",
+                  "Unit of Measure Code", "Serial No.", "Package No.", "Entry Type")
+            else
+                WhseEntry.SetCurrentKey(
+                  "Item No.", "Bin Code", "Location Code", "Variant Code",
+                  "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.", "Entry Type");
+
             WhseEntry.SetRange("Item No.", BinContent."Item No.");
             WhseEntry.SetRange("Bin Code", BinContent."Bin Code");
             WhseEntry.SetRange("Location Code", BinContent."Location Code");
             WhseEntry.SetRange("Variant Code", BinContent."Variant Code");
             WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
             OnInsertWhseJnlLineOnAfterWhseEntrySetFilters(WhseEntry, "Bin Content");
-            if WhseEntry.Find('-') or ZeroQty then
+            if WhseEntry.FindSet() or ZeroQty then
                 repeat
-                    WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
+                    if CheckSerialOrLotTrackingEnabled(BinContent."Item No.") then
+                        WhseEntry.SetTrackingFilterFromWhseEntryForSerialOrLotTrackedItem(WhseEntry)
+                    else
+                        WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
                     WhseEntry.CalcSums("Qty. (Base)");
                     if (WhseEntry."Qty. (Base)" <> 0) or ZeroQty then begin
                         ItemUOM.Get(BinContent."Item No.", BinContent."Unit of Measure Code");
@@ -390,6 +400,32 @@ report 7390 "Whse. Calculate Inventory"
     procedure SetProposalMode(NewValue: Boolean)
     begin
         StockProposal := NewValue;
+    end;
+
+    local procedure CheckSerialTrackingEnabled(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        Item.Get(ItemNo);
+        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
+            exit(false);
+
+        if (ItemTrackingCode."Lot Specific Tracking" or ItemTrackingCode."Lot Warehouse Tracking") then
+            exit(false);
+
+        if (ItemTrackingCode."SN Specific Tracking" and ItemTrackingCode."SN Warehouse Tracking") then
+            exit(true);
+    end;
+
+    local procedure CheckSerialOrLotTrackingEnabled(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+        PhysInvTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
+    begin
+        Item.Get(ItemNo);
+        if PhysInvTrackingMgt.GetTrackingNosFromWhse(Item) then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
