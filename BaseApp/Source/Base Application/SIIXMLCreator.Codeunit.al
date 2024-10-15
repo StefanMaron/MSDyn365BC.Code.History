@@ -368,7 +368,7 @@ codeunit 10750 "SII XML Creator"
                 XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'SuministroLRCobrosMetalico', '', 'siiLR', SiiLRTxt, CurrentXMlNode);
         end;
         XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'Cabecera', '', 'sii', SiiTxt, CurrentXMlNode);
-        XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'IDVersionSii', Format(SIIVersion), 'sii', SiiTxt, XMLNode); // API version
+        XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'IDVersionSii', CopyStr(Format(SIIVersion), 1, 3), 'sii', SiiTxt, XMLNode); // API version
         XMLDOMManagement.AddElementWithPrefix(CurrentXMlNode, 'Titular', '', 'sii', SiiTxt, CurrentXMlNode);
         FillCompanyInfo(CurrentXMlNode, Name, VATRegistrationNo);
         XMLDOMManagement.FindNode(CurrentXMlNode, '..', CurrentXMlNode);
@@ -445,6 +445,7 @@ codeunit 10750 "SII XML Creator"
               NonExemptTransactionType[2], ExemptExists[2], CustLedgerEntry, false, DomesticCustomer);
 
             AddNodeForTotals :=
+              IncludeImporteTotalNode() and
               ((InvoiceType in [GetF2InvoiceType(), 'F4']) and
                (TempServVATEntryCalcNonExempt.Count + TempGoodsVATEntryCalcNonExempt.Count = 1)) or
               (SIIDocUploadState."Sales Special Scheme Code" in [SIIDocUploadState."Sales Special Scheme Code"::"03 Special System",
@@ -546,6 +547,7 @@ codeunit 10750 "SII XML Creator"
             end;
 
             AddNodeForTotals :=
+              IncludeImporteTotalNode() and
               ((InvoiceType in [GetF2InvoiceType(), 'F4']) and
                (TempVATEntryNormalCalculated.Count + TempVATEntryReverseChargeCalculated.Count = 1)) or
               (SIIDocUploadState."Purch. Special Scheme Code" in [SIIDocUploadState."Purch. Special Scheme Code"::"03 Special System",
@@ -1111,17 +1113,18 @@ codeunit 10750 "SII XML Creator"
         CorrectedInvoiceNo: Code[20];
         CorrectionType: Option;
     begin
-        GetCorrectionInfoFromDocument(
-          CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
-          CustLedgerEntry."Correction Type", CustLedgerEntry."Corrected Invoice No.");
-
-        if FindCustLedgerEntryOfRefDocument(CustLedgerEntry, OldCustLedgerEntry, CorrectedInvoiceNo) then
-            if CorrectionType = SalesCrMemoHeader."Correction Type"::Removal then begin
-                InitializeCorrectiveRemovalXmlBody(
-                  XMLNode, CustLedgerEntry."Posting Date", true, SIIDocUploadState,
-                  Customer.Name, Customer."VAT Registration No.", Customer."Country/Region Code", Customer."No.", Customer."Not in AEAT");
-                exit(true);
-            end;
+        if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then begin
+            GetCorrectionInfoFromDocument(
+              CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              CustLedgerEntry."Correction Type", CustLedgerEntry."Corrected Invoice No.");
+            if FindCustLedgerEntryOfRefDocument(CustLedgerEntry, OldCustLedgerEntry, CorrectedInvoiceNo) then
+                if CorrectionType = SalesCrMemoHeader."Correction Type"::Removal then begin
+                    InitializeCorrectiveRemovalXmlBody(
+                      XMLNode, CustLedgerEntry."Posting Date", true, SIIDocUploadState,
+                      Customer.Name, Customer."VAT Registration No.", Customer."Country/Region Code", Customer."No.", Customer."Not in AEAT");
+                    exit(true);
+                end;
+        end;
         InitializeSalesXmlBody(XMLNode, CustLedgerEntry."Posting Date");
 
         // calculate totals for current doc
@@ -1140,7 +1143,9 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'TipoFactura', CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2), 'sii', SiiTxt, TempXMLNode);
 
-        if CorrectionType = SalesCrMemoHeader."Correction Type"::Replacement then
+        if (CorrectionType = SalesCrMemoHeader."Correction Type"::Replacement) or
+           (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice)
+        then
             HandleReplacementSalesCorrectiveInvoice(
               XMLNode, SIIDocUploadState, OldCustLedgerEntry, CustLedgerEntry, Customer, TotalBase, TotalNonExemptBase, TotalVATAmount)
         else
@@ -1181,7 +1186,8 @@ codeunit 10750 "SII XML Creator"
         GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := -TotalBase - TotalVATAmount;
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, -TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(true, CustLedgerEntry."Document No."),
@@ -1264,16 +1270,18 @@ codeunit 10750 "SII XML Creator"
         CorrectionType: Option;
         VendNo: Code[20];
     begin
-        GetCorrectionInfoFromDocument(
-          VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
-          VendorLedgerEntry."Correction Type", VendorLedgerEntry."Corrected Invoice No.");
-        if FindVendorLedgerEntryOfRefDocument(VendorLedgerEntry, OldVendorLedgerEntry, CorrectedInvoiceNo) then
-            if CorrectionType = PurchCrMemoHdr."Correction Type"::Removal then begin
-                InitializeCorrectiveRemovalXmlBody(XMLNode,
-                  VendorLedgerEntry."Posting Date", false, SIIDocUploadState,
-                  Vendor.Name, Vendor."VAT Registration No.", Vendor."Country/Region Code", Vendor."No.", false);
-                exit(true);
-            end;
+        if VendorLedgerEntry."Document Type" <> VendorLedgerEntry."Document Type"::Invoice then begin
+            GetCorrectionInfoFromDocument(
+              VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              VendorLedgerEntry."Correction Type", VendorLedgerEntry."Corrected Invoice No.");
+            if FindVendorLedgerEntryOfRefDocument(VendorLedgerEntry, OldVendorLedgerEntry, CorrectedInvoiceNo) then
+                if CorrectionType = PurchCrMemoHdr."Correction Type"::Removal then begin
+                    InitializeCorrectiveRemovalXmlBody(XMLNode,
+                      VendorLedgerEntry."Posting Date", false, SIIDocUploadState,
+                      Vendor.Name, Vendor."VAT Registration No.", Vendor."Country/Region Code", Vendor."No.", false);
+                    exit(true);
+                end;
+        end;
         VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
         InitializePurchXmlBody(XMLNode, VendNo, VendorLedgerEntry."Posting Date", SIIDocUploadState.IDType);
 
@@ -1281,7 +1289,9 @@ codeunit 10750 "SII XML Creator"
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
         CalculateTotalVatAndBaseAmounts(VendorLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
 
-        if CorrectionType = PurchCrMemoHdr."Correction Type"::Replacement then
+        if (CorrectionType = PurchCrMemoHdr."Correction Type"::Replacement) or
+           (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice)
+        then
             HandleReplacementPurchCorrectiveInvoice(
               XMLNode, Vendor, SIIDocUploadState, OldVendorLedgerEntry, VendorLedgerEntry, TotalBase, TotalNonExemptBase, TotalVATAmount)
         else
@@ -1317,6 +1327,7 @@ codeunit 10750 "SII XML Creator"
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaRecibida', '', 'siiLR', SiiLRTxt, XMLNode);
 
+        UpdatePurchCrMemoTypeFromCorrInvType(SIIDocUploadState);
         if SIIDocUploadState."Purch. Cr. Memo Type" = 0 then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoFactura', 'R1', 'sii', SiiTxt, TempXMLNode)
         else
@@ -1324,11 +1335,12 @@ codeunit 10750 "SII XML Creator"
               XMLNode, 'TipoFactura', CopyStr(Format(SIIDocUploadState."Purch. Cr. Memo Type"), 1, 2), 'sii', SiiTxt, TempXMLNode);
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'S', 'sii', SiiTxt, TempXMLNode);
-        GenerateFacturasRectificadasNode(XMLNode, OldVendorLedgerEntry."External Document No.", OldVendorLedgerEntry."Posting Date");
-
-        // calculate totals for old doc
-        DataTypeManagement.GetRecordRef(OldVendorLedgerEntry, OldVendorLedgerEntryRecRef);
-        CalculateTotalVatAndBaseAmounts(OldVendorLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+        if VendorLedgerEntry."Document Type" <> VendorLedgerEntry."Document Type"::Invoice then begin
+            GenerateFacturasRectificadasNode(XMLNode, OldVendorLedgerEntry."External Document No.", OldVendorLedgerEntry."Posting Date");
+            // calculate totals for old doc
+            DataTypeManagement.GetRecordRef(OldVendorLedgerEntry, OldVendorLedgerEntryRecRef);
+            CalculateTotalVatAndBaseAmounts(OldVendorLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+        end;
 
         // write totals amounts in XML
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteRectificacion', '', 'sii', SiiTxt, XMLNode);
@@ -1341,9 +1353,10 @@ codeunit 10750 "SII XML Creator"
         GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := OldTotalBase + OldTotalVATAmount + TotalBase + TotalVATAmount;
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
-          TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
+              TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, OldTotalNonExemptBase + TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
@@ -1442,8 +1455,9 @@ codeunit 10750 "SII XML Creator"
             TotalBase -= Abs(TempVATEntryNormalCalculated.Base);
         TotalAmount := TotalBase + TotalVATAmount;
         FillNoTaxableVATEntriesPurch(TempVATEntryNormalCalculated, VendorLedgerEntry);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, TotalNonExemptBase);
         FillOperationDescription(
           XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
@@ -1512,11 +1526,12 @@ codeunit 10750 "SII XML Creator"
     begin
         DomesticCustomer := SIIManagement.IsDomesticCustomer(Customer);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoRectificativa', 'S', 'sii', SiiTxt, TempXMLNode);
-        GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
-
-        // calculate totals for old doc
-        DataTypeManagement.GetRecordRef(OldCustLedgerEntry, OldCustLedgerEntryRecRef);
-        CalculateTotalVatAndBaseAmounts(OldCustLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+        if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then begin
+            GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
+            // calculate totals for old doc
+            DataTypeManagement.GetRecordRef(OldCustLedgerEntry, OldCustLedgerEntryRecRef);
+            CalculateTotalVatAndBaseAmounts(OldCustLedgerEntryRecRef, OldTotalBase, OldTotalNonExemptBase, OldTotalVATAmount);
+        end;
 
         // write totals amounts in XML
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteRectificacion', '', 'sii', SiiTxt, XMLNode);
@@ -1529,9 +1544,12 @@ codeunit 10750 "SII XML Creator"
         GenerateClaveRegimenNode(XMLNode, RegimeCode);
 
         TotalAmount := Abs(OldTotalBase + OldTotalVATAmount) - Abs(TotalBase + TotalVATAmount);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
-          TempXMLNode);
+        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
+            TotalAmount := -TotalAmount;
+        if IncludeImporteTotalNode then
+            XMLDOMManagement.AddElementWithPrefix(
+              XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,
+              TempXMLNode);
 
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, Abs(OldTotalNonExemptBase) - Abs(TotalNonExemptBase));
         FillOperationDescription(
@@ -1540,6 +1558,7 @@ codeunit 10750 "SII XML Creator"
         FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
+        UpdateSalesCrMemoTypeFromCorrInvType(SIIDocUploadState);
         if IncludeContraparteNodeByCrMemoType(SIIDocUploadState."Sales Cr. Memo Type") then begin
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
             FillThirdPartyId(
@@ -1994,7 +2013,7 @@ codeunit 10750 "SII XML Creator"
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
     begin
-        if IncludeChangesVersion21() then
+        if IncludeChangesVersion11bis() then
             if ECVATEntryExists or
                (IDType in [SIIDocUploadState.IDType::"03-Passport", SIIDocUploadState.IDType::"04-ID Document",
                            SIIDocUploadState.IDType::"05-Certificate Of Residence",
@@ -2132,13 +2151,14 @@ codeunit 10750 "SII XML Creator"
         case SIIDocUploadState."Document Type" of
             SIIDocUploadState."Document Type"::Invoice:
                 begin
+                    IsInvoice :=
+                      IsPurchInvType(SIIDocUploadState."Purch. Invoice Type");
                     if SIIDocUploadState."Purch. Invoice Type" =
                        SIIDocUploadState."Purch. Invoice Type"::"Customs - Complementary Liquidation"
                     then
                         InvoiceType := LCLbl
                     else
                         InvoiceType := CopyStr(Format(SIIDocUploadState."Purch. Invoice Type"), 1, 2);
-                    IsInvoice := true;
                 end;
             SIIDocUploadState."Document Type"::"Credit Memo":
                 begin
@@ -2152,14 +2172,28 @@ codeunit 10750 "SII XML Creator"
         exit(IsInvoice);
     end;
 
+    local procedure IsPurchInvType(InvType: Option): Boolean
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        exit(
+          InvType in [SIIDocUploadState."Purch. Invoice Type"::"F1 Invoice",
+                      SIIDocUploadState."Purch. Invoice Type"::"F2 Simplified Invoice",
+                      SIIDocUploadState."Purch. Invoice Type"::"F3 Invoice issued to replace simplified invoices",
+                      SIIDocUploadState."Purch. Invoice Type"::"F4 Invoice summary entry",
+                      SIIDocUploadState."Purch. Invoice Type"::"F5 Imports (DUA)",
+                      SIIDocUploadState."Purch. Invoice Type"::"F6 Accounting support material",
+                      SIIDocUploadState."Purch. Invoice Type"::"Customs - Complementary Liquidation"]);
+    end;
+
     local procedure IsSalesInvoice(var InvoiceType: Text; SIIDocUploadState: Record "SII Doc. Upload State") IsInvoice: Boolean
     begin
         IsInvoice := false;
         case SIIDocUploadState."Document Type" of
             SIIDocUploadState."Document Type"::Invoice:
                 begin
+                    IsInvoice := IsSalesInvType(SIIDocUploadState."Sales Invoice Type");
                     InvoiceType := CopyStr(Format(SIIDocUploadState."Sales Invoice Type"), 1, 2);
-                    IsInvoice := true;
                 end;
             SIIDocUploadState."Document Type"::"Credit Memo":
                 begin
@@ -2171,6 +2205,17 @@ codeunit 10750 "SII XML Creator"
                 end;
         end;
         exit(IsInvoice);
+    end;
+
+    local procedure IsSalesInvType(InvType: Integer): Boolean
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        exit(
+          InvType in [SIIDocUploadState."Sales Invoice Type"::"F1 Invoice",
+                      SIIDocUploadState."Sales Invoice Type"::"F2 Simplified Invoice",
+                      SIIDocUploadState."Sales Invoice Type"::"F3 Invoice issued to replace simplified invoices",
+                      SIIDocUploadState."Sales Invoice Type"::"F4 Invoice summary entry"]);
     end;
 
     local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)
@@ -2336,7 +2381,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure IncludeContraparteNodeBySalesInvType(InvoiceType: Text): Boolean
     begin
-        if IncludeChangesVersion21 then
+        if IncludeChangesVersion11bis then
             exit(InvoiceType in ['F1', 'F3']);
         exit(InvoiceType in ['F1', 'F3', 'F4']);
     end;
@@ -2354,7 +2399,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure IncludeFechaOperationForSales(PostingDate: Date; LastShptRcptDate: Date; RegimeCode: Code[2]): Boolean
     begin
-        if not IncludeChangesVersion21() then
+        if not IncludeChangesVersion11bis() then
             exit(true);
         if RegimeCode in ['14', '15'] then
             exit(true);
@@ -2363,7 +2408,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure IsShptDateMustBeAfterPostingDate(RegimeCode: Code[2]): Boolean
     begin
-        if not IncludeChangesVersion21 then
+        if not IncludeChangesVersion11bis() then
             exit(false);
         exit(RegimeCode = '14');
     end;
@@ -2372,19 +2417,66 @@ codeunit 10750 "SII XML Creator"
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
-        exit((SIIVersion = SIIDocUploadState."Version No."::"1.1") or IncludeChangesVersion21);
+        exit((SIIVersion = SIIDocUploadState."Version No."::"1.1") or IncludeChangesVersion11bis);
     end;
 
-    local procedure IncludeChangesVersion21(): Boolean
+    local procedure IncludeChangesVersion11bis(): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
         exit(SIIVersion >= SIIDocUploadState."Version No."::"2.1");
     end;
 
+    local procedure IncludeImporteTotalNode(): Boolean
+    begin
+        if not IncludeChangesVersion11bis() then
+            exit(true);
+        exit(SIISetup."Include ImporteTotal");
+    end;
+
     local procedure GetF2InvoiceType(): Text[2]
     begin
         exit('F2');
+    end;
+
+    local procedure UpdateSalesCrMemoTypeFromCorrInvType(var SIIDocUploadState: Record "SII Doc. Upload State")
+    begin
+        if SIIDocUploadState."Document Type" <> SIIDocUploadState."Document Type"::Invoice then
+            exit;
+
+        case SIIDocUploadState."Sales Invoice Type" of
+            SIIDocUploadState."Sales Invoice Type"::"R1 Corrected Invoice":
+                SIIDocUploadState."Sales Cr. Memo Type" := SIIDocUploadState."Sales Cr. Memo Type"::"R1 Corrected Invoice";
+            SIIDocUploadState."Sales Invoice Type"::"R2 Corrected Invoice (Art. 80.3)":
+                SIIDocUploadState."Sales Cr. Memo Type" := SIIDocUploadState."Sales Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+            SIIDocUploadState."Sales Invoice Type"::"R3 Corrected Invoice (Art. 80.4)":
+                SIIDocUploadState."Sales Cr. Memo Type" := SIIDocUploadState."Sales Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)";
+            SIIDocUploadState."Sales Invoice Type"::"R4 Corrected Invoice (Other)":
+                SIIDocUploadState."Sales Cr. Memo Type" := SIIDocUploadState."Sales Cr. Memo Type"::"R4 Corrected Invoice (Other)";
+            SIIDocUploadState."Sales Invoice Type"::"R5 Corrected Invoice in Simplified Invoices":
+                SIIDocUploadState."Sales Cr. Memo Type" :=
+                  SIIDocUploadState."Sales Cr. Memo Type"::"R5 Corrected Invoice in Simplified Invoices";
+        end;
+    end;
+
+    local procedure UpdatePurchCrMemoTypeFromCorrInvType(var SIIDocUploadState: Record "SII Doc. Upload State")
+    begin
+        if SIIDocUploadState."Document Type" <> SIIDocUploadState."Document Type"::Invoice then
+            exit;
+
+        case SIIDocUploadState."Purch. Invoice Type" of
+            SIIDocUploadState."Purch. Invoice Type"::"R1 Corrected Invoice":
+                SIIDocUploadState."Purch. Cr. Memo Type" := SIIDocUploadState."Purch. Cr. Memo Type"::"R1 Corrected Invoice";
+            SIIDocUploadState."Purch. Invoice Type"::"R2 Corrected Invoice (Art. 80.3)":
+                SIIDocUploadState."Purch. Cr. Memo Type" := SIIDocUploadState."Purch. Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
+            SIIDocUploadState."Purch. Invoice Type"::"R3 Corrected Invoice (Art. 80.4)":
+                SIIDocUploadState."Purch. Cr. Memo Type" := SIIDocUploadState."Purch. Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)";
+            SIIDocUploadState."Purch. Invoice Type"::"R4 Corrected Invoice (Other)":
+                SIIDocUploadState."Purch. Cr. Memo Type" := SIIDocUploadState."Purch. Cr. Memo Type"::"R4 Corrected Invoice (Other)";
+            SIIDocUploadState."Purch. Invoice Type"::"R5 Corrected Invoice in Simplified Invoices":
+                SIIDocUploadState."Purch. Cr. Memo Type" :=
+                  SIIDocUploadState."Purch. Cr. Memo Type"::"R5 Corrected Invoice in Simplified Invoices";
+        end;
     end;
 
     [Scope('OnPrem')]

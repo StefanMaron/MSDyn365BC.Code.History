@@ -60,7 +60,12 @@ page 10751 "SII Setup"
                 field("Auto Missing Entries Check"; "Auto Missing Entries Check")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies that the system automatically detects if any SII entries are missing.';
+                    ToolTip = 'Specifies that the system will detect whether SII entries are missing.';
+                }
+                field("Include ImporteTotal"; "Include ImporteTotal")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether the ImporteTotal XML node must be exported to the XML file.';
                 }
             }
             group(Certificate)

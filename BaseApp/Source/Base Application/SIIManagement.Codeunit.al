@@ -723,7 +723,12 @@ codeunit 10756 "SII Management"
         exit(InvType in [SalesInvoiceHeader."Invoice Type"::"F1 Invoice",
                          SalesInvoiceHeader."Invoice Type"::"F2 Simplified Invoice",
                          SalesInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices",
-                         SalesInvoiceHeader."Invoice Type"::"F4 Invoice summary entry"]);
+                         SalesInvoiceHeader."Invoice Type"::"F4 Invoice summary entry",
+                         SalesInvoiceHeader."Invoice Type"::"R1 Corrected Invoice",
+                         SalesInvoiceHeader."Invoice Type"::"R2 Corrected Invoice (Art. 80.3)",
+                         SalesInvoiceHeader."Invoice Type"::"R3 Corrected Invoice (Art. 80.4)",
+                         SalesInvoiceHeader."Invoice Type"::"R4 Corrected Invoice (Other)",
+                         SalesInvoiceHeader."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices"]);
     end;
 
     [Scope('OnPrem')]

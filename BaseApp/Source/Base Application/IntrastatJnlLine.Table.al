@@ -221,6 +221,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
+        field(31;"Location Code";Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location;
+        }
         field(10700; "Place of Receipt"; Text[25])
         {
             Caption = 'Place of Receipt';

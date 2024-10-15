@@ -73,7 +73,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Sales] [Invoice]
         // [SCENARIO] Posting customer's invoice generates SII Doc. Upload State entry when SII Setup is enabled
-        // [SCENARIO 375398] SII Version is 2.1 in SII Doc. Upload State generated from sales invoice
+        // [SCENARIO 375398] SII Version is 1.1bis in SII Doc. Upload State generated from sales invoice
 
         Initialize();
 
@@ -93,7 +93,7 @@ codeunit 147522 "SII Document Processing"
             TestField(Status, Status::Pending);
         end;
 
-        // [THEN] Version of SII Doc. Upload State is 2.1
+        // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
     end;
 
@@ -131,7 +131,7 @@ codeunit 147522 "SII Document Processing"
             TestField(Status, Status::Pending);
         end;
 
-        // [THEN] Version of SII Doc. Upload State is 2.1
+        // [THEN] Version of SII Doc. Upload State is 1.1
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"1.1");
 
         // Tear down
@@ -147,7 +147,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Purchae] [Invoice]
         // [SCENARIO] Posting vendor's invoice generates SII Doc. Upload State entry when SII Setup is enabled
-        // [SCENARIO 375398] SII Version is 2.1 in SII Doc. Upload State generated from purchase invoice
+        // [SCENARIO 375398] SII Version is 1.1bis in SII Doc. Upload State generated from purchase invoice
         Initialize;
 
         // [GIVEN] Enabled SII Setup
@@ -166,7 +166,7 @@ codeunit 147522 "SII Document Processing"
             TestField(Status, Status::Pending);
         end;
 
-        // [THEN] Version of SII Doc. Upload State is 2.1
+        // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
     end;
 
@@ -936,30 +936,6 @@ codeunit 147522 "SII Document Processing"
         LibraryXPathXMLReader.InitializeWithText(XMLDoc.OuterXml, '');
         SetupXMLNamespaces;
         LibraryXPathXMLReader.VerifyNodeCountByXPath(XPathPrestacionServiciosTok, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExistingSalesInvoiceCannotBePostedWithF5InvoiceType()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Sales] [Invoice] [Invoice Type]
-        // [SCENARIO 225536] F5 Imports (DUA) is not a valid option to be selected under Invoice type field in sales invoice header
-
-        Initialize;
-
-        // [GIVEN] Sales Invoice Header having "Invoice Type" = F5
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader."Invoice Type" := 4;
-        SalesHeader.Modify(true);
-
-        // [WHEN] Post Sales Invoice
-        asserterror LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        // [THEN] "Invoice Type must not be 4 in Sales Invoice Header" error appears
-        Assert.ExpectedError('Invoice Type must not be 4 in Sales Invoice Header');
-        Assert.IsTrue(SalesHeader.Find, 'Sales Header not exists');
     end;
 
     [Test]

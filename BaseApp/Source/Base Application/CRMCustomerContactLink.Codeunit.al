@@ -67,6 +67,7 @@ codeunit 5351 "CRM Customer-Contact Link"
         CrmIntegrationRecord: Record "CRM Integration Record";
         CRMContact: Record "CRM Contact";
         CRMAccount: Record "CRM Account";
+        ContactBusinessRelation: Record "Contact Business Relation";
     begin
         if LastCheckedDate = 0DT then begin
             UpdateCustomersPrimaryContactNo(FixedLinksQty);
@@ -81,7 +82,16 @@ codeunit 5351 "CRM Customer-Contact Link"
                     if not IsNullGuid(CRMContact.ParentCustomerId) then
                         if FindCustomerByAccountId(CRMContact.ParentCustomerId, Customer) and FindContactByContactId(CrmContact.ContactId, Contact) then
                             if Customer."Primary Contact No." = '' then begin
-                                Customer."Primary Contact No." := Contact."No.";
+                                IF ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Contact."Company No.") THEN BEGIN
+                                    ContactBusinessRelation.RESET();
+                                    ContactBusinessRelation.SETRANGE("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+                                    ContactBusinessRelation.SETRANGE("No.", Customer."No.");
+                                    IF ContactBusinessRelation.FINDFIRST() THEN BEGIN
+                                        Contact.VALIDATE("Company No.", ContactBusinessRelation."Contact No.");
+                                        Contact.MODIFY(TRUE);
+                                    END;
+                                END;
+                                Customer.VALIDATE("Primary Contact No.", Contact."No.");
                                 Customer.Modify;
                                 FixedLinksQty += 1;
                             end;
