@@ -14,9 +14,13 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -312,7 +316,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #1 is picked
-        TempPriceListLine.TestField("Line No.", 1);
+        TempPriceListLine.TestField("Line No.", 10000);
     end;
 
     [Test]
@@ -337,7 +341,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
-        TempPriceListLine.TestField("Line No.", 2);
+        TempPriceListLine.TestField("Line No.", 20000);
     end;
 
     [Test]
@@ -365,7 +369,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
-        TempPriceListLine.TestField("Line No.", 2);
+        TempPriceListLine.TestField("Line No.", 20000);
     end;
 
     [Test]
@@ -395,7 +399,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
-        TempPriceListLine.TestField("Line No.", 2);
+        TempPriceListLine.TestField("Line No.", 20000);
     end;
 
     [Test]
@@ -428,7 +432,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
-        TempPriceListLine.TestField("Line No.", 2);
+        TempPriceListLine.TestField("Line No.", 20000);
     end;
 
     [Test]
@@ -461,7 +465,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #3 is picked
-        TempPriceListLine.TestField("Line No.", 3);
+        TempPriceListLine.TestField("Line No.", 30000);
     end;
 
     [Test]
@@ -496,7 +500,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #4 is picked
-        TempPriceListLine.TestField("Line No.", 4);
+        TempPriceListLine.TestField("Line No.", 40000);
     end;
 
     [Test]
@@ -533,7 +537,7 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine.FindFirst();
         PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #1 is picked
-        TempPriceListLine.TestField("Line No.", 1);
+        TempPriceListLine.TestField("Line No.", 10000);
     end;
 
     [Test]
@@ -985,7 +989,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    [HandlerFunctions('GetPriceLineDiscountModalPageHandler')]
     procedure T170_PickDiscountSalesLineIfNoPriceLineDiscButAllowedByCustomer()
     var
         Customer: Record Customer;
@@ -1024,7 +1028,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    [HandlerFunctions('GetPriceLinePriceModalPageHandler')]
     procedure T171_PickPriceSalesLineBelowMinQuantity()
     var
         Customer: Record Customer;
@@ -1062,7 +1066,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    [HandlerFunctions('GetPriceLinePriceModalPageHandler')]
     procedure T172_PickPriceSalesLineWithNotAllowedLineDiscount()
     var
         Customer: Record Customer;
@@ -1101,7 +1105,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    [HandlerFunctions('GetPriceLineDiscountModalPageHandler')]
     procedure T173_PickDiscountSalesLineIfNoPriceNoLineDiscAllowedByCustomer()
     var
         Customer: Record Customer;
@@ -1122,8 +1126,9 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Item 'I'
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] No price list lines with for Item 'I'
+        // [GIVEN] One price list line for Item 'I', where Amount Type is 'Price'
         RemovePricesForItem(Item);
+        CreatePriceLine(PriceListLine, Customer, Item, false);
         // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
         CreateDiscountLine(PriceListLine, Customer, Item);
         // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
@@ -1134,8 +1139,83 @@ codeunit 134159 "Test Price Calculation - V16"
         // [WHEN] PickDiscount
         asserterror SalesLine.PickDiscount();
 
-        // [THEN] Sales Line, where "Line Discount" is 'X', "Allow Line Disc." is Yes
+        // [THEN] Error message: 'Allow Line Disc. must have a value in Sales Line'
         Assert.ExpectedError(AllowLineDiscErr);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    procedure T174_PickPriceSalesLineOfTwoPriceLinesAmountTypeAny()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListHeader: array[3] of Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+        ExpectedUnitPrice: array[2] of Decimal;
+        ExpectedDiscount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Price] [UI]
+        // [SCENARIO] While picking prices "Get Price Lines" page shows lines with "Amount Type" 'Any'
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] One price list line for Item 'I', where Amount Type is 'Price', "Unit Price" is 'P1'
+        RemovePricesForItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[1], PriceListHeader[1]."Source Type"::Customer, Customer."No.");
+        PriceListLine."Price List Code" := PriceListHeader[1].Code;
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        ExpectedUnitPrice[1] := PriceListLine."Unit Price";
+        ExpectedUnitPrice[2] := 10 * ExpectedUnitPrice[1];
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C, "Line Discount %" is 'D1'
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        ExpectedDiscount := PriceListLine."Line Discount %";
+
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        // [GIVEN] Sales Line, where "Unit Price" is 'P1', "Line Discount %" is 0, as "Allow Line Disc." is 'No'
+        SalesLine.TestField("Unit Price", ExpectedUnitPrice[1]);
+        SalesLine.TestField("Allow Line Disc.", false);
+        SalesLine.TestField("Line Discount %", 0);
+
+        // [GIVEN] Added price list line for Item 'I', where Amount Type is 'Any', "Unit Price" is 'P2', "Line Discount %" is 'D2'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[2], PriceListHeader[2]."Source Type"::Customer, Customer."No.");
+        PriceListLine."Price List Code" := PriceListHeader[2].Code;
+        CreatePriceLine(PriceListLine, Customer, Item, true);
+        PriceListLine."Unit Price" := ExpectedUnitPrice[2];
+        PriceListLine."Line Discount %" := ExpectedDiscount + 0.01; // just a better discount
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Any;
+        PriceListLine.Modify();
+
+        // [GIVEN] Added price list line for Item 'I', where Amount Type is 'Price', "Unit Price" is 'P3'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[3], PriceListHeader[3]."Source Type"::Customer, Customer."No.");
+        PriceListLine."Price List Code" := PriceListHeader[2].Code;
+        CreatePriceLine(PriceListLine, Customer, Item, true);
+        PriceListLine."Unit Price" := ExpectedUnitPrice[2] + 100.0;
+        PriceListLine.Modify();
+
+        // [WHEN] PickPrice with "Amount Type" 'Any'
+        LibraryVariableStorage.Enqueue(PriceListHeader[2].Code); // for GetPriceLineModalPageHandler
+        SalesLine.PickPrice();
+
+        // [THEN] Sales Line, where "Unit Price" is 'P2', "Line Discount %" is '0', "Allow Line Disc." is Yes
+        SalesLine.TestField("Unit Price", ExpectedUnitPrice[2]);
+        SalesLine.TestField("Allow Line Disc.", true);
+        SalesLine.TestField("Line Discount %", 0);
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
@@ -1225,6 +1305,290 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
+    [Test]
+    procedure T200_PostedArchivedSalesDocumentsContainPriceCalcMethod()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        CopiedSalesHeader: Record "Sales Header";
+        CopiedSalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesLineArchive: Record "Sales Line Archive";
+        OldHandler: enum "Price Calculation Handler";
+        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
+        InvoiceDocNo: Code[20];
+        OrderNo: Code[20];
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO] Price Calculation Method during posting is populated to posted and archived documents and copied back.
+        Initialize();
+        SalesHeaderArchive.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C'
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C'
+        CreatePriceLine(PriceListLine, Customer, Item, False);
+        // [GIVEN] Sales Order for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        // [GIVEN] Calculate price, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
+        SalesLine."Price Calculation Method" := SalesLine."Price Calculation Method"::"Test Price";
+        SalesLine.Modify();
+        // [GIVEN] Enable "Archive Orders"
+        LibrarySales.SetArchiveOrders(true);
+
+        // [WHEN] Post Sales Order
+        OrderNo := SalesHeader."No.";
+        InvoiceDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Commit();
+
+        // [THEN] Posted Sales Invoice, Method is 'Test' in line, 'Lowest Price' in header
+        SalesInvoiceHeader.Get(InvoiceDocNo);
+        SalesInvoiceHeader.TestField("Price Calculation Method", SalesHeader."Price Calculation Method");
+        SalesInvoiceLine.SetRange("Document No.", InvoiceDocNo);
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method");
+        // [THEN] Posted Sales Shipment, Method is 'Test' in line, 'Lowest Price' in header
+        SalesShipmentHeader.Get(FindShipmentHeaderNo(OrderNo));
+        SalesShipmentHeader.TestField("Price Calculation Method", SalesShipmentHeader."Price Calculation Method");
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.FindFirst();
+        SalesShipmentLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method");
+        // [THEN] Sales Order Archive, Method is 'Test' in line, 'Lowest Price' in header
+        SalesHeaderArchive.SetRange("Document Type", SalesHeaderArchive."Document Type"::Order);
+        SalesHeaderArchive.SetRange("No.", OrderNo);
+        SalesHeaderArchive.FindLast();
+        SalesHeaderArchive.TestField("Price Calculation Method", SalesHeaderArchive."Price Calculation Method");
+        SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
+        SalesLineArchive.SetRange("Document No.", OrderNo);
+        SalesLineArchive.FindFirst();
+        SalesLineArchive.TestField("Price Calculation Method", SalesLine."Price Calculation Method");
+
+        // [WHEN] Copy archived order as new order
+        LibrarySales.CreateSalesHeader(CopiedSalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CopySalesDoc(SalesDocType::"Arch. Order", OrderNo, CopiedSalesHeader);
+        // [THEN] New Order, where Method is 'Test' in line, 'Lowest Price' in header 
+        CopiedSalesHeader.Find();
+        CopiedSalesHeader.TestField("Price Calculation Method", SalesHeader."Price Calculation Method");
+        CopiedSalesLine.SetRange("Document Type", CopiedSalesHeader."Document Type");
+        CopiedSalesLine.SetRange("Document No.", CopiedSalesHeader."No.");
+        CopiedSalesLine.FindLast();
+        CopiedSalesLine.TestField("Price Calculation Method", SalesLineArchive."Price Calculation Method");
+        LineNo := CopiedSalesLine."Line No.";
+
+        // [WHEN] Copy line from invoice to order
+        CopySalesLinesToDoc(SalesDocType::"Posted Invoice", SalesInvoiceLine, CopiedSalesHeader);
+        // [THEN] New line, where Method is 'Test' in line
+        CopiedSalesLine.SetFilter("Line No.", '>%1', LineNo);
+        CopiedSalesLine.FindLast();
+        CopiedSalesLine.TestField("Price Calculation Method", SalesInvoiceLine."Price Calculation Method");
+        LineNo := CopiedSalesLine."Line No.";
+
+        // [WHEN] Copy line from shipment to order
+        CopySalesLinesToDoc(SalesDocType::"Posted Shipment", SalesShipmentLine, CopiedSalesHeader);
+        // [THEN] New line, where Method is 'Test' in line
+        CopiedSalesLine.SetFilter("Line No.", '>%1', LineNo);
+        CopiedSalesLine.FindLast();
+        CopiedSalesLine.TestField("Price Calculation Method", SalesShipmentLine."Price Calculation Method");
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(CopiedSalesHeader);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T202_PostedArchivedPurchDocumentsContainPriceCalcMethod()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        CopiedPurchaseHeader: Record "Purchase Header";
+        CopiedPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+        OldHandler: enum "Price Calculation Handler";
+        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
+        CrMemoDocNo: Code[20];
+        OrderNo: Code[20];
+        LineNo: Integer;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO] Price Calculation Method during posting is populated to posted and archived documents and copied back.
+        Initialize();
+        PurchaseHeaderArchive.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Vendor 'V'
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'V'
+        CreatePriceLine(PriceListLine, Vendor, Item, False);
+        // [GIVEN] Purchase Order for Vendor 'V' selling Item 'I'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
+        // [GIVEN] Calculate price, by validating Quantity
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.TestField("Price Calculation Method", PurchaseLine."Price Calculation Method"::"Lowest Price");
+        PurchaseLine."Price Calculation Method" := PurchaseLine."Price Calculation Method"::"Test Price";
+        PurchaseLine.Modify();
+        // [GIVEN] Enable "Archive Orders"
+        LibraryPurchase.SetArchiveReturnOrders(true);
+
+        // [WHEN] Post Purchase Order
+        OrderNo := PurchaseHeader."No.";
+        CrMemoDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Commit();
+
+        // [THEN] Posted Purchase CrMemo, Method is 'Test' in line, 'Lowest Price' in header
+        PurchCrMemoHeader.Get(CrMemoDocNo);
+        PurchCrMemoHeader.TestField("Price Calculation Method", PurchaseHeader."Price Calculation Method");
+        PurchCrMemoLine.SetRange("Document No.", CrMemoDocNo);
+        PurchCrMemoLine.FindFirst();
+        PurchCrMemoLine.TestField("Price Calculation Method", PurchaseLine."Price Calculation Method");
+        // [THEN] Posted Return Shipment, Method is 'Test' in line, 'Lowest Price' in header
+        ReturnShipmentHeader.Get(FindReturnShipmentHeaderNo(OrderNo));
+        ReturnShipmentHeader.TestField("Price Calculation Method", ReturnShipmentHeader."Price Calculation Method");
+        ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeader."No.");
+        ReturnShipmentLine.FindFirst();
+        ReturnShipmentLine.TestField("Price Calculation Method", PurchaseLine."Price Calculation Method");
+        // [THEN] Purchase Order Archive, Method is 'Test' in line, 'Lowest Price' in header
+        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeaderArchive."Document Type"::"Return Order");
+        PurchaseHeaderArchive.SetRange("No.", OrderNo);
+        PurchaseHeaderArchive.FindLast();
+        PurchaseHeaderArchive.TestField("Price Calculation Method", PurchaseHeaderArchive."Price Calculation Method");
+        PurchaseLineArchive.SetRange("Document Type", PurchaseHeaderArchive."Document Type");
+        PurchaseLineArchive.SetRange("Document No.", OrderNo);
+        PurchaseLineArchive.FindFirst();
+        PurchaseLineArchive.TestField("Price Calculation Method", PurchaseLine."Price Calculation Method");
+
+        // [WHEN] Copy archived order as new order
+        LibraryPurchase.CreatePurchHeader(CopiedPurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        CopyPurchaseDoc(PurchDocType::"Arch. Return Order", OrderNo, CopiedPurchaseHeader);
+        // [THEN] New Order, where Method is 'Test' in line, 'Lowest Price' in header 
+        CopiedPurchaseHeader.Find();
+        CopiedPurchaseHeader.TestField("Price Calculation Method", PurchaseHeader."Price Calculation Method");
+        CopiedPurchaseLine.SetRange("Document Type", CopiedPurchaseHeader."Document Type");
+        CopiedPurchaseLine.SetRange("Document No.", CopiedPurchaseHeader."No.");
+        CopiedPurchaseLine.FindLast();
+        CopiedPurchaseLine.TestField("Price Calculation Method", PurchaseLineArchive."Price Calculation Method");
+        LineNo := CopiedPurchaseLine."Line No.";
+
+        // [WHEN] Copy line from credit memo to order
+        CopyPurchLinesToDoc(PurchDocType::"Posted Credit Memo", PurchCrMemoLine, CopiedPurchaseHeader);
+        // [THEN] New line, where Method is 'Test' in line
+        CopiedPurchaseLine.SetFilter("Line No.", '>%1', LineNo);
+        CopiedPurchaseLine.FindLast();
+        CopiedPurchaseLine.TestField("Price Calculation Method", PurchCrMemoLine."Price Calculation Method");
+        LineNo := CopiedPurchaseLine."Line No.";
+
+        // [WHEN] Copy line from return shipment to order
+        CopyPurchLinesToDoc(PurchDocType::"Posted Return Shipment", ReturnShipmentLine, CopiedPurchaseHeader);
+        // [THEN] New line, where Method is 'Test' in line
+        CopiedPurchaseLine.SetFilter("Line No.", '>%1', LineNo);
+        CopiedPurchaseLine.FindLast();
+        CopiedPurchaseLine.TestField("Price Calculation Method", ReturnShipmentLine."Price Calculation Method");
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(CopiedPurchaseHeader);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T203_PostedServiceCrMemoContainsPriceCalcMethod()
+    var
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO] Price Calculation Method during posting is populated to posted Service Credit Memo documents.
+        Initialize();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
+        Initialize;
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
+
+        // [WHEN] Post Service Credit Memo
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // 3. Verify: Check that the posted Service Credit Memo Header has "Price Calculation Method" as 'Lowest Price'
+        FindServiceCreditMemoHeader(ServiceCrMemoHeader, ServiceHeader."No.");
+        ServiceCrMemoHeader.TestField("Price Calculation Method", ServiceCrMemoHeader."Price Calculation Method"::"Lowest Price");
+        ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
+        ServiceCrMemoLine.FindFirst();
+        ServiceCrMemoLine.TestField("Price Calculation Method", ServiceCrMemoLine."Price Calculation Method"::"Lowest Price");
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T204_PostedServiceInvoiceContainsPriceCalcMethod()
+    var
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO] Price Calculation Method during posting is populated to posted Service Invoice/Shipment documents.
+        Initialize();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
+        Initialize;
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
+
+        // [WHEN] Post Service Credit Memo
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Posted Service Invoice Header has "Price Calculation Method" as 'Lowest Price'
+        FindServiceInvoiceFromOrder(ServiceInvoiceHeader, ServiceHeader."No.");
+        ServiceInvoiceHeader.TestField("Price Calculation Method", ServiceInvoiceHeader."Price Calculation Method"::"Lowest Price");
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        ServiceInvoiceLine.FindFirst();
+        ServiceInvoiceLine.TestField("Price Calculation Method", ServiceInvoiceLine."Price Calculation Method"::"Lowest Price");
+        // [THEN] Posted Service Shipment Header has "Price Calculation Method" as 'Lowest Price'
+        FindServiceShipmentHeader(ServiceShipmentHeader, ServiceHeader."No.");
+        ServiceShipmentHeader.TestField("Price Calculation Method", ServiceShipmentHeader."Price Calculation Method"::"Lowest Price");
+        ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
+        ServiceShipmentLine.FindFirst();
+        ServiceShipmentLine.TestField("Price Calculation Method", ServiceShipmentLine."Price Calculation Method"::"Lowest Price");
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1242,10 +1606,111 @@ codeunit 134159 "Test Price Calculation - V16"
     local procedure AddPriceLine(var TempPriceListLine: Record "Price List Line" temporary; CurrencyCode: code[10]; VarianCode: Code[10]; Price: Decimal)
     begin
         TempPriceListLine.Init();
+        TempPriceListLine."Line No." += 10000;
         TempPriceListLine."Currency Code" := CurrencyCode;
         TempPriceListLine."Variant Code" := VarianCode;
         TempPriceListLine."Unit Price" := Price;
         TempPriceListLine.Insert(true);
+    end;
+
+    local procedure CopyPurchLinesToDoc(PurchDocType: Option; DocumentLine: Variant; var ToPurchaseHeader: Record "Purchase Header")
+    var
+        FromReturnShipmentLine: Record "Return Shipment Line";
+        FromPurchInvLine: Record "Purch. Inv. Line";
+        FromPurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        FromPurchRcptLine: Record "Purch. Rcpt. Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        case PurchDocType of
+            DocType::"Posted Invoice":
+                begin
+                    FromPurchInvLine := DocumentLine;
+                    FromPurchInvLine.SetRecFilter();
+                end;
+            DocType::"Posted Return Shipment":
+                begin
+                    FromReturnShipmentLine := DocumentLine;
+                    FromReturnShipmentLine.SetRecFilter();
+                end;
+            DocType::"Posted Credit Memo":
+                begin
+                    FromPurchCrMemoLine := DocumentLine;
+                    FromPurchCrMemoLine.SetRecFilter();
+                end;
+            DocType::"Posted Receipt":
+                begin
+                    FromPurchRcptLine := DocumentLine;
+                    FromPurchRcptLine.SetRecFilter();
+                end;
+            else
+                Error('Not supported Purchase doc type');
+        end;
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
+        CopyDocMgt.CopyPurchaseLinesToDoc(
+            PurchDocType, ToPurchaseHeader,
+            FromPurchRcptLine, FromPurchInvLine, FromReturnShipmentLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
+    end;
+
+    local procedure CopyPurchaseDoc(PurchDocType: Option; FromDocNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
+    var
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+    begin
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
+        CopyDocMgt.SetArchDocVal(1, 1);
+        CopyDocMgt.CopyPurchDoc(PurchDocType, FromDocNo, ToPurchaseHeader);
+    end;
+
+    local procedure CopySalesLinesToDoc(SalesDocType: Option; DocumentLine: Variant; var ToSalesHeader: Record "Sales Header")
+    var
+        FromSalesShptLine: Record "Sales Shipment Line";
+        FromSalesInvLine: Record "Sales Invoice Line";
+        FromSalesCrMemoLine: Record "Sales Cr.Memo Line";
+        FromReturnRcptLine: Record "Return Receipt Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        case SalesDocType of
+            DocType::"Posted Shipment":
+                begin
+                    FromSalesShptLine := DocumentLine;
+                    FromSalesShptLine.SetRecFilter();
+                end;
+            DocType::"Posted Invoice":
+                begin
+                    FromSalesInvLine := DocumentLine;
+                    FromSalesInvLine.SetRecFilter();
+                end;
+            DocType::"Posted Return Receipt":
+                begin
+                    FromReturnRcptLine := DocumentLine;
+                    FromReturnRcptLine.SetRecFilter();
+                end;
+            DocType::"Posted Credit Memo":
+                begin
+                    FromSalesCrMemoLine := DocumentLine;
+                    FromSalesCrMemoLine.SetRecFilter();
+                end;
+            else
+                Error('Not supported sales doc type');
+        end;
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
+        CopyDocMgt.CopySalesLinesToDoc(
+            SalesDocType, ToSalesHeader,
+            FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
+    end;
+
+    local procedure CopySalesDoc(SalesDocType: Option; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header")
+    var
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+    begin
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
+        CopyDocMgt.SetArchDocVal(1, 1);
+        CopyDocMgt.CopySalesDoc(SalesDocType, FromDocNo, ToSalesHeader);
     end;
 
     local procedure CreateCustomerAllowingLineDisc(var Customer: Record Customer; AllowLineDisc: Boolean)
@@ -1293,6 +1758,70 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
+    local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Vendor: Record Vendor; Item: Record Item; AllowLineDisc: Boolean)
+    begin
+        LibraryPriceCalculation.CreatePriceLine(
+            PriceListLine, PriceListLine."Source Type"::Vendor, Vendor."No.", PriceListLine."Asset Type"::Item, Item."No.");
+        PriceListLine."Allow Line Disc." := AllowLineDisc;
+        PriceListLine.Modify();
+    end;
+
+    local procedure CreateResource(): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Resource: Record Resource;
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
+        Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Resource.Modify(true);
+        exit(Resource."No.");
+    end;
+
+    local procedure CreateServiceLineWithResource(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
+    begin
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource());
+        ServiceLine.Validate("Service Item No.", ServiceItemNo);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Required field - value is not important to test case.
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure FindReturnShipmentHeaderNo(OrderNo: Code[20]): Code[20]
+    var
+        ReturnShipmentHeader: Record "Return Shipment Header";
+    begin
+        ReturnShipmentHeader.SetRange("Return Order No.", OrderNo);
+        ReturnShipmentHeader.FindFirst;
+        exit(ReturnShipmentHeader."No.");
+    end;
+
+    local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
+    begin
+        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        ServiceCrMemoHeader.FindFirst;
+    end;
+
+    local procedure FindServiceInvoiceFromOrder(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
+    begin
+        ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
+        ServiceInvoiceHeader.FindFirst;
+    end;
+
+    local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
+    begin
+        ServiceShipmentHeader.SetRange("Order No.", OrderNo);
+        ServiceShipmentHeader.FindFirst;
+    end;
+
+    local procedure FindShipmentHeaderNo(OrderNo: Code[20]): Code[20]
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", OrderNo);
+        SalesShipmentHeader.FindFirst;
+        exit(SalesShipmentHeader."No.");
+    end;
+
     local procedure RemovePricesForItem(Item: Record Item)
     var
         PriceListLine: Record "Price List Line";
@@ -1322,10 +1851,40 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [ModalPageHandler]
-    procedure GetPriceLineModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    procedure GetPriceLinePriceModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
     begin
-        GetPriceLine.First;
-        GetPriceLine.OK.Invoke;
+        Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
+        Assert.AreEqual(false, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
+        Assert.AreEqual(true, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(true, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
+        Assert.AreEqual(true, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
+        GetPriceLine.First();
+        GetPriceLine.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetPriceLineDiscountModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
+        Assert.AreEqual(true, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
+        Assert.AreEqual(false, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(false, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
+        Assert.AreEqual(false, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
+        GetPriceLine.First();
+        GetPriceLine.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetPriceLineModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    var
+        PriceListCode: Text;
+    begin
+        PriceListCode := LibraryVariableStorage.DequeueText();
+        GetPriceLine.Filter.SetFilter("Price List Code", PriceListCode);
+        GetPriceLine.First();
+        GetPriceLine."Allow Line Disc.".AssertEquals(Format(true));
+        Assert.AreNotEqual(0, GetPriceLine."Line Discount %".AsDecimal(), 'Line Discount % in GetPriceLine');
+        GetPriceLine.OK.Invoke();
     end;
 
     [ConfirmHandler]

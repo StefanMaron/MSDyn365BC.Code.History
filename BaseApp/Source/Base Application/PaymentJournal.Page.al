@@ -68,6 +68,7 @@ page 256 "Payment Journal"
                     Style = Attention;
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Incoming Document Entry No."; "Incoming Document Entry No.")
                 {

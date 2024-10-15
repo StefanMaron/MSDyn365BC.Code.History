@@ -960,8 +960,14 @@ codeunit 1521 "Workflow Response Handling"
                           GetTokenValue(RevertRecordFieldValueTok, WorkflowStepArgument."Field Caption")), 1, 250));
                 end;
             else
-                exit(WorkflowResponse.Description);
+                exit(GetWorkflowResponseDescription(WorkflowResponse, WorkflowStepArgument));
         end;
+    end;
+
+    local procedure GetWorkflowResponseDescription(var WorkflowResponse: Record "Workflow Response"; var WorkflowStepArgument: Record "Workflow Step Argument") WorkflowDescirption: Text[250]
+    begin
+        WorkflowDescirption := WorkflowResponse.Description;
+        OnAfterGetWorkflowResponseDescription(WorkflowResponse, WorkflowStepArgument, WorkflowDescirption);
     end;
 
     local procedure GetTokenValue(TokenValue: Text; FieldValue: Text): Text
@@ -1126,6 +1132,11 @@ codeunit 1521 "Workflow Response Handling"
     procedure GetApproveOverReceiptCode(): Text[128]
     begin
         EXIT(UPPERCASE('ApproveOverReceipt'));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetWorkflowResponseDescription(var WorkflowResponse: Record "Workflow Response"; var WorkflowStepArgument: Record "Workflow Step Argument"; var WorkflowDescription: Text[250])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

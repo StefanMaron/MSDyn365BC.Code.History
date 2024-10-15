@@ -73,33 +73,5 @@ table 6 "Customer Price Group"
         {
         }
     }
-
-    trigger OnDelete()
-    begin
-        UpdateSalesPrices(false);
-    end;
-
-    trigger OnRename()
-    begin
-        UpdateSalesPrices(true);
-    end;
-
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    local procedure UpdateSalesPrices(CreateNewSalesPrice: Boolean)
-    var
-        SalesPrice: Record "Sales Price";
-        NewSalesPrice: Record "Sales Price";
-    begin
-        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
-        SalesPrice.SetRange("Sales Code", xRec.Code);
-        if CreateNewSalesPrice then
-            if SalesPrice.FindSet then
-                repeat
-                    NewSalesPrice := SalesPrice;
-                    NewSalesPrice."Sales Code" := Code;
-                    NewSalesPrice.Insert(true);
-                until SalesPrice.Next = 0;
-        SalesPrice.DeleteAll(true);
-    end;
 }
 

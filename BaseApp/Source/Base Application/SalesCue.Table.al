@@ -1,4 +1,4 @@
-table 9053 "Sales Cue"
+﻿table 9053 "Sales Cue"
 {
     Caption = 'Sales Cue';
 
@@ -195,6 +195,7 @@ table 9053 "Sales Cue"
         CountSalesOrders.SetRange(Completely_Shipped, false);
         FilterGroup(2);
         CountSalesOrders.SetFilter(Responsibility_Center, GetFilter("Responsibility Center Filter"));
+        OnCountOrdersOnAfterCountPurchOrdersSetFilters(CountSalesOrders);
         FilterGroup(0);
 
         case FieldNumber of
@@ -245,6 +246,7 @@ table 9053 "Sales Cue"
         end;
         FilterGroup(2);
         SalesHeader.SetFilter("Responsibility Center", GetFilter("Responsibility Center Filter"));
+        OnFilterOrdersOnAfterSalesHeaderSetFilters(SalesHeader);
         FilterGroup(0);
     end;
 
@@ -254,6 +256,16 @@ table 9053 "Sales Cue"
     begin
         FilterOrders(SalesHeader, FieldNumber);
         PAGE.Run(PAGE::"Sales Order List", SalesHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCountOrdersOnAfterCountPurchOrdersSetFilters(var CountSalesOrders: Query "Count Sales Orders")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFilterOrdersOnAfterSalesHeaderSetFilters(var SalesHeader: Record "Sales Header")
+    begin
     end;
 }
 

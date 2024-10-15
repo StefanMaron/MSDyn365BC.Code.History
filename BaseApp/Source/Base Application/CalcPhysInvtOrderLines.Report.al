@@ -214,13 +214,17 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     end;
 
     procedure CreateNewPhysInvtOrderLine()
+    var
+        InsertLine: Boolean;
     begin
         PhysInvtOrderLine.PrepareLine(
           PhysInvtOrderHeader."No.", NextLineNo,
           ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", WhseEntry."Bin Code",
           InvtCountCode, CycleSourceType);
         PhysInvtOrderLine.CalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo);
-        if (QtyExp <> 0) or ZeroQty then begin
+        InsertLine := false;
+        OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo, ItemLedgEntry, PhysInvtOrderLine, InsertLine);
+        if (QtyExp <> 0) or ZeroQty or InsertLine then begin
             PhysInvtOrderLine.Insert(true);
             PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
             if CalcQtyExpected then
@@ -239,6 +243,11 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CalcQtyExpected: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExpected: Decimal; LastItemLedgEntryNo: Integer; ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var InsertLine: Boolean)
     begin
     end;
 }

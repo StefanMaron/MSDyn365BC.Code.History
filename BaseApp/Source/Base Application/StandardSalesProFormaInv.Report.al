@@ -102,7 +102,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(PageLbl; PageLbl)
             {
             }
-            column(DocumentTitleLbl; DocumentTitleLbl)
+            column(DocumentTitleLbl; DocumentCaption())
             {
             }
             column(YourReferenceLbl; FieldCaption("Your Reference"))
@@ -389,8 +389,23 @@ report 1302 "Standard Sales - Pro Forma Inv"
         end;
     end;
 
+    local procedure DocumentCaption(): Text
+    var
+        DocCaption: Text;
+    begin
+        OnBeforeGetDocumentCaption(Header, DocCaption);
+        if DocCaption <> '' then
+            exit(DocCaption);
+        exit(DocumentTitleLbl);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterLineOnPreDataItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentCaption(SalesHeader: Record "Sales Header"; var DocCaption: Text)
     begin
     end;
 

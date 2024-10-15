@@ -609,6 +609,8 @@ codeunit 5150 "Integration Management"
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty then
             exit;
+        if Not UserCanReshcuduleJob() then
+            exit;
         JobQueueEntry.FindSet;
         repeat
             // Restart only those jobs whose time to re-execute has nearly arrived.
@@ -631,6 +633,17 @@ codeunit 5150 "Integration Management"
             RecRef.SetTable(IntegrationTableMapping);
             exit(IntegrationTableMapping."Table ID" = TableNo);
         end;
+    end;
+
+    local procedure UserCanReshcuduleJob(): Boolean
+    var
+        CRMAccount: Record "CRM Account";
+    begin
+        if not TaskScheduler.CanCreateTask() then
+            exit(false);
+        if CRMAccount.WRITEPERMISSION() then 
+            exit(true);
+        exit(false);
     end;
 
     local procedure AddToIntegrationPageList(PageId: Integer; TableId: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var NextId: Integer)
