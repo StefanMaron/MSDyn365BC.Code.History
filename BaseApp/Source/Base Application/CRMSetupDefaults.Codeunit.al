@@ -669,6 +669,14 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        // "Work description" <-> Description
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesInvoiceHeader.FieldNo("Work Description"),
+          CRMInvoice.FieldNo(Description),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', false, false);
+
         OnResetSalesInvoiceHeaderInvoiceMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
@@ -2009,6 +2017,8 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     procedure GetTableIDCRMEntityNameMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         TempNameValueBuffer.Reset();
         TempNameValueBuffer.DeleteAll();
@@ -2036,7 +2046,10 @@ codeunit 5334 "CRM Setup Defaults"
         AddEntityTableMapping('opportunity', DATABASE::"CRM Opportunity", TempNameValueBuffer);
 
         // Only NAV
-        AddEntityTableMapping('pricelevel', DATABASE::"Customer Price Group", TempNameValueBuffer);
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            AddEntityTableMapping('pricelevel', DATABASE::"Price List Header", TempNameValueBuffer)
+        else
+            AddEntityTableMapping('pricelevel', DATABASE::"Customer Price Group", TempNameValueBuffer);
         AddEntityTableMapping('transactioncurrency', DATABASE::Currency, TempNameValueBuffer);
         if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
             AddEntityTableMapping('uomschedule', DATABASE::"Unit Group", TempNameValueBuffer);
@@ -2044,6 +2057,7 @@ codeunit 5334 "CRM Setup Defaults"
             AddEntityTableMapping('uom', DATABASE::"Resource Unit of Measure", TempNameValueBuffer);
         end else
             AddEntityTableMapping('uomschedule', DATABASE::"Unit of Measure", TempNameValueBuffer);
+
 
         // Only CRM
         AddEntityTableMapping('incident', DATABASE::"CRM Incident", TempNameValueBuffer);

@@ -70,6 +70,7 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
 
     procedure EnqueueGenJrnlLineWithUI(var GenJrnlLine: Record "Gen. Journal Line"; WithUI: Boolean)
     var
+        JobQueueEntry: Record "Job Queue Entry";
         Handled: Boolean;
     begin
         OnBeforeEnqueueGenJrnlLine(GenJrnlLine, Handled);
@@ -89,6 +90,12 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
             ModifyAll("Job Queue Status", "Job Queue Status"::"Scheduled for Posting");
             ModifyAll("Job Queue Entry ID", "Job Queue Entry ID");
 
+            JobQueueEntry.Get("Job Queue Entry ID");
+            JobQueueEntry.Validate("Earliest Start Date/Time", CurrentDateTime());
+            JobQueueEntry.Validate(Status, JobQueueEntry.Status::Ready);
+            JobQueueEntry.Modify(true);
+            Commit();
+
             if GuiAllowed then
                 if WithUI then
                     Message(Confirmation);
@@ -104,9 +111,13 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
             "Object Type to Run" := "Object Type to Run"::Codeunit;
             "Object ID to Run" := CODEUNIT::"Gen. Jnl.-Post via Job Queue";
             "Record ID to Process" := GenJrnlLine.RecordId;
+            "Earliest Start Date/Time" := CreateDateTime(Today() + 1, Time());
             FillJobEntryFromGeneralLedgerSetup(JobQueueEntry, GenJrnlLine."Print Posted Documents");
             FillJobEntryGeneralLedgerDescription(JobQueueEntry, GenJrnlLine);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+            Validate(Status, JobQueueEntry.Status::"On Hold");
+            Modify();
+            Commit();
             exit(ID);
         end;
     end;

@@ -674,14 +674,16 @@ table 472 "Job Queue Entry"
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.Init();
         JobQueueLogEntry.ID := Rec.ID;
-        JobQueueLogEntry."User ID" := Rec."User ID";
+        JobQueueLogEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueLogEntry."User ID"));
         JobQueueLogEntry."Parameter String" := Rec."Parameter String";
         JobQueueLogEntry."Start Date/Time" := Rec."User Session Started";
         JobQueueLogEntry."Object Type to Run" := Rec."Object Type to Run";
         JobQueueLogEntry."Object ID to Run" := Rec."Object ID to Run";
         JobQueueLogEntry.Description := Rec.Description;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
-        JobQueueLogEntry."Processed by User ID" := UserId();
+#if not CLEAN20
+        JobQueueLogEntry."Processed by User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueLogEntry."Processed by User ID"));
+#endif
         JobQueueLogEntry."Job Queue Category Code" := Rec."Job Queue Category Code";
         JobQueueLogEntry."System Task Id" := Rec."System Task ID";
         Rec.CalcFields(XML);

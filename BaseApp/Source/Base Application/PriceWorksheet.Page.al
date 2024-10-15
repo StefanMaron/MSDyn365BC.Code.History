@@ -42,7 +42,7 @@ page 7022 "Price Worksheet"
                 field(SourceGroupFilter; SourceGroup)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Applies-to Group';
+                    Caption = 'Assign-to Group';
                     ToolTip = 'Specifies a filter for which group the prices apply to: customer, vendor, or job.';
 
                     trigger OnValidate()
@@ -99,10 +99,10 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     //Editable = PriceListIsEditable;
                     Visible = SourceGroup = SourceGroup::Customer;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -113,10 +113,10 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     //Editable = PriceListIsEditable;
                     Visible = SourceGroup = SourceGroup::Vendor;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -127,10 +127,10 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     //Editable = PriceListIsEditable;
                     Visible = SourceGroup = SourceGroup::Job;
-                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
                     begin
@@ -142,13 +142,13 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Visible = SourceGroup = SourceGroup::Job;
                     Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the unique identifier of the job on the price list line.';
+                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
-                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
@@ -160,7 +160,7 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable;
-                    ToolTip = 'Specifies the number of the product.';
+                    ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -331,6 +331,19 @@ page 7022 "Price Worksheet"
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies if the price includes VAT.';
                 }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
             }
         }
     }

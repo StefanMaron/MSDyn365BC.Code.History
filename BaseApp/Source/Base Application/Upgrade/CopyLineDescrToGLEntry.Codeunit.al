@@ -7,7 +7,12 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         SetCopyLineDescrToGLEntries;
     end;
 

@@ -60,7 +60,7 @@ codeunit 134995 "UT Country/Region Code"
     begin
         with SalesHeader do
             CheckFieldsAreNotBlankAfterValidation(DATABASE::"Sales Header",
-              FieldNo("Sell-to City"), FieldNo("Sell-to Post Code"), FieldNo("Sell-to County"), FieldNo("Sell-to Country/Region Code"));
+              FieldNo("Sell-to City"), FieldNo("Sell-to Post Code"), FieldNo("Sell-to Country/Region Code"));
     end;
 
     [Test]
@@ -72,7 +72,7 @@ codeunit 134995 "UT Country/Region Code"
     begin
         with PurchaseHeader do
             CheckFieldsAreNotBlankAfterValidation(DATABASE::"Purchase Header",
-              FieldNo("Buy-from City"), FieldNo("Buy-from Post Code"), FieldNo("Buy-from County"), FieldNo("Buy-from Country/Region Code"));
+              FieldNo("Buy-from City"), FieldNo("Buy-from Post Code"), FieldNo("Buy-from Country/Region Code"));
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 134995 "UT Country/Region Code"
     begin
         with ServiceHeader do
             CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", FieldNo("Bill-to City"),
-              FieldNo("Bill-to Post Code"), FieldNo("Bill-to County"), FieldNo("Bill-to Country/Region Code"));
+              FieldNo("Bill-to Post Code"), FieldNo("Bill-to Country/Region Code"));
     end;
 
     [Test]
@@ -264,7 +264,7 @@ codeunit 134995 "UT Country/Region Code"
     begin
         with ServiceHeader do
             CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", FieldNo(City), FieldNo("Post Code"),
-              FieldNo(County), FieldNo("Country/Region Code"));
+              FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -478,24 +478,21 @@ codeunit 134995 "UT Country/Region Code"
         CountyFieldRef.TestField('');
     end;
 
-    local procedure CheckFieldsAreNotBlankAfterValidation(TableNo: Integer; City: Integer; PostCode: Integer; County: Integer; CountryRegionCode: Integer)
+    local procedure CheckFieldsAreNotBlankAfterValidation(TableNo: Integer; City: Integer; PostCode: Integer; CountryRegionCode: Integer)
     var
         RecRef: RecordRef;
         CityFieldRef: FieldRef;
         PostCodeFieldRef: FieldRef;
-        CountyFieldRef: FieldRef;
         CountryRegionFieldRef: FieldRef;
         NewCode: Code[20];
     begin
-        // Setup: Assign PostCode,City,County and Country/Region Code.
+        // Setup: Assign PostCode,City and Country/Region Code.
         NewCode := LibraryUTUtility.GetNewCode;
         RecRef.Open(TableNo);
         CityFieldRef := RecRef.Field(City);
         CityFieldRef.Value := NewCode;
         PostCodeFieldRef := RecRef.Field(PostCode);
         PostCodeFieldRef.Value := NewCode;
-        CountyFieldRef := RecRef.Field(County);
-        CountyFieldRef.Value := NewCode;
         CountryRegionFieldRef := RecRef.Field(CountryRegionCode);
         CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10;
         RecRef.Insert();
@@ -503,10 +500,9 @@ codeunit 134995 "UT Country/Region Code"
         // Exercise: Validate Country/Region Code as blank.
         CountryRegionFieldRef.Validate('');
 
-        // Verify: Verify PostCode,City and County are not blank.
+        // Verify: Verify PostCode andCity are not blank.
         CityFieldRef.TestField(NewCode);
         PostCodeFieldRef.TestField(NewCode);
-        CountyFieldRef.TestField(NewCode);
     end;
 
     local procedure InitCountry(CountryCode: Code[10])

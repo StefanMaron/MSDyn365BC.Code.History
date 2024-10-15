@@ -343,6 +343,7 @@ page 7002 "Sales Prices"
     trigger OnAfterGetCurrRecord()
     begin
         SalesCodeControlEditable := SetSalesCodeEditable("Sales Type");
+        OnAfterGetCurrRecordOnAfterCalcSalesCodeControlEditable(Rec, SalesCodeControlEditable);
     end;
 
     trigger OnInit()
@@ -356,8 +357,15 @@ page 7002 "Sales Prices"
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
         IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+
+        IsHandled := false;
+        OnOpenPageOnBeforeGetRecFilters(Rec, IsHandled);
+        if IsHandled then
+            exit;
         GetRecFilters;
         SetRecFilters;
         SetCaption();
@@ -637,6 +645,16 @@ page 7002 "Sales Prices"
     procedure GetSelectionFilter(var SalesPrice: Record "Sales Price")
     begin
         CurrPage.SetSelectionFilter(SalesPrice);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCurrRecordOnAfterCalcSalesCodeControlEditable(var SalesPrice: Record "Sales Price"; var SalesCodeControlEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnBeforeGetRecFilters(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
+    begin
     end;
 }
 #endif

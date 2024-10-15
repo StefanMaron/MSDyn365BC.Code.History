@@ -85,6 +85,14 @@ table 474 "Job Queue Log Entry"
         {
             Caption = 'Processed by User ID';
             DataClassification = EndUserIdentifiableInformation;
+#if not CLEAN20
+            ObsoleteTag = '20.0';
+            ObsoleteState = Pending;
+#else
+            ObsoleteTag = '22.0';
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'The Processed by User ID is the same as User ID';
         }
         field(17; "Job Queue Category Code"; Code[10])
         {

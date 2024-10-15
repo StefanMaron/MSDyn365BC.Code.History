@@ -2,7 +2,7 @@ page 5131 Opportunities
 {
     ApplicationArea = RelationshipMgmt;
     Caption = 'Opportunities';
-    DataCaptionExpression = Format(SelectStr(OutPutOption.AsInteger() + 1, Text002));
+    DataCaptionExpression = Format(OutPutOption);
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -171,7 +171,6 @@ page 5131 Opportunities
         OutPutOption: Enum "Opportunity Output";
         RoundingFactor: Enum "Analysis Rounding Factor";
         TableType: Enum "Opportunity Table Type";
-        Text002: Label 'No of Opportunities,Estimated Value (LCY),Calc. Current Value (LCY),Avg. Estimated Value (LCY),Avg. Calc. Current Value (LCY)';
         Periods: Integer;
         Datefilter: Text[1024];
         PKFirstRecInCurrSet: Text[100];
