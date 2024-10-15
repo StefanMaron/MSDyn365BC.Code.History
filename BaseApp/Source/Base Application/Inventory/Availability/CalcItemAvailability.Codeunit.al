@@ -632,6 +632,7 @@ codeunit 5530 "Calc. Item Availability"
         Item.CopyFilter("Location Filter", TransferReqLine."Transfer-from Code");
         Item.CopyFilter("Variant Filter", TransferReqLine."Variant Code");
         Item.CopyFilter("Date Filter", TransferReqLine."Transfer Shipment Date");
+        OnGetPlanningTransDemandOnAfterTransferReqLineSetFilters(TransferReqLine, Item);
         if TransferReqLine.FindSet() then
             repeat
                 if TransferReqLine."Action Message" <> TransferReqLine."Action Message"::New then begin
@@ -713,6 +714,7 @@ codeunit 5530 "Calc. Item Availability"
         ReqLine.SetRange("Ref. Order No.", ProdOrderComp."Prod. Order No.");
         ReqLine.SetRange("Ref. Line No.", ProdOrderComp."Prod. Order Line No.");
         ReqLine.SetRange("Operation No.", '');
+        OnParentIsInPlanningOnAfterReqLineSetFilters(ReqLine, ProdOrderComp);
         if ReqLine.FindFirst() then begin
             ParentActionMessage := ReqLine."Action Message";
             exit(true);
@@ -1346,6 +1348,16 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnTryGetPurchOrderSupplyEntriesOnBeforeInsertEntry(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPlanningTransDemandOnAfterTransferReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParentIsInPlanningOnAfterReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 }

@@ -225,7 +225,14 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DimInvalidErr: Label 'The dimensions used in transfer order %1, line no. %2 are invalid. %3', Comment = '%1 - document number, %2 = line number, %3 - error message';
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(DirectTransHeader2, TransLine3, DirectTransLine2, WhseShptHeader, ItemJnlPostLine, WhseShip, IsHandled);
+        if IsHandled then
+            exit;
+
         CreateItemJnlLine(TransLine3, DirectTransHeader2, DirectTransLine2);
         ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
           ItemJnlLine, ItemJnlLine."Quantity (Base)", Enum::"Transfer Direction"::Outbound, true);
@@ -666,6 +673,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; DirectTransHeader: Record "Direct Trans. Header"; DirectTransLine: Record "Direct Trans. Line"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(var DirectTransHeader: Record "Direct Trans. Header"; var TransferLine: Record "Transfer Line"; DirectTransLine: Record "Direct Trans. Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; WhseShip: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

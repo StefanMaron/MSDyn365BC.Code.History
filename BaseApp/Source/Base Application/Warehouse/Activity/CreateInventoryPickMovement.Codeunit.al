@@ -782,6 +782,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             NewWarehouseActivityLine."Destination No." := Job."Sell-to Customer No.";
                             JobPlanningLine.CalcFields("Reserved Quantity");
                             RemQtyToPickBase := JobPlanningLine."Remaining Qty. (Base)";
+                            OnBeforeNewWhseActivLineInsertFromJobPlanning(NewWarehouseActivityLine, JobPlanningLine, CurrWarehouseActivityHeader, RemQtyToPickBase);
                             CreatePickOrMoveLine(NewWarehouseActivityLine, RemQtyToPickBase, JobPlanningLine."Remaining Qty. (Base)", JobPlanningLine."Reserved Quantity" <> 0);
                         end;
             end;
@@ -1808,6 +1809,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 NewWarehouseActivityLine."Due Date" := "Due Date";
                 RemQtyToPickBase := "Qty. (Base)";
                 PrepareItemTrackingForWhseMovement(WhseWorksheetLine2);
+                OnCreateInvtMvntWithoutSourceOnBeforeCreatePickOrMoveLine(NewWarehouseActivityLine, WhseWorksheetLine2);
                 CreatePickOrMoveLine(NewWarehouseActivityLine, RemQtyToPickBase, RemQtyToPickBase, false);
             until Next() = 0;
         end;
@@ -2806,6 +2808,16 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLineData(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; TakeBinCode: Code[20]; var NextLineNo: Integer; Location: Record Location; var LineCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvtMvntWithoutSourceOnBeforeCreatePickOrMoveLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewWhseActivLineInsertFromJobPlanning(var WarehouseActivityLine: Record "Warehouse Activity Line"; var JobPlanningLine: Record "Job Planning Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 }

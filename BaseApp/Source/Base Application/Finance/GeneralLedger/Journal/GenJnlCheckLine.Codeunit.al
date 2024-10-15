@@ -763,7 +763,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             exit;
 
         with GenJnlLine do
-            if "Document Type" <> "Document Type"::" " then begin
+            if ("Document Type" <> "Document Type"::" ") and (not "Financial Void") then begin
                 if ("Account Type" = "Account Type"::Employee) and not
                    ("Document Type" in ["Document Type"::Payment, "Document Type"::" "])
                 then
@@ -1028,7 +1028,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := true;
+        IsHandled := false;
         OnBeforeCheckAppliesToDocNo(GenJnlLine, IsHandled);
         if IsHandled then
             exit;

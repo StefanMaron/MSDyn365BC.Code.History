@@ -53,6 +53,7 @@
         PrepmtCrMemoErr: Label 'Prepayment Credit Memo must be equal to ''No''';
         CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 - "sales order 1001".';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
+        SalesOrderNotCreatedWorksheetLineMsg: Label 'The Sales Order entry not created in Cash Flow Worksheet.';
         CustomerNo: Code[20];
 
     [Test]
@@ -4084,6 +4085,72 @@
                 SalesCrMemoHeader.TableCaption));
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestWorksheetLinesReqLiquidFundsPageHandler')]
+    procedure CheckCashFlowWorksheetWhenPrePaymentPercent100()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
+        CashFlowJournal: TestPage "Cash Flow Worksheet";
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20];
+        DocumentNo3: Code[20];
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 487778] Cash Flow shows incorrect for Prepayment and Partial Invoice.   
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesDocument(SalesHeader, SalesLine, LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Update the Prepayment % in Sales Header.
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Validate("Compress Prepayment", false);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post the Prepayment invoice.
+        DocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        TotalAmount := GetTotalPrePaymentAmount(DocumentNo);
+
+        // [WHEN] Post the Prepayment Credit Memo.
+        DocumentNo2 := LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader);
+        TotalAmount += GetTotalPrePaymentAmount(DocumentNo2);
+
+        // [WHEN] Post the Prepayment invoice.
+        DocumentNo3 := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        TotalAmount += GetTotalPrePaymentAmount(DocumentNo3);
+
+        // [GIVEN] Create Cash Receipt Journal.
+        CreateCashReceiptJnlLine(GenJournalLine, SalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Apply Prepayment Invoices.
+        ApplyAndPostPmtToMultipleSalesInvoices(CustomerLedgerEntry, GenJournalLine, TotalAmount);
+
+        // [GIVEN] Post Partial Sales Order.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Cash Flow Forecast.
+        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+
+        // [GIVEN] Open Cash Flow Journal Page and Created Cash Flow Work Sheet Lines.
+        LibraryVariableStorage.Enqueue(CashFlowForecast."No.");
+        CashFlowJournal.OpenEdit();
+        CashFlowJournal.SuggestWorksheetLines.Invoke();
+        CashFlowJournal.Close();
+
+        // [VERIFY] No Sales Order Entry Created in Cash Flow Journal.
+        CashFlowWorksheetLine.SetRange("Source No.", SalesHeader."No.");
+        Assert.IsFalse(CashFlowWorksheetLine.FindFirst(), SalesOrderNotCreatedWorksheetLineMsg);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6539,6 +6606,42 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure ApplyAndPostPmtToMultipleSalesInvoices(var CustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; Amt: decimal)
+    begin
+        CustLedgEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+        LibraryERM.SetAppliestoIdCustomer(CustLedgEntry);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Validate(Amount, -Amt);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure GetTotalPrePaymentAmount(DocumentNo: Code[20]): Decimal
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        exit(CustLedgerEntry."Remaining Amount");
+    end;
+
+    local procedure CreateCashReceiptJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, AccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure PrepaymentConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -6708,6 +6811,28 @@
         Response: Action)
     begin
         Response := ACTION::OK;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestWorksheetLinesReqLiquidFundsPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")
+    var
+        CashFlowNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CashFlowNo);
+        SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowNo);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Liquid Funds""]".SetValue(false);  // Liquid Funds.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Service Orders""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Receivables]".SetValue(true);  // Receivables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::Payables]".SetValue(false);  // Payables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Purchase Order""]".SetValue(false);  // Purchase Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Revenue""]".SetValue(false);  // Cash Flow Manual Revenue.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sales Order""]".SetValue(true);  // Sales Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Budgeted Fixed Asset""]".SetValue(false);  // Budgeted Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
+        SuggestWorksheetLines.OK.Invoke;
     end;
 }
 

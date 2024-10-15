@@ -399,7 +399,7 @@ codeunit 444 "Purchase-Post Prepayments"
             if not CheckOpenPrepaymentLines(PurchHeader, DocumentType) then
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
             CheckDimensions.CheckPurchPrepmtDim(PurchHeader);
-            ErrorMessageMgt.Finish(RecordId);
+
             CheckPurchasePostRestrictions();
             Vend.Get("Buy-from Vendor No.");
             Vend.CheckBlockedVendOnDocs(Vend, true);
@@ -407,7 +407,8 @@ codeunit 444 "Purchase-Post Prepayments"
                 Vend.Get("Pay-to Vendor No.");
                 Vend.CheckBlockedVendOnDocs(Vend, true);
             end;
-            OnAfterCheckPrepmtDoc(PurchHeader, DocumentType);
+            OnAfterCheckPrepmtDoc(PurchHeader, DocumentType, ErrorMessageMgt);
+            ErrorMessageMgt.Finish(RecordId);
         end;
     end;
 
@@ -1739,7 +1740,7 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
+    local procedure OnAfterCheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 

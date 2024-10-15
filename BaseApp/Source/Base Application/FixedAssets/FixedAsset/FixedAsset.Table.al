@@ -27,7 +27,8 @@ table 5600 "Fixed Asset"
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Fixed Asset List";
     LookupPageID = "Fixed Asset List";
-    Permissions = TableData "Ins. Coverage Ledger Entry" = r;
+    Permissions = TableData "Ins. Coverage Ledger Entry" = r,
+                  TableData Employee = r;
 
     fields
     {
@@ -158,6 +159,8 @@ table 5600 "Fixed Asset"
             TableRelation = "FA Location";
 
             trigger OnValidate()
+            var
+                FALocation: Record "FA Location";
             begin
                 if (Status > Status::Inventory) and (xRec."Location Code" <> '') then
                     TestNoEntriesExist(FieldCaption("Location Code"));
@@ -168,6 +171,8 @@ table 5600 "Fixed Asset"
                     if "Assessed Tax Code" <> '' then
                         CheckRegionCode();
                 end;
+
+                UpdateFALocationId();
             end;
         }
         field(11; "Vendor No."; Code[20])
@@ -203,6 +208,11 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Responsible Employee';
             TableRelation = Employee;
+
+            trigger OnValidate()
+            begin
+                UpdateResponsibleEmployeeId();
+            end;
         }
         field(17; "Serial No."; Text[50])
         {
@@ -301,6 +311,28 @@ table 5600 "Fixed Asset"
         field(140; Image; Media)
         {
             Caption = 'Image';
+        }
+        field(9001; "FA Location Id"; Guid)
+        {
+            Caption = 'FA Location Code';
+            DataClassification = SystemMetadata;
+            TableRelation = "FA Location".SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateFALocationCode();
+            end;
+        }
+        field(9002; "Responsible Employee Id"; Guid)
+        {
+            Caption = 'Responsible Employee';
+            DataClassification = SystemMetadata;
+            TableRelation = Employee.SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateResponsibleEmployeeCode();
+            end;
         }
         field(12400; "Inventory Number"; Text[30])
         {
@@ -855,6 +887,9 @@ table 5600 "Fixed Asset"
           "Global Dimension 1 Code", "Global Dimension 2 Code");
 
         InitFADeprBooks("No.");
+
+        UpdateFALocationId();
+        UpdateResponsibleEmployeeId();
     end;
 
     trigger OnModify()
@@ -883,7 +918,6 @@ table 5600 "Fixed Asset"
         MainAssetComp: Record "Main Asset Component";
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         AmortizationCode: Record "Depreciation Code";
-        FALocation: Record "FA Location";
         FALedgEntry: Record "FA Ledger Entry";
         TaxRegisterSetup: Record "Tax Register Setup";
         AssessedTaxCode: Record "Assessed Tax Code";
@@ -1177,6 +1211,56 @@ table 5600 "Fixed Asset"
             FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID(), "No.");
             NotificationLifecycleMgt.SendNotification(FAAcquireWizardNotification, RecordId);
         end
+    end;
+
+    local procedure UpdateFALocationId()
+    var
+        FALocation: Record "FA Location";
+    begin
+        if "FA Location Code" = '' then begin
+            Clear("FA Location Id");
+            exit;
+        end;
+
+        if not FALocation.Get("FA Location Code") then
+            exit;
+
+        "FA Location Id" := FALocation.SystemId;
+    end;
+
+    local procedure UpdateFALocationCode()
+    var
+        FALocation: Record "FA Location";
+    begin
+        if not IsNullGuid("FA Location Id") then
+            FALocation.GetBySystemId("FA Location Id");
+
+        "FA Location Code" := FALocation.Code;
+    end;
+
+    local procedure UpdateResponsibleEmployeeId()
+    var
+        Employee: Record Employee;
+    begin
+        if "Responsible Employee" = '' then begin
+            Clear("Responsible Employee Id");
+            exit;
+        end;
+
+        if not Employee.Get("Responsible Employee") then
+            exit;
+
+        "Responsible Employee Id" := Employee.SystemId;
+    end;
+
+    local procedure UpdateResponsibleEmployeeCode()
+    var
+        Employee: Record Employee;
+    begin
+        if not IsNullGuid("Responsible Employee Id") then
+            Employee.GetBySystemId("Responsible Employee Id");
+
+        "Responsible Employee" := Employee."No.";
     end;
 
     procedure GetNotificationID(): Guid

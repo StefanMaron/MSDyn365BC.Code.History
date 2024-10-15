@@ -2397,6 +2397,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     if Amount <> Round(Amount) then
                         FieldError(Amount, StrSubstNo(NeedsRoundingErr, Amount));
 
+                OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
                 UpdateCheckAmounts(
                   "Posting Date", Amount, "Additional-Currency Amount",
                   BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
@@ -3830,6 +3831,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 UpdateCalcInterest(OldCVLedgEntryBuf, NewCVLedgEntryBuf);
             end;
 
+            if (OldCVLedgEntryBuf."Currency Code" = NewCVLedgEntryBuf."Currency Code") and (OldCVLedgEntryBuf."Applies-to ID" = '') then
+                OldCVLedgEntryBuf."Amount to Apply" := 0;
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldCustLedgEntry := TempOldCustLedgEntry;
             if GenJnlLine."On Hold" = OldCustLedgEntry."On Hold" then
@@ -11790,6 +11793,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnStartPostingOnAfterSetNextVatEntryNo(var VatEntry: Record "VAT Entry"; var NextVATEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal);
     begin
     end;
 }

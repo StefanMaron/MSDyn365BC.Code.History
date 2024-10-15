@@ -276,7 +276,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckFAPostingDate(GenJnlLine, FAJnlLine, DeprBook, IsHandled, FADeprBook, GenJnlPosting);
+        OnBeforeCheckFAPostingDate(GenJnlLine, FAJnlLine, DeprBook, IsHandled, FADeprBook, GenJnlPosting, FAPostingDate);
         if IsHandled then
             exit;
 
@@ -331,6 +331,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     local procedure CheckFAIntegration()
     var
         GLIntegration: Boolean;
+        IsHandled: Boolean;
     begin
         if GenJnlPosting and FA."Budgeted Asset" then
             GenJnlLine.FieldError("Account No.", StrSubstNo(Text006, FA.FieldCaption("Budgeted Asset")));
@@ -359,8 +360,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
         if (FAJnlLine."FA No." <> '') and (FAJnlLine."Reclas. without G/L") then
             GLIntegration := false;
-
-        OnAfterSetGLIntegration(FAPostingType, GLIntegration, GenJnlPosting, DeprBook);
+	    
+        IsHandled := false;
+        OnAfterSetGLIntegration(FAPostingType, GLIntegration, GenJnlPosting, DeprBook, IsHandled);
+        if IsHandled then
+            exit;
 
         if GLIntegration and not GenJnlPosting then
             FAJnlLine.FieldError(
@@ -491,7 +495,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                         FieldError("Depr. until FA Posting Date", FieldErrorText);
 
                 ShouldCheckNoOfDepreciationDays := ("FA Posting Type" <> "FA Posting Type"::Depreciation) and ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and ("No. of Depreciation Days" <> 0);
-                OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJnlLine, FieldErrorText, ShouldCheckNoOfDepreciationDays);
+                OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJnlLine, FieldErrorText, ShouldCheckNoOfDepreciationDays, FAJnlLine);
                 if ShouldCheckNoOfDepreciationDays then
                     FieldError("No. of Depreciation Days", FieldErrorText);
 
@@ -559,10 +563,9 @@ codeunit 5631 "FA Jnl.-Check Line"
                 then
                     FieldError("Maintenance Code", FieldErrorText);
 
-                if ("FA Posting Type" <> "FA Posting Type"::Depreciation) and
-                   ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and
-                   ("No. of Depreciation Days" <> 0)
-                then
+                ShouldCheckNoOfDepreciationDays := ("FA Posting Type" <> "FA Posting Type"::Depreciation) and ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and ("No. of Depreciation Days" <> 0);
+                OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJnlLine, FieldErrorText, ShouldCheckNoOfDepreciationDays, FAJnlLine);
+                if ShouldCheckNoOfDepreciationDays then
                     FieldError("No. of Depreciation Days", FieldErrorText);
 
                 if "FA Posting Type" = "FA Posting Type"::Disposal then begin
@@ -583,6 +586,8 @@ codeunit 5631 "FA Jnl.-Check Line"
                    (DeprBook.Code <> FASetup."Insurance Depr. Book")
                 then
                     TestField("Insurance No.", '');
+
+                OnAfterCheckConsistencyFAJnlPosting(FAJnlLine);
             end;
     end;
 
@@ -710,12 +715,12 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var GnlJnlPosting: Boolean; DeprBook: Record "Depreciation Book")
+    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var GnlJnlPosting: Boolean; DeprBook: Record "Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckFAPostingDate(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean; FADepreciationBook: Record "FA Depreciation Book"; GenJnlPosting: Boolean)
+    local procedure OnBeforeCheckFAPostingDate(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean; FADepreciationBook: Record "FA Depreciation Book"; GenJnlPosting: Boolean; var FAPostingDate: Date)
     begin
     end;
 
@@ -735,7 +740,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJournalLine: Record "Gen. Journal Line"; FieldErrorText: Text[250]; var ShouldCheckNoOfDepreciationDays: Boolean);
+    local procedure OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJournalLine: Record "Gen. Journal Line"; FieldErrorText: Text[250]; var ShouldCheckNoOfDepreciationDays: Boolean; FAJournalLine: Record "FA Journal Line");
     begin
     end;
 
@@ -746,6 +751,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckFAJnlLineOnBeforeCheckJnlLine(var FAJournalLine2: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckConsistencyFAJnlPosting(var FAJnlLine: Record "FA Journal Line")
     begin
     end;
 }

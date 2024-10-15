@@ -6196,7 +6196,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopyArchSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeaderArchive: Record "Sales Header Archive"; var FromSalesLineArchive: Record "Sales Line Archive"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean): Boolean
     var
-        ToSalesLine2: Record "Sales Line";
+        LastInsertedSalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         FromSalesHeader: Record "Sales Header";
         FromSalesLine: Record "Sales Line";
@@ -6310,11 +6310,8 @@ codeunit 6620 "Copy Document Mgt."
                           FromSalesLineArchive."Line No.", NextLineNo, FromSalesLineArchive."Attached to Line No.");
             end else
                 if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then begin
-                    TransferExtendedText.InsertSalesExtText(ToSalesLine);
-                    ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
-                    ToSalesLine2.SetRange("Document No.", ToSalesLine."Document No.");
-                    ToSalesLine2.FindLast();
-                    NextLineNo := ToSalesLine2."Line No.";
+                    TransferExtendedText.InsertSalesExtTextRetLast(ToSalesLine, LastInsertedSalesLine);
+                    NextLineNo := LastInsertedSalesLine."Line No.";
                 end;
 
         if CopyThisLine then begin
@@ -6329,7 +6326,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopyArchPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeaderArchive: Record "Purchase Header Archive"; var FromPurchLineArchive: Record "Purchase Line Archive"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean): Boolean
     var
-        ToPurchLine2: Record "Purchase Line";
+        LastInsertedPurchLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         FromPurchHeader: Record "Purchase Header";
         FromPurchLine: Record "Purchase Line";
@@ -6442,11 +6439,8 @@ codeunit 6620 "Copy Document Mgt."
                           FromPurchLineArchive."Line No.", NextLineNo, FromPurchLineArchive."Attached to Line No.");
             end else
                 if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
-                    TransferExtendedText.InsertPurchExtText(ToPurchLine);
-                    ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
-                    ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
-                    ToPurchLine2.FindLast();
-                    NextLineNo := ToPurchLine2."Line No.";
+                    TransferExtendedText.InsertPurchExtTextRetLast(ToPurchLine, LastInsertedPurchLine);
+                    NextLineNo := LastInsertedPurchLine."Line No.";
                 end;
 
         if CopyThisLine then begin
@@ -7936,7 +7930,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure CopySalesLineExtText(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; DocLineNo: Integer; var NextLineNo: Integer)
     var
-        ToSalesLine2: Record "Sales Line";
+        LastInsertedSalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7946,11 +7940,8 @@ codeunit 6620 "Copy Document Mgt."
 
         if (ToSalesHeader."Language Code" <> FromSalesHeader."Language Code") or RecalculateLines or CopyExtText then
             if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then begin
-                TransferExtendedText.InsertSalesExtText(ToSalesLine);
-                ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
-                ToSalesLine2.SetRange("Document No.", ToSalesLine."Document No.");
-                ToSalesLine2.FindLast();
-                NextLineNo := ToSalesLine2."Line No.";
+                TransferExtendedText.InsertSalesExtTextRetLast(ToSalesLine, LastInsertedSalesLine);
+                NextLineNo := LastInsertedSalesLine."Line No.";
                 exit;
             end;
 
@@ -8003,7 +7994,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure CopyPurchLineExtText(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; DocLineNo: Integer; var NextLineNo: Integer)
     var
-        ToPurchLine2: Record "Purchase Line";
+        LastInsertedPurchLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -8011,11 +8002,8 @@ codeunit 6620 "Copy Document Mgt."
         if not IsHandled then begin
             if (ToPurchHeader."Language Code" <> FromPurchHeader."Language Code") or RecalculateLines or CopyExtText then
                 if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
-                    TransferExtendedText.InsertPurchExtText(ToPurchLine);
-                    ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
-                    ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
-                    ToPurchLine2.FindLast();
-                    NextLineNo := ToPurchLine2."Line No.";
+                    TransferExtendedText.InsertPurchExtTextRetLast(ToPurchLine, LastInsertedPurchLine);
+                    NextLineNo := LastInsertedPurchLine."Line No.";
                     exit;
                 end;
 

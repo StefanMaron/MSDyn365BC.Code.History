@@ -238,6 +238,8 @@ table 77 "Report Selections"
 
     procedure NewRecord()
     begin
+        OnBeforeNewRecord(Rec, ReportSelection2);
+
         ReportSelection2.SetRange(Usage, Usage);
         if ReportSelection2.FindLast() and (ReportSelection2.Sequence <> '') then
             Sequence := IncStr(ReportSelection2.Sequence)
@@ -634,7 +636,10 @@ table 77 "Report Selections"
         if IsHandled then
             exit;
 
-        FindReportUsageForCust(ReportUsage, CustNo, TempBodyReportSelections);
+        IsHandled := false;
+        OnGetHtmlReportForCustOnBeforeFindReportUsage(Rec, ReportUsage, RecordVariant, CustNo, TempBodyReportSelections, IsHandled);
+        if not IsHandled then
+            FindReportUsageForCust(ReportUsage, CustNo, TempBodyReportSelections);
 
         ServerEmailBodyFilePath :=
             SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
@@ -691,6 +696,11 @@ table 77 "Report Selections"
 
         if CustEmailAddress = '' then
             CustEmailAddress := GetEmailAddressIgnoringLayout(ReportUsage, RecordVariant, CustNo);
+
+        IsHandled := false;
+        OnGetEmailBodyTextForCustOnBeforeFindEmailBodyUsageForCust(Rec, ReportUsage, RecordVariant, CustNo, TempBodyReportSelections, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if not FindEmailBodyUsageForCust(ReportUsage, CustNo, TempBodyReportSelections) then begin
             IsHandled := false;
@@ -1397,6 +1407,7 @@ table 77 "Report Selections"
         ServerEmailBodyFilePath: Text[250];
         EmailAddress: Text[250];
         EmailBodyText: Text;
+        IsHandled: Boolean;
     begin
         if EmailParameter.GetParameterWithReportUsage(DocNo, ReportUsage, EmailParameter."Parameter Type"::Body) then
             EmailBodyText := EmailParameter.GetParameterValue();
@@ -1405,7 +1416,11 @@ table 77 "Report Selections"
         BindSubscription(MailManagement);
         FoundBody := GetEmailBodyTextForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, CustNo, EmailAddress, EmailBodyText);
         UnbindSubscription(MailManagement);
-        FoundAttachment := FindEmailAttachmentUsageForCust(ReportUsage, CustNo, TempAttachReportSelections);
+
+        IsHandled := false;
+        OnSendEmailToCustDirectlyOnBeforeFindEmailAttachmentUsageForCust(Rec, ReportUsage, RecordVariant, CustNo, TempAttachReportSelections, FoundAttachment, IsHandled);
+        if not IsHandled then
+            FoundAttachment := FindEmailAttachmentUsageForCust(ReportUsage, CustNo, TempAttachReportSelections);
 
         CustomReportSelection.SetRange("Source Type", Database::Customer);
         CustomReportSelection.SetRange("Source No.", CustNo);
@@ -1585,9 +1600,14 @@ table 77 "Report Selections"
         TempBlob: Codeunit "Temp Blob";
         AttachmentInStream: InStream;
         ClientAttachmentFileName: Text;
+        IsHandled: Boolean;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
-        FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
+
+        IsHandled := false;
+        OnSendToDiskForCustOnBeforeFindReportUsage(Rec, ReportUsage, RecordVariant, CustNo, TempReportSelections, IsHandled);
+        if not IsHandled then
+            FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
                 OnSendToDiskForCustOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
@@ -1643,9 +1663,14 @@ table 77 "Report Selections"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         AttachmentTempBlob: Codeunit "Temp Blob";
         AttachmentInStream: InStream;
+        IsHandled: Boolean;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
-        FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
+
+        IsHandled := false;
+        OnSendToZipForCustOnBeforeFindReportUsageForCust(Rec, ReportUsage, RecordVariant, CustNo, TempReportSelections, IsHandled);
+        if not IsHandled then
+            FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
                 OnSendToZipForCustOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
@@ -1889,10 +1914,15 @@ table 77 "Report Selections"
         exit(CopyReportSelectionToReportSelection(TempReportSelections));
     end;
 
-    local procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer): Boolean
+    local procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer) Result: Boolean
     var
         CustomReportSelection: Record "Custom Report Selection";
+        IsHandled: Boolean;
     begin
+        OnBeforeCopyCustomReportSectionToReportSelection(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         GetCustomReportSelectionByUsageFilter(CustomReportSelection, AccountNo, GetFilter(Usage), TableNo);
         CopyToReportSelection(TempToReportSelections, CustomReportSelection);
 
@@ -2093,12 +2123,17 @@ table 77 "Report Selections"
     local procedure GetLastSequenceNo(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"): Code[10]
     var
         TempReportSelections: Record "Report Selections" temporary;
+        IsHandled: Boolean;
     begin
         TempReportSelections.Copy(TempReportSelectionsSource, true);
         TempReportSelections.SetRange(Usage, ReportUsage);
         if TempReportSelections.FindLast() then;
-        if TempReportSelections.Sequence = '' then
-            TempReportSelections.Sequence := '1';
+
+        IsHandled := false;
+        OnGetLastSequenceNoOnBeforeFillEmptySequence(TempReportSelections, IsHandled);
+        if not IsHandled then
+            if TempReportSelections.Sequence = '' then
+                TempReportSelections.Sequence := '1';
         exit(TempReportSelections.Sequence);
     end;
 
@@ -2261,7 +2296,7 @@ table 77 "Report Selections"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSetReportLayout(RecordVariant: Variant; ReportUsage: Integer)
     begin
     end;
@@ -2281,7 +2316,7 @@ table 77 "Report Selections"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindReportSelections(var FilterReportSelections: Record "Report Selections"; var IsHandled: Boolean; var ReturnReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer)
     begin
     end;
@@ -2470,6 +2505,46 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAccountNoFilterForCustomReportLayoutOnAfterSetCustomReportSelectionFilters(var CustomReportSelection: Record "Custom Report Selection"; var TempReportSelections: Record "Report Selections" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewRecord(var ReportSelections: Record "Report Selections"; var ReportSelections2: Record "Report Selections")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyCustomReportSectionToReportSelection(var ReportSelectionsOrg: Record "Report Selections"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLastSequenceNoOnBeforeFillEmptySequence(var TempReportSelections: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmailBodyTextForCustOnBeforeFindEmailBodyUsageForCust(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelections: Record "Report Selections"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetHtmlReportForCustOnBeforeFindReportUsage(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToZipForCustOnBeforeFindReportUsageForCust(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToDiskForCustOnBeforeFindReportUsage(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailToCustDirectlyOnBeforeFindEmailAttachmentUsageForCust(var ReportSelectionsOrg: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var ReportSelectionsPart: Record "Report Selections"; var FoundAttachment: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

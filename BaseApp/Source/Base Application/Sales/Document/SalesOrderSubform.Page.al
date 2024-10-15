@@ -88,7 +88,14 @@ page 46 "Sales Order Subform"
                     ToolTip = 'Specifies what you are selling, such as a product or a fixed asset. You’ll see different lists of things to choose from depending on your choice in the Type field.';
 
                     trigger OnValidate()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeValidateNo(Rec, xRec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
@@ -2455,6 +2462,11 @@ page 46 "Sales Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertExtendedTextOnAfterInsertSalesExtText(SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateNo(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

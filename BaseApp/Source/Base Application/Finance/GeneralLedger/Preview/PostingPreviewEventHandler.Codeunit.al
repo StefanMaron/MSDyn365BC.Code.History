@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.FixedAssets.Ledger;
 using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Foundation.Navigate;
@@ -638,6 +639,12 @@ codeunit 20 "Posting Preview Event Handler"
         Result := true;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank. Acc. Recon. Post Preview", 'OnSystemSetPostingPreviewActive', '', false, false)]
+    local procedure SetTrueOnSystemSetPostingPreviewActiveBankRecon(var Result: Boolean)
+    begin
+        Result := true;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", OnSetPostingPreviewDocumentNo, '', false, false)]
     local procedure SetPurchasePostingPreviewDocumentNo(var PreviewDocumentNo: Code[20])
     var
@@ -672,6 +679,18 @@ codeunit 20 "Posting Preview Event Handler"
     local procedure GetSalesPostingPreviewDocumentNos(var PreviewDocumentNos: List of [Code[20]])
     begin
         PreviewDocumentNos := PreviewDocumentNumbers;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"FA Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyFALedgEntry(var Rec: Record "FA Ledger Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        TempFALedgEntry := Rec;
+        TempFALedgEntry."Document No." := '***';
+        if TempFALedgEntry.Modify() then
+            PreventCommit();
     end;
 }
 

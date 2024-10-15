@@ -1502,7 +1502,11 @@ table 5767 "Warehouse Activity Line"
             if WarehouseActivityLine."Activity Type" = WarehouseActivityLine."Activity Type"::"Put-away" then begin
                 if WarehouseActivityLine."Breakbulk No." <> 0 then
                     Error(Text007);
-                WarehouseActivityLine.TestField("Action Type", WarehouseActivityLine."Action Type"::Place);
+
+                IsHandled := false;
+                OnCheckSplitLineOnBeforeTestFieldActionType(WarehouseActivityLine, IsHandled);
+                if not IsHandled then
+                    WarehouseActivityLine.TestField("Action Type", WarehouseActivityLine."Action Type"::Place);
             end;
             if WarehouseActivityLine."Qty. to Handle" = WarehouseActivityLine."Qty. Outstanding" then
                 WarehouseActivityLine.FieldError(
@@ -2852,13 +2856,19 @@ table 5767 "Warehouse Activity Line"
     end;
 
     procedure TestTrackingIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        IsHandled: Boolean;
     begin
-        if WhseItemTrackingSetup."Serial No. Required" then begin
-            TestField("Serial No.");
-            TestField("Qty. (Base)", 1);
+        IsHandled := false;
+        OnBeforeTestTrackingIfRequired(Rec, WhseItemTrackingSetup, IsHandled);
+        if not IsHandled then begin
+            if WhseItemTrackingSetup."Serial No. Required" then begin
+                TestField("Serial No.");
+                TestField("Qty. (Base)", 1);
+            end;
+            if WhseItemTrackingSetup."Lot No. Required" then
+                TestField("Lot No.");
         end;
-        if WhseItemTrackingSetup."Lot No. Required" then
-            TestField("Lot No.");
 
         OnAfterTestTrackingIfRequired(Rec, WhseItemTrackingSetup);
     end;
@@ -3617,6 +3627,16 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteRelatedWhseActivLinesOnAfterUpdateRelatedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine2: Record "Warehouse Activity Line"; var CalledFromHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestTrackingIfRequired(WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSplitLineOnBeforeTestFieldActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }

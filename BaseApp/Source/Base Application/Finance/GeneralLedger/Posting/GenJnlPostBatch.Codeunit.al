@@ -29,8 +29,10 @@ using System.Utilities;
 
 codeunit 13 "Gen. Jnl.-Post Batch"
 {
-    Permissions = TableData "Gen. Journal Batch" = rimd,
-                  tabledata "Gen. Journal Line Archive" = rimd;
+    Permissions =
+        TableData "Gen. Journal Batch" = rimd,
+        TableData "Gen. Journal Line" = rimd,
+        TableData "Gen. Journal Line Archive" = rimd;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()

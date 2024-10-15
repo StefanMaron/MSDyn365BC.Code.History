@@ -70,7 +70,7 @@ report 7305 "Whse.-Source - Create Document"
                         UpdateWhseItemTrkgLines(PostedWhseReceiptLine2, Database::"Posted Whse. Receipt Line", TempWhseItemTrkgLine);
 
                         if CreateErrorText = '' then
-                            CreatePutAway.GetMessage(CreateErrorText);
+                            CreatePutAway.GetMessageText(CreateErrorText);
                         if EverythingHandled then
                             EverythingHandled := CreatePutAway.EverythingIsHandled();
                     end;
@@ -211,7 +211,7 @@ report 7305 "Whse.-Source - Create Document"
                     UpdateWhseItemTrkgLines(PostedWhseRcptLine, SourceType, TempWhseItemTrkgLine);
                 end else
                     if CreateErrorText = '' then
-                        CreatePutAway.GetMessage(CreateErrorText);
+                        CreatePutAway.GetMessageText(CreateErrorText);
             end;
 
             trigger OnPreDataItem()
@@ -789,7 +789,7 @@ report 7305 "Whse.-Source - Create Document"
         WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order",Job;
         SortActivity: Enum "Whse. Activity Sorting Method";
         SourceTableCaption: Text;
-        CreateErrorText: Text[80];
+        CreateErrorText: Text;
         Text000: Label '%1 activity no. %2 has been created.';
         Text001: Label '%1 activities no. %2 to %3 have been created.';
         PrintDoc: Boolean;

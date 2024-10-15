@@ -673,6 +673,17 @@ table 311 "Sales & Receivables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
+#if not CLEAN21
+
+            trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+            begin
+                if ("Default Price List Code" <> xRec."Default Price List Code") or (CurrFieldNo = 0) then
+                    FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+            end;
+#endif
         }
         field(7005; "Use Customized Lookup"; Boolean)
         {

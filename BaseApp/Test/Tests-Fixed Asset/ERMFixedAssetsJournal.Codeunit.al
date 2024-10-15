@@ -1,7 +1,8 @@
 codeunit 134450 "ERM Fixed Assets Journal"
 {
     Permissions = TableData "G/L Account" = r,
-                  TableData "Ins. Coverage Ledger Entry" = rimd;
+                  TableData "Ins. Coverage Ledger Entry" = rimd,
+                  TableData Employee = r;
 
     Subtype = Test;
     TestPermissions = NonRestrictive;

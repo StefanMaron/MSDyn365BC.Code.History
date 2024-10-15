@@ -859,7 +859,13 @@ table 15 "G/L Account"
         ICGLAccount: Record "IC G/L Account";
         MoveEntries: Codeunit MoveEntries;
         GLCorrespondence: Record "G/L Correspondence";
+        IsHandled: Boolean;	
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+	    
         MoveEntries.MoveGLEntries(Rec);
         MoveEntries.MoveCorrespondenceEntries(Rec);
 
@@ -1248,6 +1254,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGenProdPostingGroup(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

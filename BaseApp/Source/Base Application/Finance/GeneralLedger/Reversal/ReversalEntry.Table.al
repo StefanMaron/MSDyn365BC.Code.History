@@ -272,7 +272,6 @@ table 179 "Reversal Entry"
         CannotReverseTaxDiffEntryErr: Label 'You cannot reverse tax difference entry %1 before reversing of entry %2.', Comment = '%1 = entry no., %2 = entry no.';
         Text1002: Label 'You cannot reverse %1 No. %2 because %3 No. %4 exists. This invoice should be deleted before reversing.';
         Text1003: Label '-AD';
-        UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
         CaptionTxt: Label '%1 %2 %3', Locked = true;
 
     protected var
@@ -533,6 +532,9 @@ table 179 "Reversal Entry"
         if GlobalGLEntry."Source Code" = SourceCodeSetup."Payment Reconciliation Journal" then
             exit;
 
+        if GlobalGLEntry."Source Code" = SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl." then
+            exit;
+
         TestFieldError();
     end;
 
@@ -707,9 +709,6 @@ table 179 "Reversal Entry"
               Text006, VATEntry.TableCaption(), VATEntry."Entry No.");
         if VATEntry.Reversed then
             AlreadyReversedEntry(VATEntry.TableCaption(), VATEntry."Entry No.");
-        if VATEntry."Unrealized VAT Entry No." <> 0 then
-            if not VATEntry."Manual VAT Settlement" then
-                Error(UnrealizedVATReverseError(VATEntry.TableCaption(), VATEntry."Entry No."));
 
         OnAfterCheckVAT(VATEntry);
     end;
@@ -1070,8 +1069,15 @@ table 179 "Reversal Entry"
         Error(Text011, TableCaption, EntryNo);
     end;
 
-    procedure VerifyReversalEntries(var ReversalEntry2: Record "Reversal Entry"; Number: Integer; RevType: Option Transaction,Register): Boolean
+    procedure VerifyReversalEntries(var ReversalEntry2: Record "Reversal Entry"; Number: Integer; RevType: Option Transaction,Register) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyReversalEntries(ReversalEntry2, Number, RevType, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         InsertReversalEntry(Number, RevType);
         Clear(TempReversalEntry);
         Clear(ReversalEntry2);
@@ -1162,11 +1168,6 @@ table 179 "Reversal Entry"
     procedure SetBankAccountStatement(BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
         BankAccountStatement.Get(BankAccountNo, StatementNo);
-    end;
-
-    local procedure UnrealizedVATReverseError(TableCaption: Text; EntryNo: Integer): Text
-    begin
-        exit(StrSubstNo(UnrealizedVATReverseErr, TableCaption, EntryNo));
     end;
 
     protected procedure InsertFromCustLedgEntry(var TempTransactionInteger: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
@@ -2114,6 +2115,11 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertVendTempRevertTransNo(var TempRevertTransactionNoRecordInteger: Record "Integer" temporary; VendLedgEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyReversalEntries(var ReversalEntry2: Record "Reversal Entry"; Number: Integer; RevType: Option Transaction,Register; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

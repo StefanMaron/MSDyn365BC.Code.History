@@ -46,7 +46,7 @@ page 9994 "API Data Upgrade List"
             action("Schedule Upgrades")
             {
                 ApplicationArea = All;
-                Image = Setup;
+                Image = CreateLinesFromTimesheet;
                 ToolTip = 'Schedules an upgrade job queue entry for selected API data upgrades.';
 
                 trigger OnAction();
@@ -78,18 +78,38 @@ page 9994 "API Data Upgrade List"
             action("Disable API Data Upgrades")
             {
                 ApplicationArea = All;
-                Image = Setup;
-                ToolTip = 'Disables API data upgrades for the next update.';
+                Image = CancelIndent;
+                ToolTip = 'Disables data upgrade for all API data upgrade functions. Use Enable API Upgrade action to enable it again.';
 
                 trigger OnAction();
                 var
                     UpgradeTag: Codeunit "Upgrade Tag";
                     APIDataUpgrade: Codeunit "API Data Upgrade";
                 begin
-                    if UpgradeTag.HasUpgradeTag(APIDataUpgrade.GetDisableAPIDataUpgradesTag()) then
-                        exit
-                    else
+                    if not UpgradeTag.HasUpgradeTag(APIDataUpgrade.GetDisableAPIDataUpgradesTag()) then
                         UpgradeTag.SetUpgradeTag(APIDataUpgrade.GetDisableAPIDataUpgradesTag());
+
+                    UpgradeTag.SetSkippedUpgrade(APIDataUpgrade.GetDisableAPIDataUpgradesTag(), true);
+                    Message(APIUpgradeIsDisabledMsg);
+                end;
+            }
+            action(EnableAPIUpgrade)
+            {
+                ApplicationArea = All;
+                Caption = 'Enable API Upgrade';
+                ToolTip = 'Enables the API Upgrade again.';
+                Image = Completed;
+
+                trigger OnAction();
+                var
+                    UpgradeTag: Codeunit "Upgrade Tag";
+                    APIDataUpgrade: Codeunit "API Data Upgrade";
+                begin
+                    if not UpgradeTag.HasUpgradeTag(APIDataUpgrade.GetDisableAPIDataUpgradesTag()) then
+                        Error(APIUpgradeWasNotSkippedErr);
+
+                    UpgradeTag.SetSkippedUpgrade(APIDataUpgrade.GetDisableAPIDataUpgradesTag(), false);
+                    Message(APIUpgradeIsEnabledMsg);
                 end;
             }
         }
@@ -105,6 +125,18 @@ page 9994 "API Data Upgrade List"
                 actionref(Reset_Promoted; Reset)
                 {
                 }
+                group(Category_Process_DisableAPIUpgrade)
+                {
+                    Caption = 'Configure';
+                    ShowAs = SplitButton;
+
+                    actionref("Promoted_Disable API Data Upgrades"; "Disable API Data Upgrades")
+                    {
+                    }
+                    actionref(Promoted_EnableAPIUpgrade; EnableAPIUpgrade)
+                    {
+                    }
+                }
             }
         }
     }
@@ -113,4 +145,9 @@ page 9994 "API Data Upgrade List"
     begin
         Rec.Load();
     end;
+
+    var
+        APIUpgradeWasNotSkippedErr: Label 'API upgrade was not skipped.';
+        APIUpgradeIsDisabledMsg: Label 'API upgrade is disabled.';
+        APIUpgradeIsEnabledMsg: Label 'API upgrade is enabled.';
 }
