@@ -12,7 +12,6 @@ codeunit 395 "FinChrgMemo-Issue"
         FinChrgMemoLine: Record "Finance Charge Memo Line";
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
-        PostingDesc: Record "Posting Description";
         BankAccount: Record "Bank Account";
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
     begin
@@ -27,14 +26,6 @@ codeunit 395 "FinChrgMemo-Issue"
             TestField("Document Date");
             TestField("Due Date");
             TestField("Customer Posting Group");
-            // NAVCZ
-            if "Posting Desc. Code" <> '' then begin
-                PostingDesc.Get("Posting Desc. Code");
-                if PostingDesc."Validate on Posting" then
-                    GetPostingDescription("Posting Desc. Code", "Posting Description");
-            end;
-            TestField("Posting Description");
-            // NAVCZ
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
                   Text002,
@@ -109,7 +100,7 @@ codeunit 395 "FinChrgMemo-Issue"
                                 FinChrgMemoInterestVATAmount := FinChrgMemoInterestVATAmount + FinChrgMemoLine."VAT Amount";
                             end;
                     end;
-                until FinChrgMemoLine.Next = 0;
+                until FinChrgMemoLine.Next() = 0;
 
             if (FinChrgMemoInterestAmount <> 0) and "Post Interest" then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount, true);
@@ -147,7 +138,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     SetDimensions(GenJnlLine2, FinChrgMemoHeader);
                     OnBeforeGenJnlPostLineRunWithCheck(GenJnlLine2, FinChrgMemoHeader);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
-                until GenJnlLine.Next = 0;
+                until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
 
@@ -162,7 +153,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     if FinChrgMemoLine.Find('-') then
                         repeat
                             UpdateCustLedgEntriesCalculateInterest(FinChrgMemoLine."Entry No.", "Document Date");
-                        until FinChrgMemoLine.Next = 0;
+                        until FinChrgMemoLine.Next() = 0;
                     FinChrgMemoLine.SetRange(Type);
                 end;
             end;
@@ -198,9 +189,9 @@ codeunit 395 "FinChrgMemo-Issue"
                             DtldIssFinChargeMemoLine.TransferFields(DtldFinChargeMemoLine);
                             DtldIssFinChargeMemoLine."Finance Charge Memo No." := IssuedFinChrgMemoHeader."No.";
                             DtldIssFinChargeMemoLine.Insert();
-                        until DtldFinChargeMemoLine.Next = 0;
-                    // NAVCZ
-                until FinChrgMemoLine.Next = 0;
+                        until DtldFinChargeMemoLine.Next() = 0;
+                // NAVCZ
+                until FinChrgMemoLine.Next() = 0;
             // NAVCZ
             DtldFinChargeMemoLine2.SetRange("Finance Charge Memo No.", FinChrgMemoLine."Finance Charge Memo No.");
             DtldFinChargeMemoLine2.DeleteAll();
@@ -434,7 +425,7 @@ codeunit 395 "FinChrgMemo-Issue"
                 No[1] := "Account No.";
                 DefaultDimension.SetRange("Table ID", TableID[1]);
                 DefaultDimension.SetRange("No.", No[1]);
-                if not DefaultDimension.IsEmpty then
+                if not DefaultDimension.IsEmpty() then
                     "Dimension Set ID" := DimMgt.GetDefaultDimID(
                         TableID, No, SrcCode, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", 0);
             end;

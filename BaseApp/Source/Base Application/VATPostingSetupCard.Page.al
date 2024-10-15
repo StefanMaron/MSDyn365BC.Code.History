@@ -62,6 +62,10 @@ page 473 "VAT Posting Setup Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group is used to the intrastat journal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Adjust for Payment Discount"; "Adjust for Payment Discount")
                 {
@@ -83,11 +87,19 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Non Deduct. VAT Corr. Account"; "Non Deduct. VAT Corr. Account")
+#if not CLEAN18
+                field("Non Deduct. VAT Corr. Account"; '')
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the G/L account for correction non deductible VAT entries.';
+                    Caption = 'Non Deduct. VAT Corr. Account (Obsolete)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                    ObsoleteTag = '18.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("Reverse Charge Check"; "Reverse Charge Check")
                 {
                     ApplicationArea = VAT;
@@ -162,15 +174,6 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Sales VAT Postponed Account"; "Sales VAT Postponed Account")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the sales VAT postponed account for VAT posting setup.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Sales VAT Delay Account"; "Sales VAT Delay Account")
                 {
                     ApplicationArea = VAT;
@@ -206,11 +209,19 @@ page 473 "VAT Posting Setup Card"
                     ToolTip = 'Specifies the general ledger account number to which you want to post amounts for unrealized reverse charge VAT (purchase VAT) for this combination of VAT business posting group and VAT product posting group, if you have selected the Reverse Charge VAT option in the VAT Calculation Type field.';
                     Visible = UnrealizedVATVisible;
                 }
-                field("Allow Non Deductible VAT"; "Allow Non Deductible VAT")
+#if not CLEAN18
+                field("Allow Non Deductible VAT"; '')
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies to enable non-deductible VAT for VAT posting setup.';
+                    Caption = 'Allow Non Deductible VAT (Obsolete)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                    ObsoleteTag = '18.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("VIES Purchases"; "VIES Purchases")
                 {
                     ApplicationArea = VAT;
@@ -320,7 +331,7 @@ page 473 "VAT Posting Setup Card"
                     CopyVATPostingSetup.SetVATSetup(Rec);
                     CopyVATPostingSetup.RunModal;
                     Clear(CopyVATPostingSetup);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

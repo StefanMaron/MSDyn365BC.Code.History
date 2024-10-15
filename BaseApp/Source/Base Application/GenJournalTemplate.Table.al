@@ -128,7 +128,7 @@ table 80 "Gen. Journal Template"
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -136,7 +136,7 @@ table 80 "Gen. Journal Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -144,7 +144,7 @@ table 80 "Gen. Journal Template"
         }
         field(17; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -154,6 +154,7 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Force Doc. Balance';
             InitValue = true;
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -162,6 +163,7 @@ table 80 "Gen. Journal Template"
                     TestField("Not Check Doc. Type", false);
                 // NAVCZ
             end;
+#endif
         }
         field(19; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
@@ -253,7 +255,7 @@ table 80 "Gen. Journal Template"
         field(26; "Cust. Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Customer = R;
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Cust. Receipt Report ID")));
             Caption = 'Cust. Receipt Report Caption';
             Editable = false;
@@ -268,7 +270,7 @@ table 80 "Gen. Journal Template"
         field(28; "Vendor Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Vendor = R;
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Vendor Receipt Report ID")));
             Caption = 'Vendor Receipt Report Caption';
             Editable = false;
@@ -294,18 +296,27 @@ table 80 "Gen. Journal Template"
         field(11760; "Not Check Doc. Type"; Boolean)
         {
             Caption = 'Not Check Doc. Type';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif            
+            ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
+            ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 TestField("Force Doc. Balance");
             end;
+#endif
         }
         field(11761; "Not Check Correction"; Boolean)
         {
             Caption = 'Not Check Correction';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Check Balance in G/L Journal by Correction Field will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 

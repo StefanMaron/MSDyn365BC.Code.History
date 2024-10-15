@@ -117,8 +117,7 @@ codeunit 134826 "UT Contact Table"
         CompanyContact: Record Contact;
     begin
         // [SCENARIO 379620] User with "RM-CONT, Edit" permissions can set "Company No." field
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddRMContEdit;
+        LibraryLowerPermissions.SetOppMGT();
 
         CompanyContact.Init();
         CompanyContact.Insert(true);
@@ -139,8 +138,7 @@ codeunit 134826 "UT Contact Table"
         Contact: Record Contact;
     begin
         // [SCENARIO 197375] Stan can delete Contact with Type = Person under "D365 Customer, EDIT" permission set
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddRMContEdit;
+        LibraryLowerPermissions.SetOppMGT();
 
         MockContact(Contact, Contact.Type::Person);
 
@@ -157,8 +155,7 @@ codeunit 134826 "UT Contact Table"
         Contact: Record Contact;
     begin
         // [SCENARIO 197375] Stan can delete Contact with Type = Company under "D365 Customer, EDIT" permission set
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddRMContEdit;
+        LibraryLowerPermissions.SetOppMGT();
 
         MockContact(Contact, Contact.Type::Company);
 
@@ -686,6 +683,41 @@ codeunit 134826 "UT Contact Table"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SetLastDateTimeFilter_EmptyDate()
+    var
+        Contact: Record Contact;
+        EmptyDateTime: DateTime;
+    begin
+        // [Feature] [DateTime]
+        // [SCENARIO 370714] SetLastDateTimeFilter correctly processes empty DateTime input value
+
+        // [WHEN] Contact table method SetLastDateTimeFilter input DateTime parameter is empty
+        Contact.SetLastDateTimeFilter(EmptyDateTime);
+
+        // [THEN] The method runs without error. "Last Date Modified" filter = ">=''"
+        Assert.AreEqual('>=''''', Contact.GetFilter(SystemModifiedAt), 'Wrong filter value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetLastDateTimeFilter_ZeroDate()
+    var
+        Contact: Record Contact;
+        ZeroDateTime: DateTime;
+    begin
+        // [Feature] [DateTime]
+        // [SCENARIO 370714] SetLastDateTimeFilter correctly processes zero DateTime input value
+
+        // [WHEN] Contact table method SetLastDateTimeFilter input DateTime parameter is 0DT
+        ZeroDateTime := 0DT;
+        Contact.SetLastDateTimeFilter(ZeroDateTime);
+
+        // [THEN] The method runs without error. "Last Date Modified" filter = ">=''"
+        Assert.AreEqual('>=''''', Contact.GetFilter(SystemModifiedAt), 'Wrong filter value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure OpenCustomerPageFromContactHasDateFilter()
     var
         Contact: Record Contact;
@@ -708,7 +740,7 @@ codeunit 134826 "UT Contact Table"
         Contact.ShowCustVendBank();
 
         // [THEN] Customer Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        DateFilter := StrSubstNo('''''..%1', WorkDate);
         Assert.AreEqual(DateFilter, CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
@@ -736,7 +768,7 @@ codeunit 134826 "UT Contact Table"
         Contact.ShowCustVendBank();
 
         // [THEN] Vendor Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        DateFilter := StrSubstNo('''''..%1', WorkDate);
         Assert.AreEqual(DateFilter, VendorCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
@@ -764,7 +796,7 @@ codeunit 134826 "UT Contact Table"
         Contact.ShowCustVendBank();
 
         // [THEN] Bank Account Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        DateFilter := StrSubstNo('''''..%1', WorkDate);
         Assert.AreEqual(DateFilter, BankAccountCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 

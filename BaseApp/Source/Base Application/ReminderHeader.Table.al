@@ -1,4 +1,4 @@
-﻿table 295 "Reminder Header"
+table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -458,6 +458,9 @@
         {
             Caption = 'Bank No.';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -467,35 +470,56 @@
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -508,10 +532,16 @@
         {
             Caption = 'SWIFT Code';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {
@@ -566,25 +596,17 @@
     end;
 
     trigger OnInsert()
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        NoSeriesLink: Record "No. Series Link";
     begin
         SalesSetup.Get();
         SetReminderNo();
         "Multiple Interest Rates" := SalesSetup."Multiple Interest Rates"; // NAVCZ
         "Posting Description" := StrSubstNo(Text000, "No.");
-        // NAVCZ
-        if NoSeriesLink.Get("No. Series") and (NoSeriesLink."Posting No. Series" <> '') then
-            "Issuing No. Series" := NoSeriesLink."Posting No. Series"
+        if ("No. Series" <> '') and
+           (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
+        then
+            "Issuing No. Series" := "No. Series"
         else
-            // NAVCZ
-            if ("No. Series" <> '') and
-               (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
-            then
-                "Issuing No. Series" := "No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
+            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
@@ -926,7 +948,7 @@
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
                 ReminderLine.Insert();
-            until ReminderText.Next = 0;
+            until ReminderText.Next() = 0;
             if ReminderText.Position = ReminderText.Position::Beginning then
                 InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");
         end;
@@ -1005,7 +1027,7 @@
             exit(0);
 
         CalcFields(
-            "Remaining Amount","Interest Amount","Additional Fee","VAT Amount","Add. Fee per Line");
+            "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount", "Add. Fee per Line");
         TotalAmountInclVAT :=
             "Remaining Amount" + "Interest Amount" + "Additional Fee" +
             "Add. Fee per Line" + "VAT Amount";
@@ -1117,6 +1139,7 @@
         exit(10000);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
     var

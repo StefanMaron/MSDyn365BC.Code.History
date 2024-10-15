@@ -8,6 +8,9 @@ page 132 "Posted Sales Invoice"
     RefreshOnActivate = true;
     SourceTable = "Sales Invoice Header";
 
+    AboutTitle = 'About posted sales invoice details';
+    AboutText = 'This sales invoice is posted and counting in the books. You can''t edit it directly, but you can post corrections if you have to make adjustments.';
+
     layout
     {
         area(content)
@@ -244,9 +247,10 @@ page 132 "Posted Sales Invoice"
                 field(Cancelled; Cancelled)
                 {
                     ApplicationArea = Basic, Suite;
-                    Importance = Additional;
                     Style = Unfavorable;
                     StyleExpr = Cancelled;
+                    AboutTitle = 'Canceled invoice';
+                    AboutText = 'If an invoice is canceled, here''s a link to the associated credit memo that shows if the sales invoice was credited partly or in full.';
                     ToolTip = 'Specifies if the posted sales invoice has been either corrected or canceled.';
 
                     trigger OnDrillDown()
@@ -272,6 +276,8 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     Importance = Promoted;
+                    AboutTitle = 'Closed means paid';
+                    AboutText = 'A sales invoice is marked as Closed when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
                     ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 group("Work Description")
@@ -400,22 +406,16 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
-                }
-                field("Tax Corrective Document"; "Tax Corrective Document")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the tax corrective document.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -699,16 +699,6 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the industry code for the customer record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -725,65 +715,110 @@ page 132 "Posted Sales Invoice"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank where the customer has the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
@@ -1118,6 +1153,8 @@ page 132 "Posted Sales Invoice"
                 Promoted = true;
                 PromotedCategory = Category4;
                 ShortCutKey = 'Shift+Ctrl+I';
+                AboutTitle = 'Get detailed posting details';
+                AboutText = 'Here, you can look up the ledger entries that were created when this invoice was posted, as well as any related documents.';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -1201,6 +1238,8 @@ page 132 "Posted Sales Invoice"
                     Promoted = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
+                    AboutTitle = 'Correct an invoice';
+                    AboutText = 'If you have to make adjustments to this invoice, you can post a correction or cancel the invoice entirely. In both cases, a credit memo is created to represent the adjustment you make.';
                     ToolTip = 'Reverse this posted invoice. A credit memo will be created and matched with the invoice, and the invoice will be canceled. Shipments for the invoice will be reversed. To create a new invoice with the same information, use the Copy function. When you copy an invoice, remember to post shipments for the new invoice.';
                     Visible = not Cancelled;
 

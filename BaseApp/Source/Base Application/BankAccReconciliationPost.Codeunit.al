@@ -96,7 +96,7 @@
             TotalDebit := 0;
             // NAVCZ
             Lines := 0;
-            if BankAccReconLine.IsEmpty then
+            if BankAccReconLine.IsEmpty() then
                 Error(Text002);
             // NAVCZ
             BankAcc.Get("Bank Account No.");
@@ -139,7 +139,7 @@
                     else
                         TotalCredit += BankAccReconLine.GetAmountInBankAccCurrCode;
                     // NAVCZ
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             // NAVCZ
             if "Statement Type" = "Statement Type"::"Payment Application" then begin
@@ -147,13 +147,13 @@
                     PostPaymentApplicationsSummary(BankAccRecon, TotalCredit, TotalDebit);
 
                 GenJnlPostLine.xGetSalesLetterHeader(TempSalesLetterHeader);
-                if not TempSalesLetterHeader.IsEmpty then begin
+                if not TempSalesLetterHeader.IsEmpty() then begin
                     SalesPostAdvances.SetLetterHeader(TempSalesLetterHeader);
                     SalesPostAdvances.SetGenJnlPostLine(GenJnlPostLine);
                     SalesPostAdvances.AutoPostAdvanceInvoices;
                 end;
                 GenJnlPostLine.xGetPurchLetterHeader(TempPurchLetterHeader);
-                if not TempPurchLetterHeader.IsEmpty then begin
+                if not TempPurchLetterHeader.IsEmpty() then begin
                     PurchPostAdvances.SetLetterHeader(TempPurchLetterHeader);
                     PurchPostAdvances.SetGenJnlPostLine(GenJnlPostLine);
                     PurchPostAdvances.AutoPostAdvanceInvoices;
@@ -218,7 +218,7 @@
 
                     BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries;
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             Find;
             Delete;
@@ -283,8 +283,8 @@
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
                         CheckLedgEntry.Modify();
-                    until CheckLedgEntry.Next = 0;
-            until BankAccLedgEntry.Next = 0;
+                    until CheckLedgEntry.Next() = 0;
+            until BankAccLedgEntry.Next() = 0;
     end;
 
     local procedure CloseCheckLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -331,7 +331,7 @@
                         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
                 end;
                 BankAccLedgEntry.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     local procedure PostPaymentApplications(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -370,7 +370,10 @@
             if "Document Type" = "Document Type"::" " then begin
                 "Document Type" := "Document Type"::Payment;
                 if IsRefund(BankAccReconLine) then
-                    "Document Type" := "Document Type"::Refund;
+                    if BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::Employee then
+                        "Document Type" := "Document Type"::" "
+                    else
+                        "Document Type" := "Document Type"::Refund;
             end;
             // NAVCZ
             "Account Type" := "Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
@@ -435,6 +438,9 @@
                             "Account Type"::Vendor:
                                 ApplyVendLedgEntry(
                                   AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
+                            "Account Type"::Employee:
+                                ApplyEmployeeLedgEntry(
+                                  AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
                             // NAVCZ
                             "Account Type"::"G/L Account":
                                 ApplyGenLedgEntry(
@@ -468,7 +474,7 @@
                                     end;
                                 end;
                         end;
-                until Next = 0;
+                until Next() = 0;
 
         // NAVCZ
         if PaymentWithoutApplies then
@@ -633,7 +639,7 @@
                 BankAccStmtLine."Statement No." := BankAccStmt."Statement No.";
                 BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();
@@ -669,7 +675,7 @@
 
                 PostedPmtReconLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         PostedPmtReconHdr.TransferFields(BankAccRecon);
         OnBeforePostedPmtReconInsert(PostedPmtReconHdr, BankAccRecon);
@@ -726,6 +732,23 @@
         end;
     end;
 
+    procedure ApplyEmployeeLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal)
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        with EmployeeLedgerEntry do begin
+            Get(AppliedPmtEntry."Applies-to Entry No.");
+            TestField(Open);
+            BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+            if AppliesToID <> '' then begin
+                "Applies-to ID" := AppliesToID;
+                "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
+            end;
+
+            CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
+        end;
+    end;
+
     [Scope('OnPrem')]
     procedure ApplyGenLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50])
     var
@@ -766,7 +789,7 @@
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
                     CheckLedgerEntry.Modify();
-                until CheckLedgerEntry.Next = 0;
+                until CheckLedgerEntry.Next() = 0;
         end;
     end;
 
@@ -789,7 +812,7 @@
     begin
         with BankAccReconLine do
             if ("Account Type" = "Account Type"::Customer) and ("Statement Amount" < 0) or
-               ("Account Type" = "Account Type"::Vendor) and ("Statement Amount" > 0)
+               ("Account Type" in ["Account Type"::Vendor, "Account Type"::Employee]) and ("Statement Amount" > 0)
             then
                 exit(true);
         exit(false);
@@ -804,12 +827,12 @@
             FilterBankRecLines(BankAccRecon);
             if BankAccRecon."Statement Date" <> 0D then begin
                 SetFilter("Transaction Date", '<>%1', BankAccRecon."Statement Date");
-                if not IsEmpty then
+                if not IsEmpty() then
                     Error(MustBeEqualErr, FieldCaption("Transaction Date"), BankAccRecon."Statement Date");
             end else begin
                 FindFirst;
                 SetFilter("Transaction Date", '<>%1', "Transaction Date");
-                if not IsEmpty then
+                if not IsEmpty() then
                     Error(MustBeTheSameErr, FieldCaption("Transaction Date"));
             end;
         end;
@@ -849,7 +872,7 @@
                     repeat
                         if SalesAdvanceLetterLine."Amount Linked To Journal Line" <> 0 then
                             TestField("Currency Code", SalesAdvanceLetterLine."Currency Code");
-                    until SalesAdvanceLetterLine.Next = 0;
+                    until SalesAdvanceLetterLine.Next() = 0;
             end;
 
             if (Prepayment and ("Prepayment Type" = "Prepayment Type"::Advance)) and
@@ -867,7 +890,7 @@
                     repeat
                         if PurchAdvanceLetterLine."Amount Linked To Journal Line" <> 0 then
                             TestField("Currency Code", PurchAdvanceLetterLine."Currency Code");
-                    until PurchAdvanceLetterLine.Next = 0;
+                    until PurchAdvanceLetterLine.Next() = 0;
             end;
         end;
     end;

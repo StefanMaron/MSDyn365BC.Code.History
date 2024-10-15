@@ -268,48 +268,78 @@ table 304 "Issued Fin. Charge Memo Header"
         {
             Caption = 'Bank No.';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {

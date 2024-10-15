@@ -1,4 +1,4 @@
-﻿codeunit 5705 "TransferOrder-Post Receipt"
+codeunit 5705 "TransferOrder-Post Receipt"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -12,6 +12,7 @@
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
         ItemReg: Record "Item Register";
+        InvtCommentLine: Record "Inventory Comment Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         ReservMgt: Codeunit "Reservation Management";
@@ -68,7 +69,7 @@
             InvtSetup.Get();
             InvtSetup.TestField("Posted Transfer Rcpt. Nos.");
 
-            CheckInvtPostingSetup;
+            CheckInvtPostingSetup();
             OnAfterCheckInvtPostingSetup(TransHeader, TempWhseRcptHeader, SourceCode);
 
             LockTables(InvtSetup."Automatic Cost Posting");
@@ -77,10 +78,12 @@
             if WhseReceive then
                 PostedWhseRcptHeader.LockTable();
             TransRcptHeader.LockTable();
-            InsertTransRcptHeader(TransRcptHeader, TransHeader, "Receiving No. Series");
+            InsertTransRcptHeader(TransRcptHeader, TransHeader, InvtSetup."Posted Transfer Rcpt. Nos.");
 
             if InvtSetup."Copy Comments Order to Rcpt." then begin
-                CopyCommentLines(1, 3, "No.", TransRcptHeader."No.");
+                InvtCommentLine.CopyCommentLines(
+                    "Inventory Comment Document Type"::"Transfer Order", "No.",
+                    "Inventory Comment Document Type"::"Posted Transfer Receipt", TransRcptHeader."No.");
                 RecordLinkManagement.CopyLinks(Rec, TransRcptHeader);
             end;
 
@@ -122,7 +125,7 @@
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
 
                     InsertTransRcptLine(TransRcptHeader."No.", TransRcptLine, TransLine);
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
 
             if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
                 InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
@@ -148,7 +151,7 @@
                     ReservMgt.DeleteReservEntries(true, 0);
                     TransLine.Modify();
                     OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
 
             if WhseReceive then
                 WhseRcptLine.LockTable();
@@ -294,7 +297,9 @@
         ItemJnlLine."Net Weight" := TransLine."Net Weight";
         ItemJnlLine."Country/Region of Origin Code" := TransLine."Country/Region of Origin Code";
         ItemJnlLine."Intrastat Transaction" := IntrastatTransaction;
+#if not CLEAN18        
         ItemJnlLine.Validate("Gen. Bus. Posting Group", TransRcptLine2."Gen. Bus. Post. Group Receive");
+#endif
         // recalc to base UOM
         if ItemJnlLine."Net Weight" <> 0 then
             if TransLine."Qty. per Unit of Measure" <> 0 then
@@ -308,22 +313,6 @@
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
         OnAfterPostItemJnlLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, ItemJnlPostLine);
-    end;
-
-    local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
-    var
-        InvtCommentLine: Record "Inventory Comment Line";
-        InvtCommentLine2: Record "Inventory Comment Line";
-    begin
-        InvtCommentLine.SetRange("Document Type", FromDocumentType);
-        InvtCommentLine.SetRange("No.", FromNumber);
-        if InvtCommentLine.Find('-') then
-            repeat
-                InvtCommentLine2 := InvtCommentLine;
-                InvtCommentLine2."Document Type" := ToDocumentType;
-                InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert();
-            until InvtCommentLine.Next = 0;
     end;
 
     local procedure CheckDim()
@@ -457,7 +446,7 @@
                     OnWriteDownDerivedLinesOnBeforeTransLineModify(TransLine4, TransLine3);
                     TransLine4.Modify();
                 end;
-            until (TransLine4.Next = 0) or (BaseQtyToReceive = 0);
+            until (TransLine4.Next() = 0) or (BaseQtyToReceive = 0);
         end;
 
         if BaseQtyToReceive <> 0 then
@@ -480,7 +469,7 @@
                     ItemEntryRelation.Insert();
                     TempItemEntryRelation2 := TempItemEntryRelation;
                     TempItemEntryRelation2.Insert();
-                until TempItemEntryRelation.Next = 0;
+                until TempItemEntryRelation.Next() = 0;
                 exit(0);
             end;
         end else
@@ -502,10 +491,12 @@
         OnInsertTransRcptHeaderOnBeforeGetNextNo(TransRcptHeader, TransHeader);
         if TransRcptHeader."No." = '' then
             TransRcptHeader."No." := NoSeriesMgt.GetNextNo(TransRcptHeader."No. Series", TransHeader."Posting Date", true);
+#if not CLEAN18
         // NAVCZ
         TransRcptHeader."Gen. Bus. Post. Group Ship" := TransHeader."Gen. Bus. Post. Group Ship";
         TransRcptHeader."Gen. Bus. Post. Group Receive" := TransHeader."Gen. Bus. Post. Group Receive";
         // NAVCZ
+#endif
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
         TransRcptHeader.Insert();
 
@@ -520,8 +511,10 @@
         TransRcptLine."Document No." := ReceiptNo;
         TransRcptLine.CopyFromTransferLine(TransLine);
         // NAVCZ
+#if not CLEAN18
         TransRcptLine."Gen. Bus. Post. Group Ship" := TransLine."Gen. Bus. Post. Group Ship";
         TransRcptLine."Gen. Bus. Post. Group Receive" := TransLine."Gen. Bus. Post. Group Receive";
+#endif
         TransRcptLine."Posting Date" := TransHeader."Posting Date";
         // NAVCZ
         IsHandled := false;
@@ -604,7 +597,7 @@
                           TransLine2.FieldCaption("Line No."),
                           TransLine2."Line No.");
                 end;
-            until TransLine2.Next = 0;
+            until TransLine2.Next() = 0;
     end;
 
     local procedure SaveTempWhseSplitSpec(TransLine: Record "Transfer Line")
@@ -623,7 +616,7 @@
                     TempWhseSplitSpecification."Source ID" := TransLine."Document No.";
                     TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
                     TempWhseSplitSpecification.Insert();
-                until TempHandlingSpecification.Next = 0;
+                until TempHandlingSpecification.Next() = 0;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -669,7 +662,7 @@
                         repeat
                             WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
                             WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next = 0;
+                        until TempWhseJnlLine2.Next() = 0;
                 end;
         end;
     end;

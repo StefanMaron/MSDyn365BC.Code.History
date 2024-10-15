@@ -276,15 +276,6 @@ table 302 "Finance Charge Memo Header"
         field(29; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if CurrFieldNo = FieldNo("Posting Description") then
-                    if "Posting Description" <> xRec."Posting Description" then
-                        "Posting Desc. Code" := '';
-                // NAVCZ
-            end;
         }
         field(30; Comment; Boolean)
         {
@@ -407,6 +398,9 @@ table 302 "Finance Charge Memo Header"
         {
             Caption = 'Bank No.';
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -416,35 +410,56 @@ table 302 "Finance Charge Memo Header"
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -455,10 +470,16 @@ table 302 "Finance Charge Memo Header"
         {
             Caption = 'SWIFT Code';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {
@@ -467,15 +488,9 @@ table 302 "Finance Charge Memo Header"
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Finance Charge"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                GetPostingDescription("Posting Desc. Code", "Posting Description");
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11770; "Tax Amount"; Decimal)
         {
@@ -543,9 +558,7 @@ table 302 "Finance Charge Memo Header"
     end;
 
     trigger OnInsert()
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        NoSeriesLink: Record "No. Series Link";
+
     begin
         SalesSetup.Get();
         if "No." = '' then begin
@@ -554,17 +567,12 @@ table 302 "Finance Charge Memo Header"
         end;
         "Multiple Interest Rates" := SalesSetup."Multiple Interest Rates"; // NAVCZ
         "Posting Description" := StrSubstNo(Text000, "No.");
-        // NAVCZ
-        if NoSeriesLink.Get("No. Series") and (NoSeriesLink."Posting No. Series" <> '') then
-            "Issuing No. Series" := NoSeriesLink."Posting No. Series"
+        if ("No. Series" <> '') and
+           (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
+        then
+            "Issuing No. Series" := "No. Series"
         else
-            // NAVCZ
-            if ("No. Series" <> '') and
-               (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
-            then
-                "Issuing No. Series" := "No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
+            NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
@@ -574,13 +582,6 @@ table 302 "Finance Charge Memo Header"
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
                 Validate("Customer No.", GetRangeMin("Customer No."));
-
-        Validate("Posting Desc. Code", SalesSetup."Fin. Charge Posting Desc. Code"); // NAVCZ
-    end;
-
-    trigger OnModify()
-    begin
-        Validate("Posting Desc. Code"); // NAVCZ
     end;
 
     var
@@ -871,7 +872,7 @@ table 302 "Finance Charge Memo Header"
                 else
                     FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
                 FinChrgMemoLine.Insert();
-            until FinChrgText.Next = 0;
+            until FinChrgText.Next() = 0;
             if FinChrgText.Position = FinChrgText.Position::Beginning then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Beginning Text");
         end;
@@ -950,7 +951,7 @@ table 302 "Finance Charge Memo Header"
             exit(0);
 
         CalcFields(
-            "Interest Amount","Additional Fee","VAT Amount");
+            "Interest Amount", "Additional Fee", "VAT Amount");
         TotalAmountInclVAT :=
             "Interest Amount" + "Additional Fee" + "VAT Amount";
 
@@ -1040,6 +1041,7 @@ table 302 "Finance Charge Memo Header"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
     var
@@ -1057,22 +1059,6 @@ table 302 "Finance Charge Memo Header"
             "Bank Account No." := CompanyInfo."Bank Account No.";
             "Bank Branch No." := CompanyInfo."Bank Branch No.";
             IBAN := CompanyInfo.IBAN;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
-    procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
-    var
-        PostingDesc: Record "Posting Description";
-        RecordReference: RecordRef;
-    begin
-        // NAVCZ
-        if PostingDesc.Get(PostingDescCode) then begin
-            PostingDesc.TestField(Type, PostingDesc.Type::"Finance Charge");
-            RecordReference.Open(DATABASE::"Finance Charge Memo Header");
-            RecordReference.GetTable(Rec);
-            PostingDescription := PostingDesc.ParsePostDescString(PostingDesc, RecordReference);
         end;
     end;
 

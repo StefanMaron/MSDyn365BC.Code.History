@@ -55,7 +55,7 @@ codeunit 11767 CustVendManagement
                                 CurrencyBuf.Insert();
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         with VendLedgEntry do begin
             SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
@@ -85,7 +85,7 @@ codeunit 11767 CustVendManagement
                                 CurrencyBuf.Insert();
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

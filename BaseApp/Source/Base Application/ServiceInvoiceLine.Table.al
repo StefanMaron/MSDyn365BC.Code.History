@@ -555,9 +555,9 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
@@ -585,6 +585,9 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -669,7 +672,7 @@ table 5993 "Service Invoice Line"
                 // NAVCZ
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RowID1(): Text[250]
@@ -742,7 +745,7 @@ table 5993 "Service Invoice Line"
                         TempServShptLine := ServShptLine;
                         if TempServShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
@@ -766,7 +769,6 @@ table 5993 "Service Invoice Line"
 
     local procedure RoundAmount(ServInvHeader: Record "Service Invoice Header")
     var
-        VATCoefficientRounded: Codeunit "VAT Coefficient Rounded";
         NoVAT: Boolean;
     begin
         // NAVCZ
@@ -812,7 +814,6 @@ table 5993 "Service Invoice Line"
                   ServInvHeader."Posting Date", ServInvHeader."Currency Code",
                   TotalServInvLine."VAT Difference", ServInvHeader."Currency Factor")) -
               TotalServInvLineLCY."VAT Difference";
-            VATCoefficientRounded.RoundServiceInvoiceLine(Rec, ServInvHeader);
         end;
 
         IncrAmount(TotalServInvLineLCY, ServInvHeader);

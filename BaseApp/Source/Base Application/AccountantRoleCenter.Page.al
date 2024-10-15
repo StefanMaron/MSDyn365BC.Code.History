@@ -236,10 +236,6 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Report "VAT Statement";
                     ToolTip = 'View a statement of posted VAT and calculate the duty liable to the customs authorities for the selected period.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
                 action("VAT - VIES Declaration Tax Aut&h")
                 {
@@ -1014,11 +1010,15 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'View auditing details for all cost accounting budget entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
                 }
             }
+#if not CLEAN18
             group(SetupAndExtensions)
             {
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                ObsoleteTag = '18.0';
                 action("Assisted Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1026,6 +1026,9 @@ page 9027 "Accountant Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Manual Setup")
                 {
@@ -1033,6 +1036,9 @@ page 9027 "Accountant Role Center"
                     Caption = 'Manual Setup';
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Service Connections")
                 {
@@ -1041,6 +1047,9 @@ page 9027 "Accountant Role Center"
                     Image = ServiceTasks;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Extensions)
                 {
@@ -1049,6 +1058,9 @@ page 9027 "Accountant Role Center"
                     Image = NonStockItemSetup;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install Extensions for greater functionality of the system.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Workflows)
                 {
@@ -1058,8 +1070,12 @@ page 9027 "Accountant Role Center"
                     PromotedCategory = Process;
                     RunObject = Page Workflows;
                     ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
             }
+#endif
         }
         area(creation)
         {
@@ -1217,10 +1233,6 @@ page 9027 "Accountant Role Center"
                     Image = SettleOpenTransactions;
                     RunObject = Report "Calc. and Post VAT Settlement";
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
             }
             group(Create)

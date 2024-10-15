@@ -1212,7 +1212,6 @@ codeunit 134327 "ERM Purchase Order"
         // Setup: Update Automatic Cost Posting in Inventory setup, Vendor Invoice Discount and Create Purchase Order.
         Initialize();
         CreateInvoiceDiscount(VendorInvoiceDisc);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPosting(OldAutomaticCostPosting, true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, VendorInvoiceDisc.Code, PurchaseHeader."Document Type"::Order);
         DiscountAmount := ((VendorInvoiceDisc."Discount %" * PurchaseLine."Line Amount") / 100);
@@ -6151,7 +6150,7 @@ codeunit 134327 "ERM Purchase Order"
         Description := PurchaseLine.Description;
     end;
 
-    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
+    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -6161,7 +6160,7 @@ codeunit 134327 "ERM Purchase Order"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"; ColumnCount: Integer): Code[10]
+    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"; ColumnCount: Integer): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         Index: Integer;
@@ -6173,7 +6172,7 @@ codeunit 134327 "ERM Purchase Order"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Text[50]
+    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Text[50]
     var
         AnalysisColumn: Record "Analysis Column";
     begin
@@ -6191,7 +6190,7 @@ codeunit 134327 "ERM Purchase Order"
         exit(AnalysisColumn."Column Header");
     end;
 
-    local procedure CreateAnalysisLineWithTypeVendor(ItemAnalysisViewAnalysisArea: Option; VendorNo: Code[20]): Code[10]
+    local procedure CreateAnalysisLineWithTypeVendor(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; VendorNo: Code[20]): Code[10]
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
@@ -6217,7 +6216,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchGetReceipt.SetPurchHeader(InvoicePurchaseHeader);
         with PurchRcptHeader do begin
             SetRange("Order No.", PostedPurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 PurchRcptLine.SetRange("Document No.", "No.");
                 PurchGetReceipt.CreateInvLines(PurchRcptLine);
@@ -6238,7 +6237,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchGetReturnShipments.SetPurchHeader(CrMemoPurchaseHeader);
         with ReturnShipmentHeader do begin
             SetRange("Return Order No.", PostedPurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 ReturnShipmentLine.SetRange("Document No.", "No.");
                 PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
@@ -6728,7 +6727,7 @@ codeunit 134327 "ERM Purchase Order"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemWithDimension(var Item: Record Item; DimensionCode: Code[20]; ValuePosting: Option)
+    local procedure CreateItemWithDimension(var Item: Record Item; DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
@@ -6819,7 +6818,7 @@ codeunit 134327 "ERM Purchase Order"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorWithDimension(var Vendor: Record Vendor; var DefaultDimension: Record "Default Dimension"; ValuePosting: Option; DimensionCode: Code[20])
+    local procedure CreateVendorWithDimension(var Vendor: Record Vendor; var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type"; DimensionCode: Code[20])
     var
         DimensionValue: Record "Dimension Value";
     begin
@@ -7352,7 +7351,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure FindReceiptLineNo(DocumentNo: Code[20]): Integer
@@ -7443,7 +7442,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindSet;
+        PurchRcptHeader.FindSet();
         repeat
             PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
             PurchRcptLine.FindFirst;
@@ -7463,7 +7462,7 @@ codeunit 134327 "ERM Purchase Order"
         ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
         ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
         ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLine."Line No.");
-        ItemChargeAssignmentPurch.FindSet;
+        ItemChargeAssignmentPurch.FindSet();
     end;
 
     local procedure GetDimensionSetId(PostedDocumentNo: Code[20]): Integer
@@ -7509,7 +7508,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         LibraryVariableStorage.Enqueue(OptionString);
         LibraryVariableStorage.Enqueue(DocumentNo);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
     end;
 
     local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type From")
@@ -8084,7 +8083,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCharge, true, true);
     end;
 
-    [EventSubscriber(ObjectType::table, 49, 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
+    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
@@ -8173,7 +8172,7 @@ codeunit 134327 "ERM Purchase Order"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -8347,7 +8346,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             PurchaseAmount += ValueEntry."Purchase Amount (Actual)";
         until ValueEntry.Next = 0;
@@ -8437,7 +8436,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchInvHeader.Get(DocumentNo);
         PurchInvHeader.TestField("Vendor Invoice No.", VendorInvoiceNo);
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindSet;
+        PurchInvLine.FindSet();
         repeat
             if PurchInvLine.Type <> PurchInvLine.Type::" " then begin
                 PurchaseLine.SetRange(Type, PurchInvLine.Type);
@@ -9300,4 +9299,3 @@ codeunit 134327 "ERM Purchase Order"
         Choice := 1;
     end;
 }
-

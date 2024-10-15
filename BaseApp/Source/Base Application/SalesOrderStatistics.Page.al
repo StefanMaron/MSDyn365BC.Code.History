@@ -1,4 +1,4 @@
-﻿page 402 "Sales Order Statistics"
+page 402 "Sales Order Statistics"
 {
     Caption = 'Sales Order Statistics';
     DeleteAllowed = false;
@@ -827,9 +827,6 @@
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
         VATLinesForm: Page "VAT Amount Lines";
-        TotalAmount1: array[3] of Decimal;
-        TotalAmount2: array[3] of Decimal;
-        VATAmount: array[3] of Decimal;
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
         PrepmtTotalAmount2: Decimal;
@@ -864,6 +861,11 @@
         TempVATAmountLineTot: Record "VAT Amount Line" temporary;
         TempTotVATAmountLinePrep: Record "VAT Amount Line" temporary;
         TempTotVATAmountLineTot: Record "VAT Amount Line" temporary;
+
+    protected var
+        TotalAmount1: array[3] of Decimal;
+        TotalAmount2: array[3] of Decimal;
+        VATAmount: array[3] of Decimal;
 
     local procedure RefreshOnAfterGetRecord()
     var
@@ -1039,9 +1041,11 @@
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
         Currency: Record Currency;
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         RoundingPrecisionLCY: Decimal;
         RoundingDirectionLCY: Text[1];
+#endif
     begin
         TotalSalesLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
         TotalAmount1[IndexNo] :=
@@ -1073,29 +1077,24 @@
             if (TotalSalesLineLCY[IndexNo]."VAT Calculation Type" = TotalSalesLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
                (TotalSalesLineLCY[IndexNo]."VAT Calculation Type" = TotalSalesLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
+#if CLEAN18
+                Currency.Get("Currency Code");
+#else
                 GLSetup.Get();
                 Currency.Get("Currency Code");
                 GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif                 
 
                 if "Prices Including VAT" then
-                    if GLSetup."Round VAT Coeff." then begin
-                        TotalSalesLineLCY[IndexNo].Amount :=
-                          Round(
-                            (TotalSalesLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") *
-                            Round(
-                              VATAmountLine."VAT %" / (100 + VATAmountLine."VAT %"),
-                              GLSetup."VAT Coeff. Rounding Precision") *
-                            (1 - "VAT Base Discount %" / 100),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY);
-
-                        TotalSalesLineLCY[IndexNo].Amount := TotalSalesLineLCY[IndexNo]."Line Amount" - TotalSalesLineLCY[IndexNo].Amount;
-                    end else
-                        TotalSalesLineLCY[IndexNo].Amount :=
-                          Round(
+                    TotalSalesLineLCY[IndexNo].Amount :=
+                        Round(
                             (TotalSalesLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") /
                             (1 + VATAmountLine."VAT %" / 100),
+#if CLEAN18
+                            Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";                
+#else
                             RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
+#endif                              
             end;
         // NAVCZ
         ProfitLCY[IndexNo] := TotalSalesLineLCY[IndexNo].Amount - TotalSalesLineLCY[IndexNo]."Unit Cost (LCY)";
@@ -1354,7 +1353,7 @@
             repeat
                 TempSalesLine2 := SalesLine;
                 TempSalesLine2.Insert();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         SalesPostAdv.AdvanceCalcVATAmountLines(SalesHeader, TempSalesLine2, VATAmountLine);
         if VATAmountLine.FindSet then begin
@@ -1364,7 +1363,7 @@
                     DifVATPct := true;
                 PrepmtVATAmount += VATAmountLine."VAT Amount";
                 PrepmtTotalAmount += VATAmountLine."Line Amount";
-            until VATAmountLine.Next = 0;
+            until VATAmountLine.Next() = 0;
         end;
 
         if DifVATPct or (VATAmountLine."VAT %" = 0) then
@@ -1418,7 +1417,7 @@
                         TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
                         TempVATAmountLineTot.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         // NAVCZ
     end;
@@ -1436,7 +1435,7 @@
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";
                 VATBaseAmount += VATAmountLine."VAT Base";
-            until VATAmountLine.Next = 0;
+            until VATAmountLine.Next() = 0;
         // NAVCZ
     end;
 

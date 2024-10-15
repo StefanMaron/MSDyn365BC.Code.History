@@ -1371,7 +1371,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + 1);
             ItemJournalLine.Modify(true);
@@ -1385,7 +1385,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Output Quantity", ProductionOrderQuantity - 1);
             ItemJournalLine.Modify(true);
@@ -1399,7 +1399,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         repeat
             ItemJournalLine.Validate("Run Time", RunTime);
@@ -1446,7 +1446,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         else
             GLEntry.SetFilter("Document No.", ProductionOrderNo);
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetupAccount);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     [Normal]
@@ -1455,7 +1455,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrderNo);
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
     end;
 
     local procedure SelectCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
@@ -1497,7 +1497,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Finished);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Work Center");
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             WorkCenter.Get(ProdOrderRoutingLine."No.");
             if WorkCenter."Subcontractor No." <> '' then

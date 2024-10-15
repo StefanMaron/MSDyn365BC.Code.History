@@ -1,6 +1,9 @@
 codeunit 31053 "Release Credit Document"
 {
     TableNo = "Credit Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -126,19 +129,19 @@ codeunit 31053 "Release Credit Document"
                                         VendLedgEntry.TestField("Amount on Payment Order (LCY)", 0);
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             SetFilter("Currency Code", '<>%1', '');
             if FindSet then
                 repeat
                     CreditLine2.SetRange("Credit No.", CreditHeader."No.");
                     CreditLine2.SetRange("Currency Code", "Currency Code");
-                    CreditLine2.FindSet;
+                    CreditLine2.FindSet();
                     CurrencyFactor := CreditLine2."Currency Factor";
                     while CreditLine2.Next <> 0 do
                         if CreditLine2."Currency Factor" <> CurrencyFactor then
                             Error(CurrencyFactorErr, CreditLine2."Currency Code");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

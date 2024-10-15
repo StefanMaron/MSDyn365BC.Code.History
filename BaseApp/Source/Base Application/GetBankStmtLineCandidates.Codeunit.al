@@ -21,11 +21,13 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         if AppliedPmtEntry.FindSet then
             repeat
                 PaymentApplicationProposal.CreateFromAppliedPaymentEntry(AppliedPmtEntry);
-            until AppliedPmtEntry.Next = 0;
+            until AppliedPmtEntry.Next() = 0;
     end;
 
     local procedure GetCandidateRanking(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
     var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccount: Record "Bank Account";
         MatchBankPayments: Codeunit "Match Bank Payments";
     begin
         BankAccReconLine.SetRecFilter;
@@ -33,6 +35,20 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         SetAddParamToAddApply(BankAccReconLine, MatchBankPayments); // NAVCZ
         MatchBankPayments.Run(BankAccReconLine);
         MatchBankPayments.GetBankStatementMatchingBuffer(TempBankStmtMatchingBuffer);
+
+        BankAccount.Get(BankAccReconLine."Bank Account No.");
+        BankPmtApplSettings.GetOrInsert(BankAccount."Bank Pmt. Appl. Rule Code");
+        if not BankPmtApplSettings."Cust. Ledger Entries Matching" then
+            MatchBankPayments.GetCustomerLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Vendor Ledger Entries Matching" then
+            MatchBankPayments.GetVendorLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Empl. Ledger Entries Matching" then
+            MatchBankPayments.GetEmployeeLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Bank Ledger Entries Matching" then
+            MatchBankPayments.GetBankLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
     end;
 
     local procedure TransferExistingAppliedPmtEntries(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -58,6 +74,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         PaymentApplicationProposal.Reset();
         TempBankStmtMatchingBuffer.Reset();
         TempBankStmtMatchingBuffer.SetRange("One to Many Match", false);
+
         if TempBankStmtMatchingBuffer.FindSet then
             repeat
                 PaymentApplicationProposal.CreateFromBankStmtMacthingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine, BankAccount);
@@ -67,7 +84,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
                       BankPmtApplRule.GetMatchConfidence(PaymentApplicationProposal.Quality, TempBankStmtMatchingBuffer."Entry No." < 0); // NAVCZ
                     PaymentApplicationProposal.Modify(true);
                 end;
-            until TempBankStmtMatchingBuffer.Next = 0;
+            until TempBankStmtMatchingBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

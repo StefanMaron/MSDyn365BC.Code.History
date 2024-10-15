@@ -166,6 +166,9 @@ table 911 "Posted Assembly Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -194,7 +197,7 @@ table 911 "Posted Assembly Line"
         AssemblyCommentLine.SetRange("Document Type", AssemblyCommentLine."Document Type"::"Posted Assembly");
         AssemblyCommentLine.SetRange("Document No.", "Document No.");
         AssemblyCommentLine.SetRange("Document Line No.", "Line No.");
-        if not AssemblyCommentLine.IsEmpty then
+        if not AssemblyCommentLine.IsEmpty() then
             AssemblyCommentLine.DeleteAll();
     end;
 
@@ -263,7 +266,7 @@ table 911 "Posted Assembly Line"
                                     TempPostedAssemblyLine := PostedAsmLine;
                                     TempPostedAssemblyLine.Insert();
                                 end;
-                            until PostedAsmLine.Next = 0;
+                            until PostedAsmLine.Next() = 0;
                     end;
                 end;
             until TempItemLedgerEntry.Next() = 0;

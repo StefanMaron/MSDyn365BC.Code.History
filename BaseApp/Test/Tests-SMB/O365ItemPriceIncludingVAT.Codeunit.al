@@ -308,7 +308,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         TestForSalesTypeValidateItemNo(SalesPrice."Sales Type"::"Customer Price Group");
     end;
 
-    local procedure TestForSalesTypeValidateItemNo(SalesType: Option)
+    local procedure TestForSalesTypeValidateItemNo(SalesType: Enum "Sales Price Type")
     var
         Item: Record Item;
         SalesPrice: Record "Sales Price";
@@ -377,7 +377,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         TestForSalesTypeValidateSalesType(SalesPrice."Sales Type"::"Customer Price Group");
     end;
 
-    local procedure TestForSalesTypeValidateSalesType(SalesType: Option)
+    local procedure TestForSalesTypeValidateSalesType(SalesType: Enum "Sales Price Type")
     var
         Item: Record Item;
         SalesPrice: Record "Sales Price";

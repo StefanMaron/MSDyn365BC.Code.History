@@ -24,7 +24,6 @@ codeunit 31175 "Sync.Dep.Fld-VATEntry CZL"
         SyncDepFldUtilities: Codeunit "Sync.Dep.Fld-Utilities";
         PreviousRecordRef: RecordRef;
         DepFieldTxt, NewFieldTxt : Text;
-        DepFieldInt, NewFieldInt : Integer;
     begin
         if SyncDepFldUtilities.GetPreviousRecord(Rec, PreviousRecordRef) then
             PreviousRecordRef.SetTable(PreviousRecord);

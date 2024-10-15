@@ -175,7 +175,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAInsertLedgEntry.SetLastEntryNo(false);
         if PostBudget then
             PostBudgetAsset;
-        FAInsertLedgEntry.FinalizeInsertFA();
     end;
 
     local procedure PostMaintenance()
@@ -215,7 +214,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostDisposalEntry(FALedgEntry, DeprBook, FANo, ErrorEntryNo, IsHandled);
+        OnBeforePostDisposalEntry(FALedgEntry, DeprBook, FANo, ErrorEntryNo, IsHandled, FAInsertLedgEntry);
         if IsHandled then
             exit;
 
@@ -251,10 +250,12 @@ codeunit 5632 "FA Jnl.-Post Line"
             then
                 FAInsertLedgEntry.SetNetdisposal(true);
 
+#if not CLEAN18
             // NAVCZ
             if DeprBook."G/L Integration - Disposal" then
                 FAPostingGroup.Get(FADeprBook."FA Posting Group");
             // NAVCZ
+#endif
             if DisposalType = DisposalType::FirstDisposal then begin
                 CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
                 for i := 1 to 14 do
@@ -270,6 +271,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             SetResultOnDisposal(FALedgEntry);
+#if not CLEAN18
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
                            not FAPostingGroup.UseStandardDisposal()
@@ -308,7 +310,8 @@ codeunit 5632 "FA Jnl.-Post Line"
                                     end;
                         end else
                             // NAVCZ
-                            FAInsertLedgEntry.InsertFA(FALedgEntry);
+#endif
+                        FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
             end;
@@ -353,6 +356,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             "Result on Disposal" := ResultOnDisposal;
+#if not CLEAN18
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
                            not FAPostingGroup.UseStandardDisposal()
@@ -392,7 +396,8 @@ codeunit 5632 "FA Jnl.-Post Line"
                                     end;
                         end else
                             // NAVCZ
-                            FAInsertLedgEntry.InsertFA(FALedgEntry);
+#endif
+                        FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
             end;
@@ -544,7 +549,6 @@ codeunit 5632 "FA Jnl.-Post Line"
     local procedure PostAllocation(var FALedgEntry: Record "FA Ledger Entry")
     var
         FAPostingGr: Record "FA Posting Group";
-        FAExtPostingGr: Record "FA Extended Posting Group";
     begin
         with FALedgEntry do begin
             if "G/L Entry No." = 0 then
@@ -561,24 +565,12 @@ codeunit 5632 "FA Jnl.-Post Line"
                     end;
                 "FA Posting Type"::"Book Value on Disposal":
                     begin
-                        // NAVCZ
-                        FASetup.Get();
-                        if FASetup."FA Disposal By Reason Code" then begin
-                            FAExtPostingGr.Get("FA Posting Group", 1, "Reason Code");
-                            FAExtPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
-                            if "Result on Disposal" = "Result on Disposal"::Gain then
-                                PostGLBalAcc(FALedgEntry, FAExtPostingGr."Allocated Book Value % (Gain)")
-                            else
-                                PostGLBalAcc(FALedgEntry, FAExtPostingGr."Allocated Book Value % (Loss)");
-                        end else begin
-                            // NAVCZ
-                            FAPostingGr.Get("FA Posting Group");
-                            FAPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
-                            if "Result on Disposal" = "Result on Disposal"::Gain then
-                                PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Gain)")
-                            else
-                                PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Loss)");
-                        end; // NAVCZ
+                        FAPostingGr.GetPostingGroup("FA Posting Group", DeprBook.Code);
+                        FAPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
+                        if "Result on Disposal" = "Result on Disposal"::Gain then
+                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Gain)")
+                        else
+                            PostGLBalAcc(FALedgEntry, FAPostingGr."Allocated Book Value % (Loss)");
                     end;
             end;
         end;
@@ -664,6 +656,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         end;
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure InsertFAHistoryEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20])
     var
@@ -687,6 +680,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAHistoryEntry.InsertEntry(FAHType, FANo, OldValue, '', 0, true);
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure UpdateFAHistoryEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20])
     begin
@@ -739,7 +733,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforePostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; FANo: code[20]; ErrorEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforePostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; FANo: Code[20]; ErrorEntryNo: Integer; var IsHandled: Boolean; var FAInsertLedgEntry: Codeunit "FA Insert Ledger Entry")
     begin
     end;
 

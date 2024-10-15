@@ -13,7 +13,7 @@ codeunit 131352 "Library - Document Approvals"
         LibraryWorkflow: Codeunit "Library - Workflow";
 
     [Scope('OnPrem')]
-    procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; StatusOption: Enum "Approval Status"; LimitType: Option; RecID: RecordID; ApprovalType: Option; DueDate: Date; AmountDec: Decimal)
+    procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; RecID: RecordID; ApprovalType: Enum "Workflow Approval Type"; DueDate: Date; AmountDec: Decimal)
     begin
         with ApprovalEntry do begin
             Init;
@@ -237,7 +237,7 @@ codeunit 131352 "Library - Document Approvals"
         WorkflowUserGroup.Insert(true);
     end;
 
-    procedure SetWorkflowApproverType(Workflow: Record Workflow; ApproverType: Option)
+    procedure SetWorkflowApproverType(Workflow: Record Workflow; ApproverType: Enum "Workflow Approver Type")
     var
         WorkflowStep: Record "Workflow Step";
         WorkflowStepArgument: Record "Workflow Step Argument";
@@ -309,19 +309,19 @@ codeunit 131352 "Library - Document Approvals"
     procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; RecordID: RecordID)
     begin
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     procedure GetPostedApprovalEntries(var PostedApprovalEntry: Record "Posted Approval Entry"; RecordID: RecordID)
     begin
         PostedApprovalEntry.SetRange("Posted Record ID", RecordID);
-        PostedApprovalEntry.FindSet;
+        PostedApprovalEntry.FindSet();
     end;
 
     procedure GetPostedApprovalComments(var PostedApprovalCommentLine: Record "Posted Approval Comment Line"; RecordID: RecordID)
     begin
         PostedApprovalCommentLine.SetRange("Posted Record ID", RecordID);
-        PostedApprovalCommentLine.FindSet;
+        PostedApprovalCommentLine.FindSet();
     end;
 
     procedure UpdateApprovalEntryWithCurrUser(RecordID: RecordID)

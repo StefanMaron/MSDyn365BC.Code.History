@@ -107,13 +107,13 @@ report 11767 "G/L Entry Applying"
                     begin
                         if (Applying = Applying::Free) and ByAmount then
                             if TotalAmount = -(OriginalEntry.Amount - OriginalEntry."Applied Amount") then begin
-                                TApplyEntry.FindSet;
+                                TApplyEntry.FindSet();
                                 repeat
                                     lreGLEntry.Get(TApplyEntry."Entry No.");
                                     lreGLEntry."Applies-to ID" := OriginalEntry."Document No.";
                                     lreGLEntry."Amount to Apply" := TApplyEntry.Amount;
                                     lreGLEntry.Modify();
-                                until TApplyEntry.Next = 0;
+                                until TApplyEntry.Next() = 0;
                                 Apply := true;
                             end;
                         AppliedAmount := 0;
@@ -150,7 +150,7 @@ report 11767 "G/L Entry Applying"
                                         TDetailedGLEntry.Insert();
                                         AppliedAmount := AppliedAmount + DetailedGLEntry.Amount;
                                     end;
-                                until DetailedGLEntry.Next = 0;
+                                until DetailedGLEntry.Next() = 0;
                             end;
                         end;
                     end;

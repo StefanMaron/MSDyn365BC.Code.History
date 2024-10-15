@@ -4,21 +4,27 @@ codeunit 5651 "Insurance Jnl.-Check Line"
 
     trigger OnRun()
     begin
+#if not CLEAN18
         GLSetup.Get();
+#endif
         RunCheck(Rec);
     end;
 
     var
         Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         CallNo: Integer;
 
     procedure RunCheck(var InsuranceJnlLine: Record "Insurance Journal Line")
     var
+#if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
+#endif
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
@@ -52,11 +58,13 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                       DimMgt.GetDimValuePostingErr)
                 else
                     Error(DimMgt.GetDimValuePostingErr);
+#if not CLEAN18
             // NAVCZ
             GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckInsuranceJournalLine(InsuranceJnlLine);
             // NAVCZ
+#endif
         end;
     end;
 

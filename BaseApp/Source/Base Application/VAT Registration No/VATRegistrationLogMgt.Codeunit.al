@@ -1,4 +1,4 @@
-﻿codeunit 249 "VAT Registration Log Mgt."
+codeunit 249 "VAT Registration Log Mgt."
 {
     Permissions = TableData "VAT Registration Log" = rimd;
 
@@ -68,21 +68,6 @@
           Contact."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Contact, Contact."No.");
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure LogRegistrationCountryRegion(RegistrationCountryRegion: Record "Registration Country/Region")
-    var
-        CountryCode: Code[10];
-    begin
-        // NAVCZ
-        CountryCode := GetCountryCode(RegistrationCountryRegion."Country/Region Code");
-        if not IsEUCountry(CountryCode) then
-            exit;
-
-        InsertVATRegistrationLog(
-          RegistrationCountryRegion."VAT Registration No.", CountryCode,
-          RegistrationCountryRegion."Account Type", RegistrationCountryRegion."Account No.");
-    end;
-
     [Scope('OnPrem')]
     procedure LogVerification(var VATRegistrationLog: Record "VAT Registration Log"; XMLDoc: DotNet XmlDocument; Namespace: Text)
     var
@@ -150,36 +135,38 @@
         end;
     end;
 
-    local procedure LogUnloggedVATRegistrationNumbers(AccType: Option; AccNo: Code[20])
+    local procedure LogUnloggedVATRegistrationNumbers()
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
         Contact: Record Contact;
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        // NAVCZ
-        case AccType of
-            VATRegistrationLog."Account Type"::Customer:
-                if Customer.Get(AccNo) then begin
-                    VATRegistrationLog.SetRange("VAT Registration No.", Customer."VAT Registration No.");
-                    if VATRegistrationLog.IsEmpty then
-                        LogCustomer(Customer);
-                end;
-            VATRegistrationLog."Account Type"::Vendor:
-                if Vendor.Get(AccNo) then begin
-                    VATRegistrationLog.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
-                    if VATRegistrationLog.IsEmpty then
-                        LogVendor(Vendor);
-                end;
-            VATRegistrationLog."Account Type"::Contact:
-                if Contact.Get(AccNo) then begin
-                    VATRegistrationLog.SetRange("VAT Registration No.", Contact."VAT Registration No.");
-                    if VATRegistrationLog.IsEmpty then
-                        LogContact(Contact);
-                end;
-        end;
+        Customer.SetFilter("VAT Registration No.", '<>%1', '');
+        if Customer.FindSet() then
+            repeat
+                VATRegistrationLog.SetRange("VAT Registration No.", Customer."VAT Registration No.");
+                if VATRegistrationLog.IsEmpty() then
+                    LogCustomer(Customer);
+            until Customer.Next() = 0;
+
+        Vendor.SetFilter("VAT Registration No.", '<>%1', '');
+        if Vendor.FindSet() then
+            repeat
+                VATRegistrationLog.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
+                if VATRegistrationLog.IsEmpty() then
+                    LogVendor(Vendor);
+            until Vendor.Next() = 0;
+
+        Contact.SetFilter("VAT Registration No.", '<>%1', '');
+        if Contact.FindSet() then
+            repeat
+                VATRegistrationLog.SetRange("VAT Registration No.", Contact."VAT Registration No.");
+                if VATRegistrationLog.IsEmpty() then
+                    LogContact(Contact);
+            until Contact.Next() = 0;
+
         Commit();
-        // NAVCZ
     end;
 
     local procedure InsertVATRegistrationLog(VATRegNo: Text[20]; CountryCode: Code[10]; AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20])
@@ -187,7 +174,7 @@
         VATRegistrationLog: Record "VAT Registration Log";
     begin
         with VATRegistrationLog do begin
-            Init;
+            Init();
             "VAT Registration No." := VATRegNo;
             "Country/Region Code" := CountryCode;
             "Account Type" := AccountType;
@@ -206,7 +193,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Customer);
             SetRange("Account No.", Customer."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -218,7 +205,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", Vendor."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -230,7 +217,7 @@
         with VATRegistrationLog do begin
             SetRange("Account Type", "Account Type"::Contact);
             SetRange("Account No.", Contact."No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll();
         end;
     end;
@@ -292,21 +279,7 @@
         VATRegistrationLog.SetRange("Account Type", AccountType);
         VATRegistrationLog.SetRange("Account No.", AccountNo);
         if VATRegistrationLog.IsEmpty() then
-            LogUnloggedVATRegistrationNumbers(AccountType, AccountNo);
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure AssistEditRegCountryRegionVATReg(RegistrationCountryRegion: Record "Registration Country/Region")
-    var
-        VATRegistrationLog: Record "VAT Registration Log";
-    begin
-        // NAVCZ
-        with VATRegistrationLog do begin
-            LogUnloggedVATRegistrationNumbers(RegistrationCountryRegion."Account Type", RegistrationCountryRegion."Account No."); // NAVCZ
-            SetRange("Account Type", RegistrationCountryRegion."Account Type");
-            SetRange("Account No.", RegistrationCountryRegion."Account No.");
-            PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
-        end;
+            LogUnloggedVATRegistrationNumbers();
     end;
 
     local procedure IsEUCountry(CountryCode: Code[10]): Boolean
@@ -314,7 +287,7 @@
         CountryRegion: Record "Country/Region";
         CompanyInformation: Record "Company Information";
     begin
-        if (CountryCode = '') and CompanyInformation.Get then
+        if (CountryCode = '') and CompanyInformation.Get() then
             CountryCode := CompanyInformation."Country/Region Code";
 
         if CountryCode <> '' then
@@ -324,8 +297,7 @@
         exit(false);
     end;
 
-    [Scope('OnPrem')]
-    procedure GetCountryCode(CountryCode: Code[10]): Code[10]
+    local procedure GetCountryCode(CountryCode: Code[10]): Code[10]
     var
         CompanyInformation: Record "Company Information";
     begin
@@ -358,7 +330,7 @@
         if not CountryRegion.IsEUCountry(CountryCode) then
             exit; // VAT Reg. check Srv. is only available for EU countries.
 
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
             DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
             if not DataTypeManagement.FindFieldByName(RecordRef, VatRegNoFieldRef, Customer.FieldName("VAT Registration No.")) then
                 exit;
@@ -400,9 +372,9 @@
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         VATLookupExtDataHndl: Codeunit "VAT Lookup Ext. Data Hndl";
     begin
-        if not VATRegNoSrvConfig.FindFirst then begin
+        if not VATRegNoSrvConfig.FindFirst() then begin
             VATRegNoSrvConfig.Init();
-            VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
+            VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
             VATRegNoSrvConfig.Enabled := false;
             VATRegNoSrvConfig.Insert();
         end;
@@ -412,18 +384,18 @@
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        if VATRegNoSrvConfig.FindFirst then
+        if VATRegNoSrvConfig.FindFirst() then
             exit;
-        InitServiceSetup;
+        InitServiceSetup();
     end;
 
     procedure EnableService()
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        if not VATRegNoSrvConfig.FindFirst then begin
-            InitServiceSetup;
-            VATRegNoSrvConfig.FindFirst;
+        if not VATRegNoSrvConfig.FindFirst() then begin
+            InitServiceSetup();
+            VATRegNoSrvConfig.FindFirst();
         end;
 
         VATRegNoSrvConfig.Enabled := true;
@@ -436,28 +408,8 @@
     begin
         CheckVIESForVATNo(RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType);
 
-        if VATRegistrationLog.Find then // Only update if the log was created
+        if VATRegistrationLog.Find() then // Only update if the log was created
             UpdateRecordFromVATRegLog(RecordRef, RecordVariant, VATRegistrationLog);
-    end;
-
-    [Scope('OnPrem')]
-    procedure CheckVATRegNoWithVIES(RecordVariant: Variant; EntryNo: Code[20]; AccountType: Option; CountryCode: Code[10])
-    var
-        VATRegistrationLog: Record "VAT Registration Log";
-        RecordRef: RecordRef;
-    begin
-        // NAVCZ
-        CheckVIESForVATNo(RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType);
-
-        if VATRegistrationLog.Find then
-            case VATRegistrationLog.Status of
-                VATRegistrationLog.Status::Valid:
-                    Message(ValidVATNoMsg);
-                VATRegistrationLog.Status::Invalid:
-                    Message(InvalidVatRegNoMsg);
-                else
-                    Message(NotVerifiedVATRegMsg);
-            end;
     end;
 
     procedure GetServiceDisclaimerUR(): Text
@@ -471,8 +423,8 @@
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
         RecRef: RecordRef;
     begin
-        SetupService;
-        VATRegNoSrvConfig.FindFirst;
+        SetupService();
+        VATRegNoSrvConfig.FindFirst();
 
         RecRef.GetTable(VATRegNoSrvConfig);
 

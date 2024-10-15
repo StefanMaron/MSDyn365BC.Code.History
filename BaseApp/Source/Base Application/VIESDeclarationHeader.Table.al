@@ -374,12 +374,9 @@ table 31066 "VIES Declaration Header"
         field(80; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" where(
-                "Account Type" = const("Company Information"),
-                "Account No." = filter(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(11700; "Natural Person First Name"; Text[30])
         {
@@ -626,7 +623,6 @@ table 31066 "VIES Declaration Header"
             VIESDeclarationHeader.SetRange("VAT Registration No.", "VAT Registration No.");
             VIESDeclarationHeader.SetRange("Declaration Type", "Declaration Type");
             VIESDeclarationHeader.SetRange("Trade Type", "Trade Type");
-            VIESDeclarationHeader.SetRange("Perform. Country/Region Code", "Perform. Country/Region Code");
             VIESDeclarationHeader.SetFilter("No.", '<>%1', "No.");
             if VIESDeclarationHeader.FindFirst then
                 Error(Text001Err, "Start Date", "End Date", VIESDeclarationHeader.TableCaption, VIESDeclarationHeader."No.");
@@ -660,7 +656,6 @@ table 31066 "VIES Declaration Header"
     [Scope('OnPrem')]
     procedure Print()
     var
-        RegistrationCountryRegion: Record "Registration Country/Region";
         StatReportingSetup: Record "Stat. Reporting Setup";
         VIESDeclarationHeader: Record "VIES Declaration Header";
         VIESDeclarationReportNo: Integer;
@@ -669,11 +664,6 @@ table 31066 "VIES Declaration Header"
         StatReportingSetup.Get();
         StatReportingSetup.TestField("VIES Declaration Report No.");
         VIESDeclarationReportNo := StatReportingSetup."VIES Declaration Report No.";
-        if "Perform. Country/Region Code" <> '' then begin
-            RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code");
-            RegistrationCountryRegion.TestField("VIES Declaration Report No.");
-            VIESDeclarationReportNo := RegistrationCountryRegion."VIES Declaration Report No.";
-        end;
         VIESDeclarationHeader := Rec;
         VIESDeclarationHeader.SetRecFilter;
         Report.Run(StatReportingSetup."VIES Declaration Report No.", true, false, VIESDeclarationHeader);
@@ -683,7 +673,6 @@ table 31066 "VIES Declaration Header"
     [Scope('OnPrem')]
     procedure Export()
     var
-        RegistrationCountryRegion: Record "Registration Country/Region";
         StatReportingSetup: Record "Stat. Reporting Setup";
         VIESDeclarationHeader: Record "VIES Declaration Header";
         VIESDeclExpObjType: Option ,,,"Report",,"Codeunit";
@@ -696,12 +685,6 @@ table 31066 "VIES Declaration Header"
         StatReportingSetup.TestField("VIES Decl. Exp. Obj. No.");
         VIESDeclExpObjType := StatReportingSetup."VIES Decl. Exp. Obj. Type";
         VIESDeclExpObjNo := StatReportingSetup."VIES Decl. Exp. Obj. No.";
-        if "Perform. Country/Region Code" <> '' then begin
-            RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code");
-            RegistrationCountryRegion.TestField("VIES Decl. Exp. Obj. No.");
-            VIESDeclExpObjType := RegistrationCountryRegion."VIES Decl. Exp. Obj. Type";
-            VIESDeclExpObjNo := RegistrationCountryRegion."VIES Decl. Exp. Obj. No.";
-        end;
         VIESDeclarationHeader := Rec;
         VIESDeclarationHeader.SetRecFilter;
         if StatReportingSetup."VIES Decl. Exp. Obj. Type" = StatReportingSetup."VIES Decl. Exp. Obj. Type"::Codeunit then

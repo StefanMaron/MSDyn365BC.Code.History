@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31097 "Sales - Credit Memo CZ"
 {
     DefaultLayout = RDLC;
@@ -249,18 +250,6 @@ report 31097 "Sales - Credit Memo CZ"
             {
             }
             column(AmountIncludingVAT_SalesCrMemoHeader; "Amount Including VAT")
-            {
-            }
-            column(PostponedVAT_SalesCrMemoHeader; "Postponed VAT")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformCountryRegionCode; RegCountryRegion."Country/Region Code")
-            {
-            }
-            column(PerformVATRegistrationNo; RegCountryRegion."VAT Registration No.")
             {
             }
             column(CalculatedExchRate; CalculatedExchRate)
@@ -541,11 +530,6 @@ report 31097 "Sales - Credit Memo CZ"
                         SegMgt.LogDocument(
                           6, "No.", 0, 0, DATABASE::Customer, "Sell-to Customer No.", "Salesperson Code",
                           "Campaign No.", "Posting Description", '');
-
-                if not RegCountryRegion.Get(
-                     RegCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegCountryRegion)
             end;
         }
     }
@@ -613,8 +597,6 @@ report 31097 "Sales - Credit Memo CZ"
         ReasonCode: Record "Reason Code";
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -704,4 +686,4 @@ report 31097 "Sales - Credit Memo CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

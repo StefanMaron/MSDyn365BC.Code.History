@@ -134,7 +134,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                             if not TempVATAmountLineAdvPmt.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if TempVATAmountLineAdvPmt.Next = 0 then
+                            if TempVATAmountLineAdvPmt.Next() = 0 then
                                 CurrReport.Break();
 
                         TempVATAmountLine.Init();
@@ -174,7 +174,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                                 TempVATAmountLineAdvPmt."VAT Base (LCY)" := "Advance Base" + CalcVATBaseExchRateCorrect(lreVATEntry);
                                 TempVATAmountLineAdvPmt."VAT Amount (LCY)" := Amount + "Advance Exch. Rate Difference";
                                 TempVATAmountLineAdvPmt.InsertLine;
-                            until Next = 0;
+                            until Next() = 0;
                         end;
                     end;
 
@@ -184,7 +184,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                         TempVATAmountLineAdvPmt.DeleteAll();
                         TempVATAmountLineAdvPmt.Reset();
                     end;
-                    if TempVATAmountLineAdvPmt.IsEmpty then
+                    if TempVATAmountLineAdvPmt.IsEmpty() then
                         CurrReport.Skip();
                 end;
 

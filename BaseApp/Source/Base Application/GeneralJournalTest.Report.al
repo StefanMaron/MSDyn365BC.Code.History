@@ -1,4 +1,4 @@
-﻿report 2 "General Journal - Test"
+report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
@@ -1057,7 +1057,7 @@
         NextGenJnlLine.Copy("Gen. Journal Line");
         NextGenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         NextGenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if NextGenJnlLine.Next = 0 then;
+        if NextGenJnlLine.Next() = 0 then;
         MakeRecurringTexts(NextGenJnlLine);
         with GenJnlLine do
             if not EmptyLine then begin
@@ -1093,8 +1093,11 @@
         with NextGenJnlLine do begin
             if (LastDate <> 0D) and (LastDocNo <> '') and
                (("Posting Date" <> LastDate) or
-                // ("Document Type" <> LastDocType) OR
+#if CLEAN18
+                ("Document Type" <> LastDocType) or
+#else
                 (("Document Type" <> LastDocType) and (not GenJnlTemplate."Not Check Doc. Type")) or
+#endif
                 ("Document No." <> LastDocNo) or
                 ("Line No." = LastLineNo))
             then begin
@@ -2137,7 +2140,7 @@
             end;
             DimensionText := DimensionText + Separator + DimValue;
             Separator := '; ';
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
         exit(DimensionText);
     end;
 
@@ -2198,7 +2201,7 @@
                         PurchInvHeader.SetCurrentKey("Vendor Invoice No.");
                         PurchInvHeader.SetRange("Vendor Invoice No.", "External Document No.");
                         PurchInvHeader.SetRange("Pay-to Vendor No.", "Account No.");
-                        if not PurchInvHeader.IsEmpty then
+                        if not PurchInvHeader.IsEmpty() then
                             AddError(
                               StrSubstNo(
                                 Text040,
@@ -2210,7 +2213,7 @@
                         PurchCrMemoHdr.SetCurrentKey("Vendor Cr. Memo No.");
                         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", "External Document No.");
                         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", "Account No.");
-                        if not PurchCrMemoHdr.IsEmpty then
+                        if not PurchCrMemoHdr.IsEmpty() then
                             AddError(
                               StrSubstNo(
                                 Text040,

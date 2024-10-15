@@ -1,4 +1,4 @@
-table 313 "Inventory Setup"
+﻿table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
@@ -12,22 +12,6 @@ table 313 "Inventory Setup"
         field(2; "Automatic Cost Posting"; Boolean)
         {
             Caption = 'Automatic Cost Posting';
-
-            trigger OnValidate()
-            var
-                GLSetup: Record "General Ledger Setup";
-            begin
-                if "Automatic Cost Posting" then begin
-                    if GLSetup.Get then
-                        if not GLSetup."Use Legacy G/L Entry Locking" then
-                            Message(Text006,
-                              FieldCaption("Automatic Cost Posting"),
-                              "Automatic Cost Posting",
-                              GLSetup.FieldCaption("Use Legacy G/L Entry Locking"),
-                              GLSetup.TableCaption,
-                              GLSetup."Use Legacy G/L Entry Locking");
-                end;
-            end;
         }
         field(3; "Location Mandatory"; Boolean)
         {
@@ -181,6 +165,50 @@ table 313 "Inventory Setup"
                     UpdateAvgCostItemSettings(FieldCaption("Average Cost Period"), Format("Average Cost Period"));
             end;
         }
+        field(5849; "Allow Invt. Doc. Reservation"; Boolean)
+        {
+            Caption = 'Allow Invt. Doc. Reservation';
+        }
+        field(5850; "Invt. Receipt Nos."; Code[20])
+        {
+            Caption = 'Invt. Receipt Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5851; "Posted Invt. Receipt Nos."; Code[20])
+        {
+            Caption = 'Posted Invt. Receipt Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5852; "Invt. Shipment Nos."; Code[20])
+        {
+            Caption = 'Invt. Shipment Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5853; "Posted Invt. Shipment Nos."; Code[20])
+        {
+            Caption = 'Posted Invt. Shipment Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5854; "Copy Comments to Invt. Doc."; Boolean)
+        {
+            Caption = 'Copy Comments to Invt. Doc.';
+        }
+        field(5855; "Direct Transfer Posting"; Option)
+        {
+            Caption = 'Direct Transfer Posting';
+            OptionCaption = 'Receipt and Shipment,Direct Transfer';
+            OptionMembers = "Receipt and Shipment","Direct Transfer";
+        }
+        field(5856; "Posted Direct Trans. Nos."; Code[20])
+        {
+            Caption = 'Posted Direct Trans. Nos.';
+            TableRelation = "No. Series";
+        }
+        field(5860; "Package Nos."; Code[20])
+        {
+            Caption = 'Package Nos.';
+            TableRelation = "No. Series";
+        }
         field(5875; "Phys. Invt. Order Nos."; Code[20])
         {
             AccessByPermission = TableData "Phys. Invt. Order Header" = R;
@@ -192,6 +220,10 @@ table 313 "Inventory Setup"
             AccessByPermission = TableData "Phys. Invt. Order Header" = R;
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
+        }
+        field(6500; "Package Caption"; Text[30])
+        {
+            Caption = 'Package Caption';
         }
         field(7101; "Item Group Dimension Code"; Code[20])
         {
@@ -243,25 +275,30 @@ table 313 "Inventory Setup"
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Post Inventory Cost"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31042; "Automatic Maintenance Posting"; Boolean)
         {
             Caption = 'Automatic Maintenance Posting';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Use GPPG from SKU"; Boolean)
         {
             Caption = 'Use GPPG from SKU';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31072; "Date Order Inventory Change"; Boolean)
         {
             Caption = 'Date Order Inventory Change';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31073; "Def.Template for Phys.Pos.Adj"; Code[10])
         {
@@ -282,13 +319,20 @@ table 313 "Inventory Setup"
         field(31075; "Skip Update SKU on Posting"; Boolean)
         {
             Caption = 'Skip Update SKU on Posting';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31076; "Check Item Charge Pst.Group"; Boolean)
         {
             Caption = 'Check Item Charge Pst.Group';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31077; "Exact Cost Reversing Mandatory"; Boolean)
         {
@@ -297,10 +341,16 @@ table 313 "Inventory Setup"
         field(31078; "Post Neg. Transfers as Corr."; Boolean)
         {
             Caption = 'Post Neg. Transfers as Corr.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31079; "Post Exp. Cost Conv. as Corr."; Boolean)
         {
             Caption = 'Post Exp. Cost Conv. as Corr.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -324,7 +374,6 @@ table 313 "Inventory Setup"
         Text004: Label 'The program has cancelled the change that would have caused an adjustment of all items.';
         Text005: Label '%1 has been changed to %2. You should now run %3.';
         ObjTransl: Record "Object Translation";
-        Text006: Label 'The field %1 should not be set to %2 if field %3 in %4 table is set to %5 because of possibility of deadlocks.';
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     local procedure UpdateInvtAdjmtEntryOrder()
@@ -353,6 +402,15 @@ table 313 "Inventory Setup"
         Message(
           Text005, FieldCaption, FieldValue,
           ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Adjust Cost - Item Entries"));
+    end;
+
+    procedure OptimGLEntLockForMultiuserEnv(): Boolean
+    begin
+        if Rec.Get() then
+            if Rec."Automatic Cost Posting" then
+                exit(false);
+
+        exit(true);
     end;
 }
 

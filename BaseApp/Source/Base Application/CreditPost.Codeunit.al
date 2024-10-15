@@ -3,6 +3,9 @@ codeunit 31052 "Credit - Post"
     Permissions = TableData "Posted Credit Header" = i,
                   TableData "Posted Credit Line" = i;
     TableNo = "Credit Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     var
@@ -72,7 +75,7 @@ codeunit 31052 "Credit - Post"
 
                 CreditManagement.SetAppliesToID(CreditLine, '');
                 i += 1;
-            until CreditLine.Next = 0;
+            until CreditLine.Next() = 0;
 
             if Balance <> 0 then begin
                 Clear(GenJnlLine);
@@ -110,13 +113,13 @@ codeunit 31052 "Credit - Post"
             PostedCreditHeader.Insert();
             Clear(CreditLine);
             CreditLine.SetRange("Credit No.", "No.");
-            CreditLine.FindSet;
+            CreditLine.FindSet();
             repeat
                 Clear(PostedCreditLine);
                 PostedCreditLine.TransferFields(CreditLine);
                 PostedCreditLine."Credit No." := PostedCreditHeader."No.";
                 PostedCreditLine.Insert();
-            until CreditLine.Next = 0;
+            until CreditLine.Next() = 0;
 
             UpdateIncomingDocument("Incoming Document Entry No.", "Posting Date", PostedCreditHeader."No.");
 

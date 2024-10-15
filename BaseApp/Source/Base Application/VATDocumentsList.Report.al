@@ -25,17 +25,13 @@ report 11775 "VAT Documents List"
                 TVATDoc.SetCurrentKey("Document No.", "Posting Date");
                 if lreVATEntry.FindSet then
                     repeat
-                        TVATDoc.SetRange("Pmt.Disc. Tax Corr.Doc. No.");
-                        if lreVATEntry."Pmt.Disc. Tax Corr.Doc. No." <> '' then
-                            TVATDoc.SetRange("Pmt.Disc. Tax Corr.Doc. No.", lreVATEntry."Pmt.Disc. Tax Corr.Doc. No.");
-
                         TVATDoc.SetRange("Document No.", lreVATEntry."Document No.");
                         TVATDoc.SetRange("VAT Date", lreVATEntry."VAT Date");
                         if not TVATDoc.Find('-') then begin
                             TVATDoc := lreVATEntry;
                             TVATDoc.Insert();
                         end;
-                    until lreVATEntry.Next = 0;
+                    until lreVATEntry.Next() = 0;
                 CurrReport.Break();
             end;
         }
@@ -50,12 +46,6 @@ report 11775 "VAT Documents List"
             }
             column(gteEntryTypeText; EntryTypeText)
             {
-            }
-            column(gtePerfCountryFilter; PerfCountryFilter)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
             column(gteTextVATUnreal; TextVATUnreal)
             {
@@ -212,18 +202,6 @@ report 11775 "VAT Documents List"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if "Perform. Country/Region Code" <> '' then begin
-                        if "Advance Base" <> 0 then
-                            "Advance Base" := ExchangeAmount("VAT Entry", "Advance Base")
-                        else
-                            Base := ExchangeAmount("VAT Entry", Base);
-                        Amount := ExchangeAmount("VAT Entry", Amount);
-                        if PrintUnreal then begin
-                            "Unrealized Base" := ExchangeAmount("VAT Entry", "Unrealized Base");
-                            "Unrealized Amount" := ExchangeAmount("VAT Entry", "Unrealized Amount");
-                        end;
-                    end;
-
                     if not PrintUnreal then begin
                         "Unrealized Base" := 0;
                         "Unrealized Amount" := 0;
@@ -297,10 +275,6 @@ report 11775 "VAT Documents List"
 
                     VATEntryDocumentNo := "Document No.";
                     VATEntryDocumentType := Format("Document Type");
-                    if "Pmt.Disc. Tax Corr.Doc. No." <> '' then begin
-                        VATEntryDocumentNo := "Pmt.Disc. Tax Corr.Doc. No.";
-                        VATEntryDocumentType := Format("Document Type"::"Credit Memo");
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -317,8 +291,6 @@ report 11775 "VAT Documents List"
 
                     CopyFilters(VATFilter);
                     SetRange("Document No.", TVATDoc."Document No.");
-                    if TVATDoc."Pmt.Disc. Tax Corr.Doc. No." <> '' then
-                        SetRange("Pmt.Disc. Tax Corr.Doc. No.", TVATDoc."Pmt.Disc. Tax Corr.Doc. No.");
                     SetRange("VAT Date", TVATDoc."VAT Date");
                 end;
             }
@@ -402,7 +374,7 @@ report 11775 "VAT Documents List"
                             end;
                             lreTVATAmountLine := TDocVATAmtLine;
                             lreTVATAmountLine.Insert();
-                        until TDocVATAmtLine.Next = 0;
+                        until TDocVATAmtLine.Next() = 0;
 
                         TDocVATAmtLine.Reset();
                         TDocVATAmtLine.DeleteAll();
@@ -412,7 +384,7 @@ report 11775 "VAT Documents List"
                             repeat
                                 TDocVATAmtLine := lreTVATAmountLine;
                                 TDocVATAmtLine.Insert();
-                            until lreTVATAmountLine.Next = 0;
+                            until lreTVATAmountLine.Next() = 0;
 
                         lreTVATAmountLine.Reset();
                         lreTVATAmountLine.DeleteAll();
@@ -433,7 +405,7 @@ report 11775 "VAT Documents List"
                                 lreTVATAmountLine := TUnrealDocVATAmtLine;
                                 lreTVATAmountLine.Insert();
 
-                            until TUnrealDocVATAmtLine.Next = 0;
+                            until TUnrealDocVATAmtLine.Next() = 0;
 
                             TUnrealDocVATAmtLine.Reset();
                             TUnrealDocVATAmtLine.DeleteAll();
@@ -443,7 +415,7 @@ report 11775 "VAT Documents List"
                                 repeat
                                     TUnrealDocVATAmtLine := lreTVATAmountLine;
                                     TUnrealDocVATAmtLine.Insert
-                                until lreTVATAmountLine.Next = 0;
+                                until lreTVATAmountLine.Next() = 0;
 
                             lreTVATAmountLine.Reset();
                             lreTVATAmountLine.DeleteAll();
@@ -461,7 +433,7 @@ report 11775 "VAT Documents List"
                     if not TVATDoc.Find('-') then
                         CurrReport.Break();
                 end else begin
-                    if TVATDoc.Next = 0 then
+                    if TVATDoc.Next() = 0 then
                         CurrReport.Break();
                 end;
             end;
@@ -557,7 +529,7 @@ report 11775 "VAT Documents List"
                         end;
                         lretVATAmountLine := TTotVATAmtLine;
                         lretVATAmountLine.Insert();
-                    until TTotVATAmtLine.Next = 0;
+                    until TTotVATAmtLine.Next() = 0;
 
                     TTotVATAmtLine.Reset();
                     TTotVATAmtLine.DeleteAll();
@@ -567,7 +539,7 @@ report 11775 "VAT Documents List"
                         repeat
                             TTotVATAmtLine := lretVATAmountLine;
                             TTotVATAmtLine.Insert();
-                        until lretVATAmountLine.Next = 0;
+                        until lretVATAmountLine.Next() = 0;
 
                     lretVATAmountLine.Reset();
                     lretVATAmountLine.DeleteAll();
@@ -588,7 +560,7 @@ report 11775 "VAT Documents List"
                             lretVATAmountLine := TUnrealTotVATAmtLine;
                             lretVATAmountLine.Insert();
 
-                        until TUnrealTotVATAmtLine.Next = 0;
+                        until TUnrealTotVATAmtLine.Next() = 0;
 
                         TUnrealTotVATAmtLine.Reset();
                         TUnrealTotVATAmtLine.DeleteAll();
@@ -598,7 +570,7 @@ report 11775 "VAT Documents List"
                             repeat
                                 TUnrealTotVATAmtLine := lretVATAmountLine;
                                 TUnrealTotVATAmtLine.Insert
-                            until lretVATAmountLine.Next = 0;
+                            until lretVATAmountLine.Next() = 0;
 
                         lretVATAmountLine.Reset();
                         lretVATAmountLine.DeleteAll();
@@ -653,17 +625,6 @@ report 11775 "VAT Documents List"
                         Caption = 'Print Unrealized VAT';
                         ToolTip = 'Specifies if unrealized VAT entries have to be printed.';
                     }
-                    field(PerfCountryCodeFiter; PerfCountryCodeFiter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Performance Country';
-                        TableRelation = "Country/Region";
-                        ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                 }
             }
         }
@@ -679,16 +640,9 @@ report 11775 "VAT Documents List"
 
     trigger OnPreReport()
     begin
-        xRequest.SetRange("Perform. Country/Region Code");
         xRequest.SetRange(Type);
 
         Filters := CopyStr(xRequest.GetFilters, 1, 250);
-
-        if PerfCountryCodeFiter <> '' then begin
-            xRequest.SetRange("Perform. Country/Region Code", PerfCountryCodeFiter);
-            PerfCountryFilter := "VAT Entry".FieldCaption("Perform. Country/Region Code") + ':' + PerfCountryCodeFiter;
-        end else
-            xRequest.SetRange("Perform. Country/Region Code", '');
 
         case EntryTypeFilter of
             EntryTypeFilter::Purchase:
@@ -724,19 +678,13 @@ report 11775 "VAT Documents List"
         TUnrealDocVATAmtLine: Record "VAT Amount Line" temporary;
         TUnrealTotVATAmtLine: Record "VAT Amount Line" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         EntryTypeFilter: Option Purchase,Sale,All;
         PrintDetail: Boolean;
         PrintSummary: Boolean;
         PrintTotal: Boolean;
         PrintUnreal: Boolean;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCodeFiter: Code[10];
         Filters: Text[250];
         EntryTypeText: Text[60];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryFilter: Text[50];
         TextBaseUnreal: Text[30];
         TextVATUnreal: Text[30];
         Advance: Boolean;
@@ -760,13 +708,5 @@ report 11775 "VAT Documents List"
         NoneTxt: Label '<NONE>';
         VATEntryDocumentNo: Code[20];
         VATEntryDocumentType: Text;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure ExchangeAmount(VATEntry: Record "VAT Entry"; Amount2: Decimal): Decimal
-    begin
-        with VATEntry do
-            exit(PerfCountryCurrExchRate.ExchangeAmount(
-                "Posting Date", "Perform. Country/Region Code", "Currency Code", Amount2 * "Currency Factor"));
-    end;
 }
 

@@ -133,7 +133,7 @@ report 11742 "Cash Desk Book"
                         TempCashDocHeader.TransferFields(CashDocHeader);
                         TempCashDocHeader."Released Amount" := CashDocHeader."Released Amount";
                         TempCashDocHeader.Insert();
-                    until CashDocHeader.Next = 0;
+                    until CashDocHeader.Next() = 0;
 
                 CopyFilter("Date Filter", PostedCashDocHeader."Posting Date");
                 if PostedCashDocHeader.FindSet then
@@ -143,7 +143,7 @@ report 11742 "Cash Desk Book"
                         PostedCashDocHeader.CalcFields("Amount Including VAT");
                         TempCashDocHeader."Released Amount" := PostedCashDocHeader."Amount Including VAT";
                         TempCashDocHeader.Insert();
-                    until PostedCashDocHeader.Next = 0;
+                    until PostedCashDocHeader.Next() = 0;
             end;
 
             trigger OnPreDataItem()

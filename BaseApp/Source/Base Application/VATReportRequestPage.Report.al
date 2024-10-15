@@ -22,7 +22,6 @@ report 742 "VAT Report Request Page"
                 VATStatement: Report "VAT Statement";
                 ColumnValue: Decimal;
                 SettlementNoFilter2: Text[50];
-                CountryCodeFillFilter2: Code[10];
             begin
                 Copy(Rec);
 
@@ -35,11 +34,11 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
                 VATStatementLine.SetRange("Statement Name", "Statement Name");
                 VATStatementLine.SetFilter("Box No.", '<>%1', '');
-                VATStatementLine.FindSet;
+                VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
                   VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency",
-                  SettlementNoFilter2, CountryCodeFillFilter2); // NAVCZ
+                  SettlementNoFilter2); // NAVCZ
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
@@ -58,7 +57,7 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate("Box No.", VATStatementLine."Box No.");
                     VATStatementReportLine.Validate(Amount, ColumnValue);
                     VATStatementReportLine.Insert();
-                until VATStatementLine.Next = 0;
+                until VATStatementLine.Next() = 0;
             end;
         }
     }

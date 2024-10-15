@@ -211,7 +211,7 @@ report 31082 "Account Schedule Result"
                             then
                                 if AccScheduleResultValue.Value <> 0 then
                                     ColumnValuesAsText[i] := Format(AccScheduleResultValue.Value);
-                        until AccScheduleResultColumn.Next = 0;
+                        until AccScheduleResultColumn.Next() = 0;
                 end;
             }
 
@@ -226,7 +226,7 @@ report 31082 "Account Schedule Result"
                     repeat
                         i := i + 1;
                         Header[i] := AccScheduleResultColumn."Column Header";
-                    until AccScheduleResultColumn.Next = 0;
+                    until AccScheduleResultColumn.Next() = 0;
             end;
         }
     }

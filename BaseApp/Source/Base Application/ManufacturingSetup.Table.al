@@ -156,6 +156,9 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Default Gen.Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Exact Cost Rev.Manda. (Cons.)"; Boolean)
         {

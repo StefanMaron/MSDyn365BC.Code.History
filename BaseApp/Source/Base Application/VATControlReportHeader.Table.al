@@ -113,16 +113,9 @@ table 31100 "VAT Control Report Header"
         field(15; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                TestModifyAllowed;
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(20; "VAT Statement Template Name"; Code[10])
         {

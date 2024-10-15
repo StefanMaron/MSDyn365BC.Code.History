@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -66,11 +66,13 @@
                                 TransferRoute.GetTransferRoute(
                                   "Transfer-from Code", "Transfer-to Code", "In-Transit Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code");
+#if not CLEAN18                                  
                                 // NAVCZ
                                 TransferRoute.GetTransferGBPG(
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Gen. Bus. Post. Group Ship", "Gen. Bus. Post. Group Receive");
                                 // NAVCZ
+#endif
                                 OnAfterGetTransferRoute(Rec, TransferRoute);
                                 TransferRoute.GetShippingTime(
                                   "Transfer-from Code", "Transfer-to Code",
@@ -203,11 +205,13 @@
                                 TransferRoute.GetTransferRoute(
                                   "Transfer-from Code", "Transfer-to Code", "In-Transit Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code");
+#if not CLEAN18
                                 // NAVCZ
                                 TransferRoute.GetTransferGBPG(
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Gen. Bus. Post. Group Ship", "Gen. Bus. Post. Group Receive");
                                 // NAVCZ
+#endif
                                 OnAfterGetTransferRoute(Rec, TransferRoute);
                                 TransferRoute.GetShippingTime(
                                   "Transfer-from Code", "Transfer-to Code",
@@ -304,6 +308,14 @@
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+
+            trigger OnValidate()
+            begin
+                if "Direct Transfer" then begin
+                    Validate("Shipment Date", "Posting Date");
+                    Validate("Receipt Date", "Posting Date");
+                end;
+            end;
         }
         field(21; "Shipment Date"; Date)
         {
@@ -625,57 +637,78 @@
         {
             Caption = 'Receiving Wh. No. Series';
             TableRelation = "No. Series";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11797; "Shipping No. Series"; Code[20])
         {
             Caption = 'Shipping No. Series';
             TableRelation = "No. Series";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11798; "Receiving No. Series"; Code[20])
         {
             Caption = 'Receiving No. Series';
             TableRelation = "No. Series";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11799; "Shipping Wh. No. Series"; Code[20])
         {
             Caption = 'Shipping Wh. No. Series';
             TableRelation = "No. Series";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Ship';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 UpdateTransLines(Rec, FieldNo("Gen. Bus. Post. Group Ship"));
             end;
+#endif
         }
         field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 UpdateTransLines(Rec, FieldNo("Gen. Bus. Post. Group Receive"));
             end;
+#endif
         }
     }
 
@@ -703,13 +736,12 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", "No.");
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Transfer Line", 0, "No.", HideValidationDialog);
 
         DeleteTransferLines();
-
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
         InvtCommentLine.SetRange("No.", "No.");
@@ -750,42 +782,7 @@
         HideValidationDialog: Boolean;
 
     procedure InitRecord()
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
-        WarehouseSetup: Record "Warehouse Setup";
     begin
-        // NAVCZ
-        GetInventorySetup;
-        WarehouseSetup.Get();
-
-        if NoSeriesLink.Get("No. Series") then begin
-            if NoSeriesLink."Shipping Wh. No. Series" <> '' then
-                "Shipping Wh. No. Series" := NoSeriesLink."Shipping Wh. No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Shipping Wh. No. Series", WarehouseSetup."Whse. Ship Nos.");
-
-            if NoSeriesLink."Receiving Wh. No. Series" <> '' then
-                "Receiving Wh. No. Series" := NoSeriesLink."Receiving Wh. No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Receiving Wh. No. Series", WarehouseSetup."Whse. Receipt Nos.");
-
-            if NoSeriesLink."Receiving No. Series" <> '' then
-                "Receiving No. Series" := NoSeriesLink."Receiving No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Receiving No. Series", InvtSetup."Posted Transfer Rcpt. Nos.");
-
-            if NoSeriesLink."Shipping No. Series" <> '' then
-                "Shipping No. Series" := NoSeriesLink."Shipping No. Series"
-            else
-                NoSeriesMgt.SetDefaultSeries("Shipping No. Series", InvtSetup."Posted Transfer Shpt. Nos.");
-        end else begin
-            NoSeriesMgt.SetDefaultSeries("Shipping Wh. No. Series", WarehouseSetup."Whse. Ship Nos.");
-            NoSeriesMgt.SetDefaultSeries("Receiving Wh. No. Series", WarehouseSetup."Whse. Receipt Nos.");
-            NoSeriesMgt.SetDefaultSeries("Receiving No. Series", InvtSetup."Posted Transfer Rcpt. Nos.");
-            NoSeriesMgt.SetDefaultSeries("Shipping No. Series", InvtSetup."Posted Transfer Shpt. Nos.");
-        end;
-        // NAVCZ
         if "Posting Date" = 0D then
             Validate("Posting Date", WorkDate);
 
@@ -886,6 +883,11 @@
         exit(NoSeriesCode);
     end;
 
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
@@ -902,7 +904,7 @@
 
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
-            if TransferLinesExist then
+            if TransferLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -1009,7 +1011,7 @@
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
                 end;
                 TransferLine.Modify(true);
-            until TransferLine.Next = 0;
+            until TransferLine.Next() = 0;
         end;
     end;
 
@@ -1033,7 +1035,7 @@
                    (TransLine2."Qty. Shipped (Base)" <> TransLine2."Qty. Received (Base)")
                 then
                     exit(false);
-            until TransLine2.Next = 0;
+            until TransLine2.Next() = 0;
 
         exit(true);
     end;
@@ -1055,7 +1057,7 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", No);
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
@@ -1123,11 +1125,11 @@
         end;
     end;
 
-    local procedure TransferLinesExist(): Boolean
+    procedure TransferLinesExist(): Boolean
     begin
         TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");
-        exit(TransLine.FindFirst);
+        exit(TransLine.FindFirst());
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
@@ -1160,9 +1162,10 @@
                       TransLine."Dimension Set ID", TransLine."Shortcut Dimension 1 Code", TransLine."Shortcut Dimension 2 Code");
                     TransLine.Modify();
                 end;
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure IsIntrastatTransaction() IsIntrastat: Boolean
     var
@@ -1310,7 +1313,7 @@
             repeat
                 LineNo := LineNo + 10000;
                 AddTransferLineFromReceiptLine(PurchRcptLine, LineNo);
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
     end;
 
     local procedure AddTransferLineFromReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer)
@@ -1339,7 +1342,8 @@
 
         OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry);
     end;
-    
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure ShipOrReceiveInventoriableTypeItems(): Boolean
     var
         TransferLine: Record "Transfer Line";
@@ -1350,9 +1354,9 @@
         TransferLine.SetFilter("Item No.", '<>%1', '');
         if TransferLine.FindSet() then
             repeat
-              if Item.Get(TransferLine."Item No.") then
-                if ((TransferLine."Qty. to Receive" <> 0) or (TransferLine."Qty. to Ship" <> 0)) and Item.IsInventoriableType() then
-                    exit(true);
+                if Item.Get(TransferLine."Item No.") then
+                    if ((TransferLine."Qty. to Receive" <> 0) or (TransferLine."Qty. to Ship" <> 0)) and Item.IsInventoriableType() then
+                        exit(true);
             until TransferLine.Next() = 0;
     end;
 
@@ -1365,6 +1369,10 @@
     var
         Location: Record Location;
     begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
         if not Location.Get(LocationCode) then
             exit;
 
@@ -1376,6 +1384,10 @@
     var
         Location: Record Location;
     begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
         if not Location.Get(LocationCode) then
             exit;
 
@@ -1392,12 +1404,7 @@
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-                // NAVCZ
-                if "No. Series" <> '' then
-                    NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series")
-                else
-                // NAVCZ
-                    NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
             end;
 
         OnInitInsertOnBeforeInitRecord(xRec);

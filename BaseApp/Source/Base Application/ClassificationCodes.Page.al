@@ -1,11 +1,15 @@
+#if not CLEAN18
 page 31040 "Classification Codes"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Classification Codes';
+    Caption = 'Classification Codes (Obsolete)';
     PageType = List;
     SourceTable = "Classification Code";
     SourceTableView = SORTING("Classification Type", Code);
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -50,4 +54,4 @@ page 31040 "Classification Codes"
     {
     }
 }
-
+#endif

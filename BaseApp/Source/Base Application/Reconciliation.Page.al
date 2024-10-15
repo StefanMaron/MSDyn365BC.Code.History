@@ -1,4 +1,5 @@
-﻿page 345 Reconciliation
+#if not CLEAN18
+page 345 Reconciliation
 {
     Caption = 'Reconciliation';
     DataCaptionExpression = Heading;
@@ -83,9 +84,9 @@
                         SaveNetChange(
                           GenJnlLine."Account Type"::"G/L Account", GenJnlAlloc."Account No.",
                           GenJnlAlloc.Amount, GenJnlAlloc."VAT Amount");
-                    until GenJnlAlloc.Next = 0;
+                    until GenJnlAlloc.Next() = 0;
             // NAVCZ
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
         if Find('-') then;
     end;
 
@@ -105,7 +106,7 @@
                 SaveNetChange(
                   BankAccReconLn."Account Type"::"Bank Account", BankAccReconLn."Bank Account No.",
                   BankAccReconLn."Statement Amount (LCY)", 0);
-            until BankAccReconLn.Next = 0;
+            until BankAccReconLn.Next() = 0;
         if FindSet then;
     end;
 
@@ -204,12 +205,12 @@
         OldGLAccountNetChange: Record "G/L Account Net Change";
     begin
         OldGLAccountNetChange := Rec;
-        FindSet;
+        FindSet();
         repeat
             GLAccountNetChange.Init();
             GLAccountNetChange := Rec;
             GLAccountNetChange.Insert();
-        until Next = 0;
+        until Next() = 0;
 
         Rec := OldGLAccountNetChange;
     end;
@@ -248,4 +249,4 @@
     begin
     end;
 }
-
+#endif

@@ -90,11 +90,9 @@ table 32 "Item Ledger Entry"
             Caption = 'Shpt. Method Code';
             TableRelation = "Shipment Method";
         }
-        field(41; "Source Type"; Option)
+        field(41; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(47; "Drop Shipment"; Boolean)
         {
@@ -474,6 +472,16 @@ table 32 "Item Ledger Entry"
             Caption = 'Item Tracking';
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
         field(6602; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
@@ -485,6 +493,9 @@ table 32 "Item Ledger Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -492,16 +503,25 @@ table 32 "Item Ledger Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11793; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
             TableRelation = "Source Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11794; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11795; "User ID"; Code[50])
         {
@@ -511,78 +531,87 @@ table 32 "Item Ledger Entry"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31044; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-        }
-        field(31045; "Maintenance Amount"; Decimal)
-        {
-            CalcFormula = Sum ("Maintenance Ledger Entry".Amount WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
-            Caption = 'Maintenance Amount';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Shipment Method";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31068; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31074; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31075; "Currency Factor"; Decimal)
         {
@@ -590,10 +619,16 @@ table 32 "Item Ledger Entry"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -622,7 +657,9 @@ table 32 "Item Ledger Entry"
         {
             SumIndexFields = Quantity, "Remaining Quantity";
         }
-        key(Key7; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key7; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             SumIndexFields = Quantity, "Remaining Quantity";
@@ -658,15 +695,21 @@ table 32 "Item Ledger Entry"
         {
             Enabled = false;
         }
-        key(Key16; "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key16; "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             SumIndexFields = "Remaining Quantity";
         }
-        key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
         }
-        key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             MaintainSIFTIndex = false;
@@ -677,6 +720,9 @@ table 32 "Item Ledger Entry"
         {
         }
         key(Key20; "Serial No.")
+        {
+        }
+        key(Key21; SystemModifiedAt)
         {
         }
     }
@@ -749,7 +795,7 @@ table 32 "Item Ledger Entry"
                 InbndItemLedgEntry.Get(ItemApplnEntry."Inbound Item Entry No.");
                 if not InbndItemLedgEntry."Completely Invoiced" then
                     CompletelyInvoiced := false;
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
 
             if CompletelyInvoiced then begin
                 SetCompletelyInvoiced;
@@ -900,7 +946,7 @@ table 32 "Item Ledger Entry"
             repeat
                 if ItemApplnEntry."Posting Date" <= PostingDate then
                     RemQty += ItemApplnEntry.Quantity;
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
         exit(RemQty);
     end;
 
@@ -956,11 +1002,12 @@ table 32 "Item Ledger Entry"
                         AdjustedCost += RemQty / TotalQty * (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)")
                     else
                         AdjustedCost += RemQty / TotalQty * ValueEntry."Cost Amount (Actual)";
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
         exit(AdjustedCost);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsGLCorrection(): Boolean
     var
         ValueEntry: Record "Value Entry";
@@ -1034,12 +1081,14 @@ table 32 "Item Ledger Entry"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
+#endif
 
     procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -1073,6 +1122,16 @@ table 32 "Item Ledger Entry"
             SetRange("Lot No.", ItemTrackingSetup."Lot No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
@@ -1146,6 +1205,11 @@ table 32 "Item Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
     begin
     end;
 

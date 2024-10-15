@@ -438,7 +438,7 @@ table 11704 "Bank Statement Header"
                         end;
                 end;
                 BankStmtLine.Modify(true);
-            until BankStmtLine.Next = 0;
+            until BankStmtLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

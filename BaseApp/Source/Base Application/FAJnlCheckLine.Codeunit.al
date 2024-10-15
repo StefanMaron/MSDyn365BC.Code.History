@@ -4,8 +4,10 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     trigger OnRun()
     var
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
     begin
         CheckJobNo(Rec);
         TestField("FA Posting Type");
@@ -105,13 +107,13 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FieldCaption("Bal. Account Type"),
                 GenJnlline2."Account Type"));
         end;
-
+#if not CLEAN18
         // NAVCZ
         GLSetup.Get();
         if GLSetup."User Checks Allowed" then
             UserSetupAdvMgt.CheckGeneralJournalLine(Rec);
         // NAVCZ
-
+#endif
         DeprBookCode := "Depreciation Book Code";
         if "FA Posting Date" = 0D then
             "FA Posting Date" := "Posting Date";
@@ -455,7 +457,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                                 OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
                                 if not IsHandled then
                                     if "FA Posting Type" <> "FA Posting Type"::Maintenance then
-                                       FieldError(Quantity, FieldErrorText);
+                                        FieldError(Quantity, FieldErrorText);
                             end;
                     end;
                 if ("FA Posting Type" <> "FA Posting Type"::Maintenance) and
@@ -504,10 +506,6 @@ codeunit 5631 "FA Jnl.-Check Line"
                     Maintenance.Get("Maintenance Code");
                 if ("FA Posting Type" = "FA Posting Type"::Disposal) and ("Reason Code" <> '') then
                     ReasonCode.Get("Reason Code");
-                if DeprBook."Disposal Calculation Method" = DeprBook."Disposal Calculation Method"::Gross then
-                    if FASetup."FA Disposal By Reason Code" then
-                        if "FA Posting Type" = "FA Posting Type"::Disposal then
-                            TestField("Reason Code");
                 // NAVCZ
             end;
 
@@ -602,7 +600,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     if ComponentFADeprBook.Get("FA No.", DeprBookCode) then
                         if ComponentFADeprBook."Disposal Date" = 0D then
                             Error(Text018, FA."No.");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -627,11 +625,12 @@ codeunit 5631 "FA Jnl.-Check Line"
             end;
             AccPeriod.SetFilter("Starting Date", '>%1&<=%2', AccountingPeriodMgt.FindFiscalYear(StartingDate), GenJnlLine."FA Posting Date");
             AccPeriod.SetRange("New Fiscal Year", true);
-            if not AccPeriod.IsEmpty then
+            if not AccPeriod.IsEmpty() then
                 Error(Text019Err);
         end;
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CalcEndPrevFiscYear(StartingDate: Date) EndFiscYear: Date
     var
@@ -646,6 +645,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             EndFiscYear := CalcDate('<CY>-<1Y>', StartingDate);
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure FindFiscalYear2(DatePosting: Date): Date
     var
@@ -655,6 +655,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         exit(AccountingPeriodMgt.FindFiscalYear(DatePosting));
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure ControlingCheck(PostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value")
     var
@@ -706,7 +707,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
             FALedgEntry.SetFilter("FA Posting Date", '%1..', FAPostingDate + 1);
             FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-            if not FALedgEntry.IsEmpty then begin
+            if not FALedgEntry.IsEmpty() then begin
                 FALedgEntry1."FA Posting Type" := FALedgEntry1."FA Posting Type"::"Acquisition Cost";
                 FALedgEntry2."FA Posting Type" := FALedgEntry2."FA Posting Type"::Appreciation;
                 FALedgEntry3."FA Posting Type" := FALedgEntry3."FA Posting Type"::Depreciation;

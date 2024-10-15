@@ -278,6 +278,10 @@ page 201 "Job Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the net weight of the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Applies-to Entry"; "Applies-to Entry")
                 {
@@ -300,12 +304,18 @@ page 201 "Job Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the shipment method for the shipment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
@@ -330,31 +340,19 @@ page 201 "Job Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the origin country/region code.';
-                    Visible = false;
-                }
-                field("FA No."; "FA No.")
-                {
-                    ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of fixed asset in the job journal.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Maintenance Code"; "Maintenance Code")
-                {
-                    ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a maintenance code.';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Time Sheet No."; "Time Sheet No.")
                 {

@@ -19,19 +19,18 @@ codeunit 21 "Item Jnl.-Check Line"
         Text011: Label '%1 must not be equal to %2';
         Location: Record Location;
         InvtSetup: Record "Inventory Setup";
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
-        FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
         CalledFromInvtPutawayPick: Boolean;
         CalledFromAdjustment: Boolean;
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
-        NText001: Label 'must be the same in %1 %2=''%3'',%4=''%5'',%6=''%7'' as';
-        NText002: Label 'must be the same in %1 %2=''%3'' as';
 
     procedure RunCheck(var ItemJnlLine: Record "Item Journal Line")
     var
@@ -39,23 +38,23 @@ codeunit 21 "Item Jnl.-Check Line"
         WorkCenter: Record "Work Center";
         Item: Record Item;
         Item2: Record Item;
-        SKU: Record "Stockkeeping Unit";
-        ItemCharge: Record "Item Charge";
         ManufSetup: Record "Manufacturing Setup";
         T337: Record "Reservation Entry";
         TmpItemTrackingCode: Record "Item Tracking Code";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+#if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
+#endif
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
         SNRequired: Boolean;
         LotRequired: Boolean;
         SNInfoRequired: Boolean;
         LotInfoRequired: Boolean;
         IsHandled: Boolean;
     begin
+#if not CLEAN18
         GLSetup.Get();
+#endif
         InvtSetup.Get();
 
         with ItemJnlLine do begin
@@ -78,19 +77,13 @@ codeunit 21 "Item Jnl.-Check Line"
             TestField("Gen. Prod. Posting Group");
 
             CheckDates(ItemJnlLine);
-
+#if not CLEAN18
             // NAVCZ
             GLSetup.Get();
             if GLSetup."User Checks Allowed" and not CalledFromAdjustment then
                 UserChecksMgt.CheckItemJournalLine(ItemJnlLine);
-            if "FA No." <> '' then begin
-                TestField("Entry Type", "Entry Type"::"Negative Adjmt.");
-                FASetup.Get();
-                if FASetup."FA Maintenance By Maint. Code" then
-                    TestField("Maintenance Code");
-            end;
             // NAVCZ
-
+#endif
             IsHandled := false;
             OnBeforeCheckLocation(ItemJnlLine, IsHandled);
             if not IsHandled then
@@ -216,7 +209,7 @@ codeunit 21 "Item Jnl.-Check Line"
                                     if T337.FindSet(false, false) then begin
                                         repeat
                                             T337.TestField("Appl.-from Item Entry");
-                                        until T337.Next = 0;
+                                        until T337.Next() = 0;
                                     end;
                                 end else
                                     TestField("Applies-from Entry");
@@ -244,7 +237,7 @@ codeunit 21 "Item Jnl.-Check Line"
                                     if T337.FindSet(false, false) then begin
                                         repeat
                                             T337.TestField("Appl.-from Item Entry");
-                                        until T337.Next = 0;
+                                        until T337.Next() = 0;
                                     end;
                                 end else
                                     TestField("Applies-from Entry");
@@ -257,28 +250,6 @@ codeunit 21 "Item Jnl.-Check Line"
                     TestField("Applies-to Entry");
 
             CheckDimensions(ItemJnlLine);
-            // NAVCZ
-            if "Item Charge No." <> '' then
-                if InvtSetup."Check Item Charge Pst.Group" then begin
-                    if ItemCharge."No." <> "Item Charge No." then
-                        ItemCharge.Get("Item Charge No.");
-                    if SKU.Get("Location Code", "Item No.", "Variant Code") and (SKU."Gen. Prod. Posting Group" <> '') then begin
-                        if SKU."Gen. Prod. Posting Group" <> ItemCharge."Gen. Prod. Posting Group" then
-                            ItemCharge.FieldError("Gen. Prod. Posting Group",
-                              StrSubstNo(NText001, SKU.TableCaption,
-                                FieldCaption("Location Code"), "Location Code",
-                                FieldCaption("Item No."), "Item No.",
-                                FieldCaption("Variant Code"), "Variant Code"));
-                    end else begin
-                        if Item2."No." <> "Item No." then
-                            Item2.Get("Item No.");
-                        if Item2."Gen. Prod. Posting Group" <> ItemCharge."Gen. Prod. Posting Group" then
-                            ItemCharge.FieldError("Gen. Prod. Posting Group",
-                              StrSubstNo(NText002, Item2.TableCaption,
-                                Item2.FieldCaption("No."), "Item No."));
-                    end;
-                end;
-            // NAVCZ
 
             // NAVCZ
             if (Quantity <> 0) and
@@ -289,27 +260,6 @@ codeunit 21 "Item Jnl.-Check Line"
                 TestField("Unit of Measure Code");
             // NAVCZ
 
-            if not IsValueEntryForDeletedItem and not Correction and not CalledFromAdjustment then begin
-
-
-                // NAVCZ
-                if "FA No." <> '' then begin
-                    TableID[1] := DATABASE::"Fixed Asset";
-                    No[1] := "FA No.";
-                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                        if "Line No." <> 0 then
-                            Error(
-                              DimCausedErr,
-                              "Journal Template Name", "Journal Batch Name", "Line No.",
-                              DimMgt.GetDimValuePostingErr)
-                        else
-                            Error(DimMgt.GetDimValuePostingErr);
-                    Clear(TableID);
-                    Clear(No);
-                end;
-                // NAVCZ
-
-            end;
             if ("Entry Type" in
                 ["Entry Type"::Purchase, "Entry Type"::Sale, "Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) and
                (not GenJnlPostPreview.IsActive)
@@ -401,7 +351,7 @@ codeunit 21 "Item Jnl.-Check Line"
                             repeat
                                 if ReservationEntry."Appl.-to Item Entry" = 0 then
                                     ShowError := true;
-                            until (ReservationEntry.Next = 0) or ShowError
+                            until (ReservationEntry.Next() = 0) or ShowError
                         else
                             ShowError := ItemJnlLine.LastOutputOperation(ItemJnlLine);
                     end;

@@ -41,11 +41,25 @@ table 5742 "Transfer Route"
         {
             Caption = 'Gen. Bus. Post. Group Ship';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -284,6 +298,7 @@ table 5742 "Transfer Route"
         end;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     procedure GetTransferGBPG(TransferFromCode: Code[10]; TransferToCode: Code[10]; var GBPGS: Code[20]; var GBPGR: Code[20])
     var
@@ -306,7 +321,7 @@ table 5742 "Transfer Route"
             GBPGR := '';
         end;
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcShipmentDate(var TransferRoute: Record "Transfer Route"; var ReceiptDate: Date; var InboundWhseTime: DateFormula; var TransferToCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula; var TransferFromCode: Code[10]; var ShipmentDate: Date; var OutboundWhseTime: DateFormula; var IsHandled: Boolean)
     begin

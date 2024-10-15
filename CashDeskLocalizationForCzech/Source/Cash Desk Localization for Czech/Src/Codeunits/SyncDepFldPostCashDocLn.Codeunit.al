@@ -57,6 +57,7 @@ codeunit 31134 "Sync.Dep.Fld-PostCashDocLn CZP"
             PostedCashDocumentLineCZP."Line No." := Rec."Line No.";
             PostedCashDocumentLineCZP.Insert(false);
         end;
+        PostedCashDocumentLineCZP."Gen. Document Type" := Rec."Document Type";
         PostedCashDocumentLineCZP."Account Type" := Rec."Account Type";
         PostedCashDocumentLineCZP."Account No." := Rec."Account No.";
         PostedCashDocumentLineCZP."External Document No." := Rec."External Document No.";
@@ -67,7 +68,7 @@ codeunit 31134 "Sync.Dep.Fld-PostCashDocLn CZP"
         PostedCashDocumentLineCZP."Description 2" := Rec."Description 2";
         PostedCashDocumentLineCZP."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
         PostedCashDocumentLineCZP."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
-        PostedCashDocumentLineCZP."Document Type" := Rec."Document Type";
+        PostedCashDocumentLineCZP."Document Type" := Rec."Cash Document Type";
         PostedCashDocumentLineCZP."Currency Code" := Rec."Currency Code";
         PostedCashDocumentLineCZP."Cash Desk Event" := Rec."Cash Desk Event";
         PostedCashDocumentLineCZP."Salespers./Purch. Code" := Rec."Salespers./Purch. Code";
@@ -170,6 +171,7 @@ codeunit 31134 "Sync.Dep.Fld-PostCashDocLn CZP"
             PostedCashDocumentLine."Line No." := Rec."Line No.";
             PostedCashDocumentLine.Insert(false);
         end;
+        PostedCashDocumentLine."Document Type" := Rec."Gen. Document Type".AsInteger();
         PostedCashDocumentLine."Account Type" := Rec."Account Type".AsInteger();
         PostedCashDocumentLine."Account No." := Rec."Account No.";
         PostedCashDocumentLine."External Document No." := Rec."External Document No.";
@@ -180,7 +182,7 @@ codeunit 31134 "Sync.Dep.Fld-PostCashDocLn CZP"
         PostedCashDocumentLine."Description 2" := Rec."Description 2";
         PostedCashDocumentLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
         PostedCashDocumentLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
-        PostedCashDocumentLine."Document Type" := Rec."Document Type".AsInteger();
+        PostedCashDocumentLine."Cash Document Type" := Rec."Document Type".AsInteger();
         PostedCashDocumentLine."Currency Code" := Rec."Currency Code";
         PostedCashDocumentLine."Cash Desk Event" := Rec."Cash Desk Event";
         PostedCashDocumentLine."Salespers./Purch. Code" := Rec."Salespers./Purch. Code";

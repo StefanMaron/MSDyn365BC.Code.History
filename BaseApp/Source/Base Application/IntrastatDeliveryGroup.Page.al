@@ -1,10 +1,13 @@
 page 31064 "Intrastat Delivery Group"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Intrastat Delivery Group';
+    Caption = 'Intrastat Delivery Group (Obsolete)';
     PageType = List;
     SourceTable = "Intrastat Delivery Group";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -13,17 +13,15 @@ codeunit 31111 "Workflow Response Handling CZ"
         CheckReleaseDocumentTxt: Label 'Check release the document.';
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = 'Record type Customer is not supported by this workflow response.';
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnAddWorkflowResponsesToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddWorkflowResponsesToLibrary()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
+    local procedure AddWorkflowResponsesToLibrary()
     begin
         WorkflowResponseHandling.AddResponseToLibrary(SetStatusToApprovedCode, 0, SetStatusToApprovedTxt, 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(CheckReleaseDocumentCode, 0, CheckReleaseDocumentTxt, 'GROUP 0');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddWorkflowResponsePredecessorsToLibrary(ResponseFunctionName: Code[128])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]
+    local procedure AddWorkflowResponsePredecessorsToLibrary(ResponseFunctionName: Code[128])
     begin
         case ResponseFunctionName of
             SetStatusToApprovedCode:
@@ -127,9 +125,8 @@ codeunit 31111 "Workflow Response Handling CZ"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnExecuteWorkflowResponse', '', false, false)]
-    [Scope('OnPrem')]
-    procedure ExecuteWorkflowResponse(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', false, false)]
+    local procedure ExecuteWorkflowResponse(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
     begin
         case ResponseWorkflowStepInstance."Function Name" of
             SetStatusToApprovedCode:

@@ -1,7 +1,14 @@
 table 11796 "User Setup Line"
 {
-    Caption = 'User Setup Line';
+    Caption = 'User Setup Line (Obsolete)';
     DataCaptionFields = "User ID", Type;
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
+    ObsoleteState = Pending;
+#endif
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

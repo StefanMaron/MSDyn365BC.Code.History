@@ -61,19 +61,13 @@ page 5404 "Item Units of Measure"
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
                     Visible = true;
                 }
-                field("Indivisible Unit"; "Indivisible Unit")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies indivisible unit';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Intrastat Default"; "Intrastat Default")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use the Intrastat default for the itemŒs unit of measure.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
             }
@@ -95,7 +89,7 @@ page 5404 "Item Units of Measure"
                         Item.Find;
                         Item.Validate("Base Unit of Measure", ItemBaseUOM);
                         Item.Modify(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

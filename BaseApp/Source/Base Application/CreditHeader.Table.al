@@ -3,6 +3,9 @@ table 31050 "Credit Header"
     Caption = 'Credit Header';
     DataCaptionFields = "No.", Description;
     LookupPageID = "Credits List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -193,14 +196,14 @@ table 31050 "Credit Header"
         }
         field(90; "Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = Sum("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(95; "Credit Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Credit Line"."Amount (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = Sum("Credit Line"."Amount (LCY)" WHERE("Credit No." = FIELD("No.")));
             Caption = 'Credit Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -288,6 +291,7 @@ table 31050 "Credit Header"
         ApprovalProcessPrintErr: Label 'This document can only be printed when the approval process is complete.';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure AssistEdit(OldCreditHeader: Record "Credit Header"): Boolean
     var
         CreditHeader: Record "Credit Header";
@@ -309,6 +313,7 @@ table 31050 "Credit Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         CreditReportSelections: Record "Credit Report Selections";
@@ -323,11 +328,12 @@ table 31050 "Credit Header"
             CreditReportSelections.Find('-');
             repeat
                 REPORT.RunModal(CreditReportSelections."Report ID", ShowRequestForm, false, CreditHeader);
-            until CreditReportSelections.Next = 0;
+            until CreditReportSelections.Next() = 0;
         end;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure PerformManualPrintRecords(ShowRequestForm: Boolean)
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -339,6 +345,7 @@ table 31050 "Credit Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure SendToPosting(PostingCodeunitID: Integer)
     begin
         if not IsApprovedPosting then
@@ -368,18 +375,21 @@ table 31050 "Credit Header"
 
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure OnCheckCreditReleaseRestrictions()
     begin
     end;
 
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure OnCheckCreditPostRestrictions()
     begin
     end;
 
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure OnCheckCreditPrintRestrictions()
     begin
     end;

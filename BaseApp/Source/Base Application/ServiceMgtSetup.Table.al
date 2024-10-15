@@ -312,10 +312,9 @@ table 5911 "Service Mgt. Setup"
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Service Document"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11766; "Default VAT Date"; Option)
         {
@@ -329,36 +328,31 @@ table 5911 "Service Mgt. Setup"
         field(11767; "Allow Alter Cust. Post. Groups"; Boolean)
         {
             Caption = 'Allow Alter Cust. Post. Groups';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
         {
             Caption = 'Reas.Cd. on Tax Corr.Doc.Mand.';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11775; "Reason Code For Payment Disc."; Code[10])
         {
             Caption = 'Reason Code For Payment Disc.';
             TableRelation = "Reason Code".Code;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11777; "Credit Memo Confirmation"; Boolean)
         {
             Caption = 'Credit Memo Confirmation';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            var
-                GLSetup: Record "General Ledger Setup";
-            begin
-                GLSetup.Get();
-                GLSetup.TestField("Use VAT Date");
-            end;
+            ObsoleteTag = '18.0';
         }
     }
 

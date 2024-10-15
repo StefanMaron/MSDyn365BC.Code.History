@@ -1,11 +1,14 @@
 codeunit 11770 "Copying Records Handler"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 5222, 'OnAfterCopyEmployeeLedgerEntryFromGenJnlLine', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Employee Ledger Entry", 'OnAfterCopyEmployeeLedgerEntryFromGenJnlLine', '', false, false)]
     local procedure OnAfterCopyEmployeeLedgerEntryFromGenJnlLine(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
         with EmployeeLedgerEntry do begin

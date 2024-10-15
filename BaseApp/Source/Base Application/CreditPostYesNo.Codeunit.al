@@ -2,6 +2,9 @@ codeunit 31051 "Credit - Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Credit Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -34,7 +37,7 @@ codeunit 31051 "Credit - Post (Yes/No)"
         GenJnlPostPreview.Preview(CreditPostYesNo, CreditHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         CreditHeader: Record "Credit Header";

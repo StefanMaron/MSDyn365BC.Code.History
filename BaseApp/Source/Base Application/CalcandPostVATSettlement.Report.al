@@ -284,10 +284,6 @@
                                 Base := "Advance Base";
                             VATEntryDocumentNo := "Document No.";
                             VATEntryDocumentType := Format("Document Type");
-                            if "Pmt.Disc. Tax Corr.Doc. No." <> '' then begin
-                                VATEntryDocumentNo := "Pmt.Disc. Tax Corr.Doc. No.";
-                                VATEntryDocumentType := Format("Document Type"::"Credit Memo");
-                            end;
                             // NAVCZ
                         end;
 
@@ -373,7 +369,6 @@
                               "Additional-Currency Base", "Additional-Currency Amount");
                             // NAVCZ
                             VATEntry.CalcSums("Advance Base");
-                            VATEntry.CalcSums("VAT Amount (Non Deductible)");
                             // NAVCZ
 
                             ReversingEntry := false;
@@ -441,13 +436,6 @@
                         VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                         VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
                         // NAVCZ
-                        if CountryCodeFillFiter <> '' then
-                            VATEntry.SetRange("Perform. Country/Region Code", CountryCodeFillFiter)
-                        else
-                            VATEntry.SetRange("Perform. Country/Region Code", '');
-                        // NAVCZ
-
-                        // NAVCZ
                         if Advance.Number = 1 then
                             VATEntry.SetRange("Advance Letter No.", '')
                         else
@@ -471,7 +459,7 @@
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
-                                        if VATEntry.Next = 0 then
+                                        if VATEntry.Next() = 0 then
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
@@ -493,7 +481,7 @@
                                     end else begin
                                         VATEntry.SetRange("Tax Jurisdiction Code");
                                         VATEntry.SetRange("Use Tax");
-                                        if VATEntry.Next = 0 then
+                                        if VATEntry.Next() = 0 then
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
@@ -654,17 +642,6 @@
                         MultiLine = true;
                         ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
                     }
-                    field(CountryCodeFillFiter; CountryCodeFillFiter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Performance Country';
-                        TableRelation = "Country/Region";
-                        ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                 }
             }
         }
@@ -773,8 +750,6 @@
         UserIDCaptionLbl: Label 'User ID';
         TotalCaptionLbl: Label 'Total';
         SettlementCaptionLbl: Label 'Settlement';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;
         DocNoErr: Label 'Document No. is too long (max. %1 characters).', Comment = '%1=Max length of VAT Settlement No.';
@@ -889,12 +864,9 @@
                         PostGenJnlLine(GenJnlLine);
 
                     CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-                    GenJnlLine2.Amount += VATEntry."VAT Amount (Non Deductible)"; // NAVCZ
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine2);
                     ReversingEntry := true;
-
-                    VATAmount := VATAmount - VATEntry."VAT Amount (Non Deductible)"; // NAVCZ
                 end;
             VATEntry.Type::Sale:
                 begin

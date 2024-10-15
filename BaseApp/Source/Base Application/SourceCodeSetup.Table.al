@@ -356,6 +356,16 @@ table 242 "Source Code Setup"
             Caption = 'Adjust Cost';
             TableRelation = "Source Code";
         }
+        field(5850; "Invt. Receipt"; Code[10])
+        {
+            Caption = 'Item Doc. Receipt';
+            TableRelation = "Source Code";
+        }
+        field(5851; "Invt. Shipment"; Code[10])
+        {
+            Caption = 'Item Doc. Shipment';
+            TableRelation = "Source Code";
+        }
         field(5875; "Phys. Invt. Orders"; Code[10])
         {
             Caption = 'Phys. Invt. Orders';
@@ -426,9 +436,9 @@ table 242 "Source Code Setup"
         {
             Caption = 'VAT Coefficient';
             TableRelation = "Source Code";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11764; "Close Balance Sheet"; Code[10])
         {
@@ -492,14 +502,17 @@ table 242 "Source Code Setup"
         {
             Caption = 'Maintenance Adjustment';
             TableRelation = "Source Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31050; Credit; Code[10])
         {
             Caption = 'Credit';
             TableRelation = "Source Code";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 

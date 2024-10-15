@@ -216,7 +216,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                             UncertaintyPayerEntry.Insert();
                             TotalInsertedEntries += 1;
                         end;
-                    until TempUncertaintyPayerEntry2.Next = 0;
+                    until TempUncertaintyPayerEntry2.Next() = 0;
 
                 if not TempDimBuf.Get(0, 0, TempUncertaintyPayerEntry."VAT Registration No.") then begin
                     TempDimBuf.Init();
@@ -225,7 +225,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                     TempDimBuf."Dimension Code" := TempUncertaintyPayerEntry."VAT Registration No.";
                     TempDimBuf.Insert();
                 end;
-            until TempUncertaintyPayerEntry.Next = 0;
+            until TempUncertaintyPayerEntry.Next() = 0;
 
             // end public bank account update - this records not in actual xml file!
             if TempDimBuf.FindSet then
@@ -241,8 +241,8 @@ xmlport 11764 "Unc. Payer Status - Response"
                                 UncertaintyPayerEntry."End Public Date" := TextISOToDate(odpovedGenerovana) - 1;
                                 UncertaintyPayerEntry.Modify();
                             end;
-                        until UncertaintyPayerEntry.Next = 0;
-                until TempDimBuf.Next = 0;
+                        until UncertaintyPayerEntry.Next() = 0;
+                until TempDimBuf.Next() = 0;
         end;
     end;
 

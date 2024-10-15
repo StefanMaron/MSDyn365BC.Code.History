@@ -50,7 +50,6 @@ codeunit 361 MoveEntries
         ServiceItem: Record "Service Item";
         ServiceItemComponent: Record "Service Item Component";
         ServContract: Record "Service Contract Header";
-        GLSetup: Record "General Ledger Setup";
         CannotDeleteGLBudgetEntriesErr: Label 'You cannot delete G/L account %1 because it contains budget ledger entries after %2 for G/L budget name %3.', Comment = '%1 - G/L Account No., %2 - Date, %3 - G/L Budget Name. You cannot delete G/L Account 1000 because it has budget ledger entries\ after 25/01/2018 in G/L Budget Name = Budget_2018.';
         Text013: Label 'You cannot delete %1 %2 because prepaid contract entries exist in %3.';
         Text014: Label 'You cannot delete %1 %2, because open prepaid contract entries exist in %3.';
@@ -96,7 +95,7 @@ codeunit 361 MoveEntries
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         SetCustLedgEntryFilterByAccPeriod();
-        if not CustLedgEntry.IsEmpty then begin
+        if not CustLedgEntry.IsEmpty() then begin
             if EnvInfoProxy.IsInvoicing then
                 Error(
                   CannotDeleteBecauseInInvErr,
@@ -112,7 +111,7 @@ codeunit 361 MoveEntries
             CustLedgEntry.SetCurrentKey("Customer No.");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         CustLedgEntry.SetRange(Open, true);
-        if not CustLedgEntry.IsEmpty then
+        if not CustLedgEntry.IsEmpty() then
             Error(
               Text001,
               Cust.TableCaption, Cust."No.");
@@ -130,14 +129,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Cust.TableCaption, Cust."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Cust.TableCaption, Cust."No.");
@@ -150,14 +149,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Cust.TableCaption, Cust."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Cust.TableCaption, Cust."No.");
@@ -175,7 +174,7 @@ codeunit 361 MoveEntries
 
         ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
         ServContract.SetRange("Customer No.", Cust."No.");
-        if not ServContract.IsEmpty then
+        if not ServContract.IsEmpty() then
             Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
 
         ServContract.SetRange(Status);
@@ -184,7 +183,7 @@ codeunit 361 MoveEntries
         ServContract.Reset();
         ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
         ServContract.SetRange("Bill-to Customer No.", Cust."No.");
-        if not ServContract.IsEmpty then
+        if not ServContract.IsEmpty() then
             Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
 
         ServContract.SetRange(Status);
@@ -217,7 +216,7 @@ codeunit 361 MoveEntries
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         SetVendLedgEntryFilterByAccPeriod();
-        if not VendLedgEntry.IsEmpty then
+        if not VendLedgEntry.IsEmpty() then
             Error(
               Text000,
               Vend.TableCaption, Vend."No.");
@@ -227,7 +226,7 @@ codeunit 361 MoveEntries
             VendLedgEntry.SetCurrentKey("Vendor No.");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         VendLedgEntry.SetRange(Open, true);
-        if not VendLedgEntry.IsEmpty then
+        if not VendLedgEntry.IsEmpty() then
             Error(
               Text001,
               Vend.TableCaption, Vend."No.");
@@ -240,7 +239,7 @@ codeunit 361 MoveEntries
         WarrantyLedgEntry.ModifyAll("Vendor No.", NewVendNo);
 
         ServiceItem.SetRange("Vendor No.", Vend."No.");
-        if not ServiceItem.IsEmpty then
+        if not ServiceItem.IsEmpty() then
             ServiceItem.ModifyAll("Vendor No.", NewVendNo);
 
         OnAfterMoveVendorEntries(Vend, VendLedgEntry, WarrantyLedgEntry);
@@ -272,7 +271,7 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             BankAccLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not BankAccLedgEntry.IsEmpty then
+        if not BankAccLedgEntry.IsEmpty() then
             Error(
               Text000,
               BankAcc.TableCaption, BankAcc."No.");
@@ -282,7 +281,7 @@ codeunit 361 MoveEntries
             BankAccLedgEntry.SetCurrentKey("Bank Account No.");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         BankAccLedgEntry.SetRange(Open, true);
-        if not BankAccLedgEntry.IsEmpty then
+        if not BankAccLedgEntry.IsEmpty() then
             Error(
               Text001,
               BankAcc.TableCaption, BankAcc."No.");
@@ -298,7 +297,6 @@ codeunit 361 MoveEntries
 
     procedure MoveItemEntries(Item: Record Item)
     var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         NewItemNo: Code[20];
     begin
         OnBeforeMoveItemEntries(Item, NewItemNo);
@@ -309,22 +307,16 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ItemLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ItemLedgEntry.IsEmpty then begin
-            if EnvInfoProxy.IsInvoicing then
-                Error(
-                  CannotDeleteBecauseInInvErr,
-                  Item.TableCaption);
-
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text000,
               Item.TableCaption, Item."No.");
-        end;
 
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Completely Invoiced", false);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text008 +
               Text003 +
@@ -333,7 +325,7 @@ codeunit 361 MoveEntries
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         ItemLedgEntry.SetRange(Open, true);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text001,
               Item.TableCaption, Item."No.");
@@ -341,7 +333,7 @@ codeunit 361 MoveEntries
         ItemLedgEntry.SetCurrentKey("Item No.", "Applied Entry to Adjust");
         ItemLedgEntry.SetRange(Open, false);
         ItemLedgEntry.SetRange("Applied Entry to Adjust", true);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text002 +
               Text003 +
@@ -353,7 +345,7 @@ codeunit 361 MoveEntries
             AvgCostAdjmt.Reset();
             AvgCostAdjmt.SetRange("Item No.", Item."No.");
             AvgCostAdjmt.SetRange("Cost Is Adjusted", false);
-            if not AvgCostAdjmt.IsEmpty then
+            if not AvgCostAdjmt.IsEmpty() then
                 Error(
                   Text002 +
                   Text003 +
@@ -385,14 +377,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Item.TableCaption, Item."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Item.TableCaption, Item."No.");
@@ -406,14 +398,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Item.TableCaption, Item."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Item.TableCaption, Item."No.");
@@ -432,13 +424,13 @@ codeunit 361 MoveEntries
 
         ServiceItem.Reset();
         ServiceItem.SetRange("Item No.", Item."No.");
-        if not ServiceItem.IsEmpty then
+        if not ServiceItem.IsEmpty() then
             ServiceItem.ModifyAll("Item No.", NewItemNo, true);
 
         ServiceItemComponent.Reset();
         ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
         ServiceItemComponent.SetRange("No.", Item."No.");
-        if not ServiceItemComponent.IsEmpty then
+        if not ServiceItemComponent.IsEmpty() then
             ServiceItemComponent.ModifyAll("No.", NewItemNo);
 
         OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServLedgEntry, WarrantyLedgEntry, InvtAdjmtEntryOrder);
@@ -450,23 +442,13 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveResEntries(Res, NewResNo);
 
-        // NAVCZ
-        ResLedgEntry.Reset();
-        GLSetup.Get();
-        if not GLSetup."Delete Card with Entries" then begin
-            ResLedgEntry.SetRange("Resource No.", Res."No.");
-            if not ResLedgEntry.IsEmpty then
-                GLSetup.TestField("Delete Card with Entries");
-        end;
-        // NAVCZ
-
         ResLedgEntry.Reset();
         ResLedgEntry.SetCurrentKey("Resource No.", "Posting Date");
         ResLedgEntry.SetRange("Resource No.", Res."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ResLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ResLedgEntry.IsEmpty then
+        if not ResLedgEntry.IsEmpty() then
             Error(
               Text000,
               Res.TableCaption, Res."No.");
@@ -482,14 +464,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Res.TableCaption, Res."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Res.TableCaption, Res."No.");
@@ -512,20 +494,9 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveJobEntries(Job, NewJobNo);
 
-        // NAVCZ
-        JobLedgEntry.Reset();
-        GLSetup.Get();
-        if not GLSetup."Delete Card with Entries" then begin
-            JobLedgEntry.SetRange("Job No.", Job."No.");
-            if not JobLedgEntry.IsEmpty then
-                GLSetup.TestField("Delete Card with Entries");
-        end;
-        // NAVCZ
-        OnBeforeMoveJobEntries(Job, NewJobNo);
-
         JobLedgEntry.SetCurrentKey("Job No.");
         JobLedgEntry.SetRange("Job No.", Job."No.");
-        if not JobLedgEntry.IsEmpty then
+        if not JobLedgEntry.IsEmpty() then
             Error(
               Text006,
               Job.TableCaption, Job."No.");
@@ -533,7 +504,7 @@ codeunit 361 MoveEntries
         TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.SetRange("Job No.", Job."No.");
         TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Open, TimeSheetLine.Status::Submitted);
-        if not TimeSheetLine.IsEmpty then
+        if not TimeSheetLine.IsEmpty() then
             Error(TimeSheetLinesErr, Job."No.");
 
         PurchOrderLine.SetCurrentKey("Document Type");
@@ -554,14 +525,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               Job.TableCaption, Job."No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               Job.TableCaption, Job."No.");
@@ -608,39 +579,30 @@ codeunit 361 MoveEntries
             ServLedgEntry.SetRange(Prepaid, true);
             ServLedgEntry.SetRange("Moved from Prepaid Acc.", false);
             ServLedgEntry.SetRange(Open, false);
-            if not ServLedgEntry.IsEmpty then
+            if not ServLedgEntry.IsEmpty() then
                 Error(
                   Text013,
                   ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption);
             ServLedgEntry.SetRange(Open, true);
-            if not ServLedgEntry.IsEmpty then
+            if not ServLedgEntry.IsEmpty() then
                 Error(
                   Text014,
                   ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption);
         end;
-        // NAVCZ
-        ServLedgEntry.Reset();
-        GLSetup.Get();
-        if not GLSetup."Delete Card with Entries" then begin
-            ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-            if not ServLedgEntry.IsEmpty then
-                GLSetup.TestField("Delete Card with Entries");
-        end;
-        // NAVCZ
 
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
@@ -654,14 +616,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.");
@@ -688,14 +650,14 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text000,
               ServiceCost.TableCaption, ServiceCost.Code);
 
         ServLedgEntry.SetRange("Posting Date");
         ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty then
+        if not ServLedgEntry.IsEmpty() then
             Error(
               Text001,
               ServiceCost.TableCaption, ServiceCost.Code);
@@ -733,7 +695,7 @@ codeunit 361 MoveEntries
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             CFForecastEntry.SetFilter("Cash Flow Date", '>%1', AccountingPeriod."Starting Date");
-        if not CFForecastEntry.IsEmpty then
+        if not CFForecastEntry.IsEmpty() then
             Error(
               Text000,
               CashFlowAccount.TableCaption, CashFlowAccount."No.");
@@ -804,20 +766,15 @@ codeunit 361 MoveEntries
         ServiceLedgerEntry.Reset();
         ServiceLedgerEntry.SetCurrentKey("Service Item No. (Serviced)");
         ServiceLedgerEntry.SetRange("Service Item No. (Serviced)", ServiceItemNo);
-        GLSetup.Get();
-        if not GLSetup."Delete Card with Entries" then begin
-            if not ServiceLedgerEntry.IsEmpty then
-                GLSetup.TestField("Delete Card with Entries");
-        end;
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             ServiceLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServiceLedgerEntry.IsEmpty then
+        if not ServiceLedgerEntry.IsEmpty() then
             exit(StrSubstNo(Text000, ServiceItem.TableCaption, ServiceItemNo));
 
         ServiceLedgerEntry.SetRange("Posting Date");
         ServiceLedgerEntry.SetRange(Open, true);
-        if not ServiceLedgerEntry.IsEmpty then
+        if not ServiceLedgerEntry.IsEmpty() then
             exit(StrSubstNo(Text001, ServiceItem.TableCaption, ServiceItemNo));
 
         ServiceLedgerEntry.SetRange(Open);
@@ -836,24 +793,15 @@ codeunit 361 MoveEntries
             GLAccount.TestField(Balance, 0);
         end;
 
-        // NAVCZ
-        if not GeneralLedgerSetup."Delete Card with Entries" then begin
-            GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-            if not GLEntry.IsEmpty then
-                GeneralLedgerSetup.TestField("Delete Card with Entries");
-            GLEntry.Reset();
-        end;
-        // NAVCZ
-
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             GLEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr, GLAccount."No.");
 
         AccountingPeriod.SetRange(Closed, true);
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit;
 
         GeneralLedgerSetup.TestField("Allow G/L Acc. Deletion Before");

@@ -179,7 +179,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         QtyPer := LibraryRandom.RandDec(5, 2);
         ExecuteUIHandlers;
         SetAllowPostingFromTo(0D, 0D);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
           InventorySetup."Automatic Cost Adjustment", InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period");
 
@@ -993,7 +992,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         end;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Valuation - WIP");
         OriginalWorkDate := WorkDate;
-        LibraryERM.SetUseLegacyGLEntryLocking(false);
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;

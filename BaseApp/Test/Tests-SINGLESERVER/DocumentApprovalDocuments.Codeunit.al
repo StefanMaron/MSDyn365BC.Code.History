@@ -1203,7 +1203,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure SetApprovalAdmin(ApprovalAdministrator: Code[50])
@@ -1338,7 +1338,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := SourceRecordID;
         ApprovalCommentLine."Workflow Step Instance ID" := ApprovalEntry."Workflow Step Instance ID";
@@ -1393,7 +1393,7 @@ codeunit 134203 "Document Approval - Documents"
             WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode),
             WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode)));
         Workflow.SetRange(Template, true);
-        Workflow.FindSet;
+        Workflow.FindSet();
         repeat
             LibraryWorkflow.CopyWorkflow(ActualWorkflow, Workflow.Code);
             if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode) then

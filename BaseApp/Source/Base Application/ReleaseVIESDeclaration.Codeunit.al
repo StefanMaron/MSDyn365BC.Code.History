@@ -25,9 +25,9 @@ codeunit 31060 "Release VIES Declaration"
             TestField("Corrected Declaration No.");
 
         VIESDeclarationLine.SetRange("VIES Declaration No.", "No.");
-        if VIESDeclarationLine.IsEmpty then
+        if VIESDeclarationLine.IsEmpty() then
             Error(Text001Err, "No.");
-        VIESDeclarationLine.FindSet;
+        VIESDeclarationLine.FindSet();
         PageNo := 1;
         LineNo := 0;
         repeat
@@ -43,7 +43,7 @@ codeunit 31060 "Release VIES Declaration"
             VIESDeclarationLine."Report Page Number" := PageNo;
             VIESDeclarationLine."Report Line Number" := LineNo;
             VIESDeclarationLine.Modify();
-        until VIESDeclarationLine.Next = 0;
+        until VIESDeclarationLine.Next() = 0;
 
         Status := Status::Released;
 

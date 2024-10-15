@@ -497,16 +497,6 @@ page 6650 "Posted Return Shipment"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the industry code for the vendor record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = PurchReturnOrder;

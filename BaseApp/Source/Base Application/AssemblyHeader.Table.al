@@ -1,4 +1,4 @@
-﻿table 900 "Assembly Header"
+table 900 "Assembly Header"
 {
     Caption = 'Assembly Header';
     DataCaptionFields = "No.", Description;
@@ -584,6 +584,9 @@
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -640,7 +643,7 @@
         if "Document Type" = "Document Type"::Order then begin
             InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
             InvtAdjmtEntryOrder.SetRange("Order No.", "No.");
-            if not InvtAdjmtEntryOrder.IsEmpty then
+            if not InvtAdjmtEntryOrder.IsEmpty() then
                 Error(Text001, Format("Document Type"), "No.");
         end;
 
@@ -691,6 +694,7 @@
         StatusCheckSuspended: Boolean;
         TestReservationDateConflict: Boolean;
         HideValidationDialog: Boolean;
+
 
     [Scope('OnPrem')]
     procedure RefreshBOM()
@@ -820,7 +824,7 @@
             repeat
                 AssemblyLine.SuspendStatusCheck(true);
                 AssemblyLine.Delete(true);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
         end;
     end;
 
@@ -987,11 +991,13 @@
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
     procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
     begin
         SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
     end;
+#endif
 
     procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
@@ -999,11 +1005,13 @@
         exit(Find('-'));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by FindItemToPlanLines()', '17.0')]
     procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
     begin
         exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
+#endif
 
     procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
@@ -1011,11 +1019,13 @@
         exit(not IsEmpty);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ItemToPlanLinesExist()', '17.0')]
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
     begin
         exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
+#endif
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
@@ -1596,7 +1606,7 @@
                     AsmLineMgt.ShowDueDateBeforeWorkDateMsg(TempAssemblyLine."Due Date");
                     exit;
                 end;
-            until TempAssemblyLine.Next = 0;
+            until TempAssemblyLine.Next() = 0;
     end;
 
     procedure AddBOMLine(BOMComp: Record "BOM Component")
@@ -1685,7 +1695,7 @@
                             ExpCost[RowIdx::ResOvhd] += AssemblyLine."Cost Amount" - DirectLineCost;
                         end;
                 end
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         exit(ExpCost[RowIdx::MatCost] + ExpCost[RowIdx::ResCost] + ExpCost[RowIdx::ResOvhd]);
     end;

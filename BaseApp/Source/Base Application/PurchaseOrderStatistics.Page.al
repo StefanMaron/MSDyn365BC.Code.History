@@ -801,10 +801,14 @@ page 403 "Purchase Order Statistics"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         UseDate: Date;
+#if not CLEAN18
         RoundingPrecisionLCY: Decimal;
         RoundingDirectionLCY: Text[1];
+#endif
     begin
         TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
         TotalAmount1[IndexNo] :=
@@ -835,29 +839,24 @@ page 403 "Purchase Order Statistics"
             if (TotalPurchLineLCY[IndexNo]."VAT Calculation Type" = TotalPurchLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
                (TotalPurchLineLCY[IndexNo]."VAT Calculation Type" = TotalPurchLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
+#if CLEAN18
+                Currency.Get("Currency Code");
+#else
                 GLSetup.Get();
                 Currency.Get("Currency Code");
                 GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif
 
                 if "Prices Including VAT" then
-                    if GLSetup."Round VAT Coeff." then begin
-                        TotalPurchLineLCY[IndexNo].Amount :=
-                          Round(
-                            (TotalPurchLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") *
-                            Round(
-                              VATAmountLine."VAT %" / (100 + VATAmountLine."VAT %"),
-                              GLSetup."VAT Coeff. Rounding Precision") *
-                            (1 - "VAT Base Discount %" / 100),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY);
-
-                        TotalPurchLineLCY[IndexNo].Amount := TotalPurchLineLCY[IndexNo]."Line Amount" - TotalPurchLineLCY[IndexNo].Amount;
-                    end else
-                        TotalPurchLineLCY[IndexNo].Amount :=
-                          Round(
-                            (TotalPurchLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") /
-                            (1 + VATAmountLine."VAT %" / 100),
-                            RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
+                    TotalPurchLineLCY[IndexNo].Amount :=
+                        Round(
+                        (TotalPurchLineLCY[IndexNo]."Line Amount" - VATAmountLine."Invoice Discount Amount") /
+                        (1 + VATAmountLine."VAT %" / 100),
+#if CLEAN18
+                        Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
+#else
+                        RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
+#endif                 
             end;
             // NAVCZ
         end;
@@ -1098,7 +1097,7 @@ page 403 "Purchase Order Statistics"
             repeat
                 TempPurchLine2 := PurchLine;
                 TempPurchLine2.Insert();
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         PurchPostAdv.AdvanceCalcVATAmountLines(PurchHeader, TempPurchLine2, VATAmountLine);
         if VATAmountLine.FindSet then begin
@@ -1108,7 +1107,7 @@ page 403 "Purchase Order Statistics"
                     DifVATPct := true;
                 PrepmtVATAmount += VATAmountLine."VAT Amount";
                 PrepmtTotalAmount += VATAmountLine."Line Amount";
-            until VATAmountLine.Next = 0;
+            until VATAmountLine.Next() = 0;
         end;
 
         if DifVATPct or (VATAmountLine."VAT %" = 0) then
@@ -1162,7 +1161,7 @@ page 403 "Purchase Order Statistics"
                         TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
                         TempVATAmountLineTot.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         // NAVCZ
     end;
@@ -1180,7 +1179,7 @@ page 403 "Purchase Order Statistics"
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";
                 VATBaseAmount += VATAmountLine."VAT Base";
-            until VATAmountLine.Next = 0;
+            until VATAmountLine.Next() = 0;
         // NAVCZ
     end;
 

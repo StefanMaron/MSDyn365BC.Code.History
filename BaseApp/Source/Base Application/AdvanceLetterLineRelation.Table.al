@@ -137,7 +137,7 @@ table 31026 "Advance Letter Line Relation"
                     AdvanceLetterLineRelation."VAT Doc. VAT Difference" := 0;
                     AdvanceLetterLineRelation.Modify();
                 end;
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
     end;
 
     [Scope('OnPrem')]

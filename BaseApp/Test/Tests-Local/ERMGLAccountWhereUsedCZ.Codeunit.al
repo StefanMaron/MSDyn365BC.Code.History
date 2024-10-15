@@ -21,6 +21,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         InvalidFieldCaptionErr: Label 'Invalid field caption.';
         InvalidLineValueErr: Label 'Invalid Line value.';
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('WhereUsedHandler')]
     [Scope('OnPrem')]
@@ -74,6 +75,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         FAExtendedPostingGroups.Code.AssertEquals(FAExtendedPostingGroup.Code);
     end;
 
+#endif
     [Test]
     [HandlerFunctions('WhereUsedHandler')]
     [Scope('OnPrem')]
@@ -183,6 +185,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         isInitialized := true;
     end;
 
+#if not CLEAN18
     local procedure CreateFAExtendedPostingGroup(var FAExtendedPostingGroup: Record "FA Extended Posting Group")
     var
         ReasonCode: Record "Reason Code";
@@ -196,6 +199,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         FAExtendedPostingGroup.Modify();
     end;
 
+#endif
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
         Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);

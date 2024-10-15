@@ -206,55 +206,6 @@ codeunit 144300 "Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('ModalDepreciationGroupsHandler')]
-    [Scope('OnPrem')]
-    procedure DisplayingDeprecationGroupBySKPCode()
-    var
-        FixedAsset: Record "Fixed Asset";
-        FASetup: Record "FA Setup";
-        DepreciationGroup1: Record "Depreciation Group";
-        DepreciationGroup2: Record "Depreciation Group";
-        SKPCode: Record "SKP Code";
-        FixedAssetCard: TestPage "Fixed Asset Card";
-    begin
-        // Verify that lookup of Depreciation Group Code from FA Depreciation Book displaying only Depreciation Group of SKP Code
-        // 1.Setup:
-        Initialize;
-
-        // Get FA Setup
-        FASetup.Get();
-
-        // Create Depreciation Group to SKP Code
-        CreateDepreciationGroup(DepreciationGroup1, DepreciationGroup1."Depreciation Type"::"Straight-line");
-
-        // Create Depreciation Group to control
-        CreateDepreciationGroup(DepreciationGroup2, DepreciationGroup2."Depreciation Type"::"Declining-Balance");
-
-        // Create SKP Code
-        CreateSKPCode(SKPCode, DepreciationGroup1."Depreciation Group");
-
-        // Create Fixed Asset with SKP Code
-        CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("SKP Code", SKPCode.Code);
-        FixedAsset.Modify(true);
-
-        // 2.Exercise:
-
-        // Display Depreciation Group Code Lookup from Fixed Asset Card
-        LibraryVariableStorage.Enqueue(SKPCode."Depreciation Group");
-
-        FixedAssetCard.OpenEdit;
-        FixedAssetCard.GotoRecord(FixedAsset);
-        FixedAssetCard.DepreciationBook.New;
-        FixedAssetCard.DepreciationBook."Depreciation Book Code".SetValue(FASetup."Tax Depr. Book");
-        FixedAssetCard.DepreciationBook."Depreciation Group Code".Lookup;
-        FixedAssetCard.Close;
-
-        // 3.Verify:
-        // Verify in ModalDepreciationGroupsHandler
-    end;
-
-    [Test]
     [HandlerFunctions('RequestPageInitializeFAHistoryHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure LoggingFixedAssetChanges()
@@ -293,105 +244,7 @@ codeunit 144300 "Fixed Assets"
         UpdateFASetupWithFAHistory(false);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostingFixedAssetMaintenance()
-    var
-        FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
-        FADepreciationBook: Record "FA Depreciation Book";
-        DepreciationGroup: Record "Depreciation Group";
-        FAPostingGroup: Record "FA Posting Group";
-        FAExtendedPostingGroup1: Record "FA Extended Posting Group";
-        FAExtendedPostingGroup2: Record "FA Extended Posting Group";
-        PurchHeader1: Record "Purchase Header";
-        PurchLine1: Record "Purchase Line";
-        PurchHeader2: Record "Purchase Header";
-        PurchLine2: Record "Purchase Line";
-        MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
-        GLEntry: Record "G/L Entry";
-        PostedDocNo1: Code[20];
-        PostedDocNo2: Code[20];
-    begin
-        // Test the Posting of Fixed Asset Maintenance, creation Maintenance Entry and creation G/L Entry with G/L Account from
-        // FA Extended Posting Group
-        // 1.Setup:
-        Initialize;
-
-        UpdateFASetupWithFAMaintenanceByMaintCode(true);
-
-        // Create Depreciation Book
-        CreateDepreciationBook(DepreciationBook);
-        DepreciationBook.Validate("G/L Integration - Maintenance", true);
-        DepreciationBook.Modify(true);
-
-        // Create FA Posting Group and two times FA Extended Posting Group
-        CreateFAPostingGroup(FAPostingGroup);
-        CreateFAExtendedPostingGroupMaintenance(FAExtendedPostingGroup1, FAPostingGroup.Code);
-        CreateFAExtendedPostingGroupMaintenance(FAExtendedPostingGroup2, FAPostingGroup.Code);
-
-        // Create Fixed Asset and FA Depreciation Book
-        CreateFixedAsset(FixedAsset);
-        CreateDepreciationGroup(DepreciationGroup, DepreciationGroup."Depreciation Type"::"Straight-line");
-        CreateFADepreciationBook(
-          FADepreciationBook, FixedAsset."No.",
-          DepreciationBook.Code, DepreciationGroup.Code, true,
-          FADepreciationBook."Depreciation Method"::"Straight-Line");
-        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Modify(true);
-
-        // Create Purchase Invoice 1
-        CreatePurchaseInvoice(PurchHeader1, PurchLine1, FixedAsset."No.");
-        PurchLine1.Validate("Depreciation Book Code", DepreciationBook.Code);
-        PurchLine1.Validate("Maintenance Code", FAExtendedPostingGroup1.Code);
-        PurchLine1.Validate("FA Posting Type", PurchLine1."FA Posting Type"::Maintenance);
-        PurchLine1.Modify(true);
-
-        // Create Purchase Invoice 2
-        CreatePurchaseInvoice(PurchHeader2, PurchLine2, FixedAsset."No.");
-        PurchLine2.Validate("Depreciation Book Code", DepreciationBook.Code);
-        PurchLine2.Validate("Maintenance Code", FAExtendedPostingGroup2.Code);
-        PurchLine2.Validate("FA Posting Type", PurchLine2."FA Posting Type"::Maintenance);
-        PurchLine2.Modify(true);
-
-        // 2.Exercise:
-
-        // Post Purchase Invoices
-        PostedDocNo1 := PostPurchaseDocument(PurchHeader1);
-        PostedDocNo2 := PostPurchaseDocument(PurchHeader2);
-
-        // 3.Verify:
-
-        // Check Amount in the Maintenance Ledger Entry after posting Purchase Invoice 1
-        MaintenanceLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-        MaintenanceLedgEntry.SetRange("Document No.", PostedDocNo1);
-        MaintenanceLedgEntry.SetRange("Posting Date", PurchHeader1."Posting Date");
-        MaintenanceLedgEntry.FindFirst;
-        MaintenanceLedgEntry.TestField(Amount, PurchLine1.Amount);
-
-        // Check G/L Account No in the G/L Entry after posting Purchase Invoice 1
-        GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", PostedDocNo1);
-        GLEntry.SetRange("Posting Date", PurchHeader1."Posting Date");
-        GLEntry.FindFirst;
-        GLEntry.TestField("G/L Account No.", FAExtendedPostingGroup1."Maintenance Expense Account");
-
-        // Check Amount in the Maintenance Ledger Entry after posting Purchase Invoice 2
-        MaintenanceLedgEntry.SetRange("Document No.", PostedDocNo2);
-        MaintenanceLedgEntry.SetRange("Posting Date", PurchHeader2."Posting Date");
-        MaintenanceLedgEntry.FindFirst;
-        MaintenanceLedgEntry.TestField(Amount, PurchLine2.Amount);
-
-        // Check G/L Account No in the G/L Entry after posting Purchase Invoice 1
-        GLEntry.SetRange("Document No.", PostedDocNo2);
-        GLEntry.SetRange("Posting Date", PurchHeader2."Posting Date");
-        GLEntry.FindFirst;
-        GLEntry.TestField("G/L Account No.", FAExtendedPostingGroup2."Maintenance Expense Account");
-
-        // 4.Teardowm:
-        UpdateFASetupWithFAMaintenanceByMaintCode(false);
-    end;
-
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure PostingFixedAssetDisposal()
@@ -455,6 +308,7 @@ codeunit 144300 "Fixed Assets"
         GLEntry.TestField("G/L Account No.", FAExtendedPostingGroup."Sales Acc. On Disp. (Gain)");
     end;
 
+#endif
     local procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
@@ -532,8 +386,10 @@ codeunit 144300 "Fixed Assets"
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross);
+#if not CLEAN18        
         DepreciationBook.Validate("Corresp. G/L Entries on Disp.", true);
         DepreciationBook.Validate("Corresp. FA Entries on Disp.", true);
+#endif
         DepreciationBook.Validate("Deprication from 1st Year Day", true);
         DepreciationBook.Validate("Check Deprication on Disposal", true);
         DepreciationBook.Validate("Use FA Ledger Check", true);
@@ -588,6 +444,7 @@ codeunit 144300 "Fixed Assets"
         FAPostingGroup.Modify(true);
     end;
 
+#if not CLEAN18
     local procedure CreateFAExtendedPostingGroupDisposal(var FAExtendedPostingGroup: Record "FA Extended Posting Group"; FAPostingGroupCode: Code[20])
     var
         ReasonCode: Record "Reason Code";
@@ -613,6 +470,7 @@ codeunit 144300 "Fixed Assets"
         FAExtendedPostingGroup.Modify(true);
     end;
 
+#endif
     local procedure CreateReasonCode(var ReasonCode: Record "Reason Code")
     begin
         LibraryERM.CreateReasonCode(ReasonCode);
@@ -621,11 +479,6 @@ codeunit 144300 "Fixed Assets"
     local procedure CreateMaintenance(var Maintenance: Record Maintenance)
     begin
         LibraryFixedAsset.CreateMaintenance(Maintenance);
-    end;
-
-    local procedure CreateSKPCode(var SKPCode: Record "SKP Code"; DepreciationGroupCode: Code[10])
-    begin
-        LibraryFixedAssetCZ.CreateSKPCode(SKPCode, DepreciationGroupCode);
     end;
 
     local procedure CreateFALocation(var FALocation: Record "FA Location")
@@ -716,15 +569,6 @@ codeunit 144300 "Fixed Assets"
         LibraryVariableStorage.Enqueue(WorkDate);
         FASetup.Get();
         FASetup.Validate("Fixed Asset History", FixedAssetHistory);
-        FASetup.Modify(true);
-    end;
-
-    local procedure UpdateFASetupWithFAMaintenanceByMaintCode(FAMaintenanceByMaintCode: Boolean)
-    var
-        FASetup: Record "FA Setup";
-    begin
-        FASetup.Get();
-        FASetup.Validate("FA Maintenance By Maint. Code", FAMaintenanceByMaintCode);
         FASetup.Modify(true);
     end;
 

@@ -135,7 +135,7 @@ codeunit 441 "Prepayment Mgt."
                 if SalesLine."Prepmt. Line Amount" <> 0 then
                     if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
                         exit(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure TestPurchasePrepayment(PurchaseHeader: Record "Purchase Header"): Boolean
@@ -161,7 +161,7 @@ codeunit 441 "Prepayment Mgt."
             repeat
                 if PurchaseLine."Prepmt. Amt. Inv." <> PurchaseLine."Prepmt. Line Amount" then
                     exit(true);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     procedure TestSalesPayment(SalesHeader: Record "Sales Header") Result: Boolean
@@ -195,9 +195,9 @@ codeunit 441 "Prepayment Mgt."
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                 CustLedgerEntry.SetRange("Document No.", SalesInvHeader."No.");
                 CustLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>%1', 0);
-                if not CustLedgerEntry.IsEmpty then
+                if not CustLedgerEntry.IsEmpty() then
                     exit(true);
-            until SalesInvHeader.Next = 0;
+            until SalesInvHeader.Next() = 0;
 
         exit(false);
     end;
@@ -233,9 +233,9 @@ codeunit 441 "Prepayment Mgt."
                 VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
                 VendLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
                 VendLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>%1', 0);
-                if not VendLedgerEntry.IsEmpty then
+                if not VendLedgerEntry.IsEmpty() then
                     exit(true);
-            until PurchInvHeader.Next = 0;
+            until PurchInvHeader.Next() = 0;
 
         exit(false);
     end;
@@ -254,7 +254,7 @@ codeunit 441 "Prepayment Mgt."
                     if SalesHeader.Status = SalesHeader.Status::Released then
                         Session.LogMessage('0000254', StrSubstNo(StatusOfSalesOrderIsChangedTxt, Format(SalesHeader."No.")), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', UpdateSalesOrderStatusTxt);
                 end;
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
     end;
 
     procedure UpdatePendingPrepaymentPurchase()
@@ -271,7 +271,7 @@ codeunit 441 "Prepayment Mgt."
                     if PurchaseHeader.Status = PurchaseHeader.Status::Released then
                         Session.LogMessage('0000255', StrSubstNo(StatusOfPurchaseOrderIsChangedTxt, Format(PurchaseHeader."No.")), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', UpdatePurchaseOrderStatusTxt);
                 end;
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
     end;
 
     procedure CreateAndStartJobQueueEntrySales(UpdateFrequency: Option Never,Daily,Weekly)

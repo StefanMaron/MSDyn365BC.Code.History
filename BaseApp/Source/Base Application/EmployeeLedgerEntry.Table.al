@@ -38,7 +38,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
                                                                              "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount';
@@ -49,7 +49,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amount';
             Editable = false;
@@ -58,7 +58,7 @@ table 5222 "Employee Ledger Entry"
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Entry Type" = FILTER("Initial Entry"),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amt. (LCY)';
@@ -68,7 +68,7 @@ table 5222 "Employee Ledger Entry"
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
@@ -77,7 +77,7 @@ table 5222 "Employee Ledger Entry"
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                      "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount (LCY)';
@@ -201,7 +201,7 @@ table 5222 "Employee Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                      "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount';
@@ -213,7 +213,7 @@ table 5222 "Employee Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                       "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                       "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount';
@@ -224,7 +224,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                            "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                            "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount (LCY)';
@@ -235,7 +235,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                             "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                             "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount (LCY)';
@@ -251,7 +251,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Entry Type" = FILTER("Initial Entry"),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amount';
@@ -413,21 +413,30 @@ table 5222 "Employee Ledger Entry"
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE(Type = CONST(Employee),
+            CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE(Type = CONST(Employee),
                                                                                  "Applies-to C/V/E Entry No." = FIELD("Entry No."),
                                                                                  Status = CONST(" ")));
             Caption = 'Amount on Payment Order (LCY)';

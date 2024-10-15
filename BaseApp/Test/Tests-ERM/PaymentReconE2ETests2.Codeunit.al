@@ -169,6 +169,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -306,6 +307,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -1026,6 +1028,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -1104,6 +1107,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -1229,7 +1233,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         i := 1;
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
@@ -1337,6 +1341,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [WHEN] Two GL Journals are created as a manual check
         // [WHEN] Payment Reconciliation Journal is opened
         OpenPmtReconJrnlTwoPayments(PmtReconJnl, VendLedgEntry, VendLedgEntry2, BankAccRecon, VendLedgerAmount, VendLedgerAmount2);
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
 
         // [THEN] Verify Outstanding Trx total gets updated after manually applying the line
         PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount + VendLedgerAmount2);
@@ -1769,10 +1774,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+        BankPmtApplSettings.DeleteAll();
 
         if Initialized then
             exit;
@@ -2417,6 +2424,17 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
+    local procedure SetOnMatchOnClosingDocumentNumber(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.Get(BankAccReconciliation."Bank Account No.");
+        BankPmtApplSettings.GetOrInsert(BankAccount."Bank Pmt. Appl. Rule Code");
+        BankPmtApplSettings."Bank Ledg Closing Doc No Match" := true;
+        BankPmtApplSettings.Modify();
+    end;
+
     local procedure PostPayment(var VendLedgerEntry: Record "Vendor Ledger Entry"; BankAccNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2552,7 +2570,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TotalAmt: Decimal;
     begin
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
         until BankAccLedgEntry.Next = 0;

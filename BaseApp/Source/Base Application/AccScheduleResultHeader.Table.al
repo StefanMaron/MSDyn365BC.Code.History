@@ -79,19 +79,19 @@ table 31086 "Acc. Schedule Result Header"
     trigger OnDelete()
     begin
         AccScheduleResultValue.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultValue.IsEmpty then
+        if not AccScheduleResultValue.IsEmpty() then
             AccScheduleResultValue.DeleteAll();
 
         AccScheduleResultHistory.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultHistory.IsEmpty then
+        if not AccScheduleResultHistory.IsEmpty() then
             AccScheduleResultHistory.DeleteAll();
 
         AccScheduleResultLine.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultLine.IsEmpty then
+        if not AccScheduleResultLine.IsEmpty() then
             AccScheduleResultLine.DeleteAll();
 
         AccScheduleResultColumn.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultColumn.IsEmpty then
+        if not AccScheduleResultColumn.IsEmpty() then
             AccScheduleResultColumn.DeleteAll();
     end;
 

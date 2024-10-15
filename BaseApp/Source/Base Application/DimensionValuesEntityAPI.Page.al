@@ -11,6 +11,9 @@ page 5514 "Dimension Values Entity API"
     PageType = API;
     EntityName = 'dimensionValue';
     EntitySetName = 'dimensionValues';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

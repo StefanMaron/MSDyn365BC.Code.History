@@ -90,52 +90,49 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the description on item cards to be copied to item ledger entries during posting.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
+                field("Allow Invt. Doc. Reservation"; "Allow Invt. Doc. Reservation")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting description code for inventory setup.';
+                    ToolTip = 'Specifies if you want to allow reservation for inventory receipts and shipments.';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Post Exp. Cost Conv. as Corr."; "Post Exp. Cost Conv. as Corr.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to post expected cost conversions as corrections.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Post Neg. Transfers as Corr."; "Post Neg. Transfers as Corr.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option to post negative transfers as corrections.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#if not CLEAN18                
                 field("Skip Update SKU on Posting"; "Skip Update SKU on Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies skiping Update SKU on Posting';
-                }
-                field("Check Item Charge Pst.Group"; "Check Item Charge Pst.Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the Item Charge Posting Group has to be check.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif                
                 field("Date Order Inventory Change"; "Date Order Inventory Change")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to check that numbers are assigned chronologically.';
-                }
-                field("Automatic Maintenance Posting"; "Automatic Maintenance Posting")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if maintenance has to be automatically posted.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Exact Cost Reversing Mandatory"; "Exact Cost Reversing Mandatory")
                 {
@@ -146,6 +143,10 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Gen. Product Posting Group form SKU has to be use.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Location)
@@ -164,6 +165,12 @@
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension code that you want to use for product groups in analysis reports.';
+                }
+                field("Package Caption"; "Package Caption")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the alternative caption of Package tracking dimension that you want to use for captions for this dimension. For example, Size.';
+                    Visible = PackageVisible;
                 }
             }
             group(Numbering)
@@ -198,6 +205,16 @@
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted transfer receipts.';
+                }
+                field("Posted Direct Trans. Nos."; "Posted Direct Trans. Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Direct Transfer Posting"; "Direct Transfer Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if Direct Transfer should be posted separately as Shipment and Receipt or as single Direct Transfer document.';
                 }
                 field("Inventory Put-away Nos."; "Inventory Put-away Nos.")
                 {
@@ -243,15 +260,33 @@
                 }
                 field("Phys. Invt. Order Nos."; "Phys. Invt. Order Nos.")
                 {
-                    ApplicationArea = Warehouse;
-                    Importance = Additional;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders.';
                 }
                 field("Posted Phys. Invt. Order Nos."; "Posted Phys. Invt. Order Nos.")
                 {
-                    ApplicationArea = Warehouse;
-                    Importance = Additional;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders when they are posted.';
+                }
+                field("Invt. Receipt Nos."; Rec."Invt. Receipt Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Posted Invt. Receipt Nos."; Rec."Posted Invt. Receipt Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Invt. Shipment Nos."; Rec."Invt. Shipment Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Posted Invt. Shipment Nos."; Rec."Posted Invt. Shipment Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
             }
             group("Phys. Inventory")
@@ -391,11 +426,23 @@
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
+
+        SetPackageVisibility();
+    end;
+
+    var
+        PackageMgt: Codeunit "Package Management";
+        [InDataSet]
+        PackageVisible: Boolean;
+
+    local procedure SetPackageVisibility()
+    begin
+        PackageVisible := PackageMgt.IsEnabled();
     end;
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11731 "Withdrawal Cash Document"
 {
     DefaultLayout = RDLC;
@@ -303,4 +304,4 @@ report 11731 "Withdrawal Cash Document"
         CompanyAddr: array[8] of Text[100];
         CalculatedExchRate: Decimal;
 }
-
+#endif

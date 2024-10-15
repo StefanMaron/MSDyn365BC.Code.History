@@ -129,11 +129,19 @@ page 5814 "Item Charge Assignment (Sales)"
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Control22)
@@ -246,15 +254,9 @@ page 5814 "Item Charge Assignment (Sales)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
-                        ItemCharge: Record "Item Charge";
                         ShipmentLines: Page "Sales Shipment Lines";
                     begin
                         SalesLine2.TestField("Qty. to Invoice");
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Sales Schipment Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
@@ -280,14 +282,8 @@ page 5814 "Item Charge Assignment (Sales)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
-                        ItemCharge: Record "Item Charge";
                         ReceiptLines: Page "Return Receipt Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Return Receipt Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");

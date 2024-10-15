@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31086 "Reminder CZ"
 {
     DefaultLayout = RDLC;
@@ -458,4 +459,4 @@ report 31086 "Reminder CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

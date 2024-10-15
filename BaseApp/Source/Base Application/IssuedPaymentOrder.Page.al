@@ -84,7 +84,7 @@ page 11721 "Issued Payment Order"
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -102,7 +102,7 @@ page 11721 "Issued Payment Order"
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -317,7 +317,7 @@ page 11721 "Issued Payment Order"
 
     local procedure CancelLinesFilterOnAfterVal()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PrintPaymentOrder()

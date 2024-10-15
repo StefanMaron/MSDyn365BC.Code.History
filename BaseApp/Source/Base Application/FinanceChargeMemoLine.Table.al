@@ -561,10 +561,10 @@ table 303 "Finance Charge Memo Line"
                                         DtldFinChargeMemoLine."Interest Base Amount" := DtldCLE.Amount;
                                         if DtldFinChargeMemoLine."Interest Amount" <> 0 then
                                             DtldFinChargeMemoLine.Insert();
-                                    until MultipleInterestCalcLine.Next = 0;
+                                    until MultipleInterestCalcLine.Next() = 0;
                                 end;
                                 Amount += DtldCLE.Amount * (FinChrgMemoHeader."Document Date" - InterestStartDate); // NAVCZ
-                            until DtldCLE.Next = 0;
+                            until DtldCLE.Next() = 0;
                         end;
                     end;
 
@@ -728,7 +728,7 @@ table 303 "Finance Charge Memo Line"
                     ClosedatDate := CustLedgEntry2."Document Date"
                 else
                     ClosedatDate := CustLedgEntry."Closed at Date";
-            until CustLedgEntry2.Next = 0;
+            until CustLedgEntry2.Next() = 0;
     end;
 
     procedure LookupDocNo()

@@ -38,11 +38,13 @@ codeunit 11711 "Bank Operations Functions"
             Error(InvalidCharactersErr, GetInvalidCharactersFromBankAccountNo(BankAccountNo));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure ChopLeftChars(Input: Text[250]; NewChar: Text[1]): Text[250]
     begin
         exit(DelChr(Input, '<', NewChar));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CreateVariableSymbol(Input: Code[35]): Code[10]
     begin
@@ -68,6 +70,7 @@ codeunit 11711 "Bank Operations Functions"
         exit('');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure OnlyNumbers(Input: Text[250]): Text[250]
     var
@@ -80,6 +83,7 @@ codeunit 11711 "Bank Operations Functions"
         exit(CopyStr(Output, 1, 250));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckBankAccountNo(BankAccountNo: Text[30]; ShowErrorMessages: Boolean): Boolean
     var
@@ -110,6 +114,7 @@ codeunit 11711 "Bank Operations Functions"
         exit(not HasErrors);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckBankCode(BankAccountNo: Text[30])
     var
         BankCode: Text;
@@ -130,6 +135,7 @@ codeunit 11711 "Bank Operations Functions"
             LogErrorMessage(BankCodeTooShortErr);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckBankAccountIdentification(BankAccountNo: Text[30])
     var
         BankAccountIdentification: Text;
@@ -158,6 +164,7 @@ codeunit 11711 "Bank Operations Functions"
             LogErrorMessage(IdentificationNonZeroDigitsErr);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckBankAccountPrefix(BankAccountNo: Text[30])
     var
         BankAccountPrefix: Text;
@@ -179,6 +186,7 @@ codeunit 11711 "Bank Operations Functions"
             LogErrorMessage(PrefixIncorrectChecksumErr);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure LogErrorMessage(NewDescription: Text)
     begin
         TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, NewDescription);
@@ -190,18 +198,21 @@ codeunit 11711 "Bank Operations Functions"
         TempErrorMessage.CopyToTemp(TempErrorMessage2);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure ClearErrorMessageLog()
     begin
         TempErrorMessage.ClearLog;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckModulo(Input: Text): Boolean
     begin
         exit(Modulo(Input) = 0);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure Modulo(Input: Text): Integer
     var
         OutputSum: Integer;
@@ -224,18 +235,21 @@ codeunit 11711 "Bank Operations Functions"
         exit(OutputSum mod 11);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure HasBankAccountNoValidCharacters(BankAccountNo: Text[30]): Boolean
     begin
         exit(GetInvalidCharactersFromBankAccountNo(BankAccountNo) = '');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetInvalidCharactersFromBankAccountNo(BankAccountNo: Text[30]): Text
     begin
         exit(DelChr(BankAccountNo, '=', GetValidCharactersForBankAccountNo));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetValidCharactersForBankAccountNo(): Text
     begin

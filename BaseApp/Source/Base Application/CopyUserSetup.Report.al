@@ -1,7 +1,11 @@
+#if not CLEAN18
 report 11797 "Copy User Setup"
 {
     Caption = 'Copy User Setup';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -62,4 +66,4 @@ report 11797 "Copy User Setup"
         FromUserId := NewFromUserId;
     end;
 }
-
+#endif

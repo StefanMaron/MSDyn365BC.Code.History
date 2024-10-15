@@ -80,6 +80,10 @@ page 423 "Customer Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if vendor bank account is a priority vendor bank account';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Communication)
@@ -120,6 +124,10 @@ page 423 "Customer Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Clearing Standard"; "Bank Clearing Standard")
                 {

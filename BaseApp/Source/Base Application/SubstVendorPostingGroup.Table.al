@@ -1,6 +1,9 @@
 table 11782 "Subst. Vendor Posting Group"
 {
     Caption = 'Subst. Vendor Posting Group';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

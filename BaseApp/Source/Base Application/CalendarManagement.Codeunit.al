@@ -180,7 +180,7 @@ codeunit 7600 "Calendar Management"
                     TargetCustomizedCalendarChange.Nonworking := TempCustChange.Nonworking;
                     exit;
                 end;
-            until TempCustChange.Next = 0;
+            until TempCustChange.Next() = 0;
     end;
 
     local procedure CombineChanges(NewCustomizedCalendarChange: Record "Customized Calendar Change"; var TempCustomizedCalendarChange: record "Customized Calendar Change" temporary)
@@ -217,7 +217,7 @@ codeunit 7600 "Calendar Management"
                 TempCustomizedCalendarChange."Entry No." := EntryNo;
                 OnCombineCustomCalendarChange(CustomizedCalendarChange, TempCustomizedCalendarChange);
                 TempCustomizedCalendarChange.Insert();
-            until CustomizedCalendarChange.Next = 0;
+            until CustomizedCalendarChange.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -251,7 +251,7 @@ codeunit 7600 "Calendar Management"
                 TempCustomizedCalendarChange."Recurring System" := BaseCalendarChange."Recurring System";
                 OnCombineBaseCalendarChange(BaseCalendarChange, TempCustomizedCalendarChange);
                 TempCustomizedCalendarChange.Insert();
-            until BaseCalendarChange.Next = 0;
+            until BaseCalendarChange.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -296,7 +296,7 @@ codeunit 7600 "Calendar Management"
                 WhereUsedBaseCalendar."Source Name" := BankAccount.Name;
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(BankAccount);
                 WhereUsedBaseCalendar.Insert();
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     local procedure AddWhereUsedBaseCalendarCompany(BaseCalendarCode: code[10])
@@ -333,7 +333,7 @@ codeunit 7600 "Calendar Management"
                   CopyStr(Customer.Name, 1, MaxStrLen(WhereUsedBaseCalendar."Source Name"));
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(Customer);
                 WhereUsedBaseCalendar.Insert();
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
     end;
 
     local procedure AddWhereUsedBaseCalendarLocation(BaseCalendarCode: code[10])
@@ -353,7 +353,7 @@ codeunit 7600 "Calendar Management"
                   CopyStr(Location.Name, 1, MaxStrLen(WhereUsedBaseCalendar."Source Name"));
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(Location);
                 WhereUsedBaseCalendar.Insert();
-            until Location.Next = 0;
+            until Location.Next() = 0;
     end;
 
     local procedure AddWhereUsedBaseCalendarServMgtSetup(BaseCalendarCode: code[10])
@@ -390,7 +390,7 @@ codeunit 7600 "Calendar Management"
                   CopyStr(ShippingAgentServices.Description, 1, MaxStrLen(WhereUsedBaseCalendar."Source Name"));
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(ShippingAgentServices);
                 WhereUsedBaseCalendar.Insert();
-            until ShippingAgentServices.Next = 0;
+            until ShippingAgentServices.Next() = 0;
     end;
 
     local procedure AddWhereUsedBaseCalendarVendor(BaseCalendarCode: code[10])
@@ -410,7 +410,7 @@ codeunit 7600 "Calendar Management"
                   CopyStr(Vendor.Name, 1, MaxStrLen(WhereUsedBaseCalendar."Source Name"));
                 WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(Vendor);
                 WhereUsedBaseCalendar.Insert();
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
     procedure CustomizedChangesExist(SourceVariant: Variant): Boolean
@@ -587,7 +587,7 @@ codeunit 7600 "Calendar Management"
             repeat
                 TempCustomizedCalendarChange := CustomizedCalendarChange;
                 TempCustomizedCalendarChange.Insert();
-            until CustomizedCalendarChange.Next = 0;
+            until CustomizedCalendarChange.Next() = 0;
         if TempCustomizedCalendarChange.FindSet then
             repeat
                 Clear(CustomizedCalendarChange);
@@ -601,7 +601,7 @@ codeunit 7600 "Calendar Management"
                   CustomizedCalendarChange.Date,
                   CustomizedCalendarChange.Day,
                   CustomizedCalendarChange."Entry No.");
-            until TempCustomizedCalendarChange.Next = 0;
+            until TempCustomizedCalendarChange.Next() = 0;
 
         CustomizedCalendarEntry.SetRange("Source Type", SourceType);
         CustomizedCalendarEntry.SetRange("Source Code", xSourceCode);
@@ -609,7 +609,7 @@ codeunit 7600 "Calendar Management"
             repeat
                 TempCustomizedCalendarEntry := CustomizedCalendarEntry;
                 TempCustomizedCalendarEntry.Insert();
-            until CustomizedCalendarEntry.Next = 0;
+            until CustomizedCalendarEntry.Next() = 0;
         if TempCustomizedCalendarEntry.FindSet then
             repeat
                 Clear(CustomizedCalendarEntry);
@@ -620,7 +620,7 @@ codeunit 7600 "Calendar Management"
                   CustomizedCalendarEntry."Additional Source Code",
                   CustomizedCalendarEntry."Base Calendar Code",
                   CustomizedCalendarEntry.Date);
-            until TempCustomizedCalendarEntry.Next = 0;
+            until TempCustomizedCalendarEntry.Next() = 0;
 
         WhereUsedBaseCalendar.SetRange("Source Type", SourceType);
         WhereUsedBaseCalendar.SetRange("Source Code", xSourceCode);
@@ -628,7 +628,7 @@ codeunit 7600 "Calendar Management"
             repeat
                 TempWhereUsedBaseCalendar := WhereUsedBaseCalendar;
                 TempWhereUsedBaseCalendar.Insert();
-            until WhereUsedBaseCalendar.Next = 0;
+            until WhereUsedBaseCalendar.Next() = 0;
         if TempWhereUsedBaseCalendar.FindSet then
             repeat
                 Clear(WhereUsedBaseCalendar);
@@ -638,7 +638,7 @@ codeunit 7600 "Calendar Management"
                   WhereUsedBaseCalendar."Source Type",
                   SourceCode,
                   WhereUsedBaseCalendar."Source Name");
-            until TempWhereUsedBaseCalendar.Next = 0;
+            until TempWhereUsedBaseCalendar.Next() = 0;
     end;
 
     procedure ReverseDateFormula(var ReversedDateFormula: DateFormula; DateFormula: DateFormula)

@@ -36,7 +36,7 @@ codeunit 11706 "Issue Payment Order"
 
             SetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
 
-            if PmtOrdLn.IsEmpty then
+            if PmtOrdLn.IsEmpty() then
                 Error(EmptyPostErr);
 
             CheckPaymentOrderLines(PmtOrdHdr);
@@ -76,7 +76,7 @@ codeunit 11706 "Issue Payment Order"
                     OnBeforeIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);
                     IssuedPmtOrdLn.Insert();
                     OnAfterIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);
-                until PmtOrdLn.Next = 0;
+                until PmtOrdLn.Next() = 0;
 
             OnAfterIssuePaymentOrder(PmtOrdHdr);
 
@@ -99,7 +99,7 @@ codeunit 11706 "Issue Payment Order"
         with PmtOrdLn do begin
             PaymentOrderManagement.ClearErrorMessageLog;
             SetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
-            FindSet;
+            FindSet();
             repeat
                 IsHandled := false;
                 OnBeforeCheckPaymentOrderLine(PmtOrdLn, IsHandled);
@@ -110,7 +110,7 @@ codeunit 11706 "Issue Payment Order"
                     PaymentOrderManagement.CheckPaymentOrderLineApply(PmtOrdLn, false);
                     PaymentOrderManagement.CheckPaymentOrderLineCustom(PmtOrdLn, false);
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             PaymentOrderManagement.ProcessErrorMessages(true, true);
         end;

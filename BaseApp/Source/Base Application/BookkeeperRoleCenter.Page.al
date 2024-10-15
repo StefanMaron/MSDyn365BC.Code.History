@@ -201,12 +201,17 @@ page 9004 "Bookkeeper Role Center"
             separator(Action53)
             {
             }
+#if not CLEAN18
             action("FA Phys. Inventory List")
             {
                 ApplicationArea = FixedAssets;
                 Caption = 'FA Phys. Inventory List';
                 RunObject = Report "FA Phys. Inventory List";
                 ToolTip = 'Open the report for fixed asset physical inventory.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Receipt")
             {
@@ -214,6 +219,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'FA Receipt';
                 RunObject = Report "FA Receipt Report";
                 ToolTip = 'Open the report for fixed asset receipt.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Disposal")
             {
@@ -221,7 +230,12 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'FA Disposal';
                 RunObject = Report "FA Disposal Report";
                 ToolTip = 'Open the report for fixed asset disposal.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#endif
             separator(Action1220006)
             {
             }
@@ -248,10 +262,6 @@ page 9004 "Bookkeeper Role Center"
                 Image = "Report";
                 RunObject = Report "VAT Statement";
                 ToolTip = 'View a statement of posted VAT and calculate the duty liable to the customs authorities for the selected period.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             action("G/L - VAT Reconciliation")
             {
@@ -284,17 +294,6 @@ page 9004 "Bookkeeper Role Center"
                 Image = "Report";
                 RunObject = Report "EC Sales List";
                 ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
-            }
-            action("Package Tax Calculation")
-            {
-                ApplicationArea = VAT;
-                Caption = 'Package Tax Calculation';
-                RunObject = Report "Package Tax Calculation";
-                ToolTip = 'The report for package tax calculation.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
         }
         area(embedding)
@@ -853,10 +852,6 @@ page 9004 "Bookkeeper Role Center"
                 Image = SettleOpenTransactions;
                 RunObject = Report "Calc. and Post VAT Settlement";
                 ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             action(Action1220019)
             {

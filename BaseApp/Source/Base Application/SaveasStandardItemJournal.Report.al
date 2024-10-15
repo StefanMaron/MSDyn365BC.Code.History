@@ -157,7 +157,7 @@ report 751 "Save as Standard Item Journal"
                 // StdItemJnlLine.INSERT(TRUE);
                 StdItemJnlLine.Insert(false);
                 // NAVCZ
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
 
         StdJournalCreated := true;
     end;

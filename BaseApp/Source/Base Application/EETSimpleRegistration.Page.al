@@ -427,7 +427,7 @@ page 31126 "EET Simple Registration"
                     trigger OnAction()
                     begin
                         SendSimpleEntryToService;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -563,7 +563,7 @@ page 31126 "EET Simple Registration"
                     begin
                         CashFilter := UserSetupMgt.GetCashFilter;
                         CashDeskFilter := CashDeskMgt.GetCashDesksFilter;
-                        if (CashDeskFilter = '') and not User.IsEmpty then
+                        if (CashDeskFilter = '') and not User.IsEmpty() then
                             Error(NoCashDeskErr, UserId);
 
                         BankAccount.Get("Source No.");
@@ -737,7 +737,7 @@ page 31126 "EET Simple Registration"
         EETEntryMgt.RegisterEntry(NewEETEntryNo);
 
         Init;
-        CurrPage.Update;
+        CurrPage.Update();
         InitVATRate;
         Clear(TotalSalesAmount);
         ValidateTotalSalesAmount;

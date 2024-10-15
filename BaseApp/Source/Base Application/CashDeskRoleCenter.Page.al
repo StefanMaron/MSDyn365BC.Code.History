@@ -28,6 +28,10 @@ page 11750 "Cash Desk Role Center"
                 chartpart("Q11750-01"; "Q11750-01")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed because chart Q11750-01 will not be used.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 systempart(Control1220000; Outlook)
                 {

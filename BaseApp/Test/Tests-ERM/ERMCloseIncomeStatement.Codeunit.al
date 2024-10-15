@@ -314,7 +314,6 @@ codeunit 134228 "ERM Close Income Statement"
         Initialize;
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(0D);
-        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         asserterror GLAccount.Delete(true);
@@ -338,7 +337,6 @@ codeunit 134228 "ERM Close Income Statement"
         Initialize;
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
-        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         LibraryVariableStorage.Enqueue(true);
@@ -363,7 +361,6 @@ codeunit 134228 "ERM Close Income Statement"
 
         AllowDeleteDate := LibraryFiscalYear.GetPastNewYearDate(5);
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(AllowDeleteDate);
-        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         LibraryVariableStorage.Enqueue(false);
@@ -392,7 +389,6 @@ codeunit 134228 "ERM Close Income Statement"
 
         AllowDeleteDate := LibraryFiscalYear.GetPastNewYearDate(5);
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(AllowDeleteDate);
-        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         MockGLBudgetEntry(GLBudgetEntry, GLAccount."No.", AllowDeleteDate);
@@ -423,7 +419,6 @@ codeunit 134228 "ERM Close Income Statement"
         Initialize;
 
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
-        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
         IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(GLAccount);
 
         AccountingPeriod.DeleteAll();
@@ -813,7 +808,7 @@ codeunit 134228 "ERM Close Income Statement"
         with SelectedDimension do begin
             DeleteAll();
 
-            DimSetEntry.FindSet;
+            DimSetEntry.FindSet();
             repeat
                 "User ID" := UserId;
                 "Object Type" := 3;

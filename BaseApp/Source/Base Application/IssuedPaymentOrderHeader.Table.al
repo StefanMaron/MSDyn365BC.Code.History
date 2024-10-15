@@ -276,7 +276,7 @@ table 11710 "Issued Payment Order Header"
         OnBeforeExportPmtOrd(Rec);
         
         IssuedPmtOrdLn.SetRange("Payment Order No.", "No.");
-        if IssuedPmtOrdLn.IsEmpty then
+        if IssuedPmtOrdLn.IsEmpty() then
             Error(NothingToExportErr);
 
         BankAcc.Get("Bank Account No.");
@@ -303,7 +303,7 @@ table 11710 "Issued Payment Order Header"
         LineNo: Integer;
     begin
         IssuedPmtOrdLn.SetRange("Payment Order No.", "No.");
-        if IssuedPmtOrdLn.IsEmpty then
+        if IssuedPmtOrdLn.IsEmpty() then
             exit;
 
         GenJnlBatch.Get(JnlTemplateName, JnlBatchName);
@@ -322,8 +322,8 @@ table 11710 "Issued Payment Order Header"
         GenJnlLn.SetRange("Document No.", "No.");
         GenJnlLn.FilterGroup(0);
 
-        if GenJnlLn.IsEmpty then begin
-            IssuedPmtOrdLn.FindSet;
+        if GenJnlLn.IsEmpty() then begin
+            IssuedPmtOrdLn.FindSet();
             repeat
                 IssuedPmtOrdLn.TestField(Type);
 
@@ -360,7 +360,7 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn."Constant Symbol" := IssuedPmtOrdLn."Constant Symbol";
                 GenJnlLn."Specific Symbol" := IssuedPmtOrdLn."Specific Symbol";
                 GenJnlLn.Modify();
-            until IssuedPmtOrdLn.Next = 0;
+            until IssuedPmtOrdLn.Next() = 0;
         end;
     end;
 

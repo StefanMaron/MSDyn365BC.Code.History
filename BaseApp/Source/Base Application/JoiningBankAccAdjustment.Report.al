@@ -246,7 +246,7 @@ report 11773 "Joining Bank. Acc. Adjustment"
             trigger OnAfterGetRecord()
             begin
                 if Number <> 1 then
-                    if TBuffer.Next = 0 then
+                    if TBuffer.Next() = 0 then
                         CurrReport.Break();
 
                 if TBuffer."Amount (LCY)" = 0 then

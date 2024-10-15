@@ -221,7 +221,7 @@ table 91 "User Setup"
 
                 if "Approval Administrator" then begin
                     UserSetup.SetRange("Approval Administrator", true);
-                    if not UserSetup.IsEmpty then
+                    if not UserSetup.IsEmpty() then
                         FieldError("Approval Administrator");
                 end;
             end;
@@ -280,34 +280,90 @@ table 91 "User Setup"
         field(11760; "Check Document Date(work date)"; Boolean)
         {
             Caption = 'Check Document Date(work date)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; "Check Document Date(sys. date)"; Boolean)
         {
             Caption = 'Check Document Date(sys. date)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11762; "Check Posting Date (work date)"; Boolean)
         {
             Caption = 'Check Posting Date (work date)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11763; "Check Posting Date (sys. date)"; Boolean)
         {
             Caption = 'Check Posting Date (sys. date)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11764; "Check Bank Accounts"; Boolean)
         {
             Caption = 'Check Bank Accounts';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11765; "Check Journal Templates"; Boolean)
         {
             Caption = 'Check Journal Templates';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "Check Dimension Values"; Boolean)
         {
             Caption = 'Check Dimension Values';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11767; "Allow Posting to Closed Period"; Boolean)
         {
             Caption = 'Allow Posting to Closed Period';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11768; "Allow VAT Posting From"; Date)
         {
@@ -326,31 +382,80 @@ table 91 "User Setup"
         field(11790; "Allow Complete Job"; Boolean)
         {
             Caption = 'Allow Complete Job';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11791; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
             TableRelation = Employee;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11792; "User Name"; Text[50])
         {
             Caption = 'User Name';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Allow Item Unapply"; Boolean)
         {
             Caption = 'Allow Item Unapply';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Check Location Code"; Boolean)
         {
             Caption = 'Check Location Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31072; "Check Release Location Code"; Boolean)
         {
             Caption = 'Check Release Location Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31073; "Check Whse. Net Change Temp."; Boolean)
         {
             Caption = 'Check Whse. Net Change Temp.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31110; "Bank Amount Approval Limit"; Integer)
         {
@@ -397,12 +502,13 @@ table 91 "User Setup"
     var
         NotificationSetup: Record "Notification Setup";
     begin
+#if not CLEAN18
         // NAVCZ
         UserCheckLine.Reset();
         UserCheckLine.SetRange("User ID", "User ID");
         UserCheckLine.DeleteAll();
         // NAVCZ
-
+#endif
         NotificationSetup.SetRange("User ID", "User ID");
         NotificationSetup.DeleteAll(true);
     end;
@@ -424,12 +530,16 @@ table 91 "User Setup"
         Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
         Text003: Label 'You cannot have both a %1 and %2. ';
         Text005: Label 'You cannot have approval limits less than zero.';
+#if not CLEAN18
         UserCheckLine: Record "User Setup Line";
+#endif
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         UserSetupManagement: Codeunit "User Setup Management";
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+#if not CLEAN18
         SelfCopyErr: Label 'You cannot copy a user setup into itself.';
+#endif
 
     procedure CreateApprovalUserSetup(User: Record User)
     var
@@ -589,6 +699,8 @@ table 91 "User Setup"
           "Allow Posting From", "Allow Posting To", NotificationType, DATABASE::"User Setup");
     end;
 
+#if not CLEAN18
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CopyTo(ToUserId: Code[50])
     var
         FromUserSetupLine: Record "User Setup Line";
@@ -624,7 +736,7 @@ table 91 "User Setup"
                 UserSetupLine := FromUserSetupLine;
                 UserSetupLine."User ID" := ToUserId;
                 UserSetupLine.Insert();
-            until FromUserSetupLine.Next = 0;
+            until FromUserSetupLine.Next() = 0;
 
         SelectedDimension.SetRange("User ID", ToUserId);
         SelectedDimension.SetRange("Object Type", 1);
@@ -639,16 +751,17 @@ table 91 "User Setup"
                 SelectedDimension := FromSelectedDimension;
                 SelectedDimension."User ID" := ToUserId;
                 SelectedDimension.Insert();
-            until FromSelectedDimension.Next = 0;
+            until FromSelectedDimension.Next() = 0;
 
         OnAfterCopyUserSetup(Rec, UserSetup);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyUserSetup(FromUserSetup: Record "User Setup"; ToUserSetup: Record "User Setup")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateApprovalAdministrator(var UserSetup: Record "User Setup"; var IsHandled: Boolean)
     begin

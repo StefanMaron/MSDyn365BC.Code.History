@@ -1,4 +1,4 @@
-﻿table 6660 "Return Receipt Header"
+table 6660 "Return Receipt Header"
 {
     Caption = 'Return Receipt Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -565,18 +565,30 @@
         {
             Caption = 'Bank Account Code';
             TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -590,10 +602,16 @@
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -615,41 +633,44 @@
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
             ValidateTableRelation = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
-            TableRelation = "Industry Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 

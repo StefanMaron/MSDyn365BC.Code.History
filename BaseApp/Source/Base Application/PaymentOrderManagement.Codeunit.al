@@ -24,8 +24,10 @@ codeunit 11709 "Payment Order Management"
     var
         GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
+#if not CLEAN18
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -47,9 +49,11 @@ codeunit 11709 "Payment Order Management"
         end;
 
         if BankSelected then begin
+#if not CLEAN18
             GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Paym. Order", BankAcc."No.");
+#endif
             PmtOrdHdr.FilterGroup := 2;
             PmtOrdHdr.SetRange("Bank Account No.", BankAcc."No.");
             PmtOrdHdr.FilterGroup := 0;
@@ -61,8 +65,10 @@ codeunit 11709 "Payment Order Management"
     var
         GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
+#if not CLEAN18
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -85,8 +91,10 @@ codeunit 11709 "Payment Order Management"
 
         if BankSelected then begin
             GLSetup.Get();
+#if not CLEAN18
             if GLSetup."User Checks Allowed" then
                 UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Paym. Order", BankAcc."No.");
+#endif
             IssuedPmtOrdHdr.FilterGroup := 2;
             IssuedPmtOrdHdr.SetRange("Bank Account No.", BankAcc."No.");
             IssuedPmtOrdHdr.FilterGroup := 0;
@@ -317,17 +325,17 @@ codeunit 11709 "Payment Order Management"
               IssuedPmtOrdLn.Type::Customer, IssuedPmtOrdLn.Type::Vendor, IssuedPmtOrdLn.Type::Employee);
             IssuedPmtOrdLn.SetRange("Applies-to C/V/E Entry No.", "Applies-to C/V/E Entry No.");
             IssuedPmtOrdLn.SetRange(Status, IssuedPmtOrdLn.Status::" ");
-            if not IssuedPmtOrdLn.IsEmpty then
+            if not IssuedPmtOrdLn.IsEmpty() then
                 exit(true);
 
             PmtOrdLn2.SetRange("Applies-to C/V/E Entry No.", "Applies-to C/V/E Entry No.");
             PmtOrdLn2.SetFilter("Payment Order No.", '<>%1', "Payment Order No.");
-            if not PmtOrdLn2.IsEmpty then
+            if not PmtOrdLn2.IsEmpty() then
                 exit(true);
 
             PmtOrdLn2.SetRange("Payment Order No.", "Payment Order No.");
             PmtOrdLn2.SetFilter("Line No.", '<>%1', "Line No.");
-            if not PmtOrdLn2.IsEmpty then
+            if not PmtOrdLn2.IsEmpty() then
                 exit(true);
         end;
     end;
@@ -345,19 +353,19 @@ codeunit 11709 "Payment Order Management"
             IssuedPmtOrdLn.SetRange("Letter No.", "Letter No.");
             IssuedPmtOrdLn.SetRange("Letter Line No.", "Letter Line No.");
             IssuedPmtOrdLn.SetRange(Status, IssuedPmtOrdLn.Status::" ");
-            if not IssuedPmtOrdLn.IsEmpty then
+            if not IssuedPmtOrdLn.IsEmpty() then
                 exit(true);
 
             PmtOrdLn2.SetRange("Letter Type", "Letter Type");
             PmtOrdLn2.SetRange("Letter No.", "Letter No.");
             PmtOrdLn2.SetRange("Letter Line No.", "Letter Line No.");
             PmtOrdLn2.SetFilter("Payment Order No.", '<>%1', "Payment Order No.");
-            if not PmtOrdLn2.IsEmpty then
+            if not PmtOrdLn2.IsEmpty() then
                 exit(true);
 
             PmtOrdLn2.SetRange("Payment Order No.", "Payment Order No.");
             PmtOrdLn2.SetFilter("Line No.", '<>%1', "Line No.");
-            if not PmtOrdLn2.IsEmpty then
+            if not PmtOrdLn2.IsEmpty() then
                 exit(true);
         end;
     end;
@@ -426,7 +434,7 @@ codeunit 11709 "Payment Order Management"
             repeat
                 if not Confirm(StrSubstNo('%1\\%2', TempErrorMessage.Description, ContinueQst)) then
                     Error('');
-            until TempErrorMessage.Next = 0;
+            until TempErrorMessage.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

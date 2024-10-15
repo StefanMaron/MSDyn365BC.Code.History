@@ -24,7 +24,7 @@ page 49 "Purchase Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@ page 49 "Purchase Quote"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -52,7 +52,7 @@ page 49 "Purchase Quote"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -187,15 +187,6 @@ page 49 "Purchase Quote"
                     Importance = Additional;
                     ToolTip = 'Specifies the number of archived versions for this document.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the posting description code for the purchase header.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Posting Description"; "Posting Description")
                 {
                     ApplicationArea = Suite;
@@ -302,6 +293,10 @@ page 49 "Purchase Quote"
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
@@ -580,7 +575,7 @@ page 49 "Purchase Quote"
                                     if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                         SetRange("Pay-to Vendor No.");
 
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                         field("Pay-to Address"; "Pay-to Address")
@@ -764,15 +759,6 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the industry code for the vendor record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
@@ -787,10 +773,19 @@ page 49 "Purchase Quote"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -801,36 +796,64 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
                 {
@@ -1549,17 +1572,17 @@ page 49 "Purchase Quote"
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrencyCodeOnAfterValidate()

@@ -27,7 +27,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         ReversalErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.';
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForHigher()
     var
@@ -40,7 +44,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForLower()
     var
@@ -53,7 +61,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForHigher()
     begin
@@ -63,7 +75,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForLower()
     begin
@@ -73,7 +89,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure UnrealizedGainCreditMemoCust()
     var
@@ -146,7 +166,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithNegativeAmount()
     var
@@ -176,7 +200,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithPositiveAmount()
     var
@@ -206,7 +234,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure GLEntryAdjustExchRateForGainOrLoss()
     var
@@ -258,7 +290,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure SalesInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -332,7 +368,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
+#else
     [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateAfterApplyingCustomerEntries()
     begin
@@ -389,7 +429,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure PurchaseInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -465,7 +509,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
+#else
     [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateAfterApplyingVendorEntries()
     begin
@@ -778,7 +826,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsLosses()
     var
@@ -816,7 +868,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceLossesGains()
     var
@@ -854,7 +910,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsToHigherLosses()
     var
@@ -907,7 +967,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceLossesToHigherGains()
     var
@@ -1003,7 +1067,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine."Document Type"::" ");
     end;
 
-    local procedure AdjustExchRateForCustomer(ExchRateAmt: Decimal; EntryType: Option)
+    local procedure AdjustExchRateForCustomer(ExchRateAmt: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1457,11 +1521,15 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
+#if CLEAN18
+        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, DocumentNo, true, false);
+#else
         // NAVCZ
         AdjustExchangeRates.InitializeRequest2CZ(
           0D, EndDate, 'Test', EndDate, DocumentNo,
           true, true, true, false, false, true); // Using Currency Code for Document No. parameter.
         // NAVCZ
+#endif
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -1498,7 +1566,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", BankAccountPostingGroup."G/L Account No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntryAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1508,7 +1576,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; EntryType: Option; Amount: Decimal)
+    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         Currency: Record Currency;
@@ -1653,6 +1721,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#if not CLEAN18
 
     [ReportHandler]
     [Scope('OnPrem')]
@@ -1661,5 +1730,6 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // NAVCZ
         AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
+#endif
 }
 

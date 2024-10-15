@@ -48,11 +48,11 @@ table 31121 "EET Business Premises"
     begin
         EETEntry.SetCurrentKey("Business Premises Code", "Cash Register Code");
         EETEntry.SetRange("Business Premises Code", Code);
-        if not EETEntry.IsEmpty then
+        if not EETEntry.IsEmpty() then
             Error(EntryExistsErr, TableCaption, Code);
 
         EETCashRegister.SetRange("Business Premises Code", Code);
-        if not EETCashRegister.IsEmpty then begin
+        if not EETCashRegister.IsEmpty() then begin
             if GuiAllowed then
                 if not Confirm(CashRegExistsQst, false, TableCaption, Code) then
                     Error('');

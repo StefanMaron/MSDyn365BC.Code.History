@@ -1,9 +1,13 @@
+#if not CLEAN18
 report 31041 "FA - Analysis G/L Account"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAAnalysisGLAccount.rdlc';
     Caption = 'FA - Analysis G/L Account';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -221,4 +225,4 @@ report 31041 "FA - Analysis G/L Account"
         TotalCaptionLbl: Label 'total';
         Text001Err: Label 'Enter %1.';
 }
-
+#endif

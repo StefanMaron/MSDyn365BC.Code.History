@@ -298,7 +298,9 @@ report 31021 "Purchase - Advance Invoice CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
+#if not CLEAN18
                         DataItemLink = "No." = FIELD("Employee No.");
+#endif
                         DataItemTableView = SORTING("No.");
                         column(FullName_Employee; Employee.FullName)
                         {

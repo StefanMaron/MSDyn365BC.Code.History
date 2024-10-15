@@ -15,9 +15,9 @@ codeunit 31110 "Workflow Event Handling CZ"
         CashDocSendForApprovalEventDescTxt: Label 'Approval of a cash document is requested. (Obsolete)';
         CashDocApprReqCancelledEventDescTxt: Label 'An approval request for a cash document is canceled. (Obsolete)';
         CashDocReleasedEventDescTxt: Label 'A cash document is released. (Obsolete)';
-        CreditDocSendForApprovalEventDescTxt: Label 'Approval of a credit is requested.';
-        CreditDocApprReqCancelledEventDescTxt: Label 'An approval request for a credit is canceled.';
-        CreditDocReleasedEventDescTxt: Label 'A credit is released.';
+        CreditDocSendForApprovalEventDescTxt: Label 'Approval of a credit is requested. (Obsolete)';
+        CreditDocApprReqCancelledEventDescTxt: Label 'An approval request for a credit is canceled. (Obsolete)';
+        CreditDocReleasedEventDescTxt: Label 'A credit is released. (Obsolete)';
         SalesAdvanceLetterSendForApprovalEventDescTxt: Label 'Approval of a sales advance letter is requested.';
         SalesAdvanceLetterApprReqCancelledEventDescTxt: Label 'An approval request for a sales advance letter is canceled.';
         SalesAdvanceLetterReleasedEventDescTxt: Label 'A sales advance letter is released.';
@@ -25,9 +25,8 @@ codeunit 31110 "Workflow Event Handling CZ"
         PurchAdvanceLetterApprReqCancelledEventDescTxt: Label 'An approval request for a purchase advance letter is canceled.';
         PurchAdvanceLetterReleasedEventDescTxt: Label 'A purchase advance letter is released.';
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowEventsToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddWorkflowEventsToLibrary()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventsToLibrary', '', false, false)]
+    local procedure AddWorkflowEventsToLibrary()
     begin
         // Payment Order
         WorkflowEventHandling.AddEventToLibrary(
@@ -85,9 +84,8 @@ codeunit 31110 "Workflow Event Handling CZ"
           PurchAdvanceLetterReleasedEventDescTxt, 0, false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowEventPredecessorsToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddWorkflowEventPredecessorsToLibrary(EventFunctionName: Code[128])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventPredecessorsToLibrary', '', false, false)]
+    local procedure AddWorkflowEventPredecessorsToLibrary(EventFunctionName: Code[128])
     begin
         case EventFunctionName of
             RunWorkflowOnCancelPaymentOrderApprovalRequestCode:
@@ -167,9 +165,8 @@ codeunit 31110 "Workflow Event Handling CZ"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowTableRelationsToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddWorkflowTableRelationsToLibrary()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowTableRelationsToLibrary', '', false, false)]
+    local procedure AddWorkflowTableRelationsToLibrary()
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -278,29 +275,28 @@ codeunit 31110 "Workflow Event Handling CZ"
         exit(UpperCase('RunWorkflowOnAfterReleasePurchaseAdvanceLetter'));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendPaymentOrderForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendPaymentOrderForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPaymentOrderForApproval(var PaymentOrderHeader: Record "Payment Order Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendPaymentOrderForApprovalCode, PaymentOrderHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelPaymentOrderApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelPaymentOrderApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPaymentOrderApprovalRequest(var PaymentOrderHeader: Record "Payment Order Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelPaymentOrderApprovalRequestCode, PaymentOrderHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11706, 'OnAfterIssuePaymentOrder', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterIssuePaymentOrder(var PaymentOrderHeader: Record "Payment Order Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Issue Payment Order", 'OnAfterIssuePaymentOrder', '', false, false)]
+    local procedure RunWorkflowOnAfterIssuePaymentOrder(var PaymentOrderHeader: Record "Payment Order Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterIssuePaymentOrderCode, PaymentOrderHeader);
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendCashDocForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCashDocForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCashDocForApproval(var CashDocHdr: Record "Cash Document Header")
     begin
@@ -308,7 +304,7 @@ codeunit 31110 "Workflow Event Handling CZ"
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelCashDocApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCashDocApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCashDocApprovalRequest(var CashDocHdr: Record "Cash Document Header")
     begin
@@ -316,72 +312,68 @@ codeunit 31110 "Workflow Event Handling CZ"
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, 11731, 'OnAfterReleaseCashDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Release", 'OnAfterReleaseCashDoc', '', false, false)]
+    local procedure RunWorkflowOnAfterReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseCashDocCode, CashDocHdr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendCreditDocForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCreditDocForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCreditDocForApproval(var CreditHdr: Record "Credit Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendCreditDocForApprovalCode, CreditHdr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelCreditApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCreditApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCreditApprovalRequest(var CreditHdr: Record "Credit Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelCreditApprovalRequestCode, CreditHdr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 31053, 'OnAfterReleaseCreditDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleaseCreditDoc(var CreditHdr: Record "Credit Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Credit Document", 'OnAfterReleaseCreditDoc', '', false, false)]
+    local procedure RunWorkflowOnAfterReleaseCreditDoc(var CreditHdr: Record "Credit Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseCreditDocCode, CreditHdr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendSalesAdvanceLetterForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendSalesAdvanceLetterForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendSalesAdvanceLetterForApproval(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesAdvanceLetterForApprovalCode, SalesAdvanceLetterHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelSalesAdvanceLetterApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelSalesAdvanceLetterApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelSalesAdvanceLetterApprovalRequest(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode, SalesAdvanceLetterHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 31000, 'OnAfterReleaseSalesAdvanceLetter', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleaseSalesAdvanceLetter(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
+    [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnAfterReleaseSalesAdvanceLetter', '', false, false)]
+    local procedure RunWorkflowOnAfterReleaseSalesAdvanceLetter(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesAdvanceLetterCode, SalesAdvanceLetterHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendPurchaseAdvanceLetterForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendPurchaseAdvanceLetterForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPurchaseAdvanceLetterForApproval(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode, PurchAdvanceLetterHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelPurchaseAdvanceLetterApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelPurchaseAdvanceLetterApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequest(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode, PurchAdvanceLetterHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 31020, 'OnAfterReleasePurchaseAdvanceLetter', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleasePurchaseAdvanceLetter(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnAfterReleasePurchaseAdvanceLetter', '', false, false)]
+    local procedure RunWorkflowOnAfterReleasePurchaseAdvanceLetter(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode, PurchAdvanceLetterHeader);
     end;

@@ -27,84 +27,12 @@ codeunit 144200 Taxs
         if isInitialized then
             exit;
 
-        UpdateSalesSetup;
         UpdateCompanyInformation;
         LibraryTax.CreateElectronicallyGovernSetup;
         LibraryTax.SetUncertaintyPayerWebService;
 
         isInitialized := true;
         Commit();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NondeductibleVAT()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
-        Vendor: Record Vendor;
-        GLAccount: Record "G/L Account";
-        NonDeductibleVATSetup: Record "Non Deductible VAT Setup";
-        PostedDocNo: Code[20];
-        VATBase: Decimal;
-        VATAmount: Decimal;
-    begin
-        // 1.Setup:
-        Initialize;
-
-        CreateVATPostingSetup(VATPostingSetup, 10);
-        CreateNonDeductibleVATSetup(
-          NonDeductibleVATSetup,
-          VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-          CalcDate('<-CY>', WorkDate), 10);
-
-        CreateVendor(Vendor);
-        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Modify(true);
-
-        CreateGLAccount(GLAccount);
-        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        GLAccount.Modify(true);
-
-        CreatePurchaseInvoice(
-          PurchHeader, PurchLine,
-          Vendor."No.", PurchLine.Type::"G/L Account", GLAccount."No.");
-
-        // 2.Exercise:
-
-        PostedDocNo := PostPurchaseDocument(PurchHeader);
-
-        // 3.Verify:
-
-        PurchInvHeader.Get(PostedDocNo);
-
-        VATAmount :=
-          LibraryTax.RoundVAT(
-            PurchLine.Amount * VATPostingSetup."VAT %" / 100 * (100 - NonDeductibleVATSetup."Non Deductible VAT %") / 100);
-        VATBase := LibraryTax.RoundVAT(PurchLine.Amount + PurchLine.Amount * VATPostingSetup."VAT %" / 100 - VATAmount);
-
-        VATEntry.SetCurrentKey("Document No.", "Posting Date");
-        VATEntry.SetRange("Document No.", PurchInvHeader."No.");
-        VATEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
-        VATEntry.FindFirst;
-        VATEntry.TestField(Base, VATBase);
-        VATEntry.TestField(Amount, VATAmount);
-
-        GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", PurchInvHeader."No.");
-        GLEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
-        GLEntry.FindSet;
-        GLEntry.TestField("G/L Account No.", PurchLine."No.");
-        GLEntry.TestField(Amount, VATBase);
-
-        GLEntry.Next;
-        GLEntry.TestField("G/L Account No.", VATPostingSetup."Purchase VAT Account");
-        GLEntry.TestField(Amount, VATAmount);
     end;
 
     [Test]
@@ -201,163 +129,6 @@ codeunit 144200 Taxs
         if VATEntry.FindLast then;
         VATEntry.TestField(Base, 0.6 * AmountExclVAT);
         VATEntry.TestField(Amount, 0.6 * VATAmount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure PostingSalesCrMemoWithPostponedVAT()
-    var
-        GLEntry: Record "G/L Entry";
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
-        SalesCrMemoLn: Record "Sales Cr.Memo Line";
-        SalesHdr: Record "Sales Header";
-        SalesLn: Record "Sales Line";
-        VATEntry: Record "VAT Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        PostedDocNo: Code[20];
-    begin
-        // 1. Setup:
-        Initialize;
-
-        CreateSalesCrMemoWithVATPostingSetup(SalesHdr, SalesLn, VATPostingSetup);
-
-        // 2. Exercise:
-
-        PostedDocNo := PostSalesDocument(SalesHdr);
-
-        // 3. Verify:
-
-        SalesCrMemoHdr.Get(PostedDocNo);
-        SalesCrMemoHdr.TestField("Postponed VAT", true);
-        SalesCrMemoLn.CalcVATAmountLines(SalesCrMemoHdr, TempVATAmountLine);
-
-        VATEntry.SetCurrentKey("Document No.", "Posting Date");
-        VATEntry.SetRange("Document No.", SalesCrMemoHdr."No.");
-        VATEntry.SetRange("Posting Date", SalesCrMemoHdr."Posting Date");
-        VATEntry.FindFirst;
-        VATEntry.TestField("Postponed VAT", true);
-        VATEntry.TestField(Base, 0);
-        VATEntry.TestField(Amount, 0);
-        VATEntry.TestField("Unrealized Base", TempVATAmountLine."VAT Base");
-        VATEntry.TestField("Unrealized Amount", TempVATAmountLine."VAT Amount");
-
-        GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", SalesCrMemoHdr."No.");
-        GLEntry.SetRange("Posting Date", SalesCrMemoHdr."Posting Date");
-        GLEntry.FindSet;
-        GLEntry.TestField("G/L Account No.", SalesLn."No.");
-        GLEntry.TestField(Amount, TempVATAmountLine."VAT Base");
-
-        GLEntry.Next;
-        GLEntry.TestField("G/L Account No.", VATPostingSetup."Sales VAT Postponed Account");
-        GLEntry.TestField(Amount, TempVATAmountLine."VAT Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure ConfirmationVATForSalesCrMemo()
-    var
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
-        SalesCrMemoLn: Record "Sales Cr.Memo Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        NewDate: Date;
-    begin
-        // 1. Setup:
-        Initialize;
-
-        SetupConfirmationVAT(VATPostingSetup, SalesCrMemoHdr, NewDate);
-
-        // 2. Exercise:
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // 3. Verify:
-        CheckSalesCrMemo(SalesCrMemoHdr."No.", false, true, NewDate);
-
-        SalesCrMemoLn.CalcVATAmountLines(SalesCrMemoHdr, TempVATAmountLine);
-
-        TempVATAmountLine."VAT Amount" := -TempVATAmountLine."VAT Amount";
-        TempVATAmountLine."VAT Base" := -TempVATAmountLine."VAT Base";
-        CheckGLEntries(SalesCrMemoHdr."No.", NewDate, VATPostingSetup, TempVATAmountLine);
-        CheckVATEntries(SalesCrMemoHdr."No.", NewDate, TempVATAmountLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure StornoConfirmationVATForSalesCrMemo()
-    var
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
-        SalesCrMemoLn: Record "Sales Cr.Memo Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        NewDate: Date;
-    begin
-        // 1. Setup:
-        Initialize;
-
-        SetupConfirmationVAT(VATPostingSetup, SalesCrMemoHdr, NewDate);
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // 2. Exercise
-        // storno
-        LibraryVariableStorage.Enqueue(NewDate);
-        LibraryVariableStorage.Enqueue(true);
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // 3. Verify:
-        CheckSalesCrMemo(SalesCrMemoHdr."No.", true, false, NewDate);
-
-        SalesCrMemoLn.CalcVATAmountLines(SalesCrMemoHdr, TempVATAmountLine);
-
-        CheckGLEntries(SalesCrMemoHdr."No.", NewDate, VATPostingSetup, TempVATAmountLine);
-        CheckVATEntries(SalesCrMemoHdr."No.", NewDate, TempVATAmountLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('RequestPagePostOrCorrectPostponedVATHandler,YesConfirm,MessageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure CorrectionDateConfirmationVATForSalesCrMemo()
-    var
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
-        SalesCrMemoLn: Record "Sales Cr.Memo Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        NewDate: Date;
-    begin
-        // 1. Setup:
-        Initialize;
-
-        SetupConfirmationVAT(VATPostingSetup, SalesCrMemoHdr, NewDate);
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // storno
-        LibraryVariableStorage.Enqueue(NewDate);
-        LibraryVariableStorage.Enqueue(true);
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // 2. Exercise
-        // correction new date
-        NewDate := CalcDate('<+10D>', SalesCrMemoHdr."Posting Date");
-        LibraryVariableStorage.Enqueue(NewDate);
-        LibraryVariableStorage.Enqueue(false);
-        PostOrCorrectPostponedVAT(SalesCrMemoHdr);
-
-        // 3. Verify:
-        CheckSalesCrMemo(SalesCrMemoHdr."No.", false, true, NewDate);
-
-        SalesCrMemoLn.CalcVATAmountLines(SalesCrMemoHdr, TempVATAmountLine);
-
-        TempVATAmountLine."VAT Amount" := -TempVATAmountLine."VAT Amount";
-        TempVATAmountLine."VAT Base" := -TempVATAmountLine."VAT Base";
-        CheckGLEntries(SalesCrMemoHdr."No.", NewDate, VATPostingSetup, TempVATAmountLine);
-        CheckVATEntries(SalesCrMemoHdr."No.", NewDate, TempVATAmountLine);
     end;
 
     [Test]
@@ -496,62 +267,6 @@ codeunit 144200 Taxs
         PurchInvHeader.Get(PostedDocumentNo);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure VATRegistrationInMultipleCountriesSales()
-    var
-        Customer: Record Customer;
-        RegistrationCountryRegion: Record "Registration Country/Region";
-        SalesHdr: Record "Sales Header";
-        SalesLn: Record "Sales Line";
-    begin
-        // 1 .Setup
-        Initialize;
-
-        CreateCustomer(Customer);
-        CreateRegistrationCountry(
-          RegistrationCountryRegion, RegistrationCountryRegion."Account Type"::Customer, Customer."No.");
-
-        CreateSalesDocument(
-          SalesHdr, SalesLn, SalesHdr."Document Type"::Order, Customer."No.", SalesLn.Type::"G/L Account", '');
-
-        // 2. Exercise
-        SalesHdr.Validate("VAT Country/Region Code", RegistrationCountryRegion."Country/Region Code");
-
-        // 3. Verify
-        SalesHdr.TestField("VAT Registration No.", RegistrationCountryRegion."VAT Registration No.");
-        SalesHdr.TestField("VAT Bus. Posting Group", RegistrationCountryRegion."VAT Bus. Posting Group");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure VATRegistrationInMultipleCountriesPurchase()
-    var
-        Vendor: Record Vendor;
-        RegistrationCountryRegion: Record "Registration Country/Region";
-        PurchHdr: Record "Purchase Header";
-        PurchLn: Record "Purchase Line";
-    begin
-        // 1 .Setup
-        Initialize;
-
-        CreateVendor(Vendor);
-        CreateRegistrationCountry(
-          RegistrationCountryRegion, RegistrationCountryRegion."Account Type"::Vendor, Vendor."No.");
-
-        CreatePurchaseDocument(
-          PurchHdr, PurchLn, PurchHdr."Document Type"::Order, Vendor."No.", PurchLn.Type::"G/L Account", '');
-
-        // 2. Exercise
-        PurchHdr.Validate("VAT Country/Region Code", RegistrationCountryRegion."Country/Region Code");
-
-        // 3. Verify
-        PurchHdr.TestField("VAT Registration No.", RegistrationCountryRegion."VAT Registration No.");
-        PurchHdr.TestField("VAT Bus. Posting Group", RegistrationCountryRegion."VAT Bus. Posting Group");
-    end;
-
     local procedure CreateCurrencyCode(): Code[10]
     var
         CurrencyCode: Code[10];
@@ -594,12 +309,6 @@ codeunit 144200 Taxs
         GLAcc.Modify(true);
     end;
 
-    local procedure CreateNonDeductibleVATSetup(var NonDeductibleVATSetup: Record "Non Deductible VAT Setup"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; FromDate: Date; NonDeductibleVATPer: Decimal)
-    begin
-        LibraryTax.CreateNonDeductibleVATSetup(
-          NonDeductibleVATSetup, VATBusPostingGroupCode, VATProdPostingGroupCode, FromDate, NonDeductibleVATPer)
-    end;
-
     local procedure CreatePurchaseDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; LineType: Option; LineNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
@@ -615,24 +324,6 @@ codeunit 144200 Taxs
     local procedure CreatePurchaseInvoice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; VendorNo: Code[20]; LineType: Option; LineNo: Code[20])
     begin
         CreatePurchaseDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, VendorNo, LineType, LineNo);
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    local procedure CreateRegistrationCountry(var RegistrationCountryRegion: Record "Registration Country/Region"; AccountType: Option; AccountNo: Code[20])
-    var
-        CountryRegion: Record "Country/Region";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
-    begin
-        LibraryERM.FindCountryRegion(CountryRegion);
-        LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
-
-        RegistrationCountryRegion.Init();
-        RegistrationCountryRegion."Account Type" := AccountType;
-        RegistrationCountryRegion."Account No." := AccountNo;
-        RegistrationCountryRegion."Country/Region Code" := CountryRegion.Code;
-        RegistrationCountryRegion."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegion.Code);
-        RegistrationCountryRegion."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
-        RegistrationCountryRegion.Insert(true);
     end;
 
     local procedure CreateSalesDocument(var SalesHdr: Record "Sales Header"; var SalesLn: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; LineType: Option; LineNo: Code[20])
@@ -682,12 +373,9 @@ codeunit 144200 Taxs
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT %", VATPer);
         VATPostingSetup.Validate("VAT Identifier", Format(VATPostingSetup."VAT %"));
-        VATPostingSetup.Validate("Non Deduct. VAT Corr. Account", GetNewGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", GetNewGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Delay Account", GetNewGLAccountNo);
         VATPostingSetup.Validate("Sales VAT Account", GetNewGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Postponed Account", GetNewGLAccountNo);
-        VATPostingSetup.Validate("Allow Non Deductible VAT", true);
         VATPostingSetup.Modify(true);
     end;
 
@@ -704,29 +392,11 @@ codeunit 144200 Taxs
         exit(GLAccount."No.");
     end;
 
-    local procedure CheckGLEntries(DocumentNo: Code[20]; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; VATAmountLine: Record "VAT Amount Line")
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("Posting Date", PostingDate);
-        GLEntry.SetRange("G/L Account No.", VATPostingSetup."Sales VAT Postponed Account");
-        GLEntry.FindLast;
-        GLEntry.TestField(Amount, VATAmountLine."VAT Amount");
-
-        GLEntry.SetRange("G/L Account No.", VATPostingSetup."Sales VAT Account");
-        GLEntry.FindLast;
-        GLEntry.TestField(Amount, -VATAmountLine."VAT Amount");
-    end;
-
     local procedure CheckSalesCrMemo(DocumentNo: Code[20]; PostponedVAT: Boolean; PostponedVATRealized: Boolean; VATDate: Date)
     var
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHdr.Get(DocumentNo);
-        SalesCrMemoHdr.TestField("Postponed VAT", PostponedVAT);
-        SalesCrMemoHdr.TestField("Postponed VAT Realized", PostponedVATRealized);
         SalesCrMemoHdr.TestField("VAT Date", VATDate);
     end;
 
@@ -738,18 +408,10 @@ codeunit 144200 Taxs
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.FindLast;
-        VATEntry.TestField("Postponed VAT", true);
         VATEntry.TestField(Base, -VATAmountLine."VAT Base");
         VATEntry.TestField(Amount, -VATAmountLine."VAT Amount");
         VATEntry.TestField("Unrealized Base", 0);
         VATEntry.TestField("Unrealized Amount", 0);
-    end;
-
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    local procedure PostOrCorrectPostponedVAT(var SalesCrMemoHdr: Record "Sales Cr.Memo Header")
-    begin
-        SalesCrMemoHdr.SetRecFilter;
-        REPORT.RunModal(REPORT::"Post or Correct Postponed VAT", true, false, SalesCrMemoHdr);
     end;
 
     local procedure PostPurchaseDocument(var PurchHeader: Record "Purchase Header"): Code[20]
@@ -786,15 +448,6 @@ codeunit 144200 Taxs
         CoInfo.Modify();
     end;
 
-    local procedure UpdateSalesSetup()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Credit Memo Confirmation" := true;
-        SalesReceivablesSetup.Modify();
-    end;
-
     local procedure UpdateSourceCodeSetup()
     var
         SourceCode: Record "Source Code";
@@ -815,21 +468,6 @@ codeunit 144200 Taxs
         LibraryVariableStorage.Dequeue(RefExchRate);
         ChangeExchangeRate.RefExchRate.SetValue(RefExchRate);
         ChangeExchangeRate.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Postponing VAT on Sales Cr.Memo will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure RequestPagePostOrCorrectPostponedVATHandler(var PostOrCorrectPostponedVAT: TestRequestPage "Post or Correct Postponed VAT")
-    var
-        NewDate: Date;
-        Correction: Boolean;
-    begin
-        NewDate := LibraryVariableStorage.DequeueDate;
-        Correction := LibraryVariableStorage.DequeueBoolean;
-        PostOrCorrectPostponedVAT.VATDate.SetValue(NewDate);
-        PostOrCorrectPostponedVAT.CorrectEntries.SetValue(Correction);
-        PostOrCorrectPostponedVAT.OK.Invoke;
     end;
 
     [RequestPageHandler]

@@ -23,7 +23,7 @@ page 370 "Bank Account Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)
@@ -295,6 +295,10 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Statement Import Format"; "Bank Statement Import Format")
                 {
@@ -451,6 +455,17 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the program to calculate VAT for accounts and balancing accounts on the journal line of the selected bank account.';
                     Importance = Additional;
+                }
+                group("Payment Matching")
+                {
+                    Caption = 'Payment Matching';
+                    field("Disable Automatic Pmt Matching"; "Disable Automatic Pmt Matching")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Disable Automatic Payment Matching';
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether to disable automatic payment matching after importing bank transactions for this bank account.';
+                    }
                 }
                 group("Payment Match Tolerance")
                 {

@@ -3,9 +3,12 @@ report 31062 "Tariff Number Import (XML)"
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
 
     ApplicationArea = Basic, Suite;
-    Caption = 'Tariff Number Import (XML)';
+    Caption = 'Tariff Number Import (XML) (Obsolete)';
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -30,8 +33,6 @@ report 31062 "Tariff Number Import (XML)"
                 lteDescription: Text[250];
                 linRowNo: Integer;
                 lteTempText: Text[1024];
-                lteFullDescription: Text[250];
-                lteFullDescriptionENG: Text[250];
                 linRecords: Integer;
             begin
                 lfiFile.Open(gteFileName);
@@ -67,21 +68,11 @@ report 31062 "Tariff Number Import (XML)"
                                     ldaEndingDate := RFormatDa(ldnSourceFieldElement.Value);
 
                             Clear(lteDescription);
-                            Clear(lteFullDescription);
                             if lcuDOMmgt.FindNode(ldnSourceCurrElement, Node_popis, ldnSourceFieldElement) then
                                 if ldnSourceFieldElement.Value <> '' then begin
                                     lteTempText := CopyStr(ldnSourceFieldElement.Value, 1, MaxStrLen(lteTempText));
                                     lteTempText := ConvertText(lteTempText);
                                     lteDescription := CopyStr(lteTempText, 1, MaxStrLen(lteDescription));
-                                    lteFullDescription := CopyStr(lteTempText, 1, MaxStrLen(lteFullDescription));
-                                end;
-
-                            Clear(lteFullDescriptionENG);
-                            if lcuDOMmgt.FindNode(ldnSourceCurrElement, Node_popisan, ldnSourceFieldElement) then
-                                if ldnSourceFieldElement.Value <> '' then begin
-                                    lteTempText := CopyStr(ldnSourceFieldElement.Value, 1, MaxStrLen(lteTempText));
-                                    lteTempText := ConvertText(lteTempText);
-                                    lteFullDescriptionENG := CopyStr(lteTempText, 1, MaxStrLen(lteFullDescriptionENG));
                                 end;
 
                             Clear(lcoUOMCode);
@@ -96,8 +87,6 @@ report 31062 "Tariff Number Import (XML)"
                                 if lteDescription <> '' then
                                     greTempTariffNumber.Description := CopyStr(lteDescription, 1, MaxStrLen(greTempTariffNumber.Description));
                                 greTempTariffNumber."Supplem. Unit of Measure Code" := lcoUOMCode;
-                                greTempTariffNumber."Full Name" := lteFullDescription;
-                                greTempTariffNumber."Full Name ENG" := lteFullDescriptionENG;
                                 greTempTariffNumber.Insert();
                             end;
                         end;
@@ -130,7 +119,7 @@ report 31062 "Tariff Number Import (XML)"
                         repeat
                             lreTUOM := lreUOM;
                             lreTUOM.Insert();
-                        until lreUOM.Next = 0;
+                        until lreUOM.Next() = 0;
                     end;
 
                     repeat
@@ -142,8 +131,6 @@ report 31062 "Tariff Number Import (XML)"
                         lreTariffNumber.Init();
                         lreTariffNumber."No." := "No.";
                         lreTariffNumber.Description := Description;
-                        lreTariffNumber."Full Name" := "Full Name";
-                        lreTariffNumber."Full Name ENG" := "Full Name ENG";
                         if ("Supplem. Unit of Measure Code" <> '') and ("Supplem. Unit of Measure Code" <> Text_uomc) then begin
                             lreTariffNumber."Supplementary Units" := true;
                             lreTUOM.SetRange("Tariff Number UOM Code", "Supplem. Unit of Measure Code");
@@ -151,7 +138,7 @@ report 31062 "Tariff Number Import (XML)"
                                 lreTariffNumber."Supplem. Unit of Measure Code" := lreTUOM.Code;
                         end;
                         lreTariffNumber.Insert(true);
-                    until Next = 0;
+                    until Next() = 0;
                 end;
 
                 if GuiAllowed then
@@ -229,7 +216,6 @@ report 31062 "Tariff Number Import (XML)"
         Node_od: Label 'od';
         Node_do: Label 'do';
         Node_popis: Label 'popis';
-        Node_popisan: Label 'popisan';
         Node_mj_i: Label 'mj_i';
         Text_uomc: Label 'ZZZ';
         Text_swapsource1: Label '&lt;';

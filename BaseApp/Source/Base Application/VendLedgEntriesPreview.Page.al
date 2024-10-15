@@ -67,6 +67,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of vendor used on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
@@ -74,6 +77,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field(Description; Description)
@@ -313,6 +319,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account used on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -320,6 +329,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
@@ -327,6 +339,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
@@ -334,6 +349,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
@@ -341,6 +359,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Transit No."; "Transit No.")
                 {
@@ -348,6 +369,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(IBAN; IBAN)
                 {
@@ -355,6 +379,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
@@ -362,12 +389,18 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on credit in local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Compensation; Compensation)
                 {
@@ -375,6 +408,9 @@ page 128 "Vend. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies whether the entry is compensation''s entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -517,13 +553,13 @@ page 128 "Vend. Ledg. Entries Preview"
             repeat
                 Rec := TempVendLedgerEntry;
                 Insert;
-            until TempVendLedgerEntry.Next = 0;
+            until TempVendLedgerEntry.Next() = 0;
 
         if TempDetailedVendLedgEntry2.FindSet then
             repeat
                 TempDetailedVendLedgEntry := TempDetailedVendLedgEntry2;
                 TempDetailedVendLedgEntry.Insert();
-            until TempDetailedVendLedgEntry2.Next = 0;
+            until TempDetailedVendLedgEntry2.Next() = 0;
     end;
 
     local procedure CalcAmounts(var AmountFCY: Decimal; var AmountLCY: Decimal; var RemainingAmountFCY: Decimal; var RemainingAmountLCY: Decimal; var OriginalAmountFCY: Decimal; var OriginalAmountLCY: Decimal)
@@ -550,7 +586,7 @@ page 128 "Vend. Ledg. Entries Preview"
                 end;
                 RemainingAmountFCY += TempDetailedVendLedgEntry.Amount;
                 RemainingAmountLCY += TempDetailedVendLedgEntry."Amount (LCY)";
-            until TempDetailedVendLedgEntry.Next = 0;
+            until TempDetailedVendLedgEntry.Next() = 0;
     end;
 
     local procedure DrilldownAmounts(AmountType: Option Amount,"Remaining Amount","Original Amount")

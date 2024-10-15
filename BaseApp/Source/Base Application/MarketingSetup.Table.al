@@ -110,11 +110,9 @@ table 5079 "Marketing Setup"
             Caption = 'Default Sales Cycle Code';
             TableRelation = "Sales Cycle";
         }
-        field(35; "Attachment Storage Type"; Option)
+        field(35; "Attachment Storage Type"; Enum "Setup Attachment Storage Type")
         {
             Caption = 'Attachment Storage Type';
-            OptionCaption = 'Embedded,Disk File';
-            OptionMembers = Embedded,"Disk File";
         }
         field(36; "Attachment Storage Location"; Text[250])
         {
@@ -267,9 +265,9 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Inherit Registered Name';
             InitValue = true;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(78; "Exchange Tenant Id Key"; Guid)
         {

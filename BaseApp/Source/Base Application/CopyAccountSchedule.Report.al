@@ -21,7 +21,7 @@ report 26 "Copy Account Schedule"
                 if SourceAccScheduleLine.FindSet then
                     repeat
                         CreateNewAccountScheduleLine(NewAccScheduleName, SourceAccScheduleLine);
-                    until SourceAccScheduleLine.Next = 0;
+                    until SourceAccScheduleLine.Next() = 0;
             end;
 
             trigger OnPreDataItem()

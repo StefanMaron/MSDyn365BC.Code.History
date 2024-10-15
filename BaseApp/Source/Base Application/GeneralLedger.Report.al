@@ -357,7 +357,7 @@ report 11771 "General Ledger"
                                 NetChangeCredit += GLAccount."Credit Amount";
                                 EndDebit += GLAccount."Debit Amount";
                                 EndCredit += GLAccount."Credit Amount";
-                            until GLAccount.Next = 0;
+                            until GLAccount.Next() = 0;
                         end;
                     end;
                 if (StartDebit = 0) and (StartCredit = 0) and (EndDebit = 0) and (EndCredit = 0) then

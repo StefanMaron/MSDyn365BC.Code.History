@@ -1,4 +1,4 @@
-﻿table 113 "Sales Invoice Line"
+table 113 "Sales Invoice Line"
 {
     Caption = 'Sales Invoice Line';
     DrillDownPageID = "Posted Sales Invoice Lines";
@@ -464,11 +464,18 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -566,8 +573,12 @@
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '15.3';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
@@ -575,6 +586,9 @@
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31010; "Prepayment Cancelled"; Boolean)
         {
@@ -608,6 +622,9 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -662,7 +679,7 @@
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::"Posted Invoice");
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not SalesDocLineComments.IsEmpty then
+        if not SalesDocLineComments.IsEmpty() then
             SalesDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(
@@ -727,7 +744,7 @@
                   ("VAT Doc. Letter No." = '') and "Prepayment Line" and ("Amount Including VAT" <> 0));
                 // NAVCZ
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
@@ -814,7 +831,7 @@
                         TempSalesShptLine := SalesShptLine;
                         if TempSalesShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure CalcShippedSaleNotReturned(var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -840,7 +857,7 @@
                       TotalCostLCY + TempItemLedgEntry."Cost Amount (Expected)" + TempItemLedgEntry."Cost Amount (Actual)";
                     TotalQtyBase := TotalQtyBase + TempItemLedgEntry.Quantity;
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
 
         if ExactCostReverse and (ShippedQtyNotReturned <> 0) and (TotalQtyBase <> 0) then
             RevUnitCostLCY := Abs(TotalCostLCY / TotalQtyBase) * "Qty. per Unit of Measure"
@@ -891,7 +908,7 @@
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
@@ -922,7 +939,6 @@
 
     local procedure RoundAmount(SalesInvHeader: Record "Sales Invoice Header")
     var
-        VATCoefficientRounded: Codeunit "VAT Coefficient Rounded";
         NoVAT: Boolean;
     begin
         // NAVCZ
@@ -968,7 +984,6 @@
                   SalesInvHeader."Posting Date", SalesInvHeader."Currency Code",
                   TotalSalesInvLine."VAT Difference", SalesInvHeader."Currency Factor")) -
               TotalSalesInvLineLCY."VAT Difference";
-            VATCoefficientRounded.RoundSalesInvoiceLine(Rec, SalesInvHeader);
         end;
 
         IncrAmount(TotalSalesInvLineLCY, SalesInvHeader);

@@ -2230,7 +2230,7 @@ report 35 "Document Entries"
                     if not DocEntry.Find('-') then
                         CurrReport.Break();
                 end else
-                    if DocEntry.Next = 0 then
+                    if DocEntry.Next() = 0 then
                         CurrReport.Break();
                 CurrencyCaptionRBC := Text003;
             end;
@@ -2347,7 +2347,7 @@ report 35 "Document Entries"
             repeat
                 DocEntry := NewDocEntry;
                 DocEntry.Insert();
-            until NewDocEntry.Next = 0;
+            until NewDocEntry.Next() = 0;
         NewDocEntry := TempDocumentEntry;
     end;
 

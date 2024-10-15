@@ -1,4 +1,4 @@
-﻿page 29 "Vendor Ledger Entries"
+page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -12,6 +12,7 @@
     SourceTableView = SORTING("Entry No.")
                       ORDER(Descending);
     UsageCategory = History;
+    AdditionalSearchTerms = 'Vendor Check, Pay Vendor, Vendor Bills';
 
     layout
     {
@@ -80,6 +81,9 @@
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field(Description; Description)
@@ -313,6 +317,9 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -320,6 +327,9 @@
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
@@ -327,6 +337,9 @@
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
@@ -334,6 +347,9 @@
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
@@ -341,6 +357,9 @@
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Transit No."; "Transit No.")
                 {
@@ -348,6 +367,9 @@
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(IBAN; IBAN)
                 {
@@ -355,6 +377,9 @@
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
@@ -362,12 +387,18 @@
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount on credit card. The amount is in the local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Reversed; Reversed)
                 {
@@ -416,6 +447,9 @@
                     Editable = false;
                     ToolTip = 'Specifies to suggest compensation of entries in the same currency for the vendor ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -588,7 +622,7 @@
                         VendEntryApplyPostEntries.ApplyVendEntryFormEntry(VendLedgEntry);
                         VendLedgEntry.Get(VendLedgEntry."Entry No.");
                         Rec := VendLedgEntry;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(UnapplyEntries)

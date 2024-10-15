@@ -1,4 +1,4 @@
-﻿codeunit 5626 "FA General Report"
+codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
 
@@ -265,11 +265,12 @@
                         FA."FA Posting Group" := FADeprBook."FA Posting Group";
                         FA.Modify();
                     end;
-            until FA.Next = 0;
+            until FA.Next() = 0;
         Commit();
         Window.Close;
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     procedure SetFATaxDeprGroup(var FA2: Record "Fixed Asset"; DeprBookCode: Code[10])
     var
         FA: Record "Fixed Asset";
@@ -289,12 +290,13 @@
                         FA."Tax Depreciation Group Code" := FADeprBook."Depreciation Group Code";
                         FA.Modify();
                     end;
-            until FA.Next = 0;
+            until FA.Next() = 0;
         Commit();
         Window.Close;
         // NAVCZ
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure xCalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; var lreFAPostGroupBuffer: Record "FA Posting Group Buffer" temporary; var ldeTotAmount: Decimal): Decimal
     begin
@@ -343,7 +345,7 @@
                             lreFAPostGroupBuffer.Modify();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
             // CALCSUMS(Amount);
             // EXIT(Amount);

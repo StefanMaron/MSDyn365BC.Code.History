@@ -35,7 +35,7 @@ table 11757 "Reg. No. Srv Config"
 
     trigger OnInsert()
     begin
-        if not IsEmpty then
+        if not IsEmpty() then
             Error(CannotInsertMultipleSettingsErr);
     end;
 

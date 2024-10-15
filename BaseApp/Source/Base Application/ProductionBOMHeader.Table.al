@@ -46,7 +46,7 @@ table 99000771 "Production BOM Header"
                 if Item.FindSet then
                     repeat
                         ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code");
-                    until Item.Next = 0;
+                    until Item.Next() = 0;
             end;
         }
         field(22; "Low-Level Code"; Integer)
@@ -99,7 +99,7 @@ table 99000771 "Production BOM Header"
                             repeat
                                 ProdBOMVersion.Status := ProdBOMVersion.Status::Closed;
                                 ProdBOMVersion.Modify();
-                            until ProdBOMVersion.Next = 0;
+                            until ProdBOMVersion.Next() = 0;
                     end else
                         Status := xRec.Status;
                 end;
@@ -144,7 +144,7 @@ table 99000771 "Production BOM Header"
         Item: Record Item;
     begin
         Item.SetRange("Production BOM No.", "No.");
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(Text000);
 
         ProdBOMLine.SetRange("Production BOM No.", "No.");

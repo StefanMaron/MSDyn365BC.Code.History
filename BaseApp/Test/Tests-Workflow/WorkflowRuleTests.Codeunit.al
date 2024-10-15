@@ -578,7 +578,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
         WorkflowStepInstance.SetRange("Function Name", WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
         Assert.RecordCount(WorkflowStepInstance, 2);
-        WorkflowStepInstance.FindSet;
+        WorkflowStepInstance.FindSet();
         repeat
             WorkflowRule.SetRange("Workflow Code", Workflow.Code);
             WorkflowRule.SetRange("Workflow Step ID", WorkflowStepInstance."Workflow Step ID");

@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -29,8 +29,7 @@
                       DATABASE::Job, "Job No.",
                       DATABASE::"Job Task", "Job Task No.",// NAVCZ
                       DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-                      DATABASE::"Resource Group", "Resource Group No.",
-                      DATABASE::"Fixed Asset", "FA No."); // NAVCZ
+                      DATABASE::"Resource Group", "Resource Group No.");
                     exit;
                 end;
 
@@ -49,8 +48,7 @@
                   DATABASE::Job, "Job No.",
                   DATABASE::"Job Task", "Job Task No.",// NAVCZ
                   DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-                  DATABASE::"Resource Group", "Resource Group No.",
-                  DATABASE::"Fixed Asset", "FA No."); // NAVCZ
+                  DATABASE::"Resource Group", "Resource Group No.");
                 Validate("Country/Region Code", Job."Bill-to Country/Region Code");
                 "Price Calculation Method" := Job.GetPriceCalculationMethod();
                 "Cost Calculation Method" := Job.GetCostCalculationMethod();
@@ -110,10 +108,18 @@
                     "Applies-from Entry" := 0;
                     CheckedAvailability := false;
                     "Job Planning Line No." := 0;
+                    if Type = Type::Item then begin
+                        "Bin Code" := '';
+                        if ("No." <> '') and ("Location Code" <> '') then begin
+                            GetLocation("Location Code");
+                            if IsDefaultBin() then
+                                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                        end;
+                    end;
                     if "No." = '' then begin
                         UpdateDimensions;
                         exit;
-                    end
+                    end;
                 end;
 
                 case Type of
@@ -139,9 +145,6 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
-            var
-                ItemUoM: Record "Item Unit of Measure";
-                IntegerText: Label 'must be integral number';
             begin
                 "Quantity (Base)" :=
                   UOMMgt.CalcBaseQty(
@@ -156,20 +159,6 @@
                     ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
 
                 // NAVCZ
-                if Type = Type::Item then begin
-                    if not ItemUoM.Get("No.", "Unit of Measure Code") then
-                        ItemUoM.Init();
-                    if ItemUoM."Indivisible Unit" then
-                        if Quantity <> Round(Quantity, 1) then
-                            FieldError(Quantity, IntegerText);
-                    if Item.Get("No.") then
-                        if not ItemUoM.Get("No.", Item."Base Unit of Measure") then
-                            ItemUoM.Init();
-                    if ItemUoM."Indivisible Unit" then
-                        if "Quantity (Base)" <> Round("Quantity (Base)", 1) then
-                            FieldError("Quantity (Base)", IntegerText);
-                end;
-
                 GetGLSetup;
                 if GLSetup."Mark Neg. Qty as Correction" then
                     Correction := Quantity < 0;
@@ -241,8 +230,7 @@
                   DATABASE::Job, "Job No.",
                   DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
                   // NAVCZ
-                  DATABASE::"Job Task", "Job Task No.",
-                  DATABASE::"Fixed Asset", "FA No.");
+                  DATABASE::"Job Task", "Job Task No.");
                 // NAVCZ
             end;
         }
@@ -310,6 +298,10 @@
                 Location.TestField("Directed Put-away and Pick", false);
                 Validate(Quantity);
                 xSetGPPGfromSKU; // NAVCZ
+                if (Type = Type::Item) and ("Location Code" <> xRec."Location Code") then
+                    if ("Location Code" <> '') and ("No." <> '') then
+                        if IsDefaultBin() then
+                            WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
             end;
         }
         field(22; Chargeable; Boolean)
@@ -636,11 +628,9 @@
                 UpdateAllAmounts;
             end;
         }
-        field(1003; "Line Type"; Option)
+        field(1003; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -848,7 +838,7 @@
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
 
-                    "Line Type" := JobPlanningLine."Line Type" + 1;
+                    "Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Remaining Qty.", CalcQtyFromBaseQty(JobPlanningLine."Remaining Qty. (Base)" - "Quantity (Base)"));
                 end else
                     Validate("Remaining Qty.", 0);
@@ -997,6 +987,11 @@
             Caption = 'Lot No.';
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            Editable = false;
+        }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
@@ -1008,46 +1003,34 @@
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "FA No." = '' then
-                    Clear("Maintenance Code");
-                if "FA No." <> xRec."FA No." then
-                    CreateDim(
-                      DATABASE::"Fixed Asset", "FA No.",
-                      DimMgt.TypeToTableID2(Type), "No.",
-                      DATABASE::"Resource Group", "Resource Group No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Job Task", "Job Task No.");
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31044; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
 
-            trigger OnValidate()
-            begin
-                if "Maintenance Code" <> '' then
-                    TestField("FA No.");
-            end;
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -1059,26 +1042,41 @@
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1';
+            ObsoleteTag = '18.0';
         }
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Whse. Net Change Template"; Code[10])
         {
@@ -1357,6 +1355,38 @@
         OnAfterSetUpNewLine(Rec, LastJobJnlLine, JobJnlTemplate, JobJnlBatch);
     end;
 
+    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        if IsHandled then
+            exit;
+
+        TableID[1] := Type1;
+        No[1] := No1;
+        TableID[2] := Type2;
+        No[2] := No2;
+        TableID[3] := Type3;
+        No[3] := No3;
+        // NAVCZ
+        TableID[4] := Type4;
+        No[4] := No4;
+        // NAVCZ
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+
+#if not CLEAN18
+    [Obsolete('Merge to W1', '18.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -1388,6 +1418,7 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
+#endif
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -1939,7 +1970,6 @@
           DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
           DATABASE::Job, "Job No.",
           // NAVCZ
-          DATABASE::"Fixed Asset", "FA No.",
           DATABASE::"Job Task", "Job Task No.",
           // NAVCZ
           DATABASE::"Resource Group", "Resource Group No.");
@@ -1959,6 +1989,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIntrastat()
     var
         Text1220000: Label '%1 is required for Item %2.';
@@ -1985,6 +2016,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsIntrastatTransaction() IsIntrastat: Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -1993,6 +2025,7 @@
         exit(CountryRegion.IsIntrastat("Country/Region Code", false));
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure xSetGPPGfromSKU()
     var
@@ -2079,6 +2112,11 @@
         "Lot No." := JobPlanningLine."Lot No.";
 
         OnAfterCopyTrackingFromJobPlanningLine(rec, JobPlanningLine);
+    end;
+
+    local procedure IsDefaultBin() Result: Boolean
+    begin
+        Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
     end;
 
     [IntegrationEvent(false, false)]

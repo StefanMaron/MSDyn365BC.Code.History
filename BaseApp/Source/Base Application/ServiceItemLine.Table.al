@@ -359,7 +359,7 @@ table 5901 "Service Item Line"
                                 ServOrderAlloc.Status := ServOrderAlloc.Status::"Reallocation Needed";
                                 ServOrderAlloc."Reason Code" := '';
                                 ServOrderAlloc.Modify();
-                            until ServOrderAlloc.Next = 0;
+                            until ServOrderAlloc.Next() = 0;
                     end;
 
                     RepairStatusPriority := RepairStatus.Priority;
@@ -376,7 +376,7 @@ table 5901 "Service Item Line"
                                 RepairStatusPriority := RepairStatus2.Priority;
                                 UseLineNo := ServItemLine."Line No.";
                             end;
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                     if "Line No." <> UseLineNo then begin
                         ServItemLine.Get("Document Type", "Document No.", UseLineNo);
                         RepairStatus.Get(ServItemLine."Repair Status Code");
@@ -384,7 +384,7 @@ table 5901 "Service Item Line"
                         RepairStatus.Get("Repair Status Code");
                     ServHeader2.Get("Document Type", "Document No.");
                     ServHeader3 := ServHeader2;
-                    if ServHeader2.Status.AsInteger() <> RepairStatus."Service Order Status" then begin
+                    if ServHeader2.Status <> RepairStatus."Service Order Status" then begin
                         ServHeader2.SetValidatingFromLines(true);
                         if ServHeader2."Finishing Date" = 0D then
                             ServHeader2.Validate("Finishing Date", "Finishing Date");
@@ -710,7 +710,7 @@ table 5901 "Service Item Line"
                         repeat
                             ServLine.Validate("Warranty Disc. %", "Warranty % (Parts)");
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                 end;
             end;
         }
@@ -744,7 +744,7 @@ table 5901 "Service Item Line"
                         repeat
                             ServLine.Validate("Warranty Disc. %", "Warranty % (Labor)");
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                 end;
             end;
         }
@@ -895,7 +895,7 @@ table 5901 "Service Item Line"
                     LoanerEntry.SetRange("Document No.", "Document No.");
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
-                    if not LoanerEntry.IsEmpty then
+                    if not LoanerEntry.IsEmpty() then
                         Error(
                           Text026,
                           FieldCaption("Loaner No."))
@@ -907,7 +907,7 @@ table 5901 "Service Item Line"
                     LoanerEntry.SetRange("Document No.", "Document No.");
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
-                    if not LoanerEntry.IsEmpty then begin
+                    if not LoanerEntry.IsEmpty() then begin
                         GetServHeader;
                         Error(
                           Text028,
@@ -977,7 +977,7 @@ table 5901 "Service Item Line"
                     repeat
                         ServLine.Validate("Fault Reason Code", "Fault Reason Code");
                         ServLine.Modify();
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
             end;
         }
         field(32; "Service Price Group Code"; Code[10])
@@ -1038,7 +1038,7 @@ table 5901 "Service Item Line"
                         ServLine."Service Price Group Code" := "Service Price Group Code";
                         ServLine."Serv. Price Adjmt. Gr. Code" := "Serv. Price Adjmt. Gr. Code";
                         ServLine.Modify();
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
             end;
         }
         field(33; "Fault Area Code"; Code[10])
@@ -1374,7 +1374,7 @@ table 5901 "Service Item Line"
             LoanerEntry.SetRange("Document No.", "Document No.");
             LoanerEntry.SetRange("Loaner No.", "Loaner No.");
             LoanerEntry.SetRange(Lent, true);
-            if not LoanerEntry.IsEmpty then
+            if not LoanerEntry.IsEmpty() then
                 Error(
                   Text006,
                   TableCaption, "Document No.", "Line No.", FieldCaption("Loaner No."), "Loaner No.");
@@ -1512,7 +1512,7 @@ table 5901 "Service Item Line"
                     ServLine."Service Item No." := "Service Item No.";
                     ServLine."Service Item Serial No." := "Serial No.";
                     ServLine.Modify(true);
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
 
             ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
@@ -1524,7 +1524,7 @@ table 5901 "Service Item Line"
                     ServOrderAlloc."Service Item No." := "Service Item No.";
                     ServOrderAlloc."Service Item Serial No." := "Serial No.";
                     ServOrderAlloc.Modify(true);
-                until ServOrderAlloc.Next = 0;
+                until ServOrderAlloc.Next() = 0;
         end;
 
         ShowUpdateExistingServiceLinesMessage();
@@ -1734,7 +1734,7 @@ table 5901 "Service Item Line"
                     end;
                 end;
                 ServLine.Modify();
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
     end;
 
     local procedure CheckIfLoanerOnServOrder()
@@ -2016,7 +2016,7 @@ table 5901 "Service Item Line"
                        (ServItemLine."Starting Time" < StartingTime)
                     then
                         StartingTime := ServItemLine."Starting Time";
-            until ServItemLine.Next = 0
+            until ServItemLine.Next() = 0
         end else
             GoOut := true;
 
@@ -2038,7 +2038,7 @@ table 5901 "Service Item Line"
                            (ServItemLine."Finishing Time" > FinishingTime)
                         then
                             FinishingTime := ServItemLine."Finishing Time";
-                until ServItemLine.Next = 0;
+                until ServItemLine.Next() = 0;
         end else
             if Erasing then begin
                 StartingDate := 0D;
@@ -2111,6 +2111,11 @@ table 5901 "Service Item Line"
         end;
     end;
 
+    procedure GetHideDialogBox(): Boolean
+    begin
+        exit(HideDialogBox);
+    end;
+
     procedure SetHideDialogBox(DialogBoxVar: Boolean)
     begin
         HideDialogBox := DialogBoxVar;
@@ -2171,7 +2176,7 @@ table 5901 "Service Item Line"
             repeat
                 TempServLine := ServLine2;
                 TempServLine.Insert();
-            until ServLine2.Next = 0;
+            until ServLine2.Next() = 0;
 
             TempServLine.Find('-');
 
@@ -2204,7 +2209,7 @@ table 5901 "Service Item Line"
                     OnRecreateServLine(ServLine2, TempServLine);
                 end;
                 ServLine2.Modify(true);
-            until TempServLine.Next = 0;
+            until TempServLine.Next() = 0;
             TempServLine.DeleteAll();
         end;
     end;
@@ -2400,7 +2405,7 @@ table 5901 "Service Item Line"
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
                     ServLine.Modify();
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
     end;
 
     procedure SetServItemInfo(ServItem: Record "Service Item")

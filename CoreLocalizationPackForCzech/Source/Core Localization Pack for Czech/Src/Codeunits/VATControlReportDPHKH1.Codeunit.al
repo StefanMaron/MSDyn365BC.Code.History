@@ -15,8 +15,8 @@ codeunit 31105 "VAT Control Report DPHKH1 CZL" implements "VAT Control Report Ex
     var
         ExportVATCtrlDialogCZL: Report "Export VAT Ctrl. Dialog CZL";
         VATStmtXMLExportHelperCZL: Codeunit "VAT Stmt XML Export Helper CZL";
-        VATControlReportCZL: XMLport "VAT Control Report DPHKH1 CZL";
-        OutputStream: OutStream;
+        VATControlReportDPHKH1CZL: XMLport "VAT Control Report DPHKH1 CZL";
+        VATControlReportOutStream: OutStream;
         XmlParams: Text;
     begin
         XmlParams := VATStmtXMLExportHelperCZL.GetReportRequestPageParameters(Report::"Export VAT Ctrl. Dialog CZL");
@@ -26,9 +26,9 @@ codeunit 31105 "VAT Control Report DPHKH1 CZL" implements "VAT Control Report Ex
             exit;
         VATStmtXMLExportHelperCZL.SaveReportRequestPageParameters(Report::"Export VAT Ctrl. Dialog CZL", XmlParams);
 
-        TempBlob.CreateOutStream(OutputStream);
-        VATControlReportCZL.SetXMLParams(XmlParams);
-        VATControlReportCZL.SetDestination(OutputStream);
-        VATControlReportCZL.Export();
+        TempBlob.CreateOutStream(VATControlReportOutStream);
+        VATControlReportDPHKH1CZL.SetXMLParams(XmlParams);
+        VATControlReportDPHKH1CZL.SetDestination(VATControlReportOutStream);
+        VATControlReportDPHKH1CZL.Export();
     end;
 }

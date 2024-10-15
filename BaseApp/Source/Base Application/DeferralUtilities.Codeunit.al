@@ -1,4 +1,4 @@
-﻿codeunit 1720 "Deferral Utilities"
+codeunit 1720 "Deferral Utilities"
 {
 
     trigger OnRun()
@@ -6,7 +6,6 @@
     end;
 
     var
-        DeferralHeader: Record "Deferral Header";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         AmountRoundingPrecision: Decimal;
         InvalidPostingDateErr: Label '%1 is not within the range of posting dates for your company.', Comment = '%1=The date passed in for the posting date.';
@@ -386,7 +385,7 @@
                 AdjustedStartDate := StartDate;
             DeferralStartDate::"Beginning of Period":
                 begin
-                    if AccountingPeriod.IsEmpty then
+                    if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<-CM>', StartDate));
                     AccountingPeriod.SetRange("Starting Date", 0D, StartDate);
                     if AccountingPeriod.FindLast then
@@ -394,7 +393,7 @@
                 end;
             DeferralStartDate::"End of Period":
                 begin
-                    if AccountingPeriod.IsEmpty then
+                    if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<CM>', StartDate));
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
                     if AccountingPeriod.FindFirst then
@@ -402,7 +401,7 @@
                 end;
             DeferralStartDate::"Beginning of Next Period":
                 begin
-                    if AccountingPeriod.IsEmpty then
+                    if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<CM + 1D>', StartDate));
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
                     if AccountingPeriod.FindFirst then
@@ -568,7 +567,7 @@
                     PostedDeferralLine."Deferral Account" := DeferralAccount;
                     OnBeforePostedDeferralLineInsert(PostedDeferralLine, GenJournalLine);
                     PostedDeferralLine.Insert(true);
-                until DeferralLine.Next = 0;
+                until DeferralLine.Next() = 0;
             end;
         end;
 
@@ -721,7 +720,7 @@
                     TotalAmountLCY := TotalAmountLCY + DeferralLine."Amount (LCY)";
                     DeferralLine.Modify();
                 end;
-            until DeferralLine.Next = 0;
+            until DeferralLine.Next() = 0;
         end;
     end;
 
@@ -738,13 +737,15 @@
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
+#if not CLEAN17
     [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetSalesDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::Sales.AsInteger())
+        exit("Deferral Document Type"::Sales.AsInteger())
     end;
+#endif
 
-    local procedure InitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
+    procedure InitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
     var
         AccountingPeriod: Record "Accounting Period";
     begin
@@ -758,7 +759,7 @@
         DeferralLine."Currency Code" := DeferralHeader."Currency Code";
 
         if PeriodicCount = 1 then begin
-            if not AccountingPeriod.IsEmpty then begin
+            if not AccountingPeriod.IsEmpty() then begin
                 AccountingPeriod.SetFilter("Starting Date", '..%1', DeferralHeader."Start Date");
                 if not AccountingPeriod.FindFirst then
                     Error(DeferSchedOutOfBoundsErr);
@@ -779,24 +780,28 @@
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
         AccountingPeriod.Reset();
-        if not AccountingPeriod.IsEmpty then
+        if not AccountingPeriod.IsEmpty() then
             exit(true);
 
         AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, PostingDate);
         exit(false);
     end;
 
+#if not CLEAN17
     [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetPurchDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::Purchase.AsInteger())
+        exit("Deferral Document Type"::Purchase.AsInteger())
     end;
+#endif
 
+#if not CLEAN17
     [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
     procedure GetGLDeferralDocType(): Integer
     begin
-        exit(DeferralHeader."Deferral Doc. Type"::"G/L".AsInteger())
+        exit("Deferral Document Type"::"G/L".AsInteger())
     end;
+#endif
 
     procedure GetDeferralStartDate(DeferralDocType: Integer; RecordDocumentType: Integer; RecordDocumentNo: Code[20]; RecordLineNo: Integer; DeferralCode: Code[10]; PostingDate: Date): Date
     var
@@ -846,7 +851,7 @@
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CM>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '<%1', PostingDate);
@@ -860,7 +865,7 @@
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CM+1D>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '>%1', PostingDate);
@@ -874,7 +879,7 @@
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CM>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);

@@ -181,7 +181,7 @@ page 31120 "EET Service Setup"
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
             UpdateBasedOnEnable;
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 }

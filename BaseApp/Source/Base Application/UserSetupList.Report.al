@@ -1,8 +1,12 @@
+#if not CLEAN18
 report 11796 "User Setup List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './UserSetupList.rdlc';
-    Caption = 'User Setup List';
+    Caption = 'User Setup List (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -192,4 +196,4 @@ report 11796 "User Setup List"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         User_Checks_ListCaptionLbl: Label 'User Checks List';
 }
-
+#endif

@@ -485,12 +485,12 @@ report 11740 "Cash Inventory"
         if BankAccount2.Get(CashDeskNo) then begin
             CurrNominalValue.Ascending(false);
             CurrNominalValue.SetRange("Currency Code", BankAccount2."Currency Code");
-            CurrNominalValue.FindSet;
+            CurrNominalValue.FindSet();
             repeat
                 DenValue[FieldsNo] := CurrNominalValue.Value;
                 DenQty[FieldsNo] := 0;
                 FieldsNo += 1;
-            until (CurrNominalValue.Next = 0) or (FieldsNo > 20);
+            until (CurrNominalValue.Next() = 0) or (FieldsNo > 20);
         end;
 
         FieldsNo -= 1;

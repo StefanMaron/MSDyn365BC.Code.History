@@ -1,16 +1,15 @@
 table 31094 "Reverse Charge Line"
 {
     Caption = 'Reverse Charge Line';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
-    ObsoleteTag = '15.3';
+    ObsoleteTag = '18.0';
 
     fields
     {
         field(1; "Reverse Charge No."; Code[20])
         {
             Caption = 'Reverse Charge No.';
-            TableRelation = "Reverse Charge Header";
         }
         field(2; "Line No."; Integer)
         {
@@ -22,61 +21,31 @@ table 31094 "Reverse Charge Line"
             Editable = false;
             OptionCaption = ' ,Invoice,Cr. Memo';
             OptionMembers = " ",Invoice,"Cr. Memo";
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
             Editable = false;
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(7; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
             Editable = false;
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(10; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(11; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(15; Type; Option)
         {
             Caption = 'Type';
             OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
             OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(16; "No."; Code[20])
         {
@@ -90,68 +59,33 @@ table 31094 "Reverse Charge Line"
             IF (Type = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
             IF (Type = CONST("Charge (Item)")) "Item Charge";
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(17; Description; Text[100])
         {
             Caption = 'Description';
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(20; "Commodity Code"; Code[10])
         {
             Caption = 'Commodity Code';
             TableRelation = Commodity;
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(25; Quantity; Decimal)
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(26; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
             TableRelation = "Unit of Measure";
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(30; "VAT Base Amount (LCY)"; Decimal)
         {
             Caption = 'VAT Base Amount (LCY)';
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(35; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen;
-            end;
         }
         field(40; "Document Quantity"; Decimal)
         {
@@ -189,25 +123,6 @@ table 31094 "Reverse Charge Line"
     fieldgroups
     {
     }
-
-    trigger OnDelete()
-    begin
-        TestStatusOpen;
-    end;
-
-    trigger OnInsert()
-    begin
-        TestStatusOpen;
-    end;
-
-    var
-        ReverseChargeHdr: Record "Reverse Charge Header";
-
-    local procedure TestStatusOpen()
-    begin
-        ReverseChargeHdr.Get("Reverse Charge No.");
-        ReverseChargeHdr.TestField(Status, ReverseChargeHdr.Status::Open);
-    end;
 
     [Scope('OnPrem')]
     procedure GetVATRegNo() VATRegNo: Code[20]

@@ -572,6 +572,8 @@ table 1294 "Applied Payment Entry"
                 exit(GetCustLedgEntryRemAmt);
             "Account Type"::Vendor:
                 exit(GetVendLedgEntryRemAmt);
+            "Account Type"::Employee:
+                exit(GetEmployeeLedgEntryRemAmt());
             "Account Type"::"Bank Account":
                 exit(GetBankAccLedgEntryRemAmt);
                 // NAVCZ
@@ -617,6 +619,19 @@ table 1294 "Applied Payment Entry"
         end;
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(VendLedgEntry."Remaining Amount");
+    end;
+
+    local procedure GetEmployeeLedgEntryRemAmt(): Decimal
+    var
+        EmployeeLedgEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgEntry.Get("Applies-to Entry No.");
+        if IsBankLCY and (EmployeeLedgEntry."Currency Code" <> '') then begin
+            EmployeeLedgEntry.CalcFields("Remaining Amt. (LCY)");
+            exit(EmployeeLedgEntry."Remaining Amt. (LCY)");
+        end;
+        EmployeeLedgEntry.CalcFields("Remaining Amount");
+        exit(EmployeeLedgEntry."Remaining Amount");
     end;
 
     local procedure GetBankAccLedgEntryRemAmt(): Decimal
@@ -763,13 +778,15 @@ table 1294 "Applied Payment Entry"
 
         case "Account Type" of
             "Account Type"::Customer:
-                GetCustInfo;
+                GetCustInfo();
             "Account Type"::Vendor:
-                GetVendInfo;
+                GetVendInfo();
+            "Account Type"::Employee:
+                GetEmployeeInfo();
             "Account Type"::"Bank Account":
-                GetBankAccInfo;
+                GetBankAccInfo();
             "Account Type"::"G/L Account":
-                GetGLAccInfo;
+                GetGLAccInfo();
         end;
     end;
 
@@ -787,6 +804,14 @@ table 1294 "Applied Payment Entry"
     begin
         Vend.Get("Account No.");
         Description := Vend.Name;
+    end;
+
+    local procedure GetEmployeeInfo()
+    var
+        Employee: Record Employee;
+    begin
+        Employee.Get("Account No.");
+        Description := Employee.FullName();
     end;
 
     local procedure GetBankAccInfo()
@@ -813,9 +838,11 @@ table 1294 "Applied Payment Entry"
 
         case "Account Type" of
             "Account Type"::Customer:
-                GetCustLedgEntryInfo;
+                GetCustLedgEntryInfo();
             "Account Type"::Vendor:
-                GetVendLedgEntryInfo;
+                GetVendLedgEntryInfo();
+            "Account Type"::Employee:
+                GetEmployeeLedgEntryInfo();
             "Account Type"::"Bank Account":
                 GetBankAccLedgEntryInfo;
             // NAVCZ
@@ -863,6 +890,18 @@ table 1294 "Applied Payment Entry"
         "Variable Symbol" := VendLedgEntry."Variable Symbol";
         "Constant Symbol" := VendLedgEntry."Constant Symbol";
         // NAVCZ
+    end;
+
+    local procedure GetEmployeeLedgEntryInfo()
+    var
+        EmployeeLedgEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgEntry.Get("Applies-to Entry No.");
+        Description := EmployeeLedgEntry.Description;
+        "Posting Date" := EmployeeLedgEntry."Posting Date";
+        "Document Type" := EmployeeLedgEntry."Document Type";
+        "Document No." := EmployeeLedgEntry."Document No.";
+        "Currency Code" := EmployeeLedgEntry."Currency Code";
     end;
 
     local procedure GetBankAccLedgEntryInfo()
@@ -1017,7 +1056,7 @@ table 1294 "Applied Payment Entry"
             repeat
                 TotalAmountIncludingPmtDisc += AppliedPaymentEntry."Applied Amount";
                 TotalAmountIncludingPmtDisc -= AppliedPaymentEntry."Applied Pmt. Discount";
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
 
         exit(TotalAmountIncludingPmtDisc);
     end;
@@ -1044,7 +1083,7 @@ table 1294 "Applied Payment Entry"
         if AppliedPaymentEntry.FindSet then
             repeat
                 TotalAmountIncludingPmtDiscLCY += AppliedPaymentEntry.GetAppliedAmountInclPmtDiscLCY;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
 
         exit(TotalAmountIncludingPmtDiscLCY);
     end;
@@ -1143,6 +1182,8 @@ table 1294 "Applied Payment Entry"
                 ClearCustApplicationData("Applies-to Entry No.");
             "Account Type"::Vendor:
                 ClearVendApplicationData("Applies-to Entry No.");
+            "Account Type"::Employee:
+                ClearEmployeeApplicationData("Applies-to Entry No.");
         end;
     end;
 
@@ -1170,11 +1211,22 @@ table 1294 "Applied Payment Entry"
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
     end;
 
+    local procedure ClearEmployeeApplicationData(EntryNo: Integer)
+    var
+        EmployeeLedgEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgEntry.Get(EntryNo);
+        EmployeeLedgEntry."Amount to Apply" := 0;
+        EmployeeLedgEntry."Applies-to ID" := '';
+        CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgEntry);
+    end;
+
     procedure CalcAmountToApply(PostingDate: Date) AmountToApply: Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         RemainingAmount: Decimal;
     begin
         if IsBankAccReconciliationLineLCY then begin
@@ -1192,6 +1244,12 @@ table 1294 "Applied Payment Entry"
                         VendorLedgerEntry.Get("Applies-to Entry No.");
                         VendorLedgerEntry.CalcFields("Remaining Amount");
                         RemainingAmount := VendorLedgerEntry."Remaining Amount";
+                    end;
+                "Account Type"::Employee:
+                    begin
+                        EmployeeLedgerEntry.Get("Applies-to Entry No.");
+                        EmployeeLedgerEntry.CalcFields("Remaining Amount");
+                        RemainingAmount := EmployeeLedgerEntry."Remaining Amount";
                     end;
             end;
             if Abs(AmountToApply) > Abs(RemainingAmount) then

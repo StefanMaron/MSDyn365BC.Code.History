@@ -180,7 +180,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -290,7 +290,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
 
         for I := 1 to NoOfEntries do begin
             TempPaymentApplicationProposal.Validate(Applied, true);
@@ -429,7 +429,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -495,7 +495,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -619,7 +619,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 

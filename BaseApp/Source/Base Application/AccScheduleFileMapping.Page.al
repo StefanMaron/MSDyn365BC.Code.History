@@ -384,14 +384,14 @@ page 31081 "Acc. Schedule File Mapping"
                         if StmtFileMapping.Count > 1 then begin
                             repeat
                                 ColumnValues[ColumnNo - ColumnOffset] := ColumnValues[ColumnNo - ColumnOffset] + '|' + StmtFileMapping."Excel Cell"
-                            until StmtFileMapping.Next = 0;
+                            until StmtFileMapping.Next() = 0;
                             ColumnValues[ColumnNo - ColumnOffset] := DelChr(ColumnValues[ColumnNo - ColumnOffset], '<', '|')
                         end else
                             ColumnValues[ColumnNo - ColumnOffset] := StmtFileMapping."Excel Cell";
                     end;
                     ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
                 end;
-            until TempColumnLayout.Next = 0;
+            until TempColumnLayout.Next() = 0;
     end;
 
     trigger OnOpenPage()
@@ -488,7 +488,7 @@ page 31081 "Acc. Schedule File Mapping"
                 ColumnNo := ColumnNo + 1;
                 if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnCaptions)) then
                     ColumnCaptions[ColumnNo - ColumnOffset] := TempColumnLayout."Column Header";
-            until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next = 0);
+            until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next() = 0);
         for i := ColumnNo - ColumnOffset + 1 to ArrayLen(ColumnCaptions) do
             ColumnCaptions[i] := '';
     end;

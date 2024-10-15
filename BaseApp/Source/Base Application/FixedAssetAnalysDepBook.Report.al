@@ -1,10 +1,14 @@
+#if not CLEAN18
 report 31043 "Fixed Asset - Analys. Dep.Book"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetAnalysDepBook.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Fixed Asset - Depreciation Book Analysis';
+    Caption = 'Fixed Asset - Depreciation Book Analysis (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -809,7 +813,7 @@ report 31043 "Fixed Asset - Analys. Dep.Book"
                     TypeExist := lteDateType = "FA Date Type Name";
                     if TypeExist then
                         linDateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text007Err, lteDateType);
@@ -827,7 +831,7 @@ report 31043 "Fixed Asset - Analys. Dep.Book"
                     TypeExist := ltePostingType = "FA Posting Type Name";
                     if TypeExist then
                         linPostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text008Err, ltePostingType);
@@ -843,4 +847,4 @@ report 31043 "Fixed Asset - Analys. Dep.Book"
         FADateType.CreateTypes;
     end;
 }
-
+#endif

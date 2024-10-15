@@ -43,7 +43,6 @@ codeunit 137407 "SCM Warehouse IV"
         ShouldBeTxt: Label '%1 should be %2', Comment = '%1 = Field, %2 = Expected availability';
         EnabledTxt: Label 'enabled';
         DisabledTxt: Label 'disabled';
-        DeleteRegWhseDocErr: Label 'Posted document cannot be deleted.';
         BinMandatoryTxt: Label 'Bin Mandatory must be equal to ''No''  in Location';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
 
@@ -770,10 +769,11 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Run Delete Registered Warehouse Document report.
-        asserterror RunDeleteRegisteredWarehouseDocumentReport(WarehouseActivityHeader."No."); // NAVCZ
+        RunDeleteRegisteredWarehouseDocumentReport(WarehouseActivityHeader."No.");
 
-        // Verify:
-        Assert.ExpectedError(DeleteRegWhseDocErr); // NAVCZ
+        // [THEN] Verify that the Pick does not exist.
+        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
+        Assert.IsFalse(RegisteredWhseActivityHdr.FindFirst, StrSubstNo(PickMustBeDeletedError, WarehouseActivityHeader."No."));
     end;
 
     [Test]
@@ -1950,7 +1950,7 @@ codeunit 137407 "SCM Warehouse IV"
         FindWhseActivityLine(
           WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Invt. Pick", LocationCode, SourceNo,
           WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);
@@ -2436,7 +2436,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10])
@@ -2723,7 +2723,7 @@ codeunit 137407 "SCM Warehouse IV"
     var
         "Count": Integer;
     begin
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         for Count := 1 to WarehouseActivityLine.Count do begin
             WarehouseActivityLine.Validate("Serial No.", Format(Count));
             WarehouseActivityLine.Validate("Expiration Date", WorkDate);
@@ -2805,7 +2805,7 @@ codeunit 137407 "SCM Warehouse IV"
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Item No.", ItemNo);
             ItemLedgerEntry.TestField(Quantity, 1);
@@ -2915,7 +2915,7 @@ codeunit 137407 "SCM Warehouse IV"
         TotalQuantity: Decimal;
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             TotalQuantity += ReservationEntry.Quantity;
         until ReservationEntry.Next = 0;
@@ -2968,7 +2968,7 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", DocumentType);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Item No.", ItemNo);
             ValueEntry.TestField("Valued Quantity", 1);
@@ -2980,7 +2980,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);

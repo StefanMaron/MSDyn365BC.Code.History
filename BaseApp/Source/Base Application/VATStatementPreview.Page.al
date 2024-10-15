@@ -67,7 +67,7 @@ page 474 "VAT Statement Preview"
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Date Filter", DateFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         // NAVCZ
                         if DateFilter <> '' then begin
                             VATPeriodStartDate := 0D;

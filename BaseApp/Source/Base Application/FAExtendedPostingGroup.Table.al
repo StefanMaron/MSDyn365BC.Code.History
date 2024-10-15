@@ -1,7 +1,14 @@
 table 31042 "FA Extended Posting Group"
 {
     Caption = 'FA Extended Posting Group';
+#if not CLEAN18
     LookupPageID = "FA Extended Posting Groups";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -64,9 +71,10 @@ table 31042 "FA Extended Posting Group"
                 CheckGLAcc("Maintenance Bal. Acc.", true);
             end;
         }
+#if not CLEAN18
         field(8; "Allocated Book Value % (Gain)"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
                                                                     "Allocation Type" = CONST("Book Value (Gain)"),
                                                                     "Reason/Maintenance Code" = FIELD(Code)));
             Caption = 'Allocated Book Value % (Gain)';
@@ -76,7 +84,7 @@ table 31042 "FA Extended Posting Group"
         }
         field(9; "Allocated Book Value % (Loss)"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
                                                                     "Allocation Type" = CONST("Book Value (Loss)"),
                                                                     "Reason/Maintenance Code" = FIELD(Code)));
             Caption = 'Allocated Book Value % (Loss)';
@@ -86,7 +94,7 @@ table 31042 "FA Extended Posting Group"
         }
         field(10; "Allocated Maintenance %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
                                                                     "Allocation Type" = CONST(Maintenance),
                                                                     "Reason/Maintenance Code" = FIELD(Code)));
             Caption = 'Allocated Maintenance %';
@@ -94,6 +102,7 @@ table 31042 "FA Extended Posting Group"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31040; "Sales Acc. On Disp. (Gain)"; Code[20])
         {
             Caption = 'Sales Acc. On Disp. (Gain)';

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31087 "Finance Charge Memo CZ"
 {
     DefaultLayout = RDLC;
@@ -531,4 +532,4 @@ report 31087 "Finance Charge Memo CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

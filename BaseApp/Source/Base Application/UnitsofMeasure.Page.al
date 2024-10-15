@@ -28,21 +28,18 @@ page 209 "Units of Measure"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use an unspecified unit of measure.';
-                    Visible = false;
-                }
-                field("Indivisible Unit"; "Indivisible Unit")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies indivisible unit';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Unsupported functionality';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Tariff Number UOM Code"; "Tariff Number UOM Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of units of measure for revers charge reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("International Standard Code"; "International Standard Code")
@@ -151,7 +148,7 @@ page 209 "Units of Measure"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;

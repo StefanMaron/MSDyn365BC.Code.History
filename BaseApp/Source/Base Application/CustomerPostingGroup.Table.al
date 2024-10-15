@@ -418,11 +418,11 @@ table 92 "Customer Posting Group"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         Customer.SetRange("Customer Posting Group", Code);
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         CustLedgerEntry.SetRange("Customer Posting Group", Code);
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 
@@ -545,6 +545,7 @@ table 92 "Customer Posting Group"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure GetReceivablesAccNo(PostingGroupCode: Code[20]; Advance: Boolean): Code[20]
     begin
         // NAVCZ
@@ -562,6 +563,7 @@ table 92 "Customer Posting Group"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure DeleteSubstPostingGroups()
     var
         SubstCustPostingGroup: Record "Subst. Customer Posting Group";
@@ -574,25 +576,39 @@ table 92 "Customer Posting Group"
         SubstCustPostingGroup.DeleteAll();
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckOpenCustLedgEntries(Prepayment1: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        ConfirmManagement: Codeunit "Confirm Management";
         Caption1: Text[250];
         ChangeText: Label 'Do you really want to change %1 although open entries exist?';
+        IsHandled: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        OnBeforeCheckOpenCustLedgEntries(Prepayment1, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgerEntry.SetCurrentKey(Open);
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetRange("Customer Posting Group", Code);
         CustLedgerEntry.SetRange(Prepayment, Prepayment1);
-        if not CustLedgerEntry.IsEmpty then begin
+        if not CustLedgerEntry.IsEmpty() then begin
             if Prepayment1 then
                 Caption1 := FieldCaption("Advance Account")
             else
                 Caption1 := FieldCaption("Receivables Account");
-            if not Confirm(ChangeText, false, Caption1) then
+            if not ConfirmManagement.GetResponse(StrSubstNo(ChangeText, Caption1), false) then
                 Error('');
         end;
+    end;
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckOpenCustLedgEntries(var Prepayment1: Boolean; var IsHandled: Boolean);
+    begin
     end;
 }
 

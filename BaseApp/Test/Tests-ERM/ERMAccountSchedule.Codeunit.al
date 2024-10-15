@@ -2688,7 +2688,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Acc. Schedule Line by using InsertCostType function
         Initialize;
         LibraryLowerPermissions.SetOutsideO365Scope;
-        CostTypeNo := AccScheduleWithInsertCostType(AccScheduleLine, ColumnLayout, CostType."Debit Amount");
+        CostTypeNo := AccScheduleWithInsertCostType(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Debit Amount");
 
         // Verify Net amount on Account Schedule Line.
         CostType.Get(CostTypeNo);
@@ -3938,7 +3938,7 @@ codeunit 134902 "ERM Account Schedule"
         // [GIVEN] Choose only odd Dimension Values from sorted created array so Acc. Schedule Overview filter will not be optimized
         ResultDimValue.SetFilter(Code, DimFilterTxt);
         ResultDimValue.SetFilter("Dimension Code", StandardDimValue[1]."Dimension Code");
-        ResultDimValue.FindSet;
+        ResultDimValue.FindSet();
         DimFilterTxt := '';
         for i := 1 to ArrayLen(StandardDimValue) do begin
             if i mod 2 = 1 then
@@ -4569,7 +4569,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Account Schedule");
     end;
 
-    local procedure AccountScheduleInsertGLAccount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Option): Code[20]
+    local procedure AccountScheduleInsertGLAccount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Enum "Account Schedule Amount Type"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         AccSchedManagement: Codeunit AccSchedManagement;
@@ -4586,7 +4586,7 @@ codeunit 134902 "ERM Account Schedule"
         exit(GenJournalLine."Account No.");
     end;
 
-    local procedure AccScheduleWithInsertCostType(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Option): Code[20]
+    local procedure AccScheduleWithInsertCostType(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Enum "Account Schedule Amount Type"): Code[20]
     var
         CostType: Record "Cost Type";
         CostCenter: Record "Cost Center";
@@ -4865,7 +4865,7 @@ codeunit 134902 "ERM Account Schedule"
         CreateGenJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", Amount);
     end;
 
-    local procedure CreatePostingAccountsAccScheduleLine(var ColumnLayout: Record "Column Layout"; var AccScheduleLine: Record "Acc. Schedule Line"; GLAccountNo: Code[20]; ColumnType: Option)
+    local procedure CreatePostingAccountsAccScheduleLine(var ColumnLayout: Record "Column Layout"; var AccScheduleLine: Record "Acc. Schedule Line"; GLAccountNo: Code[20]; ColumnType: Enum "Column Layout Type")
     var
         ComparisionDateFormula: DateFormula;
     begin
@@ -4912,7 +4912,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine.Modify(true);
     end;
 
-    local procedure CreateColumnLayoutWithAmountType(var ColumnLayout: Record "Column Layout"; AmountType: Option; AccountNo: Code[20])
+    local procedure CreateColumnLayoutWithAmountType(var ColumnLayout: Record "Column Layout"; AmountType: Enum "Account Schedule Amount Type"; AccountNo: Code[20])
     begin
         with ColumnLayout do begin
             SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
@@ -4976,13 +4976,13 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine."Totaling Type" := TotalingType;
     end;
 
-    local procedure MockColumnLayout(var ColumnLayout: Record "Column Layout"; LedgerEntryType: Option)
+    local procedure MockColumnLayout(var ColumnLayout: Record "Column Layout"; LedgerEntryType: Enum "Column Layout Entry Type")
     begin
         ColumnLayout.Init();
         ColumnLayout."Ledger Entry Type" := LedgerEntryType;
     end;
 
-    local procedure MockColumnLayoutWithNameAndType(ColumnLayoutName: Code[10]; ColumnType: Option)
+    local procedure MockColumnLayoutWithNameAndType(ColumnLayoutName: Code[10]; ColumnType: Enum "Column Layout Type")
     var
         ColumnLayout: Record "Column Layout";
     begin

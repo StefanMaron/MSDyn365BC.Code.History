@@ -3,6 +3,9 @@ table 31044 "FA History Entry"
     Caption = 'FA History Entry';
     LookupPageID = "FA History Entries";
     Permissions = TableData "FA History Entry" = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -96,6 +99,7 @@ table 31044 "FA History Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     procedure InsertEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20]; OldValue: Code[20]; NewValue: Code[20]; ClosedByEntryNo: Integer; Disp: Boolean): Integer
     var
         FAHistoryEntry: Record "FA History Entry";
@@ -116,6 +120,7 @@ table 31044 "FA History Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     procedure InitializeFAHistory(FixedAsset: Record "Fixed Asset"; CreationDate: Date)
     var
         FAHistoryEntry: Record "FA History Entry";

@@ -1,4 +1,4 @@
-﻿page 5700 "Stockkeeping Unit Card"
+page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
     PageType = Card;
@@ -212,6 +212,18 @@
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
+                    }
+                    field("Routing No."; Rec."Routing No.")
+                    {
+                        ApplicationArea = Manufacturing;
+                        ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
+                        Visible = false;
+                    }
+                    field("Production BOM No."; Rec."Production BOM No.")
+                    {
+                        ApplicationArea = Manufacturing;
+                        ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
+                        Visible = false;
                     }
                 }
                 group(Assembly)
@@ -641,6 +653,17 @@
                                       "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Code");
                         ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
                     }
                     action("BOM Level")
                     {

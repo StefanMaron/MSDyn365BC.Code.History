@@ -24,7 +24,7 @@ page 31101 "VAT Control Report Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -87,15 +87,6 @@ page 31101 "VAT Control Report Card"
             group(Other)
             {
                 Caption = 'Other';
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("VAT Statement Template Name"; "VAT Statement Template Name")
                 {
                     ApplicationArea = Basic, Suite;

@@ -11,7 +11,7 @@ codeunit 9015 "Application System Constants"
     procedure OriginalApplicationVersion() ApplicationVersion: Text[248]
     begin
         // Should be 'Build Version' with ! on both sides.
-        ApplicationVersion := 'CZ Business Central 17.5';
+        ApplicationVersion := 'CZ Business Central 18.0';
     end;
 
     procedure ApplicationVersion() ApplicationVersion: Text[248]
@@ -47,30 +47,30 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Build branch' with ! on both sides.
         // Will return a string representing the name of the internal branch that generated the build.
-        exit('NAV175');
+        exit('NAV180');
     end;
 
     procedure PlatformProductVersion(): Text[80]
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('17.0.22463.22540');
+        exit('18.0.22893.23773');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('17.0.22463.22540');
+        exit('18.0.22893.23773');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000001, 'GetApplicationVersion', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationVersion', '', false, false)]
     local procedure GetApplicationVersion(var Version: Text[248])
     begin
         Version := ApplicationVersion;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000001, 'GetApplicationBuild', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationBuild', '', false, false)]
     local procedure GetApplicationBuild(var Build: Text[80])
     begin
         // Must ever only be the build number of the server building the app.

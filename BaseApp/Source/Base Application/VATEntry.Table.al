@@ -421,9 +421,9 @@ table 254 "VAT Entry"
         {
             Caption = 'Postponed VAT';
             Editable = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11764; "VAT Delay"; Boolean)
         {
@@ -439,25 +439,25 @@ table 254 "VAT Entry"
             Editable = false;
             MaxValue = 100;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11768; "VAT Settlement No."; Code[15])
         {
@@ -472,9 +472,9 @@ table 254 "VAT Entry"
             Caption = 'Primary Entry No.';
             Editable = false;
             TableRelation = "VAT Entry";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11771; "Global Dimension 1 Code"; Code[20])
         {
@@ -482,9 +482,9 @@ table 254 "VAT Entry"
             Caption = 'Global Dimension 1 Code';
             Editable = false;
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11772; "Global Dimension 2 Code"; Code[20])
         {
@@ -492,36 +492,38 @@ table 254 "VAT Entry"
             Caption = 'Global Dimension 2 Code';
             Editable = false;
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11773; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Dimension for VAT Entry will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11776; "VAT Identifier"; Code[20])
         {
             Caption = 'VAT Identifier';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11780; "Pmt.Disc. Tax Corr.Doc. No."; Code[20])
         {
             Caption = 'Pmt.Disc. Tax Corr.Doc. No.';
             Editable = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -562,10 +564,13 @@ table 254 "VAT Entry"
         {
             Caption = 'Perform. Country/Region Code';
             Editable = false;
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
+#if not CLEAN18
             ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used.';
+#else
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used.';
+#endif
             ObsoleteTag = '15.3';
         }
         field(31061; "Currency Factor"; Decimal)
@@ -574,18 +579,18 @@ table 254 "VAT Entry"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             Editable = false;
             TableRelation = Currency;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -661,40 +666,30 @@ table 254 "VAT Entry"
         {
             MaintainSQLIndex = false;
         }
+#if not CLEAN17
         key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date", "Prepayment Type", "Advance Letter No.", "Perform. Country/Region Code", "VAT Settlement No.")
         {
             SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount", "Advance Base";
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
             ObsoleteTag = '17.5';
         }
+#endif
         key(Key10; Type, "Advance Letter No.", "Advance Letter Line No.")
         {
             SumIndexFields = Amount, "Advance Base";
         }
+#if not CLEAN17
         key(Key11; Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Date")
         {
             SumIndexFields = Base, "Additional-Currency Base";
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
             ObsoleteTag = '17.5';
         }
+#endif
         key(Key12; "Unrealized VAT Entry No.")
         {
-        }
-        key(Key13; "Primary Entry No.")
-        {
-            SumIndexFields = Amount;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-        }
-        key(Key14; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date", "Prepayment Type", "Advance Letter No.", "Perform. Country/Region Code", "VAT Settlement No.")
-        {
-            SumIndexFields = "VAT Base (Non Deductible)", "VAT Amount (Non Deductible)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
         }
         key(Key15; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Country/Region Code")
         {
@@ -742,7 +737,15 @@ table 254 "VAT Entry"
         exit(GLSetup."Additional Reporting Currency");
     end;
 
+#if not CLEAN18
+    [Obsolete('Procedure will be removed and standard W1 procedure with 5 parameters will be used.', '18.0')]
     procedure GetUnrealizedVATPart(SettledAmount: Decimal; Paid: Decimal; Full: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal; PostponedVAT: Boolean): Decimal
+    begin
+        exit(GetUnrealizedVATPart(SettledAmount, Paid, Full, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast));
+    end;
+
+#endif
+    procedure GetUnrealizedVATPart(SettledAmount: Decimal; Paid: Decimal; Full: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal): Decimal
     var
         UnrealizedVATType: Option " ",Percentage,First,Last,"First (Fully Paid)","Last (Fully Paid)";
     begin
@@ -750,7 +753,7 @@ table 254 "VAT Entry"
            (Amount = 0) and
            (Base = 0)
         then begin
-            UnrealizedVATType := GetUnrealizedVATType(PostponedVAT); // NAVCZ
+            UnrealizedVATType := GetUnrealizedVATType();
             if (UnrealizedVATType = UnrealizedVATType::" ") or
                (("Remaining Unrealized Amount" = 0) and
                 ("Remaining Unrealized Base" = 0))
@@ -800,7 +803,7 @@ table 254 "VAT Entry"
             exit(0);
     end;
 
-    local procedure GetUnrealizedVATType(PostponedVAT: Boolean) UnrealizedVATType: Integer
+    local procedure GetUnrealizedVATType() UnrealizedVATType: Integer
     var
         VATPostingSetup: Record "VAT Posting Setup";
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -811,13 +814,6 @@ table 254 "VAT Entry"
         end else begin
             VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
             UnrealizedVATType := VATPostingSetup."Unrealized VAT Type";
-            // NAVCZ
-            if "Postponed VAT" then
-                if PostponedVAT then
-                    UnrealizedVATType := VATPostingSetup."Unrealized VAT Type"::Percentage
-                else
-                    UnrealizedVATType := 0;
-            // NAVCZ
         end;
     end;
 
@@ -843,19 +839,9 @@ table 254 "VAT Entry"
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
         // NAVCZ
         "VAT Date" := GenJnlLine."VAT Date";
-        "Postponed VAT" := GenJnlLine."Postponed VAT";
         "VAT Delay" := GenJnlLine."VAT Delay";
         "EU 3-Party Intermediate Role" := GenJnlLine."EU 3-Party Intermediate Role";
-        "VAT % (Non Deductible)" := GenJnlLine."VAT % (Non Deductible)";
-        "VAT Base (Non Deductible)" := GenJnlLine."VAT Base LCY (Non Deduct.)";
-        "VAT Amount (Non Deductible)" := GenJnlLine."VAT Amount LCY (Non Deduct.)";
         "Registration No." := GenJnlLine."Registration No.";
-        "Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
-        "Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := GenJnlLine."Dimension Set ID";
-        "Perform. Country/Region Code" := GenJnlLine."Perform. Country/Region Code";
-        "Currency Code" := GenJnlLine."Currency Code VAT";
-        "Currency Factor" := GenJnlLine."Currency Factor VAT";
         "Original Document VAT Date" := GenJnlLine."Original Document VAT Date";
         if "Bill-to/Pay-to No." = '' then
             "Bill-to/Pay-to No." := GenJnlLine."Original Document Partner No.";
@@ -922,16 +908,6 @@ table 254 "VAT Entry"
         "Realized Base" := 0;
         "Add.-Curr. Realized Amount" := 0;
         "Add.-Curr. Realized Base" := 0;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Dimension for VAT Entry will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure ShowDimensions()
-    var
-        DimMgt: Codeunit DimensionManagement;
-    begin
-        // NAVCZ
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
     end;
 
     [IntegrationEvent(false, false)]

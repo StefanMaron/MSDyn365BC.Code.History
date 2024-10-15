@@ -56,7 +56,7 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
                         PhysInvtOrderLine.Modify();
                     end;
-                until PhysInvtOrderLine.Next = 0;
+                until PhysInvtOrderLine.Next() = 0;
 
             Status := Status::Open;
             Modify;

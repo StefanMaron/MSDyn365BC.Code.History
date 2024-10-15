@@ -731,7 +731,7 @@ table 5991 "Service Shipment Line"
             NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
-        until (Next = 0) or ("Attached to Line No." = 0);
+        until (Next() = 0) or ("Attached to Line No." = 0);
 
         if ServiceOrderHeader.Get(ServiceOrderHeader."Document Type"::Order, "Order No.") then
             ServiceOrderHeader.Modify();
@@ -765,8 +765,8 @@ table 5991 "Service Shipment Line"
                                 TempServInvLine := ServInvLine;
                                 if TempServInvLine.Insert() then;
                             end;
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 

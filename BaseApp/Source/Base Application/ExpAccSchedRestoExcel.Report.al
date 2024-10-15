@@ -82,7 +82,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                               false,
                               false,
                               false);
-                        until AccScheduleResultColumn.Next = 0;
+                        until AccScheduleResultColumn.Next() = 0;
                     end;
                     repeat
                         RecNo := RecNo + 1;
@@ -120,9 +120,9 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                                       AccScheduleResultLine.Bold,
                                       AccScheduleResultLine.Italic,
                                       AccScheduleResultLine.Underline);
-                            until AccScheduleResultColumn.Next = 0;
+                            until AccScheduleResultColumn.Next() = 0;
                         end;
-                    until AccScheduleResultLine.Next = 0;
+                    until AccScheduleResultLine.Next() = 0;
                 end;
 
                 Window.Close;

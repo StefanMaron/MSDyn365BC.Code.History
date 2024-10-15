@@ -1,9 +1,12 @@
 page 31057 "Posted Credit Card"
 {
-    Caption = 'Posted Credit Card';
+    Caption = 'Posted Credit Card (Obsolete)';
     Editable = false;
     PageType = Document;
     SourceTable = "Posted Credit Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

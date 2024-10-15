@@ -54,6 +54,11 @@ table 1252 "Bank Pmt. Appl. Rule"
         {
             Caption = 'Review Required';
         }
+	
+        field(41; "Apply Immediatelly"; Boolean)
+        {
+            Caption = 'Apply Immediatelly';
+        }
 
         field(11700; "Bank Pmt. Appl. Rule Code"; Code[10])
         {
@@ -130,7 +135,7 @@ table 1252 "Bank Pmt. Appl. Rule"
             repeat
                 TransferFields(BankPmtApplRule);
                 Insert;
-            until BankPmtApplRule.Next = 0;
+            until BankPmtApplRule.Next() = 0;
     end;
 
     procedure GetBestMatchScore(ParameterBankPmtApplRule: Record "Bank Pmt. Appl. Rule"): Integer
@@ -281,7 +286,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         RulePriority: Integer;
     begin
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", "Bank Pmt. Appl. Rule Code"); // NAVCZ
-        if not BankPmtApplRule.IsEmpty then
+        if not BankPmtApplRule.IsEmpty() then
             exit;
 
         // Insert High Confidence rules
@@ -292,6 +297,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::Yes,
+          true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Not Considered",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -305,6 +311,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -318,6 +325,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -331,6 +339,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -344,6 +353,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -357,6 +367,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -370,6 +381,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match", // NAVCZ
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -383,6 +395,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches", // NAVCZ
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -396,6 +409,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -409,6 +423,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -423,6 +438,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
@@ -435,6 +451,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -450,6 +467,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -463,6 +481,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -476,6 +495,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -489,6 +509,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -502,6 +523,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -515,6 +537,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -528,6 +551,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -541,6 +565,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -556,6 +581,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -569,6 +595,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -582,6 +609,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -595,6 +623,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -608,6 +637,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
           BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
@@ -616,7 +646,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         // NAVCZ
     end;
 
-    local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; VariableSymbolMatch: Option; SpecificSymbolMatch: Option; ConstantSymbolMatch: Option; BankTransactionType: Option)
+    local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; ApplyAutomatically: Boolean; VariableSymbolMatch: Option; SpecificSymbolMatch: Option; ConstantSymbolMatch: Option; BankTransactionType: Option)
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
@@ -628,6 +658,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocumentMatch;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountMatch;
         BankPmtApplRule."Direct Debit Collect. Matched" := DirectDebitCollectionMatch;
+        BankPmtApplRule."Apply Immediatelly" := ApplyAutomatically;
 
         // NAVCZ
         BankPmtApplRule."Variable Symbol Matched" := VariableSymbolMatch;

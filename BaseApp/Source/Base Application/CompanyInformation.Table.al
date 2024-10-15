@@ -470,9 +470,9 @@ table 79 "Company Information"
         field(7602; "Show Chart On RoleCenter"; Boolean)
         {
             Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
@@ -579,16 +579,9 @@ table 79 "Company Information"
         field(11793; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
-            TableRelation = "Industry Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if IndustryCode.Get("Industry Code") then
-                    "Industrial Classification" := CopyStr(IndustryCode.Description, 1, MaxStrLen("Industrial Classification"));
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11794; "Equity Capital"; Decimal)
         {
@@ -671,7 +664,6 @@ table 79 "Company Information"
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
         BankAcc: Record "Bank Account";
-        IndustryCode: Record "Industry Code";
         GLNCheckDigitErr: Label 'The %1 is not valid.';
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
         SyncAlreadyEnabledErr: Label 'Office 365 Business profile synchronization is already enabled for another company in the system.';
@@ -976,7 +968,7 @@ table 79 "Company Information"
                 CompanyInformation.ChangeCompany(Company.Name);
                 if CompanyInformation.Get then
                     SyncEnabled := CompanyInformation."Sync with O365 Bus. profile";
-            until (Company.Next = 0) or SyncEnabled;
+            until (Company.Next() = 0) or SyncEnabled;
         end;
     end;
 

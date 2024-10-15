@@ -32,6 +32,7 @@ table 31130 "Certificate CZ Code"
     }
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure LoadValidCertificate(var IsolatedCertificate: Record "Isolated Certificate"): Boolean
     var
         User: Record User;
@@ -42,6 +43,7 @@ table 31130 "Certificate CZ Code"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure LoadValidCertificate(var IsolatedCertificate: Record "Isolated Certificate"; UserName: Code[50]): Boolean
     begin
         Clear(IsolatedCertificate);

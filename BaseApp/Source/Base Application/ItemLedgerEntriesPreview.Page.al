@@ -14,85 +14,91 @@ page 167 "Item Ledger Entries Preview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction the entry is created from.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what type of document was posted to create the item ledger entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Document Line No."; "Document Line No.")
+                field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the line on the posted document that corresponds to the item ledger entry.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
-                    Visible = false;
+                    Visible = ItemTrackingVisible;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
-                    Visible = false;
+                    Visible = ItemTrackingVisible;
                 }
-                field("Location Code"; "Location Code")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a package number if the posted item carries such a number.';
+                    Visible = ItemTrackingVisible;
+                }
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -102,31 +108,31 @@ page 167 "Item Ledger Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
-                field("Invoiced Quantity"; "Invoiced Quantity")
+                field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item on the line have been invoiced.';
                     Visible = true;
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                     Visible = true;
                 }
-                field("Shipped Qty. Not Returned"; "Shipped Qty. Not Returned")
+                field("Shipped Qty. Not Returned"; Rec."Shipped Qty. Not Returned")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for this item ledger entry that was shipped and has not yet been returned.';
                     Visible = false;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of the item on the line have been reserved.';
                     Visible = false;
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity per item unit of measure.';
@@ -185,53 +191,53 @@ page 167 "Item Ledger Entries Preview"
                     ToolTip = 'Specifies the sum of the non-inventoriable cost amounts if you post. Typical non-inventoriable costs come from item charges.';
                     Visible = false;
                 }
-                field("Completely Invoiced"; "Completely Invoiced")
+                field("Completely Invoiced"; Rec."Completely Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry has been fully invoiced or if more posted invoices are expected. Only completely invoiced entries can be revalued.';
                     Visible = false;
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry has been fully applied to.';
                 }
-                field("Drop Shipment"; "Drop Shipment")
+                field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                     Visible = false;
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the posting represents an assemble-to-order sale.';
                     Visible = false;
                 }
-                field("Applied Entry to Adjust"; "Applied Entry to Adjust")
+                field("Applied Entry to Adjust"; Rec."Applied Entry to Adjust")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there is one or more applied entries, which need to be adjusted.';
                     Visible = false;
                 }
-                field("Order Type"; "Order Type")
+                field("Order Type"; Rec."Order Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction the entry is created from.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Order Line No."; "Order Line No.")
+                field("Order Line No."; Rec."Order Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Prod. Order Comp. Line No."; "Prod. Order Comp. Line No.")
+                field("Prod. Order Comp. Line No."; Rec."Prod. Order Comp. Line No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the line number of the production order component.';
@@ -248,26 +254,32 @@ page 167 "Item Ledger Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source number used on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Source No. 3"; "Source No. 3")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source number used on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
@@ -351,7 +363,7 @@ page 167 "Item Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)
@@ -364,7 +376,7 @@ page 167 "Item Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        Rec.SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
                 action("&Value Entries")
@@ -420,7 +432,7 @@ page 167 "Item Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        ShowReservationEntries(true);
+                        Rec.ShowReservationEntries(true);
                     end;
                 }
                 action("Application Worksheet")
@@ -441,7 +453,7 @@ page 167 "Item Ledger Entries Preview"
                     begin
                         Clear(ApplicationWorksheet);
                         ApplicationWorksheet.SetRecordToShow(Rec);
-                        ApplicationWorksheet.Run;
+                        ApplicationWorksheet.Run();
                     end;
                 }
             }
@@ -469,7 +481,7 @@ page 167 "Item Ledger Entries Preview"
                         OrderTrackingForm: Page "Order Tracking";
                     begin
                         OrderTrackingForm.SetItemLedgEntry(Rec);
-                        OrderTrackingForm.RunModal;
+                        OrderTrackingForm.RunModal();
                     end;
                 }
             }
@@ -478,11 +490,12 @@ page 167 "Item Ledger Entries Preview"
 
     trigger OnAfterGetRecord()
     begin
-        CalcAmounts;
+        CalcAmounts();
     end;
 
     trigger OnOpenPage()
     begin
+        SetPackageTrackingVisibility();
         SetDimVisibility();
     end;
 
@@ -497,6 +510,9 @@ page 167 "Item Ledger Entries Preview"
         CostAmountExpectedACY: Decimal;
         CostAmountActualACY: Decimal;
         CostAmountNonInvtblACY: Decimal;
+        ItemTrackingVisible: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     protected var
         Dim1Visible: Boolean;
@@ -517,17 +533,20 @@ page 167 "Item Ledger Entries Preview"
 
     procedure Set(var TempItemLedgerEntry2: Record "Item Ledger Entry" temporary; var TempValueEntry2: Record "Value Entry" temporary)
     begin
-        if TempItemLedgerEntry2.FindSet then
+        ItemTrackingVisible := false;
+        if TempItemLedgerEntry2.FindSet() then
             repeat
                 Rec := TempItemLedgerEntry2;
-                Insert;
-            until TempItemLedgerEntry2.Next = 0;
+                Rec.Insert();
+                If Rec.TrackingExists() then
+                    ItemTrackingVisible := true;
+            until TempItemLedgerEntry2.Next() = 0;
 
-        if TempValueEntry2.FindSet then
+        if TempValueEntry2.FindSet() then
             repeat
                 TempValueEntry := TempValueEntry2;
                 TempValueEntry.Insert();
-            until TempValueEntry2.Next = 0;
+            until TempValueEntry2.Next() = 0;
     end;
 
     local procedure CalcAmounts()
@@ -541,8 +560,8 @@ page 167 "Item Ledger Entries Preview"
         CostAmountActualACY := 0;
         CostAmountNonInvtblACY := 0;
 
-        TempValueEntry.SetFilter("Item Ledger Entry No.", '%1', "Entry No.");
-        if TempValueEntry.FindSet then
+        TempValueEntry.SetFilter("Item Ledger Entry No.", '%1', Rec."Entry No.");
+        if TempValueEntry.FindSet() then
             repeat
                 SalesAmountExpected += TempValueEntry."Sales Amount (Expected)";
                 SalesAmountActual += TempValueEntry."Sales Amount (Actual)";
@@ -552,7 +571,14 @@ page 167 "Item Ledger Entries Preview"
                 CostAmountExpectedACY += TempValueEntry."Cost Amount (Expected) (ACY)";
                 CostAmountActualACY += TempValueEntry."Cost Amount (Actual) (ACY)";
                 CostAmountNonInvtblACY += TempValueEntry."Cost Amount (Non-Invtbl.)(ACY)";
-            until TempValueEntry.Next = 0;
+            until TempValueEntry.Next() = 0;
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

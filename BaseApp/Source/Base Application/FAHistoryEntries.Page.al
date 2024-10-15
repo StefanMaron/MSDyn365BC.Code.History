@@ -1,10 +1,13 @@
 page 31044 "FA History Entries"
 {
-    Caption = 'FA History Entries';
+    Caption = 'FA History Entries (Obsolete)';
     DataCaptionFields = "FA No.";
     Editable = false;
     PageType = List;
     SourceTable = "FA History Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -75,6 +78,7 @@ page 31044 "FA History Entries"
         }
     }
 
+#if not CLEAN18
     actions
     {
         area(processing)
@@ -87,6 +91,10 @@ page 31044 "FA History Entries"
                 Promoted = true;
                 PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
 
                 trigger OnAction()
                 var
@@ -99,5 +107,6 @@ page 31044 "FA History Entries"
             }
         }
     }
+#endif
 }
 

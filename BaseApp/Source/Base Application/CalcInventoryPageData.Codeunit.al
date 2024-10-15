@@ -74,7 +74,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                 TempInvtEventBuf.SetFilter("Availability Date", '<=%1', LastDateInPeriod);
                 TempInvtEventBuf.Find('+');
                 TempInvtEventBuf.SetRange("Availability Date");
-            until TempInvtEventBuf.Next = 0;
+            until TempInvtEventBuf.Next() = 0;
         TempInvtEventBuf.Reset();
     end;
 
@@ -99,7 +99,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     InvtPageData.Insert();
                 UpdatePeriodTotals(PeriodInvtPageData, InvtPageData);
                 UpdateInventory(PeriodInvtPageData, TempInvtEventBuf);
-            until TempInvtEventBuf.Next = 0;
+            until TempInvtEventBuf.Next() = 0;
         InvtPageData.Copy(PeriodInvtPageData);
 
         OnDetailsForPeriodEntryOnBeforeInvtPageDataModify(InvtPageData);

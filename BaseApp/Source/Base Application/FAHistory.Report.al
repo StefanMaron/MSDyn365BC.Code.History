@@ -1,10 +1,14 @@
+#if not CLEAN18
 report 31049 "FA History"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAHistory.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'FA History';
+    Caption = 'FA History (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -652,7 +656,7 @@ report 31049 "FA History"
                 OK := FindFA(TempFAHistory2."FA No.", TempFAHistory2.Type, TypeCode, TempFAHistory2."Entry No.");
                 if OK then
                     exit;
-            until TempFAHistory2.Next = 0;
+            until TempFAHistory2.Next() = 0;
     end;
 }
-
+#endif

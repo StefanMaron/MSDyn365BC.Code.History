@@ -1,4 +1,4 @@
-table 6507 "Item Entry Relation"
+﻿table 6507 "Item Entry Relation"
 {
     Caption = 'Item Entry Relation';
 
@@ -50,6 +50,11 @@ table 6507 "Item Entry Relation"
         field(31; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
         }
         field(31070; Undo; Boolean)
         {
@@ -166,6 +171,24 @@ table 6507 "Item Entry Relation"
     begin
         SetSource(DATABASE::"Posted Assembly Line", 0, PostedAssemblyLine."Document No.", PostedAssemblyLine."Line No.");
         SetOrderInfo(PostedAssemblyLine."Order No.", PostedAssemblyLine."Order Line No.");
+    end;
+
+    procedure TransferFieldsInvtRcptLine(var InvtRcptLine: Record "Invt. Receipt Line")
+    begin
+        SetSource(DATABASE::"Invt. Receipt Line", 0, InvtRcptLine."Document No.", InvtRcptLine."Line No.");
+        SetSource2("Source Batch Name", 0);
+    end;
+
+    procedure TransferFieldsInvtShptLine(var InvtShptLine: Record "Invt. Shipment Line")
+    begin
+        SetSource(DATABASE::"Invt. Shipment Line", 0, InvtShptLine."Document No.", InvtShptLine."Line No.");
+        SetSource2("Source Batch Name", 0);
+    end;
+
+    procedure TransferFieldsDirectTransLine(var DirectTransLine: Record "Direct Trans. Line")
+    begin
+        SetSource(DATABASE::"Direct Trans. Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.");
+        SetOrderInfo(DirectTransLine."Transfer Order No.", DirectTransLine."Line No.");
     end;
 
     procedure SetSource(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)

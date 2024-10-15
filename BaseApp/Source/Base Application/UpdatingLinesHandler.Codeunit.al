@@ -1,11 +1,15 @@
+#if not CLEAN18
 codeunit 11772 "Updating Lines Handler"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 5740, 'OnUpdateTransLines', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Transfer Header", 'OnUpdateTransLines', '', false, false)]
     local procedure UpdateTransLinesOnUpdateTransLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; FieldID: Integer)
     begin
         with TransferHeader do
@@ -27,4 +31,4 @@ codeunit 11772 "Updating Lines Handler"
             end;
     end;
 }
-
+#endif

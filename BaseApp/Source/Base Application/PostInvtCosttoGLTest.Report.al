@@ -105,15 +105,15 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         repeat
                             ItemValueEntry.Get(TempCapValueEntry."Entry No.");
                             FillInvtPostToGLTestBuf(ItemValueEntry);
-                        until TempCapValueEntry.Next = 0;
+                        until TempCapValueEntry.Next() = 0;
 
                     if PostMethod = PostMethod::"per Posting Group" then
-                        InvtPost.PostInvtPostBufPerPostGrp(DocNo, '');
+                        InvtPostToGL.PostInvtPostBufPerPostGrp(DocNo, '');
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    InvtPost.SetRunOnlyCheck(false, true, true);
+                    InvtPostToGL.SetRunOnlyCheck(false, true, true);
                     TempCapValueEntry.DeleteAll();
                 end;
             }
@@ -193,7 +193,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -290,7 +290,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
                 trigger OnPreDataItem()
                 begin
-                    InvtPost.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuf);
+                    InvtPostToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuf);
                     SetRange(Number, 1, TempInvtPostToGLTestBuf.Count);
                 end;
             }
@@ -384,7 +384,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
         ItemValueEntry: Record "Value Entry";
         InvtPostSetup: Record "Inventory Posting Setup";
         GenPostSetup: Record "General Posting Setup";
-        InvtPost: Codeunit "Inventory Posting To G/L";
+        InvtPostToGL: Codeunit "Inventory Posting To G/L";
         PostMethod: Option "per Posting Group","per Entry";
         DocNo: Code[20];
         ValueEntryFilter: Text;
@@ -420,15 +420,15 @@ report 1003 "Post Invt. Cost to G/L - Test"
     local procedure FillInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
     begin
         with ValueEntry do begin
-            if not InvtPost.BufferInvtPosting(ValueEntry) then
+            if not InvtPostToGL.BufferInvtPosting(ValueEntry) then
                 exit;
 
             if PostMethod = PostMethod::"per Entry" then
-                InvtPost.PostInvtPostBufPerEntry(ValueEntry);
+                InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
         end;
     end;
 
-    local procedure AddError(Text: Text[250])
+    procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
@@ -583,7 +583,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     exit(GenPostSetup.FieldCaption("COGS Account (Interim)"));
                 "Inventory Account Type"::"Invt. Accrual (Interim)":
                     exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
-                    // NAVCZ
+#if not CLEAN18
+                // NAVCZ
                 "Inventory Account Type"::AccConsumption:
                     exit(InvtPostSetup.FieldCaption("Consumption Account"));
                 "Inventory Account Type"::AccWIPChange:
@@ -592,7 +593,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     exit(InvtPostSetup.FieldCaption("Change In Inv.Of Product Acc."));
                 "Inventory Account Type"::InvRoundingAdj:
                     exit(GenPostSetup.FieldCaption("Invt. Rounding Adj. Account"));
-                    // NAVCZ
+                // NAVCZ
+#endif
                 else begin
                         IsHandled := false;
                         OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);

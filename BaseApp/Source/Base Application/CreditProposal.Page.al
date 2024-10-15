@@ -1,8 +1,11 @@
 page 31054 "Credit Proposal"
 {
-    Caption = 'Credit Proposal';
+    Caption = 'Credit Proposal (Obsolete)';
     InsertAllowed = false;
     PageType = Worksheet;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -204,7 +207,7 @@ page 31054 "Credit Proposal"
                                             RecFilter := Vend."No."
                                         else
                                             RecFilter := RecFilter + '|' + Vend."No.";
-                                    until Vend.Next = 0;
+                                    until Vend.Next() = 0;
                                 end;
                             end;
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
@@ -241,7 +244,7 @@ page 31054 "Credit Proposal"
                                             RecFilter := Cust."No."
                                         else
                                             RecFilter := RecFilter + '|' + Cust."No.";
-                                    until Cust.Next = 0;
+                                    until Cust.Next() = 0;
                                 end;
                             end;
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
@@ -298,7 +301,7 @@ page 31054 "Credit Proposal"
                     ValueFilter := ContactBusRelation."No."
                 else
                     ValueFilter := ValueFilter + '|' + ContactBusRelation."No.";
-            until ContactBusRelation.Next = 0;
+            until ContactBusRelation.Next() = 0;
         end;
     end;
 

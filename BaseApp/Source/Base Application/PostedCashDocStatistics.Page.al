@@ -263,8 +263,6 @@ page 11739 "Posted Cash Doc. Statistics"
                         VATAmountLine.Insert();
                     end;
 
-                    VATAmountLine."VAT Base (Non Deductible)" += "VAT Base (Non Deductible)";
-                    VATAmountLine."VAT Amount (Non Deductible)" += "VAT Amount (Non Deductible)";
                     VATAmountLine."Line Amount" += Amount;
                     VATAmountLine."Amount Including VAT" += "Amount Including VAT";
                     VATAmountLine."VAT Base" += "VAT Base Amount";
@@ -275,7 +273,7 @@ page 11739 "Posted Cash Doc. Statistics"
                     VATAmountLine."VAT Amount (LCY)" += "Amount Including VAT (LCY)" - "VAT Base Amount (LCY)";
                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
                     VATAmountLine.Modify();
-                until Next = 0;
+                until Next() = 0;
             SetRange("Account Type");
         end;
 
@@ -284,7 +282,7 @@ page 11739 "Posted Cash Doc. Statistics"
                 repeat
                     "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]

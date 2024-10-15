@@ -6382,7 +6382,7 @@
             <Top>1.15282in</Top>
             <Left>0cm</Left>
             <Height>2.78403cm</Height>
-            <Width>19.63801cm</Width>
+            <Width>19.63799cm</Width>
             <ZIndex>2</ZIndex>
             <Visibility>
               <Hidden>=First(Fields!gboPrintUnreal.Value, "DataSet_Result")</Hidden>
@@ -6575,30 +6575,6 @@
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="COMPANYNAME4">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=First(Fields!gtePerfCountryFilter.Value, "DataSet_Result")</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.22084cm</Top>
-              <Left>0.02351cm</Left>
-              <Height>0.423cm</Height>
-              <Width>18.15cm</Width>
-              <ZIndex>7</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
           </ReportItems>
           <Style />
         </PageHeader>
@@ -6699,9 +6675,6 @@ End Function
         </Field>
         <Field Name="gteEntryTypeText">
           <DataField>gteEntryTypeText</DataField>
-        </Field>
-        <Field Name="gtePerfCountryFilter">
-          <DataField>gtePerfCountryFilter</DataField>
         </Field>
         <Field Name="gteTextVATUnreal">
           <DataField>gteTextVATUnreal</DataField>

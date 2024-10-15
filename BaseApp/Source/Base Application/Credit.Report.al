@@ -2,7 +2,10 @@ report 31050 Credit
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Credit.rdlc';
-    Caption = 'Credit';
+    Caption = 'Credit (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -303,7 +306,7 @@ report 31050 Credit
                                 if not TempCreditLine.FindSet then
                                     CurrReport.Break();
                             end else
-                                if TempCreditLine.Next = 0 then
+                                if TempCreditLine.Next() = 0 then
                                     CurrReport.Break();
 
                             if TempCreditLine."Credit No." <> '' then
@@ -338,7 +341,7 @@ report 31050 Credit
                                 if not TempCreditLine2.FindSet then
                                     CurrReport.Break();
                             end else
-                                if TempCreditLine2.Next = 0 then
+                                if TempCreditLine2.Next() = 0 then
                                     CurrReport.Break();
 
                             if TempCreditLine2."Credit No." <> '' then
@@ -456,24 +459,18 @@ report 31050 Credit
                         begin
                             if not Vend.Get("Company No.") then
                                 Clear(Vend);
-                            if Vend."Registered Name" <> '' then
-                                Name := Vend."Registered Name";
                             RegNo := Vend."Registration No.";
                         end;
                     Type::Customer:
                         begin
                             if not Cust.Get("Company No.") then
                                 Clear(Cust);
-                            if Cust."Registered Name" <> '' then
-                                Name := Cust."Registered Name";
                             RegNo := Cust."Registration No.";
                         end;
                     Type::Contact:
                         begin
                             if not Cont.Get("Company No.") then
                                 Clear(Cont);
-                            if Cont."Registered Name" <> '' then
-                                Name := Cont."Registered Name";
                             RegNo := Cont."Registration No.";
                         end;
                 end;

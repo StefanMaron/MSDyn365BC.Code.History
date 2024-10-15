@@ -7,6 +7,9 @@ page 43 "Sales Invoice"
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER(Invoice));
 
+    AboutTitle = 'About sales invoice details';
+    AboutText = 'You can update and add to the sales invoice until you post it. If you leave the invoice without posting, you can return to it later from the list of ongoing invoices.';
+
     layout
     {
         area(content)
@@ -48,6 +51,8 @@ page 43 "Sales Invoice"
                     Importance = Promoted;
                     NotBlank = true;
                     ShowMandatory = true;
+                    AboutTitle = 'Who you are selling to';
+                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.​';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
@@ -179,15 +184,6 @@ page 43 "Sales Invoice"
                     Editable = "Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the person to contact at the customer.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting description code for the sales header.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Posting Description"; "Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
@@ -281,6 +277,8 @@ page 43 "Sales Invoice"
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     StyleExpr = StatusStyleTxt;
+                    AboutTitle = 'Check the invoice status here';
+                    AboutText = 'You can only edit an open invoice. When status is Released, it means the invoice is up for next stage in processing, such as reserving the products being sold. Use Reopen if you must edit a released invoice.';
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -352,6 +350,10 @@ page 43 "Sales Invoice"
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
@@ -475,15 +477,6 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
-                }
-                field("Tax Corrective Document"; "Tax Corrective Document")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the tax corrective document.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -845,6 +838,10 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Prepayment %"; "Prepayment %")
                 {
@@ -909,6 +906,10 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -933,28 +934,10 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the industry code for the customer record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
-                }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -965,57 +948,102 @@ page 43 "Sales Invoice"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -1648,12 +1676,12 @@ page 43 "Sales Invoice"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1673,7 +1701,7 @@ page 43 "Sales Invoice"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1695,6 +1723,8 @@ page 43 "Sales Invoice"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
+                    AboutTitle = 'When all is set, you post';
+                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.​ After posting, the sales invoice is moved to the Posted Sales Invoices list.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
@@ -1979,6 +2009,7 @@ page 43 "Sales Invoice"
         InstructionMgt: Codeunit "Instruction Mgt.";
         PreAssignedNo: Code[20];
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1993,6 +2024,11 @@ page 43 "Sales Invoice"
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
@@ -2058,7 +2094,7 @@ page 43 "Sales Invoice"
 
     local procedure Prepayment37OnAfterValidate()
     begin
-        CurrPage.Update; // NAVCZ
+        CurrPage.Update(); // NAVCZ
     end;
 
     [Scope('OnPrem')]
@@ -2078,7 +2114,7 @@ page 43 "Sales Invoice"
             Find;
         end;
 
-        if not SalesAPTempl.IsEmpty then
+        if not SalesAPTempl.IsEmpty() then
             if not (PAGE.RunModal(PAGE::"Sales Advanced Paym. Selection", SalesAPTempl) = ACTION::LookupOK) then
                 Error('');
         SalesPostAdvances.Letter(Rec, AdvLetterNo, SalesAPTempl.Code);
@@ -2176,5 +2212,9 @@ page 43 "Sales Invoice"
     local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
     begin
     end;
-}
 
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+}

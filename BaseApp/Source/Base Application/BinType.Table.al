@@ -180,7 +180,7 @@ table 7303 "Bin Type"
                         BinTypeFilter := BinTypeFilter + '|' + BinType.Code;
                 end else
                     Error(Text003, BinType.TableCaption);
-            until BinType.Next = 0;
+            until BinType.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

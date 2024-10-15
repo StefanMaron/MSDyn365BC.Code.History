@@ -74,6 +74,9 @@ page 426 "Vendor Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Currency Code"; "Currency Code")
@@ -93,11 +96,19 @@ page 426 "Vendor Bank Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Public Bank Account';
                     ToolTip = 'Specifies if the vendor''s bank account is public.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Third Party Bank Account"; "Third Party Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -119,7 +130,7 @@ page 426 "Vendor Bank Account List"
     actions
     {
     }
-   
+
     trigger OnOpenPage()
     var
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
@@ -127,7 +138,7 @@ page 426 "Vendor Bank Account List"
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
-     var
+    var
         UncertPayerMgmt: Codeunit "Unc. Payer Mgt.";
 }
 

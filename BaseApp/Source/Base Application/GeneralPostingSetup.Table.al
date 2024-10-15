@@ -377,11 +377,20 @@ table 252 "General Posting Setup"
         {
             Caption = 'Invt. Rounding Adj. Account';
             TableRelation = "G/L Account";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 CheckGLAcc("Invt. Rounding Adj. Account");
             end;
+#endif
         }
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {
@@ -459,7 +468,7 @@ table 252 "General Posting Setup"
     begin
         GLEntry.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
         GLEntry.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
 
@@ -477,7 +486,7 @@ table 252 "General Posting Setup"
             SetRange("Sales Line Disc. Account", '');
             FieldNumber := FieldNo("Sales Line Disc. Account");
         end;
-        Found := FindSet;
+        Found := FindSet();
         if (DiscountPosting = SalesSetup."Discount Posting"::"All Discounts") and ("Sales Line Disc. Account" <> '') then
             FieldNumber := FieldNo("Sales Inv. Disc. Account");
     end;
@@ -496,7 +505,7 @@ table 252 "General Posting Setup"
             SetRange("Purch. Line Disc. Account", '');
             FieldNumber := FieldNo("Purch. Line Disc. Account");
         end;
-        Found := FindSet;
+        Found := FindSet();
         if (DiscountPosting = PurchSetup."Discount Posting"::"All Discounts") and ("Purch. Line Disc. Account" <> '') then
             FieldNumber := FieldNo("Purch. Inv. Disc. Account");
     end;
@@ -522,7 +531,7 @@ table 252 "General Posting Setup"
         if FindSet then
             repeat
                 Mark(true);
-            until Next = 0;
+            until Next() = 0;
         FilterGroup(0);
         MarkedOnly(true);
     end;

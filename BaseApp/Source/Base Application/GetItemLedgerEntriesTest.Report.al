@@ -5,8 +5,11 @@ report 31059 "Get Item Ledger Entries - Test"
     DefaultLayout = RDLC;
     RDLCLayout = './GetItemLedgerEntriesTest.rdlc';
 
-    Caption = 'Get Item Ledger Entries - Test';
+    Caption = 'Get Item Ledger Entries - Test (Obsolete)';
     Permissions = TableData "General Posting Setup" = imd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -21,10 +24,7 @@ report 31059 "Get Item Ledger Entries - Test"
                 trigger OnAfterGetRecord()
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst or
-                       (("Perform. Country/Region Code" = '') and (CompanyInfo."Country/Region Code" = "Country/Region Code")) or
-                       (("Perform. Country/Region Code" <> '') and ("Country/Region Code" = "Perform. Country/Region Code"))
-                    then
+                    if IntrastatJnlLine2.FindFirst then
                         CurrReport.Skip();
 
                     if Item."No." <> "Item No." then
@@ -42,11 +42,6 @@ report 31059 "Get Item Ledger Entries - Test"
                 trigger OnPreDataItem()
                 begin
                     SetRange("Posting Date", StartDate, EndDate);
-                    if gcoCountryCodeFillFiter <> '' then
-                        SetRange("Perform. Country/Region Code", gcoCountryCodeFillFiter)
-                    else
-                        SetRange("Perform. Country/Region Code", '');
-
                     IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                     IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"Item Entry");
                 end;
@@ -157,17 +152,6 @@ report 31059 "Get Item Ledger Entries - Test"
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the last date in the period.';
                     }
-                    field(gcoCountryCodeFillFiter; gcoCountryCodeFillFiter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Performance Country';
-                        TableRelation = "Country/Region";
-                        ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                 }
             }
         }
@@ -178,15 +162,17 @@ report 31059 "Get Item Ledger Entries - Test"
 
         trigger OnOpenPage()
         begin
-            IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
-            IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-            IntrastatJnlBatch.TestField("Statistics Period");
-            Century := Date2DMY(WorkDate, 3) div 100;
-            Evaluate(Year, CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2));
-            Year := Year + Century * 100;
-            Evaluate(Month, CopyStr(IntrastatJnlBatch."Statistics Period", 3, 2));
-            StartDate := DMY2Date(1, Month, Year);
-            EndDate := CalcDate('<+1M-1D>', StartDate);
+            if (IntrastatJnlLine."Journal Template Name" <> '') and (IntrastatJnlLine."Journal Batch Name" <> '') then begin
+                IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
+                IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+                IntrastatJnlBatch.TestField("Statistics Period");
+                Century := Date2DMY(WorkDate, 3) div 100;
+                Evaluate(Year, CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2));
+                Year := Year + Century * 100;
+                Evaluate(Month, CopyStr(IntrastatJnlBatch."Statistics Period", 3, 2));
+                StartDate := DMY2Date(1, Month, Year);
+                EndDate := CalcDate('<+1M-1D>', StartDate);
+            end;
         end;
     }
 
@@ -207,8 +193,6 @@ report 31059 "Get Item Ledger Entries - Test"
         Item: Record Item;
         CompanyInfo: Record "Company Information";
         greTItem: Record Item temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        gcoCountryCodeFillFiter: Code[10];
         StartDate: Date;
         EndDate: Date;
         Century: Integer;

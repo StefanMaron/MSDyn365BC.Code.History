@@ -98,7 +98,7 @@ codeunit 20 "Posting Preview Event Handler"
             DATABASE::"Cust. Ledger Entry":
                 begin
                     CustLedgEntriesPreview.Set(TempCustLedgEntry, TempDtldCustLedgEntry);
-                    CustLedgEntriesPreview.Run;
+                    CustLedgEntriesPreview.Run();
                     Clear(CustLedgEntriesPreview);
                 end;
             DATABASE::"Detailed Cust. Ledg. Entry":
@@ -106,7 +106,7 @@ codeunit 20 "Posting Preview Event Handler"
             DATABASE::"Vendor Ledger Entry":
                 begin
                     VendLedgEntriesPreview.Set(TempVendLedgEntry, TempDtldVendLedgEntry);
-                    VendLedgEntriesPreview.Run;
+                    VendLedgEntriesPreview.Run();
                     Clear(VendLedgEntriesPreview);
                 end;
             DATABASE::"Detailed Vendor Ledg. Entry":
@@ -114,7 +114,7 @@ codeunit 20 "Posting Preview Event Handler"
             DATABASE::"Employee Ledger Entry":
                 begin
                     EmplLedgerEntriesPreview.Set(TempEmplLedgEntry, TempDtldEmplLedgEntry);
-                    EmplLedgerEntriesPreview.Run;
+                    EmplLedgerEntriesPreview.Run();
                     Clear(EmplLedgerEntriesPreview);
                 end;
             DATABASE::"Detailed Employee Ledger Entry":
@@ -126,7 +126,7 @@ codeunit 20 "Posting Preview Event Handler"
             DATABASE::"Item Ledger Entry":
                 begin
                     ItemLedgerEntriesPreview.Set(TempItemLedgerEntry, TempValueEntry);
-                    ItemLedgerEntriesPreview.Run;
+                    ItemLedgerEntriesPreview.Run();
                     Clear(ItemLedgerEntriesPreview);
                 end;
             DATABASE::"FA Ledger Entry":
@@ -207,7 +207,7 @@ codeunit 20 "Posting Preview Event Handler"
     begin
         RecRef.GetTable(RecVar);
 
-        if RecRef.IsEmpty then
+        if RecRef.IsEmpty() then
             exit;
 
         TempDocumentEntry.Init();
@@ -231,10 +231,10 @@ codeunit 20 "Posting Preview Event Handler"
         CommitPrevented := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 17, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertGLEntry(var Rec: Record "G/L Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -243,23 +243,37 @@ codeunit 20 "Posting Preview Event Handler"
         TempGLEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 254, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyGLEntry(var Rec: Record "G/L Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        TempGLEntry := Rec;
+        TempGLEntry."Document No." := '***';
+
+        OnBeforeModifyTempGLEntry(Rec, TempGLEntry);
+
+        if TempGLEntry.Modify() then
+            PreventCommit();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertVATEntry(var Rec: Record "VAT Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
         TempVATEntry := Rec;
         TempVATEntry."Document No." := '***';
-        TempVATEntry."Pmt.Disc. Tax Corr.Doc. No." := '***'; // NAVCZ
         TempVATEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5802, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Value Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertValueEntry(var Rec: Record "Value Entry")
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -268,10 +282,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempValueEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 32, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertItemLedgerEntry(var Rec: Record "Item Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -280,10 +294,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempItemLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5601, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"FA Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertFALedgEntry(var Rec: Record "FA Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -292,10 +306,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempFALedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertCustLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -304,22 +318,25 @@ codeunit 20 "Posting Preview Event Handler"
         TempCustLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyCustLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         TempCustLedgEntry := Rec;
         TempCustLedgEntry."Document No." := '***';
-        if TempCustLedgEntry.Modify then
+
+        OnBeforeModifyTempCustLedgEntry(Rec, TempCustLedgEntry);
+
+        if TempCustLedgEntry.Modify() then
             PreventCommit();
     end;
 
-    [EventSubscriber(ObjectType::Table, 379, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Cust. Ledg. Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertDetailedCustLedgEntry(var Rec: Record "Detailed Cust. Ledg. Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -328,10 +345,25 @@ codeunit 20 "Posting Preview Event Handler"
         TempDtldCustLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 25, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Cust. Ledg. Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyDetailedCustLedgerEntry(var Rec: Record "Detailed Cust. Ledg. Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        TempDtldCustLedgEntry := Rec;
+        TempDtldCustLedgEntry."Document No." := '***';
+
+        OnBeforeModifyTempDtldCustLedgEntry(Rec, TempDtldCustLedgEntry);
+
+        if TempDtldCustLedgEntry.Modify() then
+            PreventCommit();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -340,22 +372,25 @@ codeunit 20 "Posting Preview Event Handler"
         TempVendLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 25, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         TempVendLedgEntry := Rec;
         TempVendLedgEntry."Document No." := '***';
-        if TempVendLedgEntry.Modify then
+
+        OnBeforeModifyTempVendLedgEntry(Rec, TempVendLedgEntry);
+
+        if TempVendLedgEntry.Modify() then
             PreventCommit();
     end;
 
-    [EventSubscriber(ObjectType::Table, 380, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Vendor Ledg. Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertDetailedVendorLedgEntry(var Rec: Record "Detailed Vendor Ledg. Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -364,10 +399,25 @@ codeunit 20 "Posting Preview Event Handler"
         TempDtldVendLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5222, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Vendor Ledg. Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyDetailedVendorLedgerEntry(var Rec: Record "Detailed Vendor Ledg. Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        TempDtldVendLedgEntry := Rec;
+        TempDtldVendLedgEntry."Document No." := '***';
+
+        OnBeforeModifyTempDtldVendLedgEntry(Rec, TempDtldVendLedgEntry);
+
+        if TempDtldVendLedgEntry.Modify() then
+            PreventCommit();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Employee Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertEmployeeLedgerEntry(var Rec: Record "Employee Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -376,10 +426,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempEmplLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5223, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Employee Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertDetailedEmployeeLedgerEntry(var Rec: Record "Detailed Employee Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -388,10 +438,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempDtldEmplLedgEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 271, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Bank Account Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertBankAccountLedgerEntry(var Rec: Record "Bank Account Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -400,10 +450,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempBankAccLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 203, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Res. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertResourceLedgerEntry(var Rec: Record "Res. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -412,10 +462,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempResLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5907, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertServiceLedgerEntry(var Rec: Record "Service Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -424,10 +474,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempServiceLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5907, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyServiceLedgerEntry(var Rec: Record "Service Ledger Entry"; var xRec: Record "Service Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -436,10 +486,10 @@ codeunit 20 "Posting Preview Event Handler"
         if TempServiceLedgerEntry.Insert() then;
     end;
 
-    [EventSubscriber(ObjectType::Table, 5908, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Warranty Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertWarrantyLedgerEntry(var Rec: Record "Warranty Ledger Entry")
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -448,10 +498,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempWarrantyLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 5625, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Maintenance Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertMaintenanceLedgerEntry(var Rec: Record "Maintenance Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -460,10 +510,10 @@ codeunit 20 "Posting Preview Event Handler"
         TempMaintenanceLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 169, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertJobLedgEntry(var Rec: Record "Job Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -472,11 +522,11 @@ codeunit 20 "Posting Preview Event Handler"
         TempJobLedgerEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 31022, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertPurchAdvanceLetterEntry(var Rec: Record "Purch. Advance Letter Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -485,11 +535,11 @@ codeunit 20 "Posting Preview Event Handler"
         TempPurchAdvanceLetterEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 31002, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertSalesAdvanceLetterEntry(var Rec: Record "Sales Advance Letter Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -503,7 +553,7 @@ codeunit 20 "Posting Preview Event Handler"
     local procedure OnInsertEETEntry(var Rec: Record "EET Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -517,7 +567,7 @@ codeunit 20 "Posting Preview Event Handler"
     local procedure OnModifyEETEntry(var Rec: Record "EET Entry"; var xRec: Record "EET Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -533,7 +583,7 @@ codeunit 20 "Posting Preview Event Handler"
     local procedure OnInsertEETEntryStatus(var Rec: Record "EET Entry Status"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -546,7 +596,7 @@ codeunit 20 "Posting Preview Event Handler"
     local procedure OnInsertErrorMessage(var Rec: Record "Error Message"; RunTrigger: Boolean)
     begin
         // NAVCZ
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         PreventCommit();
@@ -569,7 +619,32 @@ codeunit 20 "Posting Preview Event Handler"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnSystemSetPostingPreviewActive', '', false, false)]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempGLEntry(var Rec: Record "G/L Entry"; var TempCustLedgerEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempCustLedgEntry(var Rec: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempDtldCustLedgEntry(var Rec: Record "Detailed Cust. Ledg. Entry"; var TempCustLedgerEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempVendLedgEntry(var Rec: Record "Vendor Ledger Entry"; var TempVendLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempDtldVendLedgEntry(var Rec: Record "Detailed Vendor Ledg. Entry"; var TempVendLedgerEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnSystemSetPostingPreviewActive', '', false, false)]
     local procedure SetTrueOnSystemSetPostingPreviewActive(var Result: Boolean)
     begin
         Result := true;

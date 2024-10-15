@@ -76,7 +76,7 @@ report 31080 "Account Schedule Export File"
                 StmtFileMapping.Reset();
                 StmtFileMapping.SetRange("Schedule Name", AccSchedName);
                 StmtFileMapping.SetRange("Schedule Column Layout Name", ColumnLayoutName);
-                if StmtFileMapping.IsEmpty then
+                if StmtFileMapping.IsEmpty() then
                     Error(Text006);
             end;
         }
@@ -444,8 +444,8 @@ report 31080 "Account Schedule Export File"
                               ColumnValuesAsText[i],
                               StmtFileMapping.Split,
                               StmtFileMapping.Offset);
-                        until StmtFileMapping.Next = 0;
-                until (i >= MaxColumnsDisplayed) or (Next = 0);
+                        until StmtFileMapping.Next() = 0;
+                until (i >= MaxColumnsDisplayed) or (Next() = 0);
         end;
     end;
 

@@ -3,6 +3,9 @@ table 31051 "Credit Line"
     Caption = 'Credit Line';
     DrillDownPageID = "Credit Lines";
     LookupPageID = "Credit Lines";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -328,9 +331,12 @@ table 31051 "Credit Line"
         key(Key1; "Credit No.", "Line No.")
         {
             Clustered = true;
-            SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
         }
         key(Key2; "Source Type", "Source No.")
+        {
+            SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
+        }
+        key(key3; "Credit No.", "Source Type", "Source Entry No.")
         {
             SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
         }
@@ -371,6 +377,7 @@ table 31051 "Credit Line"
         MustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = Posting Date';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -379,6 +386,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CopyLEDimensions()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -417,6 +425,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspend := Suspend;
@@ -448,6 +457,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure SetCreditHeader(NewCreditHeader: Record "Credit Header")
     begin
         CreditHeader := NewCreditHeader;
@@ -461,6 +471,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure ConvertLCYAmounts()
     begin
         GetCreditHeader;
@@ -483,6 +494,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure ConvertAmounts()
     begin
         GetCreditHeader;
@@ -510,6 +522,7 @@ table 31051 "Credit Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CheckPostingDate()
     begin
         TestField("Credit No.");

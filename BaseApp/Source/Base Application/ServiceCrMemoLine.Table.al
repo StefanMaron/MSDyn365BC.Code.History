@@ -521,9 +521,9 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
@@ -551,6 +551,9 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -635,7 +638,7 @@ table 5995 "Service Cr.Memo Line"
                 // NAVCZ
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
@@ -698,7 +701,6 @@ table 5995 "Service Cr.Memo Line"
 
     local procedure RoundAmount(ServCrMemoHeader: Record "Service Cr.Memo Header")
     var
-        VATCoefficientRounded: Codeunit "VAT Coefficient Rounded";
         NoVAT: Boolean;
     begin
         // NAVCZ
@@ -744,7 +746,6 @@ table 5995 "Service Cr.Memo Line"
                   ServCrMemoHeader."Posting Date", ServCrMemoHeader."Currency Code",
                   TotalServCrMemoLine."VAT Difference", ServCrMemoHeader."Currency Factor")) -
               TotalServCrMemoLineLCY."VAT Difference";
-            VATCoefficientRounded.RoundServiceCrMemoLine(Rec, ServCrMemoHeader);
         end;
 
         IncrAmount(TotalServCrMemoLineLCY, ServCrMemoHeader);

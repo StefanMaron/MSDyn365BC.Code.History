@@ -59,6 +59,7 @@ codeunit 925 "Assembly Header-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(AssemblyHeader, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -68,6 +69,7 @@ codeunit 925 "Assembly Header-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(AssemblyHeader, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -239,7 +241,8 @@ codeunit 925 "Assembly Header-Reserve"
         TrackingSpecification.InitFromAsmHeader(AssemblyHeader);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyHeader."Due Date");
         ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyHeader, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure DeleteLineConfirm(var AssemblyHeader: Record "Assembly Header"): Boolean
@@ -341,12 +344,13 @@ codeunit 925 "Assembly Header-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(141);
+        exit("Reservation Summary Type"::"Assembly Quote Header".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [141, 142, 143, 144, 145]);
+        exit(EntryNo in ["Reservation Summary Type"::"Assembly Quote Header".AsInteger(),
+                         "Reservation Summary Type"::"Assembly Order Header".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -496,7 +500,7 @@ codeunit 925 "Assembly Header-Reserve"
                 AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += AssemblyHeader."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyHeader."Remaining Quantity (Base)";
-            until AssemblyHeader.Next = 0;
+            until AssemblyHeader.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -525,6 +529,11 @@ codeunit 925 "Assembly Header-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewAssemblyHeader: Record "Assembly Header"; OldAssemblyHeader: Record "Assembly Header"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var AssemblyHeader: Record "Assembly Header"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

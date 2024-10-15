@@ -397,6 +397,58 @@ page 20 "General Ledger Entries"
                             PAGE.Run(PAGE::"G/L Entries Dimension Overview", Rec);
                     end;
                 }
+
+                action(ChangeDimensions)
+                {
+                    ApplicationArea = All;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Image = ChangeDimensions;
+                    Caption = 'Correct Dimensions';
+                    ToolTip = 'Correct dimensions for the selected general ledger entries.';
+
+                    trigger OnAction()
+                    var
+                        GLEntry: Record "G/L Entry";
+                        DimensionCorrection: Record "Dimension Correction";
+                        DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
+                    begin
+                        CurrPage.SetSelectionFilter(GLEntry);
+                        DimensionCorrectionMgt.CreateCorrectionFromSelection(GLEntry, DimensionCorrection);
+                        Page.Run(PAGE::"Dimension Correction Draft", DimensionCorrection);
+                    end;
+                }
+
+                action(DimensionChangeHistory)
+                {
+                    ApplicationArea = All;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Image = History;
+                    Caption = 'History of Dimension Corrections';
+                    ToolTip = 'View a list of corrections that were made to selected ledger entries.';
+
+                    trigger OnAction()
+                    var
+                        DimCorrectionEntryLog: Record "Dim Correction Entry Log";
+                        DimensionCorrection: Record "Dimension Correction";
+                    begin
+                        DimCorrectionEntryLog.SetCurrentKey("Dimension Correction Entry No.");
+                        DimCorrectionEntryLog.Ascending(true);
+                        DimCorrectionEntryLog.SetFilter("Start Entry No.", '<=%1', Rec."Entry No.");
+                        DimCorrectionEntryLog.SetFilter("End Entry No.", '>=%1', Rec."Entry No.");
+                        if DimCorrectionEntryLog.FindFirst() then
+                            repeat
+                                if DimensionCorrection.Get(DimCorrectionEntryLog."Dimension Correction Entry No.") then
+                                    DimensionCorrection.Mark(true);
+
+                                DimCorrectionEntryLog.SetFilter("Dimension Correction Entry No.", '>%1', DimCorrectionEntryLog."Dimension Correction Entry No.");
+                            until not DimCorrectionEntryLog.FindFirst();
+
+                        DimensionCorrection.MarkedOnly(true);
+                        Page.Run(Page::"Dimension Corrections", DimensionCorrection);
+                    end;
+                }
                 action("Value Entries")
                 {
                     AccessByPermission = TableData Item = R;

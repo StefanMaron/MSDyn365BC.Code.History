@@ -8,6 +8,9 @@ page 31056 "Vendor Ledg. Entries Subform"
     SourceTable = "Vendor Ledger Entry";
     SourceTableView = SORTING(Open, "Due Date")
                       WHERE(Open = CONST(true));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -214,6 +217,9 @@ page 31056 "Vendor Ledg. Entries Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code for payment order.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -221,6 +227,9 @@ page 31056 "Vendor Ledg. Entries Subform"
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
@@ -228,6 +237,10 @@ page 31056 "Vendor Ledg. Entries Subform"
                     Editable = false;
                     TableRelation = "Constant Symbol";
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
@@ -235,6 +248,9 @@ page 31056 "Vendor Ledg. Entries Subform"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
@@ -242,6 +258,9 @@ page 31056 "Vendor Ledg. Entries Subform"
                     Editable = false;
                     ToolTip = 'Specifies the detail information for advance payment.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Entry No."; "Entry No.")
                 {
@@ -275,7 +294,7 @@ page 31056 "Vendor Ledg. Entries Subform"
                         repeat
                             Rec := VendLedgEntry;
                             Mark := not Mark;
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                     Rec := VendLedgEntry2;
                 end;
             }
@@ -305,7 +324,7 @@ page 31056 "Vendor Ledg. Entries Subform"
             repeat
                 VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 ValueBalance += VendLedgEntry."Remaining Amt. (LCY)";
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -647,7 +647,7 @@ codeunit 134067 "Test VAT Clause"
     begin
         VATClauseTranslation.Init();
         VATClauseTranslation.Validate("VAT Clause Code", VATClause.Code);
-        VATClauseTranslation.Validate("Language Code", GetRandomLanguageCode);
+        VATClauseTranslation.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         VATClauseTranslation.Validate(Description, GenerateVATClauseDescription);
         VATClauseTranslation.Validate("Description 2", GenerateVATClauseDescription);
         VATClauseTranslation.Insert(true);
@@ -668,7 +668,7 @@ codeunit 134067 "Test VAT Clause"
         VATClauseByDocTypeTrans.Init();
         VATClauseByDocTypeTrans.Validate("VAT Clause Code", VATClauseByDocType."VAT Clause Code");
         VATClauseByDocTypeTrans.Validate("Document Type", VATClauseByDocType."Document Type");
-        VATClauseByDocTypeTrans.Validate("Language Code", GetRandomLanguageCode);
+        VATClauseByDocTypeTrans.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         VATClauseByDocTypeTrans.Validate(Description, GenerateVATClauseDescription);
         VATClauseByDocTypeTrans.Validate("Description 2", GenerateVATClauseDescription);
         VATClauseByDocTypeTrans.Insert(true);
@@ -724,16 +724,7 @@ codeunit 134067 "Test VAT Clause"
         Item.Modify(true);
         exit(Item."No.")
     end;
-
-    local procedure GetRandomLanguageCode(): Code[10]
-    var
-        Language: Record Language;
-    begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
-        exit(Language.Code);
-    end;
-
+    
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceRequestPageHandler(var SalesInvoiceRequestPage: TestRequestPage "Sales - Invoice")

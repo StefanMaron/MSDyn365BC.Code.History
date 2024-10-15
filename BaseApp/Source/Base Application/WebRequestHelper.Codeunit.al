@@ -123,23 +123,9 @@ codeunit 1299 "Web Request Helper"
         exit(not IsNull(WebProxy));
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Communication using Proxy server will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure GetDefaultWebProxy(var WebProxy: DotNet WebProxy): Boolean
-    var
-        ElGovernSetup: Record "Electronically Govern. Setup";
-    begin
-        // NAVCZ
-        if ElGovernSetup.Get then
-            exit(GetWebProxy(ElGovernSetup."Proxy Server", ElGovernSetup."Proxy User",
-                ElGovernSetup.GetPassword, WebProxy));
-
-        exit(false);
-    end;
-
     [TryFunction]
     [Scope('OnPrem')]
-    [Obsolete('This function does not consider the encoding of the response. Use GetResponseTextUsingCharset instead. (If you are comparing the response with previous values saved in the database, you might need data upgrade.)','16.0')]
+    [Obsolete('This function does not consider the encoding of the response. Use GetResponseTextUsingCharset instead. (If you are comparing the response with previous values saved in the database, you might need data upgrade.)', '16.0')]
     procedure GetResponseText(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
     begin
         // REMARK: This MIGHT NOT read the response with the correct encoding. This function is left here just for backwards compatibility.

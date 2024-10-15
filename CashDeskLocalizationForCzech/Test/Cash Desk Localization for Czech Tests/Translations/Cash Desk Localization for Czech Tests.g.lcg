@@ -14,13 +14,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = Cash Desk Maximal Limit]D;]A;(LookupHint=Codeunit Cash Desk Documents CZP - NamedType AmountLimitErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1982159495 - NamedType 4259101702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1982159495 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Posted Cash Document does not exist.]]></Val>
+      <Val><![CDATA[Amount Including VAT must be positive in Cash Document Header Cash Desk No.='%1',No.='%2'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - NamedType PostCashDocNotExistErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Cash Desk No., %2 = Cash Document No.]D;]A;(LookupHint=Codeunit Cash Desk Documents CZP - NamedType AmountMustBePositiveErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1982159495 - NamedType 1110178772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -41,13 +41,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - NamedType NoOfEntriesMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1982159495 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1982159495 - NamedType 4259101702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount Including VAT must be positive in Cash Document Header Cash Desk No.='%1',No.='%2'.]]></Val>
+      <Val><![CDATA[Posted Cash Document does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Cash Desk No., %2 = Cash Document No.]D;]A;(LookupHint=Codeunit Cash Desk Documents CZP - NamedType AmountMustBePositiveErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - NamedType PostCashDocNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1982159495 - Method 567922562 - NamedType 315309378" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -57,15 +57,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method CreateCashDocumentWithoutPermissions - NamedType PermissionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1982159495 - Method 901830553 - NamedType 3344689049" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount of rounding doesn't match.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method TestVATRounding - NamedType AmountNotMatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1982159495 - Method 4256880734 - NamedType 1715593699" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -84,6 +75,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method PaymentToleranceInCashDocument - NamedType AmountNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1982159495 - Method 901830553 - NamedType 3344689049" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount of rounding doesn't match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method TestVATRounding - NamedType AmountNotMatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2098600264 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

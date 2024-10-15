@@ -35,7 +35,7 @@ report 394 "Suggest Employee Payments"
                 if FindSet then
                     repeat
                         ClearNegative;
-                    until Next = 0;
+                    until Next() = 0;
 
                 DimSetEntry.LockTable();
                 GenJnlLine.LockTable();
@@ -290,7 +290,7 @@ report 394 "Suggest Employee Payments"
     trigger OnPostReport()
     begin
         Commit();
-        if not TempEmployeeLedgerEntry.IsEmpty then
+        if not TempEmployeeLedgerEntry.IsEmpty() then
             if Confirm(UnprocessedEntriesQst) then
                 PAGE.RunModal(0, TempEmployeeLedgerEntry);
     end;
@@ -407,7 +407,7 @@ report 394 "Suggest Employee Payments"
         if EmployeeLedgerEntry.FindSet then
             repeat
                 SaveAmount;
-            until EmployeeLedgerEntry.Next = 0;
+            until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -465,7 +465,7 @@ report 394 "Suggest Employee Payments"
                     CurrencyBalance := CurrencyBalance + TempPayableEmployeeLedgerEntry.Amount
                 else
                     TempPayableEmployeeLedgerEntry.Delete();
-            until TempPayableEmployeeLedgerEntry.Next = 0;
+            until TempPayableEmployeeLedgerEntry.Next() = 0;
             if OriginalAmtAvailable > 0 then
                 AmountAvailable := AmountAvailable - CurrencyBalance;
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
@@ -553,7 +553,7 @@ report 394 "Suggest Employee Payments"
                         RemovePaymentsAboveLimit(TempPayableEmployeeLedgerEntry, RemainingAmtAvailable);
                     end;
 
-                until not TempPayableEmployeeLedgerEntry.FindSet;
+                until not TempPayableEmployeeLedgerEntry.FindSet();
                 TempPayableEmployeeLedgerEntry.DeleteAll();
                 TempPayableEmployeeLedgerEntry.SetRange("Employee No.");
             until not TempPayableEmployeeLedgerEntry.Find('-');
@@ -633,7 +633,7 @@ report 394 "Suggest Employee Payments"
                     Insert;
                     GenJnlLineInserted := true;
                 end;
-            until TempEmplPaymentBuffer.Next = 0;
+            until TempEmplPaymentBuffer.Next() = 0;
     end;
 
     local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line")
@@ -658,7 +658,7 @@ report 394 "Suggest Employee Payments"
                         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                         TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                         TempDimSetEntry.Insert();
-                    until DimBuf.Next = 0;
+                    until DimBuf.Next() = 0;
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
             end;
@@ -727,7 +727,7 @@ report 394 "Suggest Employee Payments"
                 TempPayableEmplLedgEntry2.SetRange("Currency Code", TempPayableEmployeeLedgerEntry."Currency Code");
                 repeat
                     CurrencyBalance := CurrencyBalance + TempPayableEmployeeLedgerEntry.Amount
-                until TempPayableEmployeeLedgerEntry.Next = 0;
+                until TempPayableEmployeeLedgerEntry.Next() = 0;
                 if CurrencyBalance < 0 then begin
                     TempPayableEmployeeLedgerEntry.DeleteAll();
                     AmountAvailable += CurrencyBalance;
@@ -772,7 +772,7 @@ report 394 "Suggest Employee Payments"
                     TempDimSetEntry2.TransferFields(TempDimSetEntry, true);
                     TempDimSetEntry2.Insert();
                 end;
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             exit(true);
         end;
         exit(false);
@@ -793,7 +793,7 @@ report 394 "Suggest Employee Payments"
                     then
                         InsertDimBuf(DimBuf, DATABASE::"Dimension Buffer", 0, DimSetEntry."Dimension Code",
                           DimSetEntry."Dimension Value Code");
-                until SelectedDim.Next = 0;
+                until SelectedDim.Next() = 0;
             EntryNo := DimBufMgt.FindDimensions(DimBuf);
             if EntryNo = 0 then
                 EntryNo := DimBufMgt.InsertDimensions(DimBuf);

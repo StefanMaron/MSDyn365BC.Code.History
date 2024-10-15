@@ -129,11 +129,19 @@ page 5805 "Item Charge Assignment (Purch)"
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Control22)
@@ -246,14 +254,8 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ItemCharge: Record "Item Charge";
                         ReceiptLines: Page "Purch. Receipt Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Receipt Lines", false);
-                        // NAVCZ
-
                         PurchLine2.TestField("Qty. to Invoice");
 
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
@@ -281,14 +283,8 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ItemCharge: Record "Item Charge";
                         PostedTransferReceiptLines: Page "Posted Transfer Receipt Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Transfer Receipt Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
@@ -319,14 +315,8 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ItemCharge: Record "Item Charge";
                         ShipmentLines: Page "Return Shipment Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Return Schipment Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
@@ -352,14 +342,8 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ItemCharge: Record "Item Charge";
                         SalesShipmentLines: Page "Sales Shipment Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Sales Schipment Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
@@ -385,14 +369,8 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ItemCharge: Record "Item Charge";
                         ReturnRcptLines: Page "Return Receipt Lines";
                     begin
-                        // NAVCZ
-                        if ItemCharge.Get("Item Charge No.") then
-                            ItemCharge.TestField("Disable Return Receipt Lines", false);
-                        // NAVCZ
-
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
@@ -407,6 +385,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ReturnRcptLines.RunModal;
                     end;
                 }
+#if not CLEAN17
                 action("Get Pos. Adj. Ledger Entry")
                 {
                     ApplicationArea = Basic, Suite;
@@ -443,6 +422,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         // NAVCZ
                     end;
                 }
+#endif
                 action(SuggestItemChargeAssignment)
                 {
                     AccessByPermission = TableData "Item Charge" = R;

@@ -1,11 +1,15 @@
+#if not CLEAN18
 page 9297 "Inventory - G/L Recon Matrix"
 {
-    Caption = 'Inventory - G/L Reconciliation';
+    Caption = 'Inventory - G/L Reconciliation (Obsolete)';
     DataCaptionExpression = GetCaption;
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "Dimension Code Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -1510,4 +1514,4 @@ page 9297 "Inventory - G/L Recon Matrix"
         Field32Visible := MATRIX_CaptionSet[32] <> '';
     end;
 }
-
+#endif

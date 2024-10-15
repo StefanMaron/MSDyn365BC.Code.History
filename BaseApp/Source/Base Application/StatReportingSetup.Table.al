@@ -1,6 +1,9 @@
 table 31065 "Stat. Reporting Setup"
 {
     Caption = 'Stat. Reporting Setup';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -119,7 +122,7 @@ table 31065 "Stat. Reporting Setup"
                 AllObjWithCaption: Record AllObjWithCaption;
                 PageObjects: Page Objects;
             begin
-                if AllObjWithCaption.Get("Intrastat Export Object Type", "Intrastat Export Object No.") then
+                if AllObjWithCaption.Get("VIES Decl. Exp. Obj. Type", "VIES Decl. Exp. Obj. No.") then
                     PageObjects.SetRecord(AllObjWithCaption);
                 AllObjWithCaption.FilterGroup(2);
                 AllObjWithCaption.SetRange("Object Type", "VIES Decl. Exp. Obj. Type");
@@ -151,58 +154,94 @@ table 31065 "Stat. Reporting Setup"
         field(60; "Transaction Type Mandatory"; Boolean)
         {
             Caption = 'Transaction Type Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(61; "Transaction Spec. Mandatory"; Boolean)
         {
             Caption = 'Transaction Spec. Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(62; "Transport Method Mandatory"; Boolean)
         {
             Caption = 'Transport Method Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(63; "Shipment Method Mandatory"; Boolean)
         {
             Caption = 'Shipment Method Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(64; "Tariff No. Mandatory"; Boolean)
         {
             Caption = 'Tariff No. Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(65; "Net Weight Mandatory"; Boolean)
         {
             Caption = 'Net Weight Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(66; "Country/Region of Origin Mand."; Boolean)
         {
             Caption = 'Country/Region of Origin Mand.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(67; "Get Tariff No. From"; Option)
         {
             Caption = 'Get Tariff No. From';
             OptionCaption = 'Posted Entries,Item Card';
             OptionMembers = "Posted Entries","Item Card";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(68; "Get Net Weight From"; Option)
         {
             Caption = 'Get Net Weight From';
             OptionCaption = 'Posted Entries,Item Card';
             OptionMembers = "Posted Entries","Item Card";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(69; "Get Country/Region of Origin"; Option)
         {
             Caption = 'Get Country/Region of Origin';
             OptionCaption = 'Posted Entries,Item Card';
             OptionMembers = "Posted Entries","Item Card";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(70; "Intrastat Rounding Type"; Option)
         {
             Caption = 'Intrastat Rounding Type';
             OptionCaption = 'Nearest,Up,Down';
             OptionMembers = Nearest,Up,Down;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(71; "No Item Charges in Intrastat"; Boolean)
         {
             Caption = 'No Item Charges in Intrastat';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -330,15 +369,24 @@ table 31065 "Stat. Reporting Setup"
         field(11716; "Customs Office No."; Code[20])
         {
             Caption = 'Customs Office No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(11717; "Customs Office Name"; Text[30])
         {
             Caption = 'Customs Office Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(11718; "Intrastat Declaration Nos."; Code[20])
         {
             Caption = 'Intrastat Declaration Nos.';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11725; "VIES Number of Lines"; Integer)
         {
@@ -431,6 +479,9 @@ table 31065 "Stat. Reporting Setup"
         field(31060; "Include other Period add.Costs"; Boolean)
         {
             Caption = 'Include other Period add.Costs';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Intrastat Export Object Type"; Option)
         {
@@ -439,6 +490,9 @@ table 31065 "Stat. Reporting Setup"
             InitValue = "Report";
             OptionCaption = ',,,Report,,Codeunit,XMLPort';
             OptionMembers = ,,,"Report",,"Codeunit","XMLPort";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is discontinued. Use Intrastat Jnl. Line event OnBeforeExportIntrastatJournalCZL to change export means.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -451,6 +505,9 @@ table 31065 "Stat. Reporting Setup"
             BlankZero = true;
             Caption = 'Intrastat Export Object No.';
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = FIELD("Intrastat Export Object Type"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is discontinued. Use Intrastat Jnl. Line event OnBeforeExportIntrastatJournalCZL to change export means.';
+            ObsoleteTag = '18.0';
 
             trigger OnLookup()
             var
@@ -473,6 +530,9 @@ table 31065 "Stat. Reporting Setup"
         field(31063; "Intrastat Exch.Rate Mandatory"; Boolean)
         {
             Caption = 'Intrastat Exch.Rate Mandatory';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Tax Office Region Number"; Code[20])
         {
@@ -486,6 +546,9 @@ table 31065 "Stat. Reporting Setup"
             Caption = 'Stat. Value Reporting';
             OptionCaption = 'None,Percentage,Shipment Method';
             OptionMembers = "None",Percentage,"Shipment Method";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -497,6 +560,9 @@ table 31065 "Stat. Reporting Setup"
         {
             Caption = 'Cost Regulation %';
             MinValue = 0;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -507,30 +573,33 @@ table 31065 "Stat. Reporting Setup"
         field(31067; "Ignore Intrastat Ex.Rate From"; Date)
         {
             Caption = 'Ignore Intrastat Ex.Rate From';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(31090; "Reverse Charge Nos."; Code[20])
         {
             Caption = 'Reverse Charge Nos.';
             TableRelation = "No. Series";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31095; "Reverse Charge Auth. Emp. No."; Code[20])
         {
             Caption = 'Reverse Charge Auth. Emp. No.';
             TableRelation = "Company Officials";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31096; "Rvrs. Chrg. Filled by Emp. No."; Code[20])
         {
             Caption = 'Reverse Charge Filled by Emp. No.';
             TableRelation = "Company Officials";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31100; "VAT Control Report Nos."; Code[20])
         {

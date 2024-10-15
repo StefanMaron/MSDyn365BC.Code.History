@@ -1,9 +1,12 @@
 page 31060 "Intrastat Journal Lines"
 {
-    Caption = 'Intrastat Journal Lines';
+    Caption = 'Intrastat Journal Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Intrastat Jnl. Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

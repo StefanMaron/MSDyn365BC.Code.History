@@ -5,6 +5,9 @@ page 31058 "Posted Credit Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Posted Credit Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

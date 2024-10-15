@@ -74,7 +74,7 @@ codeunit 132502 "Purch. Document Posting Errors"
 
         // [WHEN] DrillDown on "Description"
         PurchInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
+        LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
         PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
     end;
@@ -124,7 +124,7 @@ codeunit 132502 "Purch. Document Posting Errors"
 
         // [WHEN] DrillDown on "Description"
         PurchInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
+        LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
         PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
 

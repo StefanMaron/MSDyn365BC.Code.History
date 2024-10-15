@@ -63,7 +63,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, TempSalesLine, VATAmountLine);
 
         // Verify: Verify VAT Amount field on Sales Document Statistics (VAT Amount Line Table) with GL VAT Rounding.
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VerifyVATOnStatistics(
               TempSalesLine."VAT %", RoundVATAmount(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / 100, RoundingType));
@@ -110,7 +110,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify VAT Amount on GL Entry.
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             VerifyVATAmountOnGLEntry(
               DocumentNo, TempSalesLine."VAT Prod. Posting Group", CurrencyCode, TempSalesLine."Line Amount" * TempSalesLine."VAT %" / 100,
@@ -170,7 +170,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // Verify: Verify VAT Amount field on Purchase Document Statistics (VAT Amount Line Table) with GL VAT Rounding.
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VerifyVATOnStatistics(
               TempPurchaseLine."VAT %", RoundVATAmount(TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / 100, RoundingType));
@@ -228,7 +228,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         DocumentNo := PostPurchaseDocument(PurchaseHeader);
 
         // Verify: Verify VAT Amount On GL Entry.
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             VerifyVATAmountOnGLEntry(
               DocumentNo, TempPurchaseLine."VAT Prod. Posting Group", CurrencyCode,
@@ -1066,7 +1066,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Validate("Inv. Discount Amount", SalesLine."Line Amount");
             SalesLine.Modify(true);
@@ -1080,7 +1080,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2); // Value used to validate partial quantity
             SalesLine.Modify(true);
@@ -1125,7 +1125,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualVATAmount += GLEntry."VAT Amount";
         until GLEntry.Next = 0;
@@ -1179,7 +1179,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         GeneralLedgerSetup.Get();
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             SalesInvoiceLine.Get(DocumentNo, TempSalesLine."Line No.");
             Assert.AreNearlyEqual(
@@ -1195,7 +1195,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         GeneralLedgerSetup.Get();
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             SalesCrMemoLine.Get(DocumentNo, TempSalesLine."Line No.");
             Assert.AreNearlyEqual(
@@ -1211,7 +1211,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         GeneralLedgerSetup.Get();
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             PurchInvLine.Get(DocumentNo, TempPurchaseLine."Line No.");
             Assert.AreNearlyEqual(
@@ -1227,7 +1227,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         GeneralLedgerSetup.Get();
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             PurchCrMemoLine.Get(DocumentNo, TempPurchaseLine."Line No.");
             Assert.AreNearlyEqual(

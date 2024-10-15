@@ -190,6 +190,9 @@ table 287 "Customer Bank Account"
         {
             BlankZero = true;
             Caption = 'Priority';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -200,7 +203,7 @@ table 287 "Customer Bank Account"
                     CustBankAcc.SetCurrentKey("Customer No.", Priority);
                     CustBankAcc.SetRange("Customer No.", "Customer No.");
                     CustBankAcc.SetRange(Priority, Priority);
-                    if not CustBankAcc.IsEmpty then
+                    if not CustBankAcc.IsEmpty() then
                         Error(POEText, FieldCaption(Priority), Priority, FieldCaption("Customer No."), "Customer No.");
                 end;
             end;
@@ -209,6 +212,9 @@ table 287 "Customer Bank Account"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Removed from Base Application.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -220,6 +226,9 @@ table 287 "Customer Bank Account"
         }
         key(Key2; "Customer No.", Priority)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Priority" is removed and cannot be used in an active key.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -238,7 +247,7 @@ table 287 "Customer Bank Account"
         CustLedgerEntry.SetRange("Customer No.", "Customer No.");
         CustLedgerEntry.SetRange("Recipient Bank Account", Code);
         CustLedgerEntry.SetRange(Open, true);
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
         if Customer.Get("Customer No.") and (Customer."Preferred Bank Account Code" = Code) then begin
             Customer."Preferred Bank Account Code" := '';

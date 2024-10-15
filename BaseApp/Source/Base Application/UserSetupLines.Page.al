@@ -1,10 +1,14 @@
+#if not CLEAN18
 page 11798 "User Setup Lines"
 {
     AutoSplitKey = true;
-    Caption = 'User Setup Lines';
+    Caption = 'User Setup Lines (Obsolete)';
     DataCaptionFields = "User ID";
     PageType = Worksheet;
     SourceTable = "User Setup Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -78,7 +82,7 @@ page 11798 "User Setup Lines"
 
     local procedure UserCheckLineTypeOnAfterVal()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
-
+#endif

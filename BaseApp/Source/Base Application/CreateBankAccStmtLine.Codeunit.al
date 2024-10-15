@@ -23,7 +23,7 @@ codeunit 11719 "Create Bank Acc. Stmt Line"
                 BankStmtLn."Line No." := LineNo;
                 BankStmtLn.CopyFromBankAccReconLine(BankAccReconLn);
                 BankStmtLn.Insert();
-            until BankAccReconLn.Next = 0;
+            until BankAccReconLn.Next() = 0;
     end;
 }
 

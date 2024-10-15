@@ -57,10 +57,15 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownWIPInventory(Rec);
                     end;
                 }
+#if not CLEAN18
                 field(Consumption; Consumption)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the consumption value.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -71,6 +76,10 @@ page 5846 "Inventory Report Entry"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the change in inventory for the work in process (WIP) value.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -81,12 +90,17 @@ page 5846 "Inventory Report Entry"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the change in the inventory product value.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
                         GetInvtReport.DrillDownChInvProd(Rec);
                     end;
                 }
+#endif
                 field("Direct Cost Applied Actual"; "Direct Cost Applied Actual")
                 {
                     ApplicationArea = Basic, Suite;
@@ -267,16 +281,22 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownOverheadApplied(Rec);
                     end;
                 }
+#if not CLEAN18
                 field("Inv. Rounding Adj."; "Inv. Rounding Adj.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the inventory rounding adjustment value.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
                         GetInvtReport.DrillDownInvAdjmtRnd(Rec);
                     end;
                 }
+#endif
             }
         }
         area(factboxes)

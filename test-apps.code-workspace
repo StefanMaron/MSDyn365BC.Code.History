@@ -16,10 +16,22 @@
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
     },
     {
+      "path": "./AdvancedLocalizationPackForCzech/Test/Advanced Localization Pack for Czech Tests"
+    },
+    {
+      "path": "./FixedAssetLocalizationForCzech/Test/Fixed Asset Localization for Czech Tests"
+    },
+    {
       "path": "./testframework/TestLibraries"
     },
     {
       "path": "./testframework/TestRunner/Test Runner"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
     },
     {
       "path": "./VATGroupManagement/Test/VAT Group Management Tests"
@@ -139,10 +151,19 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./CompanyHub/Test/Company Hub Tests"
+    },
+    {
       "path": "./CashDeskLocalizationForCzech/Test/Cash Desk Localization for Czech Tests"
     },
     {
       "path": "./CoreLocalizationPackForCzech/Test/Core Localization Pack for Czech Tests"
+    },
+    {
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
+    },
+    {
+      "path": "./CompensationLocalizationForCzech/Test/Compensation Localization for Czech Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"

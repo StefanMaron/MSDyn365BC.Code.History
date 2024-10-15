@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -212,7 +212,6 @@
                                     end;
                                     if SettlementNoFilter <> '' then
                                         VATEntry.SetRange("VAT Settlement No.", SettlementNoFilter);
-                                    VATEntry.SetRange("Perform. Country/Region Code", CountryCodeFillFilter);
                                     // NAVCZ
                                     case Selection of
                                         Selection::Open:
@@ -264,8 +263,6 @@
         UseAmtsInAddCurr: Boolean;
         [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
         SettlementNoFilter: Text[50];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        CountryCodeFillFilter: Code[10];
 
     local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; Level: Integer)
     var
@@ -304,11 +301,10 @@
         PeriodSelection := NewPeriodSelection;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr,
-          SettlementNoFilter2, CountryCodeFillFilter2); // NAVCZ
+          SettlementNoFilter2); // NAVCZ
         SettlementNoFilter := SettlementNoFilter2;
-        CountryCodeFillFilter := CountryCodeFillFilter2;
         OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, SettlementNoFilter2, CountryCodeFillFilter2);
-        CurrPage.Update;
+        CurrPage.Update();
 
         OnAfterUpdateForm();
     end;

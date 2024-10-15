@@ -113,7 +113,7 @@ page 31069 "VIES Declaration Lines"
                     "System-Created" := false;
                     Insert;
                 end;
-            until VIESDeclarationLn.Next = 0;
+            until VIESDeclarationLn.Next() = 0;
     end;
 }
 

@@ -557,7 +557,7 @@ codeunit 132600 "Report Layout"
         GLAccount.SetFilter("Gen. Bus. Posting Group", '%1', '');
         GLAccount.SetFilter("Gen. Prod. Posting Group", '%1', '');
         GLAccount.SetFilter("VAT Prod. Posting Group", '%1', '');
-        GLAccount.FindSet;
+        GLAccount.FindSet();
     end;
 
     local procedure FindItem(var Item: Record Item)
@@ -1111,7 +1111,7 @@ codeunit 132600 "Report Layout"
         CostCenterCode: array[7] of Code[20];
         i: Integer;
     begin
-        CostCenter.FindSet;
+        CostCenter.FindSet();
         repeat
             i += 1;
             CostCenterCode[i] := CostCenter.Code;

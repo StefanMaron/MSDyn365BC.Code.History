@@ -1071,6 +1071,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchOrderLine: Record "Purchase Line";
         VATRateChangeConv: Record "VAT Rate Change Conversion";
         BlanketPurchOrderPage: TestPage "Blanket Purchase Order";
+        PurchDocumentType: Enum "Purchase Document Type";
+        PurchLineType: Enum "Purchase Line Type";
         PurchOrderDocNo: Code[20];
         VendorNo: Code[20];
         SecondPurchLineNo: Integer;
@@ -1097,10 +1099,10 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // [GIVEN] Blanket Purchase Order with line of type Item, Qty = 10 and one Ext. Text line
         // VAT Prod. Posting Group of Purchase Line = 'VPPG1'
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Blanket Order", VendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchDocumentType::"Blanket Order", VendorNo);
         BlanketPurchOrderPage.OpenEdit();
-        BlanketPurchOrderPage.Filter.SetFilter("No.", PurchHeader."No.");
-        BlanketPurchOrderPage.PurchLines.Type.SetValue(PurchLine.Type::Item);
+        BlanketPurchOrderPage.GoToRecord(PurchHeader);
+        BlanketPurchOrderPage.PurchLines.Type.SetValue(PurchLineType::Item);
         BlanketPurchOrderPage.PurchLines."No.".SetValue(Item."No.");
         BlanketPurchOrderPage.PurchLines.Quantity.SetValue(10);
         BlanketPurchOrderPage.Close();
@@ -1109,7 +1111,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // [GIVEN] Purchase Order made out of Purchase Blanket Order
         PurchOrderDocNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchHeader);
 
-        PurchOrderHeader.GET(PurchOrderHeader."Document Type"::Order, PurchOrderDocNo);
+        PurchOrderHeader.GET(PurchDocumentType::Order, PurchOrderDocNo);
         LibraryPurchase.FindFirstPurchLine(PurchOrderLine, PurchOrderHeader);
 
         // [GIVEN] Purchase Order posted with Quanitity = 8.
@@ -1766,7 +1768,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseHeader.Find;
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure GetPurchReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseHeader: Record "Purchase Header")
@@ -1995,7 +1997,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetFilter("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         repeat
             ERMVATToolHelper.UpdateLineQtyToReceive(PurchaseLine);
@@ -2084,7 +2086,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         TempPurchLn.FindFirst;
         QtyItemCharge := TempPurchLn.Quantity;
         TempPurchLn.SetRange(Type, TempPurchLn.Type::Item);
-        TempPurchLn.FindSet;
+        TempPurchLn.FindSet();
         QtyItem := TempPurchLn.Quantity;
         QtyReceivedItem := TempPurchLn."Qty. to Receive";
         TempPurchLn.Next;
@@ -2093,7 +2095,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         with ItemChargeAssignmentPurch do begin
             SetRange("Document Type", TempPurchLn."Document Type");
             SetFilter("Document No.", TempPurchLn."Document No.");
-            FindSet;
+            FindSet();
             Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount);
             Assert.AreNearlyEqual(
               QtyReceivedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
@@ -2114,7 +2116,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         PurchaseLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         PurchaseLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntryPurchase(ReservationEntry, PurchaseLine);
@@ -2128,7 +2130,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         PurchaseLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         PurchaseLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntryPurchase(ReservationEntry, PurchaseLine);
@@ -2153,14 +2155,14 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchLn.Reset();
         PurchLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
         PurchLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
-        PurchLn.FindSet;
+        PurchLn.FindSet();
 
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, PurchLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, PurchLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTablePurch(TempRecRef, TempPurchLn);
-        TempPurchLn.FindSet;
+        TempPurchLn.FindSet();
 
         repeat
             if TempPurchLn."Description 2" = Format(TempPurchLn."Line No.") then

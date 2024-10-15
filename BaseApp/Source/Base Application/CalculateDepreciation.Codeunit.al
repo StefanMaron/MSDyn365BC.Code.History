@@ -56,6 +56,7 @@ codeunit 5610 "Calculate Depreciation"
               DeprAmount, NumberOfDays, FANo, DeprBookCode, UntilDate,
               EntryAmounts, DateFromProjection, DaysInPeriod);
         end;
+        OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(DeprAmount, FANo, DeprBookCode);
     end;
 
     local procedure CheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date)
@@ -87,6 +88,7 @@ codeunit 5610 "Calculate Depreciation"
             DeprBook.TestField("Allow more than 360/365 Days");
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure ProjectedValue(ProjValue2: Boolean)
     begin
@@ -94,6 +96,7 @@ codeunit 5610 "Calculate Depreciation"
         ProjValue := ProjValue2;
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure TransferProjectedValues(var FALedgEntry2: Record "FA Ledger Entry")
     begin
@@ -104,7 +107,7 @@ codeunit 5610 "Calculate Depreciation"
                 TempFALedgEntry.Init();
                 TempFALedgEntry.TransferFields(FALedgEntry2);
                 TempFALedgEntry.Insert();
-            until FALedgEntry2.Next = 0;
+            until FALedgEntry2.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -114,6 +117,11 @@ codeunit 5610 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDeprYearCalculateAdditionalDepr2ndYear(var DeprAmount: Decimal; FANo: code[20]; DepreBookCode: code[10])
     begin
     end;
 }

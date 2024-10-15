@@ -28,6 +28,9 @@ page 5619 "FA Depreciation Books"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation book that you have set up to assign it to the fixed asset you have entered in the FA No. field.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(AddCurrCode; GetACYCode)
                 {

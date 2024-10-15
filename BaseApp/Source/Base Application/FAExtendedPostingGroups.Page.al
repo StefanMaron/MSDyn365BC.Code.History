@@ -1,9 +1,13 @@
+#if not CLEAN18
 page 31042 "FA Extended Posting Groups"
 {
-    Caption = 'FA Extended Posting Groups';
+    Caption = 'FA Extended Posting Groups (Obsolete)';
     DataCaptionFields = "FA Posting Group Code", "FA Posting Type", "Code";
     PageType = List;
     SourceTable = "FA Extended Posting Group";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -93,4 +97,4 @@ page 31042 "FA Extended Posting Groups"
     {
     }
 }
-
+#endif

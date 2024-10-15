@@ -134,6 +134,9 @@ table 5809 "Item Charge Assignment (Sales)"
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -143,6 +146,9 @@ table 5809 "Item Charge Assignment (Sales)"
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -235,6 +241,7 @@ table 5809 "Item Charge Assignment (Sales)"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIncludeIntrastat()
     var
         StatReportingSetup: Record "Stat. Reporting Setup";

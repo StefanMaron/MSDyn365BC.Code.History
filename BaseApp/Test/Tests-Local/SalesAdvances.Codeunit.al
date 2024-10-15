@@ -984,7 +984,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindSet;
+        SalesAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount[2], 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount[2], 0.01, '');
         SalesAdvLetterEntry.Next;
@@ -1246,7 +1246,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::VAT);
-        SalesAdvLetterEntry.FindSet;
+        SalesAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount, 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount, 0.01, '');
         SalesAdvLetterEntry.Next;
@@ -1361,7 +1361,7 @@ codeunit 144401 "Sales Advances"
           SalesAdvLetterEntry."VAT Amount", -Round(PaymentAmount[2] - PaymentAmount[2] / VATCoeficient), 0.01, '');
 
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindSet;
+        SalesAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(
           SalesAdvLetterEntry."VAT Base Amount", Round(PaymentAmount[1] / VATCoeficient), 0.01, '');
         Assert.AreNearlyEqual(

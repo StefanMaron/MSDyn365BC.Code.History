@@ -30,7 +30,7 @@ page 111 "Vendor Posting Groups"
                         end else
                             SetAccountVisibility(PmtToleranceVisible, PmtDiscountVisible, InvRoundingVisible, ApplnRoundingVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -144,6 +144,11 @@ page 111 "Vendor Posting Groups"
             group("&Posting Group")
             {
                 Caption = '&Posting Group';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 action(Substitutions)
                 {
                     ApplicationArea = Basic, Suite;
@@ -152,6 +157,10 @@ page 111 "Vendor Posting Groups"
                     RunObject = Page "Subst. Vendor Posting Groups";
                     RunPageLink = "Parent Vend. Posting Group" = FIELD(Code);
                     ToolTip = 'Specifies subst. vendor posting groups';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }

@@ -425,7 +425,7 @@ report 11787 "Vendor - Bal. Reconciliation"
                         TotalAmount := CVMgt.CalcCVDebt(CustomerNo, Vendor."No.", CurrencyBuf.Code, ReconcileDate, false);
                         if PrintAmountsInCurrency then
                             CVLedgEntry.SetFilter("Currency Code", '%1', CurrencyBuf.Code);
-                        if (TotalAmount = 0) and CVLedgEntry.IsEmpty then
+                        if (TotalAmount = 0) and CVLedgEntry.IsEmpty() then
                             CurrReport.Skip();
                     end else
                         TotalAmount := TotalAmountLCY;

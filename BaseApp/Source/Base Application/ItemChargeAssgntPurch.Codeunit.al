@@ -22,6 +22,7 @@
         ItemChargeAssignedMenu3Lbl: Label '%1,%2,%3', Locked = true;
         UOMMgt: Codeunit "Unit of Measure Management";
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignment(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
         InsertItemChargeAssignmentWithValues(
@@ -29,6 +30,7 @@
           IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignmentWithValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -39,6 +41,7 @@
           IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignmentWithValuesTo(
         FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Enum "Purchase Applies-to Document Type";
         FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100];
@@ -76,6 +79,7 @@
         ItemChargeAssgntPurch.Insert();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
     procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
@@ -101,6 +105,7 @@
             QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch,
             IncludeIntrastat, IncludeIntrastatAmount);
     end;
+#endif
 
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
@@ -350,7 +355,7 @@
             ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
             ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
         end;
-        if ItemChargeAssgntPurch.IsEmpty then
+        if ItemChargeAssgntPurch.IsEmpty() then
             exit;
 
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
@@ -455,6 +460,7 @@
         exit(ByVolumeTok)
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
     procedure CreateItemEntryChargeAssgnt(var FromItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
     var
@@ -487,10 +493,11 @@
               ShipmentMethod."Incl. Item Charges (Stat.Val.)",
               ShipmentMethod."Include Item Charges (Amount)"
               );
-        until FromItemLedgerEntry.Next = 0;
+        until FromItemLedgerEntry.Next() = 0;
         // NAVCZ
     end;
 
+#endif
     local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
@@ -856,7 +863,7 @@
 
             if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
                 TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentPurch.FindSet;
+                ItemChargeAssignmentPurch.FindSet();
                 repeat
                     if not ItemChargeAssignmentPurch.PurchLineInvoiced then begin
                         TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;

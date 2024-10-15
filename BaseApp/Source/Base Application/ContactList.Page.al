@@ -36,7 +36,11 @@ page 5052 "Contact List"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
-                    Visible = false;
+                }
+                field("Business Relation"; Rec."Business Relation")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the type of the existing business relation.';
                 }
                 field("Post Code"; "Post Code")
                 {
@@ -228,7 +232,6 @@ page 5052 "Contact List"
                     RunObject = Page "Contact Picture";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'View or add a picture of the contact person or, for example, the company''s logo.';
-                    Visible = ActionVisible;
                 }
                 action("Co&mments")
                 {
@@ -335,7 +338,7 @@ page 5052 "Contact List"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -364,7 +367,7 @@ page 5052 "Contact List"
                         Caption = 'Create Contact in Dataverse';
                         Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact in Dataverse that is coupled to a contact in your company.';
+                        ToolTip = 'Create a contact in Dataverse that is linked to a contact in your company.';
 
                         trigger OnAction()
                         var
@@ -380,7 +383,7 @@ page 5052 "Contact List"
                         ApplicationArea = Suite;
                         Caption = 'Create Contact in Business Central';
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact here in your company that is coupled to the Dataverse contact.';
+                        ToolTip = 'Create a contact here in your company that is linked to the Dataverse contact.';
 
                         trigger OnAction()
                         var
@@ -439,16 +442,90 @@ page 5052 "Contact List"
                     RunPageLink = "Contact No." = FIELD("No.");
                     ToolTip = 'View or edit the mailing groups that the contact is assigned to, for example, for sending price lists or Christmas cards.';
                 }
+#if not CLEAN18
                 action("C&ustomer/Vendor/Bank Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ustomer/Vendor/Bank Acc./Employee';
                     Image = ContactReference;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by 4 actions: RelatedCustomer, RelatedVendor, RelatedBank, RelatedEmployee';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ToolTip = 'View the related customer, vendor, bank account, or employee that is associated with the current record.';
 
                     trigger OnAction()
                     begin
                         ShowCustVendBank;
+                    end;
+                }
+#endif
+                action(RelatedCustomer)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer';
+                    Image = Customer;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Enabled = RelatedCustomerEnabled;
+                    ToolTip = 'View the related customer that is associated with the current record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Customer, false);
+                    end;
+                }
+                action(RelatedVendor)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor';
+                    Image = Vendor;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Enabled = RelatedVendorEnabled;
+                    ToolTip = 'View the related vendor that is associated with the current record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Vendor, false);
+                    end;
+                }
+                action(RelatedBank)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Account';
+                    Image = BankAccount;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Enabled = RelatedBankEnabled;
+                    ToolTip = 'View the related bank account that is associated with the current record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::"Bank Account", false);
+                    end;
+                }
+                action(RelatedEmployee)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Employee';
+                    Image = Employee;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Enabled = RelatedEmployeeEnabled;
+                    ToolTip = 'View the related employee that is associated with the current record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Employee, false);
                     end;
                 }
             }
@@ -471,6 +548,47 @@ page 5052 "Contact List"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -491,6 +609,7 @@ page 5052 "Contact List"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
+#endif
             }
             group(Tasks)
             {
@@ -626,7 +745,6 @@ page 5052 "Contact List"
                     Caption = 'Launch &Web Source';
                     Image = LaunchWeb;
                     ToolTip = 'Search for information about the contact online.';
-                    Visible = ActionVisible;
 
                     trigger OnAction()
                     var
@@ -641,7 +759,6 @@ page 5052 "Contact List"
                 {
                     Caption = 'Create as';
                     Image = CustomerContact;
-                    Visible = ActionVisible;
                     action(Customer)
                     {
                         ApplicationArea = Basic, Suite;
@@ -651,7 +768,11 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateCustomer(ChooseCustomerTemplate);
+#if not CLEAN18
+                            CreateCustomer(ChooseCustomerTemplate());
+#else
+                            CreateCustomerFromTemplate(ChooseNewCustomerTemplate());
+#endif
                         end;
                     }
                     action(Vendor)
@@ -663,7 +784,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateVendor(ChooseVendorTemplate); // NAVCZ;
+                            CreateVendor;
                         end;
                     }
                     action(Bank)
@@ -677,6 +798,18 @@ page 5052 "Contact List"
                         trigger OnAction()
                         begin
                             CreateBankAccount;
+                        end;
+                    }
+                    action(CreateEmployee)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Employee';
+                        Image = Employee;
+                        ToolTip = 'Create the contact as an employee.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.CreateEmployee();
                         end;
                     }
                 }
@@ -740,8 +873,18 @@ page 5052 "Contact List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Export Contact';
                 Image = Export;
-                RunObject = XMLport "Export Contact";
                 ToolTip = 'Export Contact';
+                Enabled = ExportContactEnabled;
+
+                trigger OnAction()
+                var
+                    Contact: Record Contact;
+                    ExportContact: XMLport "Export Contact";
+                begin
+                    CurrPage.SetSelectionFilter(Contact);
+                    ExportContact.SetTableView(Contact);
+                    ExportContact.Run();
+                end;
             }
             action("Create &Interaction")
             {
@@ -771,6 +914,25 @@ page 5052 "Contact List"
                               "Contact Company No." = FIELD("Company No.");
                 RunPageMode = Create;
                 ToolTip = 'Register a sales opportunity for the contact.';
+            }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTip = 'Apply a Word template on the selected records.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category4;
+
+                trigger OnAction()
+                var
+                    Contact: Record Contact;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Contact);
+                    WordTemplateSelectionWizard.SetData(Contact);
+                    WordTemplateSelectionWizard.RunModal();
+                end;
             }
             action(SyncWithExchange)
             {
@@ -850,16 +1012,12 @@ page 5052 "Contact List"
         EnableFields;
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+        SetEnabledRelatedActions();
     end;
 
     trigger OnAfterGetRecord()
     begin
         StyleIsStrong := Type = Type::Company;
-    end;
-
-    trigger OnInit()
-    begin
-        ActionVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
     end;
 
     trigger OnOpenPage()
@@ -872,7 +1030,6 @@ page 5052 "Contact List"
     end;
 
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         [InDataSet]
@@ -883,12 +1040,22 @@ page 5052 "Contact List"
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        ActionVisible: Boolean;
+        RelatedCustomerEnabled: Boolean;
+        RelatedVendorEnabled: Boolean;
+        RelatedBankEnabled: Boolean;
+        RelatedEmployeeEnabled: Boolean;
+        ExportContactEnabled: Boolean;
 
     local procedure EnableFields()
     begin
         CompanyGroupEnabled := Type = Type::Company;
         PersonGroupEnabled := Type = Type::Person;
+        ExportContactEnabled := Rec."No." <> '';
+    end;
+
+    local procedure SetEnabledRelatedActions()
+    begin
+        Rec.HasBusinessRelations(RelatedCustomerEnabled, RelatedVendorEnabled, RelatedBankEnabled, RelatedEmployeeEnabled)
     end;
 
     [Scope('OnPrem')]

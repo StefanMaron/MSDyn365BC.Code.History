@@ -38,7 +38,9 @@
         LogErrorMode: Boolean;
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
+#if not CLEAN18
         FromAdjustment: Boolean;
+#endif
         VATDateNeeded: Boolean;
         VATRangeErr: Label 'is not within your range of allowed VAT dates';
         VATPeriodNotExistErr: Label 'VAT period for %1 does not exist.', Comment = '%1 = VAT Date';
@@ -54,7 +56,9 @@
         ICGLAcount: Record "IC G/L Account";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorContextElement: Codeunit "Error Context Element";
+#if not CLEAN18
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
     begin
         OnBeforeRunCheck(GenJnlLine);
 
@@ -111,11 +115,12 @@
                 LogTestField(GenJnlLine, FieldNo(Prepayment), true);
                 LogTestField(GenJnlLine, FieldNo("Document Type"));
             end;
+#if not CLEAN18
             if GLSetup."User Checks Allowed" then
                 if not FromAdjustment then
                     UserSetupAdvMgt.CheckGeneralJournalLine(GenJnlLine);
             // NAVCZ
-
+#endif
             LogTestField(GenJnlLine, FieldNo("Document No."));
 
             if ("Account Type" in
@@ -534,7 +539,7 @@
 
         OldCustLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldCustLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        if not OldCustLedgEntry.IsEmpty then
+        if not OldCustLedgEntry.IsEmpty() then
             LogError(GenJournalLine, StrSubstNo(SalesDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
     end;
 
@@ -550,7 +555,7 @@
 
         OldVendLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldVendLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        if not OldVendLedgEntry.IsEmpty then
+        if not OldVendLedgEntry.IsEmpty() then
             LogError(GenJournalLine, StrSubstNo(PurchDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
     end;
 
@@ -729,13 +734,15 @@
         else
             LogError(VATPeriod, StrSubstNo(VATPeriodNotExistErr, VATDate));
     end;
-
+#if not CLEAN18
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure xSetCallFromAdjust(NewFromAdjustment: Boolean)
     begin
         // NAVCZ
         FromAdjustment := NewFromAdjustment;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure CheckVAT(GenJnlLine: Record "Gen. Journal Line")
@@ -774,7 +781,7 @@
             LogTestField(GenJnlLine, GenJnlLine.FieldNo(Amount));
     end;
 
-    local procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
+    procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         IsHandled: Boolean;

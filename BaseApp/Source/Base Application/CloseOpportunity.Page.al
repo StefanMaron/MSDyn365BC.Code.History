@@ -134,7 +134,7 @@ page 5128 "Close Opportunity"
                         Opp.ShowQuote;
                         if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then begin
                             "Calcd. Current Value (LCY)" := GetSalesDocValue(SalesHeader);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 end;

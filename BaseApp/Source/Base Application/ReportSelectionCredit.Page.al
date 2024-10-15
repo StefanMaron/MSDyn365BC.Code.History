@@ -1,11 +1,14 @@
 page 31049 "Report Selection - Credit"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Report Selection - Credit';
+    Caption = 'Report Selection - Credit (Obsolete)';
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Credit Report Selections";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -80,7 +83,7 @@ page 31049 "Report Selection - Credit"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

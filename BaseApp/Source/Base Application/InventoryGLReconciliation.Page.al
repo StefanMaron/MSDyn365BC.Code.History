@@ -1,8 +1,9 @@
+#if not CLEAN18
 page 5845 "Inventory - G/L Reconciliation"
 {
     AdditionalSearchTerms = 'general ledger reconcile inventory';
     ApplicationArea = Basic, Suite;
-    Caption = 'Inventory - G/L Reconciliation';
+    Caption = 'Inventory - G/L Reconciliation (Obsolete)';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -12,6 +13,9 @@ page 5845 "Inventory - G/L Reconciliation"
     SaveValues = true;
     SourceTable = "Dimension Code Buffer";
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -464,24 +468,24 @@ page 5845 "Inventory - G/L Reconciliation"
     local procedure LocationFilterOnAfterValidate()
     begin
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ItemFilterOnAfterValidate()
     begin
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShowWarningOnAfterValidate()
     begin
         InvtReportHeader."Show Warning" := ShowWarning;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
-
+#endif

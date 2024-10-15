@@ -31,15 +31,6 @@ page 5600 "Fixed Asset Card"
                         ShowAcquisitionNotification();
                     end;
                 }
-                field("Full Description"; "Full Description")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies full description of the fixed asset.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Description; Description)
                 {
                     ApplicationArea = FixedAssets;
@@ -157,19 +148,14 @@ page 5600 "Fixed Asset Card"
                     Importance = Additional;
                     ToolTip = 'Specifies when the fixed asset card was last modified.';
                 }
-                field("SKP Code"; "SKP Code")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the standard classification of production (SKP) code.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Clasification Code"; "Clasification Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the fixed asset''s classification (CZ-CC, CZ-CPA).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group("Depreciation Book")
@@ -364,15 +350,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the next scheduled service date for the fixed asset. This is used as a filter in the Maintenance - Next Service report.';
-                }
-                field("Deprec. Book Code (Mainten.)"; "Deprec. Book Code (Mainten.)")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the depreciation book for maintenance.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Warranty Date"; "Warranty Date")
                 {
@@ -593,6 +570,10 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "FA History Entries";
                     RunPageLink = "FA No." = FIELD("No.");
                     ToolTip = 'Open fixed asset history entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             action("Depreciation groups")
@@ -602,6 +583,10 @@ page 5600 "Fixed Asset Card"
                 Image = NumberGroup;
                 RunObject = Page "Depreciation Groups";
                 ToolTip = 'This function opens the list of depreciation groups related to the fixed asset card.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
         }
         area(processing)
@@ -710,7 +695,12 @@ page 5600 "Fixed Asset Card"
                 Image = PhysicalInventory;
                 RunObject = Report "FA Phys. Inventory List";
                 ToolTip = 'Open the report for fixed asset physical inventory.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#if not CLEAN18
             action("FA Receipt Report")
             {
                 ApplicationArea = FixedAssets;
@@ -718,6 +708,10 @@ page 5600 "Fixed Asset Card"
                 Image = PrintReport;
                 RunObject = Report "FA Receipt Report";
                 ToolTip = 'The report prints fixed assets receipt.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Disposal Report")
             {
@@ -726,6 +720,10 @@ page 5600 "Fixed Asset Card"
                 Image = PrintReport;
                 RunObject = Report "FA Disposal Report";
                 ToolTip = 'The report prints fixed assets disposal.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("Fixed Asset Card")
             {
@@ -734,7 +732,12 @@ page 5600 "Fixed Asset Card"
                 Image = FixedAssets;
                 RunObject = Report "Fixed Asset Card";
                 ToolTip = 'The report prints fixed assets entries and card.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#endif
         }
     }
 
@@ -762,7 +765,6 @@ page 5600 "Fixed Asset Card"
     end;
 
     var
-        FADepreciationBook: Record "FA Depreciation Book";
         FADepreciationBookOld: Record "FA Depreciation Book";
         FAAcquireWizardNotificationId: Guid;
         NoFieldVisible: Boolean;
@@ -773,6 +775,9 @@ page 5600 "Fixed Asset Card"
         BookValue: Decimal;
         FAPostingGroupChangeDeniedMsg: Label 'The current FA posting group is %1 but the FA subclass %2 has the default FA posting group %3. \Because there are posted FA ledger entries we will not change the FA posting group.', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. Example: The current FA posting group is MACHINERY but the FA subclass TANGIBLE has the default FA posting group CAR. \Because there are posted FA ledger entries we will not change the FA posting group.';
         FAPostingGroupChangeConfirmTxt: Label 'The current FA posting group is %1, but the FA subclass %2 has the default FA posting group %3. \Do you want to update the FA posting group?', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. The current FA posting group is MACHINERY, but the FA subclass TANGIBLE has the default FA posting group CAR. \Do you want to update the FA posting group?';
+
+    protected var
+        FADepreciationBook: Record "FA Depreciation Book";
 
     local procedure ShowAcquisitionNotification()
     var
@@ -851,10 +856,10 @@ page 5600 "Fixed Asset Card"
         UpdateAllowed := true;
         UpdateConfirmed := true;
 
-        if (FADepreciationBook."FA Posting Group" <> '') and 
-           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group") 
+        if (FADepreciationBook."FA Posting Group" <> '') and
+           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group")
         then begin
-            FALedgerEntry.SetRange("FA No.","No.");  
+            FALedgerEntry.SetRange("FA No.", "No.");
             UpdateAllowed := FALedgerEntry.IsEmpty();
 
             if UpdateAllowed then

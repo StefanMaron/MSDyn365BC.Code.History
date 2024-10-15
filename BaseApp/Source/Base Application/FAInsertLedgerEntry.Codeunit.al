@@ -89,11 +89,6 @@
         then
             CheckFADocNo(FALedgEntry);
         FALedgEntry.Insert(true);
-        if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then begin
-            TempFALedgerEntryReverse := FALedgEntry;
-            TempFALedgerEntryReverse.Insert();
-            ReverseFALedgerEntryAmounts(FALedgEntry);
-        end;
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
@@ -542,6 +537,7 @@
         end;
     end;
 
+    [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure FinalizeInsertFA()
     var
         FALedgerEntry: Record "FA Ledger Entry";
@@ -626,14 +622,13 @@
             LastEntryNo := FALedgEntry.GetLastEntryNo();
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     procedure SetFAPostingType2(FAPostingType2: Option " ",AcqCost,BookVal,Appreciation,WrDown)
     begin
         // NAVCZ
         FAPostingType := FAPostingType2;
     end;
 
-    [Scope('OnPrem')]
     procedure SetReasonMaintenanceCode(ReasonMaintenanceCode2: Code[10])
     begin
         // NAVCZ
@@ -645,6 +640,7 @@
         GLRegisterNo := NewGLRegisterNo;
     end;
 
+    [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure ReverseFALedgerEntryAmounts(var FALedgerEntry: Record "FA Ledger Entry")
     begin
         FALedgerEntry.Amount := -FALedgerEntry.Amount;

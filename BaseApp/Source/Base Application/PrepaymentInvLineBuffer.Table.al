@@ -1,4 +1,4 @@
-﻿table 461 "Prepayment Inv. Line Buffer"
+table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;
@@ -398,7 +398,7 @@
                 TempPrepmtInvLineBuffer2.Modify();
             end else
                 TempPrepmtInvLineBuffer2.Insert();
-        until Next = 0;
+        until Next() = 0;
 
         DeleteAll();
 
@@ -406,7 +406,7 @@
         repeat
             Rec := TempPrepmtInvLineBuffer2;
             Insert;
-        until TempPrepmtInvLineBuffer2.Next = 0;
+        until TempPrepmtInvLineBuffer2.Next() = 0;
     end;
 
     procedure UpdateVATAmounts()

@@ -128,11 +128,9 @@ table 5802 "Value Entry"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
         }
-        field(41; "Source Type"; Option)
+        field(41; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(43; "Cost Amount (Actual)"; Decimal)
         {
@@ -428,6 +426,9 @@ table 5802 "Value Entry"
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Source No. 2"; Code[20])
         {
@@ -435,6 +436,9 @@ table 5802 "Value Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -442,24 +446,39 @@ table 5802 "Value Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31060; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -672,7 +691,7 @@ table 5802 "Value Entry"
                     CostAmtExpected := CostAmtExpected + "Cost Amount (Expected)";
                     CostAmtExpectedACY := CostAmtExpectedACY + "Cost Amount (Expected) (ACY)";
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         "Item Ledger Entry Quantity" := ItemLedgEntryQty;
         "Cost Amount (Actual)" := CostAmtActual;
@@ -727,7 +746,7 @@ table 5802 "Value Entry"
                 TempGLEntry.Init();
                 TempGLEntry := GLEntry;
                 TempGLEntry.Insert();
-            until GLItemLedgRelation.Next = 0;
+            until GLItemLedgRelation.Next() = 0;
 
         PAGE.RunModal(0, TempGLEntry);
     end;
@@ -781,7 +800,7 @@ table 5802 "Value Entry"
         PrevAccountingPeriod: Record "Accounting Period";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
-        if PrevAccountingPeriod.IsEmpty then begin
+        if PrevAccountingPeriod.IsEmpty() then begin
             AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, ToDate);
             FromDate := 0D;
             exit;

@@ -22,7 +22,7 @@ page 11716 "Payment Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank Account No."; "Bank Account No.")
@@ -66,7 +66,7 @@ page 11716 "Payment Order"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -82,7 +82,7 @@ page 11716 "Payment Order"
                         ChangeExchangeRate.SetParameter("Payment Order Currency Code", "Payment Order Currency Factor", "Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }

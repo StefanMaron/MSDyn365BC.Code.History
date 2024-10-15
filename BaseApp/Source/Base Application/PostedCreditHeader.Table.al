@@ -3,6 +3,9 @@ table 31057 "Posted Credit Header"
     Caption = 'Posted Credit Header';
     DataCaptionFields = "No.", Description;
     LookupPageID = "Posted Credits List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -91,7 +94,7 @@ table 31057 "Posted Credit Header"
         }
         field(90; "Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = Sum("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -130,6 +133,7 @@ table 31057 "Posted Credit Header"
         PstdCreditHeader: Record "Posted Credit Header";
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure Navigate()
     var
         NavigateForm: Page Navigate;
@@ -139,6 +143,7 @@ table 31057 "Posted Credit Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         CreditReportSelections: Record "Credit Report Selections";
@@ -151,7 +156,7 @@ table 31057 "Posted Credit Header"
             CreditReportSelections.Find('-');
             repeat
                 REPORT.RunModal(CreditReportSelections."Report ID", ShowRequestForm, false, PstdCreditHeader);
-            until CreditReportSelections.Next = 0;
+            until CreditReportSelections.Next() = 0;
         end;
     end;
 }

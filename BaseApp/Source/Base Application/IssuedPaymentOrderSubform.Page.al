@@ -94,7 +94,7 @@ page 11722 "Issued Payment Order Subform"
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }

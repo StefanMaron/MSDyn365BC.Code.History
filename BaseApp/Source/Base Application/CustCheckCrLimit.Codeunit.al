@@ -214,7 +214,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         exit(MyNotifications.IsEnabledForRecord(GetOverdueBalanceNotificationId, Customer));
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";

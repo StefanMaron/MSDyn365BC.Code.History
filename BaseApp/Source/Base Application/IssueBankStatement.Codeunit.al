@@ -23,7 +23,7 @@ codeunit 11702 "Issue Bank Statement"
             if BankAccount."Check Ext. No. by Current Year" then
                 SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', Rec."Document Date"),
                   CalcDate('<CY>', Rec."Document Date"));
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 FindFirst;
                 Error(AlreadyExistErr, FieldCaption("External Document No."), TableCaption, FieldCaption("No."), "No.");
             end;
@@ -38,7 +38,7 @@ codeunit 11702 "Issue Bank Statement"
             Error(NothingToIssueErr);
         repeat
             BankStmtLine.TestField(Amount);
-        until BankStmtLine.Next = 0;
+        until BankStmtLine.Next() = 0;
 
         // insert header;
         IssuedBankStmtHeader.Init();
@@ -62,7 +62,7 @@ codeunit 11702 "Issue Bank Statement"
                 IssuedBankStmtLine.TransferFields(BankStmtLine);
                 IssuedBankStmtLine."Bank Statement No." := IssuedBankStmtHeader."No.";
                 IssuedBankStmtLine.Insert();
-            until BankStmtLine.Next = 0;
+            until BankStmtLine.Next() = 0;
 
         // delete non issued bank statement;
         Delete(true);

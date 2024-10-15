@@ -75,14 +75,14 @@ codeunit 11735 "Cash Document-Post"
             PostLines;
 
             GenJnlPostLine.xGetSalesLetterHeader(TempSalesAdvanceLetterHeader);
-            if not TempSalesAdvanceLetterHeader.IsEmpty then begin
+            if not TempSalesAdvanceLetterHeader.IsEmpty() then begin
                 SalesPostAdvances.SetLetterHeader(TempSalesAdvanceLetterHeader);
                 SalesPostAdvances.SetGenJnlPostLine(GenJnlPostLine);
                 SalesPostAdvances.AutoPostAdvanceInvoices;
             end;
 
             GenJnlPostLine.xGetPurchLetterHeader(TempPurchAdvanceLetterHeader);
-            if not TempPurchAdvanceLetterHeader.IsEmpty then begin
+            if not TempPurchAdvanceLetterHeader.IsEmpty() then begin
                 PurchPostAdvances.SetLetterHeader(TempPurchAdvanceLetterHeader);
                 PurchPostAdvances.SetGenJnlPostLine(GenJnlPostLine);
                 PurchPostAdvances.AutoPostAdvanceInvoices;
@@ -217,7 +217,7 @@ codeunit 11735 "Cash Document-Post"
                     OnBeforePostCashDocLine(TempGenJnlLine, CashDocLine, GenJnlPostLine);
                     GenJnlPostLine.RunWithCheck(TempGenJnlLine);
                 end;
-            until CashDocLine.Next = 0;
+            until CashDocLine.Next() = 0;
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
@@ -304,7 +304,6 @@ codeunit 11735 "Cash Document-Post"
             Validate(Prepayment, CashDocLine2.Prepayment);
             "Advance Letter Link Code" := CashDocLine2."Advance Letter Link Code";
             "VAT Registration No." := CashDocHeader2."VAT Registration No.";
-            TransferNonDedVAT(TempGenJnlLine, CashDocLine2);
 
             OnAfterInitGenJnlLine(TempGenJnlLine, CashDocHeader2, CashDocLine2);
         end;
@@ -348,7 +347,7 @@ codeunit 11735 "Cash Document-Post"
                 repeat
                     if CashDocLine.HasLinks then
                         CashDocLine.DeleteLinks;
-                until CashDocLine.Next = 0;
+                until CashDocLine.Next() = 0;
             CashDocLine.DeleteAll();
         end;
     end;
@@ -387,36 +386,6 @@ codeunit 11735 "Cash Document-Post"
             PostedCashDocLine.Modify();
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure TransferNonDedVAT(var GenJnlLine2: Record "Gen. Journal Line"; CashDocLine3: Record "Cash Document Line")
-    var
-        CurrExchRate: Record "Currency Exchange Rate";
-    begin
-        if CashDocLine3."VAT % (Non Deductible)" = 0 then
-            exit;
-        GenJnlLine2."VAT % (Non Deductible)" := CashDocLine3."VAT % (Non Deductible)";
-        GenJnlLine2."VAT Base (Non Deductible)" := CashDocLine3."VAT Base (Non Deductible)";
-        GenJnlLine2."VAT Amount (Non Deductible)" := CashDocLine3."VAT Amount (Non Deductible)";
-        if CashDocHeader."Currency Code" = '' then begin
-            GenJnlLine2."VAT Base LCY (Non Deduct.)" := CashDocLine3."VAT Base (Non Deductible)";
-            GenJnlLine2."VAT Amount LCY (Non Deduct.)" := CashDocLine3."VAT Amount (Non Deductible)";
-        end else begin
-            GenJnlLine2."VAT Base LCY (Non Deduct.)" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  CashDocHeader."Posting Date", CashDocHeader."Currency Code",
-                  GenJnlLine2."VAT Base (Non Deductible)", CashDocHeader."Currency Factor"));
-            GenJnlLine2."VAT Amount LCY (Non Deduct.)" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  CashDocHeader."Posting Date", CashDocHeader."Currency Code",
-                  GenJnlLine2."VAT Amount (Non Deductible)", CashDocHeader."Currency Factor"));
-        end;
-        if (GenJnlLine2."VAT Base (Non Deductible)" = 0) or (GenJnlLine2."VAT Amount (Non Deductible)" = 0) then
-            GenJnlLine2.Validate("VAT % (Non Deductible)");
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin

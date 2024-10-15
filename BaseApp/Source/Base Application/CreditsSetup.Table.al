@@ -1,6 +1,9 @@
 table 31048 "Credits Setup"
 {
     Caption = 'Credits Setup';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

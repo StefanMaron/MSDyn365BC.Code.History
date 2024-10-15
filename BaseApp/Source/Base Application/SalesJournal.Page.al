@@ -148,6 +148,10 @@ page 253 "Sales Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(Description; Description)
                 {

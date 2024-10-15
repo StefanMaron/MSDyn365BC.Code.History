@@ -349,11 +349,11 @@ table 93 "Vendor Posting Group"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         Vendor.SetRange("Vendor Posting Group", Code);
-        if not Vendor.IsEmpty then
+        if not Vendor.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         VendorLedgerEntry.SetRange("Vendor Posting Group", Code);
-        if not VendorLedgerEntry.IsEmpty then
+        if not VendorLedgerEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 
@@ -452,6 +452,7 @@ table 93 "Vendor Posting Group"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure GetPayablesAccNo(PostingGroupCode: Code[20]; Advance: Boolean): Code[20]
     begin
         // NAVCZ
@@ -469,6 +470,7 @@ table 93 "Vendor Posting Group"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure DeleteSubstPostingGroups()
     var
         SubstVendPostingGroup: Record "Subst. Vendor Posting Group";
@@ -481,25 +483,39 @@ table 93 "Vendor Posting Group"
         SubstVendPostingGroup.DeleteAll();
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckOpenVendLedgEntries(Prepayment1: Boolean)
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
+        ConfirmManagement: Codeunit "Confirm Management";        
         Caption1: Text[250];
         ChangeText: Label 'Do you really want to change %1 although open entries exist?';
+        IsHandled: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        OnBeforeCheckOpenVendLedgEntries(Prepayment1, IsHandled);
+        if IsHandled then
+            exit;
+
         VendLedgerEntry.SetCurrentKey(Open);
         VendLedgerEntry.SetRange(Open, true);
         VendLedgerEntry.SetRange("Vendor Posting Group", Code);
         VendLedgerEntry.SetRange(Prepayment, Prepayment1);
-        if not VendLedgerEntry.IsEmpty then begin
+        if not VendLedgerEntry.IsEmpty() then begin
             if Prepayment1 then
                 Caption1 := FieldCaption("Advance Account")
             else
                 Caption1 := FieldCaption("Payables Account");
-            if not Confirm(ChangeText, false, Caption1) then
+            if not ConfirmManagement.GetResponse(StrSubstNo(ChangeText, Caption1), false) then                
                 Error('');
         end;
+    end;
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckOpenVendLedgEntries(var Prepayment1: Boolean; var IsHandled: Boolean);
+    begin
     end;
 }
 

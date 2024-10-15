@@ -148,7 +148,7 @@ table 11773 "VAT Statement Attachment"
         VATStatementAttachment.SetRange("VAT Statement Name", "VAT Statement Name");
         VATStatementAttachment.SetFilter("Line No.", '<>%1', "Line No.");
         VATStatementAttachment.SetRange("File Name", "File Name");
-        if not VATStatementAttachment.IsEmpty then
+        if not VATStatementAttachment.IsEmpty() then
             FieldError("File Name");
     end;
 }

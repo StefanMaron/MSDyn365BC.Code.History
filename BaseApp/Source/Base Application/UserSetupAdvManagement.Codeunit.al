@@ -1,7 +1,11 @@
+#if not CLEAN18
 codeunit 11795 "User Setup Adv. Management"
 {
     Permissions = TableData "User Setup" = m;
     TableNo = "User Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -276,7 +280,7 @@ codeunit 11795 "User Setup Adv. Management"
                   Dim.Code, Dim.GetMLName(GlobalLanguage),
                   SelectedDim."New Dimension Value Code",
                   SelectedDim."Dimension Value Filter");
-            until Dim.Next = 0;
+            until Dim.Next() = 0;
 
         DimSelectionChange.LookupMode := true;
         if DimSelectionChange.RunModal = ACTION::LookupOK then begin
@@ -300,7 +304,7 @@ codeunit 11795 "User Setup Adv. Management"
                     SelectedDim."Dimension Value Filter" := TempDimSelectionBuf."Dimension Value Filter";
                     SelectedDim.Level := TempDimSelectionBuf.Level;
                     SelectedDim.Insert();
-                until TempDimSelectionBuf.Next = 0;
+                until TempDimSelectionBuf.Next() = 0;
         end;
     end;
 
@@ -437,115 +441,103 @@ codeunit 11795 "User Setup Adv. Management"
         UserSetup.TestField("Allow Complete Job");
     end;
 
-    [EventSubscriber(ObjectType::Table, 7311, 'OnCheckWhseJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckWhseJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Journal Line", 'OnCheckWhseJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckWhseJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Whse. Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 7326, 'OnCheckWhseWorksheetTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckWhseWorksheetTemplateUserRestrictions(WorksheetTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Whse. Worksheet Line", 'OnCheckWhseWorksheetTemplateUserRestrictions', '', false, false)]
+    local procedure CheckWhseWorksheetTemplateUserRestrictions(WorksheetTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Whse. Worksheet", WorksheetTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckGenJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckGenJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"General Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 83, 'OnCheckItemJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckItemJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnCheckItemJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckItemJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Item Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 207, 'OnCheckResJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckResJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Res. Journal Line", 'OnCheckResJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckResJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Resource Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 246, 'OnCheckReqWorksheetTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckReqJournalTemplateUserRestrictions(WorksheetTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnCheckReqWorksheetTemplateUserRestrictions', '', false, false)]
+    local procedure CheckReqJournalTemplateUserRestrictions(WorksheetTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Req. Worksheet", WorksheetTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 256, 'OnCheckVATStmtTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckVATStmtTemplateUserRestrictions(StatementTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"VAT Statement Line", 'OnCheckVATStmtTemplateUserRestrictions', '', false, false)]
+    local procedure CheckVATStmtTemplateUserRestrictions(StatementTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"VAT Statement", StatementTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 263, 'OnCheckIntrastatJnlTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckIntrastatJnlTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Intrastat Jnl. Line", 'OnCheckIntrastatJnlTemplateUserRestrictions', '', false, false)]
+    local procedure CheckIntrastatJnlTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Intrastat Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 210, 'OnCheckJobJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckJobJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Job Journal Line", 'OnCheckJobJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckJobJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Job Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5621, 'OnCheckFAJournalLineUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckFAJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"FA Journal Line", 'OnCheckFAJournalLineUserRestrictions', '', false, false)]
+    local procedure CheckFAJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"FA Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5624, 'OnCheckFAReclassJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckFAReclasJournallTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"FA Reclass. Journal Line", 'OnCheckFAReclassJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckFAReclasJournallTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"FA Reclass. Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5635, 'OnCheckInsuranceJournalTemplateUserRestrictions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckInsuranceJournallTemplateUserRestrictions(JournalTemplateName: Code[10])
+    [EventSubscriber(ObjectType::Table, Database::"Insurance Journal Line", 'OnCheckInsuranceJournalTemplateUserRestrictions', '', false, false)]
+    local procedure CheckInsuranceJournallTemplateUserRestrictions(JournalTemplateName: Code[10])
     var
         DummyUserSetupLine: Record "User Setup Line";
     begin
         CheckJournalTemplate(DummyUserSetupLine.Type::"Insurance Journal", JournalTemplateName);
     end;
 
-    [EventSubscriber(ObjectType::Page, 700, 'OnDrillDownSource', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Error Messages", 'OnDrillDownSource', '', false, false)]
     local procedure OnErrorMessageDrillDown(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     var
         CheckDimensions: Codeunit "Check Dimensions";
@@ -574,4 +566,4 @@ codeunit 11795 "User Setup Adv. Management"
         IsHandled := false;
     end;
 }
-
+#endif

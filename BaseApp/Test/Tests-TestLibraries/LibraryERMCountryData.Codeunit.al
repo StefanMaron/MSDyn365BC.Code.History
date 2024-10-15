@@ -104,7 +104,11 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateInventoryPostingSetup()
     begin
+#if not CLEAN18    
         LibraryInventory.UpdateInventoryPostingSetupAll; // NAVCZ
+#else
+        exit;
+#endif        
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -113,15 +117,20 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateGeneralLedgerSetup()
+#if not CLEAN18
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+#endif
     begin
+#if not CLEAN18
         // NAVCZ
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Closed Period Entry Pos.Date" := LibraryFiscalYear.GetFirstPostingDate(false);
-        GeneralLedgerSetup."Delete Card with Entries" := true;
         GeneralLedgerSetup.Modify();
         // NAVCZ
+#else
+        exit;
+#endif
     end;
 
     local procedure UpdateGenProdPostingSetupOnPrepAccount()
@@ -285,6 +294,9 @@ codeunit 131305 "Library - ERM Country Data"
     procedure UpdateLocalData()
     var
         FASetup: Record "FA Setup";
+#if not CLEAN18
+        FAExtendedPostingGroup: Record "FA Extended Posting Group";
+#endif
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATPeriod: Record "VAT Period";
         AccountingPeriod: Record "Accounting Period";
@@ -292,12 +304,15 @@ codeunit 131305 "Library - ERM Country Data"
         FASetup.Get();
         FASetup.Validate("FA Acquisition As Custom 2", false);
         FASetup.Modify(true);
+#if not CLEAN18
+        FAExtendedPostingGroup.DeleteAll();
+#endif
 
         GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."Use VAT Date" and VATPeriod.IsEmpty() and not AccountingPeriod.IsEmpty() then begin
             GeneralLedgerSetup."Use VAT Date" := false;
             GeneralLedgerSetup.Modify(true);
-        end;        
+        end;
     end;
 
     procedure CompanyInfoSetVATRegistrationNo()

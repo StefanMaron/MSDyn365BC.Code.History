@@ -2992,7 +2992,8 @@ codeunit 137404 "SCM Manufacturing"
         SalesLine.Modify(true);
 
         // [WHEN] Run "Create Production Order" from the sales order
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, 1);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Production order with 4 lines is created:
         // [THEN] 1 production order line for item "P1" on "BLUE" location
@@ -3045,7 +3046,8 @@ codeunit 137404 "SCM Manufacturing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[4]."No.", 10);
 
         // [WHEN] Run "Create Production Order" from the sales order
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, 1);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Production order with 4 lines is created:
         // [THEN] 1 production order line for item "P1"
@@ -3445,7 +3447,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 TempItemLedgEntry := ItemLedgEntry;
                 TempItemLedgEntry.Insert();
@@ -5132,7 +5134,7 @@ codeunit 137404 "SCM Manufacturing"
         // Set Monday ~ Friday working calendar to the first routing line, set all days working calendar to the second routing line
         // Set wait time for both lines
         RoutingLine2.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine2.FindSet;
+        RoutingLine2.FindSet();
         ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, WorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
         RoutingLine2.Next;
         ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, AllDaysWorkingWorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
@@ -5342,7 +5344,7 @@ codeunit 137404 "SCM Manufacturing"
         with ItemJournalLine do begin
             SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", ItemJournalBatch.Name);
-            FindSet;
+            FindSet();
             repeat
                 TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
                 TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code);
@@ -5462,7 +5464,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetFilter("Applies-to Entry", AppliesToEntryFilter);
         ItemLedgerEntry.SetRange(Quantity, Quantity);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         // Output Qty. * two normal postings
         Assert.AreEqual(Count, ItemLedgerEntry.Count,
           StrSubstNo('Missing or excess Item Ledger Entries after reverse posting to Output Journal, under filters %1',
@@ -5474,7 +5476,7 @@ codeunit 137404 "SCM Manufacturing"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        if ItemLedgerEntry.IsEmpty then
+        if ItemLedgerEntry.IsEmpty() then
             Error(DocumentNoError, DocumentNo);
     end;
 
@@ -5552,7 +5554,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 TempItemLedgEntry.Get("Entry No.");
                 TestField("Remaining Quantity", TempItemLedgEntry."Remaining Quantity");
@@ -5926,7 +5928,7 @@ codeunit 137404 "SCM Manufacturing"
         with ProdOrderLine do begin
             SetRange(Status, ProductionOrder.Status);
             SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindSet;
+            FindSet();
             ExpStartDateTime := "Ending Date-Time";
             repeat
                 ExpEndDateTime := ExpStartDateTime;

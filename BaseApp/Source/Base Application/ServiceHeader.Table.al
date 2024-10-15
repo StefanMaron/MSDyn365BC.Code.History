@@ -445,7 +445,7 @@
                                 Error(
                                   Text027, FieldCaption("Order Date"),
                                   ServItemLine.FieldCaption("Starting Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
@@ -455,7 +455,7 @@
                             ServItemLine.CheckWarranty("Order Date");
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
                             ServItemLine.Modify();
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                     UpdateServLinesByFieldNo(FieldNo("Order Date"), false);
                 end;
             end;
@@ -489,7 +489,7 @@
                             ServLine."Posting Date" := "Posting Date";
                             ServLine.Modify();
                         end;
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
 
                 // NAVCZ
                 ServSetup.Get();
@@ -505,7 +505,6 @@
 
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
-                    UpdatePerformCountryCurrFactor; // NAVCZ
                     if "Currency Factor" <> xRec."Currency Factor" then
                         ConfirmCurrencyFactorUpdate();
                 end;
@@ -514,15 +513,6 @@
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if CurrFieldNo = FieldNo("Posting Description") then
-                    if "Posting Description" <> xRec."Posting Description" then
-                        "Posting Desc. Code" := '';
-                // NAVCZ
-            end;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -639,12 +629,9 @@
             TableRelation = "Customer Posting Group";
 
             trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
             begin
                 // NAVCZ
-                if CurrFieldNo = FieldNo("Customer Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
+                CheckPostingGroupChange();
                 // NAVCZ
             end;
         }
@@ -657,10 +644,7 @@
             begin
                 if CurrFieldNo <> FieldNo("Currency Code") then begin
                     UpdateCurrencyFactor;
-                    // NAVCZ
-                    UpdateVATCurrencyFactor;
-                    UpdatePerformCountryCurrFactor;
-                    // NAVCZ
+                    UpdateVATCurrencyFactor; // NAVCZ
                 end else
                     if "Currency Code" <> xRec."Currency Code" then begin
                         if ServLineExists and ("Contract No." <> '') and
@@ -675,7 +659,6 @@
                         if "Currency Code" <> '' then begin
                             UpdateCurrencyFactor;
                             UpdateVATCurrencyFactor;  // NAVCZ
-                            UpdatePerformCountryCurrFactor; // NAVCZ
                             if "Currency Factor" <> xRec."Currency Factor" then
                                 ConfirmCurrencyFactorUpdate();
                         end;
@@ -732,7 +715,7 @@
                             ServLine."VAT Base Amount" := 0;
                             ServLine.InitOutstandingAmount;
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     ServLine.SetRange(Type);
                     ServLine.SetRange(Quantity);
 
@@ -785,7 +768,7 @@
                                     end;
                                 end;
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     end;
                 end;
             end;
@@ -1022,12 +1005,8 @@
                 if "Bill-to Customer No." <> '' then begin
                     GetCust("Bill-to Customer No.");
                     NewVATRegNo := Cust."VAT Registration No.";
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Customer, "Bill-to Customer No.", "VAT Country/Region Code") then
-                            NewVATRegNo := RegistrationCountry."VAT Registration No.";
                 end;
                 "VAT Registration No." := NewVATRegNo;
-                Validate("Perform. Country/Region Code");
                 // NAVCZ
             end;
         }
@@ -1432,7 +1411,7 @@
                                 ServLine.UpdateAmounts;
                                 ServLine.Modify();
                             end;
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     end;
                 end;
             end;
@@ -1464,7 +1443,7 @@
                                   FieldCaption(Status), Format(Status), TableCaption, "No.", ServItemLine.FieldCaption("Repair Status Code"),
                                   ServItemLine."Repair Status Code", ServItemLine.TableCaption, ServItemLine."Line No.")
                         end;
-                    until ServItemLine.Next = 0
+                    until ServItemLine.Next() = 0
                 else
                     LinesExist := false;
 
@@ -1616,7 +1595,7 @@
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Contact No." = '') and ("Customer No." = '') then begin
-                            if not ServLine.IsEmpty then
+                            if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Contact No."));
                             InitRecordFromContact;
                             exit;
@@ -1685,7 +1664,7 @@
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Bill-to Contact No." = '') and ("Bill-to Customer No." = '') then begin
-                            if not ServLine.IsEmpty then
+                            if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Bill-to Contact No."));
                             InitRecordFromContact;
                             exit;
@@ -1737,7 +1716,7 @@
                     repeat
                         ServItemLine.Validate("Responsibility Center", "Responsibility Center");
                         ServItemLine.Modify(true);
-                    until ServItemLine.Next = 0;
+                    until ServItemLine.Next() = 0;
 
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateServLines(FieldCaption("Responsibility Center"));
@@ -1922,7 +1901,7 @@
                         repeat
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
                             ServItemLine.Modify();
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                 end;
             end;
         }
@@ -1979,7 +1958,7 @@
                         repeat
                             if ServItemLine."Starting Date" < "Starting Date" then
                                 Error(Text024, FieldCaption("Starting Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     if Time < "Order Time" then
                         Validate("Starting Time", "Order Time")
@@ -2075,7 +2054,7 @@
                         repeat
                             if ServItemLine."Finishing Date" > "Finishing Date" then
                                 Error(Text025, FieldCaption("Finishing Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                 end else begin
                     "Finishing Time" := 0T;
                     "Service Time (Hours)" := 0;
@@ -2115,7 +2094,7 @@
                                (ServItemLine."Finishing Time" > "Finishing Time")
                             then
                                 Error(Text025, FieldCaption("Finishing Time"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     CalcFields("Contract Serv. Hours Exist");
                     "Service Time (Hours)" :=
@@ -2399,6 +2378,9 @@
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice)) "Bank Account" WHERE("Account Type" = CONST("Bank Account"))
             ELSE
             IF ("Document Type" = FILTER("Credit Memo")) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -2408,7 +2390,6 @@
                 // NAVCZ
                 if "Bank Account Code" = '' then begin
                     "Bank Account No." := '';
-                    "Specific Symbol" := '';
                     "Bank Branch No." := '';
                     "Bank Name" := '';
                     "Transit No." := '';
@@ -2423,7 +2404,6 @@
                         begin
                             BankAcc.Get("Bank Account Code");
                             "Bank Account No." := BankAcc."Bank Account No.";
-                            "Specific Symbol" := BankAcc."Specific Symbol";
                             "Bank Branch No." := BankAcc."Bank Branch No.";
                             "Bank Name" := BankAcc.Name;
                             "Transit No." := BankAcc."Transit No.";
@@ -2434,7 +2414,6 @@
                         begin
                             CustBankAcc.Get("Bill-to Customer No.", "Bank Account Code");
                             "Bank Account No." := CustBankAcc."Bank Account No.";
-                            "Specific Symbol" := CustBankAcc."Specific Symbol";
                             "Bank Branch No." := CustBankAcc."Bank Branch No.";
                             "Bank Name" := CustBankAcc.Name;
                             "Transit No." := CustBankAcc."Transit No.";
@@ -2449,36 +2428,57 @@
         {
             Caption = 'Bank Account No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -2493,10 +2493,16 @@
         {
             Caption = 'SWIFT Code';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
@@ -2589,9 +2595,9 @@
         field(11762; "Tax Corrective Document"; Boolean)
         {
             Caption = 'Tax Corrective Document';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -2603,24 +2609,16 @@
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Service Document"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                GetPostingDescription("Posting Desc. Code", "Posting Description");
-                // NAVCZ
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11766; "Credit Memo Type"; Option)
         {
@@ -2633,18 +2631,8 @@
 
             trigger OnValidate()
             begin
-                case "Document Type" of
-                    "Document Type"::"Credit Memo":
-                        begin
-                            ServSetup.Get();
-                            "Postponed VAT" := ServSetup."Credit Memo Confirmation" and
-                              ("Credit Memo Type" = "Credit Memo Type"::"Corrective Tax Document");
-                            "Tax Corrective Document" :=
-                              "Credit Memo Type" in ["Credit Memo Type"::"Corrective Tax Document", "Credit Memo Type"::"Insolvency Tax Document"];
-                        end;
-                    else
-                        TestField("Credit Memo Type", 0);
-                end;
+                if "Document Type" <> "Document Type"::"Credit Memo" then
+                    TestField("Credit Memo Type", 0);
             end;
         }
         field(11790; "Registration No."; Text[20])
@@ -2667,49 +2655,16 @@
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
             ValidateTableRelation = false;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            var
-                RegCountryRoute: Record "Registr. Country/Region Route";
-                NewVATBusPostingGroup: Code[20];
-            begin
-                // NAVCZ
-                if "Bill-to Customer No." <> '' then begin
-                    GetCust("Bill-to Customer No.");
-                    NewVATBusPostingGroup := Cust."VAT Bus. Posting Group";
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Customer, "Bill-to Customer No.", "VAT Country/Region Code") then
-                            NewVATBusPostingGroup := RegistrationCountry."VAT Bus. Posting Group";
-
-                    if "Perform. Country/Region Code" <> '' then begin
-                        CompanyInfo.Get();
-                        RegistrationCountry.Get(RegistrationCountry."Account Type"::"Company Information", '', "Perform. Country/Region Code");
-                        if "VAT Country/Region Code" <> '' then begin
-                            RegCountryRoute.Get("Perform. Country/Region Code", "VAT Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegCountryRoute."New VAT Bus. Posting Group";
-                        end else begin
-                            RegCountryRoute.Get("Perform. Country/Region Code", CompanyInfo."Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegCountryRoute."New VAT Bus. Posting Group";
-                        end;
-                    end;
-                end;
-                Validate("VAT Bus. Posting Group", NewVATBusPostingGroup);
-                "Perf. Country Currency Factor" := 0;
-                UpdatePerformCountryCurrFactor;
-                // NAVCZ
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Perf. Country Currency Factor"; Decimal)
         {
@@ -2717,13 +2672,16 @@
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -2736,14 +2694,16 @@
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
-            TableRelation = "Industry Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -2818,7 +2778,7 @@
             ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
             ServLine.SetRange("Document No.", "No.");
             ServLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
-            if not ServLine.IsEmpty then
+            if not ServLine.IsEmpty() then
                 Error(Text046, "No.");
         end;
 
@@ -2878,7 +2838,7 @@
                     LoanerEntry.SetRange("Document No.", "No.");
                     LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
-                    if not LoanerEntry.IsEmpty then
+                    if not LoanerEntry.IsEmpty() then
                         Error(
                           Text040,
                           TableCaption,
@@ -2894,7 +2854,7 @@
                 Clear(ServLogMgt);
                 ServLogMgt.ServItemOffServOrder(ServItemLine);
                 ServItemLine.Delete();
-            until ServItemLine.Next = 0;
+            until ServItemLine.Next() = 0;
 
         ServDocLog.Reset();
         ServDocLog.SetRange("Document Type", "Document Type");
@@ -2948,14 +2908,11 @@
         if GetFilter("Contact No.") <> '' then
             if GetRangeMin("Contact No.") = GetRangeMax("Contact No.") then
                 Validate("Contact No.", GetRangeMin("Contact No."));
-
-        Validate("Posting Desc. Code", ServSetup."Posting Desc. Code"); // NAVCZ
     end;
 
     trigger OnModify()
     begin
         UpdateServiceOrderChangeLog(xRec);
-        Validate("Posting Desc. Code"); // NAVCZ
     end;
 
     trigger OnRename()
@@ -2993,10 +2950,7 @@
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
-        CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3046,14 +3000,11 @@
         Text064: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
         Text065: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
         Text066: Label 'You cannot change the dimension because there are service entries connected to this line.';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegistrationCountry: Record "Registration Country/Region";
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
     var
         ServHeader2: Record "Service Header";
@@ -3161,7 +3112,7 @@
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
                     ServLine.Modify();
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
 
         ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
@@ -3177,7 +3128,7 @@
                       ServItemLine."Dimension Set ID", ServItemLine."Shortcut Dimension 1 Code", ServItemLine."Shortcut Dimension 2 Code");
                     ServItemLine.Modify();
                 end;
-            until ServItemLine.Next = 0;
+            until ServItemLine.Next() = 0;
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -3271,7 +3222,7 @@
                 until ServLine.Next() = 0;
 
                 if "Location Code" <> xRec."Location Code" then
-                    if not TempReservEntry.IsEmpty then
+                    if not TempReservEntry.IsEmpty() then
                         Error(Text047, FieldCaption("Location Code"));
 
                 if "Document Type" = "Document Type"::Invoice then begin
@@ -3347,7 +3298,7 @@
             "Currency Factor" := xRec."Currency Factor";
     end;
 
-    local procedure UpdateServLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
+    procedure UpdateServLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -3405,7 +3356,7 @@
                                     repeat
                                         ServItemLine.Validate("Responsibility Center", "Responsibility Center");
                                         ServItemLine.Modify(true);
-                                    until ServItemLine.Next = 0;
+                                    until ServItemLine.Next() = 0;
                             end;
                         FieldNo("Order Date"):
                             begin
@@ -3462,7 +3413,7 @@
                         else
                             OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption");
                     end;
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
         end;
     end;
 
@@ -3517,7 +3468,7 @@
                     if PassedServLine."Job No." <> '' then
                         PassedServLine.TestField("Qty. to Consume", PassedServLine."Qty. to Ship");
                 end;
-            until PassedServLine.Next = 0
+            until PassedServLine.Next() = 0
         else
             if ServLine.Find('-') then
                 repeat
@@ -3552,7 +3503,7 @@
                         if ServLine."Job No." <> '' then
                             ServLine.TestField("Qty. to Consume", ServLine."Qty. to Ship");
                     end;
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
     end;
 
     procedure UpdateResponseDateTime()
@@ -3653,7 +3604,7 @@
                     ServItemLine.Validate("Service Price Group Code");
                     ServItemLine.Modify();
                 end;
-            until ServItemLine.Next = 0
+            until ServItemLine.Next() = 0
         end;
     end;
 
@@ -3864,7 +3815,6 @@
             Error(Text039, Cont."No.", Cont.Name);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCreditMaxBeforeInsert(HideCreditCheckDialogue: Boolean)
     var
         ServHeader: Record "Service Header";
@@ -3941,71 +3891,32 @@
     end;
 
     procedure InitRecord()
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        NoSeriesLink: Record "No. Series Link";
-        PostingNoSeries: Boolean;
-        ShippingNoSeries: Boolean;
     begin
-        // NAVCZ
-        if NoSeriesLink.Get("No. Series") then begin
-            if NoSeriesLink."Posting No. Series" <> '' then
-                PostingNoSeries := true;
-            if NoSeriesLink."Shipping No. Series" <> '' then
-                ShippingNoSeries := true;
-        end;
-        // NAVCZ
-
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-                    // NAVCZ
-                    if PostingNoSeries then
-                        "Posting No. Series" := NoSeriesLink."Posting No. Series"
-                    else
-                        // NAVCZ
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Service Invoice Nos.");
-                    // NAVCZ
-                    if ShippingNoSeries then
-                        "Shipping No. Series" := NoSeriesLink."Shipping No. Series"
-                    else
-                        // NAVCZ
-                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServSetup."Posted Service Shipment Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Service Invoice Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServSetup."Posted Service Shipment Nos.");
                 end;
             "Document Type"::Invoice:
                 begin
-                    // NAVCZ
-                    if PostingNoSeries then
-                        "Posting No. Series" := NoSeriesLink."Posting No. Series"
+                    if ("No. Series" <> '') and
+                       (ServSetup."Service Invoice Nos." = ServSetup."Posted Service Invoice Nos.")
+                    then
+                        "Posting No. Series" := "No. Series"
                     else
-                        // NAVCZ
-                        if ("No. Series" <> '') and
-                           (ServSetup."Service Invoice Nos." = ServSetup."Posted Service Invoice Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Service Invoice Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Service Invoice Nos.");
                     if ServSetup."Shipment on Invoice" then
-                        // NAVCZ
-                        if ShippingNoSeries then
-                            "Shipping No. Series" := NoSeriesLink."Shipping No. Series"
-                        else
-                            // NAVCZ
-                            NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServSetup."Posted Service Shipment Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServSetup."Posted Service Shipment Nos.");
                 end;
             "Document Type"::"Credit Memo":
                 begin
-                    // NAVCZ
-                    if PostingNoSeries then
-                        "Posting No. Series" := NoSeriesLink."Posting No. Series"
+                    if ("No. Series" <> '') and
+                       (ServSetup."Service Credit Memo Nos." = ServSetup."Posted Serv. Credit Memo Nos.")
+                    then
+                        "Posting No. Series" := "No. Series"
                     else
-                        // NAVCZ
-                        if ("No. Series" <> '') and
-                           (ServSetup."Service Credit Memo Nos." = ServSetup."Posted Serv. Credit Memo Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Serv. Credit Memo Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", ServSetup."Posted Serv. Credit Memo Nos.");
                 end;
         end;
 
@@ -4027,8 +3938,6 @@
             ServSetup."Default VAT Date"::Blank:
                 "VAT Date" := 0D;
         end;
-        if "Document Type" = "Document Type"::"Credit Memo" then
-            "Postponed VAT" := ServSetup."Credit Memo Confirmation";
         // NAVCZ
 
         "Default Response Time (Hours)" := ServSetup."Default Response Time (Hours)";
@@ -4042,8 +3951,6 @@
             Correction := GLSetup."Mark Cr. Memos as Corrections";
             // NAVCZ
             "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-            "Postponed VAT" := ServSetup."Credit Memo Confirmation" and
-              ("Credit Memo Type" = "Credit Memo Type"::"Corrective Tax Document");
             // NAVCZ
         end;
 
@@ -4064,8 +3971,6 @@
                                "Document Type"::Invoice]
         then
             UpdateBankInfo;
-
-        "Tax Corrective Document" := "Document Type" = "Document Type"::"Credit Memo";
         // NAVCZ
 
         OnAfterInitRecord(Rec);
@@ -4176,7 +4081,7 @@
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         ReservEntry.DeleteAll();
     end;
 
@@ -4190,7 +4095,7 @@
                 ReservEntry := TempReservEntry;
                 ReservEntry."Source Ref. No." := NewSourceRefNo;
                 if not ReservEntry.Insert() then;
-            until TempReservEntry.Next = 0;
+            until TempReservEntry.Next() = 0;
         TempReservEntry.DeleteAll();
     end;
 
@@ -4246,9 +4151,9 @@
                                     if ItemLedgEntry.FindSet then
                                         repeat
                                             CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                        until ItemLedgEntry.Next = 0;
-                                until ServiceShptLine.Next = 0;
-                        until ServiceLine.Next = 0;
+                                        until ItemLedgEntry.Next() = 0;
+                                until ServiceShptLine.Next() = 0;
+                        until ServiceLine.Next() = 0;
                 end;
         end;
         PAGE.RunModal(0, TempValueEntry);
@@ -4266,7 +4171,7 @@
                     TempValueEntry := ValueEntry;
                     if TempValueEntry.Insert() then;
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure CalcInvDiscForHeader()
@@ -4313,7 +4218,7 @@
                 if ServItemLine.Find('-') then
                     repeat
                         ServItemLine.TestField("Fault Reason Code");
-                    until ServItemLine.Next = 0;
+                    until ServItemLine.Next() = 0;
             end;
         end;
     end;
@@ -4368,10 +4273,13 @@
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
 
+#if not CLEAN17
+    [Obsolete('Replaced by WhsePickConflict().', '18.0')]
     procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     begin
         exit(WhsePickConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
     end;
+#endif
 
     procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -4384,12 +4292,12 @@
         WarehouseActivityLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseActivityLine.SetRange("Source Subtype", DocType);
         WarehouseActivityLine.SetRange("Source No.", DocNo);
-        if WarehouseActivityLine.IsEmpty then
+        if WarehouseActivityLine.IsEmpty() then
             exit(false);
         ServiceLine.SetRange("Document Type", DocType);
         ServiceLine.SetRange("Document No.", DocNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        if ServiceLine.IsEmpty then
+        if ServiceLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
@@ -4399,10 +4307,13 @@
         exit(StrSubstNo(Text062, TableCaption, FieldCaption("Shipping Advice"), Format("Shipping Advice")));
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by WhseShipmentConflict().', '18.0')]
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     begin
         exit(WhseShipmentConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
     end;
+#endif
 
     procedure WhseShipmentConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -4414,7 +4325,7 @@
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseShipmentLine.SetRange("Source Subtype", DocType);
         WarehouseShipmentLine.SetRange("Source No.", DocNo);
-        if WarehouseShipmentLine.IsEmpty then
+        if WarehouseShipmentLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
@@ -4447,35 +4358,6 @@
             Error(Text066);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
-    procedure GetPostingDescription(PostingDescCode: Code[10]; var PostingDescription: Text[100])
-    var
-        PostingDesc: Record "Posting Description";
-        RecordReference: RecordRef;
-    begin
-        // NAVCZ
-        if PostingDesc.Get(PostingDescCode) then begin
-            PostingDesc.TestField(Type, PostingDesc.Type::"Service Document");
-            RecordReference.Open(DATABASE::"Service Header");
-            RecordReference.GetTable(Rec);
-            PostingDescription := PostingDesc.ParsePostDescString(PostingDesc, RecordReference);
-        end;
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure UpdatePerformCountryCurrFactor()
-    begin
-        // NAVCZ
-        if "Perform. Country/Region Code" <> '' then begin
-            CurrencyDate := WorkDate;
-
-            "Perf. Country Currency Factor" :=
-              PerfCountryCurrExchRate.ExchangeRate(CurrencyDate, "Perform. Country/Region Code", "Currency Code");
-        end else
-            "Perf. Country Currency Factor" := 0;
-    end;
-
     local procedure UpdateVATCurrencyFactor()
     begin
         // NAVCZ
@@ -4486,6 +4368,7 @@
             "VAT Currency Factor" := 0;
     end;
 
+    [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
     var
@@ -4591,7 +4474,7 @@
                     ExtendedTextAdded := true;
                 end;
             CopyReservEntryFromTemp(TempServLine, ServLine."Line No.");
-        until TempServLine.Next = 0;
+        until TempServLine.Next() = 0;
     end;
 
     procedure SetCustomerFromFilter()
@@ -4745,7 +4628,6 @@
         "VAT Registration No." := Cust."VAT Registration No.";
         "Registration No." := Cust."Registration No.";
         "Tax Registration No." := Cust."Tax Registration No.";
-        "Industry Code" := Cust."Industry Code";
         // NAVCZ
 
         OnAfterCopyBillToCustomerFields(Rec, Cust);
@@ -4774,7 +4656,9 @@
         exit(true)
     end;
 
+
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsIntrastatTransaction(): Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -4912,6 +4796,17 @@
             Result := true
         else
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
+    end;
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
+    local procedure CheckPostingGroupChange()
+    var
+        PostingGroupManagement: Codeunit "Posting Group Management";
+    begin
+        // NAVCZ
+        if CurrFieldNo = FieldNo("Customer Posting Group") then
+            PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
+        // NAVCZ
     end;
 
     local procedure GetServiceMgtSetup()

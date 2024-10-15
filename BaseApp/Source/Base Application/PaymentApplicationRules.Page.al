@@ -45,6 +45,13 @@ page 1252 "Payment Application Rules"
                     Caption = 'Direct Debit Collection Matched';
                     ToolTip = 'Specifies if the Transaction ID value on the payment reconciliation journal line must match with the value in the related Transaction ID field in the Direct Debit Collect. Entries window.';
                 }
+                field("Apply Immediatelly"; Rec."Apply Immediatelly")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Apply Immediatelly';
+                    ToolTip = 'Specifies whether to search for alternative ledger entries that this line can be applied to. If turned on, the value is applied to the first match and alternative ledger entries are not considered.';
+                    Visible = ApplyAutomaticallyVisible;
+                }
                 field("Variable Symbol Matched"; "Variable Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
@@ -87,6 +94,7 @@ page 1252 "Payment Application Rules"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
+                PromotedOnly = true;
                 ToolTip = 'Delete the application rules and replace them with the default rules, which control whether payments are automatically applied to open ledger entries.';
 
                 trigger OnAction()
@@ -98,16 +106,42 @@ page 1252 "Payment Application Rules"
                     InsertDefaultMatchingRules;
                 end;
             }
+
+            action(AdvancedSettings)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Advanced Settings';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Opens advanced settings for configuring payment application matching.';
+
+                trigger OnAction()
+                var
+                    PaymentApplicationSettings: Page "Payment Application Settings";
+                begin
+                    PaymentApplicationSettings.SetBankPmtApplRuleCode(Rec."Bank Pmt. Appl. Rule Code");
+                    PaymentApplicationSettings.Run();
+                end;
+            }
         }
     }
 
     trigger OnOpenPage()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
     begin
         SetCurrentKey(Score);
         Ascending(false);
+        
+        BankPmtApplSettings.GetOrInsert(Rec."Bank Pmt. Appl. Rule Code");
+        ApplyAutomaticallyVisible := BankPmtApplSettings."Enable Apply Immediatelly";
     end;
 
     var
         ResetToDefaultsQst: Label 'All current payment application rules will be deleted and replaced with the default payment application rules.\\Do you want to continue?';
+        ApplyAutomaticallyVisible: Boolean;
 }
 

@@ -573,7 +573,7 @@ page 6627 "Sales Return Order Archive"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

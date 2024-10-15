@@ -1,4 +1,5 @@
-﻿report 5753 "Get Source Documents"
+#if not CLEAN18
+report 5753 "Get Source Documents"
 {
     Caption = 'Get Source Documents';
     ProcessingOnly = true;
@@ -35,12 +36,9 @@
                                         OnSalesLineOnAfterGetRecordOnBeforeCreateRcptHeader(
                                           "Sales Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
                                         if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                            // NAVCZ
-                                            // CreateReceiptHeader;
-                                            CreateReceiptHeader("Sales Header"."No. Series");
+                                            CreateReceiptHeader();
                                             OnSalesLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Sales Header", "Sales Line", "Warehouse Request");
                                         end;
-                                        // NAVCZ
                                         if not WhseActivityCreate.SalesLine2ReceiptLine(WhseReceiptHeader, "Sales Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -59,12 +57,9 @@
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                         if not IsHandled then begin
                                             if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                                // NAVCZ
-                                                // CreateShptHeader;
-                                                CreateShptHeader("Sales Header"."No. Series");
+                                                CreateShptHeader();
                                                 OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header", "Sales Line", "Warehouse Request");
                                             end;
-                                            // NAVCZ
                                             if not CreateActivityFromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
                                                 ErrorOccured := true;
                                             LineCreated := true;
@@ -166,12 +161,9 @@
                                         OnPurchaseLineOnAfterGetRecordOnBeforeCreateRcptHeader(
                                           "Purchase Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
                                         if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                            // NAVCZ
-                                            // CreateReceiptHeader;
-                                            CreateReceiptHeader("Purchase Header"."No. Series");
+                                            CreateReceiptHeader();
                                             OnPurchaseLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Purchase Header", "Purchase Line", "Warehouse Request");
                                         end;
-                                        // NAVCZ
                                         if not WhseActivityCreate.PurchLine2ReceiptLine(WhseReceiptHeader, "Purchase Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -184,12 +176,9 @@
                                           "Purchase Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                         if not IsHandled then begin
                                             if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                                // NAVCZ
-                                                // CreateShptHeader;
-                                                CreateShptHeader("Purchase Header"."No. Series");
+                                                CreateShptHeader();
                                                 OnPurchaseLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Purchase Header", "Purchase Line", "Warehouse Request");
                                             end;
-                                            // NAVCZ
                                             if not WhseActivityCreate.FromPurchLine2ShptLine(WhseShptHeader, "Purchase Line") then
                                                 ErrorOccured := true;
                                             LineCreated := true;
@@ -277,12 +266,9 @@
                                     OnTransferLineOnAfterGetRecordOnBeforeCreateRcptHeader(
                                       "Transfer Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
                                     if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                        // NAVCZ
-                                        // CreateReceiptHeader;
-                                        CreateReceiptHeader("Transfer Header"."No. Series");
+                                        CreateReceiptHeader();
                                         OnTransferLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Transfer Header", "Transfer Line", "Warehouse Request");
                                     end;
-                                    // NAVCZ
                                     if not WhseActivityCreate.TransLine2ReceiptLine(WhseReceiptHeader, "Transfer Line") then
                                         ErrorOccured := true;
                                     LineCreated := true;
@@ -294,12 +280,9 @@
                                       "Transfer Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                     if not IsHandled then begin
                                         if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                            // NAVCZ
-                                            // CreateShptHeader;
-                                            CreateShptHeader("Transfer Header"."No. Series");
+                                            CreateShptHeader();
                                             OnTransferLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Transfer Header", "Transfer Line");
                                         end;
-                                        // NAVCZ
                                         if not WhseActivityCreate.FromTransLine2ShptLine(WhseShptHeader, "Transfer Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -377,10 +360,7 @@
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromServiceLine2ShptLin("Service Line") then begin
                                         if not OneHeaderCreated and not WhseHeaderCreated then
-                                            // NAVCZ
-                                            // CreateShptHeader;
-                                            CreateShptHeader("Service Header"."No. Series");
-                                        // NAVCZ
+                                            CreateShptHeader();
                                         if not WhseActivityCreate.FromServiceLine2ShptLine(WhseShptHeader, "Service Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -629,10 +609,8 @@
         exit(WhseActivityCreate.FromSalesLine2ShptLine(WhseShptHeader, SalesLine));
     end;
 
-    local procedure CreateShptHeader(NoSeries: Code[20])
+    local procedure CreateShptHeader()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -648,12 +626,6 @@
         WhseShptHeader."External Document No." := "Warehouse Request"."External Document No.";
         WhseShptHeader."Shipment Method Code" := "Warehouse Request"."Shipment Method Code";
         WhseShptLine.LockTable();
-        // NAVCZ
-        if NoSeries <> '' then
-            if NoSeriesLink.Get(NoSeries) then
-                if NoSeriesLink."Shipping Wh. No. Series" <> '' then
-                    WhseShptHeader."No. Series" := NoSeriesLink."Shipping Wh. No. Series";
-        // NAVCZ
         OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line");
         WhseShptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
@@ -662,10 +634,14 @@
         OnAfterCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line");
     end;
 
+    [Obsolete('The functionality of No. Series Enhancements has been removed.', '18.0')]
     procedure CreateReceiptHeader(NoSeries: Code[20])
+    begin
+        CreateReceiptHeader();
+    end;
+
+    procedure CreateReceiptHeader()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -680,12 +656,6 @@
             WhseReceiptHeader."Bin Code" := Location."Receipt Bin Code";
         WhseReceiptHeader."Vendor Shipment No." := "Warehouse Request"."External Document No.";
         WhseReceiptLine.LockTable();
-        // NAVCZ
-        if NoSeries <> '' then
-            if NoSeriesLink.Get(NoSeries) then
-                if NoSeriesLink."Receiving Wh. No. Series" <> '' then
-                    WhseReceiptHeader."No. Series" := NoSeriesLink."Receiving Wh. No. Series";
-        // NAVCZ
         OnBeforeWhseReceiptHeaderInsert(WhseReceiptHeader, "Warehouse Request");
         WhseReceiptHeader.Insert(true);
         OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated, RequestType);
@@ -1125,3 +1095,4 @@
     end;
 }
 
+#endif

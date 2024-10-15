@@ -93,7 +93,7 @@ page 1390 "Generic Chart"
                 trigger OnAction()
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
-                    if SelectedChartDefinition.Next = 0 then
+                    if SelectedChartDefinition.Next() = 0 then
                         if not SelectedChartDefinition.FindFirst then
                             exit;
                     InitializeSelectedChart;

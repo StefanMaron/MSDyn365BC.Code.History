@@ -2,6 +2,9 @@ table 31063 "Specific Movement"
 {
     Caption = 'Specific Movement';
     LookupPageID = "Specific Movements";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

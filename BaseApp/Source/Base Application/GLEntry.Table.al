@@ -338,6 +338,28 @@ table 17 "G/L Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+
+        field(495; "Last Dim. Correction Entry No."; Integer)
+        {
+            Caption = 'Last Dim. Correction Entry No.';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
+        field(496; "Last Dim. Correction Node"; Integer)
+        {
+            Caption = 'Last Dim. Correction Node';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
+        field(497; "Dimension Changes Count"; Integer)
+        {
+            Caption = 'Count of Dimension Changes';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
         field(5400; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
@@ -378,6 +400,9 @@ table 17 "G/L Entry"
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11760; "VAT Date"; Date)
         {
@@ -500,6 +525,9 @@ table 17 "G/L Entry"
         key(Key15; "G/L Account No.", "Applies-to ID")
         {
         }
+        key(Key16; "Dimension Set ID")
+        {
+        }
     }
 
     fieldgroups
@@ -573,7 +601,7 @@ table 17 "G/L Entry"
                 TempValueEntry.Init();
                 TempValueEntry := ValueEntry;
                 TempValueEntry.Insert();
-            until GLItemLedgRelation.Next = 0;
+            until GLItemLedgRelation.Next() = 0;
 
         PAGE.RunModal(0, TempValueEntry);
     end;

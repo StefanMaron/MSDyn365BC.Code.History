@@ -169,8 +169,8 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -292,42 +292,42 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Insert Std. Purch. Lines Mode';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
             Caption = 'Insert Std. Lines on Quotes';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
             Caption = 'Insert Std. Lines on Orders';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
             Caption = 'Insert Std. Lines on Invoices';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
             Caption = 'Insert Std. Lines on Cr. Memos';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
@@ -400,41 +400,61 @@ table 312 "Purchases & Payables Setup"
             TableRelation = "No. Series";
             DataClassification = CustomerContent;
         }
+        field(7002; "Allow Editing Active Price"; Boolean)
+        {
+            Caption = 'Allow Editing Active Price';
+            DataClassification = SystemMetadata;
+        }
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
+#if CLEAN16
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '16.0';
         }
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
+#if CLEAN16
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '16.0';
         }
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
+#if CLEAN16
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '16.0';
         }
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
+#if CLEAN16
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '16.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Purchase Document"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11766; "Default VAT Date"; Option)
         {
@@ -448,6 +468,9 @@ table 312 "Purchases & Payables Setup"
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {

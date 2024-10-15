@@ -1,9 +1,10 @@
+#if not CLEAN18
 report 5607 "Fixed Asset - Projected Value"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetProjectedValue.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Projected Value';
+    Caption = 'Fixed Asset Projected Value (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -463,7 +464,7 @@ report 5607 "Fixed Asset - Projected Value"
                     if not TempFABufferProjection.Find('-') then
                         CurrReport.Break();
                 end else
-                    if TempFABufferProjection.Next = 0 then
+                    if TempFABufferProjection.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -861,7 +862,7 @@ report 5607 "Fixed Asset - Projected Value"
         AccountingPeriod: Record "Accounting Period";
         UntilDate2: Date;
     begin
-        if not UseAccountingPeriod or AccountingPeriod.IsEmpty then
+        if not UseAccountingPeriod or AccountingPeriod.IsEmpty() then
             exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days) + 1);
@@ -1150,4 +1151,4 @@ report 5607 "Fixed Asset - Projected Value"
         TotalAmounts[1] := TotalAmounts[1] + DeprAmount;
     end;
 }
-
+#endif

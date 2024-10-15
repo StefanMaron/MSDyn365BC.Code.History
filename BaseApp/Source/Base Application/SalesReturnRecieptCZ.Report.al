@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31099 "Sales - Return Reciept CZ"
 {
     DefaultLayout = RDLC;
@@ -440,4 +441,4 @@ report 31099 "Sales - Return Reciept CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

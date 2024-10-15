@@ -77,18 +77,27 @@ page 5741 "Transfer Order Subform"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the origin country/region code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the statistic indication code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
@@ -320,7 +329,7 @@ page 5741 "Transfer Order Subform"
 
                     trigger OnAction()
                     begin
-                        Find;
+                        Find();
                         ShowReservation();
                     end;
                 }
@@ -382,6 +391,16 @@ page 5741 "Transfer Order Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Location;
@@ -418,6 +437,7 @@ page 5741 "Transfer Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Shipment';
                         Image = Shipment;
+                        ShortCutKey = 'Shift+Ctrl+I';
                         ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                         trigger OnAction()
@@ -430,11 +450,12 @@ page 5741 "Transfer Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Receipt';
                         Image = Receipt;
+                        ShortCutKey = 'Shift+Ctrl+R';
                         ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines("Transfer Direction"::Inbound);
+                            OpenItemTrackingLinesWithReclass("Transfer Direction"::Inbound);
                         end;
                     }
                 }
@@ -449,12 +470,12 @@ page 5741 "Transfer Order Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
     begin
         Commit();
-        if not ReserveTransferLine.DeleteLineConfirm(Rec) then
+        if not TransferLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveTransferLine.DeleteLine(Rec);
+        TransferLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

@@ -2,6 +2,9 @@ table 31041 "Depreciation Group"
 {
     Caption = 'Depreciation Group';
     LookupPageID = "Depreciation Groups";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

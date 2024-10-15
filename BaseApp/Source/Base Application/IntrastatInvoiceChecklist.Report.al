@@ -5,7 +5,10 @@ report 31061 "Intrastat - Invoice Checklist"
     DefaultLayout = RDLC;
     RDLCLayout = './IntrastatInvoiceChecklist.rdlc';
 
-    Caption = 'Intrastat - Invoice Checklist';
+    Caption = 'Intrastat - Invoice Checklist (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -248,7 +251,7 @@ report 31061 "Intrastat - Invoice Checklist"
                                 greTBuffer."Posting Date" := lreValueEntry."Posting Date";
                                 greTBuffer.Insert();
                             end;
-                    until lreValueEntry.Next = 0;
+                    until lreValueEntry.Next() = 0;
 
                 if ((ldeTotalAmtExpected <> 0) or (ldeTotalCostAmtExpected <> 0)) and (linQuantityEntry <> 0) then begin
                     lreValueEntry.Get(linQuantityEntry);

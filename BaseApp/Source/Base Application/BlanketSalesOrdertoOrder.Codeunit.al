@@ -64,7 +64,7 @@ codeunit 87 "Blanket Sales Order to Order"
                                     (SalesLine."Shipment No." = ''))
                                 then
                                     QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
 
                     CheckBlanketOrderLineQuantity();
 
@@ -122,7 +122,7 @@ codeunit 87 "Blanket Sales Order to Order"
                             AutoReserve(SalesOrderLine, TempSalesLine);
                         end;
                 end;
-            until BlanketOrderSalesLine.Next = 0;
+            until BlanketOrderSalesLine.Next() = 0;
         end;
 
         OnAfterInsertAllSalesOrderLines(Rec, SalesOrderHeader);
@@ -155,7 +155,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         Reservation.SetReservSource(TempSalesLine);
                         Reservation.RunModal();
                         Find;
-                    until TempSalesLine.Next = 0;
+                    until TempSalesLine.Next() = 0;
 
         Clear(CustCheckCreditLimit);
         Clear(ItemCheckAvail);
@@ -221,9 +221,6 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
@@ -236,12 +233,6 @@ codeunit 87 "Blanket Sales Order to Order"
             SalesOrderHeader."No. Printed" := 0;
             SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
             SalesOrderHeader."No." := '';
-            // NAVCZ
-            SalesOrderHeader."No. Series" := '';
-            if NoSeriesLink.Get("No. Series") then
-                if NoSeriesLink."Linked No. Series" <> '' then
-                    SalesOrderHeader."No. Series" := NoSeriesLink."Linked No. Series";
-            // NAVCZ
 
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
@@ -345,7 +336,7 @@ codeunit 87 "Blanket Sales Order to Order"
                                 if ItemCheckAvail.SalesLineCheck(SalesLine) then
                                     ItemCheckAvail.RaiseUpdateInterruptedError;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

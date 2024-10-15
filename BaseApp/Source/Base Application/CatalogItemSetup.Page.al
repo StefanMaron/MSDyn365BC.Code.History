@@ -29,6 +29,10 @@ page 5732 "Catalog Item Setup"
                 field("No. From No. Series"; "No. From No. Series")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }

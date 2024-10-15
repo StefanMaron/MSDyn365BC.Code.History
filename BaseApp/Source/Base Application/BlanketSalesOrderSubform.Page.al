@@ -16,7 +16,7 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the line type.';
@@ -27,19 +27,20 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Cross-Reference No."; "Cross-Reference No.")
+#if not CLEAN16
+                field("Cross-Reference No."; Rec."Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
@@ -50,7 +51,7 @@
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp();
+                        Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
@@ -61,7 +62,8 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+#endif
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the referenced item number.';
@@ -82,7 +84,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -105,7 +107,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the blanket sales order.';
@@ -126,7 +128,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -138,7 +140,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
+                field("Qty. to Assemble to Order"; Rec."Qty. to Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the blanket sales line quantity that you want to supply by assembly.';
@@ -146,7 +148,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrderLines();
+                        Rec.ShowAsmToOrderLines();
                     end;
 
                     trigger OnValidate()
@@ -155,13 +157,13 @@
                         CurrPage.Update(true);
                     end;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the work type code of the service line linked to this entry.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -172,19 +174,19 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field(PriceExists; PriceExists)
+                field(PriceExists; Rec.PriceExists)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sale Price Exists';
@@ -192,7 +194,7 @@
                     ToolTip = 'Specifies that there is a specific price for this customer. The sales prices can be seen in the Sales Prices window.';
                     Visible = false;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -203,14 +205,14 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -221,7 +223,7 @@
                         RedistributeTotalsOnAfterValidate;
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax group code for the tax detail entry.';
@@ -232,7 +234,7 @@
                         RedistributeTotalsOnAfterValidate;
                     end;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -243,7 +245,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -254,7 +256,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field(LineDiscExists; LineDiscExists)
+                field(LineDiscExists; Rec.LineDiscExists)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Line Disc. Exists';
@@ -262,7 +264,7 @@
                     ToolTip = 'Specifies that there is a specific discount for this customer. The sales line discounts can be seen in the Sales Line Discounts window.';
                     Visible = false;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -273,7 +275,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -284,7 +286,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tariff No."; "Tariff No.")
+                field("Tariff No."; Rec."Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
@@ -293,7 +295,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Statistic Indication"; "Statistic Indication")
+                field("Statistic Indication"; Rec."Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
@@ -302,42 +304,42 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
                 }
-                field("Qty. to Ship"; "Qty. to Ship")
+                field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                 }
-                field("Quantity Shipped"; "Quantity Shipped")
+                field("Quantity Shipped"; Rec."Quantity Shipped")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
                 }
-                field("Quantity Invoiced"; "Quantity Invoiced")
+                field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -528,7 +530,7 @@
                 {
                     Caption = 'Item Availability by';
                     Image = ItemAvailability;
-                    Enabled = Type = Type::Item;
+                    Enabled = Rec.Type = Rec.Type::Item;
                     action("Event")
                     {
                         ApplicationArea = Suite;
@@ -578,6 +580,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Suite;
@@ -604,7 +617,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowOrders;
+                            Rec.ShowBlanketOrderSalesLines("Sales Document Type"::Order);
                         end;
                     }
                     action(Invoices)
@@ -616,7 +629,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowInvoices;
+                            Rec.ShowBlanketOrderSalesLines("Sales Document Type"::Invoice);
                         end;
                     }
                     action("Return Orders")
@@ -629,7 +642,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowReturnOrders;
+                            Rec.ShowBlanketOrderSalesLines("Sales Document Type"::"Return Order");
                         end;
                     }
                     action("Credit Memos")
@@ -641,7 +654,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowCreditMemos;
+                            Rec.ShowBlanketOrderSalesLines("Sales Document Type"::"Credit Memo");
                         end;
                     }
                 }
@@ -658,7 +671,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedOrders;
+                            Rec.ShowBlanketOrderPostedShipmentLines();
                         end;
                     }
                     action(Action1901092104)
@@ -670,7 +683,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedInvoices;
+                            Rec.ShowBlanketOrderPostedInvoiceLines();
                         end;
                     }
                     action("Return Receipts")
@@ -683,7 +696,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedReturnReceipts;
+                            Rec.ShowBlanketOrderPostedReturnReceiptLines();
                         end;
                     }
                     action(Action1901033504)
@@ -695,7 +708,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowPostedCreditMemos;
+                            Rec.ShowBlanketOrderPostedCreditMemoLines();
                         end;
                     }
                 }
@@ -710,7 +723,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(DocAttach)
@@ -727,7 +740,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action("Co&mments")
@@ -739,7 +752,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineComments();
+                        Rec.ShowLineComments();
                     end;
                 }
                 group("Assemble to Order")
@@ -755,7 +768,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowAsmToOrderLines();
+                            Rec.ShowAsmToOrderLines();
                         end;
                     }
                     action("Roll Up &Price")
@@ -768,7 +781,7 @@
 
                         trigger OnAction()
                         begin
-                            RollupAsmPrice;
+                            Rec.RollupAsmPrice();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -781,7 +794,7 @@
 
                         trigger OnAction()
                         begin
-                            RollUpAsmCost;
+                            Rec.RollUpAsmCost();
                         end;
                     }
                 }
@@ -814,7 +827,7 @@
 
                     trigger OnAction()
                     begin
-                        PickPrice();
+                        Rec.PickPrice();
                     end;
                 }
                 action("Get Li&ne Discount")
@@ -829,7 +842,7 @@
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                     end;
                 }
                 action(GetPrice)
@@ -844,7 +857,7 @@
 
                     trigger OnAction()
                     begin
-                        PickPrice();
+                        Rec.PickPrice();
                     end;
                 }
                 action(GetLineDiscount)
@@ -859,7 +872,7 @@
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                     end;
                 }
                 action("E&xplode BOM")
@@ -868,12 +881,12 @@
                     ApplicationArea = Suite;
                     Caption = 'E&xplode BOM';
                     Image = ExplodeBOM;
-                    Enabled = Type = Type::Item;
+                    Enabled = Rec.Type = Rec.Type::Item;
                     ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
-                        ExplodeBOM;
+                        ExplodeBOM();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -895,14 +908,14 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalSalesHeader;
-        CalculateTotals;
+        GetTotalSalesHeader();
+        CalculateTotals();
         UpdateEditableOnRow();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
         Clear(DocumentTotals);
     end;
 
@@ -914,13 +927,13 @@
     trigger OnFindRecord(Which: Text): Boolean
     begin
         DocumentTotals.SalesCheckAndClearTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnInit()
     begin
         SalesReceivablesSetup.Get();
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -930,7 +943,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        Rec.InitType();
         Clear(ShortcutDimCode);
     end;
 
@@ -944,26 +957,19 @@
     end;
 
     var
-        CurrentSalesLine: Record "Sales Line";
-        SalesLine: Record "Sales Line";
-        TotalSalesHeader: Record "Sales Header";
-        TotalSalesLine: Record "Sales Line";
         Currency: Record Currency;
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         ExtendedPriceEnabled: Boolean;
 
     protected var
-
-    protected var
+        TotalSalesHeader: Record "Sales Header";
+        TotalSalesLine: Record "Sales Line";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -973,11 +979,14 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        InvDiscAmountEditable: Boolean;
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
-        InvDiscAmountEditable: Boolean;
+        VATAmount: Decimal;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -990,7 +999,7 @@
         SalesHeader: Record "Sales Header";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        SalesHeader.Get("Document Type", "Document No.");
+        SalesHeader.Get(Rec."Document Type", Rec."Document No.");
         if SalesHeader.InvoicedLineExists then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
@@ -1010,7 +1019,7 @@
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
@@ -1028,7 +1037,7 @@
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
@@ -1043,110 +1052,18 @@
     local procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification();
+        if Rec."Line Amount" <> xRec."Line Amount" then
+            Rec.SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
 
         InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
-    end;
-
-    local procedure ShowOrders()
-    begin
-        CurrentSalesLine := Rec;
-        SalesLine.Reset();
-        SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-    end;
-
-    local procedure ShowInvoices()
-    begin
-        CurrentSalesLine := Rec;
-        SalesLine.Reset();
-        SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-    end;
-
-    local procedure ShowReturnOrders()
-    begin
-        CurrentSalesLine := Rec;
-        SalesLine.Reset();
-        SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
-        SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-    end;
-
-    local procedure ShowCreditMemos()
-    begin
-        CurrentSalesLine := Rec;
-        SalesLine.Reset();
-        SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
-        SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-    end;
-
-    local procedure ShowPostedOrders()
-    var
-        SaleShptLine: Record "Sales Shipment Line";
-    begin
-        CurrentSalesLine := Rec;
-        SaleShptLine.Reset();
-        SaleShptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        SaleShptLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SaleShptLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Sales Shipment Lines", SaleShptLine);
-    end;
-
-    local procedure ShowPostedInvoices()
-    var
-        SalesInvLine: Record "Sales Invoice Line";
-    begin
-        CurrentSalesLine := Rec;
-        SalesInvLine.Reset();
-        SalesInvLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        SalesInvLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesInvLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Sales Invoice Lines", SalesInvLine);
-    end;
-
-    local procedure ShowPostedReturnReceipts()
-    var
-        ReturnRcptLine: Record "Return Receipt Line";
-    begin
-        CurrentSalesLine := Rec;
-        ReturnRcptLine.Reset();
-        ReturnRcptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        ReturnRcptLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        ReturnRcptLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Return Receipt Lines", ReturnRcptLine);
-    end;
-
-    local procedure ShowPostedCreditMemos()
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-    begin
-        CurrentSalesLine := Rec;
-        SalesCrMemoLine.Reset();
-        SalesCrMemoLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        SalesCrMemoLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
-        SalesCrMemoLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Sales Credit Memo Lines", SalesCrMemoLine);
     end;
 
     procedure NoOnAfterValidate()
@@ -1170,30 +1087,30 @@
 
     protected procedure QuantityOnAfterValidate()
     begin
-        if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
-            AutoReserve();
+        if Rec.Reserve = Rec.Reserve::Always then begin
+            CurrPage.SaveRecord();
+            Rec.AutoReserve();
         end;
 
-        if (Type = Type::Item) and
-           (Quantity <> xRec.Quantity)
+        if (Rec.Type = Rec.Type::Item) and
+           (Rec.Quantity <> xRec.Quantity)
         then
             CurrPage.Update(true);
     end;
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
-        if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+        if Rec.Reserve = Rec.Reserve::Always then begin
+            CurrPage.SaveRecord();
             AutoReserve();
         end;
     end;
 
     protected procedure SaveAndAutoAsmToOrder()
     begin
-        if (Type = Type::Item) and IsAsmToOrderRequired then begin
-            CurrPage.SaveRecord;
-            AutoAsmToOrder;
+        if (Rec.Type = Rec.Type::Item) and Rec.IsAsmToOrderRequired then begin
+            CurrPage.SaveRecord();
+            Rec.AutoAsmToOrder();
             CurrPage.Update(false);
         end;
     end;
@@ -1203,7 +1120,8 @@
         DocumentLineTracking: Page "Document Line Tracking";
     begin
         Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(2, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
+        DocumentLineTracking.SetDoc(
+            2, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
         DocumentLineTracking.RunModal;
     end;
 

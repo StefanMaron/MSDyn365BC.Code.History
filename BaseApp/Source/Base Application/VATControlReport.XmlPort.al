@@ -873,7 +873,7 @@ xmlport 31100 "VAT Control Report"
                     trigger OnBeforePassVariable()
                     begin
                         if PrintOnlyHeader then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
 
                         CalcTotalAmounts;
                     end;
@@ -1000,7 +1000,7 @@ xmlport 31100 "VAT Control Report"
             repeat
                 TempVATCtrlRptBuf := TempVATCtrlRptBuf2;
                 TempVATCtrlRptBuf.Insert();
-            until TempVATCtrlRptBuf2.Next = 0;
+            until TempVATCtrlRptBuf2.Next() = 0;
     end;
 
     local procedure CopyBufferToSection(var TempVATCtrlRptBuf2: Record "VAT Control Report Buffer" temporary; SectionCode: Code[20])
@@ -1029,7 +1029,7 @@ xmlport 31100 "VAT Control Report"
                     end;
                     TempVATCtrlRptBuf2.Insert();
                 end;
-            until TempVATCtrlRptBuf.Next = 0;
+            until TempVATCtrlRptBuf.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1077,7 +1077,7 @@ xmlport 31100 "VAT Control Report"
     local procedure SkipEmptyValue(Value: Text[1024])
     begin
         if Value = '' then
-            currXMLport.Skip;
+            currXMLport.Skip();
     end;
 
     local procedure FormatDec(DecLoc: Decimal): Text

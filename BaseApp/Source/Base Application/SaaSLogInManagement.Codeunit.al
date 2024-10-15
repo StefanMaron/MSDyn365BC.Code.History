@@ -111,7 +111,7 @@ codeunit 50 "SaaS Log In Management"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnShowTermsAndConditions', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnShowTermsAndConditions', '', false, false)]
     local procedure OnShowTermsAndConditionsSubscriber()
     begin
         ShowTermsAndConditionsOnOpenCompany;

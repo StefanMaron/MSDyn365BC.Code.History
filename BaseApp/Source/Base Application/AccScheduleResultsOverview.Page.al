@@ -226,7 +226,7 @@ page 31089 "Acc. Schedule Results Overview"
                         for StackCounter := 1 to 4 do begin
                             MATRIX_ColumnSet[StackCounter] := AccSchedResultColumn."Line No.";
                             MATRIX_ColumnCaption[StackCounter] := GetColumnName(MATRIX_ColumnSet[StackCounter]);
-                            if AccSchedResultColumn.Next = 0 then
+                            if AccSchedResultColumn.Next() = 0 then
                                 exit;
                         end;
                     end;
@@ -240,7 +240,7 @@ page 31089 "Acc. Schedule Results Overview"
                         exit;
                     if AccSchedResultColumn.FindFirst then
                         for StackCounter := 1 to 4 do begin
-                            if AccSchedResultColumn.Next = 0 then
+                            if AccSchedResultColumn.Next() = 0 then
                                 exit;
                             if (StackCounter = 1) and (AccSchedResultColumn."Line No." <> MATRIX_ColumnSet[4]) then begin
                                 Clear(MATRIX_ColumnSet);
@@ -265,7 +265,7 @@ page 31089 "Acc. Schedule Results Overview"
                         for StackCounter := 1 to 4 do begin
                             MATRIX_ColumnSet[StackCounter] := AccSchedResultColumn."Line No.";
                             MATRIX_ColumnCaption[StackCounter] := GetColumnName(MATRIX_ColumnSet[StackCounter]);
-                            if AccSchedResultColumn.Next = 0 then
+                            if AccSchedResultColumn.Next() = 0 then
                                 exit;
                         end;
                     end;

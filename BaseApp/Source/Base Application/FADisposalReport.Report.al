@@ -1,10 +1,14 @@
+#if not CLEAN18
 report 31047 "FA Disposal Report"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FADisposalReport.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'FA Disposal Report';
+    Caption = 'FA Disposal Report (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -423,4 +427,4 @@ report 31047 "FA Disposal Report"
         FADisposalReportDateCtrlEnable := PrintFADispRepDate;
     end;
 }
-
+#endif

@@ -47,26 +47,25 @@ page 327 "Intrastat Jnl. Batches"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the declaration number for the Intrastat journal batch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(Rec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Statement Type"; "Statement Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies a statement type for the Intrastat journal batch.';
-                }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -111,11 +110,6 @@ page 327 "Intrastat Jnl. Batches"
     trigger OnInit()
     begin
         SetRange("Journal Template Name");
-    end;
-
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        xSetupNewBatch; // NAVCZ
     end;
 
     trigger OnOpenPage()

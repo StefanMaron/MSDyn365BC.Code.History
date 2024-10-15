@@ -231,7 +231,7 @@ report 1002 "Post Inventory Cost to G/L"
                                 CurrReport.Skip();
                         end;
 
-                        if not InvtPost.BufferInvtPosting(ItemValueEntry) then begin
+                        if not InvtPostToGL.BufferInvtPosting(ItemValueEntry) then begin
                             InsertValueEntryNoBuf(ItemValueEntry);
                             CurrReport.Skip();
                         end;
@@ -337,8 +337,8 @@ report 1002 "Post Inventory Cost to G/L"
                     trigger OnAfterGetRecord()
                     begin
                         CapValueEntry.Get(TempCapValueEntry."Entry No.");
-                        if TempCapValueEntry.Next = 0 then;
-                        if not InvtPost.BufferInvtPosting(CapValueEntry) then begin
+                        if TempCapValueEntry.Next() = 0 then;
+                        if not InvtPostToGL.BufferInvtPosting(CapValueEntry) then begin
                             InsertValueEntryNoBuf(CapValueEntry);
                             CurrReport.Skip();
                         end;
@@ -431,7 +431,7 @@ report 1002 "Post Inventory Cost to G/L"
                         if not InvtPostBuf.FindSet then
                             CurrReport.Break();
                     end else
-                        if InvtPostBuf.Next = 0 then
+                        if InvtPostBuf.Next() = 0 then
                             CurrReport.Break();
 
                     DimSetEntry.SetRange("Dimension Set ID", InvtPostBuf."Dimension Set ID");
@@ -458,7 +458,7 @@ report 1002 "Post Inventory Cost to G/L"
                 trigger OnPreDataItem()
                 begin
                     if PostMethod = PostMethod::"per Posting Group" then
-                        InvtPost.GetInvtPostBuf(InvtPostBuf);
+                        InvtPostToGL.GetInvtPostBuf(InvtPostBuf);
                     InvtPostBuf.Reset();
                 end;
             }
@@ -525,7 +525,7 @@ report 1002 "Post Inventory Cost to G/L"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if TempValueEntry.Next = 0 then
+                    if TempValueEntry.Next() = 0 then
                         Clear(TempValueEntry);
 
                     SetRange("Item No.", TempValueEntry."Item No.");
@@ -586,17 +586,6 @@ report 1002 "Post Inventory Cost to G/L"
                         Caption = 'Post';
                         ToolTip = 'Specifies that the costs will be posted when you run the batch job.';
                     }
-                    field("Posting Desc. Code"; PostDescCode)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Posting Desc. Code';
-                        TableRelation = "Posting Description" WHERE(Type = CONST("Post Inventory Cost"));
-                        ToolTip = 'Specifies a posting description.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                 }
             }
         }
@@ -604,14 +593,6 @@ report 1002 "Post Inventory Cost to G/L"
         actions
         {
         }
-
-        trigger OnOpenPage()
-        begin
-            // NAVCZ
-            InvtSetup.Get();
-            PostDescCode := InvtSetup."Posting Desc. Code";
-            // NAVCZ
-        end;
     }
 
     labels
@@ -638,13 +619,6 @@ report 1002 "Post Inventory Cost to G/L"
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
         InvtSetup.Get();
-        // NAVCZ
-        if PostDescCode <> '' then begin
-            PostingDesc.Get(PostDescCode);
-            PostingDesc.TestField(Type, PostingDesc.Type::"Post Inventory Cost");
-            RecordReference.Open(DATABASE::"Value Entry");
-        end
-        // NAVCZ
     end;
 
     var
@@ -662,7 +636,7 @@ report 1002 "Post Inventory Cost to G/L"
         TempValueEntry: Record "Value Entry" temporary;
         ItemValueEntry: Record "Value Entry";
         CapValueEntry: Record "Value Entry";
-        InvtPost: Codeunit "Inventory Posting To G/L";
+        InvtPostToGL: Codeunit "Inventory Posting To G/L";
         Window: Dialog;
         DocNo: Code[20];
         GenPostingSetupTxt: Text[250];
@@ -720,9 +694,6 @@ report 1002 "Post Inventory Cost to G/L"
         CostAmtCaptionLbl: Label 'Cost Amount';
         ExpectedCost_SkippedValueEntryCaptionLbl: Label 'Skipped Value Entries';
         SkippedItemsCaptionLbl: Label 'Skipped Items';
-        PostingDesc: Record "Posting Description";
-        RecordReference: RecordRef;
-        PostDescCode: Code[10];
         PrevCapValueEntryOrderNo: Code[20];
         TotalValueEntriesPostedToGL: Integer;
         StatisticsMsg: Label '%1 value entries have been posted to the general ledger.', Comment = '10 value entries have been posted to the general ledger.';
@@ -754,30 +725,24 @@ report 1002 "Post Inventory Cost to G/L"
                     DimText := OldDimText;
                     exit;
                 end;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure PostEntryToGL(ValueEntry: Record "Value Entry")
     begin
-        InvtPost.Initialize(PostMethod = PostMethod::"per Posting Group");
-        // NAVCZ
-        if PostDescCode <> '' then begin
-            RecordReference.GetTable(ItemValueEntry);
-            InvtPost.SetPostingDesc(PostingDesc.ParsePostDescString(PostingDesc, RecordReference));
-        end;
-        // NAVCZ
-        InvtPost.Run(ValueEntry);
+        InvtPostToGL.Initialize(PostMethod = PostMethod::"per Posting Group");
+        InvtPostToGL.Run(ValueEntry);
         TotalValueEntriesPostedToGL += 1;
     end;
 
     local procedure UpdateAmounts()
     begin
-        InvtPost.GetAmtToPost(
+        InvtPostToGL.GetAmtToPost(
           COGSAmt, InvtAdjmtAmt, DirCostAmt,
           OvhdCostAmt, VarPurchCostAmt, VarMfgDirCostAmt, VarMfgOvhdAmt,
           WIPInvtAmt, InvtAmt, false);
 
-        InvtPost.GetAmtToPost(
+        InvtPostToGL.GetAmtToPost(
           TotalCOGSAmt, TotalInvtAdjmtAmt, TotalDirCostAmt,
           TotalOvhdCostAmt, TotalVarPurchCostAmt, TotalVarMfgDirCostAmt, TotalVarMfgOvhdCostAmt,
           TotalWIPInvtAmt, TotalInvtAmt, true);

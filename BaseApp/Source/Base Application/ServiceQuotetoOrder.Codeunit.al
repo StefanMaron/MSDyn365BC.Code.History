@@ -1,4 +1,4 @@
-﻿codeunit 5923 "Service-Quote to Order"
+codeunit 5923 "Service-Quote to Order"
 {
     Permissions = TableData "Loaner Entry" = m,
                   TableData "Service Order Allocation" = rimd;
@@ -55,7 +55,7 @@
         ServCommentLine2: Record "Service Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ServLogMgt: Codeunit ServLogManagement;
-        ReserveServiceLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
 
     local procedure TestNoSeries()
     begin
@@ -87,8 +87,6 @@
 
     local procedure MakeOrder(ServiceHeader: Record "Service Header")
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         RecordLinkManagement: Codeunit "Record Link Management";
         SkipDelete: Boolean;
@@ -106,16 +104,9 @@
             "Finishing Date" := 0D;
             "Finishing Time" := 0T;
 
-            // NAVCZ
-            "No. Series" := '';
-            if NoSeriesLink.Get(ServiceHeader."No. Series") then
-                if NoSeriesLink."Linked No. Series" <> '' then
-                    "No. Series" := NoSeriesLink."Linked No. Series";
-            if "No. Series" = '' then begin
-                // NAVCZ
-                TestNoSeries;
-                NoSeriesMgt.InitSeries(GetNoSeriesCode, '', 0D, "No.", "No. Series");
-            end; // NAVCZ
+            TestNoSeries;
+            NoSeriesMgt.InitSeries(GetNoSeriesCode, '', 0D, "No.", "No. Series");
+
             "Quote No." := ServiceHeader."No.";
             RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
             InsertServHeader(ServOrderHeader, ServiceHeader);
@@ -132,7 +123,7 @@
                     ServCommentLine2."No." := "No.";
                     OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
                     ServCommentLine2.Insert();
-                until ServCommentLine.Next = 0;
+                until ServCommentLine.Next() = 0;
 
             ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
@@ -167,7 +158,7 @@
                     OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine, ServOrderHeader);
                     ServItemLine2.Insert(true);
                     OnAfterInsertServiceLine(ServItemLine2, ServItemLine);
-                until ServItemLine.Next = 0;
+                until ServItemLine.Next() = 0;
 
             UpdateResponseDateTime;
 
@@ -192,7 +183,7 @@
                     ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
                     ServCommentLine2."No." := "No.";
                     ServCommentLine2.Insert();
-                until ServCommentLine.Next = 0;
+                until ServCommentLine.Next() = 0;
 
             ServOrderLine.Reset();
             ServOrderLine.SetRange("Document Type", ServiceHeader."Document Type");
@@ -206,8 +197,8 @@
                     OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
                     ServOrderLine2.Insert();
                     OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
-                    ReserveServiceLine.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
-                until ServOrderLine.Next = 0;
+                    ServiceLineReserve.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
+                until ServOrderLine.Next() = 0;
 
             ServLogMgt.ServOrderQuoteChanged(ServOrderHeader, ServiceHeader);
             ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(ServiceHeader.RecordId, "No.", RecordId);
@@ -243,7 +234,7 @@
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
                             ItemCheckAvail.RaiseUpdateInterruptedError;
                 end;
-            until ServiceQuoteLine.Next = 0;
+            until ServiceQuoteLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

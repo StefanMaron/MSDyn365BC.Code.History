@@ -80,11 +80,19 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(Priority; Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if vendor bank account is a priority vendor bank account';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("UncPayerMgt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; UncPayerMgt.IsPublicBankAccount("Vendor No.", "Vendor VAT Registration No.", "Bank Account No.", IBAN))
                 {

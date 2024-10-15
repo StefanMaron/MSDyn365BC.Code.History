@@ -2084,7 +2084,7 @@ codeunit 137408 "SCM Warehouse VI"
             SetSourceFilter(DATABASE::"Transfer Line", 0, TransferHeader."No.", -1, false);
             SetRange("Location Code", FromLocation.Code);
             SetRange("Reservation Status", "Reservation Status"::Tracking);
-            FindSet;
+            FindSet();
             VerifyReservationEntryQty(ReservationEntry, -QtyToPick1, -QtyToPick1, -QtyToPick1);
             Next;
             VerifyReservationEntryQty(ReservationEntry, -QtyToPick2, -QtyToPick2, -QtyToPick2);
@@ -2094,7 +2094,7 @@ codeunit 137408 "SCM Warehouse VI"
             SetSourceFilter(DATABASE::"Transfer Line", 1, TransferHeader."No.", -1, false);
             SetRange("Location Code", ToLocation.Code);
             SetRange("Reservation Status", "Reservation Status"::Surplus);
-            FindSet;
+            FindSet();
             VerifyReservationEntryQty(ReservationEntry, QtyToPick1, QtyToPick1, QtyToPick1);
             Next;
             VerifyReservationEntryQty(ReservationEntry, QtyToPick2, QtyToPick2, QtyToPick2);
@@ -2610,7 +2610,7 @@ codeunit 137408 "SCM Warehouse VI"
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
 
         // [WHEN] Set a non-existent lot no. "L2" on the pick line.
         asserterror WarehouseActivityLine.Validate("Lot No.", NewLotNo);
@@ -4292,7 +4292,7 @@ codeunit 137408 "SCM Warehouse VI"
 
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::"Phys. Inventory");
         Item.SetFilter("No.", ItemFilter);
-        Item.FindSet;
+        Item.FindSet();
         repeat
             LibraryVariableStorage.Enqueue(Item."No.");
             LibraryVariableStorage.Enqueue(NextCountingStartDate);
@@ -4428,7 +4428,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Modify(true);
@@ -4441,7 +4441,7 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         WarehouseActivityLine.SetRange("Source Type", SourceType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Validate("Lot No.", LotNo);
@@ -4512,7 +4512,7 @@ codeunit 137408 "SCM Warehouse VI"
             until WhseItemTrackingLine.Next = 0
     end;
 
-    local procedure SetupReserveOnRequisitionLine(No: Code[20]; LineType: Option)
+    local procedure SetupReserveOnRequisitionLine(No: Code[20]; LineType: Enum "Requisition Line Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4614,7 +4614,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField("Qty. Handled", QuantityHandled);
@@ -4626,7 +4626,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField("Qty. to Handle", QuantityToHandle);
@@ -4673,7 +4673,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);
@@ -4788,7 +4788,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseEntry.TestField("Lot No.", LotNo);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 7307, 'OnBeforeAutoReserveForSalesLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnBeforeAutoReserveForSalesLine', '', false, false)]
     local procedure InvokeErrorOnRegisteringWarehousePick(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
     begin
         Error(RegisteringPickInterruptedErr);

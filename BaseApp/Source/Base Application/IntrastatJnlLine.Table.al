@@ -244,7 +244,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
-        field(31;"Location Code";Code[10])
+        field(31; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
@@ -253,26 +253,41 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Additional Costs';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Source Entry Date"; Date)
         {
             Caption = 'Source Entry Date';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Statistics Period"; Code[10])
         {
             Caption = 'Statistics Period';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Declaration No."; Code[10])
         {
             Caption = 'Declaration No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31066; "Statement Type"; Option)
         {
@@ -280,10 +295,16 @@ table 263 "Intrastat Jnl. Line"
             Editable = false;
             OptionCaption = 'Primary,Null,Replacing,Deleting';
             OptionMembers = Primary,Null,Replacing,Deleting;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31067; "Prev. Declaration No."; Code[10])
         {
             Caption = 'Prev. Declaration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnLookup()
             var
@@ -307,6 +328,9 @@ table 263 "Intrastat Jnl. Line"
         field(31068; "Prev. Declaration Line No."; Integer)
         {
             Caption = 'Prev. Declaration Line No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnLookup()
             var
@@ -343,38 +367,53 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Shipment Method Code';
             ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Shipment Method";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Specific Movement"; Code[10])
         {
             Caption = 'Specific Movement';
             TableRelation = "Specific Movement".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Supplem. UoM Code"; Code[10])
         {
             Caption = 'Supplem. UoM Code';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31072; "Supplem. UoM Quantity"; Decimal)
         {
             Caption = 'Supplem. UoM Quantity';
             DecimalPlaces = 0 : 3;
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31073; "Supplem. UoM Net Weight"; Decimal)
         {
             Caption = 'Supplem. UoM Net Weight';
             DecimalPlaces = 2 : 5;
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31074; "Base Unit of Measure"; Code[10])
         {
             Caption = 'Base Unit of Measure';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -395,9 +434,15 @@ table 263 "Intrastat Jnl. Line"
         }
         key(Key5; Type, "Country/Region Code", "Tariff No.", "Statistic Indication", "Transaction Type", "Shpt. Method Code", "Area", "Transport Method")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Statistic Indication" is removed and cannot be used in an active key.';
+            ObsoleteTag = '18.0';
         }
         key(Key6; Type, "Tariff No.", "Country/Region Code", "Country/Region of Origin Code", "Statistic Indication", "Transaction Type", "Shpt. Method Code", "Area", "Transport Method")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Statistic Indication" is removed and cannot be used in an active key.';
+            ObsoleteTag = '18.0';
         }
         key(Key7; "Document No.")
         {
@@ -471,6 +516,7 @@ table 263 "Intrastat Jnl. Line"
         end; // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure RoundValue(Value: Decimal): Decimal
     begin
@@ -480,6 +526,7 @@ table 263 "Intrastat Jnl. Line"
         exit(Value);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetQuantityStr(): Text[30]
     var
@@ -493,6 +540,7 @@ table 263 "Intrastat Jnl. Line"
         exit(Format("Supplem. UoM Quantity", 0, PrecisionFormat));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetDeliveryGroupCode(): Code[10]
     var
@@ -503,6 +551,7 @@ table 263 "Intrastat Jnl. Line"
         exit(ShipmentMethod."Intrastat Delivery Group Code");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetTotalWeightStr(): Text[30]
     begin
@@ -572,7 +621,7 @@ table 263 "Intrastat Jnl. Line"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         Customer: Record Customer;
     begin
-        if not ItemLedgerEntry.Get("Source Entry No.") then 
+        if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
@@ -625,7 +674,7 @@ table 263 "Intrastat Jnl. Line"
                 end;
             ItemLedgerEntry."Document Type"::"Service Shipment":
                 begin
-                    if not ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then 
+                    if not ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then
                         exit('');
                     Customer.Get(ServiceShipmentHeader."Bill-to Customer No.");
                     exit(
@@ -634,7 +683,7 @@ table 263 "Intrastat Jnl. Line"
                 end;
             ItemLedgerEntry."Document Type"::"Service Invoice":
                 begin
-                    if not ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then 
+                    if not ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then
                         exit('');
                     Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
                     exit(
@@ -650,9 +699,9 @@ table 263 "Intrastat Jnl. Line"
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
     begin
-        if not JobLedgerEntry.Get("Source Entry No.") then 
+        if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
-        if not Job.Get(JobLedgerEntry."Job No.") then 
+        if not Job.Get(JobLedgerEntry."Job No.") then
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
@@ -671,12 +720,14 @@ table 263 "Intrastat Jnl. Line"
         exit('QV999999999999');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure PrecisionFormat(): Text
     begin
         // NAVCZ
         exit('<Precision,3:3><Standard Format,9>');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIntrastatJnlLineUserRestriction()
     begin
         // NAVCZ

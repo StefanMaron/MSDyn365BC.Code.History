@@ -286,10 +286,8 @@ table 1706 "Deferral Posting Buffer"
             NewAmountLCY := RemainAmtToDefer;
             NewAmount := RemainAmtToDeferACY;
         end else begin
-            // NAVCZ
-            NewAmountLCY := InvoicePostBuffer.Amount + InvoicePostBuffer."VAT Amount (Non Deductible)";
-            NewAmount := InvoicePostBuffer."Amount (ACY)" + InvoicePostBuffer."VAT Amount (Non Deductible)";
-            // NAVCZ
+            NewAmountLCY := InvoicePostBuffer.Amount;
+            NewAmount := InvoicePostBuffer."Amount (ACY)";
         end;
         PrepareRemainderAmounts(NewAmountLCY, NewAmount, DeferralAccount, GLAccount);
         "Amount (LCY)" := NewAmountLCY;

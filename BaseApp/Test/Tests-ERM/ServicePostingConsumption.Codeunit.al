@@ -807,7 +807,7 @@ codeunit 136109 "Service Posting - Consumption"
         // VERIFY: All ledger entries generated after undo matchup
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentHeaderNo);
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
 
         Quantity := 0;
         InvoicedQuantity := 0;
@@ -1970,14 +1970,14 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindServiceLinesByHeaderNo(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -2019,7 +2019,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         repeat
             TempServiceLineBeforePosting := ServiceLine;
@@ -2088,7 +2088,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -2217,7 +2217,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Quantity Consumed", 0);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -2236,7 +2236,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceCrMemoHeader.FindFirst;
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField(Quantity, Quantity);
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
@@ -2254,11 +2254,11 @@ codeunit 136109 "Service Posting - Consumption"
     var
         ServiceLine: Record "Service Line";
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
@@ -2274,11 +2274,11 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentHeader: Record "Service Shipment Header";
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             ServiceShipmentLine.TestField(Type, TempServiceLine.Type);
             ServiceShipmentLine.TestField("No.", TempServiceLine."No.");
@@ -2295,7 +2295,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;
         repeat
@@ -2315,7 +2315,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Resource);
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;
         ResourceLedgerEntry.SetRange("Entry Type", ResourceLedgerEntry."Entry Type"::Usage);
@@ -2353,7 +2353,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
@@ -2398,7 +2398,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
@@ -2417,14 +2417,14 @@ codeunit 136109 "Service Posting - Consumption"
         TotalQuantity: Decimal;
         TotalConsumedQuantity: Decimal;
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             TotalQuantity := 0;
             TotalConsumedQuantity := 0;
             ServiceShipmentLine.SetRange(Type, TempServiceLine.Type);
             ServiceShipmentLine.SetRange("No.", TempServiceLine."No.");
-            ServiceShipmentLine.FindSet;
+            ServiceShipmentLine.FindSet();
             repeat
                 TotalQuantity += ServiceShipmentLine.Quantity;
                 TotalConsumedQuantity += ServiceShipmentLine."Quantity Consumed";
@@ -2441,7 +2441,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceOrderNo);
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             ItemLedgerEntry.Get(ServiceShipmentLine."Item Shpt. Entry No.");
             ItemLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
@@ -2458,7 +2458,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentLine.FindFirst;
         ResLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ResLedgerEntry.SetFilter(Quantity, '<%1', 0);
-        ResLedgerEntry.FindSet;
+        ResLedgerEntry.FindSet();
         repeat
             ResLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
         until ResLedgerEntry.Next = 0;
@@ -2468,11 +2468,11 @@ codeunit 136109 "Service Posting - Consumption"
     var
         ServiceLine: Record "Service Line";
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceLine.SetRange("Document Type", TempServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", TempServiceLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", TempServiceLine."Service Item Line No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
@@ -2532,7 +2532,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLedgerEntry.SetFilter(Type, '%1|%2',
           ServiceLedgerEntry.Type::"G/L Account", ServiceLedgerEntry.Type::"Service Cost");
         TempServiceLineBeforePosting.SetFilter("Qty. to Consume", '>0');
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         if IsUndo then
             SignFactor := -1
         else

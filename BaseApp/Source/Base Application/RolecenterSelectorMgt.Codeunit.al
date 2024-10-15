@@ -139,13 +139,13 @@ codeunit 1485 "Rolecenter Selector Mgt."
                         JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonTooltipLbl,
                           FeaturePageAction.ToolTip1 + FeaturePageAction.ToolTip2 + FeaturePageAction.ToolTip3 + FeaturePageAction.ToolTip4);
                         JSONManagement.AddJObjectToJArray(FeatureJArray, FeatureJObject);
-                    until FeaturePageAction.Next = 0;
+                    until FeaturePageAction.Next() = 0;
 
                 if FeatureJArray.Count > 0 then begin
                     JSONManagement.AddJArrayToJObject(FeatureBucketJObject, JsonRowElementLbl, FeatureJArray);
                     JSONManagement.AddJObjectToJArray(FeatureBucketsJArray, FeatureBucketJObject);
                 end;
-            until BucketPageAction.Next = 0;
+            until BucketPageAction.Next() = 0;
 
         exit(FeatureBucketsJArray.ToString);
     end;
@@ -177,7 +177,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
                 JSONManagement.AddJPropertyToJObject(ProfileJObject, JsonProfileDescriptionLbl, AllProfile.Description);
                 JSONManagement.AddJPropertyToJObject(ProfileJObject, JsonRolecenterIdLbl, AllProfile."Role Center ID");
                 JSONManagement.AddJObjectToJArray(ProfileJArray, ProfileJObject);
-            until AllProfile.Next = 0;
+            until AllProfile.Next() = 0;
 
         JSONManagement.AddJArrayToJObject(PageDataJObject, JsonDropdownContentLbl, ProfileJArray);
 

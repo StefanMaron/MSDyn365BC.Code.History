@@ -129,9 +129,9 @@ page 8900 "Administrator Main Role Center"
                     action("Business Setup")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Business Setup';
-                        RunObject = page "Manual Setup";
-                        AccessByPermission = tabledata 1875 = R;
+                        Caption = 'Manual Setup';
+                        RunObject = Page "Manual Setup";
+                        ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
                     }
                     action("Image Analysis Setup")
                     {
@@ -164,6 +164,10 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Certificate Codes';
                         RunObject = page "Certificate Code List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Certificates")
                     {
@@ -171,12 +175,18 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Certificates';
                         RunObject = page "Certificate List";
                     }
+#if not CLEAN18
                     action("No. Series Mask Generator")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'No. Series Mask Generator';
-                        RunObject = report "No. Series Mask Generator";
+                        Caption = 'No. Series';
+                        RunObject = page "No. Series";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of No. Series Enhancements has been removed.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
+#endif
                 }
                 group("Group3")
                 {
@@ -246,7 +256,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Settings';
                         RunObject = page "Report Settings";
-                        AccessByPermission = tabledata 2000000196 = IMD;
+                        AccessByPermission = TableData "Object Options" = IMD;
                     }
                     action("Report Inbox")
                     {
@@ -307,6 +317,10 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selection - Credit';
                         RunObject = page "Report Selection - Credit";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Report Selection-Cash Desk")
                     {
@@ -425,26 +439,6 @@ page 8900 "Administrator Main Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
-                    action("Industry Codes")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Industry Codes';
-                        RunObject = page "Industry Codes";
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of Industry Classification will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
-                    action("Registration Country/Region Routes")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Registration Country/Region Routes';
-                        RunObject = page "Registr. Country/Region Routes";
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                 }
                 group("Group10")
                 {
@@ -460,7 +454,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = All;
                         Caption = 'Data Classification Worksheet';
                         RunObject = page "Data Classification Worksheet";
-                        AccessByPermission = tabledata 2000000159 = R;
+                        AccessByPermission = TableData "Data Sensitivity" = R;
                     }
                     action("XML Schemas")
                     {
@@ -495,7 +489,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Data Migration Settings';
                         RunObject = page "Data Migration Settings";
-                        AccessByPermission = tabledata 1806 = R;
+                        AccessByPermission = TableData "Data Migration Setup" = R;
                     }
                 }
                 group("Group12")
@@ -625,7 +619,7 @@ page 8900 "Administrator Main Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Security Status';
                     RunObject = page "User Security Status List";
-                    AccessByPermission = tabledata 2000000120 = R;
+                    AccessByPermission = TableData "User" = R;
                 }
                 action("User Tasks")
                 {
@@ -781,11 +775,11 @@ page 8900 "Administrator Main Role Center"
                 }
                 group("Group25")
                 {
-                    Caption = 'Microsoft Power Automate';
+                    Caption = 'Power Automate';
                     action("Workflows1")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Manage Flows';
+                        Caption = 'Manage flows';
                         RunObject = page "Flow Selector";
                     }
                     action("Workflows2")
@@ -826,7 +820,7 @@ page 8900 "Administrator Main Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Microsoft Dynamics 365 Connection Setup';
                     RunObject = page "CRM Connection Setup";
-                    AccessByPermission = tabledata 5330 = IM;
+                    AccessByPermission = TableData "CRM Connection Setup" = IM;
                 }
                 action("Social Listening Setup")
                 {

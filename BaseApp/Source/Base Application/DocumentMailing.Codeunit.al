@@ -68,6 +68,50 @@
             EmailFile(AttachmentFilePath, '', '', "No.", GetToAddressFromCustomer("Bill-to Customer No."), SalesAdvLetterTxt, false, 0);
     end;
 
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceReference: RecordRef): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem."Source Table" := SourceReference.Number();
+        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
+
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
+            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
+            '',
+            '',
+            HideDialog,
+            -1,
+            false,
+            '',
+            EmailScenario));
+    end;
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem."Source Table" := SourceReference.Number();
+        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
+
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
     [Scope('OnPrem')]
     [Obsolete('Replaced by an overload that supports streams.', '17.2')]
     procedure EmailFile(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -130,9 +174,9 @@
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
-        #pragma warning disable AL0432
+#pragma warning disable AL0432
         exit(EmailFileWithSubjectAndSender(AttachmentFilePath, AttachmentFileName, HtmlBodyFilePath, EmailSubject, ToEmailAddress, HideDialog, ''));
-        #pragma warning restore AL0432
+#pragma warning restore AL0432
     end;
 
     [Scope('OnPrem')]
@@ -196,6 +240,28 @@
         TempEmailItem: Record "Email Item" temporary;
     begin
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            EmailSubject,
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            false,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
+        TempEmailItem."Source Table" := SourceReference.Number();
+        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
         exit(EmailFileInternal(
             TempEmailItem,
             HtmlBodyFilePath,
@@ -451,7 +517,7 @@
         end else
             if OfficeMgt.AttachAvailable() then
                 OfficeMgt.AttachDocument(TempEmailItem.GetBodyText(), TempEmailItem.Subject);
-        
+
         if not OfficeMgt.AttachAvailable() then begin
             if EmailFeature.IsEnabled() then begin
                 if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
@@ -566,7 +632,7 @@
     local procedure OnBeforeEmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var HtmlBodyFilePath: Text[250]; var EmailSubject: Text[250]; var ToEmailAddress: Text[250]; var PostedDocNo: Code[20]; var EmailDocName: Text[250]; var HideDialog: Boolean; var ReportUsage: Integer; var IsFromPostedDoc: Boolean; var SenderUserID: Code[50]; var EmailScenario: Enum "Email Scenario")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
     begin

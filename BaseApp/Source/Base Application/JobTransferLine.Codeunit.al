@@ -102,7 +102,7 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine.Description := JobJnlLine.Description;
         JobPlanningLine."Description 2" := JobJnlLine."Description 2";
         JobPlanningLine."Unit of Measure Code" := JobJnlLine."Unit of Measure Code";
-        JobPlanningLine.Validate("Line Type", JobJnlLine."Line Type" - 1);
+        JobPlanningLine.Validate("Line Type", JobPlanningLine.ConvertFromJobLineType(JobJnlLine."Line Type"));
         JobPlanningLine."Currency Code" := JobJnlLine."Currency Code";
         JobPlanningLine."Currency Factor" := JobJnlLine."Currency Factor";
         JobPlanningLine."Resource Group No." := JobJnlLine."Resource Group No.";
@@ -154,11 +154,13 @@ codeunit 1004 "Job Transfer Line"
         OnAfterFromJnlToPlanningLine(JobPlanningLine, JobJnlLine);
     end;
 
+#if not CLEAN17
     [Obsolete('EntryType parameter converted to Enum', '17.0')]
     procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Option Usage,Sale)
     begin
         FromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, "Job Journal Line Entry Type".FromInteger(EntryType));
     end;
+#endif
 
     procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
@@ -186,7 +188,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.Validate("Qty. per Unit of Measure", SalesLine."Qty. per Unit of Measure");
         JobJnlLine."Work Type Code" := JobPlanningLine."Work Type Code";
         JobJnlLine."Variant Code" := JobPlanningLine."Variant Code";
-        JobJnlLine."Line Type" := JobPlanningLine."Line Type" + 1;
+        JobJnlLine."Line Type" := JobPlanningLine.ConvertToJobLineType();
         JobJnlLine."Currency Code" := JobPlanningLine."Currency Code";
         JobJnlLine."Currency Factor" := JobPlanningLine."Currency Factor";
         JobJnlLine."Resource Group No." := JobPlanningLine."Resource Group No.";
@@ -273,7 +275,7 @@ codeunit 1004 "Job Transfer Line"
 
         if JobPlanningLine."Usage Link" then begin
             JobJnlLine."Job Planning Line No." := JobPlanningLine."Line No.";
-            JobJnlLine."Line Type" := JobPlanningLine."Line Type" + 1;
+            JobJnlLine."Line Type" := JobPlanningLine.ConvertToJobLineType();
         end;
 
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
@@ -401,7 +403,7 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine.Type := JobLedgEntry.Type;
         JobPlanningLine."No." := JobLedgEntry."No.";
         JobPlanningLine."Unit of Measure Code" := JobLedgEntry."Unit of Measure Code";
-        JobPlanningLine.Validate("Line Type", JobLedgEntry."Line Type" - 1);
+        JobPlanningLine.Validate("Line Type", JobPlanningLine.ConvertFromJobLineType(JobLedgEntry."Line Type"));
         JobPlanningLine."Currency Code" := JobLedgEntry."Currency Code";
         if JobLedgEntry."Currency Code" = '' then
             JobPlanningLine."Currency Factor" := 0
@@ -685,6 +687,7 @@ codeunit 1004 "Job Transfer Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure UpdateCorrectionIfNegQty(JobJnlLine: Record "Job Journal Line")
     var
         GLSetup: Record "General Ledger Setup";

@@ -88,13 +88,11 @@
             Caption = 'Posted Date-Time';
             Editable = false;
         }
-        field(15; "Document Type"; Option)
+        field(15; "Document Type"; Enum "Incoming Related Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
             InitValue = " ";
-            OptionCaption = 'Journal,Sales Invoice,Sales Credit Memo,Purchase Invoice,Purchase Credit Memo, ,Sales Advance,Purchase Advance,Credit';
-            OptionMembers = Journal,"Sales Invoice","Sales Credit Memo","Purchase Invoice","Purchase Credit Memo"," ","Sales Advance","Purchase Advance",Credit;
         }
         field(16; "Document No."; Code[20])
         {
@@ -365,11 +363,11 @@
         ClearRelatedRecords;
 
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not IncomingDocumentAttachment.IsEmpty then
+        if not IncomingDocumentAttachment.IsEmpty() then
             IncomingDocumentAttachment.DeleteAll();
 
         ActivityLog.SetRange("Record ID", RecordId);
-        if not ActivityLog.IsEmpty then
+        if not ActivityLog.IsEmpty() then
             ActivityLog.DeleteAll();
 
         ClearErrorMessages;
@@ -513,7 +511,7 @@
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
     end;
 
-    local procedure CreateWithDataExchange(DocumentType: Option)
+    local procedure CreateWithDataExchange(DocumentType: Enum "Incoming Related Document Type")
     var
         ErrorMessage: Record "Error Message";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -589,10 +587,10 @@
 
         // NAVCZ
         DocumentTypeOption :=
-          StrMenu(
-            StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8',
-              JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt,
-              SalesAdvanceTxt, PurchAdvanceTxt, CreditTxt), 1);
+            StrMenu(
+                StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8',
+                    JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt,
+                    SalesAdvanceTxt, PurchAdvanceTxt, CreditTxt), 1);
         // NAVCZ
 
         if DocumentTypeOption < 1 then
@@ -602,24 +600,24 @@
             DocumentTypeOption -= 1;
 
         case DocumentTypeOption of
-            "Document Type"::"Purchase Invoice":
-                CreatePurchInvoice;
-            "Document Type"::"Purchase Credit Memo":
-                CreatePurchCreditMemo;
-            "Document Type"::"Sales Invoice":
-                CreateSalesInvoice;
-            "Document Type"::"Sales Credit Memo":
-                CreateSalesCreditMemo;
-            "Document Type"::Journal:
-                CreateGenJnlLine;
+            "Document Type"::"Purchase Invoice".AsInteger():
+                CreatePurchInvoice();
+            "Document Type"::"Purchase Credit Memo".AsInteger():
+                CreatePurchCreditMemo();
+            "Document Type"::"Sales Invoice".AsInteger():
+                CreateSalesInvoice();
+            "Document Type"::"Sales Credit Memo".AsInteger():
+                CreateSalesCreditMemo();
+            "Document Type"::Journal.AsInteger():
+                CreateGenJnlLine();
             // NAVCZ
-            "Document Type"::"Sales Advance":
-                CreateSalesAdvLetter;
-            "Document Type"::"Purchase Advance":
-                CreatePurchAdvLetter;
-            "Document Type"::Credit:
-                CreateCredit;
-                // NAVCZ
+            "Document Type"::"Sales Advance".AsInteger():
+                CreateSalesAdvLetter();
+            "Document Type"::"Purchase Advance".AsInteger():
+                CreatePurchAdvLetter();
+            "Document Type"::Credit.AsInteger():
+                CreateCredit();
+        // NAVCZ
         end;
 
         OnAfterCreateManually(Rec);
@@ -647,7 +645,7 @@
         GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatch);
         GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not GenJnlLine.IsEmpty then
+        if not GenJnlLine.IsEmpty() then
             exit; // instead; go to the document
 
         GenJnlLine.SetRange("Incoming Document Entry No.");
@@ -753,7 +751,7 @@
         "Document Type" := "Document Type"::"Sales Advance";
         TestReadyForProcessing;
         SalesAdvanceLetterHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not SalesAdvanceLetterHeader.IsEmpty then begin
+        if not SalesAdvanceLetterHeader.IsEmpty() then begin
             ShowRecord;
             exit;
         end;
@@ -782,7 +780,7 @@
         "Document Type" := "Document Type"::"Purchase Advance";
         TestReadyForProcessing;
         PurchAdvanceLetterHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not PurchAdvanceLetterHeader.IsEmpty then begin
+        if not PurchAdvanceLetterHeader.IsEmpty() then begin
             ShowRecord;
             exit;
         end;
@@ -800,6 +798,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CreateCredit()
     var
         CreditHeader: Record "Credit Header";
@@ -811,7 +810,7 @@
         "Document Type" := "Document Type"::Credit;
         TestReadyForProcessing;
         CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not CreditHeader.IsEmpty then begin
+        if not CreditHeader.IsEmpty() then begin
             ShowRecord;
             exit;
         end;
@@ -895,20 +894,6 @@
         CopyFilters(IncomingDocument);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with CreateIncomingDocument function', '15.3')]
-    procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
-    var
-        IncomingDocument: Record "Incoming Document";
-    begin
-        if (FileName = '') or (FilePath = '') then
-            exit;
-        IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(FileName, '');
-        AddAttachmentFromServerFile(FileName, FilePath);
-        CopyFilters(IncomingDocument);
-    end;
-
     local procedure TestIfAlreadyExists()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -956,7 +941,7 @@
                     if CreditHeader.FindFirst then
                         Error(AlreadyUsedInDocHdrErr, '', CreditHeader."No.", CreditHeader.TableCaption);
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
     end;
 
@@ -983,7 +968,15 @@
         exit(not IsEmpty);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by GetRelatedPostedDocType().', '18.0')]
     procedure GetPostedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Integer
+    begin
+        exit(GetRelatedDocType(PostingDate, DocNo, IsPosted).AsInteger());
+    end;
+#endif
+
+    procedure GetRelatedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Enum "Incoming Related Document Type"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -1133,7 +1126,7 @@
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     PurchaseHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
-                // NAVCZ
+            // NAVCZ
             "Document Type"::"Sales Advance":
                 begin
                     SalesAdvanceLetterHeader.SetRange("Incoming Document Entry No.", "Entry No.");
@@ -1149,7 +1142,7 @@
                     CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     CreditHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
     end;
 
@@ -1160,7 +1153,7 @@
     begin
         TestReadyForProcessing();
         SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not SalesHeader.IsEmpty then begin
+        if not SalesHeader.IsEmpty() then begin
             ShowRecord();
             exit;
         end;
@@ -1196,7 +1189,7 @@
     begin
         TestReadyForProcessing();
         PurchHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not PurchHeader.IsEmpty then begin
+        if not PurchHeader.IsEmpty() then begin
             ShowRecord();
             exit;
         end;
@@ -1304,6 +1297,7 @@
             PurchAdvanceLetterHeader.AddLink(GetURL, Description);
     end;
 
+    [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure SetCreditDoc(var CreditHeader: Record "Credit Header")
     begin
@@ -1602,7 +1596,7 @@
 
         IncomingDocument.Get(EntryNo);
         IncomingDocument.SetPostedDocFields(PostingDate, DocumentNo);
-        IncomingDocument."Document Type" := GetPostedDocType(PostingDate, DocumentNo, IsPosted);
+        IncomingDocument."Document Type" := GetRelatedDocType(PostingDate, DocumentNo, IsPosted);
     end;
 
     [Scope('OnPrem')]
@@ -1640,7 +1634,7 @@
         repeat
             TempErrorMessage := TempErrorMessageRef;
             TempErrorMessage.Insert();
-        until TempErrorMessageRef.Next = 0;
+        until TempErrorMessageRef.Next() = 0;
     end;
 
     procedure RemoveFromJobQueue(ShowMessages: Boolean)
@@ -1815,7 +1809,7 @@
                     RelatedRecord := PurchCrMemoHdr;
                     exit(true);
                 end;
-                // NAVCZ
+            // NAVCZ
             "Document Type"::"Sales Advance":
                 if SalesAdvanceLetterHeader.Get("Document No.") then begin
                     RelatedRecord := SalesAdvanceLetterHeader;
@@ -1831,7 +1825,7 @@
                     RelatedRecord := PostedCreditHeader;
                     exit(true);
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
         RecordFound := false;
         OnAfterFindPostedRecord(RelatedRecord, RecordFound, Rec);
@@ -1913,7 +1907,7 @@
                         exit(true);
                     end;
                 end;
-                // NAVCZ
+        // NAVCZ
         end;
         RecordFound := false;
         OnAfterFindUnpostedRecord(RelatedRecord, RecordFound, Rec);
@@ -2008,7 +2002,7 @@
         GenJournalLine: Record "Gen. Journal Line";
         RecCaption: Text;
     begin
-        if RelatedRecordRef.IsEmpty then
+        if RelatedRecordRef.IsEmpty() then
             exit('');
 
         case RelatedRecordRef.Number of
@@ -2138,7 +2132,7 @@
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Scope('OnPrem')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2278,7 +2272,7 @@
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         if GetURL = '' then
-            if IncomingDocumentAttachment.IsEmpty then
+            if IncomingDocumentAttachment.IsEmpty() then
                 exit(false);
         exit(true);
     end;

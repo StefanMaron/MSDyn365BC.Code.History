@@ -176,6 +176,10 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for credit memo card.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Purchases)
@@ -211,11 +215,19 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted using the Date Compress Vendor Ledger batch job.';
                 }
-                field("VAT Coefficient"; "VAT Coefficient")
+#if not CLEAN18
+                field("VAT Coefficient"; '')
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for VAT coefficient.';
+                    Caption = 'VAT Coefficient (Obsolete)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                    ObsoleteTag = '18.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("Purchase VAT Delay"; "Purchase VAT Delay")
                 {
                     ApplicationArea = Basic, Suite;
@@ -298,6 +310,16 @@ page 279 "Source Code Setup"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code that is linked to entries that are posted with assembly orders.';
                 }
+                field("Invt. Receipt"; "Invt. Receipt")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the inventory receipt.';
+                }
+                field("Invt. Shipment"; "Invt. Shipment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the inventory shipment.';
+                }
             }
             group(Resources)
             {
@@ -354,16 +376,6 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from an insurance journal.';
-                }
-                field("Maintenance Adjustment"; "Maintenance Adjustment")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for maintenance adjustment.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
                 }
                 field("Compress FA Ledger"; "Compress FA Ledger")
                 {

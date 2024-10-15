@@ -37,7 +37,7 @@ codeunit 5802 "Inventory Posting To G/L"
         Currency: Record Currency;
         SourceCodeSetup: Record "Source Code Setup";
         GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary;
-        TempInvtPostBuf: array[8] of Record "Invt. Posting Buffer" temporary;
+        TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary;
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
         TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -76,7 +76,6 @@ codeunit 5802 "Inventory Posting To G/L"
         GlobalPostPerPostGroup: Boolean;
         Text003: Label '%1 %2';
         CorrectionForExpCost: Boolean;
-        PostingDesc: Text[100];
 
     procedure Initialize(PostPerPostGroup: Boolean)
     begin
@@ -245,9 +244,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",                    
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -312,9 +315,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -342,6 +349,7 @@ codeunit 5802 "Inventory Posting To G/L"
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
+#if not CLEAN18
                               // NAVCZ
                               GlobalInvtPostBuf."Account Type"::AccProdChange,
                               ExpCostToPost, ExpCostToPostACY, false);
@@ -349,6 +357,7 @@ codeunit 5802 "Inventory Posting To G/L"
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::AccWIPChange,
                               // NAVCZ
+#endif
                               GlobalInvtPostBuf."Account Type"::"WIP Inventory",
                               ExpCostToPost, ExpCostToPostACY, true);
                             // NAVCZ
@@ -359,6 +368,7 @@ codeunit 5802 "Inventory Posting To G/L"
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                               // NAVCZ
                               GlobalInvtPostBuf."Account Type"::AccProdChange,
                               CostToPost, CostToPostACY, false);
@@ -366,6 +376,7 @@ codeunit 5802 "Inventory Posting To G/L"
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::AccWIPChange,
                               // NAVCZ
+#endif
                               GlobalInvtPostBuf."Account Type"::"WIP Inventory",
                               CostToPost, CostToPostACY, false);
                         end;
@@ -437,9 +448,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -464,6 +479,7 @@ codeunit 5802 "Inventory Posting To G/L"
                         InitInvtPostBuf(
                           ValueEntry,
                           GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                           // NAVCZ
                           GlobalInvtPostBuf."Account Type"::AccConsumption,
                           CostToPost, CostToPostACY, false);
@@ -471,6 +487,7 @@ codeunit 5802 "Inventory Posting To G/L"
                           ValueEntry,
                           GlobalInvtPostBuf."Account Type"::AccWIPChange,
                           // NAVCZ
+#endif
                           GlobalInvtPostBuf."Account Type"::"WIP Inventory",
                           CostToPost, CostToPostACY, false);
                     end;
@@ -479,9 +496,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -532,7 +553,14 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferAsmOutputPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmOutputPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -592,9 +620,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -602,7 +634,14 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferAsmConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBufferAsmConsumpPosting(ValueEntry, GlobalInvtPostBuf, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             case "Entry Type" of
                 "Entry Type"::"Direct Cost":
@@ -616,9 +655,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -656,9 +699,13 @@ codeunit 5802 "Inventory Posting To G/L"
                     InitInvtPostBuf(
                       ValueEntry,
                       GlobalInvtPostBuf."Account Type"::Inventory,
+#if not CLEAN18
                       // NAVCZ
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
+#else
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
+#endif
                       CostToPost, CostToPostACY, false);
                 else
                     ErrorNonValidCombination(ValueEntry);
@@ -852,6 +899,7 @@ codeunit 5802 "Inventory Posting To G/L"
                             "Account No." := GenPostingSetup.GetInventoryAccrualAccount
                         else
                             "Account No." := GenPostingSetup."Invt. Accrual Acc. (Interim)";
+#if not CLEAN18
                     // NAVCZ
                     "Account Type"::AccConsumption:
                         begin
@@ -878,6 +926,7 @@ codeunit 5802 "Inventory Posting To G/L"
                             "Account No." := GenPostingSetup."Invt. Rounding Adj. Account";
                         end;
                 // NAVCZ
+#endif
                 end;
 
 
@@ -1048,12 +1097,7 @@ codeunit 5802 "Inventory Posting To G/L"
             GenJnlLine.Init();
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."External Document No." := ExternalDocNo;
-            // NAVCZ
-            if PostingDesc <> '' then
-                GenJnlLine.Description := PostingDesc
-            else
-                // NAVCZ
-                GenJnlLine.Description := Desc;
+            GenJnlLine.Description := Desc;
             GetSourceCodeSetup;
             GenJnlLine."Source Code" := SourceCodeSetup."Inventory Post Cost";
             GenJnlLine."System-Created Entry" := true;
@@ -1070,7 +1114,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 if SetAmt(GenJnlLine, Amount, "Amount (ACY)") then begin
                     // NAVCZ
                     GenJnlLine.Correction := "G/L Correction";
-                    if PostPerPostGrp and (PostingDesc = '') then
+                    if PostPerPostGrp then
                         // NAVCZ
                         SetDesc(GenJnlLine, GlobalInvtPostBuf);
                     GenJnlLine."Account No." := "Account No.";
@@ -1084,25 +1128,28 @@ codeunit 5802 "Inventory Posting To G/L"
                             if not CalledFromItemPosting then
                                 GenJnlPostLine.SetOverDimErr;
                             OnBeforePostInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
+#if not CLEAN18
                             GenJnlPostLine.xSetCallFromAdjust(true); // NAVCZ
-                            GenJnlPostLine.RunWithCheck(GenJnlLine)
+#endif
+                            PostGenJnlLine(GenJnlLine);
                         end else begin
                             OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
+#if not CLEAN18
                             GenJnlCheckLine.xSetCallFromAdjust(true); // NAVCZ
-                            GenJnlCheckLine.RunCheck(GenJnlLine)
+#endif
+                            CheckGenJnlLine(GenJnlLine);
                         end
                     else
                         InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
                 end;
                 if not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
-            until Next = 0;
+            until Next() = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
             OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
             DeleteAll();
         end;
-        PostingDesc := ''; // NAVCZ
     end;
 
     local procedure GetSourceCodeSetup()
@@ -1192,12 +1239,12 @@ codeunit 5802 "Inventory Posting To G/L"
         if GlobalPostPerPostGroup then begin
             TempGLItemLedgRelation.Reset();
             TempGLItemLedgRelation.SetRange("G/L Entry No.", GlobalInvtPostBuf."Entry No.");
-            TempGLItemLedgRelation.FindSet;
+            TempGLItemLedgRelation.FindSet();
             repeat
                 ValueEntry.Get(TempGLItemLedgRelation."Value Entry No.");
                 UpdateValueEntry(ValueEntry);
                 CreateGLItemLedgRelationEntry(GLReg);
-            until TempGLItemLedgRelation.Next = 0;
+            until TempGLItemLedgRelation.Next() = 0;
         end else begin
             UpdateValueEntry(ValueEntry);
             CreateGLItemLedgRelationEntry(GLReg);
@@ -1244,7 +1291,7 @@ codeunit 5802 "Inventory Posting To G/L"
         repeat
             InvtPostToGLTestBuf := TempInvtPostToGLTestBuf;
             InvtPostToGLTestBuf.Insert();
-        until TempInvtPostToGLTestBuf.Next = 0;
+        until TempInvtPostToGLTestBuf.Next() = 0;
     end;
 
     procedure GetAmtToPost(var NewCOGSAmt: Decimal; var NewInvtAdjmtAmt: Decimal; var NewDirCostAmt: Decimal; var NewOvhdCostAmt: Decimal; var NewVarPurchCostAmt: Decimal; var NewVarMfgDirCostAmt: Decimal; var NewVarMfgOvhdCostAmt: Decimal; var NewWIPInvtAmt: Decimal; var NewInvtAmt: Decimal; GetTotal: Boolean)
@@ -1280,7 +1327,7 @@ codeunit 5802 "Inventory Posting To G/L"
             repeat
                 InvtPostBuf := GlobalInvtPostBuf;
                 InvtPostBuf.Insert();
-            until GlobalInvtPostBuf.Next = 0;
+            until GlobalInvtPostBuf.Next() = 0;
     end;
 
     local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
@@ -1297,7 +1344,7 @@ codeunit 5802 "Inventory Posting To G/L"
         exit(InvPostingGroupCode);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
     procedure SetCorrectionForExpCost(Value: Boolean; ExpectedCost: Boolean)
     begin
         // NAVCZ
@@ -1307,7 +1354,7 @@ codeunit 5802 "Inventory Posting To G/L"
             CorrectionForExpCost := Value;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
     procedure GetCorrectionForExpCost(): Boolean
     begin
         // NAVCZ
@@ -1315,21 +1362,26 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
-    procedure SetPostingDesc(DescriptionString: Text[100])
-    begin
-        // NAVCZ
-        PostingDesc := DescriptionString;
-    end;
-
-    [Scope('OnPrem')]
+    [Obsolete('The function is no longer used and will be discontinued.', '18.0')]
     procedure PostGLSpec(var GenJnlLine: Record "Gen. Journal Line")
     begin
         // NAVCZ
         // Maintenance adjustment;
+#if not CLEAN18
         GenJnlPostLine.xSetCallFromAdjust(true);
+#endif
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         // NAVCZ
+    end;
+
+    procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlCheckLine.RunCheck(GenJnlLine);
+    end;
+
+    procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1527,13 +1579,23 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmOutputPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferAsmConsumpPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var CostToPost: Decimal; var CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

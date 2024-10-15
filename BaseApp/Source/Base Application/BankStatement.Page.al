@@ -21,7 +21,7 @@ page 11706 "Bank Statement"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank Account No."; "Bank Account No.")
@@ -49,7 +49,7 @@ page 11706 "Bank Statement"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Currency Code"; "Currency Code")
@@ -65,7 +65,7 @@ page 11706 "Bank Statement"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -82,7 +82,7 @@ page 11706 "Bank Statement"
                         ChangeExchangeRate.SetParameter("Bank Statement Currency Code", "Bank Statement Currency Factor", "Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;

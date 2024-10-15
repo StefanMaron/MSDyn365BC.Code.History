@@ -323,11 +323,19 @@ page 5802 "Value Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {

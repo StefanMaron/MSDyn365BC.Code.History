@@ -18,7 +18,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateWithHigherValue()
     var
@@ -31,7 +35,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateWithLowerValue()
     var
@@ -43,7 +51,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         AdjustExchRateForVendor(-LibraryRandom.RandInt(50), DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain");
     end;
 
-    local procedure AdjustExchRateForVendor(ExchRateAmount: Decimal; EntryType: Option)
+    local procedure AdjustExchRateForVendor(ExchRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -65,7 +73,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceGainsLosses()
     var
@@ -106,7 +118,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceLossesGains()
     var
@@ -147,7 +163,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceGainsToHigherLosses()
     var
@@ -204,7 +224,11 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceLossesToHigherGains()
     var
@@ -307,7 +331,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         exit(Vendor."No.");
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option)
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -328,10 +352,14 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
+#if CLEAN18
+        AdjustExchangeRates.InitializeRequest2(0D, WorkDate, 'Test', WorkDate, DocumentNo, true, false);
+#else
         // NAVCZ
         AdjustExchangeRates.InitializeRequest2CZ(
           0D, WorkDate, 'Test', WorkDate, DocumentNo, true, true, true, false, false, true);
         // NAVCZ
+#endif
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -346,7 +374,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure VerifyDetailedVendorEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; EntryType: Option)
+    local procedure VerifyDetailedVendorEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -401,6 +429,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#if not CLEAN18
 
     [ReportHandler]
     [Scope('OnPrem')]
@@ -409,5 +438,6 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         // NAVCZ
         AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
+#endif
 }
 

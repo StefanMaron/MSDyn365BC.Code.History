@@ -276,7 +276,7 @@ page 31106 "Export VAT Control Report"
                     TempVATCtrlRptBuf."Total Base" := Round(TempVATCtrlRptBuf."Total Base", 1);
                     TempVATCtrlRptBuf."Total Amount" := Round(TempVATCtrlRptBuf."Total Amount", 1);
                     TempVATCtrlRptBuf.Modify();
-                until TempVATCtrlRptBuf.Next = 0;
+                until TempVATCtrlRptBuf.Next() = 0;
         end;
         TempVATCtrlRptBuf.Reset();
         VATControlReport.CopyBuffer(TempVATCtrlRptBuf);

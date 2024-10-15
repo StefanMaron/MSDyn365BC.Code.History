@@ -1,6 +1,9 @@
 query 11750 "Cash Desks Balance"
 {
     Caption = 'Cash Desks Balance';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Removed because chart Q11750-01 will not be used.';
+    ObsoleteTag = '18.0';
 
     elements
     {

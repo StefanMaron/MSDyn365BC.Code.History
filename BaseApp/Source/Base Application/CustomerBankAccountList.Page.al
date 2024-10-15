@@ -74,6 +74,9 @@ page 424 "Customer Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removed from Base Application.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Currency Code"; "Currency Code")

@@ -24,7 +24,7 @@ page 6640 "Purchase Return Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@ page 6640 "Purchase Return Order"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -53,7 +53,7 @@ page 6640 "Purchase Return Order"
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -199,15 +199,6 @@ page 6640 "Purchase Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the number of archived versions for this document.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the posting description code for the purchase header.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Posting Description"; "Posting Description")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -322,6 +313,10 @@ page 6640 "Purchase Return Order"
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
@@ -362,6 +357,10 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -546,6 +545,10 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if there is physical transfer of the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 group("Pay-to")
                 {
@@ -563,7 +566,7 @@ page 6640 "Purchase Return Order"
                                 if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                     SetRange("Pay-to Vendor No.");
 
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field("Pay-to Address"; "Pay-to Address")
@@ -719,6 +722,10 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -743,28 +750,10 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the industry code for the vendor record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
-                }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -793,7 +782,7 @@ page 6640 "Purchase Return Order"
 
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("VAT Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                         // NAVCZ
@@ -808,45 +797,82 @@ page 6640 "Purchase Return Order"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the bank account code of the company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -1666,6 +1692,7 @@ page 6640 "Purchase Return Order"
     var
         PurchaseHeader: Record "Purchase Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         SendToPosting(PostingCodeunitID);
 
@@ -1674,6 +1701,11 @@ page 6640 "Purchase Return Order"
         if "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting" then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
@@ -1713,7 +1745,7 @@ page 6640 "Purchase Return Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrencyCodeOnAfterValidate()
@@ -1792,6 +1824,11 @@ page 6640 "Purchase Return Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

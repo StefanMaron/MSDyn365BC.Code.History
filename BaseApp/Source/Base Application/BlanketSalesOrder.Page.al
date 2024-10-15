@@ -24,7 +24,7 @@ page 507 "Blanket Sales Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -38,7 +38,7 @@ page 507 "Blanket Sales Order"
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -52,7 +52,7 @@ page 507 "Blanket Sales Order"
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -238,7 +238,7 @@ page 507 "Blanket Sales Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
@@ -650,57 +650,102 @@ page 507 "Blanket Sales Order"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -1252,7 +1297,7 @@ page 507 "Blanket Sales Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()

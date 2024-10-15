@@ -5,6 +5,9 @@ page 31047 "Credits No. Series Setup"
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Credits Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

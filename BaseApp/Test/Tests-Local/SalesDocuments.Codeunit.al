@@ -26,8 +26,10 @@ codeunit 145008 "Sales Documents"
         if isInitialized then
             exit;
 
+#if not CLEAN16
         UpdateSalesSetup;
 
+#endif
         isInitialized := true;
         Commit();
     end;
@@ -77,9 +79,10 @@ codeunit 145008 "Sales Documents"
           GLEntry1.Amount + GLEntry2.Amount = 0, OppositeSignErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)','16.0')]
+    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
     procedure TransferingDescriptionToGLEntriesForSalesOrder()
     var
         SalesHdr: Record "Sales Header";
@@ -89,7 +92,7 @@ codeunit 145008 "Sales Documents"
 
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)','16.0')]
+    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
     procedure TransferingDescriptionToGLEntriesForSalesInvoice()
     var
         SalesHdr: Record "Sales Header";
@@ -97,7 +100,7 @@ codeunit 145008 "Sales Documents"
         TransferingDescriptionToGLEntries(SalesHdr."Document Type"::Invoice);
     end;
 
-    local procedure TransferingDescriptionToGLEntries(DocumentType: Option)
+    local procedure TransferingDescriptionToGLEntries(DocumentType: Enum "Sales Document Type")
     var
         GLEntry: Record "G/L Entry";
         SalesHdr: Record "Sales Header";
@@ -120,55 +123,7 @@ codeunit 145008 "Sales Documents"
         GLEntry.TestField(Description, SalesLn.Description);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkingNoSeries()
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine1: Record "No. Series Line";
-        NoSeriesLine2: Record "No. Series Line";
-        NoSeriesLink: Record "No. Series Link";
-        SalesInvHdr: Record "Sales Invoice Header";
-        SalesShptHdr: Record "Sales Shipment Header";
-        SalesHdr: Record "Sales Header";
-        SalesLn: Record "Sales Line";
-        NoSeriesCode: Code[20];
-    begin
-        // 1. Setup
-        Initialize;
-
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        CreateNoSeriesLink(NoSeriesLink, NoSeriesCode);
-        SetOrderNos(NoSeriesCode);
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHdr, SalesLn, SalesHdr."Document Type"::Order, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
-
-        // 2. Exercise
-        PostSalesDocument(SalesHdr);
-
-        // 3. Verify
-        NoSeriesLine1.Reset();
-        NoSeriesLine1.SetRange("Series Code", NoSeriesLink."Posting No. Series");
-        NoSeriesLine1.FindFirst;
-
-        NoSeriesLine2.Reset();
-        NoSeriesLine2.SetRange("Series Code", NoSeriesLink."Shipping No. Series");
-        NoSeriesLine2.FindFirst;
-
-        SalesInvHdr.Get(NoSeriesLine1."Starting No.");
-        SalesShptHdr.Get(NoSeriesLine2."Starting No.");
-
-        // 4. Tear down
-        NoSeries.Get(NoSeriesCode);
-        NoSeries.Delete(true);
-
-        NoSeries.Get(NoSeriesLink."Posting No. Series");
-        NoSeries.Delete(true);
-
-        NoSeries.Get(NoSeriesLink."Shipping No. Series");
-        NoSeries.Delete(true);
-    end;
-
+#endif
     local procedure CreateNoSeriesCode(StartingNo: Code[20]; EndingNo: Code[20]): Code[20]
     var
         NoSeries: Record "No. Series";
@@ -179,16 +134,7 @@ codeunit 145008 "Sales Documents"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreateNoSeriesLink(var NoSeriesLink: Record "No. Series Link"; SeriesCode: Code[20])
-    begin
-        NoSeriesLink.Init();
-        NoSeriesLink."Initial No. Series" := SeriesCode;
-        NoSeriesLink.Validate("Posting No. Series", CreateNoSeriesCode('POST0000', 'POST9999'));
-        NoSeriesLink.Validate("Shipping No. Series", CreateNoSeriesCode('SHIP0000', 'SHIP9999'));
-        NoSeriesLink.Insert(true);
-    end;
-
-    local procedure CreateSalesDocument(var SalesHdr: Record "Sales Header"; var SalesLn: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHdr: Record "Sales Header"; var SalesLn: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHdr, DocumentType, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(
@@ -218,6 +164,7 @@ codeunit 145008 "Sales Documents"
         SalesReceivablesSetup."Order Nos." := SeriesCode;
         SalesReceivablesSetup.Modify();
     end;
+#if not CLEAN16
 
     local procedure UpdateSalesSetup()
     var
@@ -231,5 +178,6 @@ codeunit 145008 "Sales Documents"
         SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (Char)", true);
         SalesReceivablesSetup.Modify();
     end;
+#endif
 }
 

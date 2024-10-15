@@ -1,8 +1,12 @@
+#if not CLEAN18
 page 11796 "User Setup Lines List"
 {
-    Caption = 'User Setup Lines List';
+    Caption = 'User Setup Lines List (Obsolete)';
     PageType = List;
     SourceTable = "User Setup Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -48,4 +52,4 @@ page 11796 "User Setup Lines List"
     {
     }
 }
-
+#endif

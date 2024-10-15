@@ -90,9 +90,6 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
@@ -104,13 +101,6 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
             SalesOrderHeader."No." := '';
             SalesOrderHeader."Quote No." := "No.";
-            // NAVCZ
-            SalesOrderHeader."No. Series" := '';
-            if NoSeriesLink.Get("No. Series") then
-                if NoSeriesLink."Linked No. Series" <> '' then
-                    SalesOrderHeader."No. Series" := NoSeriesLink."Linked No. Series";
-            // NAVCZ
-
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Insert(true);
@@ -310,7 +300,7 @@ codeunit 86 "Sales-Quote to Order"
                     if SalesOrderLine.Reserve = SalesOrderLine.Reserve::Always then
                         SalesOrderLine.AutoReserve();
                 end;
-            until SalesQuoteLine.Next = 0;
+            until SalesQuoteLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

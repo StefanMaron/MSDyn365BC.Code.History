@@ -64,6 +64,12 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for purchase transactions.';
                 }
+                field("Allow Editing Active Price"; "Allow Editing Active Price")
+                {
+                    Visible = ExtendedPriceEnabled;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active purchase price line can be modified or removed, or a new price line can be added to the active price list.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -78,15 +84,6 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether it is allowed to apply vendor payments in different currencies. None: All entries involved in one application must be in the same currency. EMU: You can apply entries in euro and one of the old national currencies (for EMU countries/regions) to one another. All: You can apply entries in different currencies to one another. The entries can be in any currency.';
-                }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default posting description code for the purchase headers.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Copy Comments Blanket to Order"; "Copy Comments Blanket to Order")
                 {
@@ -149,12 +146,17 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to allow modification of posting groups for purchases and payables setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Automatic Adv. Invoice Posting"; "Automatic Adv. Invoice Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use automatic advance invoice posting for purchases and payables setup.';
                 }
+#if not CLEAN16
                 field("G/L Entry as Doc. Lines (Acc.)"; "G/L Entry as Doc. Lines (Acc.)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -191,6 +193,7 @@ page 460 "Purchases & Payables Setup"
                     ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     ObsoleteTag = '16.0';
                 }
+#endif
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {
                     ApplicationArea = Basic, Suite;

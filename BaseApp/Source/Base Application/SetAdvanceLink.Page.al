@@ -291,7 +291,7 @@ page 31008 "Set Advance Link"
 
     trigger OnOpenPage()
     begin
-        if IsEmpty then
+        if IsEmpty() then
             OnOpen;
     end;
 

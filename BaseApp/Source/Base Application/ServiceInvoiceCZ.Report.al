@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31088 "Service - Invoice CZ"
 {
     DefaultLayout = RDLC;
@@ -221,18 +222,6 @@ report 31088 "Service - Invoice CZ"
             column(CurrencyCode_ServiceInvoiceHeader; "Currency Code")
             {
             }
-            column(PerformCountryRegionCode; RegistrationCountryRegion."Country/Region Code")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
             column(CalculatedExchRate; CalculatedExchRate)
             {
             }
@@ -454,7 +443,7 @@ report 31088 "Service - Invoice CZ"
                             if not TempLineFeeNoteOnReportHist.FindSet then
                                 CurrReport.Break
                         end else
-                            if TempLineFeeNoteOnReportHist.Next = 0 then
+                            if TempLineFeeNoteOnReportHist.Next() = 0 then
                                 CurrReport.Break();
                     end;
 
@@ -514,11 +503,6 @@ report 31088 "Service - Invoice CZ"
                 if not Customer.Get("Bill-to Customer No.") then
                     Clear(Customer);
 
-                if "Tax Corrective Document" then
-                    DocumentLbl := DocumentLbl1
-                else
-                    DocumentLbl := DocumentLbl0;
-
                 ServiceInvLine.CalcVATAmountLines("Service Invoice Header", TempVATAmountLine);
 
                 if "Currency Code" = '' then
@@ -534,11 +518,6 @@ report 31088 "Service - Invoice CZ"
                     CalculatedExchRate := 1;
 
                 GetLineFeeNoteOnReportHist("No.");
-
-                if not RegistrationCountryRegion.Get(
-                     RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegistrationCountryRegion);
             end;
         }
     }
@@ -581,8 +560,7 @@ report 31088 "Service - Invoice CZ"
 
     var
         ExchRateLbl: Label 'Exchange Rate %1 %2 / %3 %4', Comment = 'Amount Currency / Local Currency';
-        DocumentLbl0: Label 'Invoice';
-        DocumentLbl1: Label 'Corrective Tax Document';
+        DocumentLbl: Label 'Invoice';
         PageLbl: Label 'Page';
         CopyLbl: Label 'Copy';
         VendLbl: Label 'Vendor';
@@ -610,8 +588,6 @@ report 31088 "Service - Invoice CZ"
         ReasonCode: Record "Reason Code";
         CurrExchRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -622,7 +598,6 @@ report 31088 "Service - Invoice CZ"
         DocFooterText: Text[250];
         PaymentSymbol: array[2] of Text;
         PaymentSymbolLabel: array[2] of Text;
-        DocumentLbl: Text;
         CalculatedExchRate: Decimal;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
@@ -651,7 +626,7 @@ report 31088 "Service - Invoice CZ"
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next = 0;
+            until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
@@ -659,7 +634,7 @@ report 31088 "Service - Invoice CZ"
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                     TempLineFeeNoteOnReportHist.Insert();
-                until LineFeeNoteOnReportHist.Next = 0;
+                until LineFeeNoteOnReportHist.Next() = 0;
         end;
     end;
 
@@ -696,4 +671,4 @@ report 31088 "Service - Invoice CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

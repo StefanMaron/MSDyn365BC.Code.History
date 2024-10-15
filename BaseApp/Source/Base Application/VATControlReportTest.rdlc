@@ -386,14 +386,14 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox76">
+                        <Textbox Name="Textbox3">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATControlReportHeader_PerformCountryRegionCode_Caption.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -405,7 +405,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox76</rd:DefaultName>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -425,14 +425,14 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox80">
+                        <Textbox Name="Textbox76">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATControlReportHeader_PerformCountryRegionCode.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -441,7 +441,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox80</rd:DefaultName>
+                          <rd:DefaultName>Textbox76</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -454,6 +454,7 @@
                           </Style>
                         </Textbox>
                         <ColSpan>2</ColSpan>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />
@@ -8088,9 +8089,6 @@ End Function
         <Field Name="VATControlReportHeader_EndDate">
           <DataField>VATControlReportHeader_EndDate</DataField>
         </Field>
-        <Field Name="VATControlReportHeader_PerformCountryRegionCode">
-          <DataField>VATControlReportHeader_PerformCountryRegionCode</DataField>
-        </Field>
         <Field Name="VATControlReportHeader_VATStatementTemplateName">
           <DataField>VATControlReportHeader_VATStatementTemplateName</DataField>
         </Field>
@@ -8120,9 +8118,6 @@ End Function
         </Field>
         <Field Name="VATControlReportHeader_EndDate_Caption">
           <DataField>VATControlReportHeader_EndDate_Caption</DataField>
-        </Field>
-        <Field Name="VATControlReportHeader_PerformCountryRegionCode_Caption">
-          <DataField>VATControlReportHeader_PerformCountryRegionCode_Caption</DataField>
         </Field>
         <Field Name="VATControlReportHeader_VATStatementTemplateName_Caption">
           <DataField>VATControlReportHeader_VATStatementTemplateName_Caption</DataField>

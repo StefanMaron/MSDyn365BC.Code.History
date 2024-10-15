@@ -24,7 +24,7 @@ page 740 "VAT Report"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("VAT Report Version"; "VAT Report Version")
@@ -329,10 +329,6 @@ page 740 "VAT Report"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
 
                     trigger OnAction()
                     var

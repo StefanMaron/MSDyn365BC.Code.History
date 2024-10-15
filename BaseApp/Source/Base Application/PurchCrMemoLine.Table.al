@@ -371,11 +371,9 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
         }
-        field(1002; "Job Line Type"; Option)
+        field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1003; "Job Unit Price"; Decimal)
         {
@@ -631,33 +629,36 @@ table 125 "Purch. Cr. Memo Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
@@ -679,6 +680,9 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -717,7 +721,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchDocLineComments.SetRange("Document Type", PurchDocLineComments."Document Type"::"Posted Credit Memo");
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not PurchDocLineComments.IsEmpty then
+        if not PurchDocLineComments.IsEmpty() then
             PurchDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(
@@ -773,7 +777,7 @@ table 125 "Purch. Cr. Memo Line"
                 TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
                 // NAVCZ
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -832,7 +836,7 @@ table 125 "Purch. Cr. Memo Line"
                         TempReturnShptLine := ReturnShptLine;
                         if TempReturnShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -861,7 +865,7 @@ table 125 "Purch. Cr. Memo Line"
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
@@ -892,7 +896,6 @@ table 125 "Purch. Cr. Memo Line"
 
     local procedure RoundAmount(PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     var
-        VATCoefficientRounded: Codeunit "VAT Coefficient Rounded";
         NoVAT: Boolean;
     begin
         // NAVCZ
@@ -938,19 +941,6 @@ table 125 "Purch. Cr. Memo Line"
                   PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
                   TotalPurchCrMemoLine."VAT Difference", PurchCrMemoHeader."Currency Factor")) -
               TotalPurchCrMemoLineLCY."VAT Difference";
-            "VAT Base (Non Deductible)" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."VAT Base (Non Deductible)", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."VAT Base (Non Deductible)";
-            "VAT Amount (Non Deductible)" :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchCrMemoHeader."Posting Date", PurchCrMemoHeader."Currency Code",
-                  TotalPurchCrMemoLine."VAT Amount (Non Deductible)", PurchCrMemoHeader."Currency Factor")) -
-              TotalPurchCrMemoLineLCY."VAT Amount (Non Deductible)";
-            VATCoefficientRounded.RoundPurchaseCrMemoLine(Rec, PurchCrMemoHeader);
         end;
 
         IncrAmount(TotalPurchCrMemoLineLCY, PurchCrMemoHeader);

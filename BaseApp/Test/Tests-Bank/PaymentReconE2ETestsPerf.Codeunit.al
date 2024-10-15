@@ -309,7 +309,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         TotalAmt: Decimal;
     begin
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
         until BankAccLedgEntry.Next = 0;

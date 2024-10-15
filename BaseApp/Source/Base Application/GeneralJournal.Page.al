@@ -227,6 +227,10 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(AccountName; AccName)
                 {
@@ -324,15 +328,6 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
-                }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field(Quantity; Quantity)
                 {
@@ -564,24 +559,36 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the company.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Comment; Comment)
                 {
@@ -1081,24 +1088,6 @@ page 39 "General Journal"
             {
                 Caption = 'P&osting';
                 Image = Post;
-                action("<Action48>")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Reconcile';
-                    Image = Reconcile;
-                    ShortCutKey = 'Ctrl+F11';
-                    ToolTip = 'Specifies reconcile page';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action is duplicated with the action in the bank action group. (Obsolete::Remove in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
-                    trigger OnAction()
-                    begin
-                        GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
-                    end;
-                }
                 action("Test Report")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1502,7 +1491,7 @@ page 39 "General Journal"
                 action(CreateFlow)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create a Flow';
+                    Caption = 'Create a flow';
                     Image = Flow;
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
@@ -1520,7 +1509,7 @@ page 39 "General Journal"
                 action(SeeFlows)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'See my Flows';
+                    Caption = 'See my flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View and configure Power Automate flows that you created.';
@@ -2007,7 +1996,6 @@ page 39 "General Journal"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         IsSaaS: Boolean;
-        IsSimplePage: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
         BackgroundErrorCheck: Boolean;
@@ -2021,6 +2009,7 @@ page 39 "General Journal"
         DocumentNumberMsg: Label 'Document No. must have a value in Gen. Journal Line.';
 
     protected var
+        IsSimplePage: Boolean;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -2253,7 +2242,6 @@ page 39 "General Journal"
 
     local procedure GetTotalCreditAmt(): Decimal
     var
-        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if IsSimplePage then begin
@@ -2349,7 +2337,7 @@ page 39 "General Journal"
                             GenJournalLine.Validate("Posting Date", CurrentPostingDate);
                     end;
                     GenJournalLine.Modify();
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
         end;
         CurrPage.Update(false);
     end;

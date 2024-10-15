@@ -137,24 +137,6 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Postponed VAT"; "Postponed VAT")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies to postpone VAT for the VAT entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Postponed VAT Realized"; "Postponed VAT Realized")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies when postponed VAT was realized.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 group(Control11)
                 {
                     ShowCaption = false;
@@ -344,6 +326,10 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the customer?s market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -436,6 +422,10 @@ page 5972 "Posted Service Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if there is physical transfer of the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group("Foreign Trade")
@@ -521,15 +511,6 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the industry code for the customer record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -544,65 +525,110 @@ page 5972 "Posted Service Credit Memo"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account code of the company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -746,42 +772,18 @@ page 5972 "Posted Service Credit Memo"
             group("F&unctions")
             {
                 Caption = 'F&unctions';
-                action("Post Or Correct Postponed VAT")
+                action(ActivityLog)
                 {
                     ApplicationArea = Service;
-                    Caption = 'Post Or Correct Postponed VAT';
-                    Image = ReverseRegister;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    ToolTip = 'This batch job allows postponed VAT post or correct.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    Caption = 'Activity Log';
+                    Image = Log;
+                    ToolTip = 'View the status and any errors if the document was sent as an electronic document or OCR file through the document exchange service.';
 
                     trigger OnAction()
-                    var
-                        CorrectVAT: Report "Post or Correct Postponed VAT";
                     begin
-                        ServCrMemoHeader.SetRange("No.", "No.");
-                        CorrectVAT.SetTableView(ServCrMemoHeader);
-                        CorrectVAT.RunModal;
-                        CurrPage.Update;
+                        ShowActivityLog;
                     end;
                 }
-            }
-            action(ActivityLog)
-            {
-                ApplicationArea = Service;
-                Caption = 'Activity Log';
-                Image = Log;
-                ToolTip = 'View the status and any errors if the document was sent as an electronic document or OCR file through the document exchange service.';
-
-                trigger OnAction()
-                begin
-                    ShowActivityLog;
-                end;
             }
         }
     }

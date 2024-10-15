@@ -24,15 +24,6 @@ page 31 "Item List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the item.';
                 }
-                field("Full Description"; "Full Description")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies full description of the item.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Description; Description)
                 {
                     ApplicationArea = All;
@@ -193,6 +184,9 @@ page 31 "Item List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the specific movement code for the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Search Description"; "Search Description")
@@ -399,11 +393,9 @@ page 31 "Item List"
                 Image = DataEntry;
                 action("&Units of Measure")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = '&Units of Measure';
                     Image = UnitOfMeasure;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
                     RunObject = Page "Item Units of Measure";
                     RunPageLink = "Item No." = FIELD("No.");
                     Scope = Repeater;
@@ -412,7 +404,7 @@ page 31 "Item List"
                 action(Attributes)
                 {
                     AccessByPermission = TableData "Item Attribute" = R;
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Attributes';
                     Image = Category;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
@@ -455,7 +447,7 @@ page 31 "Item List"
                         if (ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone) and (CloseAction <> ACTION::LookupOK) then
                             exit;
 
-                        if TempFilterItemAttributesBuffer.IsEmpty then begin
+                        if TempFilterItemAttributesBuffer.IsEmpty() then begin
                             ClearAttributesFilter;
                             exit;
                         end;
@@ -525,6 +517,7 @@ page 31 "Item List"
                     RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
                     ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
                 }
+#if not CLEAN17
                 action("Cross Re&ferences")
                 {
                     ApplicationArea = Advanced;
@@ -541,6 +534,7 @@ page 31 "Item List"
                     Scope = Repeater;
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif
                 action("Item Refe&rences")
                 {
                     ApplicationArea = Suite;
@@ -557,7 +551,7 @@ page 31 "Item List"
                 }
                 action("E&xtended Texts")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'E&xtended Texts';
                     Image = Text;
                     RunObject = Page "Extended Text List";
@@ -569,11 +563,9 @@ page 31 "Item List"
                 }
                 action(Translations)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Translations';
                     Image = Translations;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
                     RunObject = Page "Item Translations";
                     RunPageLink = "Item No." = FIELD("No."),
                                   "Variant Code" = CONST('');
@@ -1068,10 +1060,6 @@ page 31 "Item List"
                     Caption = '&Create Stockkeeping Unit';
                     Image = CreateSKU;
                     ToolTip = 'Create an instance of the item at each location that is set up.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1112,22 +1100,16 @@ page 31 "Item List"
                     end;
                 }
             }
+#if not CLEAN18
             group("&Print")
             {
                 Caption = '&Print';
-                action("Package Tax Calculation")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Package Tax Calculation';
-                    Image = TaxPayment;
-                    RunObject = Report "Package Tax Calculation";
-                    ToolTip = 'The report for package tax calculation.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Packaging Material has been removed and this group should not be used.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#endif
             action("Requisition Worksheet")
             {
                 ApplicationArea = Planning;
@@ -1602,7 +1584,7 @@ page 31 "Item List"
                     Image = ItemAvailability;
                     action("<Action5>")
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = 'Event';
                         Image = "Event";
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
@@ -1614,7 +1596,7 @@ page 31 "Item List"
                     }
                     action(Period)
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = 'Period';
                         Image = Period;
                         RunObject = Page "Item Availability by Periods";
@@ -1638,11 +1620,11 @@ page 31 "Item List"
                                       "Location Filter" = FIELD("Location Filter"),
                                       "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Filter");
-                        ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
+                        ToolTip = 'View the current and projected quantity of the item for each variant.';
                     }
                     action(Location)
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = 'Location';
                         Image = Warehouse;
                         RunObject = Page "Item Availability by Location";
@@ -1653,6 +1635,15 @@ page 31 "Item List"
                                       "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Filter");
                         ToolTip = 'View the actual and projected quantity of the item per location.';
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No.");
+                        ToolTip = 'View the current and projected quantity of the item for each lot.';
                     }
                     action("BOM Level")
                     {
@@ -1748,7 +1739,7 @@ page 31 "Item List"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -1803,7 +1794,7 @@ page 31 "Item List"
                 }
                 action("Cost Shares")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Cost Shares';
                     Image = CostBudget;
                     ToolTip = 'View how the costs of underlying items in the BOM roll up to the parent item. The information is organized according to the BOM structure to reflect at which levels the individual costs apply. Each item level can be collapsed or expanded to obtain an overview or detailed view.';
@@ -1838,15 +1829,15 @@ page 31 "Item List"
                         RunPageLink = Type = CONST(Item),
                                       "No." = FIELD("No.");
                         RunPageView = SORTING(Type, "No.");
-                        ToolTip = 'View a list of BOMs in which the item is used.';
+                        ToolTip = 'View a list of assembly BOMs in which the item is used.';
                     }
                     action("Calc. Stan&dard Cost")
                     {
                         AccessByPermission = TableData "BOM Component" = R;
                         ApplicationArea = Assembly;
-                        Caption = 'Calc. Stan&dard Cost';
+                        Caption = 'Calc. Assembly Std. Cost';
                         Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM or production BOM. The unit cost of a parent item must always equals the total of the unit costs of its components, subassemblies, and any resources.';
+                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
                         begin
@@ -1886,7 +1877,7 @@ page 31 "Item List"
                         ApplicationArea = Manufacturing;
                         Caption = 'Where-Used';
                         Image = "Where-Used";
-                        ToolTip = 'View a list of BOMs in which the item is used.';
+                        ToolTip = 'View a list of production BOMs in which the item is used.';
 
                         trigger OnAction()
                         var
@@ -1900,9 +1891,9 @@ page 31 "Item List"
                     {
                         AccessByPermission = TableData "Production BOM Header" = R;
                         ApplicationArea = Manufacturing;
-                        Caption = 'Calc. Stan&dard Cost';
+                        Caption = 'Calc. Production Std. Cost';
                         Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM or production BOM. The unit cost of a parent item must always equals the total of the unit costs of its components, subassemblies, and any resources.';
+                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
 
                         trigger OnAction()
                         begin
@@ -2436,7 +2427,7 @@ page 31 "Item List"
                 TempItemFilteredFromAttributes.Insert();
                 TempItemFilteredFromPickItem := Item;
                 TempItemFilteredFromPickItem.Insert();
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     local procedure RestoreTempItemFilteredFromAttributes()
@@ -2452,7 +2443,7 @@ page 31 "Item List"
             repeat
                 TempItemFilteredFromAttributes := TempItemFilteredFromPickItem;
                 TempItemFilteredFromAttributes.Insert();
-            until TempItemFilteredFromPickItem.Next = 0;
+            until TempItemFilteredFromPickItem.Next() = 0;
     end;
 
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]

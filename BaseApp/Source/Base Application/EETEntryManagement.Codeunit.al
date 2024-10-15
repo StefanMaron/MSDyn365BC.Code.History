@@ -139,7 +139,7 @@ codeunit 31121 "EET Entry Management"
 
         // If there is a line with cash desk event then all lines must be of cash desk event
         CashDocLine.SetFilter("Cash Desk Event", '<>%1', '');
-        if not CashDocLine.IsEmpty then
+        if not CashDocLine.IsEmpty() then
             if CashDocLine.Count < NoOfLines then begin
                 CashDocLine.SetRange("Cash Desk Event", '');
                 CashDocLine.FindFirst;
@@ -517,7 +517,7 @@ codeunit 31121 "EET Entry Management"
                     ErrorMessage.Validate("Record ID", EETEntryStatus.RecordId);
                     ErrorMessage.Validate("Context Record ID", EETEntryStatus.RecordId);
                     ErrorMessage.Insert(true);
-                until TempErrorMessage.Next = 0;
+                until TempErrorMessage.Next() = 0;
     end;
 
     local procedure InitEntry(var EETEntry: Record "EET Entry")
@@ -731,13 +731,13 @@ codeunit 31121 "EET Entry Management"
         exit(DelChr(LowerCase(Format(CreateGuid)), '=', '{}'));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11735, 'OnBeforePostCashDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Post", 'OnBeforePostCashDoc', '', false, false)]
     local procedure CheckCashDocumentOnBeforePostCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
         CheckCashDocument(CashDocHdr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11735, 'OnBeforeDeleteAfterPosting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Post", 'OnBeforeDeleteAfterPosting', '', false, false)]
     local procedure CreateEETEntryOnBeforeDeleteAfterPosting(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header")
     begin
         if not IsEETEnabled then
@@ -750,7 +750,7 @@ codeunit 31121 "EET Entry Management"
         PostedCashDocHdr.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11735, 'OnAfterFinalizePosting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Post", 'OnAfterFinalizePosting', '', false, false)]
     local procedure SendEntryToServiceOnAfterFinalizePosting(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
         EETEntry: Record "EET Entry";
@@ -766,7 +766,7 @@ codeunit 31121 "EET Entry Management"
             SendEntryToService(EETEntry, false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11735, 'OnAfterFinalizePostingPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Post", 'OnAfterFinalizePostingPreview', '', false, false)]
     local procedure SendEntryToVerificationOnAfterFinalizePostingPreview(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
         EETEntry: Record "EET Entry";

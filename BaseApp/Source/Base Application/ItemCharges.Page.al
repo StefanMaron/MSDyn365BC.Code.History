@@ -50,92 +50,19 @@ page 5800 "Item Charges"
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for item charges.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
-                }
-                field("Use Ledger Entry Dimensions"; "Use Ledger Entry Dimensions")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies the option to use ledger entry dimensions from item.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Sales Only"; "Sales Only")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the item charges has to be only for sales document used.';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Purchase Only"; "Purchase Only")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the item charges has to be only for purchase document used.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Disable Receipt Lines"; "Disable Receipt Lines")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the charge receipt line will be disable or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Disable Transfer Receipt Lines"; "Disable Transfer Receipt Lines")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the charge transfer receipt line will be disable or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Disable Return Schipment Lines"; "Disable Return Schipment Lines")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the charge return schipment line will be disable or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Disable Sales Schipment Lines"; "Disable Sales Schipment Lines")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the charge sales schipment line will be disable or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Disable Return Receipt Lines"; "Disable Return Receipt Lines")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies if the charge return receipt line will be disable or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Assigment on Receive/Shipment"; "Assigment on Receive/Shipment")
-                {
-                    ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies the assigment of charges by item receive/shipment.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
         }

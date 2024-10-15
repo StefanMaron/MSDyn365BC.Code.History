@@ -6,7 +6,7 @@ codeunit 31071 "Business Setup Management CZ"
     end;
 
     var
-        ConstantSymbolsNameTxt: Label 'Constant Symbols';
+        ConstantSymbolsNameTxt: Label 'Constant Symbols (Obsolete)';
         ConstantSymbolsDescriptionTxt: Label 'Set up or update Constant Symbols.';
         ConstantSymbolsKeywordsTxt: Label 'Bank';
         CashDeskEventsSetupNameTxt: Label 'Cash Desk Events Setup (Obsolete)';
@@ -21,16 +21,16 @@ codeunit 31071 "Business Setup Management CZ"
         VATPeriodsNameTxt: Label 'VAT Periods (Obsolete)';
         VATPeriodsDescriptionTxt: Label 'Set up the number of VAT periods, such as 12 monthly periods, within the fiscal year. VAT periods can be set separately from accounting periods (eg if you are a quarterly VAT payer).';
         VATPeriodsKeywordsTxt: Label 'VAT, Period';
-        CreditsSetupNameTxt: Label 'Credits Setup';
+        CreditsSetupNameTxt: Label 'Credits Setup (Obsolete)';
         CreditsSetupDescriptionTxt: Label 'Set up policies for compensation of receivables and payables';
         CreditsSetupKeywordsTxt: Label 'Credits';
-        StatisticIndicationsNameTxt: Label 'Statistic Indications';
+        StatisticIndicationsNameTxt: Label 'Statistic Indications (Obsolete)';
         StatisticIndicationsDescriptionTxt: Label 'Set up or update Statistic Indications.';
         StatisticIndicationsKeywordsTxt: Label 'Intrastat';
-        SpecificMovementsNameTxt: Label 'Specific Movements';
+        SpecificMovementsNameTxt: Label 'Specific Movements (Obsolete)';
         SpecificMovementsDescriptionTxt: Label 'Set up or update Specific Movements.';
         SpecificMovementsKeywordsTxt: Label 'Intrastat';
-        IntrastatDeliveryGroupNameTxt: Label 'Intrastat Delivery Group';
+        IntrastatDeliveryGroupNameTxt: Label 'Intrastat Delivery Group (Obsolete)';
         IntrastatDeliveryGroupDescriptionTxt: Label 'Set up or update Intrastat Delivery Groups.';
         IntrastatDeliveryGroupKeywordsTxt: Label 'Intrastat';
         StatReportingSetupNameTxt: Label 'State/Statistic Reporting Setup (Obsolete)';
@@ -48,12 +48,9 @@ codeunit 31071 "Business Setup Management CZ"
         ClassificationCodesNameTxt: Label 'Classification Codes';
         ClassificationCodesDescriptionTxt: Label 'Set up or update Fixed Assets classification codes (Production Classification marked CZ-CPA, Classification building operations marked CZ-CC, DNM).';
         ClassificationCodesKeywordsTxt: Label 'Fixed Assets';
-        DepreciationGroupsNameTxt: Label 'Depreciation Groups';
+        DepreciationGroupsNameTxt: Label 'Depreciation Groups (Obsolete)';
         DepreciationGroupsDescriptionTxt: Label 'Set up Tax Depreciation Groups for Fixes Assets. These groups determine minimal depreciation periods and parameters used for calculating tax depreciation.';
         DepreciationGroupsKeywordsTxt: Label 'Fixed Assets';
-        SKPCodesNameTxt: Label 'SKP Codes (Obsolete)';
-        SKPCodesDescriptionTxt: Label 'Set up or update Standard Classification Production.';
-        SKPCodesKeywordsTxt: Label 'Fixed Assets';
         StockkeepingUnitTemplatesNameTxt: Label 'Stockkeeping Unit Templates (Obsolete)';
         StockkeepingUnitTemplatesDescriptionTxt: Label 'Set up Stockkeeping Unit Templates.';
         StockkeepingUnitTemplatesKeywordsTxt: Label 'Stockkeeping Unit, Stock';
@@ -67,7 +64,7 @@ codeunit 31071 "Business Setup Management CZ"
         PurchaseAdvPaymTemplatesDescriptionTxt: Label 'Set up Purchase Adv. Paym. Templates (document groups) with predefined accounting and number series of related documents. Define whether or not you are obliged to post VAT.';
         PurchaseAdvPaymTemplatesKeywordsTxt: Label 'Advance, Purchase';
 
-    [EventSubscriber(ObjectType::Codeunit, 1875, 'OnRegisterManualSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Manual Setup", 'OnRegisterManualSetup', '', false, false)]
     local procedure InsertSetupOnRegisterManualSetup(var Sender: Codeunit "Manual Setup")
     var
         Info: ModuleInfo;
@@ -116,6 +113,7 @@ codeunit 31071 "Business Setup Management CZ"
           EETServiceSetupKeywordsTxt, PAGE::"EET Service Setup",
           Info.Id(), ManualSetupCategory::Finance);
 
+#if not CLEAN18
         // Fixed Assests
         Sender.Insert(ClassificationCodesNameTxt, ClassificationCodesDescriptionTxt,
           ClassificationCodesKeywordsTxt, PAGE::"Classification Codes",
@@ -123,10 +121,8 @@ codeunit 31071 "Business Setup Management CZ"
         Sender.Insert(DepreciationGroupsNameTxt, DepreciationGroupsDescriptionTxt,
           DepreciationGroupsKeywordsTxt, PAGE::"Depreciation Groups",
           Info.Id(), ManualSetupCategory::"Fixed Assets");
-        Sender.Insert(SKPCodesNameTxt, SKPCodesDescriptionTxt,
-          SKPCodesKeywordsTxt, PAGE::"SKP Codes",
-          Info.Id(), ManualSetupCategory::"Fixed Assets");
 
+#endif
         // Inventory
         Sender.Insert(StockkeepingUnitTemplatesNameTxt, StockkeepingUnitTemplatesDescriptionTxt,
           StockkeepingUnitTemplatesKeywordsTxt, PAGE::"Stockkeeping Unit Templates",

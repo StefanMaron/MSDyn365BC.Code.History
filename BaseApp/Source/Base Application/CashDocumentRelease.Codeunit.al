@@ -21,7 +21,7 @@ codeunit 11731 "Cash Document-Release"
         CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
-        CashDocLine.FindSet;
+        CashDocLine.FindSet();
         repeat
             if CashDocLine."Account Type" <> CashDocLine."Account Type"::" " then begin
                 CashDocLine.TestField("Account No.");
@@ -33,7 +33,7 @@ codeunit 11731 "Cash Document-Release"
                 CashDocumentPost.GetGenJnlLine(GenJnlLine);
                 GenJnlLineCheck.RunCheck(GenJnlLine);
             end;
-        until CashDocLine.Next = 0;
+        until CashDocLine.Next() = 0;
 
         CashDocHeader.Get("Cash Desk No.", "No.");
         CashDocHeader.Status := Status::Released;
@@ -250,12 +250,12 @@ codeunit 11731 "Cash Document-Release"
             CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
             CashDocLine.SetRange("Cash Document No.", "No.");
             CashDocLine.SetFilter("Account No.", '<>%1', '');
-            if CashDocLine.IsEmpty then
+            if CashDocLine.IsEmpty() then
                 Error(LinesNotExistsErr);
 
             CashDocLine.SetRange("Account No.");
             CashDocLine.SetFilter(Amount, '<>%1', 0);
-            if CashDocLine.IsEmpty then
+            if CashDocLine.IsEmpty() then
                 Error(LinesNotExistsErr);
 
             CashDocLine.SetFilter("Account Type", '<>%1', CashDocLine."Account Type"::" ");
@@ -290,7 +290,7 @@ codeunit 11731 "Cash Document-Release"
                         CashPaymentTotal -= PostedCashDocHeader."Amount Including VAT (LCY)"
                     else
                         CashPaymentTotal += PostedCashDocHeader."Amount Including VAT (LCY)";
-                until PostedCashDocHeader.Next = 0;
+                until PostedCashDocHeader.Next() = 0;
 
             CashDocHeader2.SetRange("Partner Type", "Partner Type");
             CashDocHeader2.SetRange("Partner No.", "Partner No.");
@@ -302,7 +302,7 @@ codeunit 11731 "Cash Document-Release"
                         CashPaymentTotal -= CashDocHeader2."Amount Including VAT (LCY)"
                     else
                         CashPaymentTotal += CashDocHeader2."Amount Including VAT (LCY)";
-                until CashDocHeader2.Next = 0;
+                until CashDocHeader2.Next() = 0;
 
             if Abs(CashPaymentTotal) > GLSetup."Cash Payment Limit (LCY)" then
                 Error(CashPaymentLimitErr, GLSetup."Cash Payment Limit (LCY)", "Partner No.");

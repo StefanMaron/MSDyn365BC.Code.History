@@ -571,8 +571,6 @@ page 30042 "APIV2 - Purchase Invoices"
         PurchaseInvoicePermissionsErr: Label 'You do not have permissions to read Purchase Invoices.';
 
     local procedure SetCalculatedFields()
-    var
-        GraphMgtPurchaseInvoice: Codeunit "Graph Mgt - Purchase Invoice";
     begin
         CurrencyCodeTxt := GraphMgtGeneralTools.TranslateNAVCurrencyCodeToCurrencyCode(LCYCurrencyCode, "Currency Code");
     end;

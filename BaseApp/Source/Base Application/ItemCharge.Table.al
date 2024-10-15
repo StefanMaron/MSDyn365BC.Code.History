@@ -75,6 +75,9 @@ table 5800 "Item Charge"
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -87,6 +90,9 @@ table 5800 "Item Charge"
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -99,65 +105,65 @@ table 5800 "Item Charge"
         field(31070; "Use Ledger Entry Dimensions"; Boolean)
         {
             Caption = 'Use Ledger Entry Dimensions';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Sales Only"; Boolean)
         {
             Caption = 'Sales Only';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31072; "Purchase Only"; Boolean)
         {
             Caption = 'Purchase Only';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31073; "Disable Receipt Lines"; Boolean)
         {
             Caption = 'Disable Receipt Lines';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31074; "Disable Transfer Receipt Lines"; Boolean)
         {
             Caption = 'Disable Transfer Receipt Lines';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31075; "Disable Return Schipment Lines"; Boolean)
         {
             Caption = 'Disable Return Schipment Lines';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31076; "Disable Sales Schipment Lines"; Boolean)
         {
             Caption = 'Disable Sales Schipment Lines';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31077; "Disable Return Receipt Lines"; Boolean)
         {
             Caption = 'Disable Return Receipt Lines';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31078; "Assigment on Receive/Shipment"; Boolean)
         {
             Caption = 'Assigment on Receive/Shipment';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -216,7 +222,7 @@ table 5800 "Item Charge"
             DimMgt.SaveDefaultDim(DATABASE::"Item Charge", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -231,6 +237,7 @@ table 5800 "Item Charge"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIncludeIntrastat()
     var
         StatReportingSetup: Record "Stat. Reporting Setup";

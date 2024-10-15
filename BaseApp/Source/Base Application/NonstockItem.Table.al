@@ -167,6 +167,9 @@ table 5718 "Nonstock Item"
         {
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(27));
+            ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -216,7 +219,7 @@ table 5718 "Nonstock Item"
         }
         field(53; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Nonstock Item"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Nonstock Item"),
                                                       "No." = FIELD("Entry No.")));
             Caption = 'Comment';
             Editable = false;
@@ -228,18 +231,23 @@ table 5718 "Nonstock Item"
             Editable = false;
             TableRelation = "No. Series";
         }
-        field(11792; "Full Description"; Text[250])
+        field(98; "Item Templ. Code"; Code[20])
         {
-            Caption = 'Full Description';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            Caption = 'Item Template Code';
+            TableRelation = "Item Templ.";
 
             trigger OnValidate()
             begin
-                if (Description = CopyStr(xRec."Full Description", 1, MaxStrLen(Description))) or (Description = '') then
-                    Validate(Description, CopyStr("Full Description", 1, MaxStrLen(Description)));
+                if ("Item Templ. Code" <> xRec."Item Templ. Code") and ("Item No." <> '') then
+                    Error(Text001);
             end;
+        }
+        field(11792; "Full Description"; Text[250])
+        {
+            Caption = 'Full Description';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -336,7 +344,7 @@ table 5718 "Nonstock Item"
             exit;
 
         Item.SetRange("No.", ItemNo);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(Text001);
     end;
 

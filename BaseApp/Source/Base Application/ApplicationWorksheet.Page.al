@@ -273,7 +273,7 @@ page 521 "Application Worksheet"
                         ApplicationsForm.SetRecordToShow(Rec, Apply, true);
                         ApplicationsForm.Run;
                         InsertUnapplyItem("Item No.");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(UnappliedEntries)
@@ -294,7 +294,7 @@ page 521 "Application Worksheet"
                         if ApplicationsForm.RunModal = ACTION::LookupOK then
                             ApplicationsForm.ApplyRec;
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -414,8 +414,9 @@ page 521 "Application Worksheet"
     begin
         Apply.SetCalledFromApplicationWorksheet(true);
         ReapplyTouchedEntries; // in case OnQueryClosePage trigger was not executed due to a sudden crash
-
+#if not CLEAN18
         UserSetupAdvMgt.CheckItemUnapply; // NAVCZ
+#endif
         InventoryPeriod.IsValidDate(InventoryOpenedFrom);
         if InventoryOpenedFrom <> 0D then
             if GetFilter("Posting Date") = '' then
@@ -445,7 +446,9 @@ page 521 "Application Worksheet"
     var
         InventoryPeriod: Record "Inventory Period";
         TempUnapplyItem: Record Item temporary;
+#if not CLEAN18
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
         Apply: Codeunit "Item Jnl.-Post Line";
         ApplicationsForm: Page "View Applied Entries";
         InventoryOpenedFrom: Date;
@@ -490,19 +493,19 @@ page 521 "Application Worksheet"
 
     local procedure LocationFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ItemFilterOnAfterValidate()
     begin
         SetFilter("Item No.", ItemFilter);
         ItemFilter := GetFilter("Item No.");
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure InsertUnapplyItem(ItemNo: Code[20])
@@ -527,7 +530,7 @@ page 521 "Application Worksheet"
                         Item."Application Wksh. User ID" := '';
                         Item.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             DeleteAll();
         end;
@@ -535,7 +538,7 @@ page 521 "Application Worksheet"
 
     local procedure DocumentFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

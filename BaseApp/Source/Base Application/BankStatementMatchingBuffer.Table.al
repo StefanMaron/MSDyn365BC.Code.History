@@ -52,6 +52,11 @@
             OptionCaption = 'Not Considered,Fully,Partially,No';
             OptionMembers = "Not Considered",Fully,Partially,No;
         }
+        field(14; "Match Details"; Text[250])
+        {
+            Caption = 'Match Details';
+            DataClassification = SystemMetadata;
+        }
         field(11700; "No. of Match to Doc. No."; Integer)
         {
             Caption = 'No. of Match to Doc. No.';

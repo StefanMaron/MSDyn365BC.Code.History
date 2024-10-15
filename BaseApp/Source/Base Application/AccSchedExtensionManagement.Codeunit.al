@@ -185,8 +185,6 @@ codeunit 31080 AccSchedExtensionManagement
         VATEntry.SetFilter("Posting Date", AccSchedMgt.GetPostingDateFilter(AccSchedLine, ColumnLayout));
         VATEntry.SetFilter("VAT Bus. Posting Group", AccSchedExtension."VAT Bus. Post. Group Filter");
         VATEntry.SetFilter("VAT Prod. Posting Group", AccSchedExtension."VAT Prod. Post. Group Filter");
-        VATEntry.SetFilter("Global Dimension 1 Code", AccSchedLine.GetFilter("Dimension 1 Filter"));
-        VATEntry.SetFilter("Global Dimension 2 Code", AccSchedLine.GetFilter("Dimension 2 Filter"));
     end;
 
     [Scope('OnPrem')]
@@ -218,7 +216,7 @@ codeunit 31080 AccSchedExtensionManagement
                         if CustLedgEntry."Remaining Amt. (LCY)" < 0 then
                             Amount += CustLedgEntry."Remaining Amt. (LCY)";
                 end;
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
         if AccSchedExtension."Reverse Sign" then
             Amount := -Amount;
@@ -244,7 +242,7 @@ codeunit 31080 AccSchedExtensionManagement
                         if VendLedgEntry."Remaining Amt. (LCY)" < 0 then
                             Amount += VendLedgEntry."Remaining Amt. (LCY)";
                 end;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
 
         if AccSchedExtension."Reverse Sign" then
             Amount := -Amount;

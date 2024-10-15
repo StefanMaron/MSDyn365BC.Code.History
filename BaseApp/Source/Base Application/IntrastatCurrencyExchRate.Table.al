@@ -1,6 +1,9 @@
 table 31061 "Intrastat Currency Exch. Rate"
 {
     Caption = 'Intrastat Currency Exch. Rate';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Unsupported functionality';
+    ObsoleteTag = '18.0';
 
     fields
     {

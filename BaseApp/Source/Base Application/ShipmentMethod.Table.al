@@ -30,15 +30,24 @@ table 10 "Shipment Method"
         field(31060; "Include Item Charges (Amount)"; Boolean)
         {
             Caption = 'Include Item Charges (Amount)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Intrastat Delivery Group Code"; Code[10])
         {
             Caption = 'Intrastat Delivery Group Code';
             TableRelation = "Intrastat Delivery Group".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Incl. Item Charges (Stat.Val.)"; Boolean)
         {
             Caption = 'Incl. Item Charges (Stat.Val.)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -53,6 +62,9 @@ table 10 "Shipment Method"
             Caption = 'Adjustment %';
             MaxValue = 100;
             MinValue = -100;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -116,6 +128,7 @@ table 10 "Shipment Method"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIncludeIntrastat()
     var
         StatReportingSetup: Record "Stat. Reporting Setup";

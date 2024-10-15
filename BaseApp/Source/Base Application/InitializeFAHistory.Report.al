@@ -1,7 +1,10 @@
 report 31038 "Initialize FA History"
 {
-    Caption = 'Initialize FA History';
+    Caption = 'Initialize FA History (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

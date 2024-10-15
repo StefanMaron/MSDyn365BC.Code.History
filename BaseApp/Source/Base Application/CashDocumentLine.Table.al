@@ -194,11 +194,6 @@ table 11731 "Cash Document Line"
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Cash Desk Event", "Cash Desk Event");
-
-                if ("Cash Document Type" = "Cash Document Type"::Withdrawal) and
-                   VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group")
-                then
-                    "VAT % (Non Deductible)" := GetVATDeduction;
             end;
         }
         field(7; "External Document No."; Code[35])
@@ -626,7 +621,6 @@ table 11731 "Cash Document Line"
                 "Amount Including VAT (LCY)" := "VAT Base Amount (LCY)" + "VAT Amount (LCY)";
                 "VAT Difference" := 0;
                 "VAT Difference (LCY)" := 0;
-                Validate("VAT % (Non Deductible)");
             end;
         }
         field(52; "Amount Including VAT"; Decimal)
@@ -645,7 +639,7 @@ table 11731 "Cash Document Line"
                     "VAT Calculation Type"::"Normal VAT",
                   "VAT Calculation Type"::"Reverse Charge VAT":
                         "VAT Amount" :=
-                          Round("Amount Including VAT" * CalcVATCoefficient, Currency."Amount Rounding Precision");
+                          Round("Amount Including VAT" * "VAT %" / (100 + "VAT %"), Currency."Amount Rounding Precision");
                     "VAT Calculation Type"::"Full VAT":
                         "VAT Base Amount" := 0;
                 end;
@@ -662,7 +656,6 @@ table 11731 "Cash Document Line"
                 "VAT Base Amount (LCY)" := "Amount Including VAT (LCY)" - "VAT Amount (LCY)";
                 "VAT Difference" := 0;
                 "VAT Difference (LCY)" := 0;
-                Validate("VAT % (Non Deductible)");
             end;
         }
         field(53; "VAT Amount"; Decimal)
@@ -729,8 +722,6 @@ table 11731 "Cash Document Line"
                 if CurrFieldNo = FieldNo("VAT Amount") then
                     if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                         Error(MustNotBeMoreThanErr, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
-
-                Validate("VAT % (Non Deductible)");
             end;
         }
         field(55; "VAT Base Amount (LCY)"; Decimal)
@@ -808,17 +799,12 @@ table 11731 "Cash Document Line"
             begin
                 if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                     "VAT %" := VATPostingSetup."VAT %";
-                    if "Cash Document Type" = "Cash Document Type"::Withdrawal then
-                        "VAT % (Non Deductible)" := GetVATDeduction;
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Reverse Charge VAT",
                         "VAT Calculation Type"::"Sales Tax":
-                            begin
-                                "VAT %" := 0;
-                                "VAT % (Non Deductible)" := 0;
-                            end;
+                            "VAT %" := 0;
                         "VAT Calculation Type"::"Full VAT":
                             begin
                                 TestField("Account Type", "Account Type"::"G/L Account");
@@ -828,7 +814,6 @@ table 11731 "Cash Document Line"
                     end;
                 end else begin
                     "VAT %" := 0;
-                    "VAT % (Non Deductible)" := 0;
                     "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
                     "VAT Identifier" := '';
                 end;
@@ -922,38 +907,27 @@ table 11731 "Cash Document Line"
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "Cash Document Type" = "Cash Document Type"::Withdrawal then begin
-                    "VAT Base (Non Deductible)" :=
-                      Round("VAT Base Amount" * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
-                    "VAT Amount (Non Deductible)" :=
-                      Round(("Amount Including VAT" - "VAT Base Amount") * "VAT % (Non Deductible)" / 100,
-                        Currency."Amount Rounding Precision");
-                end;
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(603; "VAT Base (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(604; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(31001; "Advance Letter Link Code"; Code[30])
         {
@@ -1513,7 +1487,9 @@ table 11731 "Cash Document Line"
         FAPostingGr: Record "FA Posting Group";
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
+#if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
+#endif
     begin
         if ("Account Type" <> "Account Type"::"Fixed Asset") or ("Account No." = '') then
             exit;
@@ -1547,11 +1523,13 @@ table 11731 "Cash Document Line"
             if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then begin
                 FAPostingGr.TestField("Acquisition Cost Account");
                 LocalGLAcc.Get(FAPostingGr."Acquisition Cost Account");
+#if not CLEAN18
             end else
-                if FASetup."FA Maintenance By Maint. Code" then begin
+                if not FAPostingGr.UseStandardMaintenance() then begin
                     FAExtPostingGr.Get(FADeprBook."FA Posting Group", 2, "Maintenance Code");
                     FAExtPostingGr.TestField("Maintenance Expense Account");
                     LocalGLAcc.Get(FAExtPostingGr."Maintenance Expense Account");
+#endif
                 end else begin
                     FAPostingGr.TestField("Maintenance Expense Account");
                     LocalGLAcc.Get(FAPostingGr."Maintenance Expense Account");
@@ -1649,29 +1627,6 @@ table 11731 "Cash Document Line"
         PrepmtLinksMgt.UnLinkCashDocLine(Rec);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure GetVATDeduction(): Decimal
-    var
-        NonDeductVATSetup: Record "Non Deductible VAT Setup";
-    begin
-        GetDocHeader;
-        if ((VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Normal VAT") or
-            (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT")) and
-           VATPostingSetup."Allow Non Deductible VAT"
-        then begin
-            NonDeductVATSetup.Reset();
-            NonDeductVATSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            NonDeductVATSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            NonDeductVATSetup.SetRange("From Date", 0D, CashDocHeader."VAT Date");
-            if NonDeductVATSetup.FindLast then begin
-                NonDeductVATSetup.TestField("Non Deductible VAT %");
-                exit(NonDeductVATSetup."Non Deductible VAT %");
-            end
-        end;
-        exit(0);
-    end;
-
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -1689,22 +1644,13 @@ table 11731 "Cash Document Line"
         end;
     end;
 
-    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
-    local procedure CalcVATCoefficient(): Decimal
-    begin
-        GLSetup.Get();
-        if GLSetup."Round VAT Coeff." then
-            exit(Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
-        exit("VAT %" / (100 + "VAT %"));
-    end;
-
     local procedure CalcVATAmount(): Decimal
     begin
         GetDocHeader;
         if CashDocHeader."Amounts Including VAT" then
             exit(
               Round(
-                "Amount Including VAT" * CalcVATCoefficient,
+                "Amount Including VAT" * "VAT %" / (100 + "VAT %"),
                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
         exit(
           Round(
@@ -1718,7 +1664,7 @@ table 11731 "Cash Document Line"
         if CashDocHeader."Amounts Including VAT" then
             exit(
               Round(
-                "Amount Including VAT (LCY)" * CalcVATCoefficient,
+                "Amount Including VAT (LCY)" * "VAT %" / (100 + "VAT %"),
                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
         exit(
           Round(

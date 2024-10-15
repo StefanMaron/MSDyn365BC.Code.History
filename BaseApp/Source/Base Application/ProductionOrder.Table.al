@@ -1,4 +1,4 @@
-﻿table 5405 "Production Order"
+table 5405 "Production Order"
 {
     Caption = 'Production Order';
     DataCaptionFields = "No.", Description;
@@ -134,6 +134,34 @@
             Caption = 'Routing No.';
             TableRelation = "Routing Header";
         }
+        field(12; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Source No."),
+                                                       Code = FIELD("Variant Code"));
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                StockkeepingUnit: Record "Stockkeeping Unit";
+            begin
+                if Rec."Variant Code" = xRec."Variant Code" then
+                    exit;
+
+                TestField("Source Type", "Source Type"::Item);
+                TestField("Source No.");
+
+                if StockkeepingUnit.Get("Location Code", "Source No.", "Variant Code") and
+                   (StockkeepingUnit."Routing No." <> '')
+                then
+                    "Routing No." := StockkeepingUnit."Routing No.";
+
+                if ("Routing No." = '') and ("Variant Code" = '') then begin
+                    Item.Get("Source No.");
+                    "Routing No." := Item."Routing No.";
+                end;
+            end;
+        }
         field(15; "Inventory Posting Group"; Code[20])
         {
             Caption = 'Inventory Posting Group';
@@ -225,7 +253,7 @@
                     ProdOrderLine.SetRange("Prod. Order No.", "No.");
                     ProdOrderLine.SetFilter("Item No.", '<>%1', '');
                     ProdOrderLine.SetFilter("Planning Level Code", '>%1', 0);
-                    if not ProdOrderLine.IsEmpty then begin
+                    if not ProdOrderLine.IsEmpty() then begin
                         ProdOrderLine.SetRange("Planning Level Code", 0);
                         if "Source Type" = "Source Type"::Family then begin
                             UpdateEndingDate(ProdOrderLine);
@@ -241,7 +269,7 @@
                         end;
                     end else begin
                         ProdOrderLine.SetRange("Planning Level Code");
-                        if not ProdOrderLine.IsEmpty then
+                        if not ProdOrderLine.IsEmpty() then
                             UpdateEndingDate(ProdOrderLine)
                         else begin
                             if "Source Type" = "Source Type"::Item then
@@ -580,14 +608,14 @@
         if Status = Status::Released then begin
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "No.");
-            if not ItemLedgEntry.IsEmpty then
+            if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text000,
                   Status, TableCaption, "No.", ItemLedgEntry.TableCaption);
 
             CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
             CapLedgEntry.SetRange("Order No.", "No.");
-            if not CapLedgEntry.IsEmpty then
+            if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text000,
                   Status, TableCaption, "No.", CapLedgEntry.TableCaption);
@@ -597,7 +625,7 @@
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange(Type, PurchLine.Type::Item);
             PurchLine.SetRange("Prod. Order No.", "No.");
-            if not PurchLine.IsEmpty then
+            if not PurchLine.IsEmpty() then
                 Error(
                   Text000,
                   Status, TableCaption, "No.", PurchLine.TableCaption);
@@ -635,7 +663,7 @@
                 Error(Text007, Status, TableCaption, ProdOrder."No.", ProdOrder.Status);
             InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
             InvtAdjmtEntryOrder.SetRange("Order No.", "No.");
-            if not InvtAdjmtEntryOrder.IsEmpty then
+            if not InvtAdjmtEntryOrder.IsEmpty() then
                 Error(Text007, Status, TableCaption, ProdOrder."No.", InvtAdjmtEntryOrder.TableCaption);
         end;
 
@@ -773,14 +801,14 @@
 
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
         ItemLedgEntry.SetRange("Order No.", "No.");
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text002,
               Name, Status, TableCaption, "No.", ItemLedgEntry.TableCaption);
 
         CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
         CapLedgEntry.SetRange("Order No.", "No.");
-        if not CapLedgEntry.IsEmpty then
+        if not CapLedgEntry.IsEmpty() then
             Error(
               Text002,
               Name, Status, TableCaption, "No.", CapLedgEntry.TableCaption);
@@ -808,7 +836,7 @@
         WhseRequest.SetRange("Document Type", WhseRequest."Document Type"::Production);
         WhseRequest.SetRange("Document Subtype", Status);
         WhseRequest.SetRange("Document No.", "No.");
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Prod. Order Component", Status.AsInteger(), "No.", '', 0, 0, '', false);
@@ -872,7 +900,7 @@
     begin
         EarliestLatestProdOrderLine.SetRange(Status, Status);
         EarliestLatestProdOrderLine.SetRange("Prod. Order No.", "No.");
-        if EarliestLatestProdOrderLine.IsEmpty then
+        if EarliestLatestProdOrderLine.IsEmpty() then
             exit;
 
         EarliestLatestProdOrderLine.SetCurrentKey("Starting Date-Time");
@@ -984,7 +1012,7 @@
                   ProdOrderCompLine."Prod. Order Line No.", DATABASE::"Prod. Order Component",
                   ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.");
-            until ProdOrderCompLine.Next = 0;
+            until ProdOrderCompLine.Next() = 0;
         Commit();
 
         TestField(Status, Status::Released);
@@ -1053,10 +1081,13 @@
     local procedure GetDefaultBin()
     var
         Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
         WMSManagement: Codeunit "WMS Management";
         VersionManagement: Codeunit VersionManagement;
+        RoutingNo: Code[20];
     begin
         "Bin Code" := '';
+
         if "Source Type" <> "Source Type"::Item then
             exit;
 
@@ -1067,11 +1098,16 @@
         if not Location."Bin Mandatory" or Location."Directed Put-away and Pick" then
             exit;
 
+        if StockkeepingUnit.Get("Location Code", "Source No.", "Variant Code") then
+            RoutingNo := StockkeepingUnit."Routing No.";
+        if (RoutingNo = '') and Item.Get("Source No.") then
+            RoutingNo := Item."Routing No.";
+
         // 1st priority - output bin from work/machine center
-        if Item.Get("Source No.") and (Item."Routing No." <> '') then
+        if RoutingNo <> '' then
             "Bin Code" :=
               WMSManagement.GetLastOperationFromBinCode(
-                Item."Routing No.", VersionManagement.GetRtngVersion(Item."Routing No.", "Due Date", true), "Location Code", false, 0);
+                RoutingNo, VersionManagement.GetRtngVersion(RoutingNo, "Due Date", true), "Location Code", false, 0);
 
         // 2nd priority - default output bin at location
         if "Bin Code" = '' then
@@ -1158,7 +1194,7 @@
                 end;
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
-            until ProdOrderLine.Next = 0
+            until ProdOrderLine.Next() = 0
         else
             case Direction of
                 Direction::Forward:
@@ -1205,7 +1241,7 @@
                 "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
-            until ProdOrderLine.Next = 0
+            until ProdOrderLine.Next() = 0
     end;
 
     procedure ShowDocDim()
@@ -1262,7 +1298,7 @@
                     ProdOrderLine.Modify();
                     ProdOrderLine.UpdateProdOrderCompDim(NewDimSetID, OldDimSetID);
                 end;
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

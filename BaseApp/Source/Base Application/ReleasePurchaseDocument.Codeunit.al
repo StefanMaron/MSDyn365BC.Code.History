@@ -26,8 +26,10 @@
     local procedure "Code"() LinesWereModified: Boolean
     var
         PurchLine: Record "Purchase Line";
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         UserCheck: Codeunit "User Setup Adv. Management";
+#endif
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -57,13 +59,16 @@
             if not PurchLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
             InvtSetup.Get();
+#if not CLEAN18
             GLSetup.Get(); // NAVCZ
+#endif
             if InvtSetup."Location Mandatory" then begin
                 PurchLine.SetRange(Type, PurchLine.Type::Item);
                 if PurchLine.Find('-') then
                     repeat
                         if PurchLine.IsInventoriableItem then
                             PurchLine.TestField("Location Code");
+#if not CLEAN18
                         // NAVCZ
                         if GLSetup."User Checks Allowed" then
                             if PurchLine.Type = PurchLine.Type::Item then begin
@@ -76,7 +81,8 @@
                                 end;
                             end;
                     // NAVCZ
-                    until PurchLine.Next = 0;
+#endif
+                    until PurchLine.Next() = 0;
                 PurchLine.SetFilter(Type, '>0');
             end;
 
@@ -84,6 +90,9 @@
 
             PurchLine.SetRange("Drop Shipment", false);
             NotOnlyDropShipment := PurchLine.Find('-');
+
+            OnCodeOnCheckTracking(PurchaseHeader, PurchLine);
+
             PurchLine.Reset();
 
             OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
@@ -299,6 +308,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeModifyHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckTracking(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line");
     begin
     end;
 

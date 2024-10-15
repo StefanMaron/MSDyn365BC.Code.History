@@ -178,18 +178,46 @@ table 5846 "Inventory Report Entry"
         field(11760; "Inv. Rounding Adj."; Decimal)
         {
             Caption = 'Inv. Rounding Adj.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; Consumption; Decimal)
         {
             Caption = 'Consumption';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11762; "Change In Inv.Of WIP"; Decimal)
         {
             Caption = 'Change In Inv.Of WIP';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else            
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11763; "Change In Inv.Of Product"; Decimal)
         {
             Caption = 'Change In Inv.Of Product';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else            
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 

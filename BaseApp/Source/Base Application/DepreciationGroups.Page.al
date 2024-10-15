@@ -1,10 +1,13 @@
 page 31041 "Depreciation Groups"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Depreciation Groups';
+    Caption = 'Depreciation Groups (Obsolete)';
     PageType = List;
     SourceTable = "Depreciation Group";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -665,10 +665,10 @@ table 296 "Reminder Line"
                                         DtldReminderLine."Interest Base Amount" := DetailedCustLedgEntry.Amount;
                                         if DtldReminderLine."Interest Amount" <> 0 then
                                             DtldReminderLine.Insert();
-                                    until MultipleInterestCalcLine.Next = 0
+                                    until MultipleInterestCalcLine.Next() = 0
                                 end;
                                 Amount += DetailedCustLedgEntry.Amount * (ReminderHeader."Document Date" - InterestStartDate); // NAVCZ
-                            until DetailedCustLedgEntry.Next = 0;
+                            until DetailedCustLedgEntry.Next() = 0;
                         end;
                         if not FinChrgTerms."Add. Line Fee in Interest" then
                             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then

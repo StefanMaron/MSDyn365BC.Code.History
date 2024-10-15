@@ -542,7 +542,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -648,7 +648,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         for I := 1 to NoOfEntries do begin
             TempPaymentApplicationProposal.Validate(Applied, true);
@@ -785,7 +785,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -850,7 +850,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 
@@ -970,7 +970,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         Difference := TotalAmount;
 

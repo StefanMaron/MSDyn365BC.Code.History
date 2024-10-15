@@ -347,7 +347,7 @@ table 31067 "VIES Declaration Line"
                         TempVATEntry.Insert();
                     end;
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         PAGE.Run(0, TempVATEntry);
     end;

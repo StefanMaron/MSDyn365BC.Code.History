@@ -1,12 +1,15 @@
 page 31048 "Credits Setup"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Credits Setup';
+    Caption = 'Credits Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Credits Setup";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

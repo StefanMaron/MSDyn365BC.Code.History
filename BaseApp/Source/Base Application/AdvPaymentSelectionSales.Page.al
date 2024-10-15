@@ -112,7 +112,7 @@ page 31019 "Adv. Payment Selection - Sales"
                 SetRange(Usage, Usage::"S.Adv.CrM");
         end;
         FilterGroup(0);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

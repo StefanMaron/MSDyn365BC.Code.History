@@ -1,9 +1,11 @@
 table 11794 "Vendor Template"
 {
     Caption = 'Vendor Template';
-    DrillDownPageID = "Vendor Template List";
-    LookupPageID = "Vendor Template List";
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif    
     ObsoleteReason = 'The functionality of Vendor templates will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
     ObsoleteTag = '15.3';
 
@@ -130,25 +132,6 @@ table 11794 "Vendor Template"
     {
     }
 
-    trigger OnDelete()
-    begin
-        DimMgt.DeleteDefaultDim(DATABASE::"Vendor Template", Code);
-    end;
-
-    trigger OnInsert()
-    begin
-        DimMgt.UpdateDefaultDim(
-          DATABASE::"Vendor Template", Code,
-          "Global Dimension 1 Code", "Global Dimension 2 Code");
-
-        "Invoice Disc. Code" := Code;
-    end;
-
-    trigger OnRename()
-    begin
-        DimMgt.RenameDefaultDim(DATABASE::"Vendor Template", xRec.Code, Code);
-    end;
-
     var
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         PurchSetup: Record "Purchases & Payables Setup";
@@ -159,10 +142,6 @@ table 11794 "Vendor Template"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        if not IsTemporary then begin
-            DimMgt.SaveDefaultDim(DATABASE::"Vendor Template", Code, FieldNumber, ShortcutDimCode);
-            Modify;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -173,5 +152,25 @@ table 11794 "Vendor Template"
         if NoSeriesMgt.SelectSeries(PurchSetup."Vendor Nos.", "No. Series", "No. Series") then
             exit(true);
     end;
+#if not CLEAN18
+
+    procedure CopyFromVendorTempl(VendorTempl: Record "Vendor Templ.")
+    begin
+        Init();
+        Code := CopyStr(VendorTempl.Code, 1, MaxStrLen(Code));
+        Description := CopyStr(VendorTempl.Description, 1, MaxStrLen(Description));
+        "Global Dimension 1 Code" := VendorTempl."Global Dimension 1 Code";
+        "Global Dimension 2 Code" := VendorTempl."Global Dimension 2 Code";
+        "Vendor Posting Group" := VendorTempl."Vendor Posting Group";
+        "Currency Code" := VendorTempl."Currency Code";
+        "Language Code" := VendorTempl."Language Code";
+        "Payment Terms Code" := VendorTempl."Payment Terms Code";
+        "Invoice Disc. Code" := VendorTempl."Invoice Disc. Code";
+        "Country/Region Code" := VendorTempl."Country/Region Code";
+        "Payment Method Code" := VendorTempl."Payment Method Code";
+        "Gen. Bus. Posting Group" := VendorTempl."Gen. Bus. Posting Group";
+        "VAT Bus. Posting Group" := VendorTempl."VAT Bus. Posting Group";
+    end;
+#endif
 }
 

@@ -268,7 +268,7 @@ page 31024 "Purch. Adv. Letter Statistics"
             repeat
                 VATAmtLCY := VATAmtLCY + VATAmountLineInv."VAT Amount (LCY)";
                 AmtIclVATLCY := AmtIclVATLCY + VATAmountLineInv."Amount Including VAT (LCY)";
-            until VATAmountLineInv.Next = 0;
+            until VATAmountLineInv.Next() = 0;
         end;
     end;
 

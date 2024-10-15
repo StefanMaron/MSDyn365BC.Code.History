@@ -296,7 +296,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         AdvLetterPostPrint: Codeunit "Adv.Letter-Post+Print";

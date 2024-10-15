@@ -1,8 +1,11 @@
 page 31053 "Credit Lines"
 {
-    Caption = 'Credit Lines';
+    Caption = 'Credit Lines (Obsolete)';
     PageType = List;
     SourceTable = "Credit Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

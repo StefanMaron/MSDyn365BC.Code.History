@@ -1512,7 +1512,7 @@ codeunit 136504 "RES Time Sheet"
             SetRange("Period Type", "Period Type"::Date);
             SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
             SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-            FindSet;
+            FindSet();
             while Date2DMY("Period Start", 1) < 28 do
                 Next;
             exit("Period Start");

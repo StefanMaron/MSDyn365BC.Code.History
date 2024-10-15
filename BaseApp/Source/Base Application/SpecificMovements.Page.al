@@ -1,10 +1,13 @@
 page 31063 "Specific Movements"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Specific Movements';
+    Caption = 'Specific Movements (Obsolete)';
     PageType = List;
     SourceTable = "Specific Movement";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

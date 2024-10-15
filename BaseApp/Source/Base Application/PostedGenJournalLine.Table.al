@@ -746,12 +746,10 @@ table 181 "Posted Gen. Journal Line"
             Caption = 'Job Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
-        field(1009; "Job Line Type"; Option)
+        field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1010; "Job Unit Price"; Decimal)
         {
@@ -1040,58 +1038,94 @@ table 181 "Posted Gen. Journal Line"
             ELSE
             IF ("Bal. Account Type" = CONST(Vendor),
                                                                                                "Document Type" = FILTER(Refund | Invoice)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bill-to/Pay-to No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11770; "Primary VAT Entry No."; Integer)
         {
             Caption = 'Primary VAT Entry No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11775; "Bal. VAT Difference (LCY)"; Decimal)
         {
             Caption = 'Bal. VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31000; "Prepayment Type"; Option)
         {

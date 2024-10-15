@@ -317,8 +317,7 @@ report 11764 "Documentation for VAT"
                         VATEntrySubtotalAmt[6] += VATAmount;
 
                         VATEntry.SetFilter("VAT Calculation Type", '<>%1', VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
-                        VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base",
-                          "VAT Base (Non Deductible)", "VAT Amount (Non Deductible)");
+                        VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base");
 
                         case "VAT Posting Setup"."VAT Calculation Type" of
                             "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
@@ -337,10 +336,6 @@ report 11764 "Documentation for VAT"
 
                         VATEntryDocumentNo := "Document No.";
                         VATEntryDocumentType := Format("Document Type");
-                        if "Pmt.Disc. Tax Corr.Doc. No." <> '' then begin
-                            VATEntryDocumentNo := "Pmt.Disc. Tax Corr.Doc. No.";
-                            VATEntryDocumentType := Format("Document Type"::"Credit Memo");
-                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -404,10 +399,6 @@ report 11764 "Documentation for VAT"
                     VATEntry.SetFilter("VAT Date", VATDateFilter);
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
-                    if CountryCodeFillFiter <> '' then
-                        VATEntry.SetRange("Perform. Country/Region Code", CountryCodeFillFiter)
-                    else
-                        VATEntry.SetRange("Perform. Country/Region Code", '');
                     if SettlementNoFilter <> '' then
                         VATEntry.SetFilter("VAT Settlement No.", SettlementNoFilter);
 
@@ -424,7 +415,7 @@ report 11764 "Documentation for VAT"
                                         until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     FindFirstEntry := false;
                                 end else begin
-                                    if VATEntry.Next = 0 then
+                                    if VATEntry.Next() = 0 then
                                         repeat
                                             VATType := VATType + 1;
                                             VATEntry.SetRange(Type, VATType);
@@ -445,7 +436,7 @@ report 11764 "Documentation for VAT"
                                 end else begin
                                     VATEntry.SetRange("Tax Jurisdiction Code");
                                     VATEntry.SetRange("Use Tax");
-                                    if VATEntry.Next = 0 then
+                                    if VATEntry.Next() = 0 then
                                         repeat
                                             VATType := VATType + 1;
                                             VATEntry.SetRange(Type, VATType);
@@ -497,8 +488,6 @@ report 11764 "Documentation for VAT"
                     Selection::"Open and Closed":
                         Heading := AllVATEntriesTxt;
                 end;
-                if CountryCodeFillFiter <> '' then
-                    Heading := Heading + ', ' + VATEntry.FieldCaption("Perform. Country/Region Code") + ': ' + CountryCodeFillFiter;
                 if SettlementNoFilter <> '' then
                     Heading := Heading + ', ' + VATEntry.FieldCaption("VAT Settlement No.") + ': ' + SettlementNoFilter;
             end;
@@ -554,17 +543,6 @@ report 11764 "Documentation for VAT"
                         Caption = 'Show Amounts in Add. Reporting Currency';
                         MultiLine = true;
                         ToolTip = 'Specifies when the amounts in add. reporting currency is to be show';
-                    }
-                    field(CountryCodeFillFiter; CountryCodeFillFiter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Performance Country';
-                        TableRelation = "Country/Region";
-                        ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
                     }
                     field(SettlementNoFilter; SettlementNoFilter)
                     {
@@ -624,8 +602,6 @@ report 11764 "Documentation for VAT"
         Heading: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        CountryCodeFillFiter: Code[10];
         PrintCountrySubTotal: Integer;
         CountrySubTotalAmt: array[4] of Decimal;
         SettlementNoFilter: Text;
@@ -667,24 +643,11 @@ report 11764 "Documentation for VAT"
         exit('');
     end;
 
-    local procedure GetCoefficient(VATEntry: Record "VAT Entry"): Integer
-    begin
-        if VATEntry.Base < 0 then
-            exit(-1);
-        exit(1);
-    end;
-
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure CalcVATAmountNonDeductible(VATEntry: Record "VAT Entry"): Decimal
-    begin
-        exit(GetCoefficient(VATEntry) * Abs(VATEntry."VAT Amount (Non Deductible)"));
-    end;
-
     local procedure CalcVATBase(VATEntry: Record "VAT Entry"): Decimal
     begin
         if VATEntry."Advance Base" <> 0 then
             exit(CalcVATBaseIncludingAdvance(VATEntry));
-        exit(VATEntry.Base - CalcVATAmountNonDeductible(VATEntry));
+        exit(VATEntry.Base);
     end;
 
     local procedure CalcVATBaseIncludingAdvance(VATEntry: Record "VAT Entry"): Decimal
@@ -696,7 +659,7 @@ report 11764 "Documentation for VAT"
     begin
         if VATEntry."Advance Base" <> 0 then
             exit(VATEntry.Amount);
-        exit(VATEntry.Amount + CalcVATAmountNonDeductible(VATEntry));
+        exit(VATEntry.Amount);
     end;
 
     local procedure AddTotal(VATEntry: Record "VAT Entry")

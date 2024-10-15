@@ -20,12 +20,14 @@
         ItemChargesNotAssignedErr: Label 'No item charges were assigned.';
         UOMMgt: Codeunit "Unit of Measure Management";
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignment(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; ItemNo: Code[20]; Description: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
         InsertItemChargeAssignmentWithValues(
             ItemChargeAssgntSales, ApplToDocType, ApplToDocNo, ApplToDocLineNo, ItemNo, Description, 0, 0, NextLineNo, IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignmentWithValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
@@ -35,6 +37,7 @@
           QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales, IncludeIntrastat, IncludeIntrastatAmount);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure InsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     var
         ItemCharge: Record "Item Charge";
@@ -69,6 +72,7 @@
         ItemChargeAssgntSales.Insert();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
     procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
     begin
@@ -93,6 +97,7 @@
             FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales,
             IncludeIntrastat, IncludeIntrastatAmount);
     end;
+#endif
 
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
@@ -240,7 +245,7 @@
             ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
         end;
-        if ItemChargeAssgntSales.IsEmpty then
+        if ItemChargeAssgntSales.IsEmpty() then
             exit;
 
         IsHandled := false;
@@ -629,13 +634,13 @@
 
             if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
                 TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentSales.FindSet;
+                ItemChargeAssignmentSales.FindSet();
                 repeat
                     if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
                         TempItemChargeAssgntSales := ItemChargeAssignmentSales;
                         TempItemChargeAssgntSales.Insert();
                     end;
-                until ItemChargeAssignmentSales.Next = 0;
+                until ItemChargeAssignmentSales.Next() = 0;
 
                 if TempItemChargeAssgntSales.FindSet then begin
                     repeat
@@ -653,7 +658,7 @@
                             TotalAmountToAssign -= ItemChargeAssignmentSales."Amount to Assign";
                             ItemChargeAssignmentSales.Modify();
                         end;
-                    until TempItemChargeAssgntSales.Next = 0;
+                    until TempItemChargeAssgntSales.Next() = 0;
                 end;
             end;
 

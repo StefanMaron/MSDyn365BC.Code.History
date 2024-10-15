@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31093 "Return Order Confirmation CZ"
 {
     DefaultLayout = RDLC;
@@ -530,4 +531,4 @@ report 31093 "Return Order Confirmation CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

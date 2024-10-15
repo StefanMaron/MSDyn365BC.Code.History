@@ -19,15 +19,6 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Full Name"; "Full Name")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies full name of the G/L account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;

@@ -1,4 +1,4 @@
-codeunit 1290 "SOAP Web Service Request Mgt."
+﻿codeunit 1290 "SOAP Web Service Request Mgt."
 {
 
     trigger OnRun()
@@ -232,8 +232,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     procedure SetGlobals(RequestBodyInStream: InStream; URL: Text; Username: Text; Password: Text)
-    var
-        WebRequestHelper: Codeunit "Web Request Helper";
     begin
         GlobalRequestBodyInStream := RequestBodyInStream;
 
@@ -248,8 +246,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         GlobalProgressDialogEnabled := true;
 
         TraceLogEnabled := false;
-
-        WebRequestHelper.GetDefaultWebProxy(WebProxy); // NAVCZ
     end;
 
     procedure SetBasicCredentials(Username: Text; Password: Text)
@@ -416,7 +412,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
     [TryFunction]
     procedure GetTokenDetailsAsNameBuffer(JsonWebToken: Text; var Buffer: Record "Name/Value Buffer")
-
     var
         JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
         JwtSecurityToken: DotNet JwtSecurityToken;
@@ -424,8 +419,10 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     begin
         if JsonWebToken = '' then
             exit;
+
         JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
         JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
+
         foreach Claim in JwtSecurityToken.Claims do
             Buffer.AddNewEntry(Claim.Type, Claim.Value);
     end;

@@ -88,7 +88,7 @@ page 414 "G/L Balance"
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Date Filter", DateFilter);
                         DateFilter := GetFilter("Date Filter");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -308,7 +308,7 @@ page 414 "G/L Balance"
         FindPeriod('');
     end;
 
-    var
+    protected var
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
         ClosingEntryFilter: Option Include,Exclude;
@@ -360,7 +360,7 @@ page 414 "G/L Balance"
                     SetFilter(
                       "Date Filter", GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end else
             SetRange(
               "Date Filter",
@@ -371,12 +371,12 @@ page 414 "G/L Balance"
 
     local procedure ClosingEntryFilterOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DebitCreditTotalsOnAfterValida()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DayPeriodTypeOnPush()

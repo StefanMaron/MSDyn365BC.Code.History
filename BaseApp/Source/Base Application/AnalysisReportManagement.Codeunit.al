@@ -43,7 +43,15 @@ codeunit 7110 "Analysis Report Management"
         ShowError: Option "None","Division by Zero","Period Error","Invalid Formula","Cyclic Formula",All;
         SeparatorTok: Label ';', Locked = true;
 
+#if not CLEAN18
+    [Obsolete('Replaced by LookupAnalysisReportName().', '18.0')]
     procedure LookupReportName(CurrentAnalysisArea: Option Sales,Purchase,Inventory; var CurrentReportName: Code[10]): Boolean
+    begin
+        exit(LookupAnalysisReportName("Analysis Area Type".FromInteger(CurrentAnalysisArea), CurrentReportName));
+    end;
+#endif
+
+    procedure LookupAnalysisReportName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentReportName: Code[10]): Boolean
     var
         AnalysisReportName: Record "Analysis Report Name";
     begin
@@ -74,7 +82,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisLine.FilterGroup := 0;
     end;
 
-    local procedure CheckAnalysisLineTemplName(CurrentAnalysisArea: Option Sale,Purchase,Inventory; var CurrentAnalysisLineTempl: Code[10])
+    local procedure CheckAnalysisLineTemplName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentAnalysisLineTempl: Code[10])
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
@@ -188,7 +196,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisColumn.FilterGroup := 0;
     end;
 
-    local procedure CheckColumnTemplate(CurrentAnalysisArea: Option Sale,Purchase,Inventory; var CurrentColumnName: Code[10])
+    local procedure CheckColumnTemplate(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentColumnName: Code[10])
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -235,12 +243,20 @@ codeunit 7110 "Analysis Report Management"
             repeat
                 TempAnalysisColumn := AnalysisColumn;
                 TempAnalysisColumn.Insert();
-            until AnalysisColumn.Next = 0;
+            until AnalysisColumn.Next() = 0;
             TempAnalysisColumn.FindFirst;
         end;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by LookypAnalysisColumnName().', '18.0')]
     procedure LookupColumnName(CurrentAnalysisArea: Option; var CurrentColumnName: Code[10]): Boolean
+    begin
+        exit(LookupAnalysisColumnName("Analysis Area Type".FromInteger(CurrentAnalysisArea), CurrentColumnName));
+    end;
+#endif
+
+    procedure LookupAnalysisColumnName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentColumnName: Code[10]): Boolean
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -766,7 +782,7 @@ codeunit 7110 "Analysis Report Management"
                                     repeat
                                         if AnalysisLine."Line No." <> AnalysisLineID then
                                             Result := Result + CalcCellValue(AnalysisLine, AnalysisColumn, false);
-                                    until AnalysisLine.Next = 0
+                                    until AnalysisLine.Next() = 0
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
@@ -784,7 +800,7 @@ codeunit 7110 "Analysis Report Management"
                                     repeat
                                         if AnalysisColumn."Line No." <> AnalysisLineID then
                                             Result := Result + CalcCellValue(AnalysisLine, AnalysisColumn, false);
-                                    until AnalysisColumn.Next = 0
+                                    until AnalysisColumn.Next() = 0
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
@@ -900,7 +916,7 @@ codeunit 7110 "Analysis Report Management"
                         ResultFilter := ResultFilter + '|';
                     ResultFilter := ResultFilter + DimVal.Totaling;
                 end;
-            until (DimVal.Next = 0) or not DimValTotaling;
+            until (DimVal.Next() = 0) or not DimValTotaling;
 
         if DimValTotaling then
             exit(ResultFilter);
@@ -1566,7 +1582,7 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
-    local procedure FilterToValue(var AnalysisLine: Record "Analysis Line"): Integer
+    local procedure FilterToValue(var AnalysisLine: Record "Analysis Line"): Enum "Analysis Source Type"
     var
         AnalysisLine2: Record "Analysis Line";
     begin
@@ -1705,7 +1721,7 @@ codeunit 7110 "Analysis Report Management"
             Line.ClearMarks;
 
             OldLine := Line;
-            Line.FindSet;
+            Line.FindSet();
             repeat
                 if Line.Range = '' then
                     Value := 0
@@ -1723,7 +1739,7 @@ codeunit 7110 "Analysis Report Management"
                                 Line.Mark(true);
                         end;
                 end;
-            until Line.Next = 0;
+            until Line.Next() = 0;
             Line.MarkedOnly(true);
             Line."Analysis Area" := OldLine."Analysis Area";
             Line."Analysis Line Template Name" := OldLine."Analysis Line Template Name";

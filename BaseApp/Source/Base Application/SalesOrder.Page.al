@@ -1,4 +1,4 @@
-﻿page 42 "Sales Order"
+page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -23,7 +23,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -37,7 +37,7 @@
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -54,7 +54,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -185,15 +185,6 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the number of archived versions for this document.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting description code for the sales header.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Posting Description"; "Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
@@ -230,7 +221,7 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the date when the order was created.';
+                    ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -245,7 +236,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Promised Delivery Date"; "Promised Delivery Date")
@@ -375,6 +366,10 @@
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
@@ -401,7 +396,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -836,6 +831,10 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer s market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -934,6 +933,10 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
@@ -958,28 +961,10 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the industry code for the customer record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
-                }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
@@ -1038,57 +1023,102 @@
             group(Payment)
             {
                 Caption = 'Payment';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -1902,12 +1932,12 @@
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1927,7 +1957,7 @@
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -2064,7 +2094,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostSalesOrder(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
                 action(PostAndNew)
@@ -2080,7 +2110,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostSalesOrder(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"New Document");
                     end;
                 }
                 action(PostAndSend)
@@ -2095,7 +2125,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post and Send", NavigateAfterPost::"Do Nothing");
+                        PostSalesOrder(CODEUNIT::"Sales-Post and Send", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
                 action("Test Report")
@@ -2476,7 +2506,6 @@
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
-        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
         Text001: Label 'Do you want to change %1 in all related records in the warehouse?';
@@ -2524,11 +2553,18 @@
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
+    [Obsolete('Replaced by PostSalesOrder().', '18.0')]
     procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    begin
+        PostSalesOrder(PostingCodeunitID, "Navigate After Posting".FromInteger(Navigate));
+    end;
+
+    local procedure PostSalesOrder(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         SalesHeader: Record "Sales Header";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -2541,19 +2577,24 @@
 
         CurrPage.Update(false);
 
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
+
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
         case Navigate of
-            NavigateAfterPost::"Posted Document":
+            "Navigate After Posting"::"Posted Document":
                 begin
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                        ShowPostedConfirmationMessage;
+                        ShowPostedConfirmationMessage();
 
                     if DocumentIsScheduledForPosting or DocumentIsPosted then
                         CurrPage.Close();
                 end;
-            NavigateAfterPost::"New Document":
+            "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(SalesHeader);
                     SalesHeader.Init();
@@ -2586,22 +2627,22 @@
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure Prepayment37OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrencyCodeOnAfterValidate()
@@ -2626,7 +2667,7 @@
             Find;
         end;
 
-        if not SalesAPTempl.IsEmpty then
+        if not SalesAPTempl.IsEmpty() then
             if not (PAGE.RunModal(PAGE::"Sales Advanced Paym. Selection", SalesAPTempl) = ACTION::LookupOK) then
                 Error('');
         SalesPostAdvances.Letter(Rec, AdvLetterNo, SalesAPTempl.Code);
@@ -2778,5 +2819,9 @@
     local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address"; var SalesHeader: Record "Sales Header")
     begin
     end;
-}
 
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+}

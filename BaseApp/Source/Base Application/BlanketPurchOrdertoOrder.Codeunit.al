@@ -1,4 +1,4 @@
-﻿codeunit 97 "Blanket Purch. Order to Order"
+codeunit 97 "Blanket Purch. Order to Order"
 {
     TableNo = "Purchase Header";
 
@@ -64,7 +64,7 @@
                             PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
                         PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
                         if PurchBlanketOrderLine."Reserved Qty. (Base)" <> 0 then
-                            ReservePurchLine.TransferPurchLineToPurchLine(
+                            PurchLineReserve.TransferPurchLineToPurchLine(
                               PurchBlanketOrderLine, PurchOrderLine, -PurchBlanketOrderLine."Qty. to Receive (Base)");
                     end;
 
@@ -91,7 +91,7 @@
 
                     OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine);
                 end;
-            until PurchBlanketOrderLine.Next = 0;
+            until PurchBlanketOrderLine.Next() = 0;
 
         OnAfterInsertAllPurchOrderLines(Rec, PurchOrderHeader);
 
@@ -123,7 +123,7 @@
         PurchOrderLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
         PurchLine: Record "Purchase Line";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
 
@@ -185,9 +185,6 @@
     end;
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
 
@@ -199,12 +196,6 @@
             PurchOrderHeader."No." := '';
             OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.InitRecord;
-            // NAVCZ
-            PurchOrderHeader."No. Series" := '';
-            if NoSeriesLink.Get("No. Series") then
-                if NoSeriesLink."Linked No. Series" <> '' then
-                    PurchOrderHeader."No. Series" := NoSeriesLink."Linked No. Series";
-            // NAVCZ
             PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Insert(true);

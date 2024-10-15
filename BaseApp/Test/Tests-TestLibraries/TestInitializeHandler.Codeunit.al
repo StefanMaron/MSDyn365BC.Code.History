@@ -27,7 +27,6 @@ codeunit 143060 "Test Initialize Handler"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        SalesSetup."Credit Memo Confirmation" := false;
         SalesSetup."Invoice Rounding" := true;
         SalesSetup.Validate("Copy Line Descr. to G/L Entry", false);
         SalesSetup.Modify();

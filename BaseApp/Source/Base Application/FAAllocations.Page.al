@@ -29,11 +29,17 @@ page 5623 "FA Allocations"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage to use when allocating the amount for the allocation type.';
                 }
+#if not CLEAN18
                 field("Reason/Maintenance Code"; "Reason/Maintenance Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
             }
             group(Control18)
             {
@@ -150,7 +156,7 @@ page 5623 "FA Allocations"
                 AllocationPct := TempFAAlloc."Allocation %";
                 TempFAAlloc.CopyFilters(Rec);
                 TempFAAlloc := xRec;
-                if TempFAAlloc.Next = 0 then
+                if TempFAAlloc.Next() = 0 then
                     AllocationPct := AllocationPct + xRec."Allocation %";
             end;
         end;

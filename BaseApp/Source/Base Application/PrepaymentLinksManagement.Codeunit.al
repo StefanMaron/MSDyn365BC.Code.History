@@ -38,7 +38,7 @@ codeunit 31032 "Prepayment Links Management"
             if FindFirst then
                 TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
             Reset;
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 AdvanceLinkBuf := AdvanceLinkBufDefEntry;
                 if not Find then
                     FindFirst;
@@ -174,7 +174,7 @@ codeunit 31032 "Prepayment Links Management"
     procedure SetLinkingEntry(var AdvanceLinkBuf: Record "Advance Link Buffer"; Manual: Boolean)
     begin
         with AdvanceLinkBuf do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
             if Manual and (LinkType = LinkType::GenJnlLine) then
                 exit;
@@ -226,7 +226,7 @@ codeunit 31032 "Prepayment Links Management"
             SetRange("Document No.", AdvanceLinkBuf2."Document No.");
             if AdvanceLinkBuf2."Entry No." <> 0 then
                 SetRange("Entry No.", AdvanceLinkBuf2."Entry No.");
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
 
             FindFirst;
@@ -252,7 +252,7 @@ codeunit 31032 "Prepayment Links Management"
         Adjustment: Decimal;
     begin
         with AdvanceLinkBuf do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
             TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
             if AdvanceLinkBufDefEntry."Link Code" = '' then
@@ -326,7 +326,7 @@ codeunit 31032 "Prepayment Links Management"
             if FindSet then
                 repeat
                     Balance := Balance + "Amount To Link";
-                until Next = 0;
+                until Next() = 0;
             SetView(AdvanceLinkBuf2.GetView);
             AdvanceLinkBuf := AdvanceLinkBuf2;
             if Find then;
@@ -490,7 +490,7 @@ codeunit 31032 "Prepayment Links Management"
                     "Source Type" := "Source Type"::Customer;
 
                     Insert;
-                until SalesAdvanceLetterLine.Next = 0;
+                until SalesAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -550,7 +550,7 @@ codeunit 31032 "Prepayment Links Management"
                     "Source Type" := "Source Type"::Vendor;
 
                     Insert;
-                until PurchAdvanceLetterLine.Next = 0;
+                until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -598,7 +598,7 @@ codeunit 31032 "Prepayment Links Management"
                         "Source Type" := "Source Type"::Customer;
 
                         Insert;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
             end;
     end;
 
@@ -648,7 +648,7 @@ codeunit 31032 "Prepayment Links Management"
                         "Source Type" := "Source Type"::Vendor;
 
                         Insert;
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
             end;
     end;
 
@@ -707,7 +707,7 @@ codeunit 31032 "Prepayment Links Management"
                             PurchAdvanceLetterLine.Modify();
                             OnSaveLinkIDToLetterLinesOnAfterModifyPurchAdvanceLetterLine(AdvanceLinkBuf, AdvanceLinkBufDefEntry);
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -736,7 +736,7 @@ codeunit 31032 "Prepayment Links Management"
                     SalesAdvanceLetterLine."Amount Linked To Journal Line" := SalesAdvanceLetterLine."Amount To Link";
                     SalesAdvanceLetterLine.Modify();
                     Result := Result + SalesAdvanceLetterLine."Amount To Link";
-                until SalesAdvanceLetterLine.Next = 0;
+                until SalesAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -755,7 +755,7 @@ codeunit 31032 "Prepayment Links Management"
                 SalesAdvanceLetterLine2."Link Code" := '';
                 SalesAdvanceLetterLine2."Amount Linked To Journal Line" := 0;
                 SalesAdvanceLetterLine2.Modify();
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
     end;
 
     procedure LinkWholePurchLetter(VendCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var VendPostingGroup: Code[20]) Result: Decimal
@@ -783,7 +783,7 @@ codeunit 31032 "Prepayment Links Management"
                     PurchAdvanceLetterLine."Amount Linked To Journal Line" := -PurchAdvanceLetterLine."Amount To Link";
                     PurchAdvanceLetterLine.Modify();
                     Result := Result + PurchAdvanceLetterLine."Amount To Link";
-                until PurchAdvanceLetterLine.Next = 0;
+                until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -802,7 +802,7 @@ codeunit 31032 "Prepayment Links Management"
                 PurchAdvanceLetterLine2."Link Code" := '';
                 PurchAdvanceLetterLine2."Amount Linked To Journal Line" := 0;
                 PurchAdvanceLetterLine2.Modify();
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
@@ -951,7 +951,7 @@ codeunit 31032 "Prepayment Links Management"
                                 SalesAdvanceLetterHeader.TestField("Customer Posting Group", Result)
                             else
                                 exit('');
-                until SalesAdvanceLetterLine.Next = 0;
+                until SalesAdvanceLetterLine.Next() = 0;
         end else begin
             PurchAdvanceLetterLine.SetCurrentKey("Link Code");
             PurchAdvanceLetterLine.SetRange("Link Code", LinkCode);
@@ -970,7 +970,7 @@ codeunit 31032 "Prepayment Links Management"
                                 PurchAdvanceLetterHeader.TestField("Vendor Posting Group", Result)
                             else
                                 exit('');
-                until PurchAdvanceLetterLine.Next = 0;
+                until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
 

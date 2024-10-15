@@ -5,6 +5,9 @@ page 31051 "Credit Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Credit Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -107,7 +110,7 @@ page 31051 "Credit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Remaining Amount"; "Remaining Amount")
@@ -118,7 +121,7 @@ page 31051 "Credit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Ledg. Entry Original Amt.(LCY)"; "Ledg. Entry Original Amt.(LCY)")
@@ -144,7 +147,7 @@ page 31051 "Credit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Remaining Amount (LCY)"; "Remaining Amount (LCY)")
@@ -155,7 +158,7 @@ page 31051 "Credit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Manual Change Only"; "Manual Change Only")
@@ -193,7 +196,7 @@ page 31051 "Credit Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     [Scope('OnPrem')]

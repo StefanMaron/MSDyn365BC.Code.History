@@ -77,7 +77,7 @@ page 11712 "Issued Bank Statement Subform"
                           IssuedBankStatementHeader."Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }

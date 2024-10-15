@@ -293,6 +293,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Exercise
         LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -445,6 +447,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry[1], BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry[2], BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -1213,6 +1217,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         ExcessiveAmount: Decimal;
     begin
         Initialize();
+
         ExcessiveAmount := 1.23;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1222,6 +1227,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -1374,6 +1381,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
+
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibrarySales.CreateCustomer(Cust);
@@ -1393,6 +1401,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Exercise
         LibraryLowerPermissions.SetOutsideO365Scope;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -1649,6 +1659,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Statement is imported and payments are posted
         LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 
@@ -2026,6 +2038,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Statement is imported and customer ledger payment is posted
         LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 
@@ -2085,6 +2099,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Statement is imported and customer ledger payment is posted
         LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 
@@ -2200,7 +2216,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         i := 1;
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
@@ -2561,6 +2577,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+        SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 
@@ -2804,6 +2822,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     var
         InventorySetup: Record "Inventory Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2813,6 +2832,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
         LibraryLowerPermissions.SetOutsideO365Scope;
+        BankPmtApplSettings.DeleteAll();
+
         if Initialized then
             exit;
         Initialized := true;
@@ -3306,6 +3327,17 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
 
+    local procedure SetOnMatchOnClosingDocumentNumber(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.Get(BankAccReconciliation."Bank Account No.");
+        BankPmtApplSettings.GetOrInsert(BankAccount."Bank Pmt. Appl. Rule Code");
+        BankPmtApplSettings."Bank Ledg Closing Doc No Match" := true;
+        BankPmtApplSettings.Modify();
+    end;
+
     local procedure PostPayment(var CustLedgEntry: Record "Cust. Ledger Entry"; BankAccNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -3445,7 +3477,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TotalAmt: Decimal;
     begin
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
         until BankAccLedgEntry.Next = 0;

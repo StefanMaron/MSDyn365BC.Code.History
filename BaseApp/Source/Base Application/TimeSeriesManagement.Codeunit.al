@@ -109,7 +109,7 @@ codeunit 2000 "Time Series Management"
         TempTimeSeriesForecast.Reset();
         TempTimeSeriesForecast.DeleteAll();
 
-        if TempTimeSeriesBuffer.IsEmpty then begin
+        if TempTimeSeriesBuffer.IsEmpty() then begin
             TimeSeriesCalculationState := TimeSeriesCalculationState::Done;
             exit;
         end;
@@ -211,7 +211,7 @@ codeunit 2000 "Time Series Management"
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, RecRef);
 
-        if RecRef.IsEmpty then
+        if RecRef.IsEmpty() then
             exit;
 
         GroupIDFieldRef := RecRef.Field(GroupIDFieldNo);
@@ -240,7 +240,7 @@ codeunit 2000 "Time Series Management"
                     TempTimeSeriesBuffer.Value := Value;
                     TempTimeSeriesBuffer.Insert();
                 end;
-            until TempTimeSeriesBufferDistinct.Next = 0;
+            until TempTimeSeriesBufferDistinct.Next() = 0;
     end;
 
     local procedure CalculateValueNormal(var ValueFieldRef: FieldRef) Value: Decimal
@@ -264,7 +264,7 @@ codeunit 2000 "Time Series Management"
                 ValueFieldRef.CalcField;
                 CurrentValue := ValueFieldRef.Value;
                 Value += CurrentValue;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     local procedure CreateTimeSeriesInput()
@@ -279,7 +279,7 @@ codeunit 2000 "Time Series Management"
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer."Group ID"));
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer."Period No."));
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer.Value, 0, 9));
-            until TempTimeSeriesBuffer.Next = 0;
+            until TempTimeSeriesBuffer.Next() = 0;
     end;
 
     local procedure CreateTimeSeriesParameters(ForecastingPeriods: Integer; ConfidenceLevel: Integer; TimeSeriesModel: Option ARIMA,ETS,STL,"ETS+ARIMA","ETS+STL",ALL,TBATS)
@@ -341,7 +341,7 @@ codeunit 2000 "Time Series Management"
                 end else
                     TempTimeSeriesBufferDistinct."Group ID" := FieldRef.Value;
                 if not TempTimeSeriesBufferDistinct.Insert() then;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     procedure SetMinimumHistoricalPeriods(NumberOfPeriods: Integer)

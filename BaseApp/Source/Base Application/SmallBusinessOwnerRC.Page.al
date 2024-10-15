@@ -191,6 +191,7 @@ page 9020 "Small Business Owner RC"
             separator(Action1220003)
             {
             }
+#if not CLEAN18
             action("FA Phys. Inventory List")
             {
                 ApplicationArea = FixedAssets;
@@ -198,6 +199,10 @@ page 9020 "Small Business Owner RC"
                 Image = FixedAssets;
                 RunObject = Report "FA Phys. Inventory List";
                 ToolTip = 'Open the report for fixed asset physical inventory.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Receipt")
             {
@@ -206,6 +211,10 @@ page 9020 "Small Business Owner RC"
                 Image = ReceiptLines;
                 RunObject = Report "FA Receipt Report";
                 ToolTip = 'Open the report for fixed asset receipt.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Disposal")
             {
@@ -214,7 +223,12 @@ page 9020 "Small Business Owner RC"
                 Image = ShipmentLines;
                 RunObject = Report "FA Disposal Report";
                 ToolTip = 'Open the report for fixed asset disposal.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#endif
             separator(Action129)
             {
             }
@@ -295,10 +309,6 @@ page 9020 "Small Business Owner RC"
                 Image = "Report";
                 RunObject = Report "VAT Statement";
                 ToolTip = 'View a statement of posted VAT and calculate the duty liable to the customs authorities for the selected period.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             action("G/L - VAT Reconciliation")
             {
@@ -1092,10 +1102,6 @@ page 9020 "Small Business Owner RC"
                 Image = SettleOpenTransactions;
                 RunObject = Report "Calc. and Post VAT Settlement";
                 ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             separator(Action31)
             {

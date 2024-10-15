@@ -330,9 +330,9 @@ table 270 "Bank Account"
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(91; "Post Code"; Code[20])
         {
@@ -611,6 +611,10 @@ table 270 "Bank Account"
                           Format("Match Tolerance Type"::Percentage));
             end;
         }
+        field(1252; "Disable Automatic Pmt Matching"; Boolean)
+        {
+            Caption = 'Disable Automatic Payment Matching';
+        }
         field(1260; "Positive Pay Export Code"; Code[20])
         {
             Caption = 'Positive Pay Export Code';
@@ -646,6 +650,9 @@ table 270 "Bank Account"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Domestic Payment Order"; Integer)
         {
@@ -980,6 +987,9 @@ table 270 "Bank Account"
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
             Caption = 'Exclude from Exch. Rate Adj.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -1106,7 +1116,7 @@ table 270 "Bank Account"
         // NAVCZ
         if "Account Type" = "Account Type"::"Cash Desk" then begin
             CashDocHdr.SetRange("Cash Desk No.", "No.");
-            if not CashDocHdr.IsEmpty then
+            if not CashDocHdr.IsEmpty() then
                 Error(CannotDeleteErr, "Account Type", "No.", CashDocHdr.TableCaption);
             CashDeskUser.SetRange("Cash Desk No.", "No.");
             CashDeskUser.DeleteAll();
@@ -1384,15 +1394,6 @@ table 270 "Bank Account"
         BankAccount.TestField("Balance (LCY)", 0);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by functions TestNoSeries and GetNoSeriesCode', '15.3')]
-    procedure GetAccountNos(): Code[20]
-    begin
-        // NAVCZ
-        TestNoSeries();
-        exit(GetNoSeriesCode());
-    end;
-
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     procedure TestNoSeries()
     begin
@@ -1561,7 +1562,7 @@ table 270 "Bank Account"
                     PostedCashDocLine.SetRange("Cash Document Type", CashDocumentType);
                     PostedCashDocLine.CalcSums("Amount Including VAT");
                     TotalNetChange += PostedCashDocLine."Amount Including VAT";
-                until PostedCashDocHeader.Next = 0;
+                until PostedCashDocHeader.Next() = 0;
         end;
 
         if CashDocumentType = PostedCashDocHeader."Cash Document Type"::Withdrawal then
@@ -1736,7 +1737,7 @@ table 270 "Bank Account"
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     procedure GetLinkedBankAccounts(var TempUnlinkedBankAccount: Record "Bank Account" temporary)
@@ -1749,7 +1750,7 @@ table 270 "Bank Account"
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     local procedure SelectBankLinkingService(): Text
@@ -1760,16 +1761,16 @@ table 270 "Bank Account"
     begin
         OnGetStatementProvidersEvent(TempNameValueBuffer);
 
-        if TempNameValueBuffer.IsEmpty then
+        if TempNameValueBuffer.IsEmpty() then
             exit(''); // Action should not be visible in this case so should not occur
 
         if (TempNameValueBuffer.Count = 1) or (not GuiAllowed) then
             exit(TempNameValueBuffer.Name);
 
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         repeat
             OptionStr += StrSubstNo('%1,', TempNameValueBuffer.Value);
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
         OptionStr += CancelTxt;
 
         OptionNo := StrMenu(OptionStr);
@@ -1816,7 +1817,7 @@ table 270 "Bank Account"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         SetAutomaticImportJobQueueEntryFilters(JobQueueEntry);
-        if not JobQueueEntry.IsEmpty then
+        if not JobQueueEntry.IsEmpty() then
             JobQueueEntry.DeleteAll();
     end;
 
@@ -1857,7 +1858,7 @@ table 270 "Bank Account"
     begin
         PaymentRegistrationSetup.SetRange("Bal. Account Type", PaymentRegistrationSetup."Bal. Account Type"::"Bank Account");
         PaymentRegistrationSetup.SetRange("Bal. Account No.", "No.");
-        if PaymentRegistrationSetup.IsEmpty then
+        if PaymentRegistrationSetup.IsEmpty() then
             exit;
 
         if not GuiAllowed then
@@ -1895,7 +1896,7 @@ table 270 "Bank Account"
         if TempNameValueBuffer.FindSet then
             repeat
                 OnDisableStatementProviderEvent(TempNameValueBuffer.Name);
-            until TempNameValueBuffer.Next = 0;
+            until TempNameValueBuffer.Next() = 0;
     end;
 
     local procedure IsContactUpdateNeeded(): Boolean

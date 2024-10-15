@@ -33,8 +33,6 @@
             Caption = 'Description';
 
             trigger OnValidate()
-            var
-                ToModify: Boolean;
             begin
                 if ("Search Description" = UpperCase(xRec.Description)) or ("Search Description" = '') then
                     "Search Description" := CopyStr(Description, 1, MaxStrLen("Search Description"));
@@ -45,17 +43,8 @@
                     if NonstockItem.FindFirst then
                         if NonstockItem.Description = '' then begin
                             NonstockItem.Description := Description;
-                            // NAVCZ
-                            ToModify := true;
+                            NonstockItem.Modify();
                         end;
-                    if NonstockItem."Full Description" = '' then begin
-                        NonstockItem."Full Description" := "Full Description";
-                        ToModify := true;
-                    end;
-                    if ToModify then
-                        // NAVCZ
-                        NonstockItem.Modify();
-
                 end;
             end;
         }
@@ -572,7 +561,8 @@
                                                                   "Variant Code" = FIELD("Variant Filter"),
                                                                   "Lot No." = FIELD("Lot No. Filter"),
                                                                   "Serial No." = FIELD("Serial No. Filter"),
-                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
+                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
+                                                                  "Package No." = FIELD("Package No. Filter")));
             Caption = 'Inventory';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -587,7 +577,8 @@
                                                                              "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                              "Variant Code" = FIELD("Variant Filter"),
                                                                              "Lot No." = FIELD("Lot No. Filter"),
-                                                                             "Serial No." = FIELD("Serial No. Filter")));
+                                                                             "Serial No." = FIELD("Serial No. Filter"),
+                                                                             "Package No." = FIELD("Package No. Filter")));
             Caption = 'Net Invoiced Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -604,7 +595,8 @@
                                                                   "Variant Code" = FIELD("Variant Filter"),
                                                                   "Lot No." = FIELD("Lot No. Filter"),
                                                                   "Serial No." = FIELD("Serial No. Filter"),
-                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
+                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
+                                                                  "Package No." = FIELD("Package No. Filter")));
             Caption = 'Net Change';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -621,7 +613,8 @@
                                                                              "Variant Code" = FIELD("Variant Filter"),
                                                                              "Posting Date" = FIELD("Date Filter"),
                                                                              "Lot No." = FIELD("Lot No. Filter"),
-                                                                             "Serial No." = FIELD("Serial No. Filter")));
+                                                                             "Serial No." = FIELD("Serial No. Filter"),
+                                                                             "Package No." = FIELD("Package No. Filter")));
             Caption = 'Purchases (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -653,7 +646,8 @@
                                                                              "Variant Code" = FIELD("Variant Filter"),
                                                                              "Posting Date" = FIELD("Date Filter"),
                                                                              "Lot No." = FIELD("Lot No. Filter"),
-                                                                             "Serial No." = FIELD("Serial No. Filter")));
+                                                                             "Serial No." = FIELD("Serial No. Filter"),
+                                                                             "Package No." = FIELD("Package No. Filter")));
             Caption = 'Positive Adjmt. (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -670,7 +664,8 @@
                                                                               "Variant Code" = FIELD("Variant Filter"),
                                                                               "Posting Date" = FIELD("Date Filter"),
                                                                               "Lot No." = FIELD("Lot No. Filter"),
-                                                                              "Serial No." = FIELD("Serial No. Filter")));
+                                                                              "Serial No." = FIELD("Serial No. Filter"),
+                                                                              "Package No." = FIELD("Package No. Filter")));
             Caption = 'Negative Adjmt. (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -862,7 +857,8 @@
                                                                              "Variant Code" = FIELD("Variant Filter"),
                                                                              "Posting Date" = FIELD("Date Filter"),
                                                                              "Lot No." = FIELD("Lot No. Filter"),
-                                                                             "Serial No." = FIELD("Serial No. Filter")));
+                                                                             "Serial No." = FIELD("Serial No. Filter"),
+                                                                             "Package No." = FIELD("Package No. Filter")));
             Caption = 'Transferred (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -940,7 +936,8 @@
                                                                            "Serial No." = FIELD("Serial No. Filter"),
                                                                            "Lot No." = FIELD("Lot No. Filter"),
                                                                            "Location Code" = FIELD("Location Filter"),
-                                                                           "Variant Code" = FIELD("Variant Filter")));
+                                                                           "Variant Code" = FIELD("Variant Filter"),
+                                                                           "Package No." = FIELD("Package No. Filter")));
             Caption = 'Reserved Qty. on Inventory';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1345,6 +1342,9 @@
         }
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
+            ObsoleteTag = '18.0';
             CalcFormula = Sum("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
                                                                                      "Item No." = FIELD("No."),
                                                                                      "Variant Code" = FIELD("Variant Filter"),
@@ -1748,14 +1748,10 @@
                 if not ItemTrackingCode2.Get(xRec."Item Tracking Code") then
                     Clear(ItemTrackingCode2);
 
-                if (ItemTrackingCode."SN Specific Tracking" <> ItemTrackingCode2."SN Specific Tracking") or
-                   (ItemTrackingCode."Lot Specific Tracking" <> ItemTrackingCode2."Lot Specific Tracking")
-                then
+                if ItemTrackingCode.IsSpecificTrackingChanged(ItemTrackingCode2) then
                     TestNoEntriesExist(FieldCaption("Item Tracking Code"));
 
-                if (ItemTrackingCode."SN Warehouse Tracking" <> ItemTrackingCode2."SN Warehouse Tracking") or
-                   (ItemTrackingCode."Lot Warehouse Tracking" <> ItemTrackingCode2."Lot Warehouse Tracking")
-                then
+                if ItemTrackingCode.IsWarehouseTrackingChanged(ItemTrackingCode2) then
                     TestNoWhseEntriesExist(FieldCaption("Item Tracking Code"));
 
                 if "Costing Method" = "Costing Method"::Specific then begin
@@ -1772,7 +1768,7 @@
                           FieldCaption("Costing Method"), "Costing Method");
                 end;
 
-                TestNoOpenDocumentsWithTrackingExist;
+                TestNoOpenDocumentsWithTrackingExist();
 
                 if "Expiration Calculation" <> EmptyDateFormula then
                     if not ItemTrackingCodeUseExpirationDates() then
@@ -1809,6 +1805,12 @@
         field(6504; "Serial No. Filter"; Code[50])
         {
             Caption = 'Serial No. Filter';
+            FieldClass = FlowFilter;
+        }
+        field(6515; "Package No. Filter"; Code[30])
+        {
+            Caption = 'Package No. Filter';
+            CaptionClass = '6,3';
             FieldClass = FlowFilter;
         }
         field(6650; "Qty. on Purch. Return"; Decimal)
@@ -2011,35 +2013,9 @@
         field(11792; "Full Description"; Text[250])
         {
             Caption = 'Full Description';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            var
-                ToModify: Boolean;
-            begin
-                if (Description = CopyStr(xRec."Full Description", 1, MaxStrLen(Description))) or (Description = '') then
-                    Validate(Description, CopyStr("Full Description", 1, MaxStrLen(Description)))
-                else begin
-                    if "Created From Nonstock Item" then begin
-                        NonstockItem.SetCurrentKey("Item No.");
-                        NonstockItem.SetRange("Item No.", "No.");
-                        if NonstockItem.FindFirst then begin
-                            if NonstockItem.Description = '' then begin
-                                NonstockItem.Description := Description;
-                                ToModify := true;
-                            end;
-                            if NonstockItem."Full Description" = '' then begin
-                                NonstockItem."Full Description" := "Full Description";
-                                ToModify := true;
-                            end;
-                            if ToModify then
-                                NonstockItem.Modify();
-                        end;
-                    end;
-                end
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31060; "Statistic Indication"; Code[10])
         {
@@ -2053,6 +2029,9 @@
         {
             Caption = 'Specific Movement';
             TableRelation = "Specific Movement".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(99000750; "Routing No."; Code[20])
         {
@@ -2331,13 +2310,13 @@
                                     TempReservationEntry.Insert();
                                 end else
                                     ReservEntry.Delete();
-                        until ReservEntry.Next = 0;
+                        until ReservEntry.Next() = 0;
 
                     if TempReservationEntry.Find('-') then
                         repeat
                             ReservEntry := TempReservationEntry;
                             ReservEntry.Modify();
-                        until TempReservationEntry.Next = 0;
+                        until TempReservationEntry.Next() = 0;
                 end;
             end;
         }
@@ -2457,6 +2436,9 @@
         key(Key17; SystemModifiedAt)
         {
         }
+        key(Key18; GTIN)
+        {
+        }
     }
 
     fieldgroups
@@ -2472,7 +2454,6 @@
     trigger OnDelete()
     var
         PlanningComponent: Record "Planning Component";
-        ItemPackageMaterial: Record "Item Package Material";
     begin
         ApprovalsMgmt.OnCancelItemApprovalRequest(Rec);
 
@@ -2482,16 +2463,13 @@
         // NAVCZ
         PlanningComponent.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date", "Planning Line Origin");
         PlanningComponent.SetRange("Item No.", "No.");
-        if not PlanningComponent.IsEmpty then
+        if not PlanningComponent.IsEmpty() then
             Error(PlanningCompErr, TableCaption, "No.");
         // NAVCZ
 
         MoveEntries.MoveItemEntries(Rec);
 
         DeleteRelatedData;
-
-        ItemPackageMaterial.SetRange("Item No.", "No."); // NAVCZ
-        ItemPackageMaterial.DeleteAll(); // NAVCZ
     end;
 
     trigger OnInsert()
@@ -2721,7 +2699,7 @@
         MyItem.SetRange("Item No.", "No.");
         MyItem.DeleteAll();
 
-        if not SocialListeningSearchTopic.IsEmpty then begin
+        if not SocialListeningSearchTopic.IsEmpty() then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Item, "No.");
             SocialListeningSearchTopic.DeleteAll();
         end;
@@ -2803,7 +2781,7 @@
         if not IsHandled then begin
             ItemLedgEntry.SetCurrentKey("Item No.");
             ItemLedgEntry.SetRange("Item No.", "No.");
-            if not ItemLedgEntry.IsEmpty then
+            if not ItemLedgEntry.IsEmpty() then
                 Error(Text007, CurrentFieldName);
         end;
 
@@ -2838,7 +2816,7 @@
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         ItemLedgEntry.SetRange("Item No.", "No.");
         ItemLedgEntry.SetRange(Open, true);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text019,
               CurrentFieldName);
@@ -2921,7 +2899,7 @@
         ProdOrderLine.SetCurrentKey(Status, "Item No.");
         ProdOrderLine.SetFilter(Status, '..%1', ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Item No.", "No.");
-        if not ProdOrderLine.IsEmpty then
+        if not ProdOrderLine.IsEmpty() then
             exit(true);
 
         exit(false);
@@ -2968,7 +2946,7 @@
         ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(Text026, FieldCaption("Inventory Value Zero"), TableCaption);
     end;
 
@@ -3009,7 +2987,7 @@
     local procedure CheckItemJnlLine(CurrFieldNo: Integer)
     begin
         ItemJnlLine.SetRange("Item No.", "No.");
-        if not ItemJnlLine.IsEmpty then begin
+        if not ItemJnlLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", ItemJnlLine.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3024,7 +3002,7 @@
         StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::Item);
         StdCostWksh.SetRange("No.", "No.");
-        if not StdCostWksh.IsEmpty then
+        if not StdCostWksh.IsEmpty() then
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", StdCostWksh.TableCaption);
     end;
@@ -3034,7 +3012,7 @@
         RequisitionLine.SetCurrentKey(Type, "No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", "No.");
-        if not RequisitionLine.IsEmpty then begin
+        if not RequisitionLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", RequisitionLine.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3070,7 +3048,7 @@
         BOMComp.SetCurrentKey(Type, "No.");
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetRange("No.", "No.");
-        if not BOMComp.IsEmpty then begin
+        if not BOMComp.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", BOMComp.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3128,7 +3106,7 @@
         ProdOrderComp.SetCurrentKey(Status, "Item No.");
         ProdOrderComp.SetFilter(Status, '..%1', ProdOrderComp.Status::Released);
         ProdOrderComp.SetRange("Item No.", "No.");
-        if not ProdOrderComp.IsEmpty then begin
+        if not ProdOrderComp.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text014, TableCaption, "No.");
             if CurrFieldNo = FieldNo(Type) then
@@ -3142,7 +3120,7 @@
     begin
         PlanningComponent.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date", "Planning Line Origin");
         PlanningComponent.SetRange("Item No.", "No.");
-        if not PlanningComponent.IsEmpty then begin
+        if not PlanningComponent.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", PlanningComponent.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3154,7 +3132,7 @@
     begin
         TransLine.SetCurrentKey("Item No.");
         TransLine.SetRange("Item No.", "No.");
-        if not TransLine.IsEmpty then begin
+        if not TransLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text016, TableCaption, "No.");
             if CurrFieldNo = FieldNo(Type) then
@@ -3168,7 +3146,7 @@
         ServInvLine.SetCurrentKey(Type, "No.");
         ServInvLine.SetRange(Type, ServInvLine.Type::Item);
         ServInvLine.SetRange("No.", "No.");
-        if not ServInvLine.IsEmpty then begin
+        if not ServInvLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text017, TableCaption, "No.", ServInvLine."Document Type");
             if CurrFieldNo = FieldNo(Type) then
@@ -3197,7 +3175,7 @@
                        (ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified)
                     then
                         Error(CannotDeleteItemIfProdBOMVersionExistsErr, TableCaption, "No.");
-                until ProdBOMLine.Next = 0;
+                until ProdBOMLine.Next() = 0;
         end;
     end;
 
@@ -3205,7 +3183,7 @@
     begin
         ServiceContractLine.Reset();
         ServiceContractLine.SetRange("Item No.", "No.");
-        if not ServiceContractLine.IsEmpty then begin
+        if not ServiceContractLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", ServiceContractLine.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3219,7 +3197,7 @@
     begin
         AsmHeader.SetCurrentKey("Document Type", "Item No.");
         AsmHeader.SetRange("Item No.", "No.");
-        if not AsmHeader.IsEmpty then begin
+        if not AsmHeader.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", AsmHeader.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3234,7 +3212,7 @@
         AsmLine.SetCurrentKey(Type, "No.");
         AsmLine.SetRange(Type, AsmLine.Type::Item);
         AsmLine.SetRange("No.", "No.");
-        if not AsmLine.IsEmpty then begin
+        if not AsmLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", AsmLine.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3295,7 +3273,7 @@
         JobPlanningLine.SetCurrentKey(Type, "No.");
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.SetRange("No.", "No.");
-        if not JobPlanningLine.IsEmpty then begin
+        if not JobPlanningLine.IsEmpty() then begin
             if CurrFieldNo = 0 then
                 Error(Text023, TableCaption, "No.", JobPlanningLine.TableCaption);
             if CurrFieldNo = FieldNo(Type) then
@@ -3339,7 +3317,7 @@
         ItemLedgerEntry.SetCurrentKey("Item No.", Open);
         ItemLedgerEntry.SetRange("Item No.", "No.");
         ItemLedgerEntry.SetRange(Open, true);
-        if not ItemLedgerEntry.IsEmpty then
+        if not ItemLedgerEntry.IsEmpty() then
             FieldError("Inventory Posting Group", ErrorMessage);
 
         ItemLedgerEntry.SetRange(Open);
@@ -3347,7 +3325,7 @@
             repeat
                 if ItemLedgerEntry.Quantity <> ItemLedgerEntry."Invoiced Quantity" then
                     FieldError("Inventory Posting Group", ErrorMessage);
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     procedure GetItemNo(ItemText: Text): Code[20]
@@ -3388,8 +3366,7 @@
         exit(TryGetItemNoOpenCardWithView(ReturnValue, ItemText, DefaultCreate, ShowItemCard, ShowCreateItemOption, ItemView.GetView));
     end;
 
-    [Scope('Internal')]
-    procedure TryGetItemNoOpenCardWithView(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean; View: Text): Boolean
+    internal procedure TryGetItemNoOpenCardWithView(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean; View: Text): Boolean
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -3525,7 +3502,7 @@
         exit(Item."No.");
     end;
 
-    local procedure SetLastDateTimeModified()
+    procedure SetLastDateTimeModified()
     begin
         "Last DateTime Modified" := CurrentDateTime;
         "Last Date Modified" := DT2Date("Last DateTime Modified");

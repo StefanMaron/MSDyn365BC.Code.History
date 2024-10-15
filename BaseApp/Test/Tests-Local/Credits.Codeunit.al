@@ -194,7 +194,7 @@ codeunit 145000 Credits
         // 3. Verify:
 
         CreditLine.SetRange("Credit No.", CreditHeader."No.");
-        CreditLine.FindSet;
+        CreditLine.FindSet();
         CreditLine.TestField("Document Type", CreditLine."Document Type"::"Credit Memo");
         CreditLine.TestField("Document No.", PostedDocNo[2]);
         CreditLine.TestField(Amount, -Amount[2]);

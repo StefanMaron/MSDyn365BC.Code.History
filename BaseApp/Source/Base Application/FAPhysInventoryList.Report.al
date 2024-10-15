@@ -1,10 +1,14 @@
+#if not CLEAN18
 report 31045 "FA Phys. Inventory List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAPhysInventoryList.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'FA Phys. Inventory List';
+    Caption = 'FA Phys. Inventory List (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -510,4 +514,4 @@ report 31045 "FA Phys. Inventory List"
         end;
     end;
 }
-
+#endif

@@ -26,6 +26,10 @@ page 5607 "Fixed Asset Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the default tax deprecation book.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Allow Posting to Main Assets"; "Allow Posting to Main Assets")
                 {
@@ -58,29 +62,19 @@ page 5607 "Fixed Asset Setup"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies this option to initialize the fixed asset history report.';
-                }
-                field("FA Disposal By Reason Code"; "FA Disposal By Reason Code")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies to allow a fixed asset disposal by reason code.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("FA Acquisition As Custom 2"; "FA Acquisition As Custom 2")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to use fixed asset acquisition as custom field 2. This option allows a two-step acquisition process.';
-                }
-                field("FA Maintenance By Maint. Code"; "FA Maintenance By Maint. Code")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies to allow a fixed asset maintenance by reason code.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Numbering)

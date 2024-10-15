@@ -1655,7 +1655,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetHeaderArchive.TestField("Resource No.", Resource."No.");
 
         TimeSheetLineArchive.SetRange("Time Sheet No.", TimeSheetHeaderArchive."No.");
-        TimeSheetLineArchive.FindSet;
+        TimeSheetLineArchive.FindSet();
         TimeSheetLineArchive.TestField(Type, TimeSheetLineArchive.Type::Resource);
         ValidateArchiveTimeAllocation(DayTimeAllocation1, TimeSheetHeaderArchive, TimeSheetLineArchive);
 
@@ -1860,7 +1860,7 @@ codeunit 136503 "RES Time Sheets Creation"
         PostResourceJournal(ResJnlLine, TimeSheetHeader);
         // 9. Validate both Time Sheet lines have Posted = True
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindSet;
+        TimeSheetLine.FindSet();
         repeat
             TimeSheetLine.TestField(Posted, true);
         until TimeSheetLine.Next = 0;
@@ -2551,7 +2551,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TempDate := CalcDate('<-1D>', Date);
 
         ResJournalLine.SetRange("Resource No.", Resource."No.");
-        ResJournalLine.FindSet;
+        ResJournalLine.FindSet();
 
         for Counter := 1 to ExtCount do begin
             TempDate := CalcDate('<+1D>', TempDate);

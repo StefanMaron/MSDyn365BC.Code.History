@@ -91,7 +91,7 @@ table 752 "Standard Item Journal"
             repeat
                 UpdateWindow;
                 CopyItemJnlFromStdJnl(StdItemJnlLine);
-            until StdItemJnlLine.Next = 0;
+            until StdItemJnlLine.Next() = 0;
     end;
 
     local procedure CopyItemJnlFromStdJnl(StdItemJnlLine: Record "Standard Item Journal Line")
@@ -161,7 +161,7 @@ table 752 "Standard Item Journal"
                 UpdateWindow;
                 StdItemJnlLine.TestField("Entry Type", StdItemJnlLine."Entry Type"::Transfer);
                 CopyItemJnlFromStdJnl(StdItemJnlLine);
-            until StdItemJnlLine.Next = 0;
+            until StdItemJnlLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

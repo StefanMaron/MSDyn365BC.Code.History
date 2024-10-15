@@ -2,15 +2,20 @@ table 49 "Invoice Post. Buffer"
 {
     Caption = 'Invoice Post. Buffer';
     ReplicateData = false;
+#if CLEAN18
+        TableType = Temporary;
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
+    ObsoleteReason = 'This table will be marked as temporary. Please ensure you do not store any data in the table.';
+#endif
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Invoice Posting Line Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Prepmt. Exch. Rate Difference,G/L Account,Item,Resource,Fixed Asset';
-            OptionMembers = "Prepmt. Exch. Rate Difference","G/L Account",Item,Resource,"Fixed Asset";
         }
         field(2; "G/L Account"; Code[20])
         {
@@ -263,19 +268,25 @@ table 49 "Invoice Post. Buffer"
             Caption = 'Description';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -283,45 +294,54 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             MaxValue = 100;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             Caption = 'VAT Base (Non Deductible)';
             DataClassification = SystemMetadata;
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             Caption = 'VAT Amount (Non Deductible)';
             DataClassification = SystemMetadata;
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11770; "Ext. Amount"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext. Amount';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11771; "Ext. Amount Including VAT"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext. Amount Including VAT';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11772; "Ext. VAT Difference (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext. VAT Difference (LCY)';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -362,7 +382,7 @@ table 49 "Invoice Post. Buffer"
         OnBeforePrepareSales(Rec, SalesLine);
 
         Clear(Rec);
-        Type := SalesLine.Type.AsInteger();
+        Type := SalesLine.Type;
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := SalesLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
@@ -447,14 +467,6 @@ table 49 "Invoice Post. Buffer"
         Amount := "VAT Base Amount";
         "Amount (ACY)" := "VAT Base Amount (ACY)";
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
-        // NAVCZ
-        if "VAT % (Non Deductible)" <> 0 then begin
-            "VAT Base (Non Deductible)" :=
-              Round("VAT Base Amount" * "VAT % (Non Deductible)" / 100, CurrencyLCY."Amount Rounding Precision");
-            "VAT Amount (Non Deductible)" :=
-              Round("VAT Amount" * "VAT % (Non Deductible)" / 100, CurrencyLCY."Amount Rounding Precision");
-        end;
-        // NAVCZ
     end;
 
     local procedure CalcVATAmount(ValueInclVAT: Boolean; Value: Decimal; VATPercent: Decimal): Decimal
@@ -493,7 +505,7 @@ table 49 "Invoice Post. Buffer"
         PurchHeader: Record "Purchase Header";
     begin
         Clear(Rec);
-        Type := PurchLine.Type.AsInteger();
+        Type := PurchLine.Type;
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";
@@ -543,9 +555,6 @@ table 49 "Invoice Post. Buffer"
         "VAT Date" := PurchHeader."VAT Date";
         "Original Document VAT Date" := PurchHeader."Original Document VAT Date";
         Correction := PurchHeader.Correction xor PurchLine.Negative;
-        "VAT % (Non Deductible)" := PurchLine."VAT % (Non Deductible)";
-        "VAT Base (Non Deductible)" := PurchLine."VAT Base (Non Deductible)";
-        "VAT Amount (Non Deductible)" := PurchLine."VAT Amount (Non Deductible)";
         // NAVCZ
 
         OnAfterInvPostBufferPreparePurchase(PurchLine, Rec);
@@ -593,10 +602,6 @@ table 49 "Invoice Post. Buffer"
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
-        // NAVCZ
-        "VAT Base (Non Deductible)" := -"VAT Base (Non Deductible)";
-        "VAT Amount (Non Deductible)" := -"VAT Amount (Non Deductible)";
-        // NAVCZ
     end;
 
     procedure SetAmountsNoVAT(TotalAmount: Decimal; TotalAmountACY: Decimal; VATDifference: Decimal)
@@ -706,8 +711,6 @@ table 49 "Invoice Post. Buffer"
             "Ext. Amount" += InvoicePostBuffer."Ext. Amount";
             "Ext. Amount Including VAT" += InvoicePostBuffer."Ext. Amount Including VAT";
             "Ext. VAT Difference (LCY)" += InvoicePostBuffer."Ext. VAT Difference (LCY)";
-            "VAT Base (Non Deductible)" += InvoicePostBuffer."VAT Base (Non Deductible)";
-            "VAT Amount (Non Deductible)" += InvoicePostBuffer."VAT Amount (Non Deductible)";
             // NAVCZ
             if not InvoicePostBuffer."System-Created Entry" then
                 "System-Created Entry" := false;
@@ -802,6 +805,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure SetExtAmounts(ExtAmount: Decimal; ExtAmountInclVAT: Decimal; ExtVATDiffLCY: Decimal)
     begin
         // NAVCZ
@@ -811,24 +815,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure UpdateNonDeductable(var TotalNonDeductBase: Decimal; var TotalNonDeductVAT: Decimal)
-    begin
-        // NAVCZ
-        TotalNonDeductBase := TotalNonDeductBase - "VAT Base (Non Deductible)";
-        TotalNonDeductVAT := TotalNonDeductVAT - "VAT Amount (Non Deductible)";
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure SetNonDeductable(TotalNonDeductBase: Decimal; TotalNonDeductVAT: Decimal)
-    begin
-        // NAVCZ
-        "VAT Base (Non Deductible)" := TotalNonDeductBase;
-        "VAT Amount (Non Deductible)" := TotalNonDeductVAT;
-    end;
-
-    [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '18.0')]
     procedure SetVATDifferenceLCY(NewVATDifferenceLCY: Decimal)
     begin
         // NAVCZ

@@ -36,7 +36,7 @@ codeunit 134020 "ERM Accounts"
         Initialize;
         BalAccount.SetRange("Direct Posting", true);
         BalAccount.SetRange("Account Type", BalAccount."Account Type"::Posting);
-        BalAccount.FindSet;
+        BalAccount.FindSet();
         BalAccount.Next(LibraryRandom.RandInt(BalAccount.Count));
 
         // Test a random direct posting accounts.

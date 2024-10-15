@@ -117,8 +117,17 @@ table 7322 "Posted Whse. Shipment Header"
     }
 
     trigger OnDelete()
+    var
+        PostedWhseShptLine: Record "Posted Whse. Shipment Line";
+        WhseCommentLine: Record "Warehouse Comment Line";
     begin
-        Error(DeleteErr); // NAVCZ
+        PostedWhseShptLine.SetRange("No.", "No.");
+        PostedWhseShptLine.DeleteAll();
+
+        WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Whse. Shipment");
+        WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
+        WhseCommentLine.SetRange("No.", "No.");
+        WhseCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -140,7 +149,6 @@ table 7322 "Posted Whse. Shipment Header"
         WhseSetup: Record "Warehouse Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Text000: Label 'You must first set up user %1 as a warehouse employee.';
-        DeleteErr: Label 'Posted document cannot be deleted.';
 
     procedure LookupPostedWhseShptHeader(var PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
@@ -219,7 +227,7 @@ table 7322 "Posted Whse. Shipment Header"
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text000, UserId);
         end;
     end;

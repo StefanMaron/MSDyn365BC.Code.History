@@ -15,14 +15,13 @@ table 277 "Bank Account Posting Group"
         {
             Caption = 'G/L Bank Account No.';
             ObsoleteReason = 'Moved to G/L Account No.';
+#if SLICE3771430
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '15.0';
-            TableRelation = "G/L Account";
-
-            trigger OnValidate()
-            begin
-                CheckGLAcc("G/L Bank Account No.");
-            end;
+#endif
         }
         field(3; "G/L Account No."; Code[20])
         {
@@ -77,17 +76,18 @@ table 277 "Bank Account Posting Group"
         BankAccount.SetRange("Bank Acc. Posting Group", Code);
         BankAccount.CalcFields(Balance);
         BankAccount.SetFilter(Balance, '<>0');
-        if not BankAccount.IsEmpty then
+        if not BankAccount.IsEmpty() then
             if not Confirm(ChangeQst, false, FieldCaption("G/L Account No."), BankAccount.FieldCaption(Balance)) then
                 Error('');
         BankAccount.SetRange(Balance);
         BankAccount.CalcFields("Balance (LCY)");
         BankAccount.SetFilter("Balance (LCY)", '<>0');
-        if not BankAccount.IsEmpty then
+        if not BankAccount.IsEmpty() then
             if not Confirm(ChangeQst, false, FieldCaption("G/L Account No."), BankAccount.FieldCaption("Balance (LCY)")) then
                 Error('');
     end;
 
+    [Obsolete('Get the value from the "G/L Account No. field directly."', '18.0')]
     procedure GetGLBankAccountNo(): Code[20]
     begin
         TestField("G/L Account No.");

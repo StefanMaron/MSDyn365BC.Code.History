@@ -97,6 +97,7 @@ table 31120 "EET Service Setup"
         URLOptionsQst: Label '&Production environment URL,&Non-production environment URL';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure SetURLToDefault(ShowDialog: Boolean)
     var
         EETServiceMgt: Codeunit "EET Service Mgt.";
@@ -141,6 +142,7 @@ table 31120 "EET Service Setup"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure ShowJobQueueEntry()
     var
         JobQueueEntry: Record "Job Queue Entry";

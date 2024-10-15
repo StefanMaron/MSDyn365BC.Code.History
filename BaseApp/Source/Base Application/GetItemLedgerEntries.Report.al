@@ -1,8 +1,11 @@
-report 594 "Get Item Ledger Entries"
+﻿report 594 "Get Item Ledger Entries"
 {
-    Caption = 'Get Item Ledger Entries';
+    Caption = 'Get Item Ledger Entries (Obsolete)';
     Permissions = TableData "General Posting Setup" = imd;
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -35,7 +38,7 @@ report 594 "Get Item Ledger Entries"
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
-                                until ItemLedgEntry.Next = 0;
+                                until ItemLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -61,7 +64,6 @@ report 594 "Get Item Ledger Entries"
                         SetFilter("Country/Region Code", '%1|%2', "Country/Region".Code, '');
                     end else
                         SetRange("Country/Region Code", "Country/Region".Code);
-                    SetRange("Perform. Country/Region Code", IntrastatJnlBatch."Perform. Country/Region Code"); // NAVCZ
 
                     IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                     IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"Item Entry");
@@ -151,7 +153,7 @@ report 594 "Get Item Ledger Entries"
                                     repeat
                                         if IsItemLedgerEntryCorrected(ItemLedgEntry, "Item Ledger Entry"."Entry No.") then
                                             CurrReport.Skip();
-                                    until ItemLedgEntry.Next = 0;
+                                    until ItemLedgEntry.Next() = 0;
                             end;
                         end;
                         // NAVCZ
@@ -262,8 +264,6 @@ report 594 "Get Item Ledger Entries"
     end;
 
     trigger OnPreReport()
-    var
-        RegCountry: Record "Registration Country/Region";
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
@@ -293,9 +293,6 @@ report 594 "Get Item Ledger Entries"
         end;
         IndirectCostPctReq := StatReportingSetup."Cost Regulation %";
         IntrExchRateMandatory := StatReportingSetup."Intrastat Exch.Rate Mandatory";
-        if IntrastatJnlBatch."Perform. Country/Region Code" <> '' then
-            if RegCountry.Get(RegCountry."Account Type"::"Company Information", '', IntrastatJnlBatch."Perform. Country/Region Code") then
-                IntrExchRateMandatory := RegCountry."Intrastat Exch.Rate Mandatory";
         // NAVCZ
     end;
 
@@ -625,7 +622,7 @@ report 594 "Get Item Ledger Entries"
                                     Location.Get(ItemLedgEntry2."Location Code");
                                     if Location."Use As In-Transit" then
                                         Include := true;
-                                until Include or (ItemLedgEntry2.Next = 0);
+                                until Include or (ItemLedgEntry2.Next() = 0);
                             if not Include then
                                 exit(false);
                         end;
@@ -861,8 +858,8 @@ report 594 "Get Item Ledger Entries"
                         if ValueEntry."Incl. in Intrastat Stat. Value" then
                             CalcTotalsForItemCharge(TotalICAmt[2], TotalICCostAmt[2], TotalICAmtExpected[2], TotalICCostAmtExpected[2]);
                     end;
-                    // NAVCZ
-                until ValueEntry.Next = 0;
+                // NAVCZ
+                until ValueEntry.Next() = 0;
 
             if Quantity <> TotalInvoicedQty then begin
                 TotalAmt := TotalAmt + TotalAmtExpected;
@@ -951,6 +948,7 @@ report 594 "Get Item Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalcTotalsForItemCharge(var TotalICAmt1: Decimal; var TotalICCostAmt1: Decimal; var TotalICAmtExpected1: Decimal; var TotalICCostAmtExpected1: Decimal)
     begin
         // NAVCZ
@@ -976,6 +974,7 @@ report 594 "Get Item Ledger Entries"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CalcDataForItemJnlLine()
     begin
@@ -1017,6 +1016,7 @@ report 594 "Get Item Ledger Entries"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CalcDataForJobJnlLine()
     begin
@@ -1058,6 +1058,7 @@ report 594 "Get Item Ledger Entries"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CalcStatValue()
     var
@@ -1117,7 +1118,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := SalesShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesShptHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := SalesShptHeader."Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := SalesShptHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Sales Invoice":
                 if SalesInvoiceHeader.Get(DocumentNo) then begin
@@ -1125,7 +1125,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := SalesInvoiceHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesInvoiceHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := SalesInvoiceHeader."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := SalesInvoiceHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Sales Credit Memo":
                 if SalesCrMemoHeader.Get(DocumentNo) then begin
@@ -1133,7 +1132,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := SalesCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesCrMemoHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := SalesCrMemoHeader."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := SalesCrMemoHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Sales Return Receipt":
                 if ReturnRcptHeader.Get(DocumentNo) then begin
@@ -1141,7 +1139,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := ReturnRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnRcptHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := ReturnRcptHeader."Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := ReturnRcptHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Service Shipment":
                 if ServiceShptHeader.Get(DocumentNo) then begin
@@ -1149,7 +1146,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := ServiceShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceShptHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := ServiceShptHeader."Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := ServiceShptHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Service Invoice":
                 if ServiceInvHeader.Get(DocumentNo) then begin
@@ -1157,7 +1153,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := ServiceInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceInvHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := ServiceInvHeader."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := ServiceInvHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Service Credit Memo":
                 if ServiceCrMemoHeader.Get(DocumentNo) then begin
@@ -1165,7 +1160,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := ServiceCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceCrMemoHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := ServiceCrMemoHeader."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := ServiceCrMemoHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Purchase Receipt":
                 if PurchRcptHeader.Get(DocumentNo) then begin
@@ -1173,7 +1167,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := PurchRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchRcptHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := PurchRcptHeader."Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := PurchRcptHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Purchase Invoice":
                 if PurchInvHeader.Get(DocumentNo) then begin
@@ -1181,7 +1174,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := PurchInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchInvHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := PurchInvHeader."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := PurchInvHeader."Perform. Country/Region Code";
                 end;
             DocumentType::"Purchase Credit Memo":
                 if PurchCrMemoHdr.Get(DocumentNo) then begin
@@ -1189,7 +1181,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := PurchCrMemoHdr."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchCrMemoHdr."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := PurchCrMemoHdr."VAT Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := PurchCrMemoHdr."Perform. Country/Region Code";
                 end;
             DocumentType::"Purchase Return Shipment":
                 if ReturnShptHeader.Get(DocumentNo) then begin
@@ -1197,7 +1188,6 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Currency Code" := ReturnShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnShptHeader."Currency Factor";
                     TempSalesHeader."VAT Currency Factor" := ReturnShptHeader."Currency Factor";
-                    TempSalesHeader."Perform. Country/Region Code" := ReturnShptHeader."Perform. Country/Region Code";
                 end;
             else
                 exit(false);
@@ -1207,8 +1197,7 @@ report 594 "Get Item Ledger Entries"
           (TempSalesHeader."Posting Date" <> 0D) or
           (TempSalesHeader."Currency Code" <> '') or
           (TempSalesHeader."Currency Factor" <> 0) or
-          (TempSalesHeader."VAT Currency Factor" <> 0) or
-          (TempSalesHeader."Perform. Country/Region Code" <> ''));
+          (TempSalesHeader."VAT Currency Factor" <> 0));
     end;
 
     local procedure GetDocumentFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var TempSalesHeader: Record "Sales Header" temporary): Boolean
@@ -1230,15 +1219,11 @@ report 594 "Get Item Ledger Entries"
             exit(GetDocument("Document Type", "Document No.", TempSalesHeader));
     end;
 
-    local procedure CalculateExchangeRate(PostingDate: Date; PerformCountryCode: Code[10]; CurrencyCode: Code[10]; VATCurrencyFactor: Decimal): Decimal
+    local procedure CalculateExchangeRate(PostingDate: Date; CurrencyCode: Code[10]; VATCurrencyFactor: Decimal): Decimal
     var
         IntrastatCurrExchRate: Record "Intrastat Currency Exch. Rate";
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
     begin
         // NAVCZ
-        if PerformCountryCode <> '' then
-            exit(PerfCountryCurrExchRate.ExchangeRateIntrastat(StartDate, PostingDate, PerformCountryCode, CurrencyCode));
-
         if not IgnoreInstrastatExchangeRate(PostingDate) then begin
             if IntrExchRateMandatory then
                 exit(1 / IntrastatCurrExchRate.xExchangeRateMandatory(StartDate, PostingDate, CurrencyCode));
@@ -1255,8 +1240,7 @@ report 594 "Get Item Ledger Entries"
     begin
         // NAVCZ
         with TempSalesHeader do
-            exit(CalculateExchangeRate(
-                "Posting Date", "Perform. Country/Region Code", "Currency Code", "VAT Currency Factor"));
+            exit(CalculateExchangeRate("Posting Date", "Currency Code", "VAT Currency Factor"));
     end;
 
     local procedure CalculateExchangeAmount(Amount: Decimal; DocumentCurrencyFactor: Decimal; IntrastatCurrencyFactor: Decimal): Decimal
@@ -1267,6 +1251,7 @@ report 594 "Get Item Ledger Entries"
         exit(Amount);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CalculateTotals2(ValueEntry2: Record "Value Entry")
     begin

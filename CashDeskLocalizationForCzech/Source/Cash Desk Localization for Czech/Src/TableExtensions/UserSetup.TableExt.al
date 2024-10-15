@@ -35,4 +35,22 @@ tableextension 11780 "User Setup CZP" extends "User Setup"
             end;
         }
     }
+
+    procedure GetDefaultCashDeskApprovalLimitCZP(): Integer
+    var
+        UserSetup: Record "User Setup";
+        DefaultApprovalLimit: Integer;
+        LimitedApprovers: Integer;
+    begin
+        UserSetup.SetRange("Unlimited Cash Desk Appr. CZP", false);
+
+        if UserSetup.FindFirst() then begin
+            DefaultApprovalLimit := UserSetup."Cash Desk Amt. Appr. Limit CZP";
+            LimitedApprovers := UserSetup.Count();
+            UserSetup.SetRange("Cash Desk Amt. Appr. Limit CZP", DefaultApprovalLimit);
+            if LimitedApprovers = UserSetup.Count() then
+                exit(DefaultApprovalLimit);
+        end;
+        exit(0);
+    end;
 }

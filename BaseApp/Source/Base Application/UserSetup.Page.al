@@ -19,12 +19,17 @@ page 119 "User Setup"
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                 }
+#if not CLEAN18
                 field("Employee No."; "Employee No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the connectivity between User ID and employee number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Allow Posting From"; "Allow Posting From")
                 {
                     ApplicationArea = Basic, Suite;
@@ -83,12 +88,17 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a user is a time sheet administrator. A time sheet administrator can access any time sheet and then edit, change, or delete it.';
                 }
+#if not CLEAN18
                 field("Allow Item Unapply"; "Allow Item Unapply")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow item apply.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Cash Resp. Ctr. Filter"; "Cash Resp. Ctr. Filter")
                 {
                     ApplicationArea = Basic, Suite;
@@ -108,71 +118,125 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check Bank Statemsnts allowed for posting (set in lines) for selected user.';
                 }
+#if not CLEAN18
                 field("Check Document Date(work date)"; "Check Document Date(work date)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check document date (work date) allowed for posting (set in lines).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Document Date(sys. date)"; "Check Document Date(sys. date)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check document date (system date) allowed for posting (set in lines).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Posting Date (work date)"; "Check Posting Date (work date)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check posting date (work date) allowed for posting (set in lines).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Posting Date (sys. date)"; "Check Posting Date (sys. date)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check posting date (system date) allowed for posting (set in lines).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Bank Accounts"; "Check Bank Accounts")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check Bank Accounts allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Journal Templates"; "Check Journal Templates")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check journal templates allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Dimension Values"; "Check Dimension Values")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check Dimension Values allowed for posting (set in lines).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Allow Posting to Closed Period"; "Allow Posting to Closed Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow posting to closed period.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Allow Complete Job"; "Allow Complete Job")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow complete job.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("User Name"; "User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the short name for the user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Location Code"; "Check Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check location code allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Release Location Code"; "Check Release Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check release location code allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Whse. Net Change Temp."; "Check Whse. Net Change Temp.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check whse. net change templates allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
                 field(Email; "E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
@@ -202,11 +266,13 @@ page 119 "User Setup"
 
     actions
     {
+#if not CLEAN18
         area(navigation)
         {
             group("U&ser Check")
             {
                 Caption = 'U&ser Check';
+                Visible = false;
                 action(Card)
                 {
                     ApplicationArea = Basic, Suite;
@@ -216,6 +282,10 @@ page 119 "User Setup"
                     RunPageLink = "User ID" = FIELD("User ID");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Specifies the user setup card.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 action(Lines)
                 {
@@ -225,6 +295,10 @@ page 119 "User Setup"
                     RunObject = Page "User Setup Lines";
                     RunPageLink = "User ID" = FIELD("User ID");
                     ToolTip = 'Specifies the lines for another user setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 action(Dimensions)
                 {
@@ -233,6 +307,10 @@ page 119 "User Setup"
                     Image = Dimensions;
                     ShortCutKey = 'Shift+Ctrl+D';
                     ToolTip = 'Specifies the dimensions related to the user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -243,11 +321,13 @@ page 119 "User Setup"
                 }
             }
         }
+
         area(processing)
         {
             group("F&unctions")
             {
                 Caption = 'F&unctions';
+                Visible = false;
                 action("Copy User Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -255,6 +335,10 @@ page 119 "User Setup"
                     Ellipsis = true;
                     Image = Copy;
                     ToolTip = 'Allows to copy user setup from user to another user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -278,6 +362,10 @@ page 119 "User Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 ToolTip = 'Open the report for user setup.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
 
                 trigger OnAction()
                 var
@@ -292,6 +380,7 @@ page 119 "User Setup"
                 end;
             }
         }
+#endif
     }
 
     trigger OnOpenPage()

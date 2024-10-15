@@ -1,4 +1,4 @@
-﻿table 570 "G/L Account Category"
+table 570 "G/L Account Category"
 {
     Caption = 'G/L Account Category';
     DataCaptionFields = Description;
@@ -261,7 +261,7 @@
                 GLAccountCategory."Account Category" := ParentGLAccountCategory."Account Category";
                 GLAccountCategory.UpdatePresentationOrder;
                 UpdateDescendants(GLAccountCategory);
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
     end;
 
     procedure MakeChildOfPreviousSibling()
@@ -290,7 +290,7 @@
         if GLAccountCategory.FindSet then
             repeat
                 GLAccountCategory.DeleteRow;
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
     end;
 
     procedure MapAccounts()
@@ -316,7 +316,7 @@
             repeat
                 GLAccount.Validate("Account Subcategory Entry No.", "Entry No.");
                 GLAccount.Modify(true);
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
         end else
             ClearGLAccountSubcategoryEntryNo(OldTotaling, "Income/Balance");
 
@@ -373,7 +373,7 @@
                 if GLAccountCategory.FindSet then
                     repeat
                         Balance += GLAccountCategory.GetBalance;
-                    until GLAccountCategory.Next = 0;
+                    until GLAccountCategory.Next() = 0;
             end;
         end;
         TotalingStr := GetTotaling;

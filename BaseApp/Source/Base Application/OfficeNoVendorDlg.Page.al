@@ -26,11 +26,9 @@ page 1628 "Office No Vendor Dlg"
                     ToolTip = 'Specifies a new vendor for the contact.';
 
                     trigger OnDrillDown()
-                    var
-                        VendorTemplateCode: Code[10];
                     begin
-                        CreateVendor(VendorTemplateCode);
-                        CurrPage.Close;
+                        CreateVendor();
+                        CurrPage.Close();
                     end;
                 }
                 field(ViewVendList; ViewVendListLbl)
@@ -44,7 +42,7 @@ page 1628 "Office No Vendor Dlg"
                     var
                         Vendor: Record Vendor;
                     begin
-                        PAGE.Run(PAGE::"Vendor List", Vendor);
+                        Page.Run(Page::"Vendor List", Vendor);
                     end;
                 }
             }

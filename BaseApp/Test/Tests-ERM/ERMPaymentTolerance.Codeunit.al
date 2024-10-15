@@ -4364,7 +4364,7 @@ codeunit 134022 "ERM Payment Tolerance"
           ApplyingAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
     end;
 
-    local procedure FindDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Option): Boolean
+    local procedure FindDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -4373,7 +4373,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(not DetailedCustLedgEntry.IsEmpty);
     end;
 
-    local procedure FindDetailedVendorLedgEntry(VendorNo: Code[20]; EntryType: Option): Boolean
+    local procedure FindDetailedVendorLedgEntry(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -4644,7 +4644,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerCode);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Remaining Amount", 0);
         until CustLedgerEntry.Next = 0;
@@ -4656,7 +4656,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorCode);
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.TestField("Remaining Amount", 0);
         until VendorLedgerEntry.Next = 0;

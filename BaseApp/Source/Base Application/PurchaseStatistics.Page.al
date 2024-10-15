@@ -317,10 +317,14 @@ page 161 "Purchase Statistics"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         UseDate: Date;
+#if not CLEAN18
         RoundingPrecisionLCY: Decimal;
         RoundingDirectionLCY: Text[1];
+#endif
     begin
         TotalPurchLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount;
         TotalAmount1 :=
@@ -352,29 +356,24 @@ page 161 "Purchase Statistics"
             if (TotalPurchLineLCY."VAT Calculation Type" = TotalPurchLineLCY."VAT Calculation Type"::"Normal VAT") or
                (TotalPurchLineLCY."VAT Calculation Type" = TotalPurchLineLCY."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
+#if CLEAN18
+                Currency.Get("Currency Code");
+#else                
                 GLSetup.Get();
                 Currency.Get("Currency Code");
                 GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif                 
 
                 if "Prices Including VAT" then
-                    if GLSetup."Round VAT Coeff." then begin
-                        TotalPurchLineLCY.Amount :=
-                          Round(
-                            (TotalPurchLineLCY."Line Amount" - TempVATAmountLine."Invoice Discount Amount") *
-                            Round(
-                              TempVATAmountLine."VAT %" / (100 + TempVATAmountLine."VAT %"),
-                              GLSetup."VAT Coeff. Rounding Precision") *
-                            (1 - "VAT Base Discount %" / 100),
-                            Currency."Amount Rounding Precision",
-                            Currency.VATRoundingDirection);
-
-                        TotalPurchLineLCY.Amount := TotalPurchLineLCY."Line Amount" - TotalPurchLineLCY.Amount;
-                    end else
-                        TotalPurchLineLCY.Amount :=
-                          Round(
+                    TotalPurchLineLCY.Amount :=
+                        Round(
                             (TotalPurchLineLCY."Line Amount" - TempVATAmountLine."Invoice Discount Amount") /
                             (1 + TempVATAmountLine."VAT %" / 100),
+#if CLEAN18
+                            Currency."Amount Rounding Precision") - TempVATAmountLine."VAT Difference";
+#else
                             RoundingPrecisionLCY) - TempVATAmountLine."VAT Difference";
+#endif                 
             end;
             // NAVCZ
         end;
@@ -576,7 +575,7 @@ page 161 "Purchase Statistics"
                         TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
                         TempVATAmountLineTot.Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         // NAVCZ
     end;
@@ -593,7 +592,7 @@ page 161 "Purchase Statistics"
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";
                 VATBaseAmount += VATAmountLine."VAT Base";
-            until VATAmountLine.Next = 0;
+            until VATAmountLine.Next() = 0;
         // NAVCZ
     end;
 

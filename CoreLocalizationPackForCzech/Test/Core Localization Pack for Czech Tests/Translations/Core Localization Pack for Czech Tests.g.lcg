@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 406312214 - Method 3142986221 - NamedType 1432205263" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong Item Ledger Entry Application (Date Order)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Date Order Invt. Change CZL - Method PostItemWithOlderDateDisabled - NamedType WrongItemEntryApplicationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3558610481 - NamedType 3407409923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[For commodity %1 and limit %2 not allowed VAT type %3 posting.\\Item List:\%4.]]></Val>
@@ -32,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Unreliable Payer CZL - NamedType BankAccCodeNotExistQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2052133571 - NamedType 731069726" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The vendor %1 (%2) is unreliable VAT payer.\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Vendor No.;%2=VAT Registration No.]D;]A;(LookupHint=Codeunit Unreliable Payer CZL - NamedType VendUnrVATPayerQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2052133571 - NamedType 790982336" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The unreliability VAT payer status has not been checked for vendor %1 (%2).\\Do you want to continue?]]></Val>
@@ -41,13 +59,13 @@
       <Cmt Name="Dev"><![CDATA[%1=Vendor No.;%2=VAT Registration No.]D;]A;(LookupHint=Codeunit Unreliable Payer CZL - NamedType VendUnrVATPayerStatusNotCheckedQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2052133571 - NamedType 731069726" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3753419350 - Method 1030885232 - NamedType 3598109445" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The vendor %1 (%2) is unreliable VAT payer.\\Do you want to continue?]]></Val>
+      <Val><![CDATA[Closed must be equal to 'No'  in VAT Period: Starting Date=%1. Current value is 'Yes'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Vendor No.;%2=VAT Registration No.]D;]A;(LookupHint=Codeunit Unreliable Payer CZL - NamedType VendUnrVATPayerQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Starting Date of VAT period]D;]A;(LookupHint=Codeunit VAT Date CZL - Method GenJnlLinePostWithVATToClosedVATPeriod - NamedType TestClosedFieldErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

@@ -1,9 +1,10 @@
+#if not CLEAN18
 report 5610 "Fixed Asset - G/L Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetGLAnalysis.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset G/L Analysis';
+    Caption = 'Fixed Asset G/L Analysis (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -187,7 +188,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
-                        // NAVCZ
+                // NAVCZ
                 end;
 
                 FAPostingType.CreateTypes;
@@ -427,7 +428,7 @@ report 5610 "Fixed Asset - G/L Analysis"
             // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-                // NAVCZ
+        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := StrSubstNo('%1%2 %3', Text001, ': ', GroupCodeName);
@@ -496,7 +497,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                 // NAVCZ
                 GroupTotals::"Tax Depreciation Group Code":
                     GroupHeadLine := "Tax Depreciation Group Code";
-                    // NAVCZ
+            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -513,7 +514,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     TypeExist := DateType = "FA Date Type Name";
                     if TypeExist then
                         DateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
             if Find('-') then;
         end;
 
@@ -532,7 +533,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     TypeExist := PostingType = "FA Posting Type Name";
                     if TypeExist then
                         PostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
             if Find('-') then;
         end;
         if not TypeExist then
@@ -583,4 +584,4 @@ report 5610 "Fixed Asset - G/L Analysis"
         FADateType.CreateTypes;
     end;
 }
-
+#endif

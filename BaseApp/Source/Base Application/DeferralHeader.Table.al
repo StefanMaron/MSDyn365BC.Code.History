@@ -46,14 +46,7 @@ table 1701 "Deferral Header"
                     if "Amount to Defer" < "Initial Amount to Defer" then
                         Error(AmountToDeferErr);
                     if "Amount to Defer" > 0 then
-                        Error(AmountToDeferErr);
-                    // NAVCZ
-                    if ("Deferral Doc. Type" = "Deferral Doc. Type"::Purchase) and
-                       ("Amount to Defer" > "Initial Amount to Defer")
-                    then
-                        if IsNonDeductibleVATAllowed then
-                            Error(AmountToDeferNonDeductVATErr);
-                    // NAVCZ
+                        Error(AmountToDeferErr)
                 end;
 
                 if "Initial Amount to Defer" >= 0 then begin// Positive amount
@@ -61,13 +54,6 @@ table 1701 "Deferral Header"
                         Error(AmountToDeferErr);
                     if "Amount to Defer" < 0 then
                         Error(AmountToDeferErr);
-                    // NAVCZ
-                    if ("Deferral Doc. Type" = "Deferral Doc. Type"::Purchase) and
-                       ("Amount to Defer" < "Initial Amount to Defer")
-                    then
-                        if IsNonDeductibleVATAllowed then
-                            Error(AmountToDeferNonDeductVATErr);
-                    // NAVCZ
                 end;
 
                 if "Amount to Defer" = 0 then
@@ -94,11 +80,11 @@ table 1701 "Deferral Header"
                 if GenJnlCheckLine.DateNotAllowed("Start Date") then
                     Error(InvalidPostingDateErr, "Start Date");
 
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     exit;
 
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', "Start Date");
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     Error(DeferSchedOutOfBoundsErr);
             end;
         }
@@ -172,8 +158,6 @@ table 1701 "Deferral Header"
         DeferralUtilities: Codeunit "Deferral Utilities";
         NumberofPeriodsErr: Label 'You must specify one or more periods.';
         ZeroAmountToDeferErr: Label 'The Amount to Defer cannot be 0.';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        AmountToDeferNonDeductVATErr: Label 'The deferred amount cannot be less than the document line amount if non-deductible VAT is permitted.';
 
     procedure CalculateSchedule(): Boolean
     var
@@ -189,29 +173,6 @@ table 1701 "Deferral Header"
             "Gen. Jnl. Batch Name", "Document Type", "Document No.", "Line No.", "Amount to Defer",
             "Calc. Method", "Start Date", "No. of Periods", false, DeferralDescription, false, "Currency Code");
         exit(true);
-    end;
-
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    local procedure IsNonDeductibleVATAllowed(): Boolean
-    var
-        PurchaseLine: Record "Purchase Line";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // NAVCZ
-        case "Deferral Doc. Type" of
-            "Deferral Doc. Type"::"G/L":
-                begin
-                    GenJournalLine.Get("Gen. Jnl. Template Name", "Gen. Jnl. Batch Name", "Line No.");
-                    exit(GenJournalLine."VAT % (Non Deductible)" <> 0);
-                end;
-            "Deferral Doc. Type"::Purchase:
-                begin
-                    PurchaseLine.Get("Document Type", "Document No.", "Line No.");
-                    exit(PurchaseLine."VAT % (Non Deductible)" <> 0);
-                end;
-            else
-                exit(false);
-        end;
     end;
 }
 

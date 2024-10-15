@@ -2,6 +2,9 @@ codeunit 31050 CreditManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -41,7 +44,7 @@ codeunit 31050 CreditManagement
                     CreditLine.Validate("Source Entry No.", CustLedgEntry."Entry No.");
                     CreditLine.Insert();
                     LineNo += 10000;
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
             end;
             if VendLedgEntry.Find('-') then begin
                 repeat
@@ -53,7 +56,7 @@ codeunit 31050 CreditManagement
                     CreditLine.Validate("Source Entry No.", VendLedgEntry."Entry No.");
                     CreditLine.Insert();
                     LineNo += 10000;
-                until VendLedgEntry.Next = 0;
+                until VendLedgEntry.Next() = 0;
             end;
         end;
     end;
@@ -104,6 +107,8 @@ codeunit 31050 CreditManagement
         Amt: Decimal;
     begin
         CreditHeader.TestField(Status, CreditHeader.Status::Open);
+        CreditLine.SetCurrentKey("Credit No.", "Source No.", "Source Entry No.");
+        CreditLine.Ascending(false);
         CreditLine.SetRange("Credit No.", CreditHeader."No.");
         CreditLine.CalcSums("Amount (LCY)");
 
@@ -111,28 +116,25 @@ codeunit 31050 CreditManagement
             exit;
 
         Amt := CreditLine."Amount (LCY)";
-
-        CreditLine.Reset();
-        CreditLine.SetRange("Credit No.", CreditHeader."No.");
+        if Amt > 0 then
+            CreditLine.SetFilter("Amount (LCY)", '>0')
+        else
+            CreditLine.SetFilter("Amount (LCY)", '<0');
         CreditLine.SetRange("Manual Change Only", false);
+
         if CreditLine.FindSet then
             repeat
-                if ((CreditLine."Amount (LCY)" > 0) and (Amt > 0)) or
-                   ((CreditLine."Amount (LCY)" < 0) and (Amt < 0))
-                then begin
-                    if Abs(Amt) >= Abs(CreditLine."Amount (LCY)") then begin
-                        Amt -= CreditLine."Amount (LCY)";
-                        CreditLine.Amount := 0;
-                        CreditLine."Remaining Amount" := CreditLine."Ledg. Entry Remaining Amount";
-                        CreditLine.ConvertLCYAmounts;
-                    end else begin
-                        CreditLine.Validate("Amount (LCY)", CreditLine."Amount (LCY)" - Amt);
-                        Amt := 0;
-                    end;
-
-                    CreditLine.Modify(true);
+                if Abs(Amt) >= Abs(CreditLine."Amount (LCY)") then begin
+                    Amt -= CreditLine."Amount (LCY)";
+                    CreditLine.Amount := 0;
+                    CreditLine."Remaining Amount" := CreditLine."Ledg. Entry Remaining Amount";
+                    CreditLine.ConvertLCYAmounts;
+                end else begin
+                    CreditLine.Validate("Amount (LCY)", CreditLine."Amount (LCY)" - Amt);
+                    Amt := 0;
                 end;
-            until (CreditLine.Next = 0) or (Amt = 0);
+                CreditLine.Modify(true);
+            until (CreditLine.Next() = 0) or (Amt = 0);
 
         if Amt <> 0 then
             Message(ApplyDocManuallyMsg);

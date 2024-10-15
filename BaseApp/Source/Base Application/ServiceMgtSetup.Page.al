@@ -65,24 +65,6 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that if you post a manually created invoice, a posted shipment will be created in addition to a posted invoice.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the default posting description code for the service documents.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the reason code for payment discount.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("One Service Item Line/Order"; "One Service Item Line/Order")
                 {
                     ApplicationArea = Service;
@@ -146,15 +128,10 @@ page 5919 "Service Mgt. Setup"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies to allow modification of customer posting groups for service management setup.';
-                }
-                field("Reas.Cd. on Tax Corr.Doc.Mand."; "Reas.Cd. on Tax Corr.Doc.Mand.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies if it''s mandatory to fill in reason code on tax correction documents.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Skip Manual Reservation"; "Skip Manual Reservation")
                 {
@@ -380,15 +357,6 @@ page 5919 "Service Mgt. Setup"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                     Visible = false;
-                }
-                field("Credit Memo Confirmation"; "Credit Memo Confirmation")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies this option to enable credit memo confirmation.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
         }

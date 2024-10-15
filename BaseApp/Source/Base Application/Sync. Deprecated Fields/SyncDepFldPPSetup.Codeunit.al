@@ -1,3 +1,4 @@
+#if not CLEAN16
 codeunit 9311 "Sync.Dep.Fld-P&P Setup"
 {
     // This codeunit is used to synchronization between obsolete pending fields 
@@ -80,3 +81,4 @@ codeunit 9311 "Sync.Dep.Fld-P&P Setup"
         exit(SyncLoopingHelper.IsFieldSynchronizationSkipped(Database::"Purchases & Payables Setup", FieldNo));
     end;
 }
+#endif

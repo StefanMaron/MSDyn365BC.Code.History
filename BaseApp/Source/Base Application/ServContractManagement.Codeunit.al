@@ -1,4 +1,4 @@
-﻿codeunit 5940 ServContractManagement
+codeunit 5940 ServContractManagement
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -55,7 +55,6 @@
         AmountType: Option ,Amount,DiscAmount,UnitPrice,UnitCost;
         TempServLedgEntriesIsSet: Boolean;
 
-    [Scope('OnPrem')]
     procedure CreateInvoice(ServiceContractHeader: Record "Service Contract Header") InvNo: Code[20]
     var
         InvoicedAmount: Decimal;
@@ -242,7 +241,7 @@
                         YearContractCorrection := false;
                         ReturnLedgerEntry := 0;
                     end;
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
                 UpdateApplyUntilEntryNoInServLedgEntry(ReturnLedgerEntry, FirstLineEntry, LastEntry);
             end;
         end else begin
@@ -313,7 +312,7 @@
                         ServContractLine.Modify();
                     end else
                         ReturnLedgerEntry := 0;
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
                 UpdateApplyUntilEntryNoInServLedgEntry(ReturnLedgerEntry, FirstLineEntry, LastEntry);
             end;
         end;
@@ -509,7 +508,7 @@
                       ContractNo,
                       InvFrom,
                       InvTo);
-                until ServiceLedgerEntry.Next = 0
+                until ServiceLedgerEntry.Next() = 0
         end else begin
             Clear(ServiceLedgerEntry);
             ServLedgEntryToServiceLine(
@@ -670,7 +669,7 @@
         if ServDocReg.Find('-') then
             repeat
                 ServInvoiceNo := ServDocReg."Destination Document No.";
-            until (ServDocReg.Next = 0) or (ServDocReg."Destination Document No." <> '');
+            until (ServDocReg.Next() = 0) or (ServDocReg."Destination Document No." <> '');
 
         if ServInvoiceNo <> '' then begin
             ServHeader2.Get(ServHeader2."Document Type"::"Credit Memo", ServInvoiceNo);
@@ -914,7 +913,6 @@
         OnAfterCreateContractLineCreditMemo(FromServiceContractLine, CreditMemoNo);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckContractGroupAccounts(ServContractHeader: Record "Service Contract Header")
     var
         GLAcc: Record "G/L Account";
@@ -1182,12 +1180,12 @@
                     AmountCalculated := AmountCalculated +
                       CalcContractLineAmount(ServContractLine."Line Amount", LinePeriodStarts, LinePeriodEnds);
 
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
             AmountCalculated := Round(AmountCalculated, Currency."Amount Rounding Precision");
         end else begin
             ServContractLine.SetRange("Starting Date");
             ServContractLine.SetRange("Invoiced to Date");
-            if ServContractLine.IsEmpty then
+            if ServContractLine.IsEmpty() then
                 AmountCalculated :=
                   Round(
                     ServContractHeader."Annual Amount" / 12 * NoOfMonthsAndMPartsInPeriod(PeriodStarts, PeriodEnds),
@@ -1238,7 +1236,7 @@
                                 InvFrom := ServContractLine."Starting Date"
                         end else
                             InvFrom := ServContractLine."Starting Date";
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
             end;
 
         if (InvFrom = 0D) or (InvFrom > InvTo) then
@@ -1277,7 +1275,7 @@
                         CreateServLine(
                           ServHeader, CurrServContract."Contract Type",
                           CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
             end else begin
                 CreateHeadingServLine(
                   ServHeader, CurrServContract."Contract Type", CurrServContract."Contract No.");
@@ -1435,7 +1433,7 @@
                             CreateServLine(
                               ServHeader, "Contract Type", "Contract No.",
                               CountLineInvFrom(false, ServContractLine, InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
             end;
             CreateLastServLines(ServHeader, "Contract Type", "Contract No.");
 
@@ -1507,7 +1505,7 @@
                           TempServItem,
                           true,
                           ServContractLine."Contract Type"::Contract)
-                    until ServContractLine2.Next = 0;
+                    until ServContractLine2.Next() = 0;
 
                 ServContractLine2.Reset();
                 ServContractLine2.SetCurrentKey("Service Item No.");
@@ -1521,12 +1519,11 @@
                           TempServItem,
                           true,
                           ServContractLine."Contract Type"::Quote)
-                    until ServContractLine2.Next = 0;
+                    until ServContractLine2.Next() = 0;
 
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure ChangeCustNoOnServContract(NewCustomertNo: Code[20]; NewShipToCode: Code[10]; ServContractHeader: Record "Service Contract Header")
     var
         ServContractLine: Record "Service Contract Line";
@@ -1601,7 +1598,7 @@
                     ServContractLine."Customer No." := NewCustomertNo;
                     ServContractLine."Ship-to Code" := NewShipToCode;
                     ServContractLine.Modify();
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
         end;
 
         OnBeforeServContractHeaderModify(ServContractHeader);
@@ -1734,7 +1731,7 @@
             repeat
                 TempServLedgEntry := ServiceLedgerEntry;
                 TempServLedgEntry.Insert();
-            until Next = 0;
+            until Next() = 0;
             TempServLedgEntriesIsSet := true;
         end;
     end;
@@ -1883,7 +1880,7 @@
                         CheckCustomerCurrencyCombination(ServiceContractHeader2);
                         PrevCustNo := "Bill-to Customer No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2002,7 +1999,7 @@
                   AccumulatedAmts[AmountType::DiscAmount] + ServLedgEntry2."Discount Amount";
                 AccumulatedAmts[AmountType::UnitPrice] :=
                   AccumulatedAmts[AmountType::UnitPrice] - ServLedgEntry2."Unit Price";
-            until ServLedgEntry2.Next = 0;
+            until ServLedgEntry2.Next() = 0;
         ServLedgEntry."Cost Amount" := -Round(ServContractLine."Line Cost" + AccumulatedAmts[AmountType::UnitCost]);
         SetServiceLedgerEntryUnitCost(ServLedgEntry);
         ServLedgEntry."Amount (LCY)" := AccumulatedAmts[AmountType::Amount] - ServContractLine."Line Amount";

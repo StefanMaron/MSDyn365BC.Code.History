@@ -304,11 +304,19 @@ page 5807 "Value Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the amount is included in intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. in Intrastat Stat. Value"; "Incl. in Intrastat Stat. Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry is included in intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -413,7 +421,7 @@ page 5807 "Value Entries Preview"
             repeat
                 Rec := TempValueEntry;
                 Insert;
-            until TempValueEntry.Next = 0;
+            until TempValueEntry.Next() = 0;
     end;
 }
 

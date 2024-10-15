@@ -123,14 +123,16 @@ table 48 "Invt. Posting Buffer"
            "Account Type"::"Subcontracted Variance",
            "Account Type"::"Cap. Overhead Variance",
            "Account Type"::"Mfg. Overhead Variance",
+#if not CLEAN18
            // NAVCZ
            "Account Type"::AccConsumption,
-           "Account Type"::AccWIP,
            "Account Type"::AccWIPChange,
+           "Account Type"::AccProdChange,
+#endif
+           "Account Type"::AccWIP,
            "Account Type"::"WIP Inventory (Interim)",
            "Account Type"::"AccWIPChange (Interim)",
-           "Account Type"::"AccProdChange (Interim)",
-           "Account Type"::AccProdChange];
+           "Account Type"::"AccProdChange (Interim)"];
         // NAVCZ
 
         OnUseInvtPostSetup(Rec, UseInventoryPostingSetup);

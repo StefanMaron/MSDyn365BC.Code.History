@@ -530,7 +530,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage.OpenEdit;
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
-        CostObject.FindSet;
+        CostObject.FindSet();
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
             CostObject.Next
@@ -685,7 +685,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // get the last set
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
-        CostObject.FindSet;
+        CostObject.FindSet();
         NoOfSets := CostObject.Count div 12;
         NoInLastSet := CostObject.Count mod 12;
         for i := 1 to NoOfSets do begin
@@ -850,7 +850,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage.OpenEdit;
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
-        CostCenter.FindSet;
+        CostCenter.FindSet();
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
             CostCenter.Next
@@ -999,7 +999,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // get the last set
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
-        CostCenter.FindSet;
+        CostCenter.FindSet();
         NoOfSets := CostCenter.Count div 12;
         NoInLastSet := CostCenter.Count mod 12;
         for i := 1 to NoOfSets do begin
@@ -3574,7 +3574,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // verify that the current set is the next one (check just 1 column)
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
-        CostObject.FindSet;
+        CostObject.FindSet();
         CostObject.Next(Offset);
         Commit();
         asserterror
@@ -3591,7 +3591,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // verify that the current set is the next one (check just 1 column)
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
-        CostCenter.FindSet;
+        CostCenter.FindSet();
         CostCenter.Next(Offset);
         Commit();
         asserterror

@@ -277,7 +277,7 @@ page 2180 "O365 Import from Excel Wizard"
     begin
         Step2Visible := true;
         NextEnabled := StartRowNo <> 0;
-        if TempExcelBuffer.IsEmpty then
+        if TempExcelBuffer.IsEmpty() then
             Message(NoDataOnTheExcelSheetMsg, SheetName);
 
         if StartRowNo = 0 then begin
@@ -391,7 +391,7 @@ page 2180 "O365 Import from Excel Wizard"
                 TempStartRowCellNameValueBuffer.Name :=
                   CopyStr(TempExcelBuffer."Cell Value as Text", 1, MaxStrLen(TempStartRowCellNameValueBuffer.Name));
                 TempStartRowCellNameValueBuffer.Insert();
-            until TempExcelBuffer.Next = 0;
+            until TempExcelBuffer.Next() = 0;
     end;
 
     procedure PrepareCustomerImportData()
@@ -461,7 +461,7 @@ page 2180 "O365 Import from Excel Wizard"
             repeat
                 TempExcelBuffer := NewExcelBuffer;
                 TempExcelBuffer.Insert();
-            until NewExcelBuffer.Next = 0;
+            until NewExcelBuffer.Next() = 0;
 
         SheetName := NewExcelSheetName;
 

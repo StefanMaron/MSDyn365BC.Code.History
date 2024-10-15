@@ -157,7 +157,7 @@ codeunit 132542 TestMappingToW1Tables
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch.FindFirst;
-        GenJnlLineTemplate.FindSet;
+        GenJnlLineTemplate.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], GenJnlLineTemplate."Posting Date", 'Posting Date did not Match');
             Assert.AreEqual(AnyText[i], GenJnlLineTemplate.Description, 'Description did not Match');
@@ -214,7 +214,7 @@ codeunit 132542 TestMappingToW1Tables
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch.FindFirst;
-        GenJnlLineTemplate.FindSet;
+        GenJnlLineTemplate.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], GenJnlLineTemplate."Posting Date", 'Posting Date did not Match');
             Assert.AreEqual(AnyText[i], GenJnlLineTemplate.Description, 'Description did not Match');
@@ -331,7 +331,7 @@ codeunit 132542 TestMappingToW1Tables
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch.FindFirst;
-        BankAccReconciliationLine.FindSet;
+        BankAccReconciliationLine.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], BankAccReconciliationLine."Transaction Date", 'Date did not Match');
             Assert.AreEqual(AnyText[i], BankAccReconciliationLine.Description, 'Description did not Match');
@@ -811,7 +811,7 @@ codeunit 132542 TestMappingToW1Tables
         // [THEN] Date and Amount are imported correctly
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch.FindFirst;
-        BankAccReconciliationLine.FindSet;
+        BankAccReconciliationLine.FindSet();
         for i := 1 to 3 do begin
             Assert.AreEqual(AnyDecimal[i], BankAccReconciliationLine."Statement Amount", 'Amount did not Match');
             Assert.AreEqual(i, BankAccReconciliationLine."Data Exch. Line No.", 'Line no. did not match.');
@@ -1120,7 +1120,7 @@ codeunit 132542 TestMappingToW1Tables
     local procedure VerifyImportedGenJnlLines(var GenJournalLine: Record "Gen. Journal Line"; var LineNo: Integer; var DocNo: Code[20]; LineCount: Integer)
     begin
         Assert.AreEqual(LineCount, GenJournalLine.Count, 'Wrong no of lines for the given import.');
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             Assert.AreEqual(LineNo, GenJournalLine."Line No.", 'Line No not incremented as expected');
             Assert.AreEqual(DocNo, GenJournalLine."Document No.", 'Document No not incremented as expected');
@@ -1168,7 +1168,7 @@ codeunit 132542 TestMappingToW1Tables
 
         with BankAccReconciliationLine do begin
             Assert.AreEqual(LineCount, Count, WrongNoOfLinesErr);
-            FindSet;
+            FindSet();
             repeat
                 i += 1;
                 TestField("Statement Amount", ExpectedDecimal[i]);

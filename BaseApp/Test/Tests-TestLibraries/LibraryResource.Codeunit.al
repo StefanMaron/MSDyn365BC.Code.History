@@ -38,7 +38,6 @@ codeunit 130511 "Library - Resource"
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetRange("Allow Non Deductible VAT", false); // NAVCZ
         VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', ''); // NAVCZ
         if VATPostingSetup.FindFirst then
             Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -208,7 +207,7 @@ codeunit 130511 "Library - Resource"
         Resource.SetFilter("VAT Prod. Posting Group", '<>''''');
         Resource.SetRange(Blocked, false);
 
-        Resource.FindSet;
+        Resource.FindSet();
     end;
 
     procedure FindResJournalBatch(var ResJournalBatch: Record "Res. Journal Batch"; JournalTemplateName: Code[10])
@@ -224,7 +223,7 @@ codeunit 130511 "Library - Resource"
 
     procedure FindWorkType(var WorkType: Record "Work Type")
     begin
-        WorkType.FindSet;
+        WorkType.FindSet();
     end;
 
     [Normal]

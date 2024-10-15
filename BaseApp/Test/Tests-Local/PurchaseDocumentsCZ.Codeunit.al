@@ -25,8 +25,10 @@ codeunit 145009 "Purchase Documents CZ"
         if isInitialized then
             exit;
 
+#if not CLEAN16
         UpdatePurchaseSetup;
 
+#endif
         isInitialized := true;
         Commit();
     end;
@@ -76,9 +78,10 @@ codeunit 145009 "Purchase Documents CZ"
           GLEntry1.Amount + GLEntry2.Amount = 0, OppositeSignErr);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)','16.0')]
+    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
     procedure TransferingDescriptionToGLEntriesForPurchaseOrder()
     var
         PurchHdr: Record "Purchase Header";
@@ -88,7 +91,7 @@ codeunit 145009 "Purchase Documents CZ"
 
     [Test]
     [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)','16.0')]
+    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
     procedure TransferingDescriptionToGLEntriesForPurchaseInvoice()
     var
         PurchHdr: Record "Purchase Header";
@@ -119,6 +122,7 @@ codeunit 145009 "Purchase Documents CZ"
         GLEntry.TestField(Description, PurchLn.Description);
     end;
 
+#endif
     local procedure CreatePurchaseDocument(var PurchHdr: Record "Purchase Header"; var PurchLn: Record "Purchase Line"; DocumentType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchHdr, DocumentType, LibraryPurchase.CreateVendorNo);
@@ -140,6 +144,7 @@ codeunit 145009 "Purchase Documents CZ"
     begin
         exit(LibraryPurchase.PostPurchaseDocument(PurchHdr, true, true));
     end;
+#if not CLEAN16
 
     local procedure UpdatePurchaseSetup()
     var
@@ -152,5 +157,6 @@ codeunit 145009 "Purchase Documents CZ"
         PurchasesPayablesSetup.Validate("G/L Entry as Doc. Lines (Acc.)", true);
         PurchasesPayablesSetup.Modify();
     end;
+#endif
 }
 

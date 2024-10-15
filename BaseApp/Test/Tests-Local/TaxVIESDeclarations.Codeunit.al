@@ -181,7 +181,7 @@ codeunit 144202 "Tax VIES Declarations"
         // 3. Verify
         VIESDeclarationLine.SetRange("VIES Declaration No.", VIESDeclarationHeader2."No.");
         VIESDeclarationLine.SetRange("VAT Registration No.", SalesHdr."VAT Registration No.");
-        VIESDeclarationLine.FindSet;
+        VIESDeclarationLine.FindSet();
         VIESDeclarationLine.TestField("Line Type", VIESDeclarationLine."Line Type"::Cancellation);
         VIESDeclarationLine.TestField("Amount (LCY)", Round(SalesLn.Amount, 1, '>'));
 

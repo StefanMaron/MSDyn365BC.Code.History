@@ -68,7 +68,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     Evaluate("Recurring Frequency", '<>');
 
                 PrevGenJnlLine := GenJnlLine;
-            until Next = 0;
+            until Next() = 0;
 
             Clear(PrevGenJnlLine);
 
@@ -93,7 +93,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
         if TempCurrTotalBuffer.Find('-') then
             repeat
                 InBalance := InBalance and (TempCurrTotalBuffer."Total Amount" = 0)
-            until (not InBalance) or (TempCurrTotalBuffer.Next = 0);
+            until (not InBalance) or (TempCurrTotalBuffer.Next() = 0);
         exit(InBalance);
     end;
 
@@ -143,7 +143,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then
                         Insert;
                 end;
-            until TempCurrTotalBuffer.Next = 0;
+            until TempCurrTotalBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

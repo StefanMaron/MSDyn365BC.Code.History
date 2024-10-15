@@ -62,6 +62,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Customer Name"; "Customer Name")
@@ -69,6 +72,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of customer that you shipped the items.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field(Description; Description)
@@ -299,6 +305,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account used on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -306,6 +315,10 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
@@ -313,6 +326,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
@@ -320,6 +336,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
@@ -327,6 +346,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of the bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Transit No."; "Transit No.")
                 {
@@ -334,6 +356,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(IBAN; IBAN)
                 {
@@ -341,6 +366,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
@@ -348,12 +376,18 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on credit in local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Compensation; Compensation)
                 {
@@ -361,6 +395,9 @@ page 126 "Cust. Ledg. Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies whether the entry is compensation''s entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -510,13 +547,13 @@ page 126 "Cust. Ledg. Entries Preview"
             repeat
                 Rec := TempCustLedgerEntry;
                 Insert;
-            until TempCustLedgerEntry.Next = 0;
+            until TempCustLedgerEntry.Next() = 0;
 
         if TempDetailedCustLedgEntry2.Find('-') then
             repeat
                 TempDetailedCustLedgEntry := TempDetailedCustLedgEntry2;
                 TempDetailedCustLedgEntry.Insert();
-            until TempDetailedCustLedgEntry2.Next = 0;
+            until TempDetailedCustLedgEntry2.Next() = 0;
     end;
 
     procedure CalcAmounts()
@@ -543,7 +580,7 @@ page 126 "Cust. Ledg. Entries Preview"
                 end;
                 RemainingAmountFCY += TempDetailedCustLedgEntry.Amount;
                 RemainingAmountLCY += TempDetailedCustLedgEntry."Amount (LCY)";
-            until TempDetailedCustLedgEntry.Next = 0;
+            until TempDetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure DrilldownAmounts(AmountType: Option Amount,"Remaining Amount","Original Amount")

@@ -189,7 +189,9 @@
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF ("Account Type" = CONST("IC Partner")) "IC Partner";
+            IF ("Account Type" = CONST("IC Partner")) "IC Partner"
+            ELSE
+            IF ("Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
             var
@@ -747,7 +749,7 @@
         BankAccReconciliationLine.SetRange("Statement No.", "Statement No.");
         BankAccReconciliationLine.SetRange("Data Exch. Entry No.", "Data Exch. Entry No.");
         BankAccReconciliationLine.SetFilter("Statement Line No.", '<>%1', "Statement Line No.");
-        if BankAccReconciliationLine.IsEmpty then
+        if BankAccReconciliationLine.IsEmpty() then
             DataExchField.DeleteRelatedRecords("Data Exch. Entry No.", 0);
     end;
 
@@ -807,7 +809,7 @@
         if FindSet then
             repeat
                 AcceptApplication;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RejectAppliedPaymentEntriesSelectedLines()
@@ -815,7 +817,7 @@
         if FindSet then
             repeat
                 RejectAppliedPayment;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RejectAppliedPayment()
@@ -870,7 +872,7 @@
                         if BankAccLedgEntry.Find('-') then
                             repeat
                                 BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, true);
-                            until BankAccLedgEntry.Next = 0;
+                            until BankAccLedgEntry.Next() = 0;
                         "Applied Entries" := 0;
                         Validate("Applied Amount", 0);
                         Modify;
@@ -890,7 +892,7 @@
                         if CheckLedgEntry.Find('-') then
                             repeat
                                 CheckSetStmtNo.RemoveReconNo(CheckLedgEntry, Rec, true);
-                            until CheckLedgEntry.Next = 0;
+                            until CheckLedgEntry.Next() = 0;
                         "Applied Entries" := 0;
                         Validate("Applied Amount", 0);
                         "Check No." := '';
@@ -1005,6 +1007,7 @@
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Employee: Record Employee;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
         Name: Text;
@@ -1016,6 +1019,9 @@
             "Account Type"::Vendor.AsInteger():
                 if Vendor.Get(AccountNo) then
                     Name := Vendor.Name;
+            "Account Type"::Employee.AsInteger():
+                if Employee.Get(AccountNo) then
+                    Name := Employee.FullName();
             "Account Type"::"G/L Account".AsInteger():
                 if GLAccount.Get(AccountNo) then
                     Name := GLAccount.Name;
@@ -1171,14 +1177,14 @@
                 TempGLEntry := GLEntry;
                 TempGLEntry.Amount := GLEntry.RemainingAmount;
                 TempGLEntry.Insert();
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
 
         TempGLEntry.SetFilter(Amount, AmountFilter, MinAmount, MaxAmount);
         if TempGLEntry.FindSet then
             repeat
                 GLEntry := TempGLEntry;
                 GLEntry.Mark(true);
-            until TempGLEntry.Next = 0;
+            until TempGLEntry.Next() = 0;
 
         GLEntry.MarkedOnly(true);
         exit(GLEntry.Count);
@@ -1316,7 +1322,7 @@
                         else
                             AppliedNumbers := AppliedNumbers + SeparatorText + Format(AppliedPaymentEntry."Applies-to Entry No.");
                 end;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
         end;
 
         // NAVCZ
@@ -1333,7 +1339,7 @@
                                         AppliedNumbers := SalesAdvanceLetterLine."Letter No."
                                     else
                                         AppliedNumbers += ', ' + SalesAdvanceLetterLine."Letter No.";
-                            until SalesAdvanceLetterLine.Next = 0;
+                            until SalesAdvanceLetterLine.Next() = 0;
                     end;
                 "Account Type"::Vendor:
                     begin
@@ -1346,7 +1352,7 @@
                                         AppliedNumbers := PurchAdvanceLetterLine."Letter No."
                                     else
                                         AppliedNumbers += ', ' + PurchAdvanceLetterLine."Letter No.";
-                            until PurchAdvanceLetterLine.Next = 0;
+                            until PurchAdvanceLetterLine.Next() = 0;
                     end;
             end;
         // NAVCZ
@@ -1715,6 +1721,7 @@
         exit(CurrExchRate.ExchangeAmount("Statement Amount", "Currency Code", BankAcc."Currency Code", "Transaction Date"));
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure Reconcile()
@@ -1726,6 +1733,7 @@
         GLReconcile.Run;
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure IsInLocalCurrency(): Boolean
     var
@@ -1786,7 +1794,7 @@
 
                 RemainingAmountAfterPosting += CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Amount";
                 DifferenceStatementAmtToApplEntryAmount -= CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Pmt. Discount";
-            until AppliedPmtEntry.Next = 0;
+            until AppliedPmtEntry.Next() = 0;
         end;
 
         if "Applied Entries" > 1 then
@@ -1812,7 +1820,7 @@
             PostedPaymentReconLine.SetRange("Bank Account No.", "Bank Account No.");
             PostedPaymentReconLine.SetRange("Transaction ID", "Transaction ID");
             PostedPaymentReconLine.SetRange(Reconciled, true);
-            if not PostedPaymentReconLine.IsEmpty then
+            if not PostedPaymentReconLine.IsEmpty() then
                 exit(true);
             BankAccountStatementLine.SetRange("Bank Account No.", "Bank Account No.");
             BankAccountStatementLine.SetRange("Transaction ID", "Transaction ID");
@@ -1964,7 +1972,7 @@
                 else
                     TotalAppliedAmount +=
                       -SalesAdvanceLetterLine."Amount Linked To Journal Line" / SalesAdvanceLetterHeader."Currency Factor";
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
 
         exit(TotalAppliedAmount);
     end;
@@ -1988,7 +1996,7 @@
                 else
                     TotalAppliedAmount +=
                       -PurchAdvanceLetterLine."Amount Linked To Journal Line" / PurchAdvanceLetterHeader."Currency Factor";
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
 
         exit(TotalAppliedAmount);
     end;
@@ -2003,7 +2011,7 @@
         AppliedPaymentEntry.FilterAppliedPmtEntry(Rec);
         AppliedPaymentEntry.SetFilter("Applies-to Entry No.", '<>%1', 0);
         if AppliedPaymentEntry.FindSet then
-            if AppliedPaymentEntry.Next = 0 then
+            if AppliedPaymentEntry.Next() = 0 then
                 exit(AppliedPaymentEntry.Description);
 
         exit('');

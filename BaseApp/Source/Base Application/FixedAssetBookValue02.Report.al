@@ -1,9 +1,10 @@
+#if not CLEAN18
 report 5606 "Fixed Asset - Book Value 02"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetBookValue02.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Book Value 02';
+    Caption = 'Fixed Asset Book Value 02 (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -1234,7 +1235,7 @@ report 5606 "Fixed Asset - Book Value 02"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
-                        // NAVCZ
+                // NAVCZ
                 end;
             end;
         }
@@ -1440,10 +1441,10 @@ report 5606 "Fixed Asset - Book Value 02"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-                // NAVCZ
+            // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-                // NAVCZ
+        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := StrSubstNo('%1%2 %3', Text002, ':', GroupCodeName);
@@ -1499,10 +1500,10 @@ report 5606 "Fixed Asset - Book Value 02"
                     GroupHeadLine := "Global Dimension 2 Code";
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
-                    // NAVCZ
+                // NAVCZ
                 GroupTotals::"Tax Depreciation Group Code":
                     GroupHeadLine := "Tax Depreciation Group Code";
-                    // NAVCZ
+            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -1631,4 +1632,4 @@ report 5606 "Fixed Asset - Book Value 02"
         end;
     end;
 }
-
+#endif

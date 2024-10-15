@@ -70,6 +70,10 @@ page 5 Currencies
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the customs currency code for the currency entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Realized Gains Acc."; "Realized Gains Acc.")
                 {
@@ -391,7 +395,7 @@ page 5 Currencies
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dataverse transaction currency.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse Transaction Currency.';
 
                         trigger OnAction()
                         var
@@ -402,12 +406,12 @@ page 5 Currencies
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dataverse transaction currency.';
+                        ToolTip = 'Delete the coupling to a Dataverse Transaction Currency.';
 
                         trigger OnAction()
                         var
@@ -425,16 +429,24 @@ page 5 Currencies
             group("&Currency")
             {
                 Caption = '&Currency';
+#if not CLEAN18
                 action("&Performance Country Exch. Rates")
                 {
                     ApplicationArea = Suite;
-                    Caption = '&Performance Country Exch. Rates';
+                    Caption = '&Performance Country Exch. Rates (Obsolete)';
                     Image = ManualExchangeRate;
-                    RunObject = Page "Perf. Country Curr. Exch. Rate";
-                    RunPageLink = "Relational Currency Code" = FIELD(Code);
-                    RunPageView = SORTING("Relational Currency Code");
                     ToolTip = 'Open the page for exchange rates performance country.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
+
+                    trigger OnAction()
+                    begin
+                        Error('');
+                    end;
                 }
+#endif
                 action("Intrastat Exch. Rates")
                 {
                     ApplicationArea = Suite;
@@ -443,6 +455,10 @@ page 5 Currencies
                     RunObject = Page "Intrastat Currency Exch. Rate";
                     RunPageLink = "Currency Code" = FIELD(Code);
                     ToolTip = 'Open the page for Exchange Rate setup for Intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 action(ShowLog)
                 {

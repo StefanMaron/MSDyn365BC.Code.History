@@ -512,7 +512,7 @@ page 11775 "Apply General Ledger Entries"
         if GLEntry.FindSet(true, false) then
             repeat
                 GLEntryPostApplication.SetApplyingGLEntry(GLEntry, false, GLApplID);
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         Rec := GLEntry;
         CalcApplnAmount;
         CurrPage.Update(false);
@@ -527,7 +527,7 @@ page 11775 "Apply General Ledger Entries"
         if GLEntry.FindSet then
             repeat
                 ApplyingAmount := ApplyingAmount + GLEntry."Amount to Apply";
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

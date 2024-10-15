@@ -570,7 +570,7 @@ report 36 "Fiscal Year Balance"
             repeat
                 if Format(GLIndent.Indentation) > MaxIndent then
                     MaxIndent := Format(GLIndent.Indentation);
-            until GLIndent.Next = 0;
+            until GLIndent.Next() = 0;
 
         if Format(Indent) > MaxIndent then begin
             if Indent <> Indent::None then

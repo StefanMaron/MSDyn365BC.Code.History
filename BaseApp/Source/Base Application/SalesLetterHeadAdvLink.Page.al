@@ -126,7 +126,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
                         repeat
                             Rec := SalesAdvanceLetterHeader;
                             Mark := not Mark;
-                        until SalesAdvanceLetterHeader.Next = 0;
+                        until SalesAdvanceLetterHeader.Next() = 0;
                     Rec := SalesAdvanceLetterHeader2;
                 end;
             }
@@ -226,7 +226,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
             repeat
                 TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
                 TempSalesAdvanceLetterHeader.Insert();
-            until SalesAdvanceLetterHeader.Next = 0;
+            until SalesAdvanceLetterHeader.Next() = 0;
         SetFilter("Doc. No. Filter", '<%1|>%1', TempSalesHeader."No.");
     end;
 
@@ -242,7 +242,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
                     TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
                     TempSalesAdvanceLetterHeader.Insert();
                 end;
-            until SalesAdvanceLetterHeader.Next = 0;
+            until SalesAdvanceLetterHeader.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -254,7 +254,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
             repeat
                 SalesAdvanceLetterHeader := TempSalesAdvanceLetterHeader;
                 SalesAdvanceLetterHeader.Insert();
-            until TempSalesAdvanceLetterHeader.Next = 0
+            until TempSalesAdvanceLetterHeader.Next() = 0
         else begin
             SalesAdvanceLetterHeader := Rec;
             SalesAdvanceLetterHeader.Insert();

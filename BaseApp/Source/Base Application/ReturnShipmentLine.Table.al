@@ -1,4 +1,4 @@
-﻿table 6651 "Return Shipment Line"
+table 6651 "Return Shipment Line"
 {
     Caption = 'Return Shipment Line';
     LookupPageID = "Posted Return Shipment Lines";
@@ -406,11 +406,18 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -544,7 +551,7 @@
         PurchDocLineComments.SetRange("Document Type", PurchDocLineComments."Document Type"::"Posted Return Shipment");
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not PurchDocLineComments.IsEmpty then
+        if not PurchDocLineComments.IsEmpty() then
             PurchDocLineComments.DeleteAll();
     end;
 
@@ -707,7 +714,7 @@
 
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
-        until (Next = 0) or ("Attached to Line No." = 0);
+        until (Next() = 0) or ("Attached to Line No." = 0);
     end;
 
     local procedure CopyPurchLineCostAndDiscountFromPurchOrderLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line")
@@ -759,8 +766,8 @@
                                 TempPurchCrMemoLine := PurchCrMemoLine;
                                 if TempPurchCrMemoLine.Insert() then;
                             end;
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 

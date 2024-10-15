@@ -1,9 +1,12 @@
 page 11781 "Subst. Customer Posting Groups"
 {
-    Caption = 'Subst. Customer Posting Groups';
+    Caption = 'Subst. Customer Posting Groups (Obsolete)';
     DataCaptionFields = "Parent Cust. Posting Group";
     PageType = List;
     SourceTable = "Subst. Customer Posting Group";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

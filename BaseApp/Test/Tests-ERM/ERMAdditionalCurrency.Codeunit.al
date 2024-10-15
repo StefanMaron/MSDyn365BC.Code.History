@@ -392,7 +392,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif     
     [Scope('OnPrem')]
     procedure AdjustExchangeRateBankACY()
     var
@@ -429,7 +433,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif     
     [Scope('OnPrem')]
     procedure AdjustExchangeRateBankFCY()
     var
@@ -465,7 +473,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('ApplyPostCustomerEntryHandler,PostApplicationHandler,MessageHandler')]
+#else
     [HandlerFunctions('ApplyPostCustomerEntryHandler,PostApplicationHandler,MessageHandler,AdjustExchangeRatesReportHandler,YesConfirmHandler')]
+#endif     
     [Scope('OnPrem')]
     procedure CustomerPartialApplyCurrencies()
     var
@@ -555,7 +567,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure PostJournalCustomerFCY()
     var
@@ -591,7 +607,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif  
     [Scope('OnPrem')]
     procedure AdjustExchangeRateCustomerACY()
     var
@@ -629,7 +649,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif  
     [Scope('OnPrem')]
     procedure CustomerFCYFullApply()
     var
@@ -705,7 +729,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchangeRateVendorACY()
     var
@@ -742,7 +770,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure PostGeneralJournalVendorFCY()
     var
@@ -777,7 +809,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AdjustExchRateVendorCurrencies()
     var
@@ -816,7 +852,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('StatisticsMessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure VendorFCYFullApply()
     var
@@ -915,7 +955,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionSales()
     var
@@ -924,7 +968,9 @@ codeunit 134043 "ERM Additional Currency"
         GLEntry: Record "G/L Entry";
         GenJournalLine: Record "Gen. Journal Line";
         Currency: Record Currency;
+#if not CLEAN18        
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+#endif
         CustomerNo: Code[20];
         VATAmount: array[2] of Decimal;
         StartingDate: Date;
@@ -958,10 +1004,15 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Sale);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
+#if CLEAN18
+        LibraryERM.RunAdjustExchangeRates(
+          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
+#else
         CurrencyExchangeRate.Get(Currency.Code, StartingDate);
         RunAdjustExchangeRatesWithPostingDescription(
           CurrencyExchangeRate, Currency.Code, AdjustExchRateDefaultDescTxt, StartingDate, StartingDate + 2,
           StartingDate + 2);
+#endif
 
         // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
@@ -973,7 +1024,11 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if CLEAN18
+    [HandlerFunctions('MessageHandler')]
+#else
     [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+#endif    
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionPurch()
     var
@@ -982,7 +1037,9 @@ codeunit 134043 "ERM Additional Currency"
         GLEntry: Record "G/L Entry";
         GenJournalLine: Record "Gen. Journal Line";
         Currency: Record Currency;
+#if not CLEAN18
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+#endif
         VendorNo: Code[20];
         VATAmount: array[2] of Decimal;
         StartingDate: Date;
@@ -1016,10 +1073,15 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Purchase);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
+#if CLEAN18
+        LibraryERM.RunAdjustExchangeRates(
+          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
+#else
         CurrencyExchangeRate.Get(Currency.Code, StartingDate);
         RunAdjustExchangeRatesWithPostingDescription(
           CurrencyExchangeRate, Currency.Code, AdjustExchRateDefaultDescTxt, StartingDate, StartingDate + 2,
           StartingDate + 2);
+#endif
 
         // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
@@ -1516,6 +1578,22 @@ codeunit 134043 "ERM Additional Currency"
         AdjustAddReportingCurrency.Run;
     end;
 
+#if CLEAN18
+    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
+    var
+        Currency: Record Currency;
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+    begin
+        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
+        Clear(AdjustExchangeRates);
+        AdjustExchangeRates.SetTableView(Currency);
+        AdjustExchangeRates.InitializeRequest2(
+          CurrencyExchangeRate."Starting Date", WorkDate, 'Test', CurrencyExchangeRate."Starting Date",
+          DocumentNo, true, true);
+        AdjustExchangeRates.UseRequestPage(false);
+        AdjustExchangeRates.Run;
+    end;
+#else
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     begin
         RunAdjustExchangeRatesWithPostingDescription(
@@ -1538,6 +1616,7 @@ codeunit 134043 "ERM Additional Currency"
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
+#endif
 
     local procedure RunCloseIncomeStatementBatchJob(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
     var
@@ -1853,6 +1932,7 @@ codeunit 134043 "ERM Additional Currency"
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#if not CLEAN18
 
     [ReportHandler]
     [Scope('OnPrem')]
@@ -1869,5 +1949,6 @@ codeunit 134043 "ERM Additional Currency"
         // NAVCZ
         Reply := true;
     end;
+#endif
 }
 

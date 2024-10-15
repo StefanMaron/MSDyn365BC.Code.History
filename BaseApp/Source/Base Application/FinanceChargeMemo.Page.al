@@ -22,7 +22,7 @@ page 446 "Finance Charge Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Customer No."; "Customer No.")
@@ -31,6 +31,11 @@ page 446 "Finance Charge Memo"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the customer you want to create a finance charge memo for.';
+
+                    trigger OnValidate()
+                    begin
+                        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+                    end;
                 }
                 field(Name; Name)
                 {
@@ -66,14 +71,32 @@ page 446 "Finance Charge Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
+                field(ContactPhoneNo; PrimaryContact."Phone No.")
                 {
+                    Caption = 'Phone No.';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting description code for the finance charge memo.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactEmail; PrimaryContact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -150,62 +173,111 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank No."; "Bank No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -458,7 +530,14 @@ page 446 "Finance Charge Memo"
         SetDocNoVisible;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+    end;
+
     var
+        PrimaryContact: Record Contact;
+        Customer: Record Customer;
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";

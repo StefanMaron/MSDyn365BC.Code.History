@@ -220,7 +220,6 @@
         TempPrepmtDeductLCYPurchLine: Record "Purchase Line" temporary;
         TempSKU: Record "Stockkeeping Unit" temporary;
         StatReportingSetup: Record "Stat. Reporting Setup";
-        PostingDesc: Record "Posting Description";
         DeferralPostBuffer: Record "Deferral Posting Buffer";
         TempDeferralHeader: Record "Deferral Header" temporary;
         TempDeferralLine: Record "Deferral Line" temporary;
@@ -228,7 +227,7 @@
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         WhsePurchRelease: Codeunit "Whse.-Purch. Release";
         SalesPost: Codeunit "Sales-Post";
@@ -309,7 +308,6 @@
         PostingPreviewNoTok: Label '***', Locked = true;
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
         InvPutAwayExistsErr: Label 'One or more related inventory put-aways must be registered before you can post the receipt.';
-        DeferralScheduleErr: Label 'The currency code must be empty in the purchase document header.\The posting of the purchase document with deferral schedule and non-deductible VAT is not supported.';
         SuppressCommit: Boolean;
         OrderArchived: Boolean;
         CheckPurchHeaderMsg: Label 'Check purchase document fields.';
@@ -369,7 +367,7 @@
     procedure FillTempLines(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     begin
         TempPurchLine.Reset();
-        if TempPurchLine.IsEmpty then
+        if TempPurchLine.IsEmpty() then
             CopyToTempLines(PurchHeader, TempPurchLine);
     end;
 
@@ -447,7 +445,7 @@
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
             OnCalcInvDiscountSetFilter(PurchLine, PurchHeader);
-            PurchLine.FindFirst;
+            PurchLine.FindFirst();
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             RefreshTempLines(PurchHeader, TempPurchLineGlobal);
             Get("Document Type", "No.");
@@ -502,7 +500,6 @@
             // NAVCZ
             CheckTariffNo(PurchHeader);
             CheckCashDeskUserRights(PurchHeader);
-            CheckDeferralSchedule(PurchHeader);
             // NAVCZ
 
             InvtPickPutaway := "Posting from Whse. Ref." <> 0;
@@ -534,7 +531,6 @@
 
             if Receive then begin
                 Receive := CheckTrackingAndWarehouseForReceive(PurchHeader);
-                CheckItemChargeForReceive(PurchHeader); // NAVCZ
                 if not InvtPickPutaway then
                     if CheckIfInvPutawayExists(PurchHeader) then
                         Error(InvPutAwayExistsErr);
@@ -542,7 +538,6 @@
 
             if Ship then begin
                 Ship := CheckTrackingAndWarehouseForShip(PurchHeader);
-                CheckItemChargeForShip(PurchHeader); // NAVCZ
                 if not InvtPickPutaway then
                     if CheckIfInvPickExists then
                         Error(InvPickExistsErr);
@@ -573,14 +568,6 @@
 
             // Update
             ModifyHeader := UpdatePostingNos(PurchHeader);
-
-            // NAVCZ
-            if "Posting Desc. Code" <> '' then begin
-                PostingDesc.Get("Posting Desc. Code");
-                if PostingDesc."Validate on Posting" then
-                    "Posting Description" := GetPostingDescription(PurchHeader);
-            end;
-            // NAVCZ
 
             DropShipOrder := UpdateAssosOrderPostingNos(PurchHeader);
 
@@ -1038,7 +1025,7 @@
                 TrackingSpecificationExists := false
             else
                 TrackingSpecificationExists :=
-                  ReservePurchLine.RetrieveInvoiceSpecification(PurchLine, TempTrackingSpecification);
+                  PurchLineReserve.RetrieveInvoiceSpecification(PurchLine, TempTrackingSpecification);
 
         PostItemTracking(PurchHeader, PurchLine, TempTrackingSpecification, TrackingSpecificationExists);
 
@@ -1057,7 +1044,6 @@
         TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         TempReservationEntry: Record "Reservation Entry" temporary;
-        CompanyInfo: Record "Company Information";
         Factor: Decimal;
         PostWhseJnlLine: Boolean;
         CheckApplToItemEntry: Boolean;
@@ -1094,13 +1080,6 @@
 
             // NAVCZ
             "G/L Correction" := PurchHeader.Correction xor PurchLine.Negative;
-            if PurchHeader."Perform. Country/Region Code" <> '' then begin
-                if "Country/Region Code" = '' then begin
-                    CompanyInfo.Get();
-                    "Country/Region Code" := CompanyInfo."Country/Region Code";
-                end;
-                "Perform. Country/Region Code" := PurchHeader."Perform. Country/Region Code";
-            end;
             // NAVCZ
 
             if ItemChargeNo <> '' then begin
@@ -1119,13 +1098,7 @@
                 else
                     Factor := QtyToBeInvoiced / PurchLine."Qty. to Invoice";
                 OnPostItemJnlLineOnAfterSetFactor(PurchLine, Factor, GenJnlLineExtDocNo);
-                // NAVCZ
-                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                    PurchLine."VAT Amount (Non Deductible)" :=
-                      CalcVATAmount(
-                        PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group", PurchLine."VAT Base (Non Deductible)");
-                Amount := (PurchLine.Amount + PurchLine."VAT Amount (Non Deductible)") * Factor + RemAmt;
-                // NAVCZ
+                Amount := PurchLine.Amount * Factor + RemAmt;
                 if PurchHeader."Prices Including VAT" then
                     "Discount Amount" :=
                       (PurchLine."Line Discount Amount" + PurchLine."Inv. Discount Amount") /
@@ -1160,7 +1133,6 @@
             "Source No." := PurchHeader."Buy-from Vendor No.";
             "Invoice-to Source No." := PurchHeader."Pay-to Vendor No.";
             // NAVCZ
-            "Source No. 2" := PurchHeader."Pay-to Vendor No.";
             "Source No. 3" := PurchHeader."Order Address Code";
             // NAVCZ
             "Source Code" := SrcCode;
@@ -1177,17 +1149,15 @@
 
             if QtyToBeReceivedBase <> 0 then begin
                 if PurchLine.IsCreditDocType then
-                    ReservePurchLine.TransferPurchLineToItemJnlLine(
+                    PurchLineReserve.TransferPurchLineToItemJnlLine(
                       PurchLine, ItemJnlLine, -QtyToBeReceivedBase, CheckApplToItemEntry)
                 else
-                    ReservePurchLine.TransferPurchLineToItemJnlLine(
+                    PurchLineReserve.TransferPurchLineToItemJnlLine(
                       PurchLine, ItemJnlLine, QtyToBeReceivedBase, CheckApplToItemEntry);
 
                 if CheckApplToItemEntry and PurchLine.IsInventoriableItem then
                     PurchLine.TestField("Appl.-to Item Entry");
             end;
-
-            SetItemChargeDimensions(ItemChargeNo, ItemLedgShptEntryNo); // NAVCZ
 
             CollectPurchaseLineReservEntries(TempReservationEntry, ItemJnlLine);
             OriginalItemJnlLine := ItemJnlLine;
@@ -1448,18 +1418,7 @@
                 ItemJnlLine2."Invoiced Quantity" := ItemJnlLine2.Quantity;
                 ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
             end;
-            // NAVCZ
-            if ItemChargePurchLine."VAT Calculation Type" = ItemChargePurchLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                ItemChargePurchLine."VAT Amount (Non Deductible)" :=
-                  CalcVATAmount(
-                    ItemChargePurchLine."VAT Bus. Posting Group",
-                    ItemChargePurchLine."VAT Prod. Posting Group",
-                    ItemChargePurchLine."VAT Base (Non Deductible)");
-            ItemJnlLine2.Amount :=
-              ("Amount to Assign" + ItemChargePurchLine."VAT Amount (Non Deductible)" /
-               ItemChargePurchLine.Quantity * "Qty. to Assign") *
-              ItemJnlLine2."Invoiced Qty. (Base)" / QtyToInvoice;
-            // NAVCZ
+            ItemJnlLine2.Amount := "Amount to Assign" * ItemJnlLine2."Invoiced Qty. (Base)" / QtyToInvoice;
             if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
                 ItemJnlLine2.Amount := -ItemJnlLine2.Amount;
             ItemJnlLine2."Unit Cost (ACY)" :=
@@ -1503,7 +1462,6 @@
             ItemJnlLine2."Shortcut Dimension 2 Code" := ItemChargePurchLine."Shortcut Dimension 2 Code";
             ItemJnlLine2."Dimension Set ID" := ItemChargePurchLine."Dimension Set ID";
             ItemJnlLine2."Gen. Prod. Posting Group" := ItemChargePurchLine."Gen. Prod. Posting Group";
-            ItemJnlLine2.SetItemChargeDimensions("Item Charge No.", ItemJnlLine2."Item Shpt. Entry No."); // NAVCZ
 
             OnPostItemChargePerOrderOnAfterCopyToItemJnlLine(
               ItemJnlLine2, ItemChargePurchLine, GLSetup, QtyToInvoice, TempItemChargeAssgntPurch);
@@ -1533,10 +1491,10 @@
             SetRange("Source Type", DATABASE::"Purchase Line");
             SetRange("Source ID", TempItemChargeAssgntPurch."Applies-to Doc. No.");
             SetRange("Source Ref. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
-            if IsEmpty then
+            if IsEmpty() then
                 RunItemJnlPostLine(ItemJnlLine2)
             else begin
-                FindSet;
+                FindSet();
                 NonDistrItemJnlLine := ItemJnlLine2;
                 OriginalAmt := NonDistrItemJnlLine.Amount;
                 OriginalAmtACY := NonDistrItemJnlLine."Amount (ACY)";
@@ -1960,7 +1918,6 @@
     local procedure InitAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; SalesOrderHeader: Record "Sales Header"; SalesOrderLine: Record "Sales Line"; PurchHeader: Record "Purchase Header"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal)
     var
         CurrExchRate: Record "Currency Exchange Rate";
-        CompanyInformation: Record "Company Information";
     begin
         OnBeforeInitAssocItemJnlLine(ItemJnlLine, SalesOrderHeader, SalesOrderLine, PurchHeader);
 
@@ -2006,13 +1963,6 @@
             if "Net Weight" <> 0 then
                 if SalesOrderLine."Qty. per Unit of Measure" <> 0 then
                     "Net Weight" := Round("Net Weight" / SalesOrderLine."Qty. per Unit of Measure", 0.00001);
-            if SalesOrderHeader."Perform. Country/Region Code" <> '' then begin
-                if "Country/Region Code" = '' then begin
-                    CompanyInformation.Get();
-                    "Country/Region Code" := CompanyInformation."Country/Region Code";
-                end;
-                "Perform. Country/Region Code" := SalesOrderHeader."Perform. Country/Region Code";
-            end;
             // NAVCZ
         end;
 
@@ -2215,7 +2165,7 @@
         SalesSetup: Record "Sales & Receivables Setup";
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2224,7 +2174,7 @@
             exit;
 
         TempDropShptPostBuffer.Reset();
-        if TempDropShptPostBuffer.IsEmpty then
+        if TempDropShptPostBuffer.IsEmpty() then
             exit;
         SalesSetup.Get();
         if TempDropShptPostBuffer.FindSet() then begin
@@ -2236,7 +2186,7 @@
                 SalesOrderHeader."Shipping No." := '';
                 SalesOrderHeader.Modify();
                 OnUpdateAssocOrderOnAfterSalesOrderHeaderModify(SalesOrderHeader, SalesSetup);
-                ReserveSalesLine.UpdateItemTrackingAfterPosting(SalesOrderHeader);
+                SalesLineReserve.UpdateItemTrackingAfterPosting(SalesOrderHeader);
                 TempDropShptPostBuffer.SetRange("Order No.", TempDropShptPostBuffer."Order No.");
                 repeat
                     SalesOrderLine.Get(
@@ -2524,7 +2474,7 @@
                 DeleteLinks;
             Delete;
 
-            ReservePurchLine.DeleteInvoiceSpecFromHeader(PurchHeader);
+            PurchLineReserve.DeleteInvoiceSpecFromHeader(PurchHeader);
             ResetTempLines(TempPurchLine);
             if TempPurchLine.FindFirst() then
                 repeat
@@ -2642,14 +2592,10 @@
         TotalVATACY: Decimal;
         TotalAmount: Decimal;
         TotalAmountACY: Decimal;
-        TotalNonDeductBase: Decimal;
-        TotalNonDeductVAT: Decimal;
         AmtToDefer: Decimal;
         AmtToDeferACY: Decimal;
         TotalVATBase: Decimal;
         TotalVATBaseACY: Decimal;
-        AmtToDeferWithoutNonDeductVAT: Decimal;
-        AmtToDeferACYWithoutNonDeductVAT: Decimal;
         DeferralAccount: Code[20];
         PurchAccount: Code[20];
         IsHandled: Boolean;
@@ -2662,11 +2608,6 @@
 
         OnFillInvoicePostBufferOnAfterInitAmounts(
           PurchHeader, PurchLine, PurchLineACY, TempInvoicePostBuffer, InvoicePostBuffer, TotalAmount, TotalAmountACY);
-
-        // NAVCZ
-        TotalNonDeductBase := PurchLine."VAT Base (Non Deductible)";
-        TotalNonDeductVAT := PurchLine."VAT Amount (Non Deductible)";
-        // NAVCZ
 
         if PurchSetup."Discount Posting" in
            [PurchSetup."Discount Posting"::"Invoice Discounts", PurchSetup."Discount Posting"::"All Discounts"]
@@ -2684,21 +2625,30 @@
                     if InvoicePostBuffer.Type = InvoicePostBuffer.Type::"Fixed Asset" then begin
                         FillInvoicePostBufferFADiscount(
                           TempInvoicePostBuffer, InvoicePostBuffer, GenPostingSetup, PurchLine."No.",
-                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY,
-                          TotalNonDeductBase, TotalNonDeductVAT, PurchLine);
+#if CLEAN16
+                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
+#else
+                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, PurchLine);
+#endif
                         InvoicePostBuffer.SetAccount(
                           GenPostingSetup.GetPurchInvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                         InvoicePostBuffer.Type := InvoicePostBuffer.Type::"G/L Account";
-                        InvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+                        UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
                         UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
                         InvoicePostBuffer.Type := InvoicePostBuffer.Type::"Fixed Asset";
                     end else begin
                         InvoicePostBuffer.SetAccount(
                           GenPostingSetup.GetPurchInvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                        InvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+                        UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
                         UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
                     end;
                 end;
             end;
@@ -2717,37 +2667,37 @@
                 if InvoicePostBuffer.Type = InvoicePostBuffer.Type::"Fixed Asset" then begin
                     FillInvoicePostBufferFADiscount(
                       TempInvoicePostBuffer, InvoicePostBuffer, GenPostingSetup, PurchLine."No.",
-                      TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY,
-                      TotalNonDeductBase, TotalNonDeductVAT, PurchLine);
+#if CLEAN16
+                      TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
+#else
+                      TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, PurchLine);
+#endif
                     InvoicePostBuffer.SetAccount(
                       GenPostingSetup.GetPurchLineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                     InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                     InvoicePostBuffer.Type := InvoicePostBuffer.Type::"G/L Account";
-                    InvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+                    UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
                     UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
                     InvoicePostBuffer.Type := InvoicePostBuffer.Type::"Fixed Asset";
                 end else begin
                     InvoicePostBuffer.SetAccount(
                       GenPostingSetup.GetPurchLineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                     InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                    TempInvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+                    UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
                     UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
                 end;
                 OnFillInvoicePostingBufferOnAfterSetLineDiscAccount(PurchLine, GenPostingSetup, InvoicePostBuffer, TempInvoicePostBuffer);
             end;
         end;
-        // NAVCZ
-        AmtToDeferWithoutNonDeductVAT := AmtToDefer - TotalNonDeductVAT;
-        AmtToDeferACYWithoutNonDeductVAT := AmtToDeferACY - TotalNonDeductVAT;
 
         DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
-          PurchLine."Deferral Code", AmtToDeferWithoutNonDeductVAT, AmtToDeferACYWithoutNonDeductVAT, TotalAmount, TotalAmountACY);
-
-        if (AmtToDeferWithoutNonDeductVAT = 0) or (AmtToDeferACYWithoutNonDeductVAT = 0) then begin
-            AmtToDefer := AmtToDeferWithoutNonDeductVAT;
-            AmtToDeferACY := AmtToDeferACYWithoutNonDeductVAT;
-        end;
-        // NAVCZ
+          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
 
         IsHandled := false;
         OnBeforeInvoicePostingBufferSetAmounts(
@@ -2781,14 +2731,17 @@
         InvoicePostBuffer.SetAccount(PurchAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
         // NAVCZ
-        InvoicePostBuffer.SetNonDeductable(TotalNonDeductBase, TotalNonDeductVAT);
         InvoicePostBuffer.SetExtAmounts(PurchLine."Ext. Amount (LCY)",
           PurchLine."Ext.Amount Including VAT (LCY)", PurchLine."Ext. VAT Difference (LCY)");
         InvoicePostBuffer.SetVATDifferenceLCY(PurchLine."VAT Difference (LCY)");
         // NAVCZ
         InvoicePostBuffer."Deferral Code" := PurchLine."Deferral Code";
         OnAfterFillInvoicePostBuffer(InvoicePostBuffer, PurchLine, TempInvoicePostBuffer, SuppressCommit);
+#if CLEAN16
+        UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
         UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
 
         OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(PurchHeader, PurchLine, InvoicePostBuffer, TempInvoicePostBuffer);
 
@@ -2799,7 +2752,11 @@
         end;
     end;
 
-    local procedure FillInvoicePostBufferFADiscount(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal; var TotalNonDeductBase: Decimal; var TotalNonDeductVAT: Decimal; PurchLine: Record "Purchase Line")
+#if CLEAN16
+    local procedure FillInvoicePostBufferFADiscount(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal)
+#else
+    local procedure FillInvoicePostBufferFADiscount(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal; PurchLine: Record "Purchase Line")
+#endif
     var
         DeprBook: Record "Depreciation Book";
         IsHandled: Boolean;
@@ -2813,30 +2770,43 @@
         if DeprBook."Subtract Disc. in Purch. Inv." then begin
             InvoicePostBuffer.SetAccount(AccountNo, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
             InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-            InvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+            UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
             UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
             InvoicePostBuffer.ReverseAmounts;
             InvoicePostBuffer.SetAccount(
               GenPostingSetup.GetPurchFADiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
             InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
             InvoicePostBuffer.Type := InvoicePostBuffer.Type::"G/L Account";
-            InvoicePostBuffer.UpdateNonDeductable(TotalNonDeductBase, TotalNonDeductVAT); // NAVCZ
+#if CLEAN16
+            UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer);
+#else
             UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, PurchLine);
+#endif
             InvoicePostBuffer.ReverseAmounts;
         end;
     end;
 
+#if CLEAN16
+    local procedure UpdateInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer")
+#else
     local procedure UpdateInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer"; PurchLine: Record "Purchase Line")
+#endif
     begin
         if InvoicePostBuffer.Type = InvoicePostBuffer.Type::"Fixed Asset" then begin
             FALineNo := FALineNo + 1;
             InvoicePostBuffer."Fixed Asset Line No." := FALineNo;
+#if not CLEAN16
             // NAVCZ
             if PurchSetup."G/L Entry as Doc. Lines (FA)" then
                 InvoicePostBuffer."Entry Description" := PurchLine.Description;
             // NAVCZ
+#endif
         end;
 
+#if not CLEAN16
         // NAVCZ
         case true of
             (PurchLine.Type = PurchLine.Type::"G/L Account") and PurchSetup."G/L Entry as Doc. Lines (Acc.)":
@@ -2857,6 +2827,7 @@
         end;
         // NAVCZ
 
+#endif
         TempInvoicePostBuffer.Update(InvoicePostBuffer, InvDefLineNo, DeferralLineNo);
     end;
 
@@ -2980,12 +2951,6 @@
                           TempVATAmountLineRemainder."VAT Amount" - "Amount Including VAT" + Amount;
                     end;
 
-                // NAVCZ
-                "VAT Base (Non Deductible)" :=
-                  Round("VAT Base Amount" * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
-                "VAT Amount (Non Deductible)" :=
-                  Round(("Amount Including VAT" - "VAT Base Amount") * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
-                // NAVCZ
                 OnDivideAmountOnBeforeTempVATAmountLineRemainderModify(PurchHeader, PurchLine, TempVATAmountLine, TempVATAmountLineRemainder, Currency);
                 TempVATAmountLineRemainder.Modify();
                 if "Deferral Code" <> '' then
@@ -3132,20 +3097,6 @@
                       Usedate, PurchHeader."Currency Code",
                       TotalPurchLine."VAT Base Amount", PurchHeader."Currency Factor")) -
                   TotalPurchLineLCY."VAT Base Amount";
-
-                // NAVCZ
-                "VAT Base (Non Deductible)" :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      Usedate, PurchHeader."Currency Code",
-                      TotalPurchLine."VAT Base (Non Deductible)", PurchHeader."Currency Factor")) -
-                  TotalPurchLineLCY."VAT Base (Non Deductible)";
-                "VAT Amount (Non Deductible)" :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      Usedate, PurchHeader."Currency Code",
-                      TotalPurchLine."VAT Amount (Non Deductible)", PurchHeader."Currency Factor")) -
-                  TotalPurchLineLCY."VAT Amount (Non Deductible)";
             end;
 
             OnRoundAmountOnBeforeIncrAmount(PurchHeader, PurchLine, PurchLineQty, TotalPurchLine, TotalPurchLineLCY);
@@ -3174,10 +3125,6 @@
             "Amount Including VAT" := -"Amount Including VAT";
             "Line Discount Amount" := -"Line Discount Amount";
             "Inv. Discount Amount" := -"Inv. Discount Amount";
-            // NAVCZ
-            "VAT Base (Non Deductible)" := -"VAT Base (Non Deductible)";
-            "VAT Amount (Non Deductible)" := -"VAT Amount (Non Deductible)";
-            // NAVCZ
             "Salvage Value" := -"Salvage Value";
             // NAVCZ
             "Ext. Amount (LCY)" := -"Ext. Amount (LCY)";
@@ -3260,11 +3207,6 @@
             Increment(TotalPurchLine.Amount, Amount);
             Increment(TotalPurchLine."VAT Base Amount", "VAT Base Amount");
             Increment(TotalPurchLine."VAT Difference", "VAT Difference");
-            // NAVCZ
-            if Type in [Type::"G/L Account", Type::Item, Type::"Fixed Asset"] then begin
-                Increment(TotalPurchLine."VAT Base (Non Deductible)", "VAT Base (Non Deductible)");
-                Increment(TotalPurchLine."VAT Amount (Non Deductible)", "VAT Amount (Non Deductible)");
-            end;
             Increment(TotalPurchLine."VAT Difference (LCY)", "VAT Difference (LCY)");
             // NAVCZ
             Increment(TotalPurchLine."Amount Including VAT", "Amount Including VAT");
@@ -3739,16 +3681,16 @@
                 PurchaseLineToFind.CopyFilters(PurchaseLine);
                 PurchaseLineToFind.SetRange("No.", PurchaseLine."No.");
                 PurchaseLineToFind.SetRange("Depr. until FA Posting Date", not PurchaseLine."Depr. until FA Posting Date");
-                if not PurchaseLineToFind.IsEmpty then
+                if not PurchaseLineToFind.IsEmpty() then
                     Error(MixedDerpFAUntilPostingDateErr, PurchaseLine."No.");
 
                 if PurchaseLine."Depr. until FA Posting Date" then begin
                     PurchaseLineToFind.SetRange("Depr. until FA Posting Date", true);
                     PurchaseLineToFind.SetFilter("Line No.", '<>%1', PurchaseLine."Line No.");
-                    if not PurchaseLineToFind.IsEmpty then begin
+                    if not PurchaseLineToFind.IsEmpty() then begin
                         HasBookValue := false;
                         FADepreciationBook.SetRange("FA No.", PurchaseLine."No.");
-                        FADepreciationBook.FindSet;
+                        FADepreciationBook.FindSet();
                         repeat
                             FADepreciationBook.CalcFields("Book Value");
                             HasBookValue := HasBookValue or (FADepreciationBook."Book Value" <> 0);
@@ -3766,7 +3708,7 @@
     begin
         ItemChargeAssgntPurch.SetRange("Document Type", PurchHeader."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchHeader."No.");
-        if not ItemChargeAssgntPurch.IsEmpty then
+        if not ItemChargeAssgntPurch.IsEmpty() then
             ItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -3940,7 +3882,7 @@
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
             SetFilter("Line Discount %", '<>100');
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             CopyItemChargeForPurchLine(TempItemChargeAssgntPurch, TempPurchLine);
@@ -4087,7 +4029,7 @@
         TempItemChargeAssignmentPurch.Reset();
         TempItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
         TempItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
-        if not TempItemChargeAssignmentPurch.IsEmpty then
+        if not TempItemChargeAssignmentPurch.IsEmpty() then
             TempItemChargeAssignmentPurch.DeleteAll();
 
         ItemChargeAssgntPurch.Reset();
@@ -4427,7 +4369,7 @@
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
                         ItemTrackingManagement.GetItemTrackingSetup(
-                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase.AsInteger(), Inbound, ItemTrackingSetup);
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase, Inbound, ItemTrackingSetup);
                         CheckPurchLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckPurchLine then
                             CheckPurchLine := CheckTrackingExists(TempItemPurchLine);
@@ -4500,9 +4442,9 @@
             exit;
 
         TempTrackingSpecification.Reset();
-        if not TempTrackingSpecification.IsEmpty then begin
+        if not TempTrackingSpecification.IsEmpty() then begin
             TempTrackingSpecification.InsertSpecification;
-            ReservePurchLine.UpdateItemTrackingAfterPosting(PurchHeader);
+            PurchLineReserve.UpdateItemTrackingAfterPosting(PurchHeader);
         end;
     end;
 
@@ -4612,7 +4554,7 @@
 
     local procedure TransferReservToItemJnlLine(var SalesOrderLine: Record "Sales Line"; var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line"; QtyToBeShippedBase: Decimal; ApplySpecificItemTracking: Boolean)
     var
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         RemainingQuantity: Decimal;
         CheckApplFromItemEntry: Boolean;
     begin
@@ -4621,27 +4563,27 @@
             exit;
 
         if not ApplySpecificItemTracking then
-            ReserveSalesLine.TransferSalesLineToItemJnlLine(
+            SalesLineReserve.TransferSalesLineToItemJnlLine(
               SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
         else begin
-            ReserveSalesLine.SetApplySpecificItemTracking(true);
+            SalesLineReserve.SetApplySpecificItemTracking(true);
             TempTrackingSpecification.Reset();
             TempTrackingSpecification.SetSourceFilter(
               DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", false);
             TempTrackingSpecification.SetSourceFilter('', 0);
-            if TempTrackingSpecification.IsEmpty then
-                ReserveSalesLine.TransferSalesLineToItemJnlLine(
+            if TempTrackingSpecification.IsEmpty() then
+                SalesLineReserve.TransferSalesLineToItemJnlLine(
                   SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
             else begin
-                ReserveSalesLine.SetOverruleItemTracking(true);
-                TempTrackingSpecification.FindSet;
+                SalesLineReserve.SetOverruleItemTracking(true);
+                TempTrackingSpecification.FindSet();
                 if TempTrackingSpecification."Quantity (Base)" / QtyToBeShippedBase < 0 then
                     Error(ItemTrackingWrongSignErr);
                 repeat
                     ItemJnlLine.CopyTrackingFromSpec(TempTrackingSpecification);
                     ItemJnlLine."Applies-to Entry" := TempTrackingSpecification."Item Ledger Entry No.";
                     RemainingQuantity :=
-                      ReserveSalesLine.TransferSalesLineToItemJnlLine(
+                      SalesLineReserve.TransferSalesLineToItemJnlLine(
                         SalesOrderLine, ItemJnlLine, TempTrackingSpecification."Quantity (Base)", CheckApplFromItemEntry, false);
                     if RemainingQuantity <> 0 then
                         Error(ItemTrackingMismatchErr);
@@ -5205,13 +5147,13 @@
     var
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
+        InvSetup: Record "Inventory Setup";
     begin
         OnBeforeLockTables(PurchHeader, PreviewMode, SuppressCommit);
 
         PurchLine.LockTable();
         SalesLine.LockTable();
-        GetGLSetup();
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.FindLast then;
         end;
@@ -5357,8 +5299,8 @@
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        // Skip UoM validation for partially received documents and lines fetch through "Get Receipts Lines"
-        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) and (PurchLine."Receipt No." = '') then
+        // Skip UoM validation for partially received/shipped documents and lines fetch through "Get Receipts Lines"
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) and (PurchLine."Receipt No." = '') and (PurchLine."Return Qty. Shipped (Base)" = 0) and (PurchLine."Return Shipment No." = '') then
             PurchLine.TestField("Unit of Measure Code");
 
         if PurchLine."Qty. per Unit of Measure" = 0 then
@@ -5538,21 +5480,6 @@
         SumPurchLines2(PurchHeader, NewPurchLine, OldPurchLine, QtyType, true);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure TransferNonDedVAT(var GenJnlLine: Record "Gen. Journal Line"; InvPostingBuffer: Record "Invoice Post. Buffer")
-    begin
-        // NAVCZ
-        if InvPostingBuffer."VAT % (Non Deductible)" = 0 then
-            exit;
-        GenJnlLine."VAT % (Non Deductible)" := InvPostingBuffer."VAT % (Non Deductible)";
-        GenJnlLine."VAT Base (Non Deductible)" := InvPostingBuffer."VAT Base (Non Deductible)";
-        GenJnlLine."VAT Amount (Non Deductible)" := InvPostingBuffer."VAT Amount (Non Deductible)";
-        GenJnlLine."VAT Base LCY (Non Deduct.)" := InvPostingBuffer."VAT Base (Non Deductible)";
-        GenJnlLine."VAT Amount LCY (Non Deduct.)" := InvPostingBuffer."VAT Amount (Non Deductible)";
-        if (GenJnlLine."VAT Base (Non Deductible)" = 0) or (GenJnlLine."VAT Amount (Non Deductible)" = 0) then
-            GenJnlLine.Validate("VAT % (Non Deductible)");
-    end;
-
     [Scope('OnPrem')]
     procedure DeleteAdvLetterRelation(PurchLine: Record "Purchase Line")
     var
@@ -5623,14 +5550,6 @@
 
             InitVATDelayAmounts(PurchHeader, InvoicePostBuffer, Post, GenJnlLine);
 
-            if PurchHeader."Perform. Country/Region Code" <> '' then begin
-                "Perform. Country/Region Code" := PurchHeader."Perform. Country/Region Code";
-                "Currency Code VAT" := PurchHeader."Currency Code";
-                if Post then
-                    "Currency Factor VAT" := PurchHeader."VAT Currency Factor"
-                else
-                    "Currency Factor VAT" := PurchHeader."Currency Factor";
-            end;
             "VAT Delay" := true; // NAVCZ
             OnPostVATDelayOnBeforeRunGenJnlPostLine(GenJnlLine);
             RunGenJnlPostLine(GenJnlLine);
@@ -5696,21 +5615,6 @@
                     "VAT Difference" := Round(InvoicePostBuffer."VAT Difference" * CurrFactor,
                         Currency."Amount Rounding Precision");
                 end;
-
-                // Post VAT Non Deductible
-                if InvoicePostBuffer."VAT % (Non Deductible)" <> 0 then begin
-                    "VAT % (Non Deductible)" := InvoicePostBuffer."VAT % (Non Deductible)";
-                    "VAT Base (Non Deductible)" :=
-                      Round("VAT Base Amount" * InvoicePostBuffer."VAT % (Non Deductible)" / 100,
-                        Currency."Amount Rounding Precision");
-                    "VAT Amount (Non Deductible)" :=
-                      Round("VAT Amount" * InvoicePostBuffer."VAT % (Non Deductible)" / 100,
-                        Currency."Amount Rounding Precision");
-                    "VAT Base LCY (Non Deduct.)" := "VAT Base (Non Deductible)";
-                    "VAT Amount LCY (Non Deduct.)" := "VAT Amount (Non Deductible)";
-                    if ("VAT Base (Non Deductible)" = 0) or ("VAT Amount (Non Deductible)" = 0) then
-                        Validate("VAT % (Non Deductible)");
-                end;
             end else begin
                 Quantity := -InvoicePostBuffer.Quantity;
                 Amount := -Round(InvoicePostBuffer.Amount, Currency."Amount Rounding Precision");
@@ -5720,17 +5624,6 @@
                 "Source Curr. VAT Amount" := -Round(InvoicePostBuffer."VAT Amount (ACY)", Currency."Amount Rounding Precision");
                 "Source Curr. VAT Base Amount" := "Source Currency Amount";
                 "VAT Difference" := -Round(InvoicePostBuffer."VAT Difference", Currency."Amount Rounding Precision");
-
-                // Correct Non VAT Deductible
-                if InvoicePostBuffer."VAT % (Non Deductible)" <> 0 then begin
-                    "VAT % (Non Deductible)" := InvoicePostBuffer."VAT % (Non Deductible)";
-                    "VAT Base (Non Deductible)" := -InvoicePostBuffer."VAT Base (Non Deductible)";
-                    "VAT Amount (Non Deductible)" := -InvoicePostBuffer."VAT Amount (Non Deductible)";
-                    "VAT Base LCY (Non Deduct.)" := -InvoicePostBuffer."VAT Base (Non Deductible)";
-                    "VAT Amount LCY (Non Deduct.)" := -InvoicePostBuffer."VAT Amount (Non Deductible)";
-                    if ("VAT Base (Non Deductible)" = 0) or ("VAT Amount (Non Deductible)" = 0) then
-                        Validate("VAT % (Non Deductible)");
-                end;
             end;
     end;
 
@@ -5753,25 +5646,15 @@
                         // Amount - Ext.Amount
                         AmtTmp := Round(InvoicePostBuffer."Ext. Amount Including VAT" - InvoicePostBuffer."Ext. Amount" +
                             InvoicePostBuffer."Ext. VAT Difference (LCY)", Currency."Amount Rounding Precision");
-                        AmtTmp := Round(AmtTmp * InvoicePostBuffer."VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
-                        CalcAmt := (InvoicePostBuffer.Amount + InvoicePostBuffer."VAT Amount (Non Deductible)") -
+                        CalcAmt := InvoicePostBuffer.Amount -
                           (Round(InvoicePostBuffer."Ext. Amount", Currency."Amount Rounding Precision") + AmtTmp);
                     end;
                 end;
             AmtType::VAT:
                 begin
-                    if InvoicePostBuffer."VAT % (Non Deductible)" <> 0 then begin
-                        AmtTmp := Round(InvoicePostBuffer."Ext. Amount Including VAT" - InvoicePostBuffer."Ext. Amount" +
-                            InvoicePostBuffer."Ext. VAT Difference (LCY)", Currency."Amount Rounding Precision");
-                        AmtTmp := Round(AmtTmp * InvoicePostBuffer."VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
-                        AmtTmp := (InvoicePostBuffer.Amount + InvoicePostBuffer."VAT Amount (Non Deductible)") -
-                          (Round(InvoicePostBuffer."Ext. Amount", Currency."Amount Rounding Precision") + AmtTmp);
-                        CalcAmt := ((InvoicePostBuffer.Amount + InvoicePostBuffer."VAT Amount") -
-                                    InvoicePostBuffer."Ext. Amount Including VAT") - AmtTmp;
-                    end else
-                        CalcAmt := InvoicePostBuffer."VAT Amount" -
-                          Round(InvoicePostBuffer."Ext. Amount Including VAT" - InvoicePostBuffer."Ext. Amount" +
-                            InvoicePostBuffer."Ext. VAT Difference (LCY)", Currency."Amount Rounding Precision");
+                    CalcAmt := InvoicePostBuffer."VAT Amount" -
+                      Round(InvoicePostBuffer."Ext. Amount Including VAT" - InvoicePostBuffer."Ext. Amount" +
+                        InvoicePostBuffer."Ext. VAT Difference (LCY)", Currency."Amount Rounding Precision");
 
                     if CalcAmt < 0 then
                         AccountNo := Currency."Realized Gains Acc."
@@ -5801,11 +5684,9 @@
 
             // VAT Amt. Non Deduct
             AmtTmp := InvoicePostBuffer."VAT Amount";
-            AmtTmp := Round(AmtTmp * InvoicePostBuffer."VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
 
             // VAT Amt. Non Deduct new Factor
             AmtTmp2 := Round(InvoicePostBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
-            AmtTmp2 := Round(AmtTmp2 * InvoicePostBuffer."VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision");
 
             CalcAmt := AmtTmp - AmtTmp2;
         end;
@@ -5863,11 +5744,6 @@
 
             Quantity := InvoicePostBuffer.Quantity;
             Amount := CalcAmt;
-            if PurchHeader."Perform. Country/Region Code" <> '' then begin
-                "Perform. Country/Region Code" := PurchHeader."Perform. Country/Region Code";
-                "Currency Code VAT" := PurchHeader."Currency Code";
-                "Currency Factor VAT" := PurchHeader."VAT Currency Factor";
-            end;
             "VAT Delay" := true; // NAVCZ
             OnPostVATDelayDiffJournalOnBeforeRunGenJnlPostLine(GenJnlLine);
             RunGenJnlPostLine(GenJnlLine);
@@ -6292,7 +6168,7 @@
 
             if PurchHeader."Document Type" = PurchHeader."Document Type"::Invoice then
                 PurchInvHeader."Draft Invoice SystemId" := PurchHeader.SystemId;
-            
+
             PurchInvHeader.Insert(true);
             OnAfterPurchInvHeaderInsert(PurchInvHeader, PurchHeader);
 
@@ -6579,9 +6455,9 @@
             if PurchHeader."Document Type" = PurchHeader."Document Type"::Order then
                 SetFilter("Qty. to Receive", '<>0');
             SetRange("Receipt No.", '');
-            Receive := FindFirst;
-            WhseReceive := TempWhseRcptHeader.FindFirst;
-            WhseShip := TempWhseShptHeader.FindFirst;
+            Receive := FindFirst();
+            WhseReceive := TempWhseRcptHeader.FindFirst();
+            WhseShip := TempWhseShptHeader.FindFirst();
             if Receive then begin
                 CheckTrackingSpecification(PurchHeader, TempPurchLine);
                 if not (WhseReceive or WhseShip or InvtPickPutaway) then
@@ -6608,9 +6484,9 @@
             SetFilter(Quantity, '<>0');
             SetFilter("Return Qty. to Ship", '<>0');
             SetRange("Return Shipment No.", '');
-            Ship := FindFirst;
-            WhseReceive := TempWhseRcptHeader.FindFirst;
-            WhseShip := TempWhseShptHeader.FindFirst;
+            Ship := FindFirst();
+            WhseReceive := TempWhseRcptHeader.FindFirst();
+            WhseShip := TempWhseShptHeader.FindFirst();
             if Ship then begin
                 CheckTrackingSpecification(PurchHeader, TempPurchLine);
                 if not (WhseShip or WhseReceive or InvtPickPutaway) then
@@ -6638,9 +6514,9 @@
             if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
                 SetFilter("Qty. to Receive", '<>0');
             SetRange("Receipt No.", '');
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -6662,9 +6538,9 @@
             SetFilter(Quantity, '<>0');
             SetFilter("Return Qty. to Ship", '<>0');
             SetRange("Return Shipment No.", '');
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -6844,11 +6720,6 @@
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, '');
             CopyFromPurchHeader(PurchHeader);
             "EU 3-Party Intermediate Role" := PurchHeader."EU 3-Party Intermediate Role";
-            if PurchHeader."Perform. Country/Region Code" <> '' then begin
-                "Perform. Country/Region Code" := PurchHeader."Perform. Country/Region Code";
-                "Currency Code VAT" := PurchHeader."Currency Code";
-                "Currency Factor VAT" := PurchHeader."Currency Factor";
-            end;
             CopyFromInvoicePostBuffer(InvoicePostBuffer);
             OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer(GenJnlLine, PurchHeader, TempPurchLineGlobal);
 
@@ -6858,7 +6729,6 @@
             Correction := InvoicePostBuffer.Correction;
             if PurchHeader."Currency Code" <> '' then
                 "VAT Amount" := "VAT Amount" + InvoicePostBuffer."VAT Difference (LCY)";
-            TransferNonDedVAT(GenJnlLine, InvoicePostBuffer);
             "VAT Date" := InvoicePostBuffer."VAT Date";
             "Original Document VAT Date" := InvoicePostBuffer."Original Document VAT Date";
             "Prepayment Type" := InvoicePostBuffer."Prepayment Type";
@@ -7029,7 +6899,7 @@
         GetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDeferACY, DeferralAccount);
     end;
 
-    local procedure CalcInvoiceDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcInvoiceDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         case PurchLine."VAT Calculation Type" of
             PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
@@ -7047,7 +6917,7 @@
         OnAfterCalcInvoiceDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostBuffer);
     end;
 
-    local procedure CalcLineDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcLineDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         case PurchLine."VAT Calculation Type" of
             PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
@@ -7197,15 +7067,6 @@
         // NAVCZ
         CheckExternalDocumentNumber(VendLedgEntry, PurchaseHeader);
         CheckExternalDocumentNumberInPostedDocuments(PurchaseHeader);
-    end;
-
-    local procedure CalcVATAmount(VATBusPstGroup: Code[20]; VATProdPstGroup: Code[20]; VATBase: Decimal): Decimal
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // NAVCZ
-        VATPostingSetup.Get(VATBusPstGroup, VATProdPstGroup);
-        exit(VATBase * VATPostingSetup."VAT %" / 100);
     end;
 
     local procedure PostInvoicePostingBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
@@ -7646,7 +7507,7 @@
                     end;
                     if PurchHeader.Invoice then begin
                         TempPrePmtAmtToDeduct := "Prepmt Amt to Deduct"; // NAVCZ
-                        if "Document Type" = "Document Type"::Order then 
+                        if "Document Type" = "Document Type"::Order then
                             UpdateQtyToInvoiceForOrder(PurchHeader, TempPurchLine)
                         else
                             UpdateQtyToInvoiceForReturnOrder(PurchHeader, TempPurchLine);
@@ -7889,83 +7750,7 @@
         end;
     end;
 
-    local procedure CheckDeferralSchedule(var PurchHeader: Record "Purchase Header")
-    var
-        PurchLine: Record "Purchase Line";
-    begin
-        // NAVCZ
-        with PurchHeader do begin
-            if "Currency Code" = '' then
-                exit;
-
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter("Deferral Code", '<>%1', '');
-            PurchLine.SetFilter("VAT % (Non Deductible)", '<>0');
-            if PurchLine.IsEmpty then
-                exit;
-
-            Error(DeferralScheduleErr);
-        end;
-    end;
-
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure CheckItemChargeForReceive(var PurchHeader: Record "Purchase Header")
-    var
-        PurchLine: Record "Purchase Line";
-        ItemCharge: Record "Item Charge";
-    begin
-        // NAVCZ
-        if WhseReceive then
-            exit;
-
-        with PurchHeader do begin
-            PurchLine.Reset();
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
-            if "Document Type" = "Document Type"::Order then
-                PurchLine.SetFilter("Qty. to Receive", '<>0');
-            if PurchLine.FindSet() then
-                repeat
-                    ItemCharge.Get(PurchLine."No.");
-                    if ItemCharge."Assigment on Receive/Shipment" then begin
-                        PurchLine.CalcFields("Qty. to Assign");
-                        PurchLine.TestField("Qty. to Assign",
-                          PurchLine."Qty. to Receive" + PurchLine."Quantity Received" - PurchLine."Quantity Invoiced");
-                    end;
-                until PurchLine.Next() = 0;
-        end;
-    end;
-
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure CheckItemChargeForShip(var PurchHeader: Record "Purchase Header")
-    var
-        PurchLine: Record "Purchase Line";
-        ItemCharge: Record "Item Charge";
-    begin
-        // NAVCZ
-        if WhseShip then
-            exit;
-
-        with PurchHeader do begin
-            PurchLine.Reset();
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetRange(Type, PurchLine.Type::"Charge (Item)");
-            PurchLine.SetFilter("Return Qty. to Ship", '<>0');
-            if PurchLine.FindSet() then
-                repeat
-                    ItemCharge.Get(PurchLine."No.");
-                    if ItemCharge."Assigment on Receive/Shipment" then begin
-                        PurchLine.CalcFields("Qty. to Assign");
-                        PurchLine.TestField("Qty. to Assign",
-                          PurchLine."Return Qty. to Ship" + PurchLine."Return Qty. Shipped" - PurchLine."Quantity Invoiced");
-                    end;
-                until PurchLine.Next() = 0;
-        end;
-    end;
-
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
     local procedure CheckIntrastatTransactionSetup(var PurchHeader: Record "Purchase Header")
     begin
         // NAVCZ
@@ -8283,7 +8068,7 @@
         OverReceiptPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         OverReceiptPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         OverReceiptPurchaseLine.SetRange("Over-Receipt Approval Status", OverReceiptPurchaseLine."Over-Receipt Approval Status"::Pending);
-        if not OverReceiptPurchaseLine.IsEmpty then
+        if not OverReceiptPurchaseLine.IsEmpty() then
             Error(OverReceiptApprovalErr);
     end;
 

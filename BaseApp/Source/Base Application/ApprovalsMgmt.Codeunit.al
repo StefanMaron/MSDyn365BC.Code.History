@@ -1,4 +1,4 @@
-﻿codeunit 1535 "Approvals Mgmt."
+codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -304,7 +304,7 @@
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
                 ApproveSelectedApprovalRequest(ApprovalEntryToUpdate);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 
     procedure RejectApprovalRequests(var ApprovalEntry: Record "Approval Entry")
@@ -315,7 +315,7 @@
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
                 RejectSelectedApprovalRequest(ApprovalEntryToUpdate);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 
     procedure DelegateApprovalRequests(var ApprovalEntry: Record "Approval Entry")
@@ -332,7 +332,7 @@
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
                 DelegateSelectedApprovalRequest(ApprovalEntryToUpdate, true);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
             Message(ApprovalsDelegatedMsg);
         end;
 
@@ -490,7 +490,7 @@
                 ApprovalEntryToUpdate.Validate(Status, ApprovalEntry.Status::Approved);
                 ApprovalEntryToUpdate.Modify(true);
                 CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 
     procedure CancelApprovalRequestsForRecord(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance")
@@ -512,7 +512,7 @@
                 ApprovalEntryToUpdate.Modify(true);
                 if OldStatus in [ApprovalEntry.Status::Open, ApprovalEntry.Status::Approved] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 
     procedure RejectApprovalRequestsForRecord(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance")
@@ -534,7 +534,7 @@
                 ApprovalEntryToUpdate.Modify(true);
                 if OldStatus in [ApprovalEntry.Status::Open] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
         end;
     end;
 
@@ -557,7 +557,7 @@
                     ApprovalEntry2.Validate(Status, ApprovalEntry2.Status::Open);
                     ApprovalEntry2.Modify(true);
                     CreateApprovalEntryNotification(ApprovalEntry2, WorkflowStepInstance);
-                until ApprovalEntry2.Next = 0;
+                until ApprovalEntry2.Next() = 0;
             if FindApprovedApprovalEntryForWorkflowUserGroup(ApprovalEntry, WorkflowStepInstance) then
                 OnApproveApprovalRequest(ApprovalEntry);
             exit;
@@ -595,7 +595,7 @@
                     ApprovalEntry3.Validate(Status, ApprovalEntry3.Status::Open);
                     ApprovalEntry3.Modify(true);
                     CreateApprovalEntryNotification(ApprovalEntry3, WorkflowStepInstance);
-                until ApprovalEntry3.Next = 0;
+                until ApprovalEntry3.Next() = 0;
         end;
     end;
 
@@ -614,6 +614,8 @@
                     CreateApprReqForApprTypeApprover(WorkflowStepArgument, ApprovalEntryArgument);
                 WorkflowStepArgument."Approver Type"::"Workflow User Group":
                     CreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
+                else
+                    OnCreateApprovalRequestsOnElseCase(WorkflowStepArgument, ApprovalEntryArgument);
             end;
 
         if WorkflowStepArgument."Show Confirmation Message" then
@@ -706,7 +708,7 @@
                 if not UserSetup.Get(ApproverId) then
                     Error(WFUserGroupNotInSetupErr, ApproverId);
                 MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + "Sequence No.", ApproverId, WorkflowStepArgument);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         OnAfterCreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
@@ -1163,13 +1165,15 @@
             WorkflowStepArgument."Approver Type"::"Workflow User Group":
                 ApprovalEntry."Approval Type" := ApprovalEntry."Approval Type"::"Workflow User Group";
         end;
+
+        OnAfterSetApproverType(WorkflowStepArgument, ApprovalEntry);
     end;
 
     local procedure SetLimitType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
     begin
         case WorkflowStepArgument."Approver Limit Type" of
             WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver":
+            WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver":
                 ApprovalEntry."Limit Type" := ApprovalEntry."Limit Type"::"Approval Limits";
             WorkflowStepArgument."Approver Limit Type"::"Direct Approver":
                 ApprovalEntry."Limit Type" := ApprovalEntry."Limit Type"::"No Limits";
@@ -1179,6 +1183,8 @@
 
         if ApprovalEntry."Approval Type" = ApprovalEntry."Approval Type"::"Workflow User Group" then
             ApprovalEntry."Limit Type" := ApprovalEntry."Limit Type"::"No Limits";
+
+        OnAfterSetLimitType(WorkflowStepArgument, ApprovalEntry);
     end;
 
     local procedure IsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal): Boolean
@@ -1309,7 +1315,7 @@
                     DocType := -1;
                     IsSufficient := IsSufficientPurchApprover(UserSetup, DocType, ApprovalEntryArgument."Amount (LCY)");
                 end;
-            // NAVCZ
+        // NAVCZ
         end;
 
         IsHandled := false;
@@ -1367,6 +1373,7 @@
         exit(true);
     end;
 
+    [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure PrePostApprovalCheckCredit(var CreditHdr: Record "Credit Header"): Boolean
     begin
@@ -1470,6 +1477,7 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode));
     end;
 
+    [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure IsCreditApprovalsWorkflowEnabled(var CreditHdr: Record "Credit Header"): Boolean
     begin
@@ -1651,20 +1659,20 @@
         DeleteApprovalEntries(RecRef.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnMoveGenJournalLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnMoveGenJournalLine', '', false, false)]
     procedure PostApprovalEntriesMoveGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; ToRecordID: RecordID)
     begin
         PostApprovalEntries(GenJournalLine.RecordId, ToRecordID, GenJournalLine."Document No.");
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterDeleteEvent', '', false, false)]
     procedure DeleteApprovalEntriesAfterDeleteGenJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             DeleteApprovalEntries(Rec.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnMoveGenJournalBatch', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnMoveGenJournalBatch', '', false, false)]
     procedure PostApprovalEntriesMoveGenJournalBatch(var Sender: Record "Gen. Journal Batch"; ToRecordID: RecordID)
     var
         RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
@@ -1675,28 +1683,28 @@
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnAfterDeleteEvent', '', false, false)]
     procedure DeleteApprovalEntriesAfterDeleteGenJournalBatch(var Rec: Record "Gen. Journal Batch"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             DeleteApprovalEntries(Rec.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
     procedure DeleteApprovalEntriesAfterDeleteCustomer(var Rec: Record Customer; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             DeleteApprovalEntries(Rec.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterDeleteEvent', '', false, false)]
     procedure DeleteApprovalEntriesAfterDeleteVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             DeleteApprovalEntries(Rec.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterDeleteEvent', '', false, false)]
     procedure DeleteApprovalEntriesAfterDeleteItem(var Rec: Record Item; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
@@ -1725,7 +1733,7 @@
             PostedApprovalEntry."Entry No." := 0;
             OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(PostedApprovalEntry, ApprovalEntry);
             PostedApprovalEntry.Insert(true);
-        until ApprovalEntry.Next = 0;
+        until ApprovalEntry.Next() = 0;
 
         PostApprovalCommentLines(ApprovedRecordID, PostedRecordID, PostedDocNo);
         exit(true);
@@ -1748,7 +1756,7 @@
                 PostedApprovalCommentLine."Posted Record ID" := PostedRecordID;
                 OnPostApprovalCommentLinesOnBeforePostedApprovalCommentLineInsert(PostedApprovalCommentLine, ApprovalCommentLine);
                 PostedApprovalCommentLine.Insert(true);
-            until ApprovalCommentLine.Next = 0;
+            until ApprovalCommentLine.Next() = 0;
     end;
 
     procedure ShowPostedApprovalEntries(PostedRecordID: RecordID)
@@ -1767,7 +1775,7 @@
     begin
         PostedApprovalEntry.SetRange("Table ID", PostedRecordID.TableNo);
         PostedApprovalEntry.SetRange("Posted Record ID", PostedRecordID);
-        if not PostedApprovalEntry.IsEmpty then
+        if not PostedApprovalEntry.IsEmpty() then
             PostedApprovalEntry.DeleteAll();
         DeletePostedApprovalCommentLines(PostedRecordID);
     end;
@@ -1778,7 +1786,7 @@
     begin
         PostedApprovalCommentLine.SetRange("Table ID", PostedRecordID.TableNo);
         PostedApprovalCommentLine.SetRange("Posted Record ID", PostedRecordID);
-        if not PostedApprovalCommentLine.IsEmpty then
+        if not PostedApprovalCommentLine.IsEmpty() then
             PostedApprovalCommentLine.DeleteAll();
     end;
 
@@ -2072,22 +2080,22 @@
         ApprovalEntry.SetRange("Table ID", DATABASE::"Gen. Journal Line");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Related to Change", false);
-        if ApprovalEntry.IsEmpty then
+        if ApprovalEntry.IsEmpty() then
             exit(false);
 
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        if GenJournalLine.IsEmpty then
+        if GenJournalLine.IsEmpty() then
             exit(false);
 
         if GenJournalLine.Count < ApprovalEntry.Count then begin
-            GenJournalLine.FindSet;
+            GenJournalLine.FindSet();
             repeat
                 if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                     exit(true);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         end else begin
-            ApprovalEntry.FindSet;
+            ApprovalEntry.FindSet();
             repeat
                 GenJournalLineRecordID := ApprovalEntry."Record ID to Approve";
                 GenJournalLineRecRef := GenJournalLineRecordID.GetRecord;
@@ -2096,7 +2104,7 @@
                    (GenJournalLine."Journal Batch Name" = JournalBatchName)
                 then
                     exit(true);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
         end;
 
         exit(false)
@@ -2130,7 +2138,7 @@
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
                 LinesSent += 1;
             end;
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
 
         case LinesSent of
             0:
@@ -2160,7 +2168,7 @@
             if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                 OnCancelGeneralJournalLineApprovalRequest(GenJournalLine);
             WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
         Message(ApprovalReqCanceledForSelectedLinesMsg);
     end;
 
@@ -2183,13 +2191,13 @@
             GenJournalBatch.Get(GenJournalLine.GetFilter("Journal Template Name"), GenJournalLine.GetFilter("Journal Batch Name"));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnRenameRecordInApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRenameRecordInApprovalRequest', '', false, false)]
     procedure RenameApprovalEntries(OldRecordId: RecordID; NewRecordId: RecordID)
     var
         ApprovalEntry: Record "Approval Entry";
     begin
         ApprovalEntry.SetRange("Record ID to Approve", OldRecordId);
-        if not ApprovalEntry.IsEmpty then
+        if not ApprovalEntry.IsEmpty() then
             ApprovalEntry.ModifyAll("Record ID to Approve", NewRecordId, true);
         ChangeApprovalComments(OldRecordId, NewRecordId);
     end;
@@ -2199,18 +2207,18 @@
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
         ApprovalCommentLine.SetRange("Record ID to Approve", OldRecordId);
-        if not ApprovalCommentLine.IsEmpty then
+        if not ApprovalCommentLine.IsEmpty() then
             ApprovalCommentLine.ModifyAll("Record ID to Approve", NewRecordId, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnDeleteRecordInApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnDeleteRecordInApprovalRequest', '', false, false)]
     procedure DeleteApprovalEntries(RecordIDToApprove: RecordID)
     var
         ApprovalEntry: Record "Approval Entry";
     begin
         ApprovalEntry.SetRange("Table ID", RecordIDToApprove.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordIDToApprove);
-        if not ApprovalEntry.IsEmpty then
+        if not ApprovalEntry.IsEmpty() then
             ApprovalEntry.DeleteAll(true);
         DeleteApprovalCommentLines(RecordIDToApprove);
     end;
@@ -2221,7 +2229,7 @@
     begin
         ApprovalCommentLine.SetRange("Table ID", RecordIDToApprove.TableNo);
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
-        if not ApprovalCommentLine.IsEmpty then
+        if not ApprovalCommentLine.IsEmpty() then
             ApprovalCommentLine.DeleteAll(true);
     end;
 
@@ -2243,7 +2251,7 @@
                 ToApprovalEntry."Document No." := ToDocNo;
                 ToApprovalEntry."Record ID to Approve" := ToRecID;
                 ToApprovalEntry.Insert();
-            until FromApprovalEntry.Next = 0;
+            until FromApprovalEntry.Next() = 0;
 
             FromApprovalCommentLine.SetRange("Table ID", FromRecID.TableNo);
             FromApprovalCommentLine.SetRange("Record ID to Approve", FromRecID);
@@ -2257,7 +2265,7 @@
                     ToApprovalCommentLine."Record ID to Approve" := ToRecID;
                     ToApprovalCommentLine.Insert();
                     NextEntryNo += 1;
-                until FromApprovalCommentLine.Next = 0;
+                until FromApprovalCommentLine.Next() = 0;
             end;
         end;
     end;
@@ -2351,7 +2359,7 @@
                         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
                         exit(ApprovalEntry.FindLast);
                     end;
-            until WorkflowStepInstance.Next = 0;
+            until WorkflowStepInstance.Next() = 0;
         exit(false);
     end;
 
@@ -2519,6 +2527,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSubstituteUserIdForApprovalEntryOnAfterCheckUserSetupApprovalEntryApproverID(var UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLimitType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestsOnElseCase(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
 }

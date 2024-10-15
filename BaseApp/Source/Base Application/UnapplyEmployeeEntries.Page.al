@@ -171,7 +171,7 @@ page 625 "Unapply Employee Entries"
                 var
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(NothingToApplyErr);
                     if not Confirm(UnapplyEntriesQst, false) then
                         exit;
@@ -199,7 +199,7 @@ page 625 "Unapply Employee Entries"
                 var
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         Error(NothingToApplyErr);
 
                     EmplEntryApplyPostedEntries.PreviewUnapply(DtldEmplLedgEntry2, DocNo, PostingDate);
@@ -253,7 +253,7 @@ page 625 "Unapply Employee Entries"
                     Rec := DtldEmplLedgEntry;
                     Insert;
                 end;
-            until DtldEmplLedgEntry.Next = 0;
+            until DtldEmplLedgEntry.Next() = 0;
     end;
 
     local procedure GetDocumentNo(): Code[20]

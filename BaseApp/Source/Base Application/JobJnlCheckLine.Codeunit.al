@@ -1,4 +1,4 @@
-﻿codeunit 1011 "Job Jnl.-Check Line"
+codeunit 1011 "Job Jnl.-Check Line"
 {
     TableNo = "Job Journal Line";
 
@@ -13,7 +13,9 @@
         CombinationBlockedErr: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         DimensionCausedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         Location: Record Location;
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         DimMgt: Codeunit DimensionManagement;
         TimeSheetMgt: Codeunit "Time Sheet Management";
         Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post job journal %5 %6 = %7.', Comment = '%1=Item;%2=JobJnlline."No.";%3=Job;%4=JobJnlline."Job No.";%5=JobJnlline."Journal Batch Name";%6="Line No";%7=JobJnlline."Line No."';
@@ -21,7 +23,9 @@
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
     var
         Job: Record Job;
+#if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
+#endif
         IsHandled: Boolean;
     begin
         OnBeforeRunCheck(JobJnlLine);
@@ -63,12 +67,13 @@
             if not IsHandled then
                 if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
                     TestField(Chargeable, true);
-
+#if not CLEAN18
             // NAVCZ
             GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckJobJournalLine(JobJnlLine);
             // NAVCZ
+#endif
         end;
 
         OnAfterRunCheck(JobJnlLine);

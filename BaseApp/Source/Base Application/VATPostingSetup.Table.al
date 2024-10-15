@@ -19,16 +19,6 @@ table 325 "VAT Posting Setup"
         field(3; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if (("VAT Calculation Type" <> "VAT Calculation Type"::"Normal VAT") and
-                    ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT"))
-                then
-                    TestField("Allow Non Deductible VAT", false);
-                // NAVCZ
-            end;
         }
         field(4; "VAT %"; Decimal)
         {
@@ -149,10 +139,6 @@ table 325 "VAT Posting Setup"
         field(13; "VAT Identifier"; Code[20])
         {
             Caption = 'VAT Identifier';
-            TableRelation = "VAT Identifier";
-            //This property is currently not supported
-            //TestTableRelation = false;
-            ValidateTableRelation = false;
 
             trigger OnValidate()
             begin
@@ -219,29 +205,17 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Non Deduct. VAT Corr. Account';
             TableRelation = "G/L Account";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Non Deduct. VAT Corr. Account");
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11764; "Sales VAT Postponed Account"; Code[20])
         {
             Caption = 'Sales VAT Postponed Account';
             TableRelation = "G/L Account";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                TestNotSalesTax(FieldCaption("Sales VAT Postponed Account"));
-
-                CheckGLAcc("Sales VAT Postponed Account");
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11765; "Allow Blank VAT Date"; Boolean)
         {
@@ -253,17 +227,9 @@ table 325 "VAT Posting Setup"
         field(11766; "Allow Non Deductible VAT"; Boolean)
         {
             Caption = 'Allow Non Deductible VAT';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if (("VAT Calculation Type" <> "VAT Calculation Type"::"Normal VAT") and
-                    ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT"))
-                then
-                    TestField("Allow Non Deductible VAT", false);
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(31000; "Sales Ded. VAT Base Adj. Acc."; Code[20])
         {
@@ -342,6 +308,9 @@ table 325 "VAT Posting Setup"
         field(31070; "Intrastat Service"; Boolean)
         {
             Caption = 'Intrastat Service';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31100; "VAT Rate"; Option)
         {
@@ -435,7 +404,7 @@ table 325 "VAT Posting Setup"
     begin
         GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "VAT Bus. Posting Group", "VAT Prod. Posting Group");
     end;
 

@@ -27,21 +27,36 @@ page 11 "Shipment Methods"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the intrastat delivery group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Incl. Item Charges (Stat.Val.)"; "Incl. Item Charges (Stat.Val.)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies to include Intrastat amounts for value entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Adjustment %"; "Adjustment %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the adjustment percentage for the shipment method. This percentage is used to calculate an adjustment value for the Intrastat journal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Include Item Charges (Amount)"; "Include Item Charges (Amount)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if intrastat amount of item ledger will be influenced by item charges  ';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
             }

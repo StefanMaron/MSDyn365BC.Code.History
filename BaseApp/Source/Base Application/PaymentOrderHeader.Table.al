@@ -437,7 +437,7 @@ table 11708 "Payment Order Header"
                                 end;
                         end;
                         PaymentOrderLine.Modify(true);
-                    until PaymentOrderLine.Next = 0;
+                    until PaymentOrderLine.Next() = 0;
             end;
         end;
     end;
@@ -528,7 +528,7 @@ table 11708 "Payment Order Header"
             repeat
                 PaymentOrderLine.SuspendStatusCheck(StatusCheckSuspended);
                 PaymentOrderLine.Delete(true);
-            until PaymentOrderLine.Next = 0;
+            until PaymentOrderLine.Next() = 0;
     end;
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
@@ -557,7 +557,7 @@ table 11708 "Payment Order Header"
                     PaymentOrderLine."Public Bank Account" := PaymentOrderLine.HasPublicBankAccount;
                     PaymentOrderLine.Modify();
                 end;
-            until PaymentOrderLine.Next = 0;
+            until PaymentOrderLine.Next() = 0;
     end;
 
     procedure UncertaintyPayerCheckExpired(): Boolean

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11763 "General Ledger Document"
 {
     DefaultLayout = RDLC;
@@ -183,7 +184,7 @@ report 11763 "General Ledger Document"
                             Continue := true;
                             exit;
                         end;
-                    until DimSetEntry.Next = 0;
+                    until DimSetEntry.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()
@@ -278,4 +279,4 @@ report 11763 "General Ledger Document"
         exit(StrSubstNo(UnknownUserTxt, ID));
     end;
 }
-
+#endif

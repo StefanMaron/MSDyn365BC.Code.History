@@ -9,6 +9,8 @@ page 5237 "Employee Ledger Entries"
     PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Employee Ledger Entry";
     UsageCategory = History;
+    AdditionalSearchTerms = 'Employee Check, Employee Expense, Pay Employee';
+
 
     layout
     {
@@ -149,16 +151,25 @@ page 5237 "Employee Ledger Entries"
                 {
                     ApplicationArea = BasicHR;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = BasicHR;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = BasicHR;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
                 {
@@ -325,7 +336,7 @@ page 5237 "Employee Ledger Entries"
                         EmplEntryApplyPostedEntries.ApplyEmplEntryFormEntry(EmployeeLedgerEntry);
                         Rec := EmployeeLedgerEntry;
                         Get("Entry No.");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 separator(Action9)

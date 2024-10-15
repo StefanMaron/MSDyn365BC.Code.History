@@ -60,7 +60,7 @@ codeunit 5068 WordApplicationHandler
         if WordApplication.Name <> '' then;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5054, 'OnFindActiveSubscriber', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnFindActiveSubscriber', '', false, false)]
     local procedure OnFindActiveHandler(var IsFound: Boolean)
     begin
         if not IsFound then
@@ -77,7 +77,7 @@ codeunit 5068 WordApplicationHandler
     end;
 #endif
 
-    [EventSubscriber(ObjectType::Codeunit, 5054, 'OnDeactivate', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnDeactivate', '', false, false)]
     local procedure OnDeactivateHandler(HandlerID: Integer)
     begin
         if Active and (HandlerID = ID) then

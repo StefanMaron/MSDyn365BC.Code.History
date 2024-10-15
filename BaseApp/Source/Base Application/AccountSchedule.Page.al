@@ -293,7 +293,7 @@ page 104 "Account Schedule"
                         repeat
                             AccScheduleLine.Indent;
                             AccScheduleLine.Modify();
-                        until AccScheduleLine.Next = 0;
+                        until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
                 end;
             }
@@ -318,7 +318,7 @@ page 104 "Account Schedule"
                         repeat
                             AccScheduleLine.Outdent;
                             AccScheduleLine.Modify();
-                        until AccScheduleLine.Next = 0;
+                        until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
                 end;
             }
@@ -475,6 +475,7 @@ page 104 "Account Schedule"
                     AccScheduleName.Print;
                 end;
             }
+#if not CLEAN17
             action("Balance Sheet")
             {
                 ApplicationArea = Basic, Suite;
@@ -499,6 +500,7 @@ page 104 "Account Schedule"
                 ObsoleteTag = '17.0';
                 Visible = false;
             }
+#endif
         }
     }
 
@@ -541,7 +543,7 @@ page 104 "Account Schedule"
         if "Line No." = 0 then begin
             AccSchedLine := xRec;
             AccSchedLine.SetRange("Schedule Name", CurrentSchedName);
-            if AccSchedLine.Next = 0 then
+            if AccSchedLine.Next() = 0 then
                 AccSchedLine."Line No." := xRec."Line No." + 10000
             else begin
                 if AccSchedLine.FindLast then

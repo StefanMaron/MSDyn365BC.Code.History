@@ -77,7 +77,7 @@ report 11702 "Copy Payment Order"
                 BankStmtLn."SWIFT Code" := IssuedPmtOrdLn."SWIFT Code";
                 OnBeforeBankStatementLineInsert(BankStmtLn, IssuedPmtOrdLn);
                 BankStmtLn.Insert();
-            until IssuedPmtOrdLn.Next = 0;
+            until IssuedPmtOrdLn.Next() = 0;
     end;
 
     var

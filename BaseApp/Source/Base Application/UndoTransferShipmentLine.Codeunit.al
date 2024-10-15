@@ -71,7 +71,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                 if not HideDialog then
                     Window.Open(CheckingLinesMsg);
                 CheckTransShptLine;
-            until Next = 0;
+            until Next() = 0;
 
             TransHeader.Get("Transfer Order No.");
             Release := TransHeader.Status = TransHeader.Status::Released;
@@ -81,10 +81,10 @@ codeunit 31070 "Undo Transfer Shipment Line"
             FindSet(false, false);
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -118,7 +118,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                 Correction := true;
                 Modify;
 
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -202,8 +202,12 @@ codeunit 31070 "Undo Transfer Shipment Line"
             ItemJnlLine.Area := TransShptHeader.Area;
             ItemJnlLine."Transaction Specification" := TransShptHeader."Transaction Specification";
             ItemJnlLine."Item Category Code" := "Item Category Code";
+#if not CLEAN18            
             ItemJnlLine.Validate("Gen. Bus. Posting Group", "Gen. Bus. Post. Group Ship");
+#endif
             ItemJnlLine."Shpt. Method Code" := TransShptHeader."Shipment Method Code";
+
+            OnAfterInitItemJnlLine(ItemJnlLine, TransShptLineGlob, TransShptHeader);
 
             InsertTempWhseJnlLine(ItemJnlLine,
               DATABASE::"Transfer Line",
@@ -279,7 +283,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsTransShptLine(NewTransShptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
         end;
     end;
 
@@ -294,7 +298,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
             if FindSet then
                 repeat
                     ItemList := ItemList + StrSubstNo('%1 %2: %3 %4\', "Item No.", Description, Quantity, "Unit of Measure Code");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -352,6 +356,11 @@ codeunit 31070 "Undo Transfer Shipment Line"
                     NextLineNo := TempWhseJnlLine."Line No." + 10000;
                 until WhseEntry.Next(-1) = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TransferShipmentLine: Record "Transfer Shipment Line"; TransferShipmentHeader: Record "Transfer shipment Header");
+    begin
     end;
 }
 

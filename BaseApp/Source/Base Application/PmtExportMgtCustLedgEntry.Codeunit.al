@@ -55,7 +55,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             CustLedgerEntry.HasFilter:
                 begin
                     ExportCustLedgerEntry.CopyFilters(CustLedgerEntry);
-                    ExportCustLedgerEntry.FindSet;
+                    ExportCustLedgerEntry.FindSet();
                 end;
             else
                 ExportCustLedgerEntry.Copy(CustLedgerEntry);
@@ -64,9 +64,9 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         AppliedToCustLedgerEntry.SetRange("Exported to Payment File", true);
         repeat
             AppliedToCustLedgerEntry.SetRange("Closed by Entry No.", ExportCustLedgerEntry."Entry No.");
-            if not AppliedToCustLedgerEntry.IsEmpty then
+            if not AppliedToCustLedgerEntry.IsEmpty() then
                 exit(true);
-        until ExportCustLedgerEntry.Next = 0;
+        until ExportCustLedgerEntry.Next() = 0;
 
         exit(false);
     end;
@@ -102,7 +102,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
               TotalAmount, TransferDate, HandledGenJnlDataExchLine);
             if not HandledGenJnlDataExchLine then
                 CreateCustLedgerDataExchLine(DataExch."Entry No.", CustLedgerEntry2, LineNo);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
         Window.Close;
         OnBeforePaymentExportCustLedgerEntry(CustLedgerEntry."Bal. Account No.", DataExch."Entry No.",
           LineNo, TotalAmount, TransferDate, HandledPaymentExportVendLedgerEntry);
@@ -198,7 +198,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             repeat
                 Validate("Exported to Payment File", true);
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry2);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

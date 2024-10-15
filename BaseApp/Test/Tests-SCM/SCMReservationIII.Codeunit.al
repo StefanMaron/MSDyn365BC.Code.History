@@ -117,7 +117,7 @@ codeunit 137270 "SCM Reservation III"
         // Qty (base) was 107.99999 instead of 108
         WhseActivityLine.SetRange("Item No.", Item."No.");
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             Assert.AreEqual(108, WhseActivityLine."Qty. (Base)", 'Quantity (Base UOM) value in Pick line does not match expectations');
             Assert.AreEqual(10, WhseActivityLine.Quantity,
@@ -2089,7 +2089,7 @@ codeunit 137270 "SCM Reservation III"
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType, LocationCode, ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ItemNo: Code[20]; LocationCode: Code[10])

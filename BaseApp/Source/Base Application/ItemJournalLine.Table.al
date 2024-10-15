@@ -1,4 +1,4 @@
-﻿table 83 "Item Journal Line"
+table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -46,8 +46,7 @@
                     CreateDim(
                       DATABASE::Item, "Item No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.",
-                      DATABASE::"Fixed Asset", "FA No."); // NAVCZ
+                      DATABASE::"Work Center", "Work Center No.");
                     OnValidateItemNoOnAfterCreateDimInitial(Rec);
                     exit;
                 end;
@@ -186,11 +185,9 @@
                     CreateDim(
                       DATABASE::Item, "Item No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.",
-                      DATABASE::"Fixed Asset", "FA No."); // NAVCZ
-
+                      DATABASE::"Work Center", "Work Center No.");
                 OnBeforeVerifyReservedQty(Rec, xRec, FieldNo("Item No."));
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(4; "Posting Date"; Date)
@@ -259,7 +256,7 @@
 
                 SetDefaultPriceCalculationMethod();
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(6; "Source No."; Code[20])
@@ -331,7 +328,7 @@
                     xSetGPPGfromSKU;
                 // NAVCZ
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(10; "Inventory Posting Group"; Code[20])
@@ -357,7 +354,6 @@
 
             trigger OnValidate()
             var
-                ItemUoM: Record "Item Unit of Measure";
                 CallWhseCheck: Boolean;
             begin
                 if ("Entry Type".AsInteger() <= "Entry Type"::Transfer.AsInteger()) and (Quantity <> 0) then
@@ -381,21 +377,6 @@
                   UOMMgt.CalcBaseQty(
                     "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
-                // NAVCZ
-                if not ItemUoM.Get("Item No.", "Unit of Measure Code") then
-                    ItemUoM.Init();
-                if ItemUoM."Indivisible Unit" then begin
-                    if Quantity <> Round(Quantity, 1) then
-                        FieldError(Quantity, MustBeIntegralNumberErr);
-                end;
-                GetItem;
-                if not ItemUoM.Get("Item No.", Item."Base Unit of Measure") then
-                    ItemUoM.Init();
-                if ItemUoM."Indivisible Unit" then begin
-                    if "Quantity (Base)" <> Round("Quantity (Base)", 1) then
-                        FieldError("Quantity (Base)", MustBeIntegralNumberErr);
-                end;
-                // NAVCZ
                 if ("Entry Type" = "Entry Type"::Output) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
@@ -426,7 +407,7 @@
                 CheckReservedQtyBase();
 
                 if Item."Item Tracking Code" <> '' then
-                    ReserveItemJnlLine.VerifyQuantity(Rec, xRec);
+                    ItemJnlLineReserve.VerifyQuantity(Rec, xRec);
             end;
         }
         field(15; "Invoiced Quantity"; Decimal)
@@ -582,8 +563,7 @@
                     CreateDim(
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Item, "Item No.",
-                      DATABASE::"Work Center", "Work Center No.",
-                      DATABASE::"Fixed Asset", "FA No."); // NAVCZ
+                      DATABASE::"Work Center", "Work Center No.");
             end;
         }
         field(26; "Source Code"; Code[10])
@@ -711,12 +691,10 @@
                         "Overhead Rate" * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
             end;
         }
-        field(39; "Source Type"; Option)
+        field(39; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(40; "Shpt. Method Code"; Code[10])
         {
@@ -786,7 +764,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(51; "New Shortcut Dimension 1 Code"; Code[20])
@@ -1179,7 +1157,7 @@
                     "Unit Cost" := UnitCost;
                     Validate("Unit Amount");
                     Validate("Unit of Measure Code");
-                    ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                    ItemJnlLineReserve.VerifyChange(Rec, xRec);
                 end;
 
                 // NAVCZ
@@ -1251,7 +1229,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -1290,7 +1268,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(5407; "Unit of Measure Code"; Code[10])
@@ -1681,8 +1659,7 @@
                         CreateDim(
                           DATABASE::"Work Center", "Work Center No.",
                           DATABASE::Item, "Item No.",
-                          DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                          DATABASE::"Fixed Asset", "FA No."); // NAVCZ
+                          DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
                     exit;
                 end;
 
@@ -2012,9 +1989,19 @@
                                                                                                           "Prod. Order Line No." = FIELD("Order Line No."));
 
             trigger OnValidate()
+            var
+                ProdOrderComponent: Record "Prod. Order Component";
             begin
-                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then
-                    CreateProdDim;
+                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then begin
+                    if ("Order Type" = "Order Type"::Production) and ("Prod. Order Comp. Line No." <> 0) then begin
+                        ProdOrderComponent.Get(
+                          ProdOrderComponent.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
+                        if "Item No." <> ProdOrderComponent."Item No." then
+                            Validate("Item No.", ProdOrderComponent."Item No.");
+                    end;
+
+                    CreateProdDim();
+                end;
             end;
         }
         field(5885; Finished; Boolean)
@@ -2099,6 +2086,18 @@
             Caption = 'Item Expiration Date';
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
         field(6600; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
@@ -2133,16 +2132,19 @@
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Source No. 2"; Code[20])
         {
             Caption = 'Source No. 2';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by "Invoice-to Source No." field.';
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11791; "Source No. 3"; Code[20])
         {
@@ -2150,54 +2152,40 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31043; "FA No."; Code[20])
         {
             Caption = 'FA No.';
             TableRelation = "Fixed Asset";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "FA No." = '' then
-                    Clear("Maintenance Code");
-                if "FA No." <> xRec."FA No." then
-                    CreateDim(
-                      DATABASE::Item, "Item No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.",
-                      DATABASE::"Fixed Asset", "FA No.");
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31044; "Maintenance Code"; Code[10])
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "Maintenance Code" <> '' then
-                    TestField("FA No.");
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -2208,22 +2196,31 @@
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Shipment Method";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31069; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -2233,6 +2230,9 @@
         field(31070; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -2243,24 +2243,39 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31072; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31074; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31075; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31077; "Whse. Net Change Template"; Code[10])
         {
@@ -2389,7 +2404,7 @@
 
     trigger OnDelete()
     begin
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -2412,13 +2427,13 @@
     trigger OnModify()
     begin
         OnBeforeVerifyReservedQty(Rec, xRec, 0);
-        ReserveItemJnlLine.VerifyChange(Rec, xRec);
+        ItemJnlLineReserve.VerifyChange(Rec, xRec);
         CheckPlanningAssignment;
     end;
 
     trigger OnRename()
     begin
-        ReserveItemJnlLine.RenameLine(Rec, xRec);
+        ItemJnlLineReserve.RenameLine(Rec, xRec);
     end;
 
     var
@@ -2438,7 +2453,7 @@
         Bin: Record Bin;
         StatReportingSetup: Record "Stat. Reporting Setup";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
@@ -2462,11 +2477,12 @@
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         Text26500: Label '%1 is required for Item %2.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
-        MustBeIntegralNumberErr: Label 'must be integral number';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
         PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
         BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
+        SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
+        LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
 
     procedure EmptyLine(): Boolean
     begin
@@ -2743,13 +2759,13 @@
             "New Bin Code" := "Bin Code";
     end;
 
-    local procedure GetUnitAmount(CalledByFieldNo: Integer)
+    procedure GetUnitAmount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
         UnitCostValue: Decimal;
         IsHandled: Boolean;
     begin
-        RetrieveCosts;
+        RetrieveCosts();
         if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
            ("Item Charge No." <> '')
         then
@@ -2830,7 +2846,7 @@
 
     procedure OpenItemTrackingLines(IsReclass: Boolean)
     begin
-        ReserveItemJnlLine.CallItemTracking(Rec, IsReclass);
+        ItemJnlLineReserve.CallItemTracking(Rec, IsReclass);
     end;
 
     local procedure PickDimension(TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
@@ -2864,38 +2880,52 @@
         end;
     end;
 
-    local procedure CreateCodeArray(var CodeArray: array[10] of Code[20]; No1: Code[20]; No2: Code[20]; No3: Code[20]; No4: Code[20])
+    local procedure CreateCodeArray(var CodeArray: array[10] of Code[20]; No1: Code[20]; No2: Code[20]; No3: Code[20])
     begin
         Clear(CodeArray);
         CodeArray[1] := No1;
         CodeArray[2] := No2;
         CodeArray[3] := No3;
-        // NAVCZ
-        CodeArray[4] := No4;
-        // NAVCZ
     end;
 
-    local procedure CreateTableArray(var TableID: array[10] of Integer; Type1: Integer; Type2: Integer; Type3: Integer; Type4: Integer)
+    local procedure CreateTableArray(var TableID: array[10] of Integer; Type1: Integer; Type2: Integer; Type3: Integer)
     begin
         Clear(TableID);
         TableID[1] := Type1;
         TableID[2] := Type2;
         TableID[3] := Type3;
-        // NAVCZ
-        TableID[4] := Type4;
-        // NAVCZ
     end;
 
+    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateTableArray(TableID, Type1, Type2, Type3);
+        CreateCodeArray(No, No1, No2, No3);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        PickDimension(TableID, No, 0, 0);
+    end;
+
+#if not CLEAN18
+    [Obsolete('Merge to W1', '18.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        CreateTableArray(TableID, Type1, Type2, Type3, Type4);
-        CreateCodeArray(No, No1, No2, No3, No4);
+        CreateTableArray(TableID, Type1, Type2, Type3);
+        // NAVCZ
+        TableID[4] := Type4;
+        // NAVCZ
+        CreateCodeArray(No, No1, No2, No3);
+        // NAVCZ
+        No[4] := No4;
+        // NAVCZ
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
         PickDimension(TableID, No, 0, 0);
     end;
+#endif
 
     procedure CopyDim(DimesionSetID: Integer)
     var
@@ -2983,11 +3013,8 @@
             if ProdOrderLine.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.") then
                 InheritFromDimSetID := ProdOrderLine."Dimension Set ID";
 
-        CreateTableArray(
-          TableID, DATABASE::"Work Center", DATABASE::"Salesperson/Purchaser",
-          DATABASE::"Fixed Asset", 0); // NAVCZ
-        CreateCodeArray(
-          No, "Work Center No.", "Salespers./Purch. Code", "FA No.", ''); // NAVCZ
+        CreateTableArray(TableID, DATABASE::"Work Center", DATABASE::"Salesperson/Purchaser", 0);
+        CreateCodeArray(No, "Work Center No.", "Salespers./Purch. Code", '');
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
         PickDimension(TableID, No, InheritFromDimSetID, DATABASE::Item);
     end;
@@ -3075,7 +3102,7 @@
         repeat
             if not (ValueEntry."Expected Cost" or ValueEntry."Partial Revaluation") then
                 CostAmtActual := CostAmtActual + ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
 
         Validate("Inventory Value (Calculated)", CostAmtActual);
         Validate("Inventory Value (Revalued)", CostAmtActual);
@@ -3142,7 +3169,9 @@
         "Unit of Measure Code" := SalesLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
         "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
+#if not CLEAN16        
         "Cross-Reference No." := SalesLine."Cross-Reference No.";
+#endif        
         "Item Reference No." := SalesLine."Item Reference No.";
         "Originally Ordered No." := SalesLine."Originally Ordered No.";
         "Originally Ordered Var. Code" := SalesLine."Originally Ordered Var. Code";
@@ -3161,7 +3190,6 @@
         "Price Calculation Method" := SalesLine."Price Calculation Method";
         "Invoice-to Source No." := SalesLine."Bill-to Customer No.";
         // NAVCZ
-        "Source No. 2" := SalesLine."Bill-to Customer No.";
         "Tariff No." := SalesLine."Tariff No.";
         "Statistic Indication" := SalesLine."Statistic Indication";
         "Net Weight" := SalesLine."Net Weight";
@@ -3227,7 +3255,9 @@
         end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
+#if not CLEAN16        
         "Cross-Reference No." := PurchLine."Cross-Reference No.";
+#endif        
         "Item Reference No." := PurchLine."Item Reference No.";
         "Document Line No." := PurchLine."Line No.";
         "Unit Cost" := PurchLine."Unit Cost (LCY)";
@@ -3242,7 +3272,6 @@
         "Overhead Rate" := PurchLine."Overhead Rate";
         "Return Reason Code" := PurchLine."Return Reason Code";
         // NAVCZ
-        "Source No. 2" := PurchLine."Pay-to Vendor No.";
         "Country/Region of Origin Code" := PurchLine."Country/Region of Origin Code";
         "Tariff No." := PurchLine."Tariff No.";
         "Statistic Indication" := PurchLine."Statistic Indication";
@@ -3320,8 +3349,8 @@
         "Job No." := ServiceLine."Job No.";
         "Job Task No." := ServiceLine."Job Task No.";
         "Price Calculation Method" := ServiceLine."Price Calculation Method";
+        "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
         // NAVCZ
-        "Source No. 2" := ServiceLine."Bill-to Customer No.";
         "Tariff No." := ServiceLine."Tariff No.";
         "Statistic Indication" := ServiceLine."Statistic Indication";
         "Net Weight" := ServiceLine."Net Weight";
@@ -3746,7 +3775,7 @@
             if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
                 exit;
 
-            ReserveItemJnlLine.AssignForPlanning(Rec);
+            ItemJnlLineReserve.AssignForPlanning(Rec);
         end;
     end;
 
@@ -4012,6 +4041,7 @@
         exit(ValueEntry.IsEmpty);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckIntrastat()
     begin
@@ -4026,7 +4056,7 @@
             if StatReportingSetup."Transport Method Mandatory" and ("Transport Method" = '') then
                 Error(Text26500, FieldCaption("Transport Method"), "Item No.");
             if StatReportingSetup."Shipment Method Mandatory" and ("Shpt. Method Code" = '') then
-                Error(Text26500, FieldCaption("Shipment Method Code"), "Item No.");
+                Error(Text26500, FieldCaption("Shpt. Method Code"), "Item No.");
             if StatReportingSetup."Tariff No. Mandatory" and ("Tariff No." = '') then
                 Error(Text26500, FieldCaption("Tariff No."), "Item No.");
             if StatReportingSetup."Net Weight Mandatory" and ("Net Weight" = 0) then
@@ -4038,6 +4068,7 @@
         end;
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure xSetGPPGfromSKU()
     var
@@ -4192,28 +4223,6 @@
         exit(false);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure SetItemChargeDimensions(ItemChargeNo: Code[20]; ItemLedgShptEntryNo: Integer)
-    var
-        ItemCharge: Record "Item Charge";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        DimSetEntry: Record "Dimension Set Entry";
-    begin
-        // NAVCZ
-        if not ItemCharge.Get(ItemChargeNo) then
-            Clear(ItemCharge);
-        if ItemCharge."Use Ledger Entry Dimensions" and (ItemLedgShptEntryNo <> 0) then begin
-            ItemLedgerEntry.Get(ItemLedgShptEntryNo);
-            DimSetEntry.SetRange("Dimension Set ID", ItemLedgerEntry."Dimension Set ID");
-            if not DimSetEntry.IsEmpty then begin
-                "Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-                "Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
-            end;
-        end;
-    end;
-
     procedure CheckItemJournalLineRestriction()
     begin
         OnCheckItemJournalLinePostRestrictions;
@@ -4255,6 +4264,36 @@
         TestField("Serial No.", TrackingSpecification."Serial No.");
 
         OnAfterCheckTrackingEqualTrackingSpecification(Rec, TrackingSpecification);
+    end;
+
+    procedure CheckTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            TestField("Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            TestField("Lot No.");
+
+        OnAfterCheckTrackingIfRequired(Rec, ItemTrackingSetup);
+    end;
+
+    procedure CheckNewTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            TestField("New Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            TestField("New Lot No.");
+
+        OnAfterCheckNewTrackingIfRequired(Rec, ItemTrackingSetup);
+    end;
+
+    procedure CheckTrackingIfRequiredNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" and ("Serial No." = '') then
+            Error(SerialNoRequiredErr, "Item No.");
+        if ItemTrackingSetup."Lot No. Required" and ("Lot No." = '') then
+            Error(LotNoRequiredErr, "Item No.");
+
+        OnAfterCheckTrackingIfRequiredNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure ValidateTypeWithItemNo()
@@ -4753,6 +4792,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLocation(var Location: Record Location; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckNewTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfrequiredNotBlank(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

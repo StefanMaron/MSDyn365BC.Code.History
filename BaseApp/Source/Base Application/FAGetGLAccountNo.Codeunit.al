@@ -11,10 +11,10 @@
 
     procedure GetAccNo(var FALedgEntry: Record "FA Ledger Entry"): Code[20]
     var
-        FASetup: Record "FA Setup";
+#if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
+#endif
     begin
-        FASetup.Get();
         with FALedgEntry do begin
             FAPostingGr.GetPostingGroup("FA Posting Group", "Depreciation Book Code");
             GLAccNo := '';
@@ -33,14 +33,16 @@
                     "FA Posting Type"::"Custom 2":
                         GLAccNo := FAPostingGr.GetCustom2Account;
                     "FA Posting Type"::"Proceeds on Disposal":
+#if not CLEAN18
                         // NAVCZ
-                        if FASetup."FA Disposal By Reason Code" then begin
+                        if not FAPostingGr.UseStandardDisposal() then begin
                             FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
                             FAExtPostingGr.TestField("Sales Acc. On Disp. (Gain)");
                             GLAccNo := FAExtPostingGr."Sales Acc. On Disp. (Gain)";
                         end else
                             // NAVCZ
-                            GLAccNo := FAPostingGr.GetSalesAccountOnDisposalGain;
+#endif
+                        GLAccNo := FAPostingGr.GetSalesAccountOnDisposalGain;
                     "FA Posting Type"::"Gain/Loss":
                         begin
                             if "Result on Disposal" = "Result on Disposal"::Gain then
@@ -56,10 +58,12 @@
                         GLAccNo := FAPostingGr.GetAcquisitionCostAccountOnDisposal;
                     "FA Posting Type"::Depreciation:
                         begin
+#if not CLEAN18
                             // NAVCZ
                             if FAPostingGr.UseStandardDisposal() then
                                 // NAVCZ
-                                FAPostingGr.TestField("Accum. Depr. Acc. on Disposal");
+#endif
+                            FAPostingGr.TestField("Accum. Depr. Acc. on Disposal");
                             GLAccNo := FAPostingGr."Accum. Depr. Acc. on Disposal";
                         end;
                     "FA Posting Type"::"Write-Down":
@@ -73,22 +77,26 @@
                     "FA Posting Type"::"Book Value on Disposal":
                         begin
                             if "Result on Disposal" = "Result on Disposal"::Gain then
+#if not CLEAN18
                                 // NAVCZ
-                                if FASetup."FA Disposal By Reason Code" then begin
+                                if not FAPostingGr.UseStandardDisposal() then begin
                                     FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
                                     FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Gain)");
                                     GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Gain)";
                                 end else
                                     // NAVCZ
+#endif
                                     GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalGain;
                             if "Result on Disposal" = "Result on Disposal"::Loss then
+#if not CLEAN18
                                 // NAVCZ
-                                if FASetup."FA Disposal By Reason Code" then begin
+                                if not FAPostingGr.UseStandardDisposal() then begin
                                     FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
                                     FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Loss)");
                                     GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Loss)";
                                 end else
                                     // NAVCZ
+#endif
                                     GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalLoss;
                             "Result on Disposal" := "Result on Disposal"::" ";
                         end;
@@ -112,23 +120,27 @@
     end;
 
     procedure GetMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"): Code[20]
+#if not CLEAN18
     var
         FAExtPostingGr: Record "FA Extended Posting Group";
-        FASetup: Record "FA Setup";
+#endif
     begin
+        FAPostingGr.GetPostingGroup(
+            MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
+#if not CLEAN18
         // NAVCZ
-        FASetup.Get();
-        if FASetup."FA Maintenance By Maint. Code" then begin
+        if not FAPostingGr.UseStandardMaintenance() then begin
             FAExtPostingGr.Get(MaintenanceLedgEntry."FA Posting Group", 2, MaintenanceLedgEntry."Maintenance Code");
             FAExtPostingGr.TestField("Maintenance Expense Account");
             exit(FAExtPostingGr."Maintenance Expense Account");
         end;
         // NAVCZ
-        FAPostingGr.GetPostingGroup(
-            MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
+#endif
         exit(FAPostingGr.GetMaintenanceExpenseAccount);
     end;
 
+#if not CLEAN18
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetCorrespondAccNo(var FALedgEntry: Record "FA Ledger Entry"): Code[20]
     begin
@@ -154,6 +166,7 @@
         exit(GLAccNo);
         // NAVCZ
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccNo(var FALedgEntry: Record "FA Ledger Entry"; var GLAccNo: Code[20])

@@ -5,13 +5,13 @@ codeunit 11788 "VAT Statement DPHDP3 CZL" implements "VAT Statement Export CZL"
 
     procedure ExportToXMLFile(VATStatementName: Record "VAT Statement Name"): Text
     var
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         TempBlob: Codeunit "Temp Blob";
         ClientFileNameLbl: Label 'VAT Statement %1 %2.xml', Comment = '%1 = VAT Statement Template Nam, %2 = VAT Statement Name';
     begin
         ExportToXMLBlob(VATStatementName, TempBlob);
         if TempBlob.HasValue() then
-            exit(FileMgt.BLOBExport(TempBlob, StrSubstNo(ClientFileNameLbl, VATStatementName."Statement Template Name", VATStatementName.Name), true));
+            exit(FileManagement.BLOBExport(TempBlob, StrSubstNo(ClientFileNameLbl, VATStatementName."Statement Template Name", VATStatementName.Name), true));
     end;
 
     procedure ExportToXMLBlob(VATStatementName: Record "VAT Statement Name"; var TempBlob: Codeunit "Temp Blob")
@@ -20,7 +20,7 @@ codeunit 11788 "VAT Statement DPHDP3 CZL" implements "VAT Statement Export CZL"
         ExportVATStmtDialogCZL: Report "Export VAT Stmt. Dialog CZL";
         VATStatementDPHDP3CZL: XMLport "VAT Statement DPHDP3 CZL";
         XmlParams: Text;
-        DocumentStream: OutStream;
+        DocumentOutStream: OutStream;
         AttachmentXPathTxt: Label 'DPHDP3/Prilohy/ObecnaPriloha', Locked = true;
         AttachmentNodeNameTok: Label 'jm_souboru', Locked = true;
     begin
@@ -33,8 +33,8 @@ codeunit 11788 "VAT Statement DPHDP3 CZL" implements "VAT Statement Export CZL"
 
         VATStatementDPHDP3CZL.ClearVariables();
         VATStatementDPHDP3CZL.SetXMLParams(XmlParams);
-        TempBlob.CreateOutStream(DocumentStream, TextEncoding::UTF8);
-        VATStatementDPHDP3CZL.SetDestination(DocumentStream);
+        TempBlob.CreateOutStream(DocumentOutStream, TextEncoding::UTF8);
+        VATStatementDPHDP3CZL.SetDestination(DocumentOutStream);
         VATStatementDPHDP3CZL.Export();
 
         VATStatementDPHDP3CZL.CopyAttachmentFilter(VATStatementAttachmentCZL);

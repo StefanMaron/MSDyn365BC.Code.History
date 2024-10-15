@@ -225,10 +225,6 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "VAT Statement";
                 ToolTip = 'View a statement of posted VAT and calculate the duty liable to the customs authorities for the selected period.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             action("G/L - VAT Reconciliation")
             {
@@ -315,18 +311,6 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "Cost Acctg. Analysis";
                 ToolTip = 'View balances per cost type with columns for seven fields for cost centers and cost objects. It is used as the cost distribution sheet in Cost accounting. The structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
-            }
-            action("Package Tax Calculation")
-            {
-                ApplicationArea = CostAccounting;
-                Caption = 'Package Tax Calculation';
-                Image = CalculateSalesTax;
-                RunObject = Report "Package Tax Calculation";
-                ToolTip = 'The report for package tax calculation.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
         }
         area(embedding)
@@ -995,10 +979,6 @@ page 9001 "Accounting Manager Role Center"
                 Image = SettleOpenTransactions;
                 RunObject = Report "Calc. and Post VAT Settlement";
                 ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
             separator(Action80)
             {

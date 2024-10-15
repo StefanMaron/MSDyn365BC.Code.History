@@ -24,7 +24,7 @@ report 31066 "VIES Declaration Export"
                     repeat
                         TempVIESLine := VIESLine;
                         TempVIESLine.Insert();
-                    until VIESLine.Next = 0;
+                    until VIESLine.Next() = 0;
                 ExportToXML;
             end;
         }

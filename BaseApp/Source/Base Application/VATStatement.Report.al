@@ -146,15 +146,8 @@ report 12 "VAT Statement"
             }
 
             trigger OnPreDataItem()
-            var
-                RegistrationCountryRegion: Record "Registration Country/Region";
             begin
                 GLSetup.Get();
-                // NAVCZ
-                if PerfCountryCodeFilter <> '' then
-                    if RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', PerfCountryCodeFilter) then
-                        GLSetup."LCY Code" := RegistrationCountryRegion."Currency Code (Local)";
-                // NAVCZ
             end;
         }
     }
@@ -256,17 +249,6 @@ report 12 "VAT Statement"
                             ObsoleteTag = '17.5';
                         }
                     }
-                    field(PerfCountryCodeFilter; PerfCountryCodeFilter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Performance Country';
-                        TableRelation = "Country/Region";
-                        ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                     field(ShowAmtInAddCurrency; UseAmtsInAddCurr)
                     {
                         ApplicationArea = Basic, Suite;
@@ -321,8 +303,6 @@ report 12 "VAT Statement"
         Heading2 := StrSubstNo(Text005, StartDate2, EndDateReq2); // NAVCZ
         VATStmtLineFilter := VATStmtLine.GetFilters;
         // NAVCZ
-        if PerfCountryCodeFilter <> '' then
-            Heading2 := Heading2 + ',' + VATEntry.FieldCaption("Perform. Country/Region Code") + ':' + PerfCountryCodeFilter;
         if SettlementNoFilter <> '' then
             Heading2 := Heading2 + ',' + VATEntry.FieldCaption("VAT Settlement No.") + ':' + SettlementNoFilter;
         // NAVCZ
@@ -336,8 +316,6 @@ report 12 "VAT Statement"
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         VATEntry2: Record "VAT Entry";
         VATStmtLine: Record "VAT Statement Line";
         Selection: Enum "VAT Statement Report Selection";
@@ -374,10 +352,7 @@ report 12 "VAT Statement"
         EndDate2: Date;
         StartDate2: Date;
         EndDateReq2: Date;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCodeFilter: Code[10];
         SettlementNoFilter: Text[50];
-        Amount2: Decimal;
         CallLevel: Integer;
         DivisionError: Boolean;
         Text020: Label 'Formula cannot be calculated due to circular references.';
@@ -435,7 +410,7 @@ report 12 "VAT Statement"
                                     end;
                             end;
                         // NAVCZ
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
@@ -510,11 +485,6 @@ report 12 "VAT Statement"
                             VATEntry.SetRange("Prepayment Type");
                     end;
 
-                    if PerfCountryCodeFilter <> '' then
-                        VATEntry.SetRange("Perform. Country/Region Code", PerfCountryCodeFilter)
-                    else
-                        VATEntry.SetRange("Perform. Country/Region Code", '');
-
                     VATEntry2.Reset();
                     VATEntry2.CopyFilters(VATEntry);
                     Amount := 0;
@@ -523,100 +493,30 @@ report 12 "VAT Statement"
                         VATStmtLine2."Amount Type"::Amount:
                             begin
                                 VATEntry.CalcSums(Amount, "Additional-Currency Amount");
-                                // NAVCZ
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2.Amount, VATEntry2."Additional-Currency Amount");
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    // NAVCZ
-                                    Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
+                                Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base");
-                                // NAVCZ
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2.Base, VATEntry2."Additional-Currency Base");
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    // NAVCZ
-                                    Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                                Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                             end;
                         // NAVCZ
                         VATStmtLine2."Amount Type"::"Adv. Base":
                             begin
                                 VATEntry.CalcSums("Advance Base", "Additional-Currency Base");
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2."Advance Base", VATEntry2."Additional-Currency Base");
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    Amount := ConditionalAdd(0, VATEntry."Advance Base", VATEntry."Additional-Currency Base");
+                                Amount := ConditionalAdd(0, VATEntry."Advance Base", VATEntry."Additional-Currency Base");
                             end;
                         // NAVCZ
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
                                 VATEntry.CalcSums("Remaining Unrealized Amount", "Add.-Curr. Rem. Unreal. Amount");
-                                // NAVCZ
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(
-                                                0, VATEntry2."Remaining Unrealized Amount", VATEntry2."Add.-Curr. Rem. Unreal. Amount");
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    // NAVCZ
-                                    Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Amount", VATEntry."Add.-Curr. Rem. Unreal. Amount");
+                                Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Amount", VATEntry."Add.-Curr. Rem. Unreal. Amount");
                             end;
                         VATStmtLine2."Amount Type"::"Unrealized Base":
                             begin
                                 VATEntry.CalcSums("Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Base");
-                                // NAVCZ
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2."Remaining Unrealized Base", VATEntry2."Add.-Curr. Rem. Unreal. Base");
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    // NAVCZ
-                                    Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
+                                Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
                             end;
-                        // NAVCZ
-                        VATStmtLine2."Amount Type"::"VAT Amount (Non Deductible)":
-                            begin
-                                VATEntry.CalcSums("VAT Amount (Non Deductible)");
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2."VAT Amount (Non Deductible)", 0);
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    Amount := ConditionalAdd(0, VATEntry."VAT Amount (Non Deductible)", 0);
-                            end;
-                        VATStmtLine2."Amount Type"::"VAT Base (Non Deductible)":
-                            begin
-                                VATEntry.CalcSums("VAT Base (Non Deductible)");
-                                if PerfCountryCodeFilter <> '' then
-                                    if VATEntry2.FindSet(false, false) then
-                                        repeat
-                                            Amount2 := ConditionalAdd(0, VATEntry2."VAT Base (Non Deductible)", 0);
-                                            Amount := Amount + ExchangeAmount(Amount2);
-                                        until VATEntry2.Next = 0;
-                                if PerfCountryCodeFilter = '' then
-                                    Amount := ConditionalAdd(0, VATEntry."VAT Base (Non Deductible)", 0);
-                            end;
-                    // NAVCZ
                     end;
                     OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
@@ -643,7 +543,7 @@ report 12 "VAT Statement"
                                 ErrorText := ErrorText + '...';
                                 VATStmtLine2.FieldError("Row No.", ErrorText);
                             end;
-                        until VATStmtLine2.Next = 0;
+                        until VATStmtLine2.Next() = 0;
                 end;
             VATStmtLine2.Type::Description:
                 ;
@@ -668,12 +568,15 @@ report 12 "VAT Statement"
         TotalAmount := TotalAmount + Amount;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection";
-                                                                                                                                                         NewPrintInIntegers: Boolean;
-                                                                                                                                                         NewUseAmtsInAddCurr: Boolean;
-                                                                                                                                                         SettlementNoFilter2: Text[50];
-                                                                                                                                                         PerfCountryCodeFilter2: Code[10])
+#if not CLEAN17
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this procedure should not be used.', '17.4')]
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
+    begin
+        InitializeRequest(NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, SettlementNoFilter2);
+    end;
+
+#endif
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
@@ -706,7 +609,6 @@ report 12 "VAT Statement"
             EndDate2 := DMY2Date(31, 12, 9999);
         end;
         SettlementNoFilter := SettlementNoFilter2;
-        PerfCountryCodeFilter := PerfCountryCodeFilter2;
         // NAVCZ
     end;
 
@@ -861,7 +763,7 @@ report 12 "VAT Statement"
                                         CalcLineTotal(VATStmtLine, LineTotalAmount, 0);
                                         Result := Result + LineTotalAmount;
                                     end
-                                until VATStmtLine.Next = 0
+                                until VATStmtLine.Next() = 0
                             else
                                 if IsFilter or (not Evaluate(Result, Expression)) then
                                     Error(Text012);
@@ -870,16 +772,6 @@ report 12 "VAT Statement"
         end;
         CallLevel := CallLevel - 1;
         exit(Result);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure ExchangeAmount(AmountAdd: Decimal): Decimal
-    begin
-        // NAVCZ
-        with VATEntry2 do
-            exit(PerfCountryCurrExchRate.ExchangeAmount(
-                "Posting Date", "Perform. Country/Region Code", "Currency Code", AmountAdd * "Currency Factor"));
     end;
 
     [IntegrationEvent(false, false)]

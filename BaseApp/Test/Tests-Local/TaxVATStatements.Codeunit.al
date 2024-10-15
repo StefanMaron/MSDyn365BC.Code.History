@@ -37,27 +37,15 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,RequestPageVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure PrintingVATStatementDPHDP2()
-    var
-        VATStatementTemplate: Record "VAT Statement Template";
-    begin
-        PrintingVATStatement(VATStatementTemplate."XML Format"::DPHDP2);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,RequestPageVATStatementHandler,YesConfirmHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure PrintingVATStatementDPHDP3()
     var
         VATStatementTemplate: Record "VAT Statement Template";
     begin
-        PrintingVATStatement(VATStatementTemplate."XML Format"::DPHDP3);
+        PrintingVATStatement();
     end;
 
     [Scope('OnPrem')]
-    procedure PrintingVATStatement(XMLFormat: Option)
+    procedure PrintingVATStatement()
     var
         VATEntry: Record "VAT Entry";
         VATStatementLine: Record "VAT Statement Line";
@@ -74,7 +62,7 @@ codeunit 144201 "Tax VAT Statements"
         Initialize;
         RevertToVATStatementLineDeprEnumValues(VATStatementLine);
 
-        FindVATStatementTemplate(VATStatementTemplate, XMLFormat);
+        FindVATStatementTemplate(VATStatementTemplate);
 
         StartingDate := LibraryTax.GetVATPeriodStartingDate;
         DocumentNo := GetSettlementNo(StartingDate);
@@ -137,27 +125,15 @@ codeunit 144201 "Tax VAT Statements"
     [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,PageExportVATStatementHandler,YesConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure ExportingVATStatementDPHDP2()
-    var
-        VATStatementTemplate: Record "VAT Statement Template";
-    begin
-        ExportingVATStatement(VATStatementTemplate."XML Format"::DPHDP2);
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportCalcAndPostVATSettlementHandler,PageExportVATStatementHandler,YesConfirmHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure ExportingVATStatementDPHDP3()
     var
         VATStatementTemplate: Record "VAT Statement Template";
     begin
-        ExportingVATStatement(VATStatementTemplate."XML Format"::DPHDP3);
+        ExportingVATStatement();
     end;
 
     [Scope('OnPrem')]
-    procedure ExportingVATStatement(XMLFormat: Option)
+    procedure ExportingVATStatement()
     var
         VATStatementLine: Record "VAT Statement Line";
         VATStatementTemplate: Record "VAT Statement Template";
@@ -168,7 +144,7 @@ codeunit 144201 "Tax VAT Statements"
         // 1. Setup
         Initialize;
 
-        FindVATStatementTemplate(VATStatementTemplate, XMLFormat);
+        FindVATStatementTemplate(VATStatementTemplate);
         FindVATStatementLine(VATStatementLine, VATStatementTemplate.Name, '');
 
         StartingDate := LibraryTax.GetVATPeriodStartingDate;
@@ -263,10 +239,9 @@ codeunit 144201 "Tax VAT Statements"
         VATStatementLine.FindFirst;
     end;
 
-    local procedure FindVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template"; XMLFormat: Option)
+    local procedure FindVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template")
     begin
         LibraryTax.FindVATStatementTemplate(VATStatementTemplate);
-        SetXMLFormat(VATStatementTemplate, XMLFormat);
         SetAttributeCodes(VATStatementTemplate.Name);
     end;
 
@@ -321,11 +296,6 @@ codeunit 144201 "Tax VAT Statements"
         SetAttributeCode(VATStatementLine, VATAttributeCode1.Code);
         FindVATStatementLine(VATStatementLine, VATStatementTemplate, '3D');
         SetAttributeCode(VATStatementLine, VATAttributeCode2.Code);
-    end;
-
-    local procedure SetXMLFormat(var VATStatementTemplate: Record "VAT Statement Template"; XMLFormat: Option)
-    begin
-        LibraryTax.SetXMLFormat(VATStatementTemplate, XMLFormat);
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -421,7 +391,7 @@ codeunit 144201 "Tax VAT Statements"
     begin
         VATStatementLine.Reset();
         VATStatementLine.SetRange(Type, 11700);
-        if VATStatementLine.IsEmpty then
+        if VATStatementLine.IsEmpty() then
             exit;
         VATStatementLine.ModifyAll(Type, VATStatementLine.Type::Formula, false);
         VATStatementLine.Reset();

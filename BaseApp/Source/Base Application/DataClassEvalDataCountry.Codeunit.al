@@ -41,13 +41,8 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Desk Report Selections");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Uncertainty Payer Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronically Govern. Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Registration Country/Region");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Registr. Country/Region Route");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Perf. Country Curr. Exch. Rate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Excel Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statement File Mapping");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Identifier");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Identifier Translate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Comment Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Attachment");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Calc. Line");
@@ -57,18 +52,16 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Customer Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Vendor Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Rate");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Non Deductible VAT Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posting Description");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posting Desc. Parameter");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Fin. Charge Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Iss.Fin.Ch. Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Issued Reminder Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Industry Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Company Officials");
+#if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"User Setup Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"No. Series Link");
+#endif
+        //DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"No. Series Link");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Entry");
@@ -81,10 +74,13 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Amount Line Adv. Payment");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purchase Adv. Payment Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Advance Link Buffer - Entry");
+#if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Classification Code");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Depreciation Group");
+#if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA Extended Posting Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SKP Code");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FA History Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credits Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Report Selections");
@@ -99,8 +95,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Reporting Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VIES Declaration Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VIES Declaration Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Package Material");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Package Material");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stockkeeping Unit Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Whse. Net Change Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
@@ -111,8 +105,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reverse Charge Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reverse Charge Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Commodity);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Commodity Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Footer");
@@ -303,7 +295,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetFieldToSensitive(TableNo, DummyEmployee.FieldNo("Union Code"));
         DataClassificationMgt.SetFieldToSensitive(TableNo, DummyEmployee.FieldNo("Social Security No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Birth Date"));
-        DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo(Picture));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("E-Mail"));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Mobile Phone No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployee.FieldNo("Phone No."));

@@ -508,11 +508,9 @@ table 5107 "Sales Header Archive"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(120; Status; Option)
+        field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Open,Released,Pending Approval,Pending Prepayment';
-            OptionMembers = Open,Released,"Pending Approval","Pending Prepayment";
         }
         field(121; "Invoice Discount Calculation"; Option)
         {
@@ -529,11 +527,9 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Send IC Document';
         }
-        field(124; "IC Status"; Option)
+        field(124; "IC Status"; Enum "Sales Document IC Status")
         {
             Caption = 'IC Status';
-            OptionCaption = 'New,Pending,Sent';
-            OptionMembers = New,Pending,Sent;
         }
         field(125; "Sell-to IC Partner Code"; Code[20])
         {
@@ -706,7 +702,17 @@ table 5107 "Sales Header Archive"
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
+#if not CLEAN18
             TableRelation = "Customer Template";
+#endif
+            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -728,17 +734,20 @@ table 5107 "Sales Header Archive"
             TableRelation = Opportunity."No." WHERE("Contact No." = FIELD("Sell-to Contact No."),
                                                      Closed = CONST(false));
         }
+        field(5056; "Sell-to Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Sell-to Customer Template Code';
+            TableRelation = "Customer Templ.";
+        }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(5752; "Completely Shipped"; Boolean)
         {
@@ -843,37 +852,58 @@ table 5107 "Sales Header Archive"
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice | "Blanket Order")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"))
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -885,6 +915,9 @@ table 5107 "Sales Header Archive"
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11760; "VAT Date"; Date)
         {
@@ -906,17 +939,16 @@ table 5107 "Sales Header Archive"
         field(11762; "Tax Corrective Document"; Boolean)
         {
             Caption = 'Tax Corrective Document';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
             Caption = 'Posting Desc. Code';
-            TableRelation = "Posting Description" WHERE(Type = CONST("Sales Document"));
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -935,23 +967,28 @@ table 5107 "Sales Header Archive"
         field(11793; "Quote Validity"; Date)
         {
             Caption = 'Quote Validity';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11797; "Last Version"; Boolean)
         {
             Caption = 'Last Version';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
         {
@@ -959,17 +996,23 @@ table 5107 "Sales Header Archive"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -1012,7 +1055,7 @@ table 5107 "Sales Header Archive"
         if SalesLineArchive.FindSet(true) then
             repeat
                 CatalogItemMgt.DelNonStockSalesArch(SalesLineArchive);
-            until SalesLineArchive.Next = 0;
+            until SalesLineArchive.Next() = 0;
         SalesLineArchive.SetRange(Nonstock);
         SalesLineArchive.DeleteAll();
 

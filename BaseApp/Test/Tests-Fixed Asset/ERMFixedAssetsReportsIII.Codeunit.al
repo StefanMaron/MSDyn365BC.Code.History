@@ -532,12 +532,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     end;
 
     [Test]
-    [HandlerFunctions('NavigatePagehandler,DocumentEntriesRequestPageHandler')]
+    [HandlerFunctions('DocumentEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DocumentEntriesForFALedgerEntry()
     var
         FixedAsset: Record "Fixed Asset";
         FALedgerEntry: Record "FA Ledger Entry";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocumentEntries: Report "Document Entries";
         FALedgerEntries: TestPage "FA Ledger Entries";
     begin
         // Verify Document Entries Report for FA Ledger Entry.
@@ -548,8 +550,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FALedgerEntries.OpenView;
         FALedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
-        // Exercise: Run Document Entries Report from NavigatePagehandler.
-        FALedgerEntries."&Navigate".Invoke;  // Invoking Navigate.
+        // Exercise: Run Document Entries Report as if from NavigatePage.
+        FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
+        FALedgerEntry.FindFirst;
+        CollectDocEntries(FALedgerEntry, TempDocumentEntry);
+        DocumentEntries.TransferDocEntries(TempDocumentEntry);
+        DocumentEntries.TransferFilters(FALedgerEntry."Document No.", Format(FALedgerEntry."Posting Date"));
+        DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify FA Ledger Entry Table Name. no. of Records and Amount on Document Entries Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -560,13 +567,15 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     end;
 
     [Test]
-    [HandlerFunctions('NavigatePagehandler,DocumentEntriesRequestPageHandler')]
+    [HandlerFunctions('DocumentEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DocumentEntriesForMaintenanceLedgerEntry()
     var
         FixedAsset: Record "Fixed Asset";
         GenJournalLine: Record "Gen. Journal Line";
         MaintenanceLedgerEntry: Record "Maintenance Ledger Entry";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocumentEntries: Report "Document Entries";
         MaintenanceLedgerEntries: TestPage "Maintenance Ledger Entries";
     begin
         // Verify Document Entries Report for Maintenance Ledger Entry.
@@ -579,8 +588,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         MaintenanceLedgerEntries.OpenView;
         MaintenanceLedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
-        // Exercise: Run Document Entries Report from NavigatePagehandler.
-        MaintenanceLedgerEntries."&Navigate".Invoke;  // Invoking Navigate.
+        // Exercise: Run Document Entries Report as if from NavigatePage.
+        MaintenanceLedgerEntry.SetRange("FA No.", FixedAsset."No.");
+        MaintenanceLedgerEntry.FindFirst;
+        CollectDocEntries(MaintenanceLedgerEntry, TempDocumentEntry);
+        DocumentEntries.TransferDocEntries(TempDocumentEntry);
+        DocumentEntries.TransferFilters(MaintenanceLedgerEntry."Document No.", Format(MaintenanceLedgerEntry."Posting Date"));
+        DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify Maintenance Ledger Entry Table Name, no. of Records and Amount on Document Entries Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -592,7 +606,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     end;
 
     [Test]
-    [HandlerFunctions('NavigatePagehandler,DocumentEntriesRequestPageHandler')]
+    [HandlerFunctions('DocumentEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DocumentEntriesForInsCoverageLedgerEntry()
     var
@@ -600,6 +614,8 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         InsuranceJournalBatch: Record "Insurance Journal Batch";
         InsuranceJournalLine: Record "Insurance Journal Line";
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocumentEntries: Report "Document Entries";
         InsCoverageLedgerEntries: TestPage "Ins. Coverage Ledger Entries";
     begin
         // Verify Document Entries Report for Insurance Coverage Ledger Entry.
@@ -615,8 +631,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         InsCoverageLedgerEntries.OpenView;
         InsCoverageLedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
-        // Exercise: Run Document Entries Report from NavigatePagehandler.
-        InsCoverageLedgerEntries."&Navigate".Invoke;  // Invoking Navigate.
+        // Exercise: Run Document Entries Report as if from NavigatePage.
+        InsCoverageLedgerEntry.SetRange("FA No.", FixedAsset."No.");
+        InsCoverageLedgerEntry.FindFirst;
+        CollectDocEntries(InsCoverageLedgerEntry, TempDocumentEntry);
+        DocumentEntries.TransferDocEntries(TempDocumentEntry);
+        DocumentEntries.TransferFilters(InsCoverageLedgerEntry."Document No.", Format(InsCoverageLedgerEntry."Posting Date"));
+        DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify Ins. Coverage Ledger Entry Table Name, no. of Records and Amount on Document Entries Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -712,6 +733,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
             exit;
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateLocalData();
 
         IsInitialized := true;
         Commit();
@@ -726,6 +748,46 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         GLAccount.FindFirst;
         GLAccount.CalcFields("Net Change");
         exit(GLAccount."Net Change");
+    end;
+
+    local procedure CollectDocEntries(FALedgerEntry: Record "FA Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
+    var
+        GLEntry: Record "G/L Entry";
+        Navigate: Page Navigate;
+    begin
+        GLEntry.Reset();
+        GLEntry.SetCurrentKey("Document No.", "Posting Date");
+        GLEntry.SetFilter("Document No.", FALedgerEntry."Document No.");
+        GLEntry.SetRange("Posting Date", FALedgerEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"G/L Entry", GLEntry.TableCaption, GLEntry.Count);
+        FALedgerEntry.Reset();
+        FALedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+        FALedgerEntry.SetFilter("Document No.", FALedgerEntry."Document No.");
+        FALedgerEntry.SetRange("Posting Date", FALedgerEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"FA Ledger Entry", FALedgerEntry.TableCaption, FALedgerEntry.Count);
+    end;
+
+    local procedure CollectDocEntries(MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
+    var
+        GLEntry: Record "G/L Entry";
+        Navigate: Page Navigate;
+    begin
+        MaintenanceLedgEntry.Reset();
+        MaintenanceLedgEntry.SetCurrentKey("Document No.", "Posting Date");
+        MaintenanceLedgEntry.SetFilter("Document No.", MaintenanceLedgEntry."Document No.");
+        MaintenanceLedgEntry.SetRange("Posting Date", MaintenanceLedgEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry.Count);
+    end;
+
+    local procedure CollectDocEntries(var InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
+    var
+        Navigate: Page Navigate;
+    begin
+        InsCoverageLedgerEntry.Reset();
+        InsCoverageLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+        InsCoverageLedgerEntry.SetFilter("Document No.", InsCoverageLedgerEntry."Document No.");
+        InsCoverageLedgerEntry.SetRange("Posting Date", InsCoverageLedgerEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Ins. Coverage Ledger Entry", InsCoverageLedgerEntry.TableCaption, InsCoverageLedgerEntry.Count);
     end;
 
     local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; MaintenanceCode: Code[10]; Amount: Decimal)
@@ -1025,10 +1087,9 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     end;
 
     [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure DocumentEntriesRequestPageHandler(var DocumentEntries: TestRequestPage "Document Entries")
     begin
-        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1106,12 +1167,16 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     [Scope('OnPrem')]
     procedure MaintenanceAnalysisRequestPageHandler(var MaintenanceAnalysis: TestRequestPage "Maintenance - Analysis")
     var
+        ParametersFileName: Text;
+        FileName: Text;
         DepreciationBookCode: Variant;
         StartingDate: Variant;
         EndingDate: Variant;
         MaintenanceCode: Variant;
         Period: Option "before Starting Date","Net Change","at Ending Date";
     begin
+        ParametersFileName := LibraryReportDataset.GetParametersFileName();
+        FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Dequeue(DepreciationBookCode);
         LibraryVariableStorage.Dequeue(StartingDate);
         LibraryVariableStorage.Dequeue(EndingDate);
@@ -1125,7 +1190,8 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         MaintenanceAnalysis.Period2.SetValue(Period::"before Starting Date");  // Setting Period2.
         MaintenanceAnalysis.AmountField3.SetValue(MaintenanceCode);
         MaintenanceAnalysis.Period3.SetValue(Period::"Net Change");  // Setting Period3.
-        MaintenanceAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        MaintenanceAnalysis.SaveAsXml(ParametersFileName, FileName);
+        Sleep(500);
     end;
 
     [RequestPageHandler]
@@ -1151,13 +1217,6 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Message Handler.
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue Variable.
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure NavigatePagehandler(var Navigate: TestPage Navigate)
-    begin
-        Navigate.Print.Invoke;
     end;
 
     [RequestPageHandler]

@@ -195,7 +195,7 @@ codeunit 1330 "Instruction Mgt."
           GetDocumentTypeInvoiceFilter);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -233,7 +233,7 @@ codeunit 1330 "Instruction Mgt."
           IsEnabled(ClosingUnreleasedOrdersCode));
     end;
 
-    [EventSubscriber(ObjectType::Table, 1518, 'OnStateChanged', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnStateChanged', '', false, false)]
     local procedure OnStateChanged(NotificationId: Guid; NewEnabledState: Boolean)
     begin
         case NotificationId of

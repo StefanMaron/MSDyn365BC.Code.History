@@ -731,9 +731,7 @@ Cstr(Fields!PageLbl.Value)</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=iif(Fields!PerformVATRegistrationNo.Value = "",
-        First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result"),
-        Fields!PerformVATRegistrationNo.Value)</Value>
+                                                    <Value>=First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3556,12 +3554,6 @@ End Function</Code>
         </Field>
         <Field Name="LetterNo_SalesInvoiiceHeader">
           <DataField>LetterNo_SalesInvoiiceHeader</DataField>
-        </Field>
-        <Field Name="PerformCountryRegionCode">
-          <DataField>PerformCountryRegionCode</DataField>
-        </Field>
-        <Field Name="PerformVATRegistrationNo">
-          <DataField>PerformVATRegistrationNo</DataField>
         </Field>
         <Field Name="CustAddr1">
           <DataField>CustAddr1</DataField>

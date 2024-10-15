@@ -332,7 +332,7 @@ table 1251 "Text-to-Account Mapping"
         TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + "Mapping Text");
         TextToAccMapping.SetRange("Vendor No.", "Vendor No.");
         TextToAccMapping.SetFilter("Line No.", '<>%1', "Line No.");
-        if not TextToAccMapping.IsEmpty then
+        if not TextToAccMapping.IsEmpty() then
             Error(AlreadyExistErr, "Mapping Text");
     end;
 
@@ -468,7 +468,7 @@ table 1251 "Text-to-Account Mapping"
                     TempTextToAccountMapping.Copy(TextToAccountMapping);
                     TempTextToAccountMapping.Insert();
                 end;
-        until TextToAccountMapping.Next = 0;
+        until TextToAccountMapping.Next() = 0;
 
         ResultCount := TempTextToAccountMapping.Count();
         if ResultCount = 0 then

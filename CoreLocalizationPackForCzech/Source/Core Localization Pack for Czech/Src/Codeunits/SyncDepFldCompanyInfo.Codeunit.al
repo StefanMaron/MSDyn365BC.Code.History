@@ -33,11 +33,6 @@ codeunit 31149 "Sync.Dep.Fld-CompanyInfo CZL"
         SyncDepFldUtilities.SyncFields(DepFieldTxt, NewFieldTxt, PreviousRecord."Default Bank Account Code", PreviousRecord."Default Bank Account Code CZL");
         Rec."Default Bank Account Code" := CopyStr(DepFieldTxt, 1, MaxStrLen(Rec."Default Bank Account Code"));
         Rec."Default Bank Account Code CZL" := CopyStr(NewFieldTxt, 1, MaxStrLen(Rec."Default Bank Account Code CZL"));
-        DepFieldTxt := Rec."Branch Name";
-        NewFieldTxt := Rec."Bank Branch Name CZL";
-        SyncDepFldUtilities.SyncFields(DepFieldTxt, NewFieldTxt, PreviousRecord."Branch Name", PreviousRecord."Bank Branch Name CZL");
-        Rec."Branch Name" := CopyStr(DepFieldTxt, 1, MaxStrLen(Rec."Branch Name"));
-        Rec."Bank Branch Name CZL" := CopyStr(NewFieldTxt, 1, MaxStrLen(Rec."Bank Branch Name CZL"));
         SyncDepFldUtilities.SyncFields(Rec."Bank Account Format Check", Rec."Bank Account Format Check CZL", PreviousRecord."Bank Account Format Check", PreviousRecord."Bank Account Format Check CZL");
         DepFieldTxt := Rec."Tax Registration No.";
         NewFieldTxt := Rec."Tax Registration No. CZL";

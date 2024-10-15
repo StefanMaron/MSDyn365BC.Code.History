@@ -15,7 +15,7 @@ pageextension 11700 "Company Information CZL" extends "Company Information"
             field("Bank Branch Name CZL"; Rec."Bank Branch Name CZL")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the branch name of the bank.';
+                ToolTip = 'Specifies the bank branch name.';
             }
         }
         addlast(Payments)

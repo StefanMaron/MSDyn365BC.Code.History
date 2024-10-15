@@ -2,9 +2,14 @@ table 1301 "Item Template"
 {
     Caption = 'Item Template';
     ReplicateData = true;
-    ObsoleteState = Pending;
     ObsoleteReason = 'Deprecate mini templates. Use table "Item Templ." instead and for extensions.';
+#if not CLEAN18
+    ObsoleteState = Pending;
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -135,6 +140,7 @@ table 1301 "Item Template"
     {
     }
 
+#if not CLEAN18
     trigger OnDelete()
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -172,6 +178,7 @@ table 1301 "Item Template"
     var
         ConfigTemplateManagement: Codeunit "Config. Template Management";
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure CreateFieldRefArray(var FieldRefArray: array[30] of FieldRef; RecRef: RecordRef)
     var
         I: Integer;
@@ -199,12 +206,14 @@ table 1301 "Item Template"
         OnAfterCreateFieldRefArray(FieldRefArray, RecRef, I);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure AddToArray(var FieldRefArray: array[30] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
     begin
         FieldRefArray[I] := CurrFieldRef;
         I += 1;
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure InitializeTempRecordFromConfigTemplate(var TempItemTemplate: Record "Item Template" temporary; ConfigTemplateHeader: Record "Config. Template Header")
     var
         RecRef: RecordRef;
@@ -229,6 +238,7 @@ table 1301 "Item Template"
         RecRef.SetTable(TempItemTemplate);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure CreateConfigTemplateFromExistingItem(Item: Record Item; var TempItemTemplate: Record "Item Template" temporary)
     var
         DimensionsTemplate: Record "Dimensions Template";
@@ -247,6 +257,7 @@ table 1301 "Item Template"
         InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure SaveAsTemplate(Item: Record Item)
     var
         TempItemTemplate: Record "Item Template" temporary;
@@ -268,6 +279,7 @@ table 1301 "Item Template"
         ConfigTemplateManagement.CreateConfigTemplateAndLines(Code, "Template Name", DATABASE::Item, FieldRefArray);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure NewItemFromTemplate(var Item: Record Item): Boolean
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -296,6 +308,7 @@ table 1301 "Item Template"
         exit(false);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure UpdateItemFromTemplate(var Item: Record Item)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -322,6 +335,7 @@ table 1301 "Item Template"
         OnAfterUpdateItemFromTemplate(Rec, Item, ConfigTemplateHeader);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure InsertItemFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var Item: Record Item)
     var
         DimensionsTemplate: Record "Dimensions Template";
@@ -355,6 +369,7 @@ table 1301 "Item Template"
         OnAfterInsertItemFromTemplate(Rec, Item, ConfigTemplateHeader);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure UpdateItemsFromTemplate(var Item: Record Item)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -376,7 +391,7 @@ table 1301 "Item Template"
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, ItemRecRef);
                         FldRef := ItemRecRef.Field(1);
                         DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Item);
-                    until ItemRecRef.Next = 0;
+                    until ItemRecRef.Next() = 0;
                 ItemRecRef.SetTable(Item);
             end;
         end;
@@ -397,30 +412,36 @@ table 1301 "Item Template"
         NoSeriesMgt.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Item."No.", Item."No. Series");
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterCreateFieldRefArray(var FieldRefArray: array[30] of FieldRef; RecRef: RecordRef; var I: Integer)
     begin
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitItemNo(var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header"; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateConfigTemplateFromExistingItemOnBeforeInitTempRec(Item: Record Item; var TempItemTemplate: Record "Item Template" temporary; var ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
+#endif
 }
 

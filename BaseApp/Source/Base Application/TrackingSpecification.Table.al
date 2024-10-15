@@ -90,7 +90,7 @@ table 336 "Tracking Specification"
                 if "Serial No." <> xRec."Serial No." then begin
                     TestField("Quantity Handled (Base)", 0);
                     TestField("Appl.-from Item Entry", 0);
-                    if IsReclass then
+                    if IsReclass() then
                         "New Serial No." := "Serial No.";
                     WMSManagement.CheckItemTrackingChange(Rec, xRec);
                     CheckSerialNoQty();
@@ -135,7 +135,7 @@ table 336 "Tracking Specification"
                 if "Appl.-to Item Entry" = 0 then
                     exit;
 
-                if not TrackingExists then
+                if not TrackingExists() then
                     TestTrackingFieldsAreBlank();
 
                 ItemLedgEntry.Get("Appl.-to Item Entry");
@@ -301,10 +301,10 @@ table 336 "Tracking Specification"
                 if "Lot No." <> xRec."Lot No." then begin
                     TestField("Quantity Handled (Base)", 0);
                     TestField("Appl.-from Item Entry", 0);
-                    if IsReclass then
+                    if IsReclass() then
                         "New Lot No." := "Lot No.";
                     WMSManagement.CheckItemTrackingChange(Rec, xRec);
-                    InitExpirationDate;
+                    InitExpirationDate();
                 end;
             end;
         }
@@ -363,11 +363,16 @@ table 336 "Tracking Specification"
                            (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0))
                         then
                             FieldError("Quantity (Base)");
+                    DATABASE::"Invt. Document Line":
+                        if (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" < 0)) or
+                           (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" > 0))
+                        then
+                            FieldError("Quantity (Base)");
                     else
                         FieldError("Source Subtype");
                 end;
 
-                if not TrackingExists then
+                if not TrackingExists() then
                     TestTrackingFieldsAreBlank();
 
                 ItemLedgEntry.Get("Appl.-from Item Entry");
@@ -394,6 +399,37 @@ table 336 "Tracking Specification"
                 WMSManagement.CheckItemTrackingChange(Rec, xRec);
             end;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnValidate()
+            begin
+                if "Package No." <> xRec."Package No." then begin
+                    CheckPackageNo("Package No.");
+                    TestField("Quantity Handled (Base)", 0);
+                    if IsReclass() then
+                        "New Package No." := "Package No.";
+                    WMSManagement.CheckItemTrackingChange(Rec, xRec);
+                    InitExpirationDate();
+                end;
+            end;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,2';
+
+            trigger OnValidate()
+            begin
+                if "New Package No." <> xRec."New Package No." then begin
+                    CheckPackageNo("New Package No.");
+                    TestField("Quantity Handled (Base)", 0);
+                    WMSManagement.CheckItemTrackingChange(Rec, xRec);
+                end;
+            end;
+        }
         field(7300; "Quantity actual Handled (Base)"; Decimal)
         {
             Caption = 'Quantity actual Handled (Base)';
@@ -414,10 +450,14 @@ table 336 "Tracking Specification"
             MaintainSQLIndex = false;
             SumIndexFields = "Qty. to Handle (Base)", "Qty. to Invoice (Base)", "Quantity Handled (Base)", "Quantity Invoiced (Base)";
         }
-        key(Key3; "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key3; "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
         }
-        key(Key4; "New Lot No.", "New Serial No.")
+#pragma warning disable AS0009
+        key(Key4; "New Lot No.", "New Serial No.", "New Package No.")
+#pragma warning restore AS0009
         {
         }
     }
@@ -460,7 +500,7 @@ table 336 "Tracking Specification"
         "Qty. to Handle (Base)" := "Quantity (Base)" - "Quantity Handled (Base)";
         "Qty. to Handle" := CalcQty("Qty. to Handle (Base)");
 
-        InitQtyToInvoice;
+        InitQtyToInvoice();
 
         OnAfterInitQtyToShip(Rec);
     end;
@@ -477,7 +517,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromAsmHeader(var AsmHeader: Record "Assembly Header")
     begin
-        Init;
+        Init();
         SetItemData(
           AsmHeader."Item No.", AsmHeader.Description, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Bin Code",
           AsmHeader."Qty. per Unit of Measure");
@@ -492,7 +532,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromAsmLine(var AsmLine: Record "Assembly Line")
     begin
-        Init;
+        Init();
         SetItemData(
           AsmLine."No.", AsmLine.Description, AsmLine."Location Code", AsmLine."Variant Code", AsmLine."Bin Code",
           AsmLine."Qty. per Unit of Measure");
@@ -508,7 +548,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
     begin
-        Init;
+        Init();
         SetItemData(
           ItemJnlLine."Item No.", ItemJnlLine.Description, ItemJnlLine."Location Code", ItemJnlLine."Variant Code",
           ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure");
@@ -522,9 +562,22 @@ table 336 "Tracking Specification"
         OnAfterInitFromItemJnlLine(Rec, ItemJnlLine);
     end;
 
+    procedure InitFromInvtDocLine(var InvtDocLine: Record "Invt. Document Line")
+    begin
+        Init();
+        SetItemData(
+          InvtDocLine."Item No.", InvtDocLine.Description, InvtDocLine."Location Code", InvtDocLine."Variant Code",
+          InvtDocLine."Bin Code", InvtDocLine."Qty. per Unit of Measure");
+        SetSource(
+          DATABASE::"Invt. Document Line", InvtDocLine."Document Type".AsInteger(), InvtDocLine."Document No.", InvtDocLine."Line No.", '', 0);
+        SetQuantities(
+          InvtDocLine."Quantity (Base)", InvtDocLine.Quantity, InvtDocLine."Quantity (Base)", InvtDocLine.Quantity,
+          InvtDocLine."Quantity (Base)", 0, 0);
+    end;
+
     procedure InitFromJobJnlLine(var JobJnlLine: Record "Job Journal Line")
     begin
-        Init;
+        Init();
         SetItemData(
           JobJnlLine."No.", JobJnlLine.Description, JobJnlLine."Location Code", JobJnlLine."Variant Code", JobJnlLine."Bin Code",
           JobJnlLine."Qty. per Unit of Measure");
@@ -540,7 +593,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
     begin
-        Init;
+        Init();
         SetItemData(
           PurchLine."No.", PurchLine.Description, PurchLine."Location Code", PurchLine."Variant Code", PurchLine."Bin Code",
           PurchLine."Qty. per Unit of Measure");
@@ -598,7 +651,7 @@ table 336 "Tracking Specification"
     var
         NetQuantity: Decimal;
     begin
-        Init;
+        Init();
         SetItemData(
           PlanningComponent."Item No.", PlanningComponent.Description, PlanningComponent."Location Code",
           PlanningComponent."Variant Code", '', PlanningComponent."Qty. per Unit of Measure");
@@ -615,7 +668,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromReqLine(ReqLine: Record "Requisition Line")
     begin
-        Init;
+        Init();
         SetItemData(
           ReqLine."No.", ReqLine.Description, ReqLine."Location Code", ReqLine."Variant Code", '', ReqLine."Qty. per Unit of Measure");
         SetSource(
@@ -628,7 +681,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromSalesLine(SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         SetItemData(
           SalesLine."No.", SalesLine.Description, SalesLine."Location Code", SalesLine."Variant Code", SalesLine."Bin Code",
           SalesLine."Qty. per Unit of Measure");
@@ -649,7 +702,7 @@ table 336 "Tracking Specification"
 
     procedure InitFromServLine(var ServiceLine: Record "Service Line"; Consume: Boolean)
     begin
-        Init;
+        Init();
         SetItemData(
           ServiceLine."No.", ServiceLine.Description, ServiceLine."Location Code", ServiceLine."Variant Code", ServiceLine."Bin Code",
           ServiceLine."Qty. per Unit of Measure");
@@ -685,7 +738,7 @@ table 336 "Tracking Specification"
         case Direction of
             Direction::Outbound:
                 begin
-                    Init;
+                    Init();
                     SetItemData(
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-from Code", TransLine."Variant Code",
                       TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure");
@@ -699,7 +752,7 @@ table 336 "Tracking Specification"
                 end;
             Direction::Inbound:
                 begin
-                    Init;
+                    Init();
                     SetItemData(
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-to Code", TransLine."Variant Code",
                       TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure");
@@ -747,12 +800,12 @@ table 336 "Tracking Specification"
 
     procedure CopySpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
-        Reset;
-        if TempTrackingSpecification.FindSet then begin
+        Reset();
+        if TempTrackingSpecification.FindSet() then begin
             repeat
                 Rec := TempTrackingSpecification;
                 if Insert() then;
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
             TempTrackingSpecification.DeleteAll();
         end;
     end;
@@ -770,8 +823,8 @@ table 336 "Tracking Specification"
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        Reset;
-        if FindSet then begin
+        Reset();
+        if FindSet() then begin
             repeat
                 TrackingSpecification := Rec;
                 TrackingSpecification."Buffer Status" := 0;
@@ -780,14 +833,15 @@ table 336 "Tracking Specification"
                 TrackingSpecification."Quantity actual Handled (Base)" := 0;
                 OnBeforeUpdateTrackingSpecification(Rec, TrackingSpecification);
                 if "Buffer Status" = "Buffer Status"::MODIFY then
-                    TrackingSpecification.Modify
+                    TrackingSpecification.Modify()
                 else
                     TrackingSpecification.Insert();
-            until Next = 0;
+            until Next() = 0;
             DeleteAll();
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InitTrackingSpecification without tracking parameters.', '17.0')]
     procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromSerialNo: Code[50]; FromLotNo: Code[50]; FromQtyPerUOM: Decimal)
     begin
@@ -798,6 +852,7 @@ table 336 "Tracking Specification"
         "Lot No." := FromLotNo;
         "Qty. per Unit of Measure" := FromQtyPerUOM;
     end;
+#endif
 
     procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromQtyPerUOM: Decimal)
     begin
@@ -813,8 +868,14 @@ table 336 "Tracking Specification"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
-        if ("Serial No." = xRec."Serial No.") and ("Lot No." = xRec."Lot No.") then
+        IsHandled := false;
+        OnBeforeInitExpirationDate(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if HasSameTracking(xRec) then
             exit;
 
         "Expiration Date" := 0D;
@@ -832,7 +893,7 @@ table 336 "Tracking Specification"
                 "Buffer Status2" := 0;
         end;
 
-        if IsReclass then begin
+        if IsReclass() then begin
             "New Expiration Date" := "Expiration Date";
             "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", "Lot No.", "Serial No.", EntriesExist);
         end;
@@ -840,9 +901,11 @@ table 336 "Tracking Specification"
         OnAfterInitExpirationDate(Rec);
     end;
 
-    procedure IsReclass(): Boolean
+    procedure IsReclass() Reclass: Boolean
     begin
-        exit(("Source Type" = DATABASE::"Item Journal Line") and ("Source Subtype" = 4));
+        Reclass := ("Source Type" = DATABASE::"Item Journal Line") and ("Source Subtype" = 4);
+
+        OnAfterIsReclass(Rec, Reclass);
     end;
 
     local procedure TestApplyToItemLedgEntryNo(ItemLedgEntry: Record "Item Ledger Entry")
@@ -864,7 +927,7 @@ table 336 "Tracking Specification"
             ItemJnlLine.SetRange("Journal Batch Name", "Source Batch Name");
             ItemJnlLine.SetRange("Line No.", "Source Ref. No.");
             ItemJnlLine.SetRange("Entry Type", "Source Subtype");
-            if ItemJnlLine.FindFirst then
+            if ItemJnlLine.FindFirst() then
                 if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output then begin
                     ItemLedgEntry.TestField("Order Type", ItemJnlLine."Order Type"::Production);
                     ItemLedgEntry.TestField("Order No.", ItemJnlLine."Order No.");
@@ -940,6 +1003,8 @@ table 336 "Tracking Specification"
         "Source Batch Name" := '';
         "Source Prod. Order Line" := 0;
         "Source Ref. No." := PurchLine."Line No.";
+
+        OnAfterSetSourceFromPurchLine(Rec, PurchLine);
     end;
 
     procedure SetSourceFromSalesLine(SalesLine: Record "Sales Line")
@@ -950,6 +1015,8 @@ table 336 "Tracking Specification"
         "Source Batch Name" := '';
         "Source Prod. Order Line" := 0;
         "Source Ref. No." := SalesLine."Line No.";
+
+        OnAfterSetSourceFromSalesLine(Rec, SalesLine);
     end;
 
     procedure SetSourceFromReservEntry(ReservEntry: Record "Reservation Entry")
@@ -1000,6 +1067,7 @@ table 336 "Tracking Specification"
         OnAfterClearTrackingFilter(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
     begin
@@ -1008,6 +1076,7 @@ table 336 "Tracking Specification"
         "Warranty Date" := WarrantyDate;
         "Expiration Date" := ExpirationDate;
     end;
+#endif
 
     procedure SetTrackingBlank()
     begin
@@ -1083,12 +1152,14 @@ table 336 "Tracking Specification"
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
+#endif
 
     procedure SetTrackingFilterBlank()
     begin
@@ -1154,6 +1225,13 @@ table 336 "Tracking Specification"
         OnAfterSetTrackingFilterFromTrackingSpec(Rec, TrackingSpecification);
     end;
 
+    procedure SetNonSerialTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        SetRange("Lot No.", TrackingSpecification."Lot No.");
+
+        OnAfterSetNonSerialTrackingFilterFromSpec(Rec, TrackingSpecification);
+    end;
+
     procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         SetRange("Serial No.", WhseActivityLine."Serial No.");
@@ -1201,7 +1279,7 @@ table 336 "Tracking Specification"
         CheckItemTrackingByType(ReservationEntry, QtyToHandleBase, QtyToInvoiceBase, true, Handle, Invoice);
     end;
 
-    local procedure CheckItemTrackingByType(var ReservationEntry: Record "Reservation Entry"; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; OnlyLot: Boolean; Handle: Boolean; Invoice: Boolean)
+    procedure CheckItemTrackingByType(var ReservationEntry: Record "Reservation Entry"; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; OnlyLot: Boolean; Handle: Boolean; Invoice: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
         HandleQtyBase: Decimal;
@@ -1255,7 +1333,7 @@ table 336 "Tracking Specification"
     begin
         LotsToHandleUndefined := false;
         LotsToInvoiceUndefined := false;
-        if not ReservationEntry.FindSet then
+        if not ReservationEntry.FindSet() then
             exit;
         repeat
             if Handle then begin
@@ -1270,7 +1348,7 @@ table 336 "Tracking Specification"
             end;
             if LotsToHandleUndefined and LotsToInvoiceUndefined then
                 StopLoop := true;
-        until StopLoop or (ReservationEntry.Next = 0);
+        until StopLoop or (ReservationEntry.Next() = 0);
     end;
 
     local procedure CheckLot(ReservQty: Decimal; ReservLotNo: Code[50]; var LotNo: Code[50]; var Undefined: Boolean)
@@ -1293,7 +1371,7 @@ table 336 "Tracking Specification"
             SalesLine.SetRange("Document Type", "Source Subtype");
             SalesLine.SetRange("Document No.", "Source ID");
             SalesLine.SetRange("Line No.", "Source Ref. No.");
-            if SalesLine.FindFirst then
+            if SalesLine.FindFirst() then
                 exit("Quantity (Base)" < SalesLine."Qty. to Invoice (Base)");
         end;
     end;
@@ -1326,6 +1404,13 @@ table 336 "Tracking Specification"
         OnAfterTrackingExist(Rec, IsTrackingExist);
     end;
 
+    procedure NonSerialTrackingExists() IsTrackingExists: Boolean
+    begin
+        IsTrackingExists := "Lot No." <> '';
+
+        OnAfterNonSerialTrackingExists(Rec, IsTrackingExists);
+    end;
+
     local procedure GetItemTrackingCode(ItemNo: Code[20]; var ItemTrackingCode: Record "Item Tracking Code")
     begin
         if CachedItem."No." <> ItemNo then begin
@@ -1345,6 +1430,11 @@ table 336 "Tracking Specification"
         end;
 
         ItemTrackingCode := CachedItemTrackingCode;
+    end;
+
+    local procedure CheckPackageNo(PackageNo: Code[50])
+    begin
+        OnCheckPackageNo(Rec, PackageNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1523,6 +1613,11 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNonSerialTrackingFilterFromSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromWhseActivityLine(var TrackingSpecification: Record "Tracking Specification"; WhseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -1539,6 +1634,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNonSerialTrackingExists(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExists: Boolean)
     begin
     end;
 
@@ -1583,6 +1683,11 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckPackageNo(TrackingSpecification: Record "Tracking Specification"; PackageNo: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -1599,6 +1704,26 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTrackingByType(var ReservationEntry: Record "Reservation Entry"; var QtyToHandleBase: Decimal; var QtyToInvoiceBase: Decimal; var OnlyLot: Boolean; var Handle: Boolean; var Invoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFromPurchLine(var TrackingSpecification: Record "Tracking Specification"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitExpirationDate(var TrackingSpecification: Record "Tracking Specification"; xRec: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsReclass(TrackingSpecification: Record "Tracking Specification"; var Reclass: Boolean)
     begin
     end;
 }

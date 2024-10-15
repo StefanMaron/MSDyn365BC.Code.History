@@ -341,7 +341,7 @@ report 11778 "Open Customer Entries at Date"
                         Cust."No." := '';
                         lreCustEntry.SetCurrentKey("Customer No.");
                         lreCustEntry.SetRange("Customer No.", '');
-                        if lreCustEntry.IsEmpty then
+                        if lreCustEntry.IsEmpty() then
                             CurrReport.Skip();
                     end;
                     TCurrencyBuffer.DeleteAll();
@@ -503,7 +503,7 @@ report 11778 "Open Customer Entries at Date"
                         if not TGLAccBuffer.FindSet then
                             CurrReport.Break();
                     end else
-                        if TGLAccBuffer.Next = 0 then
+                        if TGLAccBuffer.Next() = 0 then
                             CurrReport.Break();
 
                     GLAcc.Get(TGLAccBuffer."No.");
@@ -516,7 +516,7 @@ report 11778 "Open Customer Entries at Date"
                         CurrReport.Break();
 
                     TGLAccBuffer.Reset();
-                    if TGLAccBuffer.IsEmpty then
+                    if TGLAccBuffer.IsEmpty() then
                         CurrReport.Break();
 
                     SetRange(Number, 1, TGLAccBuffer.Count);

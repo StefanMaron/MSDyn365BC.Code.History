@@ -588,11 +588,9 @@
             Editable = false;
             FieldClass = FlowField;
         }
-        field(80; "Application Method"; Option)
+        field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
-            OptionCaption = 'Manual,Apply to Oldest';
-            OptionMembers = Manual,"Apply to Oldest";
         }
         field(82; "Prices Including VAT"; Boolean)
         {
@@ -633,9 +631,9 @@
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(90; GLN; Code[13])
         {
@@ -1098,8 +1096,10 @@
                     if Cont."Company No." <> ContBusRel."Contact No." then
                         Error(Text004, Cont."No.", Cont.Name, "No.", Name);
 
-                    if Cont.Type = Cont.Type::Person then
+                    if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;
+                        exit;
+                    end;
 
                     if Cont."Phone No." <> '' then
                         "Phone No." := Cont."Phone No.";
@@ -1458,15 +1458,9 @@
         field(11792; "Registered Name"; Text[250])
         {
             Caption = 'Registered Name';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if (Name = CopyStr(xRec."Registered Name", 1, MaxStrLen(Name))) or (Name = '') then
-                    Validate(Name, CopyStr("Registered Name", 1, MaxStrLen(Name)));
-            end;
+            ObsoleteTag = '18.0';
         }
         field(11793; "Default Order Address Code"; Code[10])
         {
@@ -1537,24 +1531,32 @@
         {
             Caption = 'Transaction Type';
             TableRelation = "Transaction Type";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
             TableRelation = "Transaction Specification";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Industry Code"; Code[20])
         {
             Caption = 'Industry Code';
-            TableRelation = "Industry Code";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -1606,12 +1608,6 @@
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
-        key(Key15; "Industry Code")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this key should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-        }
         key(Key16; Blocked)
         {
         }
@@ -1646,15 +1642,15 @@
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Vendor);
         CommentLine.SetRange("No.", "No.");
-        if not CommentLine.IsEmpty then
+        if not CommentLine.IsEmpty() then
             CommentLine.DeleteAll();
 
         VendBankAcc.SetRange("Vendor No.", "No.");
-        if not VendBankAcc.IsEmpty then
+        if not VendBankAcc.IsEmpty() then
             VendBankAcc.DeleteAll();
 
         OrderAddr.SetRange("Vendor No.", "No.");
-        if not OrderAddr.IsEmpty then
+        if not OrderAddr.IsEmpty() then
             OrderAddr.DeleteAll();
 
         CheckOutstandingPurchaseDocuments();
@@ -1664,29 +1660,25 @@
         DimMgt.DeleteDefaultDim(DATABASE::Vendor, "No.");
 
         ItemVendor.SetRange("Vendor No.", "No.");
-        if not ItemVendor.IsEmpty then
+        if not ItemVendor.IsEmpty() then
             ItemVendor.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty then begin
+        if not SocialListeningSearchTopic.IsEmpty() then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Vendor, "No.");
             SocialListeningSearchTopic.DeleteAll();
         end;
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", "No.");
-        if not CustomReportSelection.IsEmpty then
+        if not CustomReportSelection.IsEmpty() then
             CustomReportSelection.DeleteAll();
 
         PurchPrepmtPct.SetCurrentKey("Vendor No.");
         PurchPrepmtPct.SetRange("Vendor No.", "No.");
-        if not PurchPrepmtPct.IsEmpty then
+        if not PurchPrepmtPct.IsEmpty() then
             PurchPrepmtPct.DeleteAll(true);
 
         // NAVCZ
-        RegCountry.SetRange("Account Type", RegCountry."Account Type"::Vendor);
-        RegCountry.SetRange("Account No.", "No.");
-        RegCountry.DeleteAll();
-
         RegistrationLogMgt.DeleteVendorLog(Rec);
         // NAVCZ
 
@@ -1772,7 +1764,6 @@
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
-        RegCountry: Record "Registration Country/Region";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromVend: Codeunit "VendCont-Update";
@@ -2101,7 +2092,7 @@
         VendLedgerEntry.SetCurrentKey("Vendor No.", Open);
         VendLedgerEntry.SetRange("Vendor No.", "No.");
         VendLedgerEntry.SetRange(Open, true);
-        if not VendLedgerEntry.IsEmpty then
+        if not VendLedgerEntry.IsEmpty() then
             FieldError("Vendor Posting Group", ChangeErr);
     end;
 
@@ -2245,17 +2236,17 @@
                 if Abs(VendorTextLenght - StrLen(Vendor.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(VendorText), UpperCase(Vendor.Name)) <= Treshold then
                         Vendor.Mark(true);
-            until Vendor.Mark or (Vendor.Next = 0) or (VendorCount > 1000);
+            until Vendor.Mark or (Vendor.Next() = 0) or (VendorCount > 1000);
         Vendor.MarkedOnly(true);
     end;
 
     local procedure CreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean): Code[20]
     var
         Vendor: Record Vendor;
-        MiniVendorTemplate: Record "Mini Vendor Template";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
         VendorCard: Page "Vendor Card";
     begin
-        if not MiniVendorTemplate.NewVendorFromTemplate(Vendor) then
+        if not VendorTemplMgt.InsertVendorFromTemplate(Vendor) then
             Error(SelectVendorErr);
 
         Vendor.Name := VendorName;
@@ -2317,7 +2308,7 @@
         if Vendor.FindSet then
             repeat
                 Vendor.Mark(true);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
         if Vendor.FindFirst then;
         Vendor.MarkedOnly := true;
     end;
@@ -2366,7 +2357,6 @@
           (County <> xRec.County) or
           ("E-Mail" <> xRec."E-Mail") or
           ("Home Page" <> xRec."Home Page") or
-          ("Registered Name" <> xRec."Registered Name") or
           ("Registration No." <> xRec."Registration No.") or
           ("Tax Registration No." <> xRec."Tax Registration No.");
 
@@ -2425,6 +2415,14 @@
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
+    end;
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Purchase;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Vendor);
+        PriceSource.Validate("Source No.", "No.");
     end;
 
     local procedure VATRegistrationValidation()

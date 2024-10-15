@@ -1713,7 +1713,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         LibraryService.FindServiceCost(ServiceCost);
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
@@ -1729,7 +1729,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(
               ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -1744,7 +1744,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1758,7 +1758,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1881,7 +1881,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure MakePosAdjForItemsWithBins(var Bin: array[3] of Record Bin; var Item: array[3] of Record Item; var Qty: array[3] of Decimal)
@@ -1907,7 +1907,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -1949,7 +1949,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
@@ -1960,7 +1960,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
@@ -1973,7 +1973,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
@@ -1986,7 +1986,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity);
             ServiceLine.Modify(true);
@@ -1997,7 +1997,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Modify(true);
@@ -2008,7 +2008,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
             ServiceLine.Validate("Qty. to Ship", 0);  // Value 0 is important for the test case.
@@ -2020,7 +2020,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
@@ -2032,7 +2032,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
@@ -2061,7 +2061,7 @@ codeunit 136107 "Service Posting - Shipment"
         with ServiceLine do begin
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Posting Date", NewPostingDate);
                 Modify(true);
@@ -2115,7 +2115,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the value of the field Quantity Shipped of the new Service Line is equal to the value of the field
         // Qty. to Ship of the relevant old Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceLine.Get(TempServiceLine."Document Type", TempServiceLine."Document No.", TempServiceLine."Line No.");
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Qty. to Ship" + TempServiceLine."Quantity Shipped");
@@ -2128,7 +2128,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the value of the field Quantity Invoiced of the Service Shipment Line is equal to the value of the field Qty. to
         // Invoice of the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
@@ -2143,7 +2143,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the Qty. to Ship is 0 and the value of the field Quantity Shipped in Service Line is equal to the value of the field
         // Quantity of the Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceLine.Get(TempServiceLine."Document Type", TempServiceLine."Document No.", TempServiceLine."Line No.");
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity);
@@ -2157,7 +2157,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the values of the fields Qty. Shipped Not Invoiced and Quantity of Service Shipment Line are equal to the value of
         // the field Qty. to Ship of the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
@@ -2173,7 +2173,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the value of the field Quantity of the Item Ledger Entry is equal to the value of the field Qty. to Ship of the
         // relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
         ItemLedgerEntry.SetRange("Order No.", TempServiceLine."Document No.");
@@ -2202,7 +2202,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the value ofthe field Valued Quantity of the Value Entry is equal to the value of the field Qty. to Ship of
         // the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;  // Find the second shipment.
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
@@ -2221,7 +2221,7 @@ codeunit 136107 "Service Posting - Shipment"
     begin
         // Verify that the Service Ledger Entry created corresponds with the relevant Service Line by matching the fields No., Posting Date
         // and Bill-to Customer No.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;  // Find the second shipment.
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
@@ -2271,7 +2271,7 @@ codeunit 136107 "Service Posting - Shipment"
         // relevant Service Line.
         Tolerance := 0.000005;
         TempServiceLineBeforePosting.SetRange(Type, TempServiceLineBeforePosting.Type::Item);
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
@@ -2318,8 +2318,7 @@ codeunit 136107 "Service Posting - Shipment"
         WarrantyLedgerEntry.FindFirst;
     end;
 
-    [EventSubscriber(ObjectType::Table, 49, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Invoice Post. Buffer", 'OnAfterInsertEvent', '', false, false)]
     procedure VerifyInvPostBufferTemporary(var Rec: Record "Invoice Post. Buffer"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -2350,7 +2349,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
         ServiceShipmentLine.FindFirst;
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
         until ItemLedgerEntry.Next = 0;
@@ -2365,7 +2364,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Resource);
         ServiceShipmentLine.FindFirst;
         ResLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
-        ResLedgerEntry.FindSet;
+        ResLedgerEntry.FindSet();
         repeat
             ResLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
         until ResLedgerEntry.Next = 0;

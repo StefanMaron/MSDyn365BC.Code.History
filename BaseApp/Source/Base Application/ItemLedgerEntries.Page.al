@@ -20,73 +20,73 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what type of document was posted to create the item ledger entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Document Line No."; "Document Line No.")
+                field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the line on the posted document that corresponds to the item ledger entry.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
@@ -96,10 +96,11 @@
                     var
                         ItemTrackingManagement: Codeunit "Item Tracking Management";
                     begin
-                        ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Serial No.", Rec."Serial No.");
                     end;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
@@ -109,147 +110,162 @@
                     var
                         ItemTrackingManagement: Codeunit "Item Tracking Management";
                     begin
-                        ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Lot No.", Rec."Lot No.");
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a package number if the posted item carries such a number.';
+                    Visible = PackageTrackingVisible;
+
+                    trigger OnDrillDown()
+                    var
+                        ItemTrackingManagement: Codeunit "Item Tracking Management";
+                    begin
+                        ItemTrackingManagement.LookupTrackingNoInfo(
+                            Rec."Item No.", Rec."Variant Code", "Item Tracking Type"::"Package No.", Rec."Package No.");
+                    end;
+                }
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
-                field("Invoiced Quantity"; "Invoiced Quantity")
+                field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item on the line have been invoiced.';
                     Visible = true;
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                     Visible = true;
                 }
-                field("Shipped Qty. Not Returned"; "Shipped Qty. Not Returned")
+                field("Shipped Qty. Not Returned"; Rec."Shipped Qty. Not Returned")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for this item ledger entry that was shipped and has not yet been returned.';
                     Visible = false;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of the item on the line have been reserved.';
                     Visible = false;
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity per item unit of measure.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Sales Amount (Expected)"; "Sales Amount (Expected)")
+                field("Sales Amount (Expected)"; Rec."Sales Amount (Expected)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expected sales amount, in LCY.';
                     Visible = false;
                 }
-                field("Sales Amount (Actual)"; "Sales Amount (Actual)")
+                field("Sales Amount (Actual)"; Rec."Sales Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales amount, in LCY.';
                 }
-                field("Cost Amount (Expected)"; "Cost Amount (Expected)")
+                field("Cost Amount (Expected)"; Rec."Cost Amount (Expected)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expected cost, in LCY, of the quantity posting.';
                     Visible = false;
                 }
-                field("Cost Amount (Actual)"; "Cost Amount (Actual)")
+                field("Cost Amount (Actual)"; Rec."Cost Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the adjusted cost, in LCY, of the quantity posting.';
                 }
-                field("Cost Amount (Non-Invtbl.)"; "Cost Amount (Non-Invtbl.)")
+                field("Cost Amount (Non-Invtbl.)"; Rec."Cost Amount (Non-Invtbl.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the adjusted non-inventoriable cost, that is an item charge assigned to an outbound entry.';
                 }
-                field("Cost Amount (Expected) (ACY)"; "Cost Amount (Expected) (ACY)")
+                field("Cost Amount (Expected) (ACY)"; Rec."Cost Amount (Expected) (ACY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expected cost, in ACY, of the quantity posting.';
                     Visible = false;
                 }
-                field("Cost Amount (Actual) (ACY)"; "Cost Amount (Actual) (ACY)")
+                field("Cost Amount (Actual) (ACY)"; Rec."Cost Amount (Actual) (ACY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the adjusted cost of the entry, in the additional reporting currency.';
                     Visible = false;
                 }
-                field("Cost Amount (Non-Invtbl.)(ACY)"; "Cost Amount (Non-Invtbl.)(ACY)")
+                field("Cost Amount (Non-Invtbl.)(ACY)"; Rec."Cost Amount (Non-Invtbl.)(ACY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the adjusted non-inventoriable cost, that is, an item charge assigned to an outbound entry in the additional reporting currency.';
                     Visible = false;
                 }
-                field("Completely Invoiced"; "Completely Invoiced")
+                field("Completely Invoiced"; Rec."Completely Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry has been fully invoiced or if more posted invoices are expected. Only completely invoiced entries can be revalued.';
                     Visible = false;
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry has been fully applied to.';
                 }
-                field("Drop Shipment"; "Drop Shipment")
+                field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                     Visible = false;
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the posting represents an assemble-to-order sale.';
                     Visible = false;
                 }
-                field("Applied Entry to Adjust"; "Applied Entry to Adjust")
+                field("Applied Entry to Adjust"; Rec."Applied Entry to Adjust")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there is one or more applied entries, which need to be adjusted.';
                     Visible = false;
                 }
-                field("Order Type"; "Order Type")
+                field("Order Type"; Rec."Order Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of order that the entry was created in.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Order Line No."; "Order Line No.")
+                field("Order Line No."; Rec."Order Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Prod. Order Comp. Line No."; "Prod. Order Comp. Line No.")
+                field("Prod. Order Comp. Line No."; Rec."Prod. Order Comp. Line No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the line number of the production order component.';
@@ -266,31 +282,37 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Source No. 3"; "Source No. 3")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                     Visible = false;
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
@@ -376,7 +398,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)
@@ -391,7 +413,7 @@
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        Rec.SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
                 action("&Value Entries")
@@ -434,7 +456,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowReservationEntries(true);
+                        Rec.ShowReservationEntries(true);
                     end;
                 }
                 action("Application Worksheet")
@@ -446,11 +468,11 @@
 
                     trigger OnAction()
                     var
-                        Worksheet: Page "Application Worksheet";
+                        ApplicationWorksheet: Page "Application Worksheet";
                     begin
-                        Clear(Worksheet);
-                        Worksheet.SetRecordToShow(Rec);
-                        Worksheet.Run;
+                        Clear(ApplicationWorksheet);
+                        ApplicationWorksheet.SetRecordToShow(Rec);
+                        ApplicationWorksheet.Run();
                     end;
                 }
             }
@@ -470,10 +492,10 @@
 
                     trigger OnAction()
                     var
-                        TrackingForm: Page "Order Tracking";
+                        OrderTracking: Page "Order Tracking";
                     begin
-                        TrackingForm.SetItemLedgEntry(Rec);
-                        TrackingForm.RunModal;
+                        OrderTracking.SetItemLedgEntry(Rec);
+                        OrderTracking.RunModal();
                     end;
                 }
             }
@@ -489,8 +511,8 @@
 
                 trigger OnAction()
                 begin
-                    Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
+                    Navigate.Run();
                 end;
             }
         }
@@ -501,13 +523,15 @@
         if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
 
+        SetPackageTrackingVisibility();
         SetDimVisibility();
     end;
 
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        ItemTrackingType: Enum "Item Tracking Type";
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     protected var
         Dim1Visible: Boolean;
@@ -543,18 +567,18 @@
         Description := '';
 
         case true of
-            GetFilter("Item No.") <> '':
+            Rec.GetFilter("Item No.") <> '':
                 begin
                     SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 27);
-                    SourceFilter := GetFilter("Item No.");
+                    SourceFilter := Rec.GetFilter("Item No.");
                     if MaxStrLen(Item."No.") >= StrLen(SourceFilter) then
                         if Item.Get(SourceFilter) then
                             Description := Item.Description;
                 end;
-            (GetFilter("Order No.") <> '') and ("Order Type" = "Order Type"::Production):
+            (Rec.GetFilter("Order No.") <> '') and (Rec."Order Type" = Rec."Order Type"::Production):
                 begin
                     SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 5405);
-                    SourceFilter := GetFilter("Order No.");
+                    SourceFilter := Rec.GetFilter("Order No.");
                     if MaxStrLen(ProdOrder."No.") >= StrLen(SourceFilter) then
                         if ProdOrder.Get(ProdOrder.Status::Released, SourceFilter) or
                            ProdOrder.Get(ProdOrder.Status::Finished, SourceFilter)
@@ -563,52 +587,52 @@
                             Description := ProdOrder.Description;
                         end;
                 end;
-            GetFilter("Source No.") <> '':
-                case "Source Type" of
-                    "Source Type"::Customer:
+            Rec.GetFilter("Source No.") <> '':
+                case Rec."Source Type" of
+                    Rec."Source Type"::Customer:
                         begin
                             SourceTableName :=
                               ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 18);
-                            SourceFilter := GetFilter("Source No.");
+                            SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Cust."No.") >= StrLen(SourceFilter) then
                                 if Cust.Get(SourceFilter) then
                                     Description := Cust.Name;
                         end;
-                    "Source Type"::Vendor:
+                    Rec."Source Type"::Vendor:
                         begin
                             SourceTableName :=
                               ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 23);
-                            SourceFilter := GetFilter("Source No.");
+                            SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Vend."No.") >= StrLen(SourceFilter) then
                                 if Vend.Get(SourceFilter) then
                                     Description := Vend.Name;
                         end;
                 end;
-            GetFilter("Global Dimension 1 Code") <> '':
+            Rec.GetFilter("Global Dimension 1 Code") <> '':
                 begin
                     GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 1 Code";
-                    SourceFilter := GetFilter("Global Dimension 1 Code");
+                    SourceFilter := Rec.GetFilter("Global Dimension 1 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 1 Code", SourceFilter) then
                             Description := DimValue.Name;
                 end;
-            GetFilter("Global Dimension 2 Code") <> '':
+            Rec.GetFilter("Global Dimension 2 Code") <> '':
                 begin
                     GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 2 Code";
-                    SourceFilter := GetFilter("Global Dimension 2 Code");
+                    SourceFilter := Rec.GetFilter("Global Dimension 2 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 2 Code", SourceFilter) then
                             Description := DimValue.Name;
                 end;
-            GetFilter("Document Type") <> '':
+            Rec.GetFilter("Document Type") <> '':
                 begin
-                    SourceTableName := GetFilter("Document Type");
-                    SourceFilter := GetFilter("Document No.");
-                    Description := GetFilter("Document Line No.");
+                    SourceTableName := Rec.GetFilter("Document Type");
+                    SourceFilter := Rec.GetFilter("Document No.");
+                    Description := Rec.GetFilter("Document Line No.");
                 end;
         end;
         exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
@@ -620,6 +644,13 @@
         // NAVCZ
         ItemLedgEntry.Copy(Rec);
         CurrPage.SetSelectionFilter(ItemLedgEntry);
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

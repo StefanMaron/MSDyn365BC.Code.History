@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11732 "Posted Receipt Cash Doc."
 {
     DefaultLayout = RDLC;
@@ -412,4 +413,4 @@ report 11732 "Posted Receipt Cash Doc."
         PrintVATSpecification := NewPrintVATSpecification
     end;
 }
-
+#endif

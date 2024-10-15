@@ -17,39 +17,39 @@ page 5771 "Whse. Put-away Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Action Type"; "Action Type")
+                field("Action Type"; Rec."Action Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the action type for the warehouse activity line.';
-                    Visible = false;
+                    Visible = true;
                 }
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item number of the item to be handled, such as picked or put away.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the item on the line.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
@@ -62,7 +62,7 @@ page 5771 "Whse. Put-away Subform"
                         SerialNoOnAfterValidate();
                     end;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
@@ -75,56 +75,64 @@ page 5771 "Whse. Put-away Subform"
                         LotNoOnAfterValidate();
                     end;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Editable = false;
+                    Lookup = false;
+                    ToolTip = 'Specifies the package number to handle in the document.';
+                    Visible = false;
+                }
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the expiration date of the serial/lot numbers if you are putting items away.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the activity occurs.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = ZoneCodeEditable;
                     ToolTip = 'Specifies the zone code where the bin on this line is located.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = BinCodeEditable;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
-                    Visible = false;
+                    Visible = true;
 
                     trigger OnValidate()
                     begin
-                        BinCodeOnAfterValidate;
+                        BinCodeOnAfterValidate();
                     end;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for informational use.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Handle"; "Qty. to Handle")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     Editable = QtyToHandleEditable;
@@ -132,90 +140,90 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
-                field("Qty. Handled"; "Qty. Handled")
+                field("Qty. Handled"; Rec."Qty. Handled")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items on the line that have been handled in this warehouse activity.';
                 }
-                field("Qty. to Handle (Base)"; "Qty. to Handle (Base)")
+                field("Qty. to Handle (Base)"; Rec."Qty. to Handle (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items to be handled in this warehouse activity.';
                     Visible = false;
                 }
-                field("Qty. Handled (Base)"; "Qty. Handled (Base)")
+                field("Qty. Handled (Base)"; Rec."Qty. Handled (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items on the line that have been handled in this warehouse activity.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items that have not yet been handled for this warehouse activity line.';
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items, expressed in the base unit of measure, that have not yet been handled for this warehouse activity line.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity per unit of measure of the item on the line.';
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies information about the type of destination, such as customer or vendor, associated with the warehouse activity line.';
                     Visible = false;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number or code of the customer, vendor or location related to the activity line.';
                     Visible = false;
                 }
-                field("Whse. Document Type"; "Whse. Document Type")
+                field("Whse. Document Type"; Rec."Whse. Document Type")
                 {
                     ApplicationArea = Warehouse;
                     OptionCaption = ' ,Receipt,,Internal Put-away';
                     ToolTip = 'Specifies the type of warehouse document from which the line originated.';
                     Visible = false;
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the warehouse document that is the basis for the action on the line.';
                     Visible = false;
                 }
-                field("Whse. Document Line No."; "Whse. Document Line No.")
+                field("Whse. Document Line No."; Rec."Whse. Document Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the line in the warehouse document that is the basis for the action on the line.';
                     Visible = false;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the equipment required when you perform the action on the line.';
                     Visible = false;
                 }
-                field("Cross-Dock Information"; "Cross-Dock Information")
+                field("Cross-Dock Information"; Rec."Cross-Dock Information")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies an option for specific information regarding the cross-dock activity.';
@@ -245,8 +253,8 @@ page 5771 "Whse. Put-away Subform"
                         WhseActivLine: Record "Warehouse Activity Line";
                     begin
                         WhseActivLine.Copy(Rec);
-                        SplitLine(WhseActivLine);
-                        Copy(WhseActivLine);
+                        Rec.SplitLine(WhseActivLine);
+                        Rec.Copy(WhseActivLine);
                         CurrPage.Update(false);
                     end;
                 }
@@ -260,7 +268,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ChangeUOM;
+                        ChangeUOM();
                     end;
                 }
             }
@@ -277,7 +285,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowSourceLine;
+                        ShowSourceLine();
                     end;
                 }
                 action("Whse. Document Line")
@@ -289,7 +297,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowWhseLine;
+                        ShowWhseLine();
                     end;
                 }
                 action("Bin Contents List")
@@ -301,7 +309,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 group("Item Availability by")
@@ -357,6 +365,17 @@ page 5771 "Whse. Put-away Subform"
                             ItemAvailability(ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                 }
             }
         }
@@ -364,7 +383,7 @@ page 5771 "Whse. Put-away Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        EnableZoneBin;
+        EnableZoneBin();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -381,7 +400,12 @@ page 5771 "Whse. Put-away Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Activity Type" := xRec."Activity Type";
+        Rec."Activity Type" := xRec."Activity Type";
+    end;
+
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
     end;
 
     var
@@ -395,11 +419,13 @@ page 5771 "Whse. Put-away Subform"
         BinCodeEditable: Boolean;
         [InDataSet]
         QtyToHandleEditable: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     local procedure ShowSourceLine()
     begin
         WMSMgt.ShowSourceDocLine(
-          "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+          Rec."Source Type", Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.", Rec."Source Subline No.");
     end;
 
     local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
@@ -412,13 +438,13 @@ page 5771 "Whse. Put-away Subform"
         WhseActLine: Record "Warehouse Activity Line";
         WhseChangeOUM: Report "Whse. Change Unit of Measure";
     begin
-        TestField("Action Type");
-        TestField("Breakbulk No.", 0);
-        TestField("Action Type", 2);
+        Rec.TestField("Action Type");
+        Rec.TestField("Breakbulk No.", 0);
+        Rec.TestField("Action Type", 2);
         WhseChangeOUM.DefWhseActLine(Rec);
-        WhseChangeOUM.RunModal;
-        if WhseChangeOUM.ChangeUOMCode(WhseActLine) = true then
-            ChangeUOMCode(Rec, WhseActLine);
+        WhseChangeOUM.RunModal();
+        if WhseChangeOUM.ChangeUOMCode(WhseActLine) then
+            Rec.ChangeUOMCode(Rec, WhseActLine);
         Clear(WhseChangeOUM);
         CurrPage.Update(false);
     end;
@@ -432,14 +458,14 @@ page 5771 "Whse. Put-away Subform"
         WhseActivLine.SetRange(Breakbulk);
         WhseActivLine.FilterGroup(0);
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivLine);
-        Reset;
-        SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
-        FilterGroup(4);
-        SetRange("Activity Type", "Activity Type");
-        SetRange("No.", "No.");
-        FilterGroup(3);
-        SetRange(Breakbulk, false);
-        FilterGroup(0);
+        Rec.Reset();
+        Rec.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
+        Rec.FilterGroup(4);
+        Rec.SetRange("Activity Type", Rec."Activity Type");
+        Rec.SetRange("No.", Rec."No.");
+        Rec.FilterGroup(3);
+        Rec.SetRange(Breakbulk, false);
+        Rec.FilterGroup(0);
         CurrPage.Update(false);
     end;
 
@@ -448,10 +474,10 @@ page 5771 "Whse. Put-away Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        WhseActivLine.SetRange("Activity Type", "Activity Type");
-        WhseActivLine.SetRange("No.", "No.");
+        WhseActivLine.SetRange("Activity Type", Rec."Activity Type");
+        WhseActivLine.SetRange("No.", Rec."No.");
         OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(WhseActivLine);
-        AutofillQtyToHandle(WhseActivLine);
+        Rec.AutofillQtyToHandle(WhseActivLine);
     end;
 
     procedure DeleteQtyToHandle()
@@ -459,35 +485,35 @@ page 5771 "Whse. Put-away Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        WhseActivLine.SetRange("Activity Type", "Activity Type");
-        WhseActivLine.SetRange("No.", "No.");
-        DeleteQtyToHandle(WhseActivLine);
+        WhseActivLine.SetRange("Activity Type", Rec."Activity Type");
+        WhseActivLine.SetRange("No.", Rec."No.");
+        Rec.DeleteQtyToHandle(WhseActivLine);
     end;
 
     local procedure ShowBinContents()
     var
         BinContent: Record "Bin Content";
     begin
-        if "Action Type" = "Action Type"::Place then
-            BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", '')
+        if Rec."Action Type" = Rec."Action Type"::Place then
+            BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", '')
         else
-            BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", "Bin Code");
+            BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", Rec."Bin Code");
     end;
 
     local procedure ShowWhseLine()
     begin
         WMSMgt.ShowWhseDocLine(
-          "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+          Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
     end;
 
     local procedure EnableZoneBin()
     begin
         ZoneCodeEditable :=
-          ("Action Type" = "Action Type"::Place) and ("Breakbulk No." = 0);
+          (Rec."Action Type" = Rec."Action Type"::Place) and (Rec."Breakbulk No." = 0);
         BinCodeEditable :=
-          ("Action Type" = "Action Type"::Place) and ("Breakbulk No." = 0);
+          (Rec."Action Type" = Rec."Action Type"::Place) and (Rec."Breakbulk No." = 0);
         QtyToHandleEditable :=
-          ("Action Type" = "Action Type"::Take) or ("Breakbulk No." = 0);
+          (Rec."Action Type" = Rec."Action Type"::Take) or (Rec."Breakbulk No." = 0);
     end;
 
     local procedure SerialNoOnAfterValidate()
@@ -496,12 +522,13 @@ page 5771 "Whse. Put-away Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Serial No." <> '' then
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
-                "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Serial No." <> '' then
+            ExpDate :=
+                ItemTrackingMgt.ExistingExpirationDate(
+                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     local procedure LotNoOnAfterValidate()
@@ -510,22 +537,30 @@ page 5771 "Whse. Put-away Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Lot No." <> '' then
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
-                "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Lot No." <> '' then
+            ExpDate :=
+                ItemTrackingMgt.ExistingExpirationDate(
+                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     protected procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update(true);
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

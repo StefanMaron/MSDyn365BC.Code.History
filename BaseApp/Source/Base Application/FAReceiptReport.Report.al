@@ -1,10 +1,14 @@
+#if not CLEAN18
 report 31046 "FA Receipt Report"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAReceiptReport.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'FA Receipt Report';
+    Caption = 'FA Receipt Report (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -476,4 +480,4 @@ report 31046 "FA Receipt Report"
         FAUseStartDateCtrlEnable := not PrintFALedgDate;
     end;
 }
-
+#endif

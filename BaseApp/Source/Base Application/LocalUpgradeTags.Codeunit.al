@@ -19,7 +19,7 @@ codeunit 11790 "Local Upgrade Tag Definitions"
 
     procedure GetCorrectionsForBadReceivableUpgradeTag(): Code[250]
     begin
-        exit('CZ-323219-CorrectionsForBadReceivable-20190823');
+        exit('CZ-386361-CorrectionsForBadReceivable-20210122');
     end;
 
     procedure GetUseIsolatedCertificateInsteadOfCertificateCZ(): Code[250]
@@ -30,5 +30,25 @@ codeunit 11790 "Local Upgrade Tag Definitions"
     procedure GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag(): Code[250]
     begin
         exit('CZ-335319-ObsoleteGeneralLedgerEntryDescriptionFeature-20191128');
+    end;
+
+    procedure GetVendorTemplateUpgradeTag(): Code[250]
+    begin
+        exit('CZ-383715-VendorTemplate-20201217');
+    end;
+
+    procedure GetIntrastatJnlLineShipmentMethodCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-386361-IntrastatJnlLineShipmentMethodCode-20210122');
+    end;
+
+    procedure GetItemJournalLineShipmentMethodCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-386361-ItemJournalLineShipmentMethodCode-20210122');
+    end;
+
+    procedure GetItemLedgerEntryShipmentMethodCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-386361-ItemLedgerEntryShipmentMethodCode-20210122');
     end;
 }

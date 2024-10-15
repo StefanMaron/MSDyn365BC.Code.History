@@ -26,16 +26,26 @@ page 5748 "Transfer Route Specification"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
+#if not CLEAN18                
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items ship.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Gen. Bus. Post. Group Receive"; "Gen. Bus. Post. Group Receive")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for itemsreceive.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif                
             }
         }
         area(factboxes)

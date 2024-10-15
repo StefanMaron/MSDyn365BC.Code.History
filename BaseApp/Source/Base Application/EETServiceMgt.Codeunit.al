@@ -605,9 +605,8 @@ codeunit 31120 "EET Service Mgt."
         TempErrorMessage.CopyToTemp(TempErrorMessage2);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleEETRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure HandleEETRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         EETServiceSetup: Record "EET Service Setup";
         EETServiceSetupPage: Page "EET Service Setup";

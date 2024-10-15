@@ -13,9 +13,8 @@ codeunit 11769 "Change Dimension Management"
         TempDefaultDimension: Record "Default Dimension" temporary;
         DimChangeSetupRead: Boolean;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
-    [Scope('OnPrem')]
-    procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     begin
         if CompanyName = '' then
             exit;
@@ -28,9 +27,8 @@ codeunit 11769 "Change Dimension Management"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterOnDatabaseInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DimensionInsert(RecRef: RecordRef)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterOnDatabaseInsert', '', false, false)]
+    local procedure DimensionInsert(RecRef: RecordRef)
     begin
         if RecRef.IsTemporary then
             exit;
@@ -43,9 +41,8 @@ codeunit 11769 "Change Dimension Management"
         UpdateDimensionValue(RecRef, RecRef, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterOnDatabaseModify', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DimensionModify(RecRef: RecordRef)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterOnDatabaseModify', '', false, false)]
+    local procedure DimensionModify(RecRef: RecordRef)
     var
         xRecRef: RecordRef;
     begin
@@ -120,7 +117,7 @@ codeunit 11769 "Change Dimension Management"
                             DimensionValue.Modify();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -148,7 +145,7 @@ codeunit 11769 "Change Dimension Management"
                 end;
                 TempDefaultDimension := DefaultDimension;
                 TempDefaultDimension.Insert();
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
     end;
 }
 

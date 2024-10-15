@@ -21,7 +21,7 @@ codeunit 134163 "Company Init Unit Test"
         InvPCostCodeTxt: Label 'INVTPCOST', Comment = 'Post Inventory to G/L';
         InvPCostValueTxt: Label 'Post Inventory Cost to G/L';
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
-        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates';
+        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates (Obsolet'; // NAVCZ
         ClsIncStmtCodeTxt: Label 'CLSINCOME', Comment = 'Close Income Statement';
         ClsIncStmtValueTxt: Label 'Close Income Statement (Obsole'; // NAVCZ
         ConsolidationCodeTxt: Label 'CONSOLID', Comment = 'Consolidation';

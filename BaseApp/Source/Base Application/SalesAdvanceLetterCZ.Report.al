@@ -166,18 +166,6 @@ report 31000 "Sales - Advance Letter CZ"
             column(DocFooterText; DocFooterText)
             {
             }
-            column(PerformCountryRegionCode; RegistrationCountryRegion."Country/Region Code")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
             column(CustAddr1; CustAddr[1])
             {
             }
@@ -256,7 +244,9 @@ report 31000 "Sales - Advance Letter CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
+#if not CLEAN18
                         DataItemLink = "No." = FIELD("Employee No.");
+#endif
                         DataItemTableView = SORTING("No.");
                         column(FullName_Employee; Employee.FullName)
                         {
@@ -304,11 +294,6 @@ report 31000 "Sales - Advance Letter CZ"
 
                 FormatAddr.FormatAddr(CustAddr, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-
-                if not RegistrationCountryRegion.Get(
-                     RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegistrationCountryRegion);
             end;
         }
     }
@@ -346,8 +331,6 @@ report 31000 "Sales - Advance Letter CZ"
     var
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";

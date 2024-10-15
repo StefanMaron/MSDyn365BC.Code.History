@@ -115,7 +115,7 @@ table 9001 "User Group Member"
                     "User Security ID" := User."User Security ID";
                     "Company Name" := SelectedCompany;
                     if Insert(true) then;
-                until User.Next = 0;
+                until User.Next() = 0;
     end;
 
     local procedure ModifyUserGroupMembership()
@@ -135,7 +135,7 @@ table 9001 "User Group Member"
         // If there is more than one User group assigned to a user, then use the company default profile
         UserGroupMember.SetRange("User Security ID", "User Security ID");
         UserGroupMember.SetFilter("User Group Code", '<>%1', xRec."User Group Code");
-        if not UserGroupMember.IsEmpty then begin
+        if not UserGroupMember.IsEmpty() then begin
             // When there are more than two user groups assigned to this user, assign to him the default profile
             if not UserGroupHasSameProfileAsUserPersonalization(xRec."User Group Code", xRec."User Security ID") then
                 exit;
@@ -239,7 +239,7 @@ table 9001 "User Group Member"
         UserGroup: Record "User Group";
     begin
         if UserPersonalization.Get(UserSecurityID) then begin
-            UserGroupMember.FindSet;
+            UserGroupMember.FindSet();
             repeat
                 if UserGroup.Get(UserGroupMember."User Group Code") and
                    (UserPersonalization."Profile ID" = UserGroup."Default Profile ID") and
@@ -247,7 +247,7 @@ table 9001 "User Group Member"
                    (UserPersonalization.Scope = UserGroup."Default Profile Scope")
                 then
                     exit(true);
-            until UserGroupMember.Next = 0
+            until UserGroupMember.Next() = 0
         end;
         exit(false);
     end;

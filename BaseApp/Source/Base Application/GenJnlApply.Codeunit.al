@@ -75,6 +75,7 @@
         CurrencyCode2: Code[10];
         EntrySelected: Boolean;
         AccType: Enum "Gen. Journal Account Type";
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date. Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 = Applying document type, %2 = Applying document number, %3 = Entry document type, %4 = Entry document number';
 
     local procedure SelectCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
     var
@@ -353,7 +354,7 @@
                                 else
                                     Amount := Amount - CustLedgEntry."Amount to Apply";
                         end;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                     TempCustLedgEntry.DeleteAll();
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
                         Amount := -Amount;
@@ -361,7 +362,7 @@
                 end else
                     repeat
                         CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 if "Currency Code" <> CurrencyCode2 then
                     if Amount = 0 then begin
                         ConfirmCurrencyUpdate(GenJnlLine, CustLedgEntry."Currency Code");
@@ -384,6 +385,110 @@
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
                     exit;
         end;
+    end;
+
+    procedure SetVendApplIdAPI(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        Vendor: Record Vendor;
+        GenJnlApply: Codeunit "Gen. Jnl.-Apply";
+        VendEntrySetApplID: Codeunit "Vend. Entry-SetAppl.ID";
+        ApplnCurrencyCode: Code[10];
+    begin
+        if GenJournalLine."Applies-to ID" = '' then
+            GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        if GenJournalLine."Applies-to ID" = '' then
+            Error(
+              Text000,
+              GenJournalLine.FieldCaption("Document No."), GenJournalLine.FieldCaption("Applies-to ID"));
+
+        ApplnCurrencyCode := GenJournalLine."Currency Code";
+        TempApplyingVendorLedgerEntry."Posting Date" := GenJournalLine."Posting Date";
+        TempApplyingVendorLedgerEntry."Document Type" := GenJournalLine."Document Type";
+        TempApplyingVendorLedgerEntry."Document No." := GenJournalLine."Document No.";
+        if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor then begin
+            TempApplyingVendorLedgerEntry."Vendor No." := GenJournalLine."Bal. Account No.";
+            Vendor.Get(TempApplyingVendorLedgerEntry."Vendor No.");
+            TempApplyingVendorLedgerEntry.Description := Vendor.Name;
+        end else begin
+            TempApplyingVendorLedgerEntry."Vendor No." := GenJournalLine."Account No.";
+            TempApplyingVendorLedgerEntry.Description := GenJournalLine.Description;
+        end;
+        TempApplyingVendorLedgerEntry."Currency Code" := GenJournalLine."Currency Code";
+        TempApplyingVendorLedgerEntry.Amount := GenJournalLine.Amount;
+        TempApplyingVendorLedgerEntry."Remaining Amount" := GenJournalLine.Amount;
+        if TempApplyingVendorLedgerEntry."Posting Date" < VendorLedgerEntry."Posting Date" then
+            Error(
+                EarlierPostingDateErr, TempApplyingVendorLedgerEntry."Document Type", TempApplyingVendorLedgerEntry."Document No.",
+                VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+
+        if TempApplyingVendorLedgerEntry."Entry No." <> 0 then
+            GenJnlApply.CheckAgainstApplnCurrency(
+                ApplnCurrencyCode, VendorLedgerEntry."Currency Code", GenJournalLine."Account Type"::Vendor, true);
+
+        VendorLedgerEntry.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
+        VendorLedgerEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+        VendEntrySetApplID.SetApplId(VendorLedgerEntry, TempApplyingVendorLedgerEntry, GenJournalLine."Applies-to ID");
+    end;
+
+    procedure ApplyVendorLedgerEntryAPI(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+    begin
+        GenJnlLine.Copy(GenJournalLine);
+        GetCurrency();
+        GenJnlLine.GetAccTypeAndNo(GenJnlLine, AccType, AccNo);
+
+        GetAppliedVendorEntries(TempVendorLedgerEntry, GenJnlLine);
+        GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetCurrentKey("Vendor No.", Open, Positive);
+        VendorLedgerEntry.SetRange("Vendor No.", AccNo);
+        VendorLedgerEntry.SetRange(Open, true);
+        VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
+
+        if VendorLedgerEntry.Find('-') then begin
+            CurrencyCode2 := VendorLedgerEntry."Currency Code";
+            if GenJnlLine.Amount = 0 then begin
+                repeat
+                    if not TempVendorLedgerEntry.Get(VendorLedgerEntry."Entry No.") then begin
+                        PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, VendorLedgerEntry."Document No.");
+                        CheckAgainstApplnCurrency(CurrencyCode2, VendorLedgerEntry."Currency Code", AccType::Vendor, true);
+                        UpdateVendLedgEntry(VendorLedgerEntry);
+                        if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendorLedgerEntry, 0, false) and
+                           (Abs(VendorLedgerEntry."Amount to Apply") >=
+                            Abs(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible"))
+                        then
+                            GenJnlLine.Amount := GenJnlLine.Amount - (VendorLedgerEntry."Amount to Apply" - VendorLedgerEntry."Remaining Pmt. Disc. Possible")
+                        else
+                            GenJnlLine.Amount := GenJnlLine.Amount - VendorLedgerEntry."Amount to Apply";
+                    end;
+                until VendorLedgerEntry.Next() = 0;
+                TempVendorLedgerEntry.DeleteAll();
+                if (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) then
+                    GenJnlLine.Amount := -GenJnlLine.Amount;
+                GenJnlLine.Validate(Amount);
+            end else
+                repeat
+                    CheckAgainstApplnCurrency(CurrencyCode2, VendorLedgerEntry."Currency Code", AccType::Vendor, true);
+                until VendorLedgerEntry.Next() = 0;
+            if GenJnlLine."Currency Code" <> CurrencyCode2 then
+                if GenJnlLine.Amount = 0 then
+                    GenJnlLine."Currency Code" := VendorLedgerEntry."Currency Code"
+                else
+                    CheckAgainstApplnCurrency(GenJnlLine."Currency Code", VendorLedgerEntry."Currency Code", AccType::Vendor, true);
+            GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
+            GenJnlLine."Applies-to Doc. No." := '';
+        end else
+            GenJnlLine."Applies-to ID" := '';
+
+        GenJnlLine.SetJournalLineFieldsFromApplication();
+
+        if GenJnlLine.Modify() then;
+        if GenJnlLine.Amount <> 0 then
+            if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
+                exit;
     end;
 
     local procedure ApplyVendorLedgerEntry(var GenJnlLine: Record "Gen. Journal Line")
@@ -424,7 +529,7 @@
                                 else
                                     Amount := Amount - VendLedgEntry."Amount to Apply";
                         end;
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
                     TempVendorLedgerEntry.DeleteAll();
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
                         Amount := -Amount;
@@ -432,7 +537,7 @@
                 end else
                     repeat
                         CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
                 if "Currency Code" <> CurrencyCode2 then
                     if Amount = 0 then begin
                         ConfirmCurrencyUpdate(GenJnlLine, VendLedgEntry."Currency Code");
@@ -475,7 +580,7 @@
                     repeat
                         OnApplyEmployeeLedgerEntryOnBeforeUpdateAmount(GenJnlLine, EmplLedgEntry);
                         Amount := Amount - EmplLedgEntry."Amount to Apply";
-                    until EmplLedgEntry.Next = 0;
+                    until EmplLedgEntry.Next() = 0;
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or
                        ("Bal. Account Type" = "Bal. Account Type"::Vendor) or
                        ("Bal. Account Type" = "Bal. Account Type"::Employee)
@@ -591,7 +696,7 @@
                             Amount := Amount - GLEntry.RemainingAmount
                         else
                             Amount := Amount - GLEntry."Amount to Apply";
-                    until GLEntry.Next = 0;
+                    until GLEntry.Next() = 0;
                     if "Account Type" <> "Bal. Account Type"::"G/L Account" then
                         Amount := -Amount;
                     Validate(Amount);

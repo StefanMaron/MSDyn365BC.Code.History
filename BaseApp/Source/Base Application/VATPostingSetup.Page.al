@@ -88,15 +88,6 @@ page 472 "VAT Posting Setup"
                     Visible = UnrealizedVATVisible;
                     Width = 1;
                 }
-                field("Sales VAT Postponed Account"; "Sales VAT Postponed Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sales VAT postponed account for VAT posting setup.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Purchase VAT Account"; "Purchase VAT Account")
                 {
                     ApplicationArea = Basic, Suite;
@@ -182,11 +173,19 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Allow Non Deductible VAT"; "Allow Non Deductible VAT")
+#if not CLEAN18
+                field("Allow Non Deductible VAT"; '')
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies to enable non-deductible VAT for VAT posting setup.';
+                    Caption = 'Allow Non Deductible VAT (Obsolete)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                    ObsoleteTag = '18.0';
+                    Editable = false;
+                    Visible = false;
                 }
+#endif
                 field("Reverse Charge Check"; "Reverse Charge Check")
                 {
                     ApplicationArea = Basic, Suite;
@@ -196,12 +195,19 @@ page 472 "VAT Posting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Non Deduct. VAT Corr. Account"; "Non Deduct. VAT Corr. Account")
+#if not CLEAN18
+                field("Non Deduct. VAT Corr. Account"; '')
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the G/L account for correction non deductible VAT entries.';
+                    Caption = 'Non Deduct. VAT Corr. Account (Obsolete)';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                    ObsoleteTag = '18.0';
+                    Editable = false;
                     Visible = false;
                 }
+#endif
                 field("Purchase VAT Delay Account"; "Purchase VAT Delay Account")
                 {
                     ApplicationArea = Basic, Suite;
@@ -298,16 +304,24 @@ page 472 "VAT Posting Setup"
                     Clear(CopyVATPostingSetup);
                 end;
             }
+#if not CLEAN18
             action("Non Deductable VAT")
             {
                 ApplicationArea = VAT;
-                Caption = 'Non Deductable VAT';
+                Caption = 'Non Deductable VAT (Obsolete)';
                 Image = AdjustVATExemption;
-                RunObject = Page "Non Deductible VAT Setup";
-                RunPageLink = "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
-                              "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group");
                 ToolTip = 'Open the page for non deductable VAT setup';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
+                trigger OnAction()
+                begin
+                    Error('');
+                end;
             }
+#endif                
         }
     }
 

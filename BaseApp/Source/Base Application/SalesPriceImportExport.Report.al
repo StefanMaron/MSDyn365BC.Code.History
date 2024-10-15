@@ -157,7 +157,7 @@ report 31072 "Sales Price Import/Export"
                     EnterCell(j, 13, Format("Ending Date"), false, '');
                     EnterCell(j, 14, Format("Allow Line Disc."), false, '');
                     j := j + 1;
-                until Next = 0;
+                until Next() = 0;
             end;
 
         if DoUpdateExistingWorksheet then begin
@@ -366,7 +366,7 @@ report 31072 "Sales Price Import/Export"
                             if "Sales Price".FindSet then
                                 repeat
                                     WorkLFile.Write(ExpLine("Sales Price"));
-                                until "Sales Price".Next = 0;
+                                until "Sales Price".Next() = 0;
                             WorkLFile.Close;
                             Download(ServerFileName, ExpTxtFileTxt, '', FileManagement.GetToFilterText('', '.txt'), ClientFileName);
                             Erase(ServerFileName);
@@ -524,7 +524,7 @@ report 31072 "Sales Price Import/Export"
                         SalesPrice."Allow Line Disc." := "Allow Line Disc.";
                         SalesPrice.Insert();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

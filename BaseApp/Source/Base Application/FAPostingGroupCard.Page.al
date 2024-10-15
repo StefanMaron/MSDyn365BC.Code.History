@@ -156,29 +156,30 @@ page 5612 "FA Posting Group Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger balancing account number to post custom-2 transactions of fixed assets to when you dispose of fixed assets.';
                 }
+#if not CLEAN18
                 field("Acq. Cost Bal. Acc. on Disp."; "Acq. Cost Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger account for acquisition cost disposal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Fixed Asset Localization for Czech';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Book Value Bal. Acc. on Disp."; "Book Value Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger book value account for disposal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Fixed Asset Localization for Czech';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
             }
             group("Gross Disposal")
             {
                 Caption = 'Gross Disposal';
-                field("Use Standard Disposal"; "Use Standard Disposal")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies to use standard disposal.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function in "FA Posting Group" table. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 group("Sales Acc. on Disposal")
                 {
                     Caption = 'Sales Acc. on Disposal';
@@ -318,6 +319,7 @@ page 5612 "FA Posting Group Card"
             {
                 Caption = 'P&osting Gr.';
                 Image = Group;
+#if not CLEAN18
                 action("&Extended Posting Gr.")
                 {
                     ApplicationArea = FixedAssets;
@@ -326,7 +328,12 @@ page 5612 "FA Posting Group Card"
                     RunObject = Page "FA Extended Posting Groups";
                     RunPageLink = "FA Posting Group Code" = FIELD(Code);
                     ToolTip = 'Allows the setup extended postig group.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
                 group(Allocations)
                 {
                     Caption = 'Allocations';

@@ -23,15 +23,6 @@ page 318 "VAT Statement Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
                 }
-                field("XML Format"; "XML Format")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the XML format for VAT statement reporting.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Allow Comments/Attachments"; "Allow Comments/Attachments")
                 {
                     ApplicationArea = VAT;

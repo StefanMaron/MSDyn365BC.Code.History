@@ -720,11 +720,15 @@ page 6030 "Service Statistics"
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         Currency: Record Currency;
         UseDate: Date;
+#if not CLEAN18
         RoundingPrecisionLCY: Decimal;
         RoundingDirectionLCY: Text[1];
+#endif
     begin
         TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
         TotalAmount1[IndexNo] :=
@@ -757,29 +761,24 @@ page 6030 "Service Statistics"
             if (TotalServLineLCY[IndexNo]."VAT Calculation Type" = TotalServLineLCY[IndexNo]."VAT Calculation Type"::"Normal VAT") or
                (TotalServLineLCY[IndexNo]."VAT Calculation Type" = TotalServLineLCY[IndexNo]."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
+#if CLEAN18
+                Currency.Get("Currency Code");
+#else                
                 GLSetup.Get();
                 Currency.Get("Currency Code");
                 GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif
 
                 if "Prices Including VAT" then
-                    if GLSetup."Round VAT Coeff." then begin
-                        TotalServLineLCY[IndexNo].Amount :=
-                          Round(
-                            (TotalServLineLCY[IndexNo]."Line Amount" - TempVATAmountLine."Invoice Discount Amount") *
-                            Round(
-                              TempVATAmountLine."VAT %" / (100 + TempVATAmountLine."VAT %"),
-                              GLSetup."VAT Coeff. Rounding Precision") *
-                            (1 - "VAT Base Discount %" / 100),
-                            Currency."Amount Rounding Precision",
-                            Currency.VATRoundingDirection);
-
-                        TotalServLineLCY[IndexNo].Amount := TotalServLineLCY[IndexNo]."Line Amount" - TotalServLineLCY[IndexNo].Amount;
-                    end else
-                        TotalServLineLCY[IndexNo].Amount :=
-                          Round(
+                    TotalServLineLCY[IndexNo].Amount :=
+                        Round(
                             (TotalServLineLCY[IndexNo]."Line Amount" - TempVATAmountLine."Invoice Discount Amount") /
                             (1 + TempVATAmountLine."VAT %" / 100),
+#if CLEAN18
+                            Currency."Amount Rounding Precision") - TempVATAmountLine."VAT Difference";
+#else
                             RoundingPrecisionLCY) - TempVATAmountLine."VAT Difference";
+#endif                            
             end;
         end;
         // NAVCZ

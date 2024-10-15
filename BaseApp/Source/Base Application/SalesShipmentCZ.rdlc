@@ -732,9 +732,7 @@ Cstr(Fields!PageLbl.Value)</Value>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=iif(Fields!PerformVATRegistrationNo.Value = "",
-        First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result"),
-        Fields!PerformVATRegistrationNo.Value)</Value>
+                                                    <Value EvaluationMode="Auto">First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3611,12 +3609,6 @@ End Function</Code>
         </Field>
         <Field Name="ShipmentMethod">
           <DataField>ShipmentMethod</DataField>
-        </Field>
-        <Field Name="PerformCountryRegionCode">
-          <DataField>PerformCountryRegionCode</DataField>
-        </Field>
-        <Field Name="PerformVATRegistrationNo">
-          <DataField>PerformVATRegistrationNo</DataField>
         </Field>
         <Field Name="DocFooterText">
           <DataField>DocFooterText</DataField>

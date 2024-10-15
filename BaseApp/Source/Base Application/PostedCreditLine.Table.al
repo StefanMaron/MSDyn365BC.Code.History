@@ -1,6 +1,9 @@
 table 31058 "Posted Credit Line"
 {
     Caption = 'Posted Credit Line';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

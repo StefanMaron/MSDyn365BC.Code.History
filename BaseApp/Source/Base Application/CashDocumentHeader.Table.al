@@ -839,7 +839,7 @@ table 11730 "Cash Document Header"
         CashDocLine.SetRange("Cash Document No.", "No.");
         if SkipLineNo <> 0 then
             CashDocLine.SetFilter("Line No.", '<>%1', SkipLineNo);
-        if CashDocLine.IsEmpty then
+        if CashDocLine.IsEmpty() then
             exit;
 
         if not HideValidationDialog then
@@ -856,7 +856,7 @@ table 11730 "Cash Document Header"
                       CashDocLine."Dimension Set ID", CashDocLine."Shortcut Dimension 1 Code", CashDocLine."Shortcut Dimension 2 Code");
                     CashDocLine.Modify();
                 end;
-            until CashDocLine.Next = 0;
+            until CashDocLine.Next() = 0;
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
@@ -885,7 +885,7 @@ table 11730 "Cash Document Header"
                                 CashDocLine.Validate(Amount);
                     end;
                     CashDocLine.Modify(true);
-                until CashDocLine.Next = 0;
+                until CashDocLine.Next() = 0;
         end;
 
         CalcFields("VAT Base Amount", "Amount Including VAT", "VAT Base Amount (LCY)", "Amount Including VAT (LCY)");
@@ -1038,10 +1038,10 @@ table 11730 "Cash Document Header"
                     ReportSelection.SetRange(Usage, ReportSelection.Usage::"C.Wdrwl");
             end;
             ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.FindSet;
+            ReportSelection.FindSet();
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, CashDocHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

@@ -60,7 +60,7 @@ codeunit 11799 "Registration No. Mgt."
         if Cust.FindSet then
             repeat
                 Finish := not AddToNumberList(Cust."No.");
-            until (Cust.Next = 0) or Finish;
+            until (Cust.Next() = 0) or Finish;
 
         if Cust.Count > 0 then
             Message(RegNoEnteredCustMsg, GetFieldCaption(IsTax), NumberList);
@@ -80,7 +80,7 @@ codeunit 11799 "Registration No. Mgt."
         if Vend.FindSet then
             repeat
                 Finish := not AddToNumberList(Vend."No.");
-            until (Vend.Next = 0) or Finish;
+            until (Vend.Next() = 0) or Finish;
 
         if Vend.Count > 0 then
             Message(RegNoEnteredVendMsg, GetFieldCaption(IsTax), NumberList);
@@ -100,7 +100,7 @@ codeunit 11799 "Registration No. Mgt."
         if Cont.FindSet then
             repeat
                 Finish := not AddToNumberList(Cont."No.");
-            until (Cont.Next = 0) or Finish;
+            until (Cont.Next() = 0) or Finish;
 
         if Cont.Count > 0 then
             Message(RegNoEnteredContMsg, GetFieldCaption(IsTax), NumberList);

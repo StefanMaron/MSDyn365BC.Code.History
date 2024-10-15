@@ -198,7 +198,7 @@ report 11774 "Joining G/L Account Adjustment"
             trigger OnAfterGetRecord()
             begin
                 if Number <> 1 then
-                    if TBuffer.Next = 0 then
+                    if TBuffer.Next() = 0 then
                         CurrReport.Break();
 
                 if TBuffer.Amount = 0 then

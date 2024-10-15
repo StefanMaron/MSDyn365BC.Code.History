@@ -1,4 +1,4 @@
-﻿table 454 "Approval Entry"
+table 454 "Approval Entry"
 {
     Caption = 'Approval Entry';
     ReplicateData = true;
@@ -100,17 +100,13 @@
             Caption = 'Currency Code';
             TableRelation = Currency;
         }
-        field(18; "Approval Type"; Option)
+        field(18; "Approval Type"; Enum "Workflow Approval Type")
         {
             Caption = 'Approval Type';
-            OptionCaption = 'Workflow User Group,Sales Pers./Purchaser,Approver';
-            OptionMembers = "Workflow User Group","Sales Pers./Purchaser",Approver;
         }
-        field(19; "Limit Type"; Option)
+        field(19; "Limit Type"; Enum "Workflow Approval Limit Type")
         {
             Caption = 'Limit Type';
-            OptionCaption = 'Approval Limits,Credit Limits,Request Limits,No Limits';
-            OptionMembers = "Approval Limits","Credit Limits","Request Limits","No Limits";
         }
         field(20; "Available Credit Limit (LCY)"; Decimal)
         {
@@ -400,7 +396,7 @@
                 OldValue := WorkflowRecordChange.GetFormattedOldValue(true);
                 ChangeDetails += StrSubstNo(ChangeRecordDetailsTxt, WorkflowRecordChange."Field Caption",
                     OldValue, NewValue);
-            until WorkflowRecordChange.Next = 0;
+            until WorkflowRecordChange.Next() = 0;
     end;
 
     procedure CanCurrentUserEdit(): Boolean
@@ -431,7 +427,7 @@
         if FindSet then
             repeat
                 Mark(true);
-            until Next = 0;
+            until Next() = 0;
         MarkedOnly(true);
         FilterGroup(0);
     end;

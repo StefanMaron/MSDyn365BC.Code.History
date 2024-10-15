@@ -131,35 +131,15 @@ page 576 "VAT Specification Subform"
                         FormCheckVATDifference;
                     end;
                 }
-                field("VAT % (Non Deductible)"; "VAT % (Non Deductible)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies VAT percentage for the VAT entry. This value is non-deductible.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("VAT Base (Non Deductible)"; "VAT Base (Non Deductible)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT base for the VAT entry. This value is non-deductible.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("VAT Amount (Non Deductible)"; "VAT Amount (Non Deductible)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT amount for the purchase VAT entry. This value is non-deductible.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = VATAmountLCYEditable;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+                    ObsoleteTag = '18.0';
 
                     trigger OnValidate()
                     begin
@@ -192,12 +172,19 @@ page 576 "VAT Specification Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies difference amount of VAT.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Ext. VAT Amount (LCY)"; "Ext. VAT Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = ExtVATAmountLCYEditable;
                     ToolTip = 'Specifies ext. vat amount in LCY';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -221,6 +208,10 @@ page 576 "VAT Specification Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies ext. vat difference in LCY';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -296,7 +287,7 @@ page 576 "VAT Specification Subform"
             repeat
                 Copy(NewVATAmountLine);
                 Insert;
-            until NewVATAmountLine.Next = 0;
+            until NewVATAmountLine.Next() = 0;
         CurrPage.Update(false);
     end;
 
@@ -307,7 +298,7 @@ page 576 "VAT Specification Subform"
             repeat
                 NewVATAmountLine.Copy(Rec);
                 NewVATAmountLine.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
@@ -339,7 +330,7 @@ page 576 "VAT Specification Subform"
         if Find('-') then
             repeat
                 TotalVATDifference := TotalVATDifference + Abs("VAT Difference");
-            until Next = 0;
+            until Next() = 0;
         Rec := VATAmountLine2;
         if TotalVATDifference > Currency."Max. VAT Difference Allowed" then
             Error(
@@ -348,6 +339,7 @@ page 576 "VAT Specification Subform"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '18.0')]
     procedure FormCheckVATDifferenceLCY()
     var
         VATAmountLine2: Record "VAT Amount Line";
@@ -361,7 +353,7 @@ page 576 "VAT Specification Subform"
         if Find('-') then
             repeat
                 TotalVATDifference := TotalVATDifference + Abs("VAT Difference (LCY)");
-            until Next = 0;
+            until Next() = 0;
         Rec := VATAmountLine2;
         GLSetup.Get();
         if TotalVATDifference > GLSetup."Max. VAT Difference Allowed" then
@@ -406,12 +398,14 @@ page 576 "VAT Specification Subform"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '18.0')]
     procedure SetCurrencyFactor(NewCurrencyFactor: Decimal)
     begin
         CurrencyFactor := NewCurrencyFactor; // NAVCZ
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '18.0')]
     procedure SetVATCurrencyFactor(NewVATCurrencyFactor: Decimal)
     begin
         // NAVCZ

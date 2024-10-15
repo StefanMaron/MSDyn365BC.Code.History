@@ -1,12 +1,15 @@
 page 31059 "Posted Credits List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Posted Credits';
+    Caption = 'Posted Credits (Obsolete)';
     CardPageID = "Posted Credit Card";
     Editable = false;
     PageType = List;
     SourceTable = "Posted Credit Header";
     UsageCategory = History;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

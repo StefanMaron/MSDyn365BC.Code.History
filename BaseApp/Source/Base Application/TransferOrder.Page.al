@@ -23,7 +23,7 @@ page 5740 "Transfer Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Transfer-from Code"; "Transfer-from Code")
@@ -49,7 +49,7 @@ page 5740 "Transfer Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("In-Transit Code"; "In-Transit Code")
@@ -59,10 +59,15 @@ page 5740 "Transfer Order"
                     Enabled = (NOT "Direct Transfer") AND (Status = Status::Open);
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
+#if not CLEAN18                
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items ship.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -73,12 +78,17 @@ page 5740 "Transfer Order"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies general bussiness posting group for items receive.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
                         GenBusPostGroupReceiveOnAfterV; // NAVCZ
                     end;
                 }
+#endif
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Location;
@@ -394,6 +404,10 @@ page 5740 "Transfer Order"
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -426,6 +440,10 @@ page 5740 "Transfer Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that entry will be excluded from intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -788,6 +806,7 @@ page 5740 "Transfer Order"
         CurrPage.TransferLines.PAGE.UpdateForm(true);
     end;
 
+#if not CLEAN18
     local procedure GenBusPostGroupReceiveOnAfterV()
     begin
         CurrPage.TransferLines.PAGE.UpdateForm(false); // NAVCZ
@@ -798,6 +817,7 @@ page 5740 "Transfer Order"
         CurrPage.TransferLines.PAGE.UpdateForm(false); // NAVCZ
     end;
 
+#endif
     local procedure ShipmentDateOnAfterValidate()
     begin
         CurrPage.TransferLines.PAGE.UpdateForm(false);

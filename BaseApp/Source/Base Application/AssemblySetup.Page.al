@@ -41,6 +41,10 @@ page 905 "Assembly Setup"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Numbering)

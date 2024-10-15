@@ -128,7 +128,7 @@ codeunit 145004 "Posting Groups"
         CreateCustomerLedgerEnty(Customer);
 
         // 2. Exercise
-        LibraryVariableStorage.Enqueue(ChangeRecAccountQst);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ChangeRecAccountQst, CustomerPostingGroup.FieldCaption("Receivables Account")));
         CustomerPostingGroup.Validate("Receivables Account", LibraryERM.CreateGLAccountNo);
 
         // 3. Verify in Confirm Handler
@@ -152,12 +152,13 @@ codeunit 145004 "Posting Groups"
         CreateVendorLedgerEnty(Vendor);
 
         // 2. Exercise
-        LibraryVariableStorage.Enqueue(ChangeRecAccountQst);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ChangeRecAccountQst, VendorPostingGroup.FieldCaption("Payables Account")));
         VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo);
 
         // 3. Verify in Confirm Handler
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure AddingDefGenBusPostGroupsForTransferOrder()
@@ -221,6 +222,7 @@ codeunit 145004 "Posting Groups"
         TransferRoute.Modify();
     end;
 
+#endif
     local procedure CreateCustomerLedgerEnty(Customer: Record Customer)
     var
         GenJnlBatch: Record "Gen. Journal Batch";

@@ -97,42 +97,6 @@ page 459 "Sales & Receivables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the default value that is inserted in the Qty. to Ship field on sales order lines and in the Return Qty. to Receive field on sales return order lines.';
                 }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default posting description code for the sales headers.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Fin. Charge Posting Desc. Code"; "Fin. Charge Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the finance charge posting description code for sales and receivables setup.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Copy As Tax Corr. Document"; "Copy As Tax Corr. Document")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if document will be copied as tax corr document';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Reason Code For Payment Disc."; "Reason Code For Payment Disc.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code for payment discount.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Multiple Interest Rates"; "Multiple Interest Rates")
                 {
                     ApplicationArea = Basic, Suite;
@@ -179,6 +143,12 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
                 }
+                field("Allow Editing Active Price"; "Allow Editing Active Price")
+                {
+                    Visible = ExtendedPriceEnabled;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active sales price line can be modified or removed, or a new price line can be added to the active price list.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -213,31 +183,33 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies how often the job must run that automatically updates the status of orders that are pending prepayment.';
                 }
-                field("Archive Quotes and Orders"; "Archive Quotes and Orders")
+                field("Archive Quotes and Orders"; '')
                 {
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to automatically archive sales quotes and sales orders when a sales quote/order is deleted.';
+                    Caption = 'Archive Quotes and Orders';
+                    Visible = false;
+                    Enabled = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The "Archive Quotes and Orders field was removed."';
+                    ObsoleteTag = '18.0';
                 }
                 field("Allow Alter Posting Groups"; "Allow Alter Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to allow modification of posting groups for sales and receivable setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Automatic Adv. Invoice Posting"; "Automatic Adv. Invoice Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option for automatic advance invoice posting';
                 }
-                field("Reas.Cd. on Tax Corr.Doc.Mand."; "Reas.Cd. on Tax Corr.Doc.Mand.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if it''s mandatory to fill in reason code on tax correction documents.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
+#if not CLEAN16
                 field("G/L Entry as Doc. Lines (Acc.)"; "G/L Entry as Doc. Lines (Acc.)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -283,6 +255,7 @@ page 459 "Sales & Receivables Setup"
                     ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
                     ObsoleteTag = '16.0';
                 }
+#endif
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {
                     ApplicationArea = Basic, Suite;
@@ -441,15 +414,6 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to credit memo.';
                 }
-                field("Pmt.Disc.Tax Corr.Doc. Nos."; "Pmt.Disc.Tax Corr.Doc. Nos.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to payment discount tax correction document.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Direct Debit Mandate Nos."; "Direct Debit Mandate Nos.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -507,15 +471,6 @@ page 459 "Sales & Receivables Setup"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                     Visible = false;
-                }
-                field("Credit Memo Confirmation"; "Credit Memo Confirmation")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies this option to enable credit memo confirmation.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
             group(Archiving)

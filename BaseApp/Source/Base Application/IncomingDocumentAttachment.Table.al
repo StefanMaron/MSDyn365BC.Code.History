@@ -1,4 +1,4 @@
-﻿table 133 "Incoming Document Attachment"
+table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
 
@@ -183,12 +183,12 @@
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
 
         if Default then begin
-            if not IncomingDocumentAttachment.IsEmpty then
+            if not IncomingDocumentAttachment.IsEmpty() then
                 Error(DefaultAttachErr);
         end;
 
         if "Main Attachment" then begin
-            if not IncomingDocumentAttachment.IsEmpty then
+            if not IncomingDocumentAttachment.IsEmpty() then
                 Error(MainAttachErr);
         end;
     end;
@@ -276,6 +276,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure NewAttachmentFromCreditDocument(CreditHeader: Record "Credit Header")
     begin
         // NAVCZ
@@ -353,7 +354,7 @@
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
         IncomingDocumentAttachment.SetRange(Default, true);
-        if IncomingDocumentAttachment.IsEmpty then begin
+        if IncomingDocumentAttachment.IsEmpty() then begin
             if not Default then
                 Error(DefaultAttachErr);
         end else
@@ -400,7 +401,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure OnAttachBinaryFile()
     begin
     end;
@@ -464,10 +465,10 @@
         OnBeforeExtractHeaderFields(TempFieldBuffer, IncomingDocument);
 
         TempFieldBuffer.Reset();
-        TempFieldBuffer.FindSet;
+        TempFieldBuffer.FindSet();
         repeat
             ExtractHeaderField(XMLRootNode, IncomingDocument, TempFieldBuffer."Field ID");
-        until TempFieldBuffer.Next = 0;
+        until TempFieldBuffer.Next() = 0;
     end;
 
     local procedure ExtractHeaderField(var XMLRootNode: DotNet XmlNode; var IncomingDocument: Record "Incoming Document"; FieldNo: Integer)
@@ -542,7 +543,7 @@
         if not Default then begin
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
             IncomingDocumentAttachment.SetRange(Default, true);
-            if IncomingDocumentAttachment.IsEmpty then
+            if IncomingDocumentAttachment.IsEmpty() then
                 Validate(Default, true);
         end;
     end;
@@ -554,7 +555,7 @@
         if not "Main Attachment" then begin
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
             IncomingDocumentAttachment.SetRange("Main Attachment", true);
-            if IncomingDocumentAttachment.IsEmpty then
+            if IncomingDocumentAttachment.IsEmpty() then
                 Validate("Main Attachment", true);
         end;
     end;

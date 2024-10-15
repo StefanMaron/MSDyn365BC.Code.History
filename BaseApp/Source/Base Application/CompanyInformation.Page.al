@@ -102,15 +102,6 @@ Page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the industry code for the company.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Primary Business Activity"; "Primary Business Activity")
                 {
                     ApplicationArea = Basic, Suite;
@@ -733,19 +724,6 @@ Page 1 "Company Information"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                     Visible = false;
-                }
-                action("Re&gistration Country")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Re&gistration Country';
-                    Image = CountryRegion;
-                    RunObject = Page "Registration Country/Region";
-                    RunPageLink = "Account Type" = CONST("Company Information");
-                    ToolTip = 'Contains the information for VAT registration in other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
             group(Currencies)

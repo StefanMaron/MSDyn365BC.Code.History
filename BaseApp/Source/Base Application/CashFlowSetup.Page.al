@@ -112,7 +112,7 @@ page 846 "Cash Flow Setup"
                     trigger OnValidate()
                     begin
                         TaxAccountTypeValid := HasValidTaxAccountInfo;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Tax Bal. Account No."; "Tax Bal. Account No.")

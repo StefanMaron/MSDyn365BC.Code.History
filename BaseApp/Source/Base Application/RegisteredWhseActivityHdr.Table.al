@@ -92,12 +92,19 @@ table 5772 "Registered Whse. Activity Hdr."
     }
 
     trigger OnDelete()
-    begin
-        Error(DeleteErr); // NAVCZ
-    end;
-
     var
-        DeleteErr: Label 'Posted document cannot be deleted.';
+        RgstrdWhseActivLine: Record "Registered Whse. Activity Line";
+        WhseCommentLine: Record "Warehouse Comment Line";
+    begin
+        RgstrdWhseActivLine.SetRange("Activity Type", Type);
+        RgstrdWhseActivLine.SetRange("No.", "No.");
+        RgstrdWhseActivLine.DeleteAll();
+
+        WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Rgstrd. Whse. Activity Header");
+        WhseCommentLine.SetRange(Type, Type);
+        WhseCommentLine.SetRange("No.", "No.");
+        WhseCommentLine.DeleteAll();
+    end;
 
     procedure SetWhseLocationFilter()
     var

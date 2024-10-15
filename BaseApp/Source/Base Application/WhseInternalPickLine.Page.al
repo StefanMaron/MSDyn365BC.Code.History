@@ -224,25 +224,25 @@ page 7358 "Whse. Internal Pick Line"
     local procedure ItemNoOnAfterValidate()
     begin
         if GetActualSortMethod = SortMethod::Item then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure ToBinCodeOnAfterValidate()
     begin
         if GetActualSortMethod = SortMethod::"Shelf or Bin" then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure ShelfNoOnAfterValidate()
     begin
         if GetActualSortMethod = SortMethod::"Shelf or Bin" then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure DueDateOnAfterValidate()
     begin
         if GetActualSortMethod = SortMethod::"Due Date" then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 }
 

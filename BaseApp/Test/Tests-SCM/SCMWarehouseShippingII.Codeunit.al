@@ -58,7 +58,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         BeforeWorkDateMsg: Label 'is before work date %1 in one or more of the assembly lines', Comment = '%1 = Work Date';
         CannotChangePurchasingCodeErr: Label 'You cannot change the purchasing code for a sales line that has been completely shipped.';
         ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,AssignSerialNo,ApplyFromItemEntry,AssignAutoSerialNo,AssignAutoLotAndSerialNo,AssignManualLotNo,AssignManualTwoLotNo,AssignTwoLotNo,SelectEntriesForMultipleLines,UpdateQty,PartialAssignManualTwoLotNo;
-        AvailabilityWarningsQst: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarningsQst: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         ReservationMode: Option " ",ReserveFromCurrentLine,AutoReserve;
         BinValidationErr: Label 'Location code validation in the Production Order must prioritize Default Bin codes';
         NoOfPostedOrdersMsg: Label 'All the documents were posted.', Comment = '%1: Count(Sales Header)';
@@ -1750,7 +1750,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
             FilterWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
               WarehouseActivityLine."Activity Type"::Pick);
-            WarehouseActivityLine.FindSet;
+            WarehouseActivityLine.FindSet();
             repeat
                 WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
                 WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
@@ -2600,7 +2600,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         repeat
             LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignTwoLotNo); // Enqueue for ItemTrackingLinesPageHandler
@@ -3171,7 +3171,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryVariableStorage.Enqueue(InvtPutAwayCreatedTxt);  // Enqueue for MessageHandler.
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -4416,7 +4416,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         DateDifference: Integer;
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.Validate("Expiration Date", ExpirationDate);
             if DifferentExpirationDate then begin
@@ -4683,7 +4683,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateItemJournalLine(ItemJournalLine, Item."No.", LocationBlue.Code, Quantity, WorkDate, '', Item."Base Unit of Measure");
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Explode BOM", ItemJournalLine);
         with ItemJournalLine do begin
-            FindSet;
+            FindSet();
             repeat
                 if ("Location Code" = '') and ("Item No." <> '') then begin
                     Validate("Location Code", LocationBlue.Code);
@@ -4734,7 +4734,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         ItemLedgerEntry.SetRange("Lot No.", LotNo);
         FindItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField(Quantity, Quantity);  // Value required for Quantity.
             ItemLedgerEntry.TestField("Serial No.");

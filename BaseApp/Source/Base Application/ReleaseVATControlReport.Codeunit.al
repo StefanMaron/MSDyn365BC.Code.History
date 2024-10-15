@@ -19,12 +19,12 @@ codeunit 31101 "Release VAT Control Report"
         TestField("End Date");
 
         VATCtrlRptLn.SetRange("Control Report No.", "No.");
-        if VATCtrlRptLn.IsEmpty then
+        if VATCtrlRptLn.IsEmpty() then
             Error(LinesNotExistErr, "No.");
-        VATCtrlRptLn.FindSet;
+        VATCtrlRptLn.FindSet();
         repeat
             VATCtrlRptLn.TestField("VAT Control Rep. Section Code");
-        until VATCtrlRptLn.Next = 0;
+        until VATCtrlRptLn.Next() = 0;
 
         Status := Status::Release;
 

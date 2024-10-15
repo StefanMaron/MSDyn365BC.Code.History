@@ -44,7 +44,7 @@ codeunit 143020 "Library - Tax"
     var
         VATControlReportSection: Record "VAT Control Report Section";
     begin
-        if not VATControlReportSection.IsEmpty then
+        if not VATControlReportSection.IsEmpty() then
             exit;
 
         CreateVATControlReportSection(
@@ -149,17 +149,6 @@ codeunit 143020 "Library - Tax"
     begin
         VIESDeclarationHeader.Init();
         VIESDeclarationHeader.Insert(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure CreateNonDeductibleVATSetup(var NonDeductibleVATSetup: Record "Non Deductible VAT Setup"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; FromDate: Date; NonDeductibleVATPer: Decimal)
-    begin
-        NonDeductibleVATSetup.Init();
-        NonDeductibleVATSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        NonDeductibleVATSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-        NonDeductibleVATSetup.Validate("From Date", FromDate);
-        NonDeductibleVATSetup.Validate("Non Deductible VAT %", NonDeductibleVATPer);
-        NonDeductibleVATSetup.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -519,14 +508,6 @@ codeunit 143020 "Library - Tax"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Use VAT Date", UseVATDate);
         GeneralLedgerSetup.Modify();
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This function will be removed and should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    procedure SetXMLFormat(var VATStatementTemplate: Record "VAT Statement Template"; XMLFormat: Option)
-    begin
-        VATStatementTemplate."XML Format" := XMLFormat;
-        VATStatementTemplate.Modify;
     end;
 
     [Scope('OnPrem')]

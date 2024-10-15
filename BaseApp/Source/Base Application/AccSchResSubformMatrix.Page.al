@@ -121,7 +121,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
         if AccSchedResultValue.Find('-') then
             for StackCounter := 1 to 4 do begin
                 if StackCounter <> 1 then
-                    if AccSchedResultValue.Next = 0 then
+                    if AccSchedResultValue.Next() = 0 then
                         RecordFlag := true;
                 if (not RecordFlag) and CheckValueRule(Matrix_ColumnSet[StackCounter]) then
                     UpdateValue(AccSchedResultValue.Value, StackCounter);

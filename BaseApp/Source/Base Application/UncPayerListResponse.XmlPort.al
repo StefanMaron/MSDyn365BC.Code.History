@@ -125,7 +125,7 @@ xmlport 11765 "Unc. Payer List - Response"
                     UncertaintyPayerEntry.Insert();
                     TotalInsertedEntries += 1;
                 end;
-            until TempUncertaintyPayerEntry.Next = 0;
+            until TempUncertaintyPayerEntry.Next() = 0;
         end;
     end;
 

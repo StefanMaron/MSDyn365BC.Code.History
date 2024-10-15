@@ -1,10 +1,9 @@
 table 11791 "Industry Code"
 {
     Caption = 'Industry Code';
-    LookupPageID = "Industry Codes";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Industry Classification will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
-    ObsoleteTag = '15.3';
+    ObsoleteTag = '18.0';
 
     fields
     {

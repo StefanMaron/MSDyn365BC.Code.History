@@ -120,7 +120,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
                         repeat
                             Rec := PurchAdvanceLetterLine;
                             Mark := not Mark;
-                        until PurchAdvanceLetterLine.Next = 0;
+                        until PurchAdvanceLetterLine.Next() = 0;
                     Rec := PurchAdvanceLetterLine2;
                 end;
             }
@@ -219,7 +219,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
             repeat
                 TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
                 TempPurchAdvanceLetterLine.Insert();
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
         SetFilter("Doc. No. Filter", '<%1|>%1', TempPurchHeader."No.");
     end;
 
@@ -235,7 +235,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
                     TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
                     TempPurchAdvanceLetterLine.Insert();
                 end;
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -247,7 +247,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
             repeat
                 PurchAdvanceLetterLine := TempPurchAdvanceLetterLine;
                 PurchAdvanceLetterLine.Insert();
-            until TempPurchAdvanceLetterLine.Next = 0
+            until TempPurchAdvanceLetterLine.Next() = 0
         else begin
             PurchAdvanceLetterLine := Rec;
             PurchAdvanceLetterLine.Insert();

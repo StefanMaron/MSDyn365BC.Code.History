@@ -94,7 +94,7 @@ table 363 "Analysis View"
                         if GLAcc.Find('-') then
                             repeat
                                 GLAcc.Mark := true;
-                            until GLAcc.Next = 0;
+                            until GLAcc.Next() = 0;
                         GLAcc.SetRange("No.");
                         if GLAcc.Find('-') then
                             repeat
@@ -106,7 +106,7 @@ table 363 "Analysis View"
                                     AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
                                     AnalysisViewBudgetEntry.DeleteAll();
                                 end;
-                            until GLAcc.Next = 0;
+                            until GLAcc.Next() = 0;
                     end;
                     if ("Last Entry No." <> 0) and ("Account Filter" <> xRec."Account Filter") and (xRec."Account Filter" <> '')
                     then begin
@@ -121,7 +121,7 @@ table 363 "Analysis View"
                         if CFAccount.Find('-') then
                             repeat
                                 CFAccount.Mark := true;
-                            until CFAccount.Next = 0;
+                            until CFAccount.Next() = 0;
                         CFAccount.SetRange("No.");
                         if CFAccount.Find('-') then
                             repeat
@@ -130,7 +130,7 @@ table 363 "Analysis View"
                                     AnalysisViewEntry.SetRange("Account No.", CFAccount."No.");
                                     AnalysisViewEntry.DeleteAll();
                                 end;
-                            until CFAccount.Next = 0;
+                            until CFAccount.Next() = 0;
                     end;
                     if ("Last Date Updated" <> 0D) and ("Account Filter" <> xRec."Account Filter") and
                        (xRec."Account Filter" <> '')
@@ -165,7 +165,7 @@ table 363 "Analysis View"
                         repeat
                             TempBusUnit := BusUnit;
                             TempBusUnit.Insert();
-                        until BusUnit.Next = 0;
+                        until BusUnit.Next() = 0;
                     TempBusUnit.Init();
                     TempBusUnit.Code := '';
                     TempBusUnit.Insert();
@@ -180,7 +180,7 @@ table 363 "Analysis View"
                             AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                             AnalysisViewBudgetEntry.SetRange("Business Unit Code", TempBusUnit.Code);
                             AnalysisViewBudgetEntry.DeleteAll();
-                        until TempBusUnit.Next = 0
+                        until TempBusUnit.Next() = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Business Unit Filter" <> '') and
                    ("Business Unit Filter" <> xRec."Business Unit Filter")
@@ -401,7 +401,7 @@ table 363 "Analysis View"
                                 NewAnalysisViewEntry."Dimension 4 Value Code" := '';
                         end;
                         InsertAnalysisViewEntry;
-                    until AnalysisViewEntry.Next = 0;
+                    until AnalysisViewEntry.Next() = 0;
                 if "Account Source" = "Account Source"::"G/L Account" then
                     if AnalysisViewBudgetEntry.Find('-') then
                         repeat
@@ -418,7 +418,7 @@ table 363 "Analysis View"
                                     NewAnalysisViewBudgetEntry."Dimension 4 Value Code" := '';
                             end;
                             InsertAnalysisViewBudgetEntry;
-                        until AnalysisViewBudgetEntry.Next = 0;
+                        until AnalysisViewBudgetEntry.Next() = 0;
             end;
         end;
     end;
@@ -467,6 +467,23 @@ table 363 "Analysis View"
         OnAfterAnalysisViewReset(Rec);
     end;
 
+    procedure CheckDimensionIsTracked(DimensionCode: Code[20]): Boolean
+    begin
+        if Rec."Dimension 1 Code" = DimensionCode then
+            exit(true);
+
+        if Rec."Dimension 2 Code" = DimensionCode then
+            exit(true);
+
+        if Rec."Dimension 3 Code" = DimensionCode then
+            exit(true);
+
+        if Rec."Dimension 4 Code" = DimensionCode then
+            exit(true);
+
+        exit(false);
+    end;
+
     procedure CheckDimensionsAreRetained(ObjectType: Integer; ObjectID: Integer; OnlyIfIncludeBudgets: Boolean)
     begin
         Reset;
@@ -478,7 +495,7 @@ table 363 "Analysis View"
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 2 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 3 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 4 Code", Code, Name);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure CheckDimIsRetained(ObjectType: Integer; ObjectID: Integer; DimCode: Code[20]; AnalysisViewCode: Code[10]; AnalysisViewName: Text[50])
@@ -499,6 +516,7 @@ table 363 "Analysis View"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         GLBudgetEntry: Record "G/L Budget Entry";
         UpdateAnalysisView: Codeunit "Update Analysis View";
+        ConfirmManagement: Codeunit "Confirm Management";
         NoNotUpdated: Integer;
         RunCheck: Boolean;
     begin
@@ -517,15 +535,15 @@ table 363 "Analysis View"
                         "Include Budgets" and ("Last Budget Entry No." < GLBudgetEntry."Entry No."))
                     then
                         NoNotUpdated := NoNotUpdated + 1;
-                until Next = 0;
+                until Next() = 0;
             if NoNotUpdated > 0 then
-                if Confirm(
-                     Text004 +
-                     Text005 +
-                     Text007 +
-                     Text008 +
-                     Text009, true, NoNotUpdated)
-                then begin
+                if ConfirmManagement.GetResponseOrDefault(
+                         Text004 +
+                         Text005 +
+                         Text007 +
+                         Text008 +
+                         Text009, true)
+                    then begin
                     if Find('-') then
                         repeat
                             if Blocked then begin
@@ -534,7 +552,7 @@ table 363 "Analysis View"
                                 Modify;
                             end else
                                 UpdateAnalysisView.Update(Rec, 2, true);
-                        until Next = 0;
+                        until Next() = 0;
                 end else
                     Error(Text010);
         end;
@@ -550,7 +568,7 @@ table 363 "Analysis View"
                 repeat
                     "Last Entry No." := GLEntry."Entry No.";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
             SetRange(Blocked);
         end;
     end;

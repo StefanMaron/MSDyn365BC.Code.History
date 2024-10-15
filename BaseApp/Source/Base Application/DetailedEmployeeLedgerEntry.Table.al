@@ -156,6 +156,9 @@ table 5223 "Detailed Employee Ledger Entry"
         {
             Caption = 'Employee Posting Group';
             TableRelation = "Employee Posting Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -219,7 +222,7 @@ table 5223 "Detailed Employee Ledger Entry"
                 DtldEmplLedgEntry."Transaction No." := 0;
                 DtldEmplLedgEntry."Application No." := ApplicationNo;
                 DtldEmplLedgEntry.Modify();
-            until DtldEmplLedgEntry.Next = 0;
+            until DtldEmplLedgEntry.Next() = 0;
         end;
     end;
 

@@ -189,7 +189,7 @@ table 5600 "Fixed Asset"
         }
         field(19; Insured; Boolean)
         {
-            CalcFormula = Exist ("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("Ins. Coverage Ledger Entry" WHERE("FA No." = FIELD("No."),
                                                                     "Disposed FA" = CONST(false)));
             Caption = 'Insured';
             Editable = false;
@@ -197,7 +197,7 @@ table 5600 "Fixed Asset"
         }
         field(20; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Fixed Asset"),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -211,9 +211,9 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
@@ -261,7 +261,7 @@ table 5600 "Fixed Asset"
         }
         field(30; Acquired; Boolean)
         {
-            CalcFormula = Exist ("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
+            CalcFormula = Exist("FA Depreciation Book" WHERE("FA No." = FIELD("No."),
                                                               "Acquisition Date" = FILTER(<> 0D)));
             Caption = 'Acquired';
             FieldClass = FlowField;
@@ -273,61 +273,45 @@ table 5600 "Fixed Asset"
         field(11792; "Full Description"; Text[100])
         {
             Caption = 'Full Description';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if (Description = CopyStr(xRec."Full Description", 1, MaxStrLen(Description))) or (Description = '') then
-                    Validate(Description, CopyStr("Full Description", 1, MaxStrLen(Description)));
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31042; "Deprec. Book Code (Mainten.)"; Code[10])
         {
             Caption = 'Deprec. Book Code (Mainten.)';
             TableRelation = "Depreciation Book";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31043; "Tax Depreciation Group Code"; Code[20])
         {
             Caption = 'Tax Depreciation Group Code';
             Editable = false;
             TableRelation = "Depreciation Group".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31044; "SKP Code"; Code[20])
         {
             Caption = 'SKP Code';
-            TableRelation = "SKP Code".Code;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-
-            trigger OnValidate()
-            var
-                DepreciationGroup: Record "Depreciation Group";
-                SKPCode: Record "SKP Code";
-                FADeprBook: Record "FA Depreciation Book";
-            begin
-                if "SKP Code" <> '' then begin
-                    FADeprBook.SetRange("FA No.", "No.");
-                    if FADeprBook.FindFirst then
-                        if FADeprBook."Depreciation Group Code" <> '' then begin
-                            DepreciationGroup.Get(FADeprBook."Depreciation Group Code");
-                            if SKPCode.Get("SKP Code") then
-                                if SKPCode."Depreciation Group" <> DepreciationGroup."Depreciation Group" then
-                                    Message(Text1220003, "SKP Code", FADeprBook."Depreciation Group Code");
-                        end;
-                end;
-            end;
+            ObsoleteTag = '18.0';
         }
         field(31045; "Clasification Code"; Code[20])
         {
             Caption = 'Clasification Code';
+#if not CLEAN18
             TableRelation = "Classification Code";
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -370,11 +354,11 @@ table 5600 "Fixed Asset"
         key(Key12; "Responsible Employee", "FA Location Code")
         {
         }
-        key(Key13; "SKP Code")
-        {
-        }
         key(Key14; "Tax Depreciation Group Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Tax Depreciation Group Code" is removed and cannot be used in an active key.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -406,7 +390,7 @@ table 5600 "Fixed Asset"
         FAMoveEntries.MoveFAInsuranceEntries("No.");
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text001, TableCaption, "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");
@@ -487,7 +471,6 @@ table 5600 "Fixed Asset"
         Text1220000: Label 'Do you want to assign new %1 %2 to Fixed Asset %3?';
         Text1220001: Label 'Selected Fixed Asset %1 is disposed and FA Location/Responsible Employee cannot be assigned to it.';
         Text1220002: Label 'Do you want to print FA assignment/discharge report?';
-        Text1220003: Label 'The depreciation group associated with SKP Code %1 doesn''t correspond with depreciation group associated with depreciation group code %2.';
         UnexpctedSubclassErr: Label 'This fixed asset subclass belongs to a different fixed asset class.';
         DontAskAgainActionTxt: Label 'Don''t ask again';
         NotificationNameTxt: Label 'Fixed Asset Acquisition Wizard';
@@ -523,6 +506,8 @@ table 5600 "Fixed Asset"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+#if not CLEAN18
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure PrintAssignmentAndDischarge(FAHistoryEntryNo: Integer)
     begin
@@ -535,6 +520,8 @@ table 5600 "Fixed Asset"
             end;
     end;
 
+#endif
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure ChangeEntry(ChangeType: Option Location,"Responsible Employee")
     var
@@ -662,6 +649,7 @@ table 5600 "Fixed Asset"
     begin
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeEntry(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; ChangeType: Option Location,"Responsible Employee"; var IsHandled: Boolean)
     begin

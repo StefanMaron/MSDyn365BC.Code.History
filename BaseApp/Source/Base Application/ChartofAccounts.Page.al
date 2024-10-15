@@ -26,17 +26,6 @@ page 16 "Chart of Accounts"
                     StyleExpr = NoEmphasize;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Full Name"; "Full Name")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Style = Strong;
-                    StyleExpr = NameEmphasize;
-                    ToolTip = 'Specifies full name of the G/L account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
@@ -495,10 +484,6 @@ page 16 "Chart of Accounts"
                     PromotedOnly = true;
                     RunObject = Report "Close Income Statement";
                     ToolTip = 'Start the transfer of the year''s result to an account in the balance sheet and close the income statement accounts.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                 }
                 action(DocsWithoutIC)
                 {

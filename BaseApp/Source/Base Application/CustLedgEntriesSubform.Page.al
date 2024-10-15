@@ -8,6 +8,9 @@ page 31055 "Cust. Ledg. Entries Subform"
     SourceTable = "Cust. Ledger Entry";
     SourceTableView = SORTING(Open, "Due Date")
                       WHERE(Open = CONST(true));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -269,7 +272,7 @@ page 31055 "Cust. Ledg. Entries Subform"
                         repeat
                             Rec := CustLedgEntry;
                             Mark := not Mark;
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                     Rec := CustLedgEntry2;
                 end;
             }
@@ -299,7 +302,7 @@ page 31055 "Cust. Ledg. Entries Subform"
             repeat
                 CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 ValueBalance += CustLedgEntry."Remaining Amt. (LCY)";
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

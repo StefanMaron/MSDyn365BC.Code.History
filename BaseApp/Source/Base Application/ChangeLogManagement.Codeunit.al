@@ -412,6 +412,7 @@ codeunit 423 "Change Log Management"
     procedure InitChangeLog()
     begin
         ChangeLogSetupRead := false;
+        MonitorSensitiveFieldSetupRead := false;
         TempChangeLogSetupField.DeleteAll();
         TempChangeLogSetupTable.DeleteAll();
     end;

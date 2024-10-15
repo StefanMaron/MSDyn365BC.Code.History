@@ -18,6 +18,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         NotSupportedDocTableErr: Label 'Table no. %1 is not supported.', Comment = '%1 is a number (integer).';
         PhotoLbl: Label 'Photo %1', Comment = '%1 = a number, e.g. 1, 2, 3,...';
         EmptyFileMsg: Label 'You have created an incoming document based on an empty file. Try again with a file that contains data that you want to import.';
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
         IsTestMode: Boolean;
 
     [Scope('OnPrem')]
@@ -44,7 +45,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         RecordRef: RecordRef;
-        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         if FileName = '' then
             Error('');
@@ -335,17 +335,17 @@ codeunit 134 "Import Attachment - Inc. Doc."
         IncomingDocument.Modify();
     end;
 
-    local procedure GetDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; var Posted: Boolean): Integer
+    local procedure GetDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; var Posted: Boolean): Enum "Incoming Related Document Type"
     begin
         if (PostingDate <> 0D) and (DocNo <> '') then begin
             IncomingDocument.SetPostedDocFields(PostingDate, DocNo);
-            exit(IncomingDocument.GetPostedDocType(PostingDate, DocNo, Posted));
+            exit(IncomingDocument.GetRelatedDocType(PostingDate, DocNo, Posted));
         end;
         Posted := false;
         exit(GetUnpostedDocType(IncomingDocumentAttachment, IncomingDocument));
     end;
 
-    local procedure GetUnpostedDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Integer
+    local procedure GetUnpostedDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
     begin
         if IsJournalRelated(IncomingDocumentAttachment) then
             exit(IncomingDocument."Document Type"::Journal);
@@ -361,7 +361,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         exit(IncomingDocument."Document Type"::" ");
     end;
 
-    local procedure GetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Integer
+    local procedure GetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
@@ -382,7 +382,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         end;
     end;
 
-    local procedure GetUnpostedAdvanceDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Integer
+    local procedure GetUnpostedAdvanceDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
     begin
         // NAVCZ
         case IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter") of
@@ -431,20 +431,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
     local procedure LineIncrement(): Integer
     begin
         exit(10000);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with the version accepting a stream.', '15.3')]
-    procedure ProcessAndUploadPicture(PictureFilePath: Text; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")
-    var
-        File: File;
-        InStr: InStream;
-    begin
-        File.Open(PictureFilePath);
-        File.CreateInStream(InStr);
-        ProcessAndUploadPicture(InStr, IncomingDocumentAttachmentOriginal);
-        File.Close;
-        if Erase(PictureFilePath) then;
     end;
 
     procedure ProcessAndUploadPicture(PictureStream: InStream; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")

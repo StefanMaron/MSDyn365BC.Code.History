@@ -55,7 +55,7 @@ report 31081 "Filtered Acc. Schedule Export"
                         end;
                         EnterCell(RowNo, ColumnNo, AccSchedLine.Description, AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline);
                         RowNo += 1;
-                    until AccSchedLine.Next = 0;
+                    until AccSchedLine.Next() = 0;
                 end;
 
                 ColumnNo += 1;
@@ -79,7 +79,7 @@ report 31081 "Filtered Acc. Schedule Export"
                                     repeat
                                         EnterCell(RowNo, ColumnNo, ColumnLayout."Column Header", false, false, false);
                                         ColumnNo += 1;
-                                    until ColumnLayout.Next = 0;
+                                    until ColumnLayout.Next() = 0;
 
                                 RowNo := StartRowLine;
                                 ColumnNo := StartColumn;
@@ -102,11 +102,11 @@ report 31081 "Filtered Acc. Schedule Export"
                                                 else
                                                     EnterCell(RowNo, ColumnNo, '', AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline);
                                                 ColumnNo += 1;
-                                            until ColumnLayout.Next = 0;
+                                            until ColumnLayout.Next() = 0;
                                         RowNo += 1;
-                                    until AccSchedLine.Next = 0;
+                                    until AccSchedLine.Next() = 0;
                             end;
-                    until AccSchedFilterLine.Next = 0;
+                    until AccSchedFilterLine.Next() = 0;
             end;
 
             trigger OnPostDataItem()

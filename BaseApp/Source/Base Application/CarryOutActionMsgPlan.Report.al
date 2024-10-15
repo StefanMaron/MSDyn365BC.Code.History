@@ -1,4 +1,4 @@
-﻿report 99001020 "Carry Out Action Msg. - Plan."
+report 99001020 "Carry Out Action Msg. - Plan."
 {
     Caption = 'Carry Out Action Msg. - Plan.';
     ProcessingOnly = true;
@@ -460,7 +460,7 @@
         with "Requisition Line" do
             repeat
                 CheckLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure CheckLine()
@@ -599,7 +599,7 @@
                 ReqLine3 := ReqLine2;
                 if not ReqLine3.Find then
                     Error(Text011, "Line No.", ReqLine2."Line No.");
-            until (ReqLine2.Next = 0) or (ReqLine2."Planning Level" = 0)
+            until (ReqLine2.Next() = 0) or (ReqLine2."Planning Level" = 0)
         end;
     end;
 
@@ -634,7 +634,7 @@
                 repeat
                     PurchaseExists := "Ref. Order Type" = "Ref. Order Type"::Purchase;
                     if not PurchaseExists then
-                        StopLoop := Next = 0
+                        StopLoop := Next() = 0
                     else
                         StopLoop := true;
                 until StopLoop;

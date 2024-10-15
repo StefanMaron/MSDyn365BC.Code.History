@@ -10,12 +10,10 @@ table 7134 "Item Budget Entry"
         {
             Caption = 'Entry No.';
         }
-        field(2; "Analysis Area"; Option)
+        field(2; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
             NotBlank = true;
-            OptionCaption = 'Sales,Purchase';
-            OptionMembers = Sales,Purchase;
         }
         field(3; "Budget Name"; Code[10])
         {
@@ -32,11 +30,9 @@ table 7134 "Item Budget Entry"
             Caption = 'Item No.';
             TableRelation = Item;
         }
-        field(6; "Source Type"; Option)
+        field(6; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
 
             trigger OnValidate()
             begin

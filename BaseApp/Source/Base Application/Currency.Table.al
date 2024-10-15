@@ -470,6 +470,9 @@ table 4 Currency
         {
             Caption = 'Customs Currency Code';
             TableRelation = Currency;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -495,16 +498,15 @@ table 4 Currency
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        CurrExchRateCountryFill: Record "Perf. Country Curr. Exch. Rate";
     begin
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Currency Code", Code);
-        if not CustLedgEntry.IsEmpty then
+        if not CustLedgEntry.IsEmpty() then
             Error(Text002, CustLedgEntry.TableCaption, TableCaption, Code);
 
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetRange("Currency Code", Code);
-        if not VendLedgEntry.IsEmpty then
+        if not VendLedgEntry.IsEmpty() then
             Error(Text002, VendLedgEntry.TableCaption, TableCaption, Code);
 
         CurrExchRate.SetRange("Currency Code", Code);
@@ -512,9 +514,6 @@ table 4 Currency
         // NAVCZ
         IntrastatCurrExchRate.SetRange("Currency Code", Code);
         IntrastatCurrExchRate.DeleteAll();
-        CurrExchRateCountryFill.SetCurrentKey("Relational Currency Code");
-        CurrExchRateCountryFill.SetRange("Relational Currency Code", Code);
-        CurrExchRateCountryFill.DeleteAll();
         // NAVCZ
     end;
 

@@ -2,27 +2,15 @@ table 31093 "Reverse Charge Header"
 {
     Caption = 'Reverse Charge Header';
     DataCaptionFields = "No.";
-    DrillDownPageID = "Reverse Charges";
-    LookupPageID = "Reverse Charges";
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
-    ObsoleteTag = '15.3';
+    ObsoleteTag = '18.0';
 
     fields
     {
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
-
-            trigger OnValidate()
-            var
-                NoSeriesMgt: Codeunit NoSeriesManagement;
-            begin
-                if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
-                    "No. Series" := '';
-                end;
-            end;
         }
         field(5; "VAT Registration No."; Text[20])
         {
@@ -41,11 +29,6 @@ table 31093 "Reverse Charge Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                if "Period No." <> xRec."Period No." then begin
-                    if LineExists then
-                        Error(ChangeErr, FieldCaption("Period No."));
-                    SetPeriod;
-                end;
             end;
         }
         field(11; Year; Integer)
@@ -57,11 +40,6 @@ table 31093 "Reverse Charge Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                if Year <> xRec.Year then begin
-                    if LineExists then
-                        Error(ChangeErr, FieldCaption(Year));
-                    SetPeriod;
-                end;
             end;
         }
         field(15; "Start Date"; Date)
@@ -182,11 +160,6 @@ table 31093 "Reverse Charge Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                if "Declaration Period" <> xRec."Declaration Period" then begin
-                    if LineExists then
-                        Error(ChangeErr, FieldCaption("Declaration Period"));
-                    SetPeriod;
-                end;
             end;
         }
         field(36; "Declaration Type"; Option)
@@ -198,10 +171,6 @@ table 31093 "Reverse Charge Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                if "Declaration Type" <> xRec."Declaration Type" then begin
-                    if LineExists then
-                        Error(ChangeErr, FieldCaption("Declaration Type"));
-                end;
             end;
         }
         field(40; "Document Date"; Date)
@@ -212,13 +181,6 @@ table 31093 "Reverse Charge Header"
             begin
                 TestField(Status, Status::Open);
             end;
-        }
-        field(45; "Number of Lines"; Integer)
-        {
-            CalcFormula = Count ("Reverse Charge Line" WHERE("Reverse Charge No." = FIELD("No.")));
-            Caption = 'Number of Lines';
-            Editable = false;
-            FieldClass = FlowField;
         }
         field(50; Status; Option)
         {
@@ -262,13 +224,6 @@ table 31093 "Reverse Charge Header"
                 TestField(Status, Status::Open);
             end;
         }
-        field(75; "VAT Base Amount (LCY)"; Decimal)
-        {
-            CalcFormula = Sum ("Reverse Charge Line"."VAT Base Amount (LCY)" WHERE("Reverse Charge No." = FIELD("No.")));
-            Caption = 'VAT Base Amount (LCY)';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(80; "Statement Type"; Option)
         {
             Caption = 'Statement Type';
@@ -278,10 +233,6 @@ table 31093 "Reverse Charge Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                if LineExists then
-                    Error(ChangeErr, FieldCaption("Statement Type"));
-
-                CheckPeriod;
             end;
         }
         field(85; "Part Period From"; Date)
@@ -336,27 +287,6 @@ table 31093 "Reverse Charge Header"
         }
     }
 
-    trigger OnDelete()
-    var
-        ReverseChargeLine: Record "Reverse Charge Line";
-    begin
-        TestField(Status, Status::Open);
-
-        ReverseChargeLine.Reset();
-        ReverseChargeLine.SetRange("Reverse Charge No.", "No.");
-        ReverseChargeLine.DeleteAll();
-    end;
-
-    trigger OnInsert()
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-    begin
-        if "No." = '' then
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", WorkDate, "No.", "No. Series");
-
-        InitRecord;
-    end;
-
     trigger OnRename()
     begin
         Error(RenameErr, TableCaption);
@@ -365,13 +295,10 @@ table 31093 "Reverse Charge Header"
     var
         PostCode: Record "Post Code";
         CompanyInfo: Record "Company Information";
-        PeriodExistsErr: Label 'Period from %1 till %2 already exists on %3 %4.', Comment = '%1=Start Date;%2=End Date;%3=TABLECAPTION;%4=No.';
-        EarlierThanErr: Label '%1 should be earlier than %2.', Comment = '%1=FIELDCAPTION("Start Date");%2=FIELDCAPTION("End Date")';
         RenameErr: Label 'You cannot rename a %1.', Comment = '%1=TABLECAPTION';
-        ChangeErr: Label 'You cannot change %1 because you already have declaration lines.', Comment = '%1=FIELDCAPTION';
-        PermittedValuesErr: Label 'The permitted values for %1 are from 1 to %2.', Comment = '%1=FIELDCAPTION;%2=MaxPeriodNo';
 
     [Scope('OnPrem')]
+    [Obsolete('The functionality of Reverse Charge Statement will be removed and this function should not be used.', '18.0')]
     procedure InitRecord()
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
@@ -396,102 +323,6 @@ table 31093 "Reverse Charge Header"
         "Tax Office No." := StatReportingSetup."Tax Office Number";
         "Tax Office Region No." := StatReportingSetup."Tax Office Region Number";
         "Natural Employee No." := StatReportingSetup."Natural Employee No.";
-        "Authorized Employee No." := StatReportingSetup."Reverse Charge Auth. Emp. No.";
-        "Filled by Employee No." := StatReportingSetup."Rvrs. Chrg. Filled by Emp. No.";
-    end;
-
-    [Scope('OnPrem')]
-    procedure AssistEdit(OldReverseChargeHdr: Record "Reverse Charge Header"): Boolean
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-    begin
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldReverseChargeHdr."No. Series", "No. Series") then begin
-            NoSeriesMgt.SetSeries("No.");
-            exit(true);
-        end;
-    end;
-
-    local procedure GetNoSeriesCode(): Code[20]
-    var
-        StatReportingSetup: Record "Stat. Reporting Setup";
-    begin
-        StatReportingSetup.Get();
-        StatReportingSetup.TestField("Reverse Charge Nos.");
-        exit(StatReportingSetup."Reverse Charge Nos.");
-    end;
-
-    local procedure CheckPeriodNo()
-    var
-        MaxPeriodNo: Integer;
-    begin
-        if "Declaration Period" = "Declaration Period"::Month then
-            MaxPeriodNo := 12
-        else
-            MaxPeriodNo := 4;
-
-        if not ("Period No." in [1 .. MaxPeriodNo]) then
-            Error(PermittedValuesErr, FieldCaption("Period No."), MaxPeriodNo);
-    end;
-
-    local procedure SetPeriod()
-    begin
-        if "Period No." <> 0 then
-            CheckPeriodNo;
-
-        if ("Period No." = 0) or (Year = 0) then begin
-            "Start Date" := 0D;
-            "End Date" := 0D;
-        end else
-            if "Declaration Period" = "Declaration Period"::Month then begin
-                "Start Date" := DMY2Date(1, "Period No.", Year);
-                "End Date" := CalcDate('<CM>', "Start Date");
-            end else begin
-                "Start Date" := DMY2Date(1, "Period No." * 3 - 2, Year);
-                "End Date" := CalcDate('<CQ>', "Start Date");
-            end;
-
-        CheckPeriod;
-    end;
-
-    local procedure CheckPeriod()
-    var
-        ReverseChargeHdr: Record "Reverse Charge Header";
-    begin
-        if ("Start Date" = 0D) or ("End Date" = 0D) then
-            exit;
-
-        if "Start Date" >= "End Date" then
-            Error(EarlierThanErr, FieldCaption("Start Date"), FieldCaption("End Date"));
-
-        ReverseChargeHdr.Reset();
-        ReverseChargeHdr.SetCurrentKey("Start Date", "End Date");
-        ReverseChargeHdr.SetRange("Start Date", "Start Date");
-        ReverseChargeHdr.SetRange("End Date", "End Date");
-        ReverseChargeHdr.SetRange("Declaration Type", "Declaration Type");
-        ReverseChargeHdr.SetRange("Statement Type", "Statement Type");
-        ReverseChargeHdr.SetRange("VAT Registration No.", "VAT Registration No.");
-        ReverseChargeHdr.SetFilter("No.", '<>%1', "No.");
-        if ReverseChargeHdr.FindFirst then
-            Error(PeriodExistsErr, "Start Date", "End Date", ReverseChargeHdr.TableCaption, ReverseChargeHdr."No.");
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetVATRegNo(): Code[20]
-    var
-        ReverseChargeLn: Record "Reverse Charge Line";
-    begin
-        CompanyInfo.Get();
-        ReverseChargeLn."VAT Registration No." := "VAT Registration No.";
-        ReverseChargeLn."Country/Region Code" := CompanyInfo."Country/Region Code";
-        exit(ReverseChargeLn.GetVATRegNo);
-    end;
-
-    local procedure LineExists(): Boolean
-    var
-        ReverseChargeLn: Record "Reverse Charge Line";
-    begin
-        ReverseChargeLn.SetRange("Reverse Charge No.", "No.");
-        exit(not ReverseChargeLn.IsEmpty);
     end;
 }
 

@@ -31,6 +31,7 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -39,6 +40,7 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -160,15 +162,17 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
                     ObsoleteTag = '15.3';
                 }
+#endif
                 field("Deferral Code"; "Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -427,7 +431,6 @@ page 135 "Posted Sales Cr. Memo Subform"
     end;
 
     var
-        TotalSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
@@ -435,6 +438,7 @@ page 135 "Posted Sales Cr. Memo Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

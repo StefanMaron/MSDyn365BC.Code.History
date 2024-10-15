@@ -1,8 +1,12 @@
+#if not CLEAN18
 page 11797 "User Setup Card"
 {
-    Caption = 'User Setup Card';
+    Caption = 'User Setup Card (Obsolete)';
     PageType = Card;
     SourceTable = "User Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -179,4 +183,4 @@ page 11797 "User Setup Card"
         }
     }
 }
-
+#endif

@@ -1,7 +1,10 @@
 report 31065 "Intrastat Declaration Export"
 {
-    Caption = 'Intrastat Declaration Export';
+    Caption = 'Intrastat Declaration Export (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -41,7 +44,7 @@ report 31065 "Intrastat Declaration Export"
                                 IntrastatJnlLine.Type::Shipment:
                                     IntrastatJnlLineType := IntrastatJnlLineType::Send;
                             end;
-                    until IntrastatJnlLine.Next = 0;
+                    until IntrastatJnlLine.Next() = 0;
 
                 ExportToCSV;
             end;
@@ -188,7 +191,7 @@ report 31065 "Intrastat Declaration Export"
                     if ExportString <> '' then
                         OutputFile.Write(CopyStr(ExportString, 1, 1024));
                 end;
-            until IntrastatJnlLine.Next = 0;
+            until IntrastatJnlLine.Next() = 0;
         end;
 
         OutputFile.Close;

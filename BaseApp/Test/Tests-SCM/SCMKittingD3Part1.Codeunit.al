@@ -80,7 +80,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    local procedure DimensionPosting(DimensionsFrom: Option; OverrideDimensions: Boolean; HeaderBlockType: Option; CompBlockType: Option; DefaultHeaderValuePosting: Option; DefaultCompValuePosting: Option)
+    local procedure DimensionPosting(DimensionsFrom: Option; OverrideDimensions: Boolean; HeaderBlockType: Option; CompBlockType: Option; DefaultHeaderValuePosting: Enum "Default Dimension Value Posting Type"; DefaultCompValuePosting: Enum "Default Dimension Value Posting Type")
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -781,7 +781,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    local procedure AddItemDimension(ItemNo: Code[20]; DefaultValuePosting: Option): Text[1024]
+    local procedure AddItemDimension(ItemNo: Code[20]; DefaultValuePosting: Enum "Default Dimension Value Posting Type"): Text[1024]
     var
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
@@ -802,7 +802,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    local procedure AddAOItemDimension(AssemblyHeader: Record "Assembly Header"; DefaultHeaderValuePosting: Option; DefaultCompValuePosting: Option) ExpectedError: Text[1024]
+    local procedure AddAOItemDimension(AssemblyHeader: Record "Assembly Header"; DefaultHeaderValuePosting: Enum "Default Dimension Value Posting Type"; DefaultCompValuePosting: Enum "Default Dimension Value Posting Type") ExpectedError: Text[1024]
     begin
         ExpectedError := AddItemDimension(AssemblyHeader."Item No.", DefaultHeaderValuePosting);
 

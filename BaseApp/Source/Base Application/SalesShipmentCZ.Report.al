@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31098 "Sales - Shipment CZ"
 {
     DefaultLayout = RDLC;
@@ -171,12 +172,6 @@ report 31098 "Sales - Shipment CZ"
             {
             }
             column(ShipmentMethod; ShipmentMethod.Description)
-            {
-            }
-            column(PerformCountryRegionCode; RegCountryRegion."Country/Region Code")
-            {
-            }
-            column(PerformVATRegistrationNo; RegCountryRegion."VAT Registration No.")
             {
             }
             column(DocFooterText; DocFooterText)
@@ -381,11 +376,6 @@ report 31098 "Sales - Shipment CZ"
                         "No.", DATABASE::"Sales Shipment Header", 0);
                     ItemTrackingDocMgt.SetRetrieveAsmItemTracking(false);
                 end;
-
-                if not RegCountryRegion.Get(
-                     RegCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegCountryRegion)
             end;
         }
     }
@@ -454,8 +444,6 @@ report 31098 "Sales - Shipment CZ"
         ShipmentMethod: Record "Shipment Method";
         DocFooter: Record "Document Footer";
         TrackingSpecBuf: Record "Tracking Specification" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegMgt: Codeunit SegManagement;
@@ -501,4 +489,4 @@ report 31098 "Sales - Shipment CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

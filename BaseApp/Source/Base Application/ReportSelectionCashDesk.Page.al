@@ -25,7 +25,7 @@ page 11759 "Report Selection - Cash Desk"
                 trigger OnValidate()
                 begin
                     SetUsageFilter;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             repeater(Control1220006)

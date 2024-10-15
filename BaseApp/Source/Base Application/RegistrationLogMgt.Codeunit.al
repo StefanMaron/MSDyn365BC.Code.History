@@ -148,19 +148,19 @@ codeunit 11798 "Registration Log Mgt."
             RegnLog."Account Type"::Customer:
                 if Cust.Get(AccNo) then begin
                     RegnLog.SetRange("Registration No.", Cust."Registration No.");
-                    if RegnLog.IsEmpty then
+                    if RegnLog.IsEmpty() then
                         LogCustomer(Cust);
                 end;
             RegnLog."Account Type"::Vendor:
                 if Vend.Get(AccNo) then begin
                     RegnLog.SetRange("Registration No.", Vend."Registration No.");
-                    if RegnLog.IsEmpty then
+                    if RegnLog.IsEmpty() then
                         LogVendor(Vend);
                 end;
             RegnLog."Account Type"::Contact:
                 if Cont.Get(AccNo) then begin
                     RegnLog.SetRange("Registration No.", Cont."Registration No.");
-                    if RegnLog.IsEmpty then
+                    if RegnLog.IsEmpty() then
                         LogContact(Cont);
                 end;
         end;
@@ -345,7 +345,7 @@ codeunit 11798 "Registration Log Mgt."
         exit(ServiceConditionsURLTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleAresRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         RegNoSrvConfig: Record "Reg. No. Srv Config";

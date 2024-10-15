@@ -37,7 +37,7 @@ codeunit 11733 "Cash Document-Post (Yes/No)"
         GenJnlPostPreview.Preview(CashDocumentPostYesNo, CashDocumentHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         CashDocumentHeader: Record "Cash Document Header";

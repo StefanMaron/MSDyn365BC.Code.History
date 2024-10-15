@@ -392,7 +392,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
     begin
         GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             Assert.AreNearlyEqual(

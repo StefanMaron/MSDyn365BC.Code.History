@@ -11,8 +11,6 @@ report 85 "Copy - VAT Posting Setup"
 
             trigger OnAfterGetRecord()
             var
-                FromNonDeductableVATSetup: Record "Non Deductible VAT Setup";
-                ToNonDeductableVATSetup: Record "Non Deductible VAT Setup";
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 VATPostingSetup.Find;
@@ -24,31 +22,13 @@ report 85 "Copy - VAT Posting Setup"
 
                     // NAVCZ
                     "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
-                    "Non Deduct. VAT Corr. Account" := VATPostingSetup."Non Deduct. VAT Corr. Account";
                     "Reverse Charge Check" := VATPostingSetup."Reverse Charge Check";
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
-                    "Allow Non Deductible VAT" := VATPostingSetup."Allow Non Deductible VAT";
                     "Allow Blank VAT Date" := VATPostingSetup."Allow Blank VAT Date";
                     "VAT Rate" := VATPostingSetup."VAT Rate";
                     "Supplies Mode Code" := VATPostingSetup."Supplies Mode Code";
                     "Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable";
                     "Ratio Coefficient" := VATPostingSetup."Ratio Coefficient";
-
-                    ToNonDeductableVATSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-                    ToNonDeductableVATSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if not ToNonDeductableVATSetup.IsEmpty then
-                        ToNonDeductableVATSetup.DeleteAll();
-
-                    FromNonDeductableVATSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                    FromNonDeductableVATSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                    if FromNonDeductableVATSetup.FindSet(false, false) then begin
-                        repeat
-                            ToNonDeductableVATSetup := FromNonDeductableVATSetup;
-                            ToNonDeductableVATSetup."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                            ToNonDeductableVATSetup."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                            ToNonDeductableVATSetup.Insert();
-                        until FromNonDeductableVATSetup.Next = 0;
-                    end;
                     // NAVCZ
                 end;
 
@@ -58,7 +38,6 @@ report 85 "Copy - VAT Posting Setup"
 
                     // NAVCZ
                     "Sales VAT Delay Account" := VATPostingSetup."Sales VAT Delay Account";
-                    "Sales VAT Postponed Account" := VATPostingSetup."Sales VAT Postponed Account";
                     // NAVCZ
                 end;
 

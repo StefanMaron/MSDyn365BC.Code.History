@@ -145,7 +145,7 @@ page 11776 "Unapply General Ledger Entries"
             repeat
                 Rec := DtldGLEntry2;
                 Insert;
-            until DtldGLEntry2.Next = 0;
+            until DtldGLEntry2.Next() = 0;
         GLAccount.Get(DtldGLEntry."G/L Account No.");
     end;
 

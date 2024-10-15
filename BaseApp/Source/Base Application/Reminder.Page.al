@@ -22,7 +22,7 @@ page 434 Reminder
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Customer No."; "Customer No.")
@@ -31,6 +31,11 @@ page 434 Reminder
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the customer you want to post a reminder for.';
+
+                    trigger OnValidate()
+                    begin
+                        ContactCustomer.GetPrimaryContact("Customer No.", PrimaryContact);
+                    end;
                 }
                 field(Name; Name)
                 {
@@ -66,6 +71,33 @@ page 434 Reminder
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the reminder is for.';
+                }
+                field(ContactPhoneNo; PrimaryContact."Phone No.")
+                {
+                    Caption = 'Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person the reminder is for.';
+                }
+                field(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person the reminder is for.';
+                }
+                field(ContactEmail; PrimaryContact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person the reminder is for.';
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -154,57 +186,102 @@ page 434 Reminder
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank No."; "Bank No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -325,6 +402,10 @@ page 434 Reminder
                     Image = CreateReminders;
                     Promoted = true;
                     PromotedCategory = Process;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+                    ObsoleteReason = 'This action should not be on the Reminder card';
                     ToolTip = 'Create reminders for one or more customers with overdue payments.';
 
                     trigger OnAction()
@@ -520,7 +601,14 @@ page 434 Reminder
         IsOfficeAddin := OfficeMgt.IsAvailable;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        ContactCustomer.GetPrimaryContact("Customer No.", PrimaryContact);
+    end;
+
     var
+        ContactCustomer: Record Customer;
+        PrimaryContact: Record Contact;
         ReminderHeader: Record "Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";

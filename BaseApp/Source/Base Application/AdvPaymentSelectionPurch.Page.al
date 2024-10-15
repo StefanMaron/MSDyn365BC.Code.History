@@ -111,7 +111,7 @@ page 31039 "Adv. Payment Selection - Purch"
                 SetRange(Usage, Usage::"P.Adv.CrM");
         end;
         FilterGroup(0);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

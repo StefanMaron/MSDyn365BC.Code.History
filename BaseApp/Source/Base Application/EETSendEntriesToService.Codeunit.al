@@ -15,7 +15,7 @@ codeunit 31122 "EET Send Entries To Service"
                 repeat
                     EETEntry2.Get("Entry No.");
                     EETEntryMgt.SendEntryToService(EETEntry2, false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

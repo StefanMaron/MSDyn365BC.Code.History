@@ -74,7 +74,7 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Amount to Pay"; "Amount to Pay")
@@ -86,7 +86,7 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Original Amount"; "Original Amount")
@@ -105,7 +105,7 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Amount(Pay.Order Curr.) to Pay"; "Amount(Pay.Order Curr.) to Pay")
@@ -117,7 +117,7 @@ page 11717 "Payment Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Order Currency Code"; "Payment Order Currency Code")
@@ -136,7 +136,7 @@ page 11717 "Payment Order Subform"
                           "Payment Order Currency Factor", PaymentOrderHeader."Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Payment Order Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -365,7 +365,7 @@ page 11717 "Payment Order Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -416,7 +416,7 @@ page 11717 "Payment Order Subform"
             if PaymentOrderHeader.Get("Payment Order No.") then begin
                 Validate("Payment Order Currency Code", PaymentOrderHeader."Payment Order Currency Code");
                 "Payment Order Currency Factor" := PaymentOrderHeader."Payment Order Currency Factor";
-                CurrPage.Update;
+                CurrPage.Update();
             end;
     end;
 

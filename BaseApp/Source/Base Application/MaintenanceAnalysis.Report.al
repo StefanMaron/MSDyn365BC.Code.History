@@ -1,9 +1,10 @@
+#if not CLEAN18
 report 5630 "Maintenance - Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './MaintenanceAnalysis.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Maintenance Analysis';
+    Caption = 'Fixed Asset Maintenance Analysis (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -149,7 +150,7 @@ report 5630 "Maintenance - Analysis"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
-                        // NAVCZ
+                // NAVCZ
                 end;
             end;
         }
@@ -362,10 +363,10 @@ report 5630 "Maintenance - Analysis"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-                // NAVCZ
+            // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-                // NAVCZ
+        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := Text001 + ': ' + GroupCodeName;
@@ -417,7 +418,7 @@ report 5630 "Maintenance - Analysis"
                 // NAVCZ
                 GroupTotals::"Tax Depreciation Group Code":
                     GroupHeadLine := "Tax Depreciation Group Code";
-                    // NAVCZ
+            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -457,4 +458,4 @@ report 5630 "Maintenance - Analysis"
         end;
     end;
 }
-
+#endif

@@ -29,7 +29,9 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         ServiceContractAccGr: Record "Service Contract Account Group";
         ICPartner: Record "IC Partner";
         PaymentMethod: Record "Payment Method";
+#if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
+#endif
         BankAccount: Record "Bank Account";
     begin
         with GLAccWhereUsed do
@@ -138,7 +140,8 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                     PAGE.Run(PAGE::"Sales & Receivables Setup");
                 DATABASE::"Purchases & Payables Setup":
                     PAGE.Run(PAGE::"Purchases & Payables Setup");
-                    // NAVCZ
+                // NAVCZ
+#if not CLEAN18
                 DATABASE::"FA Extended Posting Group":
                     begin
                         FAExtPostingGr."FA Posting Group Code" := CopyStr("Key 1", 1, MaxStrLen(FAExtPostingGr."FA Posting Group Code"));
@@ -146,6 +149,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                         FAExtPostingGr.Code := CopyStr("Key 3", 1, MaxStrLen(FAExtPostingGr.Code));
                         PAGE.Run(PAGE::"FA Extended Posting Groups", FAExtPostingGr);
                     end;
+#endif
                 DATABASE::"Bank Account":
                     begin
                         BankAccount."No." := CopyStr("Key 1", 1, MaxStrLen(BankAccount."No."));
@@ -153,7 +157,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                     end;
                 DATABASE::"Credits Setup":
                     PAGE.Run(PAGE::"Credits Setup");
-                    // NAVCZ
+                // NAVCZ
                 else
                     OnShowExtensionPage(GLAccWhereUsed);
             end;
@@ -280,7 +284,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         if FillTableBuffer(TableBuffer) then
             repeat
                 CheckTable(GLAccNo, TableBuffer.Number);
-            until TableBuffer.Next = 0;
+            until TableBuffer.Next() = 0;
 
         OnAfterCheckPostingGroups(GLAccWhereUsed, GLAccNo);
     end;
@@ -327,7 +331,9 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     local procedure AddCountryTables(var TableBuffer: Record "Integer")
     begin
         TableBuffer.Reset();
+#if not CLEAN18
         AddTable(TableBuffer, DATABASE::"FA Extended Posting Group");
+#endif
         AddTable(TableBuffer, DATABASE::"Bank Account");
         AddTable(TableBuffer, DATABASE::"Credits Setup");
     end;
@@ -350,7 +356,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                 Field.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.");
                 if (Field.Class = Field.Class::Normal) and (Field.ObsoleteState <> Field.ObsoleteState::Removed) then
                     CheckField(RecRef, TableRelationsMetadata, GLAccNo);
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
     end;
 
     local procedure CheckField(var RecRef: RecordRef; TableRelationsMetadata: Record "Table Relations Metadata"; GLAccNo: Code[20])
@@ -364,7 +370,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         if RecRef.FindSet then
             repeat
                 InsertGroupFromRecRef(RecRef, FieldRef.Caption);
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     local procedure SetConditionFilter(var RecRef: RecordRef; TableRelationsMetadata: Record "Table Relations Metadata")

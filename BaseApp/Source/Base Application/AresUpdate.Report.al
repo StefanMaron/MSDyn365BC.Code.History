@@ -170,7 +170,7 @@ report 11798 "Ares Update"
         DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
 
         if FieldUpdateMask[FieldType::Name] then
-            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName("Registered Name")) then
+            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName(Name)) then
                 FieldRef.Validate(CopyStr(RegistrationLog."Verified Name", 1, FieldRef.Length));
 
         if FieldUpdateMask[FieldType::Address] then

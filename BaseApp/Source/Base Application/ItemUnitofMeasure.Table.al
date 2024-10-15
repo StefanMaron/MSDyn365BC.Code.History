@@ -21,17 +21,6 @@ table 5404 "Item Unit of Measure"
             Caption = 'Code';
             NotBlank = true;
             TableRelation = "Unit of Measure";
-
-            trigger OnValidate()
-            var
-                UoM: Record "Unit of Measure";
-            begin
-                // NAVCZ
-                if not UoM.Get(Code) then
-                    UoM.Init();
-                "Indivisible Unit" := UoM."Indivisible Unit";
-                // NAVCZ
-            end;
         }
         field(3; "Qty. per Unit of Measure"; Decimal)
         {
@@ -99,13 +88,16 @@ table 5404 "Item Unit of Measure"
         field(31060; "Intrastat Default"; Boolean)
         {
             Caption = 'Intrastat Default';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Indivisible Unit"; Boolean)
         {
             Caption = 'Indivisible Unit';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -179,7 +171,7 @@ table 5404 "Item Unit of Measure"
                 ItemLedgEntry.SetCurrentKey("Item No.", Open);
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange(Open, true);
-                if not ItemLedgEntry.IsEmpty then
+                if not ItemLedgEntry.IsEmpty() then
                     Error(Text001, TableCaption, xRec.Code, "Item No.", Item.FieldCaption("Base Unit of Measure"));
             end;
     end;
@@ -196,10 +188,10 @@ table 5404 "Item Unit of Measure"
             repeat
                 if Bin.Get(Location.Code, Location."Adjustment Bin Code") then begin
                     WhseEntry.SetRange("Zone Code", Bin."Zone Code");
-                    if not WhseEntry.IsEmpty then
+                    if not WhseEntry.IsEmpty() then
                         Error(CannotModifyUOMWithWhseEntriesErr, TableCaption, xRec.Code, "Item No.");
                 end;
-            until Location.Next = 0;
+            until Location.Next() = 0;
     end;
 
     procedure TestItemSetup()
@@ -259,7 +251,7 @@ table 5404 "Item Unit of Measure"
         PurchLine.SetRange("No.", "Item No.");
         PurchLine.SetRange("Unit of Measure Code", Code);
         PurchLine.SetFilter("Outstanding Quantity", '<>%1', 0);
-        if not PurchLine.IsEmpty then
+        if not PurchLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               PurchLine.TableCaption, PurchLine.FieldCaption("Qty. to Receive"));
@@ -273,7 +265,7 @@ table 5404 "Item Unit of Measure"
         SalesLine.SetRange("No.", "Item No.");
         SalesLine.SetRange("Unit of Measure Code", Code);
         SalesLine.SetFilter("Outstanding Quantity", '<>%1', 0);
-        if not SalesLine.IsEmpty then
+        if not SalesLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               SalesLine.TableCaption, SalesLine.FieldCaption("Qty. to Ship"));
@@ -286,7 +278,7 @@ table 5404 "Item Unit of Measure"
         TransferLine.SetRange("Item No.", "Item No.");
         TransferLine.SetRange("Unit of Measure Code", Code);
         TransferLine.SetFilter("Outstanding Quantity", '<>%1', 0);
-        if not TransferLine.IsEmpty then
+        if not TransferLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               TransferLine.TableCaption, TransferLine.FieldCaption("Qty. to Ship"));
@@ -300,7 +292,7 @@ table 5404 "Item Unit of Measure"
         ProdOrderLine.SetRange("Unit of Measure Code", Code);
         ProdOrderLine.SetFilter("Remaining Quantity", '<>%1', 0);
         ProdOrderLine.SetFilter(Status, '<>%1', ProdOrderLine.Status::Finished);
-        if not ProdOrderLine.IsEmpty then
+        if not ProdOrderLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               ProdOrderLine.TableCaption, ProdOrderLine.FieldCaption("Remaining Quantity"));
@@ -314,7 +306,7 @@ table 5404 "Item Unit of Measure"
         ProdOrderComponent.SetRange("Unit of Measure Code", Code);
         ProdOrderComponent.SetFilter("Remaining Quantity", '<>%1', 0);
         ProdOrderComponent.SetFilter(Status, '<>%1', ProdOrderComponent.Status::Finished);
-        if not ProdOrderComponent.IsEmpty then
+        if not ProdOrderComponent.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               ProdOrderComponent.TableCaption, ProdOrderComponent.FieldCaption("Remaining Quantity"));
@@ -328,7 +320,7 @@ table 5404 "Item Unit of Measure"
         ServiceLine.SetRange("No.", "Item No.");
         ServiceLine.SetRange("Unit of Measure Code", Code);
         ServiceLine.SetFilter("Outstanding Quantity", '<>%1', 0);
-        if not ServiceLine.IsEmpty then
+        if not ServiceLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               ServiceLine.TableCaption, ServiceLine.FieldCaption("Qty. to Ship"));
@@ -341,7 +333,7 @@ table 5404 "Item Unit of Measure"
         AssemblyHeader.SetRange("Item No.", "Item No.");
         AssemblyHeader.SetRange("Unit of Measure Code", Code);
         AssemblyHeader.SetFilter("Remaining Quantity", '<>%1', 0);
-        if not AssemblyHeader.IsEmpty then
+        if not AssemblyHeader.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               AssemblyHeader.TableCaption, AssemblyHeader.FieldCaption("Remaining Quantity"));
@@ -355,7 +347,7 @@ table 5404 "Item Unit of Measure"
         AssemblyLine.SetRange("No.", "Item No.");
         AssemblyLine.SetRange("Unit of Measure Code", Code);
         AssemblyLine.SetFilter("Remaining Quantity", '<>%1', 0);
-        if not AssemblyLine.IsEmpty then
+        if not AssemblyLine.IsEmpty() then
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               AssemblyLine.TableCaption, AssemblyLine.FieldCaption("Remaining Quantity"));

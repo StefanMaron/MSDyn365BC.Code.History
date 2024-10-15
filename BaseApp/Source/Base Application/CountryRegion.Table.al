@@ -155,6 +155,7 @@ table 9 "Country/Region"
         NumericErr: Label 'must contain numbers only';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsIntrastat(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
     var
         CompanyInfo: Record "Company Information";
@@ -174,6 +175,7 @@ table 9 "Country/Region"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsLocalCountry(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
     var
         CompanyInfo: Record "Company Information";

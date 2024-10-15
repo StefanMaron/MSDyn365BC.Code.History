@@ -386,16 +386,12 @@ table 31000 "Sales Advance Letter Header"
                     OldCustNo := Cust."No.";
                     GetCust("Bill-to Customer No.");
                     NewVATRegNo := Cust."VAT Registration No.";
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Customer, "Bill-to Customer No.", "VAT Country/Region Code") then
-                            NewVATRegNo := RegistrationCountry."VAT Registration No.";
                     if OldCustNo <> '' then
                         GetCust(OldCustNo)
                     else
                         Clear(Cust);
                 end;
                 "VAT Registration No." := NewVATRegNo;
-                Validate("Perform. Country/Region Code");
             end;
         }
         field(85; "Bill-to Post Code"; Code[20])
@@ -819,48 +815,9 @@ table 31000 "Sales Advance Letter Header"
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            var
-                RegnCountryRoute: Record "Registr. Country/Region Route";
-                NewVATBusPostingGroup: Code[20];
-                OldCustNo: Code[20];
-            begin
-                NewVATBusPostingGroup := "VAT Bus. Posting Group";
-
-                if "Bill-to Customer No." <> '' then begin
-                    OldCustNo := Cust."No.";
-                    GetCust("Bill-to Customer No.");
-                    NewVATBusPostingGroup := Cust."VAT Bus. Posting Group";
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Customer, "Bill-to Customer No.", "VAT Country/Region Code") then
-                            NewVATBusPostingGroup := RegistrationCountry."VAT Bus. Posting Group";
-
-                    if "Perform. Country/Region Code" <> '' then begin
-                        CompanyInfo.Get();
-                        RegistrationCountry.Get(RegistrationCountry."Account Type"::"Company Information", '', "Perform. Country/Region Code");
-                        if "VAT Country/Region Code" <> '' then begin
-                            RegnCountryRoute.Get("Perform. Country/Region Code", "VAT Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegnCountryRoute."New VAT Bus. Posting Group";
-                        end else begin
-                            RegnCountryRoute.Get("Perform. Country/Region Code", CompanyInfo."Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegnCountryRoute."New VAT Bus. Posting Group";
-                        end;
-                    end;
-                    if OldCustNo <> '' then
-                        GetCust(OldCustNo)
-                    else
-                        Clear(Cust);
-                end;
-                Validate("VAT Bus. Posting Group", NewVATBusPostingGroup);
-                "Perf. Country Currency Factor" := 0;
-                UpdatePerformCountryCurrFactor;
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Perf. Country Currency Factor"; Decimal)
         {
@@ -868,9 +825,9 @@ table 31000 "Sales Advance Letter Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -913,7 +870,7 @@ table 31000 "Sales Advance Letter Header"
         if "Order No." <> '' then begin
             SalesAdvanceLetterHeader2.SetRange("Order No.", "Order No.");
             SalesAdvanceLetterHeader2.SetFilter("No.", '<>%1', "No.");
-            if SalesAdvanceLetterHeader2.IsEmpty then begin
+            if SalesAdvanceLetterHeader2.IsEmpty() then begin
                 if SalesHeader.Get(SalesHeader."Document Type"::Order, "Order No.") then
                     ReleaseSalesDoc.Reopen(SalesHeader)
                 else
@@ -928,7 +885,7 @@ table 31000 "Sales Advance Letter Header"
         if AdvanceLetterLineRelation.FindSet(true, false) then begin
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, false, true);
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
         end;
 
         DeleteLetterLines;
@@ -984,10 +941,6 @@ table 31000 "Sales Advance Letter Header"
         CompanyInfo: Record "Company Information";
         SalesAdvanceLetterLinegre: Record "Sales Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1119,7 +1072,7 @@ table 31000 "Sales Advance Letter Header"
                       SalesAdvanceLetterLinegre."Shortcut Dimension 2 Code");
                     SalesAdvanceLetterLinegre.Modify();
                 end;
-            until SalesAdvanceLetterLinegre.Next = 0;
+            until SalesAdvanceLetterLinegre.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1165,7 +1118,7 @@ table 31000 "Sales Advance Letter Header"
                     Error(Text005Err);
 
                 SalesAdvanceLetterLine.Delete(true);
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -1226,7 +1179,7 @@ table 31000 "Sales Advance Letter Header"
         if SalesAdvanceLetterLine.FindSet then
             repeat
                 SalesPostAdvances.CalcLinkedAmount(SalesAdvanceLetterLine, TempCustLedgEntry);
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
         LinkedPrepayments.InsertCustEntries(TempCustLedgEntry);
         LinkedPrepayments.RunModal;
     end;
@@ -1262,7 +1215,7 @@ table 31000 "Sales Advance Letter Header"
                 SalesAdvanceLetterLine."Amount To Link" := SalesAdvanceLetterLine."Amount Including VAT";
                 SalesAdvanceLetterLine.SuspendStatusCheck(true);
                 SalesAdvanceLetterLine.Modify(true);
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
 
         OnAfterReleaseSalesAdvanceLetter(Rec);
     end;
@@ -1287,7 +1240,7 @@ table 31000 "Sales Advance Letter Header"
                     SalesAdvanceLetterLine.SuspendStatusCheck(true);
                     SalesAdvanceLetterLine.Modify(true);
                 end;
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
 
         OnAfterReopenSalesAdvanceLetter(Rec);
     end;
@@ -1348,7 +1301,7 @@ table 31000 "Sales Advance Letter Header"
         if SalesAdvanceLetterLine.FindSet(false, false) then begin
             repeat
                 RemAmount += SalesAdvanceLetterLine."Amount To Link";
-            until SalesAdvanceLetterLine.Next = 0;
+            until SalesAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -1416,7 +1369,7 @@ table 31000 "Sales Advance Letter Header"
             repeat
                 if SalesHeader.Get(AdvanceLetterLineRelation."Document Type", AdvanceLetterLineRelation."Document No.") then
                     SalesHeader.Mark(true);
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
         end;
 
         SalesHeader.MarkedOnly(true);
@@ -1473,12 +1426,12 @@ table 31000 "Sales Advance Letter Header"
 
                         TempSalesAdvanceLetterLine := SalesAdvanceLetterLinegre;
                         TempSalesAdvanceLetterLine.Insert();
-                    until SalesAdvanceLetterLinegre.Next = 0;
+                    until SalesAdvanceLetterLinegre.Next() = 0;
 
                 SalesAdvanceLetterLinegre.DeleteAll(true);
                 SalesAdvanceLetterLinegre.Init();
                 SalesAdvanceLetterLinegre."Line No." := 0;
-                TempSalesAdvanceLetterLine.FindSet;
+                TempSalesAdvanceLetterLine.FindSet();
 
                 repeat
                     SalesAdvanceLetterLinegre.Init();
@@ -1490,7 +1443,7 @@ table 31000 "Sales Advance Letter Header"
                     else
                         SalesAdvanceLetterLinegre.Validate(Amount, TempSalesAdvanceLetterLine.Amount);
                     SalesAdvanceLetterLinegre.Insert(true);
-                until TempSalesAdvanceLetterLine.Next = 0;
+                until TempSalesAdvanceLetterLine.Next() = 0;
             end else
                 Error(
                   Text010Err, ChangedFieldName);
@@ -1530,22 +1483,7 @@ table 31000 "Sales Advance Letter Header"
         if AdvanceLetterLineRelation.FindSet then
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, true, true);
-            until AdvanceLetterLineRelation.Next = 0;
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure UpdatePerformCountryCurrFactor()
-    begin
-        if "Perform. Country/Region Code" <> '' then begin
-            if "Posting Date" <> 0D then
-                CurrencyDate := "Posting Date"
-            else
-                CurrencyDate := WorkDate;
-
-            "Perf. Country Currency Factor" :=
-              PerfCountryCurrExchRate.ExchangeRate(CurrencyDate, "Perform. Country/Region Code", "Currency Code");
-        end else
-            "Perf. Country Currency Factor" := 0;
+            until AdvanceLetterLineRelation.Next() = 0;
     end;
 
     [Scope('OnPrem')]

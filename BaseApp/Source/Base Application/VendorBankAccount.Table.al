@@ -195,6 +195,9 @@ table 288 "Vendor Bank Account"
         {
             BlankZero = true;
             Caption = 'Priority';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -205,7 +208,7 @@ table 288 "Vendor Bank Account"
                     VendBankAcc.SetCurrentKey("Vendor No.", Priority);
                     VendBankAcc.SetRange("Vendor No.", "Vendor No.");
                     VendBankAcc.SetRange(Priority, Priority);
-                    if not VendBankAcc.IsEmpty then
+                    if not VendBankAcc.IsEmpty() then
                         Error(POEText, FieldCaption(Priority), Priority, FieldCaption("Vendor No."), "Vendor No.");
                 end;
             end;
@@ -214,10 +217,13 @@ table 288 "Vendor Bank Account"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Removed from Base Application.';
+            ObsoleteTag = '18.0';
         }
         field(11791; "Vendor VAT Registration No."; Text[20])
         {
-            CalcFormula = Lookup (Vendor."VAT Registration No." WHERE("No." = FIELD("Vendor No.")));
+            CalcFormula = Lookup(Vendor."VAT Registration No." WHERE("No." = FIELD("Vendor No.")));
             Caption = 'Vendor VAT Registration No.';
             Editable = false;
             FieldClass = FlowField;
@@ -239,6 +245,9 @@ table 288 "Vendor Bank Account"
         }
         key(Key2; "Vendor No.", Priority)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Priority" is removed and cannot be used in an active key.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -257,7 +266,7 @@ table 288 "Vendor Bank Account"
         VendorLedgerEntry.SetRange("Vendor No.", "Vendor No.");
         VendorLedgerEntry.SetRange("Recipient Bank Account", Code);
         VendorLedgerEntry.SetRange(Open, true);
-        if not VendorLedgerEntry.IsEmpty then
+        if not VendorLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';

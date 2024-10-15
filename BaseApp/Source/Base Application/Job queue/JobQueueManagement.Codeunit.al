@@ -1,5 +1,10 @@
 codeunit 456 "Job Queue Management"
 {
+    var
+        RunOnceQst: label 'This will create a temporary non-recurrent copy of this job and will run it once in the foreground.\Do you want to continue?';
+        ExecuteBeginMsg: label 'Executing job queue entry...';
+        ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
+        ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
 
     trigger OnRun()
     begin
@@ -28,7 +33,7 @@ codeunit 456 "Job Queue Management"
             else
                 RecurringJob := false;
             SetRange("Recurring Job", RecurringJob);
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit;
 
             Init;
@@ -70,7 +75,7 @@ codeunit 456 "Job Queue Management"
                         Modify;
                     end else
                         Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -85,7 +90,7 @@ codeunit 456 "Job Queue Management"
             if FindSet then
                 repeat
                     SetStatus(Status::Ready);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -99,7 +104,7 @@ codeunit 456 "Job Queue Management"
             if FindSet then
                 repeat
                     SetStatus(Status::"On Hold");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -120,7 +125,39 @@ codeunit 456 "Job Queue Management"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000005, 'ScheduleReport', '', false, false)]
+    procedure RunJobQueueEntryOnce(var SelectedJobQueueEntry: Record "Job Queue Entry")
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        Window: Dialog;
+    begin
+        if not Confirm(RunOnceQst, false) then
+            exit;
+        Window.Open(ExecuteBeginMsg);
+        SelectedJobQueueEntry.CalcFields(XML);
+        JobQueueEntry := SelectedJobQueueEntry;
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."User ID" := copystr(UserId, 1, MaxStrLen(JobQueueEntry."User ID"));
+        JobQueueEntry."Recurring Job" := false;
+        JobQueueEntry.Status := JobQueueEntry.Status::"Ready";
+        JobQueueEntry."Job Queue Category Code" := '';
+        clear(JobQueueEntry."Expiration Date/Time");
+        clear(JobQueueEntry."System Task ID");
+        JobQueueEntry.Insert(true);
+        commit;
+        Codeunit.run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        Window.Close();
+        if JobQueueEntry.find() then
+            if JobQueueEntry.Delete() then;
+        JobQueueLogEntry.setrange(ID, JobQueueEntry.id);
+        if JobQueueLogEntry.FindFirst() then
+            if JobQueueLogEntry.Status = JobQueueLogEntry.Status::Success then
+                Message(ExecuteEndSuccessMsg, JobQueueLogEntry.Status)
+            else
+                Message(ExecuteEndErrorMsg, JobQueueLogEntry.Status, JobQueueLogEntry."Error Message");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ScheduleReport', '', false, false)]
     local procedure ScheduleReport(ReportId: Integer; RequestPageXml: Text; var Scheduled: Boolean)
     var
         ScheduleAReport: Page "Schedule a Report";

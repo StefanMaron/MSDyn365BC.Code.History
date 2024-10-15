@@ -2151,7 +2151,7 @@ codeunit 134269 "Matching on Payment Discounts"
         AppliedPaymentEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         AppliedPaymentEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-        AppliedPaymentEntry.FindSet;
+        AppliedPaymentEntry.FindSet();
     end;
 
     local procedure RunMatch(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccReconciliation: Record "Bank Acc. Reconciliation"; ApplyEntries: Boolean)

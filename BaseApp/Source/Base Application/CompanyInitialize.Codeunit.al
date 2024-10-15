@@ -1,4 +1,4 @@
-codeunit 2 "Company-Initialize"
+﻿codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
                   TableData "General Ledger Setup" = i,
@@ -199,6 +199,8 @@ codeunit 2 "Company-Initialize"
         Text116: Label 'Cost Allocation';
         Text117: Label 'TRABUD', Comment = 'Uppercase of the translation of Transfer Budget to Actual with a max of 10 char';
         Text118: Label 'Transfer Budget to Actual';
+        InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
+        InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
         Text26540: Label 'CASHDESK';
         Text26541: Label 'Cash Desk Evidence';
@@ -206,12 +208,8 @@ codeunit 2 "Company-Initialize"
         Text11706: Label 'Credit';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        VATNDTxt: Label 'VATND';
         VATPDTxt: Label 'VATPD';
         VATSDTxt: Label 'VATSD';
-        [Obsolete('The functionality of Non-deductible VAT will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        NonDeductibleVATTxt: Label 'Non deductible VAT';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
         SalesVATDelayTxt: Label 'Sales VAT delay';
         OPBALANCETxt: Label 'OPBALANCE';
@@ -499,9 +497,10 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Cost Allocation", Text115, Text116);
                 InsertSourceCode("Transfer Budget to Actual", Text117, Text118);
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
+                InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
+                InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
                 InsertSourceCode(Credit, Text11705, Text11706); // NAVCZ
                 InsertSourceCode("Cash Desk", Text26540, Text26541); // NAVCZ
-                InsertSourceCode("VAT Coefficient", VATNDTxt, NonDeductibleVATTxt); // NAVCZ
                 InsertSourceCode("Purchase VAT Delay", VATPDTxt, PurchaseVATDelayTxt); // NAVCZ
                 InsertSourceCode("Sales VAT Delay", VATSDTxt, SalesVATDelayTxt); // NAVCZ
                 InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
@@ -700,7 +699,7 @@ codeunit 2 "Company-Initialize"
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Power Automate Integration control add-in',
+          'Power Automate Integration control add-in',
           ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',
@@ -772,6 +771,7 @@ codeunit 2 "Company-Initialize"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure InitCreditRepSelection()
     var
         ReportSelections: Record "Credit Report Selections";
@@ -785,6 +785,7 @@ codeunit 2 "Company-Initialize"
                 end;
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     local procedure InsertCreditRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
     var
         ReportSelections: Record "Credit Report Selections";
@@ -806,12 +807,16 @@ codeunit 2 "Company-Initialize"
         // NAVCZ
         with ReportSelections do
             if WritePermission then
+#if CLEAN17
+                ;
+#else
                 if not FindFirst() then begin
                     InsertCashDeskRepSelection(Usage::"C.Rcpt", '1', REPORT::"Receipt Cash Document");
                     InsertCashDeskRepSelection(Usage::"C.Wdrwl", '1', REPORT::"Withdrawal Cash Document");
                     InsertCashDeskRepSelection(Usage::"P.C.Rcpt", '1', REPORT::"Posted Receipt Cash Doc.");
                     InsertCashDeskRepSelection(Usage::"P.C.Wdrwl", '1', REPORT::"Posted Withdrawal Cash Doc.");
                 end;
+#endif
     end;
 
     local procedure InsertCashDeskRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
@@ -861,7 +866,7 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000006, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";

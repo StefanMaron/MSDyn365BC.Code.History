@@ -49,7 +49,7 @@ codeunit 11766 "G/L Entry -Post Application"
                                 Error(SignAmtMustBediffErr);
                     if "Posting Date" > PostingDate then
                         PostingDate := "Posting Date"
-                until Next = 0;
+                until Next() = 0;
 
             DocumentNo := ApplyingEntry."Document No.";
             if not NotUseDialog then begin
@@ -82,7 +82,7 @@ codeunit 11766 "G/L Entry -Post Application"
                         "Applies-to ID" := '';
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             if ApplyingAmount <> 0 then begin
                 if ApplyingAmount > 0 then
@@ -155,7 +155,7 @@ codeunit 11766 "G/L Entry -Post Application"
                     "Amount to Apply" := 0;
                     "Applies-to ID" := '';
                     Modify;
-                until Next = 0;
+                until Next() = 0;
             end else
                 if not NotUseDialog then
                     if not lboIsZero then begin
@@ -193,7 +193,7 @@ codeunit 11766 "G/L Entry -Post Application"
                     ApplicationEntryNo := FindLastApplEntry("G/L Entry No.");
                     if (ApplicationEntryNo <> 0) and (ApplicationEntryNo <> "Entry No.") then
                         Error(Text11705, GLEntry.TableCaption, "G/L Entry No.");
-                until Next = 0;
+                until Next() = 0;
 
             if not NotUseDialog then begin
                 if Confirm(Text11708) then
@@ -230,7 +230,7 @@ codeunit 11766 "G/L Entry -Post Application"
                     GLEntry."Closed at Date" := 0D;
                     GLEntry.Closed := false;
                     GLEntry.Modify();
-                until Next = 0;
+                until Next() = 0;
             if not NotUseDialog then begin
                 Commit();
                 Window.Close;
@@ -274,7 +274,7 @@ codeunit 11766 "G/L Entry -Post Application"
             repeat
                 if (DtldGLEntry."Entry No." > ApplicationEntryNo) and not DtldGLEntry.Unapplied then
                     ApplicationEntryNo := DtldGLEntry."Entry No.";
-            until DtldGLEntry.Next = 0;
+            until DtldGLEntry.Next() = 0;
         exit(ApplicationEntryNo);
     end;
 

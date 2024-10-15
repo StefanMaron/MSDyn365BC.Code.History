@@ -157,7 +157,7 @@ table 5 "Finance Charge Terms"
                             CreateRate := false;
                             exit;
                         end;
-                    until MultipleInterestRate.Next = 0;
+                    until MultipleInterestRate.Next() = 0;
                 end;
                 if CreateRate then
                     InsertMultInterestCalcRate(MultipleInterestCalcLine, StartDate, InterestRate,

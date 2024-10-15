@@ -387,11 +387,9 @@ table 169 "Job Ledger Entry"
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
         }
-        field(1022; "Line Type"; Option)
+        field(1022; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1023; "Original Unit Cost (LCY)"; Decimal)
         {
@@ -459,38 +457,63 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Posted Service Shipment No.';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+        }
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31064; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31065; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1';
+            ObsoleteTag = '18.0';
         }
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 

@@ -216,6 +216,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure ShowStatusLog()
     var
         EETEntryStatus: Record "EET Entry Status";
@@ -241,6 +242,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetCertificateCode(): Code[10]
     var
         EETCashRegister: Record "EET Cash Register";
@@ -261,6 +263,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetBusinessPremisesId(): Code[6]
     var
         EETBusinessPremises: Record "EET Business Premises";
@@ -270,6 +273,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetCashRegisterNo(): Code[20]
     var
         EETCashRegister: Record "EET Cash Register";
@@ -279,6 +283,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure SaveSignatureCode(SignatureCode: Text)
     var
         OutStream: OutStream;
@@ -291,6 +296,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetSignatureCode(): Text
     var
         InStream: InStream;
@@ -303,12 +309,14 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GenerateSignatureCode(): Text
     begin
         exit(EETEntryMgt.GenerateSignatureCode(Rec));
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GenerateSecurityCode(): Text[44]
     var
         SignatureCode: Text;
@@ -321,6 +329,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetSalesRegimeText(): Text
     var
         EETServiceSetup: Record "EET Service Setup";
@@ -335,6 +344,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure IsFirstSending(): Boolean
     var
         EETEntryStatus: Record "EET Entry Status";
@@ -345,6 +355,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure SendToService(VerificationMode: Boolean)
     begin
         if not VerificationMode then
@@ -355,6 +366,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure ReverseAmounts()
     begin
         "Total Sales Amount" := -"Total Sales Amount";
@@ -374,6 +386,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure CopySourceInfoFromEntry(EETEntry: Record "EET Entry"; InitializeSerialNo: Boolean)
     var
         EETBusinessPremises: Record "EET Business Premises";
@@ -401,6 +414,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure CopyAmountsFromEntry(EETEntry: Record "EET Entry")
     begin
         "Total Sales Amount" := EETEntry."Total Sales Amount";
@@ -420,6 +434,7 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure SumPartialAmounts(): Decimal
     begin
         exit(
@@ -438,12 +453,14 @@ table 31123 "EET Entry"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetFormattedCreationDatetime(): Text
     begin
         exit(FormatDateTime("Creation Datetime"));
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetFormattedEETStatusLastChanged(): Text
     begin
         exit(FormatDateTime("EET Status Last Changed"));

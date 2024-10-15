@@ -1,9 +1,12 @@
 page 11782 "Subst. Vendor Posting Groups"
 {
-    Caption = 'Subst. Vendor Posting Groups';
+    Caption = 'Subst. Vendor Posting Groups (Obsolete)';
     DataCaptionFields = "Parent Vend. Posting Group";
     PageType = List;
     SourceTable = "Subst. Vendor Posting Group";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

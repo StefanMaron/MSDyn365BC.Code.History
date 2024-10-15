@@ -94,6 +94,10 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to automatically mark postings with negative quantities as corrections. This will set the Correction field to Yes for any lines with negative quantities.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Mark Cr. Memos as Corrections"; "Mark Cr. Memos as Corrections")
                 {
@@ -201,12 +205,18 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that an extra VAT specification in local currency will be included on documents in a foreign currency. This can be used to make tax audits easier when reconciling VAT payables to invoices.';
                 }
+#if not CLEAN18
                 field("Use Legacy G/L Entry Locking"; "Use Legacy G/L Entry Locking")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+                    Visible = false;
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies when the G/L Entry table should be locked during sales, purchase, and service posting to improve performance in multiuser environments. Consider this setting if: You encounter deadlock situations because your solution relies on G/L Entry table locking. You have selected the Automatic Cost Posting check box in the Inventory Setup window.';
+		            ObsoleteTag = '18.0';
                 }
+#endif
                 field("Dont Check Dimension"; "Dont Check Dimension")
                 {
                     ApplicationArea = Basic, Suite;
@@ -499,24 +509,6 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
-                field("VAT Coeff. Rounding Precision"; "VAT Coeff. Rounding Precision")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the multiplier for VAT rounding precision.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Round VAT Coeff."; "Round VAT Coeff.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to allow VAT to be rounded in the general ledger.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
             }
             group(Advances)
             {
@@ -540,40 +532,55 @@ page 118 "General Ledger Setup"
             group(Other)
             {
                 Caption = 'Other';
+#if not CLEAN18
                 field("User Checks Allowed"; "User Checks Allowed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use the user checks allowed.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("User ID Lookup only User Check"; "User ID Lookup only User Check")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID user only from User Check.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of user ID Lookup only user Check will be removed and this field should not be used.';
+                    ObsoleteTag = '18.0';
                 }
+
                 field("Check Posting Debit/Credit"; "Check Posting Debit/Credit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to prevent corrective postings which have incorrect sign operators.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+
                 field("Closed Period Entry Pos.Date"; "Closed Period Entry Pos.Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting period of closed period items.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Rounding Date"; "Rounding Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Date for rounding of storage differencies by item adjustment.';
-                }
-                field("Delete Card with Entries"; "Delete Card with Entries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date in this field, G/L accounts with entries on or after this date cannot be deleted.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Cash Payment Limit (LCY)"; "Cash Payment Limit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;

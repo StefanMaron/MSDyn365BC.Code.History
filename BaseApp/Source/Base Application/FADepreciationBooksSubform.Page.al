@@ -46,6 +46,10 @@ page 5666 "FA Depreciation Books Subform"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation group for the fixed asset depreciation book.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Default FA Depreciation Book"; "Default FA Depreciation Book")
                 {
@@ -89,12 +93,18 @@ page 5666 "FA Depreciation Books Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that depreciations are interupted.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Depreciation Interupt up to"; "Depreciation Interupt up to")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the end date of depreciation interuption.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Fixed Depr. Amount"; "Fixed Depr. Amount")
                 {
@@ -180,15 +190,6 @@ page 5666 "FA Depreciation Books Subform"
                     ToolTip = 'Specifies a positive amount if you have selected the Allow Depr. below Zero field in the depreciation book.';
                     Visible = false;
                 }
-                field("Depr. FA Appreciation From"; "Depr. FA Appreciation From")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the depreciation book or books that must be used for each fixed asset. Here you also specify the way depreciation must be calculated.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-                    ObsoleteTag = '15.3';
-                }
                 field("Projected Disposal Date"; "Projected Disposal Date")
                 {
                     ApplicationArea = FixedAssets;
@@ -259,16 +260,28 @@ page 5666 "FA Depreciation Books Subform"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to use the depreciation ending date for the fixed asset depreciation book.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Summarize Depr. Entries From"; "Summarize Depr. Entries From")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation book. This book will be used to summarize depreciation entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(Prorated; Prorated)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies to prorate the fixed asset depreciation book.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }

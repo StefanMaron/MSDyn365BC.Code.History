@@ -768,7 +768,7 @@ table 753 "Standard Item Journal Line"
         end;
     end;
 
-    local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; var PriceCalculation: Interface "Price Calculation")
+    procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";

@@ -23,20 +23,6 @@ codeunit 143030 "Library - Fixed Asset CZ"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSKPCode(var SKPCode: Record "SKP Code"; DepreciationGroupCode: Code[10])
-    begin
-        SKPCode.Init();
-        SKPCode.Validate(
-          Code,
-          CopyStr(
-            LibraryUtility.GenerateRandomCode(SKPCode.FieldNo(Code), DATABASE::"SKP Code"),
-            1, MaxStrLen(SKPCode.Code)));
-        SKPCode.Validate(Description, SKPCode.Code); // Validating Description as Code because value is not important.
-        SKPCode.Validate("Depreciation Group", DepreciationGroupCode);
-        SKPCode.Insert(true);
-    end;
-
-    [Scope('OnPrem')]
     procedure CreateFALocation(var FALocation: Record "FA Location")
     begin
         FALocation.Init();
@@ -49,6 +35,7 @@ codeunit 143030 "Library - Fixed Asset CZ"
         FALocation.Insert(true);
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     procedure CreateFAExtendedPostingGroup(var FAExtendedPostingGroup: Record "FA Extended Posting Group"; FAPostingGroupCode: Code[20]; FAPostingType: Option; ReasonCode: Code[10])
     begin
@@ -59,6 +46,7 @@ codeunit 143030 "Library - Fixed Asset CZ"
         FAExtendedPostingGroup.Insert(true);
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure GenerateDeprecationGroupCode(): Text
     var

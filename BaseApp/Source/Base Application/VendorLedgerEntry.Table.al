@@ -604,6 +604,9 @@ table 25 "Vendor Ledger Entry"
             TableRelation = IF ("Document Type" = FILTER(Invoice | Payment | Reminder | "Finance Charge Memo")) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Vendor No."))
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -648,32 +651,50 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'Bank Account No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -685,6 +706,9 @@ table 25 "Vendor Ledger Entry"
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
@@ -706,6 +730,9 @@ table 25 "Vendor Ledger Entry"
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -741,6 +768,9 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Amount on Credit (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -884,6 +914,8 @@ table 25 "Vendor Ledger Entry"
                 if PurchCrMemoHdr.Get("Document No.") then
                     OpenDocumentAttachmentDetails(PurchCrMemoHdr);
         end;
+
+        OnAfterShowPostedDocAttachment(Rec);
     end;
 
     local procedure OpenDocumentAttachmentDetails("Record": Variant)
@@ -903,6 +935,7 @@ table 25 "Vendor Ledger Entry"
         [SecurityFiltering(SecurityFilter::Filtered)]
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocumentAttachment: Record "Document Attachment";
+        HasPostedDocumentAttachment: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Invoice:
@@ -912,6 +945,9 @@ table 25 "Vendor Ledger Entry"
                 if PurchCrMemoHdr.Get("Document No.") then
                     exit(DocumentAttachment.HasPostedDocumentAttachment(PurchCrMemoHdr));
         end;
+
+        OnAfterHasPostedDocAttachment(Rec, HasPostedDocumentAttachment);
+        exit(HasPostedDocumentAttachment);
     end;
 
     procedure DrillDownOnEntries(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
@@ -1175,13 +1211,13 @@ table 25 "Vendor Ledger Entry"
                 if PurchInvHeader.Get(AdvLink."Document No.") then begin
                     PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
                     PurchInvLine.SetRange("Prepayment Cancelled", true);
-                    if PurchInvLine.IsEmpty then
+                    if PurchInvLine.IsEmpty() then
                         Amount2 := Amount2 - AdvLink.Amount
                 end else
                     if PurchCrMemoHeader.Get(AdvLink."Document No.") then
                         Amount2 := Amount2 - AdvLink.Amount;
 
-            until AdvLink.Next = 0;
+            until AdvLink.Next() = 0;
         end;
         exit(Amount2);
     end;
@@ -1203,6 +1239,16 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowPostedDocAttachment(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasPostedDocAttachment(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var HasPostedDocumentAttachment: Boolean)
     begin
     end;
 

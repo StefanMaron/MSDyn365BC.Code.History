@@ -516,7 +516,7 @@ page 1292 "Payment Application"
     procedure SetBankAccReconcLine(NewBankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         BankAccReconLine := NewBankAccReconLine;
-        TransferFromBankAccReconLine(NewBankAccReconLine);
+        Rec.TransferFromBankAccReconLine(NewBankAccReconLine);
 
         OnSetBankAccReconcLine(BankAccReconLine);
     end;

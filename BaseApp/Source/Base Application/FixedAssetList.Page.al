@@ -21,15 +21,6 @@ page 5601 "Fixed Asset List"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Full Description"; "Full Description")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies full description of the fixed asset.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Description; Description)
                 {
                     ApplicationArea = FixedAssets;
@@ -279,6 +270,10 @@ page 5601 "Fixed Asset List"
                     RunObject = Page "FA History Entries";
                     RunPageLink = "FA No." = FIELD("No.");
                     ToolTip = 'Open fixed asset history entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -301,7 +296,7 @@ page 5601 "Fixed Asset List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "Fixed Asset G/L Journal";
-                ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger, for financial reporting. Both fixed asset ledger entries are general ledger entries are created. ';
+                ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger for financial reporting. Both fixed asset ledger entries and general ledger entries are created. ';
             }
             action("Fixed Asset Reclassification Journal")
             {
@@ -436,6 +431,7 @@ page 5601 "Fixed Asset List"
                 RunObject = Report "Fixed Asset Register";
                 ToolTip = 'View registers containing all the fixed asset entries that are created. Each register shows the first and last entry number of its entries.';
             }
+#if not CLEAN18
             action(Action1220003)
             {
                 ApplicationArea = FixedAssets;
@@ -443,6 +439,10 @@ page 5601 "Fixed Asset List"
                 Image = PrintReport;
                 RunObject = Report "FA History";
                 ToolTip = 'Open fixed asset history entries.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
             action("FA Assignment/Discharge")
             {
@@ -451,7 +451,12 @@ page 5601 "Fixed Asset List"
                 Image = PrintAcknowledgement;
                 RunObject = Report "FA Assignment/Discharge";
                 ToolTip = 'Specifies report fa assignment/discharge';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
             }
+#endif
         }
     }
 

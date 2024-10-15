@@ -13,7 +13,6 @@ codeunit 5986 "Serv-Amounts Mgt."
     var
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
-        GLSetup: Record "General Ledger Setup";
         DimBufMgt: Codeunit "Dimension Buffer Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -311,7 +310,6 @@ codeunit 5986 "Serv-Amounts Mgt."
     procedure RoundAmount(ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var ServiceLineACY: Record "Service Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";
-        VATCoefficientRounded: Codeunit "VAT Coefficient Rounded";
         NoVAT: Boolean;
         UseDate: Date;
     begin
@@ -379,7 +377,6 @@ codeunit 5986 "Serv-Amounts Mgt."
                       UseDate, ServiceHeader."Currency Code",
                       TotalServiceLine."VAT Difference", ServiceHeader."Currency Factor")) -
                   TotalServiceLineLCY."VAT Difference";
-                VATCoefficientRounded.RoundServiceLine(ServiceLine, ServiceHeader); // NAVCZ
             end;
             "VAT Base Amount" :=
               Round(
@@ -422,13 +419,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         RoundingServiceLine: Record "Service Line";
         CustPostingGr: Record "Customer Posting Group";
         InvoiceRoundingAmount: Decimal;
-        RoundingPrecision: Decimal;
-        RoundingDirection: Text[1];
     begin
-        // NAVCZ
-        GLSetup.Get();
-        GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
-        // NAVCZ
         Currency.TestField("Invoice Rounding Precision");
         InvoiceRoundingAmount :=
           -Round(
@@ -670,7 +661,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                         LastLineRetrieved := true
                     else begin
                         BiggestLineNo := MAX(BiggestLineNo, OldServLine."Line No.");
-                        LastLineRetrieved := OldServLine.Next = 0;
+                        LastLineRetrieved := OldServLine.Next() = 0;
                         if LastLineRetrieved and SalesSetup."Invoice Rounding" then
                             InvoiceRounding(ServHeader, ServLine, TotalServiceLine,
                               LastLineRetrieved, true, BiggestLineNo);

@@ -1,10 +1,13 @@
 page 31061 "Intrastat Currency Exch. Rate"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Intrastat Currency Exch. Rate';
+    Caption = 'Intrastat Currency Exch. Rate (Obsolete)';
     PageType = List;
     SourceTable = "Intrastat Currency Exch. Rate";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

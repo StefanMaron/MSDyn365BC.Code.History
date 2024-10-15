@@ -6,7 +6,7 @@ codeunit 130625 "Graph Force Sync Subscriber"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnCheckForceSync', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnCheckForceSync', '', false, false)]
     local procedure ForceSyncForTestSubscribers(var Force: Boolean)
     begin
         Force := true;

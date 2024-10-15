@@ -103,8 +103,8 @@ page 1006 "Job Task Dimensions Multiple"
                         if JobTaskDim.Get(TempJobTaskDim3."Job No.", TempJobTaskDim3."Job Task No.", "Dimension Code")
                         then
                             JobTaskDim.Delete(true);
-                    until TempJobTaskDim3.Next = 0;
-            until Next = 0;
+                    until TempJobTaskDim3.Next() = 0;
+            until Next() = 0;
         SetRange(
           "Multiple Selection Action", "Multiple Selection Action"::Change);
         if Find('-') then
@@ -124,8 +124,8 @@ page 1006 "Job Task Dimensions Multiple"
                             JobTaskDim."Dimension Value Code" := "Dimension Value Code";
                             JobTaskDim.Insert(true);
                         end;
-                    until TempJobTaskDim3.Next = 0;
-            until Next = 0;
+                    until TempJobTaskDim3.Next() = 0;
+            until Next() = 0;
     end;
 
     procedure SetMultiJobTask(var JobTask: Record "Job Task")
@@ -138,7 +138,7 @@ page 1006 "Job Task Dimensions Multiple"
                     CopyJobTaskDimToJobTaskDim("Job No.", "Job Task No.");
                     TempJobTask.TransferFields(JobTask);
                     TempJobTask.Insert();
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure CopyJobTaskDimToJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20])
@@ -156,7 +156,7 @@ page 1006 "Job Task Dimensions Multiple"
             repeat
                 TempJobTaskDim2 := JobTaskDim;
                 TempJobTaskDim2.Insert();
-            until JobTaskDim.Next = 0;
+            until JobTaskDim.Next() = 0;
     end;
 
     local procedure GetDefaultDim()
@@ -189,7 +189,7 @@ page 1006 "Job Task Dimensions Multiple"
                             Insert;
                             RecNo := RecNo + 1;
                         end;
-                    until TempJobTaskDim2.Next = 0;
+                    until TempJobTaskDim2.Next() = 0;
 
                 if Find('-') and (RecNo <> TotalRecNo) then
                     if ("Multiple Selection Action" <> 10) and
@@ -200,7 +200,7 @@ page 1006 "Job Task Dimensions Multiple"
                         "Dimension Value Code" := '';
                         Modify;
                     end;
-            until Dim.Next = 0;
+            until Dim.Next() = 0;
 
         Reset;
         SetCurrentKey("Dimension Code");

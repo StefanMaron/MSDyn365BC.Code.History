@@ -37,9 +37,9 @@ page 171 "Standard Sales Code Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        TempOptionLookupBuffer.SetCurrentType(Rec.Type.AsInteger());
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateTypeText();
                         TypeOnAfterValidate;
@@ -239,7 +239,7 @@ page 171 "Standard Sales Code Subform"
 
     trigger OnInit()
     begin
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
     end;
 

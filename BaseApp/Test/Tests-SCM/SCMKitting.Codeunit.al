@@ -415,7 +415,7 @@ codeunit 137101 "SCM Kitting"
         CreateAssemblyItem(Item);
         CreateAndPostSalesOrder(SalesLine, WorkDate, Item."No.", LibraryRandom.RandDec(10, 2), false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine."Sell-to Customer No.");
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
         GeneralPostingSetup.Modify();
@@ -1270,11 +1270,9 @@ codeunit 137101 "SCM Kitting"
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Run Adjust Cost Item Entries Report.
         Initialize;
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
-        LibraryERM.SetUseLegacyGLEntryLocking(false);
         CreateInitialSetupForPostAsmOrdWithMultipleItems(AssemblyHeader, AssemblyItem);
         LibraryCosting.AdjustCostItemEntries(AssemblyItem."No.", '');
         LibraryVariableStorage.Enqueue(AutomaticCostPostingMessage);  // Enqueue for MessageHandler.
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Never);  // Automatic Cost Posting as TRUE.
         DeleteAssemblyCommentLine(AssemblyHeader."Document Type", AssemblyHeader."No.");
 
@@ -1297,14 +1295,12 @@ codeunit 137101 "SCM Kitting"
         TempAssemblyLine: Record "Assembly Line" temporary;
     begin
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Run Adjust Cost Item Entries Report. Post Assembly Order.
-        Initialize;
+        Initialize();
 
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Never);  // Automatic Cost Posting as TRUE.
         CreateInitialSetupForPostAsmOrdWithMultipleItems(AssemblyHeader, AssemblyItem);
         LibraryCosting.AdjustCostItemEntries(AssemblyItem."No.", '');
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
-        LibraryERM.SetUseLegacyGLEntryLocking(false);
         DeleteAssemblyCommentLine(AssemblyHeader."Document Type", AssemblyHeader."No.");
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 70, false);  // Use 100 for full Quantity to Assemble and 70 for Quantity to Consume.
 
@@ -1328,12 +1324,10 @@ codeunit 137101 "SCM Kitting"
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Post Assembly Order.
         Initialize;
         LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMessage);  // Enqueue for MessageHandler.
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);  // Automatic Cost Posting as TRUE.
         CreateInitialSetupForPostAsmOrdWithMultipleItems(AssemblyHeader, AssemblyItem);
         LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMessage);  // Enqueue for MessageHandler.
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Always);
-        LibraryERM.SetUseLegacyGLEntryLocking(false);
         DeleteAssemblyCommentLine(AssemblyHeader."Document Type", AssemblyHeader."No.");
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 70, false);  // Use 100 for full Quantity to Assemble and 70 for Quantity to Consume.
 
@@ -1384,12 +1378,10 @@ codeunit 137101 "SCM Kitting"
         TempAssemblyLine: Record "Assembly Line" temporary;
     begin
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Never);  // Automatic Cost Posting as TRUE.
         CreateInitialSetupForPostAsmOrdWithMultipleItems(AssemblyHeader, AssemblyItem);
         LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMessage);  // Enqueue for MessageHandler.
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);  // Automatic Cost Posting as TRUE.
         DeleteAssemblyCommentLine(AssemblyHeader."Document Type", AssemblyHeader."No.");
 
@@ -2438,7 +2430,6 @@ codeunit 137101 "SCM Kitting"
         NoSeriesSetup;
         LocationSetup;
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        UpdateGeneralLedgerSetup; // NAVCZ
 
         isInitialized := true;
         Commit();
@@ -3201,7 +3192,7 @@ codeunit 137101 "SCM Kitting"
     local procedure FindBOMComponents(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20])
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
-        BOMComponent.FindSet;
+        BOMComponent.FindSet();
     end;
 
     local procedure FindPostedAssemblyHeader(var PostedAssemblyHeader: Record "Posted Assembly Header"; OrderNo: Code[20]; ItemNo: Code[20])
@@ -3551,7 +3542,7 @@ codeunit 137101 "SCM Kitting"
         AssemblyLine.Modify(true);
     end;
 
-    local procedure UpdateItemDimensionWithValuePosting(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20]; DefaultValuePosting: Option)
+    local procedure UpdateItemDimensionWithValuePosting(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20]; DefaultValuePosting: Enum "Default Dimension Value Posting Type")
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
@@ -3769,7 +3760,7 @@ codeunit 137101 "SCM Kitting"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)");
                 if Positive then
@@ -3931,7 +3922,7 @@ codeunit 137101 "SCM Kitting"
         with SalesShipmentLine do begin
             SetRange("Document No.", DocumentNo);
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
             TestField(Quantity, Qty);
             Next;
             TestField(Quantity, -Qty);
@@ -4094,16 +4085,6 @@ codeunit 137101 "SCM Kitting"
         AsmAvailability.AssemblyLineAvail.ScheduledReceipt.AssertEquals(ScheduledReceipt);
         AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AssertEquals(ExpectedInventory);
         AsmAvailability.Yes.Invoke;
-    end;
-
-    local procedure UpdateGeneralLedgerSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        GLSetup."Delete Card with Entries" := true;
-        GLSetup.Modify();
     end;
 }
 

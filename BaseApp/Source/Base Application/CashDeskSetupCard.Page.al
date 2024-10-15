@@ -24,7 +24,7 @@ page 11751 "Cash Desk Setup Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)

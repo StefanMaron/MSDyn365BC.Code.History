@@ -8,18 +8,16 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
     var
         LibraryDim: Codeunit "Library - Dimension";
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
-    [Scope('OnPrem')]
-    procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
+    local procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
     begin
         // Specifies how many tables with "Dimension Set ID" field related to "Dimension Set Entry" table should not have OnValidate trigger which updates shortcut dimensions
 
         CountOfTablesIgnored += 4;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
-    [Scope('OnPrem')]
-    procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal', '', false, false)]
+    local procedure VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(var TempAllObj: Record AllObj temporary; DimSetID: Integer; GlobalDim1ValueCode: Code[20]; GlobalDim2ValueCode: Code[20])
     var
         CashDocumentHeader: Record "Cash Document Header";
         CashDocumentLine: Record "Cash Document Line";
@@ -61,11 +59,13 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
     local procedure AddingLocalTable(var TableBuffer: Record "Integer" temporary)
     begin
         AddTable(TableBuffer, DATABASE::"Cash Desk Event");
+#if not CLEAN18
         AddTable(TableBuffer, DATABASE::"Vendor Template");
+#endif
     end;
 
     local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)

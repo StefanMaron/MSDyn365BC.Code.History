@@ -1,4 +1,4 @@
-﻿codeunit 1372 "Purchase Batch Post Mgt."
+codeunit 1372 "Purchase Batch Post Mgt."
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Batch Processing Parameter" = rimd,
@@ -277,7 +277,7 @@
         JobQueueEntry.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1380, 'OnBeforeBatchProcessing', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnBeforeBatchProcessing', '', false, false)]
     local procedure PreparePurchaseHeaderOnBeforeBatchProcessing(var RecRef: RecordRef; var BatchConfirm: Option)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -287,7 +287,7 @@
         RecRef.GetTable(PurchaseHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1380, 'OnVerifyRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnVerifyRecord', '', false, false)]
     local procedure CheckPurchaseHeaderOnVerifyRecord(var RecRef: RecordRef; var Result: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -297,7 +297,7 @@
         RecRef.GetTable(PurchaseHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1380, 'OnCustomProcessing', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnCustomProcessing', '', false, false)]
     local procedure HandleOnCustomProcessing(var RecRef: RecordRef; var Handled: Boolean; var KeepParameters: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";

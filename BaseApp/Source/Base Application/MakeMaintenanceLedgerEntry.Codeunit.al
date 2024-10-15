@@ -35,10 +35,6 @@ codeunit 5647 "Make Maintenance Ledger Entry"
             "Maintenance Code" := FAJnlLine."Maintenance Code";
             Correction := FAJnlLine.Correction;
             "No. Series" := FAJnlLine."Posting No. Series";
-            // NAVCZ
-            // Maintenance adjustment;
-            "Item Ledger Entry No." := FAJnlLine."Item Ledger Entry No.";
-            // NAVCZ
         end;
 
         OnAfterCopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
@@ -86,10 +82,6 @@ codeunit 5647 "Make Maintenance Ledger Entry"
             "Use Tax" := GenJnlLine."Use Tax";
             Correction := GenJnlLine.Correction;
             "No. Series" := GenJnlLine."Posting No. Series";
-            // NAVCZ
-            // Maintenance adjustment;
-            "Item Ledger Entry No." := GenJnlLine."Item Ledger Entry No.";
-            // NAVCZ
         end;
 
         OnAfterCopyFromGenJnlLine(MaintenanceLedgEntry, GenJnlLine);

@@ -73,7 +73,7 @@ table 5615 "FA Allocation"
         }
         field(9; "Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("Account No.")));
             Caption = 'Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -97,14 +97,18 @@ table 5615 "FA Allocation"
         field(11760; "Reason/Maintenance Code"; Code[10])
         {
             Caption = 'Reason/Maintenance Code';
-            TableRelation = IF ("Allocation Type" = CONST(Maintenance)) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code),
-                                                                                                              "FA Posting Type" = CONST(Maintenance))
+#if not CLEAN18
+            TableRelation = IF ("Allocation Type" = CONST(Maintenance)) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Maintenance))
             ELSE
-            IF ("Allocation Type" = CONST("Book Value (Gain)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code),
-                                                                                                                                                                                                             "FA Posting Type" = CONST(Disposal))
+            IF ("Allocation Type" = CONST("Book Value (Gain)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Disposal))
             ELSE
-            IF ("Allocation Type" = CONST("Book Value (Loss)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code),
-                                                                                                                                                                                                                                                                                                            "FA Posting Type" = CONST(Disposal));
+            IF ("Allocation Type" = CONST("Book Value (Loss)")) "FA Extended Posting Group".Code WHERE("FA Posting Group Code" = FIELD(Code), "FA Posting Type" = CONST(Disposal));
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -118,10 +122,12 @@ table 5615 "FA Allocation"
         {
             SumIndexFields = "Allocation %";
         }
+#if not CLEAN18
         key(Key3; "Code", "Allocation Type", "Reason/Maintenance Code")
         {
             SumIndexFields = "Allocation %";
         }
+#endif
     }
 
     fieldgroups

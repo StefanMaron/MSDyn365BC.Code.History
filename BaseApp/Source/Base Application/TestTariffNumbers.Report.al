@@ -2,8 +2,11 @@ report 31063 "Test Tariff Numbers"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TestTariffNumbers.rdlc';
-    Caption = 'Test Tariff Numbers';
+    Caption = 'Test Tariff Numbers (Obsolete)';
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

@@ -176,18 +176,6 @@ report 31002 "Sales - Advance Credit Memo CZ"
             column(LetterNo_SalesCrMemoHeader; "Letter No.")
             {
             }
-            column(PerformCountryRegionCode; RegistrationCountryRegion."Country/Region Code")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
             column(CustAddr1; CustAddr[1])
             {
             }
@@ -342,7 +330,9 @@ report 31002 "Sales - Advance Credit Memo CZ"
                     DataItemTableView = SORTING("User ID");
                     dataitem(Employee; Employee)
                     {
+#if not CLEAN18
                         DataItemLink = "No." = FIELD("Employee No.");
+#endif
                         DataItemTableView = SORTING("No.");
                         column(FullName_Employee; Employee.FullName)
                         {
@@ -414,11 +404,6 @@ report 31002 "Sales - Advance Credit Memo CZ"
                 else
                     PaymentMethod.Get("Payment Method Code");
 
-                if not RegistrationCountryRegion.Get(
-                     RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegistrationCountryRegion);
-
                 SalesInvoiceHeader.SetRange("Reversed By Cr. Memo No.", "No.");
                 if not SalesInvoiceHeader.FindFirst then
                     SalesInvoiceHeader.Init();
@@ -464,8 +449,6 @@ report 31002 "Sales - Advance Credit Memo CZ"
         DocFooter: Record "Document Footer";
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        RegistrationCountryRegion: Record "Registration Country/Region";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";

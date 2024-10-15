@@ -1,4 +1,4 @@
-﻿page 255 "Cash Receipt Journal"
+page 255 "Cash Receipt Journal"
 {
     AdditionalSearchTerms = 'customer payment';
     ApplicationArea = Basic, Suite;
@@ -1002,7 +1002,7 @@
                 action(CreateFlow)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create a Flow';
+                    Caption = 'Create a flow';
                     Image = Flow;
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
@@ -1020,7 +1020,7 @@
                 action(SeeFlows)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'See my Flows';
+                    Caption = 'See my flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View and configure Power Automate flows that you created.';

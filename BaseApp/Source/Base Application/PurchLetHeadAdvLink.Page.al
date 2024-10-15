@@ -127,7 +127,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                         repeat
                             Rec := PurchAdvanceLetterHeader;
                             Mark := not Mark;
-                        until PurchAdvanceLetterHeader.Next = 0;
+                        until PurchAdvanceLetterHeader.Next() = 0;
                     Rec := PurchAdvanceLetterHeader2;
                 end;
             }
@@ -227,7 +227,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
             repeat
                 TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
                 TempPurchAdvanceLetterHeader.Insert();
-            until PurchAdvanceLetterHeader.Next = 0;
+            until PurchAdvanceLetterHeader.Next() = 0;
         SetFilter("Doc. No. Filter", '<%1|>%1', TempPurchHeader."No.");
     end;
 
@@ -243,7 +243,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                     TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
                     TempPurchAdvanceLetterHeader.Insert();
                 end;
-            until PurchAdvanceLetterHeader.Next = 0;
+            until PurchAdvanceLetterHeader.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -255,7 +255,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
             repeat
                 PurchAdvanceLetterHeader := TempPurchAdvanceLetterHeader;
                 PurchAdvanceLetterHeader.Insert();
-            until TempPurchAdvanceLetterHeader.Next = 0
+            until TempPurchAdvanceLetterHeader.Next() = 0
         else begin
             PurchAdvanceLetterHeader := Rec;
             PurchAdvanceLetterHeader.Insert();

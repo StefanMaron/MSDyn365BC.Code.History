@@ -229,16 +229,33 @@ table 5744 "Transfer Shipment Header"
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Ship';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -270,7 +287,7 @@ table 5744 "Transfer Shipment Header"
         if TransShptLine.Find('-') then
             repeat
                 TransShptLine.Delete();
-            until TransShptLine.Next = 0;
+            until TransShptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Shipment");
         InvtCommentLine.SetRange("No.", "No.");

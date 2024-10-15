@@ -71,8 +71,8 @@ codeunit 145020 "Check User Setup Dimensions"
         // [THEN] Opened page "Dimension Selection-Change", where Dimension 'Department' has "Selected" set to 'Yes'
         Assert.AreEqual(DimensionValue[1]."Dimension Code", LibraryVariableStorage.DequeueText, 'Dim Code from pag567');
 
-        // [WHEN] DrillDown on 'Description'
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] DrillDown on 'Context'
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] Opened page "Edit Dimension Set Entries" for Sales Order header
         Assert.AreEqual(
           Format(SalesHeader."Dimension Set ID"),
@@ -127,8 +127,8 @@ codeunit 145020 "Check User Setup Dimensions"
         // [THEN] Opened page "Dimension Selection-Change", where Dimension 'Department' has "Selected" set to 'Yes'
         Assert.AreEqual(DimensionValue[1]."Dimension Code", LibraryVariableStorage.DequeueText, 'Dim Code from pag567');
 
-        // [WHEN] DrillDown on 'Description'
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] DrillDown on 'Context'
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] Opened page "Edit Dimension Set Entries" for Sales Order header
         Assert.AreEqual(
           Format(PurchHeader."Dimension Set ID"),

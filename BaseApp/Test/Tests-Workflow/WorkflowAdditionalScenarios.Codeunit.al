@@ -699,7 +699,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure DisableTaskOnBeforeJobQueueScheduleTask(var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true

@@ -31,7 +31,7 @@ page 395 "General Posting Setup Card"
                             SetAccountsVisibility(
                               PmtToleranceVisible, PmtDiscountVisible, SalesInvDiscVisible, SalesLineDiscVisible, PurchInvDiscVisible, PurchLineDiscVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -231,11 +231,17 @@ page 395 "General Posting Setup Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the general ledger account number to post the direct cost applied with this particular combination of business posting group and product posting group.';
                 }
+#if not CLEAN18
                 field("Invt. Rounding Adj. Account"; "Invt. Rounding Adj. Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the inventory rounding adjustment account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
             }
             group(Usage)
             {
@@ -293,7 +299,7 @@ page 395 "General Posting Setup Card"
                     CopyGenPostingSetup.SetGenPostingSetup(Rec);
                     CopyGenPostingSetup.RunModal;
                     Clear(CopyGenPostingSetup);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

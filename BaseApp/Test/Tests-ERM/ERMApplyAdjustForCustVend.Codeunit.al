@@ -758,7 +758,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
-    local procedure RealizedCustDetailedLedger(ExchangeRateAmount: Decimal; EntryType: Option)
+    local procedure RealizedCustDetailedLedger(ExchangeRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -784,7 +784,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         VerifyDetailedLedgerEntryCust(TempGenJournalLine."Document No.", -Amount, EntryType);
     end;
 
-    local procedure RealizedDetailedLedgerEntry(ExchangeRateAmount: Decimal; EntryType: Option)
+    local procedure RealizedDetailedLedgerEntry(ExchangeRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -828,7 +828,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure ApplyAndAdjustExchRateForCust(ExchRateAmount: Decimal; EntryType: Option)
+    local procedure ApplyAndAdjustExchRateForCust(ExchRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -852,7 +852,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         VerifyDetailedLedgerEntryCust(GenJournalLine."Document No.", -Amount, EntryType);
     end;
 
-    local procedure ApplyAndAdjustExchRateForVend(ExchRateAmount: Decimal; EntryType: Option)
+    local procedure ApplyAndAdjustExchRateForVend(ExchRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
@@ -930,7 +930,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
-    local procedure ApplyAndVerifyVendorEntry(TempGenJournalLine: Record "Gen. Journal Line" temporary; ExchangeRateAmount: Decimal; EntryType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndVerifyVendorEntry(TempGenJournalLine: Record "Gen. Journal Line" temporary; ExchangeRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Amount: Decimal;
@@ -1093,7 +1093,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             NewGenJournalLine := GenJournalLine;
             NewGenJournalLine.Insert();
@@ -1109,7 +1109,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         with GLEntry do begin
             FindLast;
             SetRange("Transaction No.", "Transaction No.");
-            FindSet;
+            FindSet();
             repeat
                 ExpectedACYAmount :=
                   Round(
@@ -1130,7 +1130,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         CustLedgerEntry.FindFirst;
     end;
 
-    local procedure VerifyDetailedLedgerEntryCust(DocumentNo: Code[20]; Amount: Decimal; EntryType: Option)
+    local procedure VerifyDetailedLedgerEntryCust(DocumentNo: Code[20]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         Currency: Record Currency;
@@ -1145,7 +1145,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
-    local procedure VerifyDetailedLedgerEntryVend(DocumentNo: Code[20]; Amount: Decimal; EntryType: Option)
+    local procedure VerifyDetailedLedgerEntryVend(DocumentNo: Code[20]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         Currency: Record Currency;
@@ -1160,7 +1160,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
             DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
-    local procedure VerifyDtldVendEntryDebitCredit(VendorNo: Code[20]; EntryType: Option; DebitAmount: Decimal; CreditAmount: Decimal)
+    local procedure VerifyDtldVendEntryDebitCredit(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DebitAmount: Decimal; CreditAmount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1171,7 +1171,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         DetailedVendorLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;
 
-    local procedure VerifyDtldCustEntryDebitCredit(CustomerNo: Code[20]; EntryType: Option; DebitAmount: Decimal; CreditAmount: Decimal)
+    local procedure VerifyDtldCustEntryDebitCredit(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DebitAmount: Decimal; CreditAmount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

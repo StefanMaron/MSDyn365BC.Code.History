@@ -51,7 +51,7 @@ report 11785 "Open Balance Sheet"
                             EntryNo := "Close Income Statement Dim. ID";
                             DimBufMgt.GetDimensions(EntryNo, TempDimBuf);
                         end;
-                        if not TempDimBuf2.IsEmpty then
+                        if not TempDimBuf2.IsEmpty() then
                             TempDimBuf2.DeleteAll();
                         if TempSelectedDim.FindSet then
                             repeat
@@ -62,7 +62,7 @@ report 11785 "Open Balance Sheet"
                                     TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                                     TempDimBuf2.Insert();
                                 end;
-                            until TempSelectedDim.Next = 0;
+                            until TempSelectedDim.Next() = 0;
 
                         EntryNo := DimBufMgt2.FindDimensions(TempDimBuf2);
                         if EntryNo = 0 then
@@ -133,9 +133,9 @@ report 11785 "Open Balance Sheet"
                                 GenJnlLine.AdjustDebitCredit(false);
                                 HandleGenJnlLine;
                             end;
-                        until EntryNoAmountBuf.Next = 0;
+                        until EntryNoAmountBuf.Next() = 0;
 
-                    if not EntryNoAmountBuf.IsEmpty then
+                    if not EntryNoAmountBuf.IsEmpty() then
                         EntryNoAmountBuf.DeleteAll();
                 end;
 
@@ -150,7 +150,7 @@ report 11785 "Open Balance Sheet"
                         SetCurrentKey("G/L Account No.", "Posting Date");
                     SetRange("Posting Date", FiscYearClosingDate);
 
-                    if not EntryNoAmountBuf.IsEmpty then
+                    if not EntryNoAmountBuf.IsEmpty() then
                         EntryNoAmountBuf.DeleteAll();
 
                     Clear(DimBufMgt2);
@@ -389,7 +389,7 @@ report 11785 "Open Balance Sheet"
                    (TempSelectedDim."Dimension Code" <> GLSetup."Global Dimension 2 Code")
                 then
                     ClosePerGlobalDimOnly := false;
-            until TempSelectedDim.Next = 0;
+            until TempSelectedDim.Next() = 0;
 
         CollectCloseIncomeStmtDimID;
 
@@ -525,7 +525,7 @@ report 11785 "Open Balance Sheet"
             repeat
                 DimSetEntry.SetRange("Dimension Set ID", GLEntry."Dimension Set ID");
                 if DimSetEntry.FindSet then begin
-                    if not TempDimBuf.IsEmpty then
+                    if not TempDimBuf.IsEmpty() then
                         TempDimBuf.DeleteAll();
 
                     repeat
@@ -534,14 +534,14 @@ report 11785 "Open Balance Sheet"
                         TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                         TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                         TempDimBuf.Insert();
-                    until DimSetEntry.Next = 0;
+                    until DimSetEntry.Next() = 0;
 
                     DimBufMgt.InsertDimensionsUsingEntryNo(
                       TempDimBuf, GLEntry."Close Income Statement Dim. ID");
                 end;
                 GLEntry.SetFilter(
                   "Close Income Statement Dim. ID", '>%1', GLEntry."Close Income Statement Dim. ID");
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             NextDimID := GLEntry."Close Income Statement Dim. ID" + 1;
         end else
             NextDimID := 2; // 1 is used when there are no dimensions on the entry
@@ -605,7 +605,7 @@ report 11785 "Open Balance Sheet"
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 DimBuf.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure CheckDimPostingRules(var SelectedDim: Record "Selected Dimension"): Text[1024]
@@ -639,7 +639,7 @@ report 11785 "Open Balance Sheet"
                     end;
                 end;
                 SelectedDim.SetRange("Dimension Code");
-            until (DefaultDim.Next = 0) or (StrLen(s) > MaxStrLen(s) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
+            until (DefaultDim.Next() = 0) or (StrLen(s) > MaxStrLen(s) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
 
         if s <> '' then
             s := CopyStr(s + Text021 + d, 1, MaxStrLen(s));

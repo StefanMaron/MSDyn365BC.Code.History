@@ -23,15 +23,6 @@ page 31075 "Stat. Rep. No. Series Setup"
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to VIES declaration.';
                     Visible = VIESDeclarationNosVisible;
                 }
-                field("Reverse Charge Nos."; "Reverse Charge Nos.")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies number series of reverse charge report.';
-                    Visible = ReverseChargeNosVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("VAT Control Report Nos."; "VAT Control Report Nos.")
                 {
                     ApplicationArea = All;

@@ -100,7 +100,7 @@ codeunit 11760 "Unc. Payer Mgt."
             Vendor.Get(PaymentOrderLine."No.");
             if Vendor.IsUncertaintyPayerCheckPossible then
                 AddVATRegNoToList(Vendor."VAT Registration No.");
-        until PaymentOrderLine.Next = 0;
+        until PaymentOrderLine.Next() = 0;
 
         if GetVATRegNoCount = 0 then
             exit(false);
@@ -350,7 +350,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(not VendBankAcc.IsStandardFormatBankAccount and VendBankAcc.IsForeignBankAccount);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     local procedure HandleElGovernmentRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     begin
         if not ElectronicallyGovernSetup.Get then begin
@@ -369,7 +369,7 @@ codeunit 11760 "Unc. Payer Mgt."
               ServiceConnection, RecordId, TableCaption, UncertaintyPayerWebService, PAGE::"Electronically Govern. Setup");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterReleasePurchaseDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterReleasePurchaseDoc', '', false, false)]
     local procedure CheckUncertaintyPayerOnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
     var
         UncertaintyPayerEntry: Record "Uncertainty Payer Entry";
@@ -423,7 +423,7 @@ codeunit 11760 "Unc. Payer Mgt."
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11706, 'OnCodeOnAfterCheck', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Issue Payment Order", 'OnCodeOnAfterCheck', '', false, false)]
     local procedure CheckUncertaintyPayerOnCodeOnAfterCheckIssuePmtOrder(var PaymentOrderHeader: Record "Payment Order Header")
     var
         PaymentOrderLine: Record "Payment Order Line";
@@ -439,7 +439,7 @@ codeunit 11760 "Unc. Payer Mgt."
             exit;
 
         SetPaymentOrderLineFilter(PaymentOrderHeader, PaymentOrderLine);
-        if PaymentOrderLine.IsEmpty then
+        if PaymentOrderLine.IsEmpty() then
             exit;
 
         if PaymentOrderHeader.UncertaintyPayerCheckExpired then
@@ -480,7 +480,7 @@ codeunit 11760 "Unc. Payer Mgt."
                               StrSubstNo(BankAccIsForeignQst, PaymentOrderLine."Cust./Vendor Bank Account Code", PaymentOrderLine."No."));
                     end;
                 end;
-            until PaymentOrderLine.Next = 0;
+            until PaymentOrderLine.Next() = 0;
 
         if CheckPossible then begin
             if PaymentOrderHeader."Uncertainty Pay.Check DateTime" = 0DT then

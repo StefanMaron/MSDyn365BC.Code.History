@@ -91,7 +91,7 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure PostJournalLines(var CFWorksheetLine: Record "Cash Flow Worksheet Line")
     begin
-        CFWorksheetLine.FindSet;
+        CFWorksheetLine.FindSet();
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch", CFWorksheetLine);
     end;
 

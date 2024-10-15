@@ -131,7 +131,7 @@ page 31017 "Linked Prepayments"
                 "Amount to Apply" := CustLedgEntry."Amount to Apply";
                 Positive := false;
                 Insert;
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -150,7 +150,7 @@ page 31017 "Linked Prepayments"
                 "Amount to Apply" := VendLedgEntry."Amount to Apply";
                 Positive := true;
                 Insert;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

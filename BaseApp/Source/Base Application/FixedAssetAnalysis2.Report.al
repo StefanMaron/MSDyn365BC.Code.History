@@ -3,8 +3,11 @@ report 31042 "Fixed Asset - Analysis 2"
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetAnalysis2.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Fixed Asset - Analysis 2';
+    Caption = 'Fixed Asset - Analysis 2 (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -629,7 +632,7 @@ report 31042 "Fixed Asset - Analysis 2"
                     TypeExist := lteDateType = "FA Date Type Name";
                     if TypeExist then
                         linDateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text007Err, lteDateType);
@@ -647,7 +650,7 @@ report 31042 "Fixed Asset - Analysis 2"
                     TypeExist := ltePostingType = "FA Posting Type Name";
                     if TypeExist then
                         linPostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text008Err, ltePostingType);

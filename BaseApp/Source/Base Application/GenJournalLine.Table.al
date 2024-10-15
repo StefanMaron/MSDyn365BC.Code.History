@@ -258,11 +258,8 @@
             trigger OnValidate()
             var
                 VATPostingSetup: Record "VAT Posting Setup";
-                RoundingPrecision: Decimal;
-                RoundingDirection: Text[1];
             begin
                 GetCurrency;
-                ReadGLSetup; // NAVCZ
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
                     "VAT Calculation Type"::"Reverse Charge VAT":
@@ -271,18 +268,6 @@
                               Round(Amount * "VAT %" / (100 + "VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
                             "VAT Base Amount" :=
                               Round(Amount - "VAT Amount", Currency."Amount Rounding Precision");
-
-                            // NAVCZ
-                            if GLSetup."Round VAT Coeff." and not DisableVATCoefRnd then begin
-                                GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
-                                "VAT Amount" :=
-                                  Round(
-                                    Amount * Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"),
-                                    RoundingPrecision,
-                                    RoundingDirection);
-                                "VAT Base Amount" := Amount - "VAT Amount";
-                            end;
-                            // NAVCZ
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         // NAVCZ
@@ -332,7 +317,6 @@
                           "VAT Amount", "Currency Factor"));
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
-                Validate("VAT % (Non Deductible)", GetVATDeduction); // NAVCZ
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
                 UpdateSalesPurchLCY;
 
@@ -467,12 +451,6 @@
                     "Currency Factor" := 0;
                 Validate("Currency Factor");
 
-                // NAVCZ
-                if "Perform. Country/Region Code" <> '' then begin
-                    "Currency Code VAT" := "Currency Code";
-                    "Currency Factor VAT" := "Currency Factor";
-                end;
-                // NAVCZ
                 if not CustVendAccountNosModified then
                     if ("Currency Code" <> xRec."Currency Code") and (Amount <> 0) then
                         PaymentToleranceMgt.PmtTolGenJnl(Rec);
@@ -573,12 +551,6 @@
                 if ("Currency Code" = '') and ("Currency Factor" <> 0) then
                     FieldError("Currency Factor", StrSubstNo(Text002, FieldCaption("Currency Code")));
                 Validate(Amount);
-                // NAVCZ
-                if "Perform. Country/Region Code" <> '' then begin
-                    "Currency Code VAT" := "Currency Code";
-                    "Currency Factor VAT" := "Currency Factor";
-                end;
-                // NAVCZ
             end;
         }
         field(19; "Sales/Purch. (LCY)"; Decimal)
@@ -628,12 +600,9 @@
             IF ("Account Type" = CONST("Fixed Asset")) "FA Posting Group";
 
             trigger OnValidate()
-            var
-                PostingGroupManagement: Codeunit "Posting Group Management";
             begin
                 // NAVCZ
-                if CurrFieldNo = FieldNo("Posting Group") then
-                    PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
+                CheckPostingGroupChange();
                 // NAVCZ
             end;
         }
@@ -922,8 +891,10 @@
 
             trigger OnValidate()
             var
+#if not CLEAN18
                 RoundingPrecisionLCY: Decimal;
                 RoundingDirectionLCY: Text[1];
+#endif
             begin
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                 GenJnlBatch.TestField("Allow VAT Difference", true);
@@ -954,14 +925,6 @@
                   Round(
                     Amount * "VAT %" / (100 + "VAT %"),
                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-                // NAVCZ
-                ReadGLSetup;
-                if GLSetup."Round VAT Coeff." and
-                   ("VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and
-                   not DisableVATCoefRnd
-                then
-                    "VAT Difference" := "VAT Amount" - (Amount * Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
-                // NAVCZ
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
                 // NAVCZ
@@ -969,7 +932,10 @@
                     "VAT Amount (LCY)" := "VAT Amount";
                     "VAT Difference (LCY)" := "VAT Difference";
                 end else begin
+                    ReadGLSetup;
+#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif
 
                     "VAT Amount (LCY)" :=
                       Round(
@@ -980,18 +946,14 @@
                       "VAT Amount (LCY)" -
                       Round(
                         "Amount (LCY)" * "VAT %" / (100 + "VAT %"),
+#if CLEAN18
+                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+#else
                         RoundingPrecisionLCY, RoundingDirectionLCY);
-
-                    if GLSetup."Round VAT Coeff." and
-                       ("VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and
-                       not DisableVATCoefRnd
-                    then
-                        "VAT Difference (LCY)" :=
-                          "VAT Amount (LCY)" - ("Amount (LCY)" * Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
+#endif
                 end;
                 // NAVCZ
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
-                Validate("VAT % (Non Deductible)", GetVATDeduction); // NAVCZ
 
                 UpdateSalesPurchLCY;
 
@@ -1100,8 +1062,6 @@
             Caption = 'Recurring Method';
 
             trigger OnValidate()
-            var
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Recurring Method" in
                    ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]
@@ -1109,17 +1069,8 @@
                     TestField("Currency Code", '');
                 UpdateSalesPurchLCY;
 
-                if "Recurring Method".AsInteger() < "Recurring Method"::"BD Balance by Dimension".AsInteger() then begin
-                    if DimFilterExists() then
-                        Error(RecurringMethodsDimFilterErr, "Recurring Method");
-                end else
-                    if LineDimExists() then
-                        Error(RecurringMethodsLineDimdErr, "Recurring Method");
-
-                if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
-                    if not HideValidationDialog then
-                        if ConfirmManagement.GetResponse(RecurringSetDimFilterQst, true) then
-                            ShowRecurringDimFilter();
+                CheckRecurringDimensionsAndFilters();
+                ShowSetDimFiltersNotification();
             end;
         }
         field(54; "Expiration Date"; Date)
@@ -1357,12 +1308,8 @@
             MinValue = 0;
 
             trigger OnValidate()
-            var
-                RoundingPrecision: Decimal;
-                RoundingDirection: Text[1];
             begin
                 GetCurrency;
-                ReadGLSetup; // NAVCZ
                 case "Bal. VAT Calculation Type" of
                     "Bal. VAT Calculation Type"::"Normal VAT",
                     "Bal. VAT Calculation Type"::"Reverse Charge VAT":
@@ -1371,18 +1318,6 @@
                               Round(-Amount * "Bal. VAT %" / (100 + "Bal. VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
                             "Bal. VAT Base Amount" :=
                               Round(-Amount - "Bal. VAT Amount", Currency."Amount Rounding Precision");
-
-                            // NAVCZ
-                            if GLSetup."Round VAT Coeff." and not DisableVATCoefRnd then begin
-                                GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
-                                "Bal. VAT Amount" :=
-                                  Round(
-                                    -Amount * Round("Bal. VAT %" / (100 + "Bal. VAT %"), GLSetup."VAT Coeff. Rounding Precision"),
-                                    RoundingPrecision,
-                                    RoundingDirection);
-                                "Bal. VAT Base Amount" := -Amount - "Bal. VAT Amount";
-                            end;
-                            // NAVCZ
                         end;
                     "Bal. VAT Calculation Type"::"Full VAT":
                         "Bal. VAT Amount" := -Amount;
@@ -1420,7 +1355,6 @@
                 OnValidateBalVATPctOnAfterAssignBalVATAmountLCY("Bal. VAT Amount (LCY)");
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
 
-                Validate("VAT % (Non Deductible)", GetVATDeduction); // NAVCZ
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
                 UpdateSalesPurchLCY;
             end;
@@ -1433,8 +1367,10 @@
 
             trigger OnValidate()
             var
+#if not CLEAN18
                 RoundingPrecisionLCY: Decimal;
                 RoundingDirectionLCY: Text[1];
+#endif            
             begin
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                 GenJnlBatch.TestField("Allow VAT Difference", true);
@@ -1466,15 +1402,6 @@
                   Round(
                     -Amount * "Bal. VAT %" / (100 + "Bal. VAT %"),
                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-                // NAVCZ
-                ReadGLSetup;
-                if GLSetup."Round VAT Coeff." and
-                   ("VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and
-                   not DisableVATCoefRnd
-                then
-                    "Bal. VAT Difference" :=
-                      "Bal. VAT Amount" - (-Amount * Round("Bal. VAT %" / (100 + "Bal. VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
-                // NAVCZ
                 if Abs("Bal. VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(
                       Text013, FieldCaption("Bal. VAT Difference"), Currency."Max. VAT Difference Allowed");
@@ -1483,7 +1410,10 @@
                     "Bal. VAT Amount (LCY)" := "Bal. VAT Amount";
                     "Bal. VAT Difference (LCY)" := "Bal. VAT Difference";
                 end else begin
+                    ReadGLSetup;
+#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
+#endif
 
                     "Bal. VAT Amount (LCY)" :=
                       Round(
@@ -1494,19 +1424,14 @@
                       "Bal. VAT Amount (LCY)" -
                       Round(
                         -"Amount (LCY)" * "Bal. VAT %" / (100 + "Bal. VAT %"),
+#if CLEAN18
+                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+#else
                         RoundingPrecisionLCY, RoundingDirectionLCY);
-
-                    if GLSetup."Round VAT Coeff." and
-                       ("VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and
-                       not DisableVATCoefRnd
-                    then
-                        "Bal. VAT Difference (LCY)" :=
-                          "Bal. VAT Amount (LCY)" -
-                          (-"Amount (LCY)" * Round("Bal. VAT %" / (100 + "Bal. VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
+#endif
                 end;
                 // NAVCZ
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
-                Validate("VAT % (Non Deductible)", GetVATDeduction); // NAVCZ
                 UpdateSalesPurchLCY;
             end;
         }
@@ -1948,8 +1873,10 @@
             trigger OnValidate()
             var
                 CalculatedVATAmtLCY: Decimal;
+#if not CLEAN18
                 RoundingPrecisionLCY: Decimal;
                 RoundingDirectionLCY: Text[1];
+#endif
             begin
                 // NAVCZ
                 if "Currency Code" <> '' then begin
@@ -1966,20 +1893,22 @@
                     if "VAT Amount (LCY)" / "VAT Base Amount (LCY)" < 0 then
                         Error(Text11700, FieldCaption("VAT Amount (LCY)"));
 
+                    GetCurrency();
                     ReadGLSetup;
+#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-                    if GLSetup."Round VAT Coeff." and not DisableVATCoefRnd then
-                        CalculatedVATAmtLCY :=
-                          Round(
-                            "Amount (LCY)" * Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY)
-                    else
-                        CalculatedVATAmtLCY :=
-                          Round(
-                            "Amount (LCY)" - Round("Amount (LCY)" / (1 + "VAT %" / 100), RoundingPrecisionLCY),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY);
+#endif
+                    CalculatedVATAmtLCY :=
+                        Round(
+#if CLEAN18
+                        "Amount (LCY)" - Round("Amount (LCY)" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision"),
+                        Currency."Amount Rounding Precision",
+                        Currency.VATRoundingDirection);
+#else
+                        "Amount (LCY)" - Round("Amount (LCY)" / (1 + "VAT %" / 100), RoundingPrecisionLCY),
+                        RoundingPrecisionLCY,
+                        RoundingDirectionLCY);
+#endif
 
                     "VAT Difference (LCY)" := "VAT Amount (LCY)" - CalculatedVATAmtLCY;
                     "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
@@ -2002,8 +1931,10 @@
             trigger OnValidate()
             var
                 CalculatedBalVATAmtLCY: Decimal;
+#if not CLEAN18
                 RoundingPrecisionLCY: Decimal;
                 RoundingDirectionLCY: Text[1];
+#endif
             begin
                 // NAVCZ
                 if "Currency Code" <> '' then begin
@@ -2022,22 +1953,21 @@
                     end;
 
                     GetCurrency;
-
                     ReadGLSetup;
+#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-
-                    if GLSetup."Round VAT Coeff." and not DisableVATCoefRnd then
-                        CalculatedBalVATAmtLCY :=
-                          Round(
-                            -"Amount (LCY)" * Round("Bal. VAT %" / (100 + "Bal. VAT %"), GLSetup."VAT Coeff. Rounding Precision"),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY)
-                    else
-                        CalculatedBalVATAmtLCY :=
-                          Round(
-                            -"Amount (LCY)" - Round(-"Amount (LCY)" / (1 + "Bal. VAT %" / 100), RoundingPrecisionLCY),
-                            RoundingPrecisionLCY,
-                            RoundingDirectionLCY);
+#endif
+                    CalculatedBalVATAmtLCY :=
+                        Round(
+#if CLEAN18
+                        -"Amount (LCY)" - Round(-"Amount (LCY)" / (1 + "Bal. VAT %" / 100), Currency."Amount Rounding Precision"),
+                        Currency."Amount Rounding Precision",
+                        Currency.VATRoundingDirection);
+#else
+                        -"Amount (LCY)" - Round(-"Amount (LCY)" / (1 + "Bal. VAT %" / 100), RoundingPrecisionLCY),
+                        RoundingPrecisionLCY,
+                        RoundingDirectionLCY);
+#endif
 
                     "Bal. VAT Difference (LCY)" := "Bal. VAT Amount (LCY)" - CalculatedBalVATAmtLCY;
                     "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
@@ -2419,12 +2349,10 @@
             Caption = 'Job Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
-        field(1009; "Job Line Type"; Option)
+        field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -2577,7 +2505,7 @@
                     JobPlanningLine.TestField("No.", "Account No.");
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
-                    "Job Line Type" := JobPlanningLine."Line Type" + 1;
+                    "Job Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Job Remaining Qty.", JobPlanningLine."Remaining Qty." - "Job Quantity");
                 end else
                     Validate("Job Remaining Qty.", 0);
@@ -2921,7 +2849,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAppliesToInvoiceNo;
+                UpdateAppliesToInvoiceNo();
             end;
         }
         field(8004; "Contact Graph Id"; Text[250])
@@ -2939,7 +2867,7 @@
 
             trigger OnValidate()
             begin
-                UpdateJournalBatchName;
+                UpdateJournalBatchName();
             end;
         }
         field(8007; "Payment Method Id"; Guid)
@@ -2949,15 +2877,13 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodCode;
+                UpdatePaymentMethodCode();
             end;
         }
         field(8008; "Balance Account Id"; Guid)
         {
             Caption = 'Balance Account Id';
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account".SystemId
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account".SystemId;
+            TableRelation = "G/L Account".SystemId;
 
             trigger OnValidate()
             begin
@@ -3000,6 +2926,9 @@
             ELSE
             IF ("Bal. Account Type" = CONST(Vendor),
                                                                                                "Document Type" = FILTER(Refund | Invoice)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bill-to/Pay-to No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -3063,32 +2992,50 @@
         {
             Caption = 'Bank Account No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             TableRelation = "Constant Symbol";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11706; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -3101,6 +3048,9 @@
         {
             Caption = 'SWIFT Code';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11760; "VAT Date"; Date)
         {
@@ -3114,20 +3064,22 @@
                 ReadGLSetup;
                 if not GLSetup."Use VAT Date" then
                     TestField("VAT Date", "Posting Date");
-                Validate("VAT % (Non Deductible)", GetVATDeduction);
                 "Original Document VAT Date" := "VAT Date";
             end;
         }
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11763; "Postponed VAT"; Boolean)
         {
             Caption = 'Postponed VAT';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11764; "VAT Delay"; Boolean)
         {
@@ -3142,86 +3094,27 @@
             Caption = 'VAT % (Non Deductible)';
             MaxValue = 100;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "VAT % (Non Deductible)" <> xRec."VAT % (Non Deductible)" then begin
-                    "VAT Base (Non Deductible)" := 0;
-                    "VAT Amount (Non Deductible)" := 0;
-                end;
-
-                GetVATPostingSetupWithNonDedVAT(VATPostingSetup);
-
-                if ("VAT Bus. Posting Group" = VATPostingSetup."VAT Bus. Posting Group") and
-                   ("VAT Prod. Posting Group" = VATPostingSetup."VAT Prod. Posting Group")
-                then begin
-                    Validate("VAT Base (Non Deductible)",
-                      Round("VAT Base Amount" * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision"));
-                    if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
-                        Validate("VAT Amount (Non Deductible)",
-                          Round("VAT Base (Non Deductible)" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision"))
-                    else
-                        Validate("VAT Amount (Non Deductible)",
-                          Round((Amount - "VAT Base Amount") * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision"));
-                end else
-                    if ("Bal. VAT Bus. Posting Group" = VATPostingSetup."VAT Bus. Posting Group") and
-                       ("Bal. VAT Prod. Posting Group" = VATPostingSetup."VAT Prod. Posting Group")
-                    then begin
-                        Validate("VAT Base (Non Deductible)",
-                          Round("Bal. VAT Base Amount" * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision"));
-                        if "Bal. VAT Calculation Type" = "Bal. VAT Calculation Type"::"Reverse Charge VAT" then
-                            Validate("VAT Amount (Non Deductible)",
-                              Round("VAT Base (Non Deductible)" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision"))
-                        else
-                            Validate("VAT Amount (Non Deductible)",
-                              Round((-Amount - "Bal. VAT Base Amount") * "VAT % (Non Deductible)" / 100, Currency."Amount Rounding Precision"));
-                    end;
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has bee removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "VAT Base (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "Currency Code" = '' then
-                    "VAT Base LCY (Non Deduct.)" := "VAT Base (Non Deductible)"
-                else
-                    "VAT Base LCY (Non Deduct.)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Base (Non Deductible)", "Currency Factor"));
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11767; "VAT Amount (Non Deductible)"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "Currency Code" = '' then
-                    "VAT Amount LCY (Non Deduct.)" := "VAT Amount (Non Deductible)"
-                else
-                    "VAT Amount LCY (Non Deduct.)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Amount (Non Deductible)", "Currency Factor"));
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11768; "Currency Factor VAT"; Decimal)
         {
@@ -3244,31 +3137,40 @@
         field(11770; "Primary VAT Entry No."; Integer)
         {
             Caption = 'Primary VAT Entry No.';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11772; "VAT Base LCY (Non Deduct.)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'VAT Base LCY (Non Deduct.)';
             Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11773; "VAT Amount LCY (Non Deduct.)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'VAT Amount LCY (Non Deduct.)';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11775; "Bal. VAT Difference (LCY)"; Decimal)
         {
             Caption = 'Bal. VAT Difference (LCY)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -3327,24 +3229,9 @@
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if "Perform. Country/Region Code" <> '' then begin
-                    "Currency Code VAT" := "Currency Code";
-                    "Currency Factor VAT" := "Currency Factor";
-                end else begin
-                    "Currency Code VAT" := '';
-                    "Currency Factor VAT" := 0;
-                end;
-                // NAVCZ
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
@@ -3363,9 +3250,9 @@
         {
             Caption = 'Item Ledger Entry No.';
             TableRelation = "Item Ledger Entry";
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -3511,7 +3398,7 @@
         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-        if not GenJnlAlloc.IsEmpty then
+        if not GenJnlAlloc.IsEmpty() then
             GenJnlAlloc.DeleteAll();
 
         // NAVCZ
@@ -3526,6 +3413,9 @@
             "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
 
         Validate("Incoming Document Entry No.", 0);
+
+        RecallSetDimFiltersNotification();
+        DeleteGenJnlDimFilters();
     end;
 
     trigger OnInsert()
@@ -3543,6 +3433,8 @@
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+
+        ShowSetDimFiltersNotification();
     end;
 
     trigger OnModify()
@@ -3637,7 +3529,6 @@
         NoEntriesToVoidErr: Label 'There are no entries to void.';
         SuppressCommit: Boolean;
         Text11700: Label '%1 must not be negative.';
-        NonDedVATErr: Label 'On one Gen. Journal Line can not be used non-deductible VAT for account and bal. account simultaneously.';
         DisableVATCoefRnd: Boolean;
         UseForCalculation: Boolean;
         BankAccountCodeErr: Label 'Is not possible enter %4 for combination %1, %2 and %3.', Comment = '%1 = Account Type; %2 =  fieldcaption of Bal. Account Type; %3 = fieldcaption of Document Type; %4 = fieldcaption of Bank Account Code';
@@ -3647,9 +3538,11 @@
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
         BlockedEmplErr: Label 'You cannot export file because employee %1 is blocked due to privacy.', Comment = '%1 = Employee no. ';
         InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
-        RecurringSetDimFilterQst: Label 'You can use dimension filters for the selected recurring method. Do you want to set the filters now?';
         RecurringMethodsDimFilterErr: Label 'Recurring method %1 cannot be used for the line with dimension filter setup.', Comment = '%1 - Recurring Method value';
         RecurringMethodsLineDimdErr: Label 'Recurring method %1 cannot be used for the line with dimension setup.', Comment = '%1 - Recurring Method value';
+        DontShowAgainActionTxt: Label 'Don''t show again.';
+        SetDimFiltersActionTxt: Label 'Set dimension filters.';
+        SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
 
     protected var
         Currency: Record Currency;
@@ -3816,7 +3709,7 @@
         repeat
             GenJnlLine.CheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
             LastDocNo := GenJnlLine."Document No.";
-        until GenJnlLine.Next = 0;
+        until GenJnlLine.Next() = 0;
     end;
 
     procedure CheckDocNoBasedOnNoSeries(LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
@@ -3930,7 +3823,7 @@
                     GenJnlLine3.Modify();
                     First := false;
                     LastGenJnlLine := GenJnlLine2
-                until Next = 0
+                until Next() = 0
             end
         end;
 
@@ -3942,7 +3835,7 @@
         exit('RENUMBERED-000000001');
     end;
 
-    local procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
+    procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
@@ -3963,7 +3856,7 @@
                             CustLedgEntry2.Get(CustLedgEntry."Entry No.");
                             CustLedgEntry2."Applies-to ID" := NewAppliesToID;
                             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry2);
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end;
             "Account Type"::Vendor:
                 begin
@@ -3974,7 +3867,7 @@
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
                             VendLedgEntry2."Applies-to ID" := NewAppliesToID;
                             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry2);
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end;
             else
                 exit
@@ -3983,7 +3876,7 @@
         GenJnlLine2.Modify();
     end;
 
-    local procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
+    procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
     begin
         GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Journal Template Name", GenJnlLine2."Journal Template Name");
@@ -4003,7 +3896,7 @@
             if GenJnlAlloc.FindSet then
                 repeat
                     GenJnlAlloc.CheckVAT(Rec);
-                until GenJnlAlloc.Next = 0;
+                until GenJnlAlloc.Next() = 0;
         end;
     end;
 
@@ -4299,7 +4192,7 @@
                                 GLEntry."Amount to Apply" := 0;
                                 GLEntry."Applies-to ID" := '';
                                 CODEUNIT.Run(CODEUNIT::"G/L Entry - Edit CZ", GLEntry);
-                            until GLEntry.Next = 0;
+                            until GLEntry.Next() = 0;
                     end else
                         if xRec."Applies-to Doc. No." <> '' then begin
                             GLEntry.SetCurrentKey("Document No.");
@@ -4312,7 +4205,7 @@
                                     GLEntry."Amount to Apply" := 0;
                                     GLEntry."Applies-to ID" := '';
                                     CODEUNIT.Run(CODEUNIT::"G/L Entry - Edit CZ", GLEntry);
-                                until GLEntry.Next = 0;
+                                until GLEntry.Next() = 0;
                         end;
                 end;
         // NAVCZ
@@ -4651,24 +4544,24 @@
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if CustLedgEntry.IsEmpty then begin
+            if CustLedgEntry.IsEmpty() then begin
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
             end;
         end;
         if "Applies-to ID" <> '' then begin
             CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange("Applies-to ID");
         end;
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange("Document Type");
         end;
         if Amount <> 0 then begin
             CustLedgEntry.SetRange(Positive, Amount < 0);
-            if CustLedgEntry.IsEmpty then
+            if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange(Positive);
         end;
         OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec);
@@ -4710,29 +4603,29 @@
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if VendLedgEntry.IsEmpty then begin
+            if VendLedgEntry.IsEmpty() then begin
                 VendLedgEntry.SetRange("Document Type");
                 VendLedgEntry.SetRange("Document No.");
             end;
         end;
         if "Applies-to ID" <> '' then begin
             VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Applies-to ID");
         end;
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Document Type");
         end;
         if "Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if VendLedgEntry.IsEmpty then
+            if VendLedgEntry.IsEmpty() then
                 VendLedgEntry.SetRange("Document No.");
         end;
         if Amount <> 0 then begin
             VendLedgEntry.SetRange(Positive, Amount < 0);
-            if VendLedgEntry.IsEmpty then;
+            if VendLedgEntry.IsEmpty() then;
             VendLedgEntry.SetRange(Positive);
         end;
         OnLookUpAppliesToDocVendOnAfterSetFilters(VendLedgEntry, Rec);
@@ -4781,29 +4674,29 @@
         if "Applies-to Doc. No." <> '' then begin
             EmplLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if EmplLedgEntry.IsEmpty then begin
+            if EmplLedgEntry.IsEmpty() then begin
                 EmplLedgEntry.SetRange("Document Type");
                 EmplLedgEntry.SetRange("Document No.");
             end;
         end;
         if "Applies-to ID" <> '' then begin
             EmplLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if EmplLedgEntry.IsEmpty then
+            if EmplLedgEntry.IsEmpty() then
                 EmplLedgEntry.SetRange("Applies-to ID");
         end;
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
             EmplLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            if EmplLedgEntry.IsEmpty then
+            if EmplLedgEntry.IsEmpty() then
                 EmplLedgEntry.SetRange("Document Type");
         end;
         if "Applies-to Doc. No." <> '' then begin
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if EmplLedgEntry.IsEmpty then
+            if EmplLedgEntry.IsEmpty() then
                 EmplLedgEntry.SetRange("Document No.");
         end;
         if Amount <> 0 then begin
             EmplLedgEntry.SetRange(Positive, Amount < 0);
-            if EmplLedgEntry.IsEmpty then;
+            if EmplLedgEntry.IsEmpty() then;
             EmplLedgEntry.SetRange(Positive);
         end;
         OnLookUpAppliesToDocEmplOnAfterSetFilters(EmplLedgEntry, Rec);
@@ -4898,7 +4791,7 @@
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry);
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
                         CustLedgEntry.SetCurrentKey("Document No.");
@@ -4922,7 +4815,7 @@
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
                         VendLedgEntry.SetCurrentKey("Document No.");
@@ -4945,7 +4838,7 @@
                         repeat
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, EmplLedgEntry."Posting Date", EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", EmplLedgEntry);
-                        until EmplLedgEntry.Next = 0;
+                        until EmplLedgEntry.Next() = 0;
                 end else
                     if TempGenJnlLine."Applies-to Doc. No." <> '' then begin
                         EmplLedgEntry.SetCurrentKey("Document No.");
@@ -5318,7 +5211,8 @@
         Validate("Currency Code");
     end;
 
-    local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
+                                                    ExtDocNo: Code[35])
     begin
         UpdateDocumentTypeAndAppliesTo(DocType, DocNo);
 
@@ -5389,7 +5283,14 @@
         if GenJnlTemplate.Get(GenJournalLine."Journal Template Name") and GenJnlTemplate."Force Doc. Balance" then begin
             DocGenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
             DocGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type");
+#if not CLEAN18
+            // NAVCZ
+            if GenJnlTemplate."Not Check Doc. Type" then
+                DocGenJournalLine.SetRange("Document Type");
+            // NAVCZ
+#endif
         end;
+        OnGetDocumentBalanceOnBeforeCalcBalance(DocGenJournalLine, GenJnlTemplate);
         DocGenJournalLine.CalcSums("Balance (LCY)");
         exit(DocGenJournalLine."Balance (LCY)");
     end;
@@ -5436,7 +5337,7 @@
         GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
         GenJournalLine.SetRange("Document Type", "Applies-to Doc. Type");
         GenJournalLine.SetRange("Document No.", "Applies-to Doc. No.");
-        if not GenJournalLine.IsEmpty then begin
+        if not GenJournalLine.IsEmpty() then begin
             GenJournalLine.ModifyAll("Applied Automatically", false);
             GenJournalLine.ModifyAll("Account Type", GenJournalLine."Account Type"::"G/L Account");
             GenJournalLine.ModifyAll("Account No.", '');
@@ -5691,7 +5592,7 @@
         OnAfterSetJournalLineFieldsFromApplication(Rec, AccType, AccNo, xRec);
     end;
 
-    local procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
+    procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
     begin
         if GenJnlLine2."Bal. Account Type" in
            [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor, GenJnlLine2."Bal. Account Type"::Employee]
@@ -5849,7 +5750,7 @@
     begin
         SetRange("Account Type", AccountType);
         SetRange("Account No.", AccountNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             exit(false);
 
         Reset;
@@ -5936,7 +5837,7 @@
                     if GenJnlLine."Applies-to ID" <> '' then
                         VendLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     VendLedgerEntry.SetRange("Exported to Payment File", true);
-                    if not VendLedgerEntry.IsEmpty then
+                    if not VendLedgerEntry.IsEmpty() then
                         exit(true);
                 end;
 
@@ -5945,9 +5846,9 @@
                 VendLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
                 VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
                 VendLedgerEntry.SetRange("Exported to Payment File", true);
-                if not VendLedgerEntry.IsEmpty then
+                if not VendLedgerEntry.IsEmpty() then
                     exit(true);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         exit(false);
     end;
@@ -5991,7 +5892,7 @@
                 GenJnlLine.SetPostingDateAsDueDate(GenJnlLine.GetAppliesToDocDueDate, EmptyDateFormula);
                 GenJnlLine.Modify(true);
                 Window.Update(1, GenJnlLine."Document No.");
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
             Window.Close;
         end;
     end;
@@ -6001,65 +5902,6 @@
         ProcessGenJnlLines: Codeunit "Process Gen. Journal  Lines";
     begin
         ProcessGenJnlLines.ImportBankStatement(Rec);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure GetVATDeduction(): Decimal
-    var
-        NonDeductibleVATSetup: Record "Non Deductible VAT Setup";
-    begin
-        // NAVCZ
-        if not GetVATPostingSetupWithNonDedVAT(VATPostingSetup) then
-            exit(0);
-
-        NonDeductibleVATSetup.Reset();
-        NonDeductibleVATSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        NonDeductibleVATSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        NonDeductibleVATSetup.SetRange("From Date", 0D, "VAT Date");
-        if NonDeductibleVATSetup.FindLast then
-            NonDeductibleVATSetup.TestField("Non Deductible VAT %");
-
-        exit(NonDeductibleVATSetup."Non Deductible VAT %");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure GetVATPostingSetupWithNonDedVAT(var VATPostingSetup2: Record "VAT Posting Setup"): Boolean
-    var
-        VATPostingSetup3: Record "VAT Posting Setup";
-        VATPostingSetup4: Record "VAT Posting Setup";
-        AllowNonDeductibleVAT: array[2] of Boolean;
-    begin
-        // NAVCZ
-        if VATPostingSetup3.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-            AllowNonDeductibleVAT[1] := IsAllowNonDeductibleVAT(VATPostingSetup3);
-
-        if VATPostingSetup4.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
-            AllowNonDeductibleVAT[2] := IsAllowNonDeductibleVAT(VATPostingSetup4);
-
-        if AllowNonDeductibleVAT[1] and AllowNonDeductibleVAT[2] then
-            Error(NonDedVATErr);
-
-        if not (AllowNonDeductibleVAT[1] or AllowNonDeductibleVAT[2]) then
-            exit(false);
-
-        if AllowNonDeductibleVAT[1] then begin
-            VATPostingSetup2 := VATPostingSetup3;
-            exit("Gen. Posting Type" = "Gen. Posting Type"::Purchase);
-        end;
-
-        VATPostingSetup2 := VATPostingSetup4;
-        exit("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase);
-    end;
-
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure IsAllowNonDeductibleVAT(VATPostingSetup2: Record "VAT Posting Setup"): Boolean
-    begin
-        // NAVCZ
-        exit((VATPostingSetup2."VAT Calculation Type" in [VATPostingSetup2."VAT Calculation Type"::"Normal VAT",
-                                                          VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT"]) and
-          VATPostingSetup2."Allow Non Deductible VAT");
     end;
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
@@ -6194,7 +6036,10 @@
         "Shortcut Dimension 2 Code" := TempJobJnlLine."Shortcut Dimension 2 Code";
     end;
 
-    procedure CopyDocumentFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
+                                              ExtDocNo: Text[35];
+                                              SourceCode: Code[10];
+                                              NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -6801,7 +6646,6 @@
             DeferralAmount := "VAT Base Amount"
         else
             DeferralAmount := Amount;
-        DeferralAmount += "VAT Amount (Non Deductible)"; // NAVCZ
 
         OnAfterGetDeferralAmount(Rec, DeferralAmount);
     end;
@@ -6823,11 +6667,13 @@
             GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
+#if not CLEAN17
     [Obsolete('Replace by enum "Deferral Document Type" value.', '17.0')]
     procedure GetDeferralDocType(): Integer
     begin
         exit(DeferralDocType::"G/L".AsInteger());
     end;
+#endif
 
     procedure IsForPurchase(): Boolean
     begin
@@ -6858,6 +6704,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('The funcionality of rounding VAT coefficient is removed', '18.0')]
     procedure DisableVATCoef(DisableVATCoefRnd2: Boolean)
     begin
         // NAVCZ
@@ -7585,7 +7432,8 @@
         end;
     end;
 
-    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20]; RecordVariant: Variant)
+    local procedure CheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Enum "Gen. Journal Document Type"; ApplyDocNo: Code[20];
+                                                                                                                                      RecordVariant: Variant)
     var
         IsHandled: Boolean;
     begin
@@ -7941,7 +7789,8 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20];
+                                                                                                                            xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8548,6 +8397,17 @@
         OnCheckGenJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
+    local procedure CheckPostingGroupChange()
+    var
+        PostingGroupManagement: Codeunit "Posting Group Management";
+    begin
+        // NAVCZ
+        if CurrFieldNo = FieldNo("Posting Group") then
+            PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
+        // NAVCZ
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCheckGenJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
@@ -8649,7 +8509,6 @@
     var
         GenJnlDimFilters: Page "Gen. Jnl. Dim. Filters";
     begin
-        Commit();
         GenJnlDimFilters.SetGenJnlLine(Rec);
         GenJnlDimFilters.RunModal();
     end;
@@ -8667,6 +8526,73 @@
     local procedure LineDimExists(): Boolean
     begin
         exit("Dimension Set ID" <> 0);
+    end;
+
+    procedure CheckShortcutDimCodeRecurringMethod(ShortcutDimCode: Code[20])
+    begin
+        if ShortcutDimCode <> '' then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                FieldError("Recurring Method");
+    end;
+
+    local procedure ShowSetDimFiltersNotification()
+    begin
+        if "Line No." <> 0 then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                SendSetDimFiltersNotification()
+            else
+                RecallSetDimFiltersNotification();
+    end;
+
+    local procedure SendSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+        SetDimFiltersNotification: Notification;
+    begin
+        RecallSetDimFiltersNotification();
+
+        if not GenJnlDimFilterMgt.IsNotificationEnabled() or DimFilterExists() then
+            exit;
+
+        SetDimFiltersNotification.Id(CreateGuid());
+        SetDimFiltersNotification.Message(SetDimFiltersMessageTxt);
+        SetDimFiltersNotification.Scope(NotificationScope::LocalScope);
+        SetDimFiltersNotification.AddAction(SetDimFiltersActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'SetGenJnlDimFilters');
+        SetDimFiltersNotification.AddAction(DontShowAgainActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'HideNotification');
+        SetDimFiltersNotification.SetData('JournalTemplateName', "Journal Template Name");
+        SetDimFiltersNotification.SetData('JournalBatchName', "Journal Batch Name");
+        SetDimFiltersNotification.SetData('JournalLineNo', Format("Line No."));
+        NotificationLifecycleMgt.SendNotification(SetDimFiltersNotification, RecordId);
+    end;
+
+    local procedure RecallSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        NotificationLifecycleMgt.RecallNotificationsForRecord(RecordId, true);
+    end;
+
+    local procedure DeleteGenJnlDimFilters()
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GenJnlDimFilter.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", "Line No.");
+        if not GenJnlDimFilter.IsEmpty then
+            GenJnlDimFilter.DeleteAll();
+    end;
+
+    local procedure CheckRecurringDimensionsAndFilters()
+    begin
+        if not ("Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"]) then begin
+            if "Line No." <> 0 then
+                if DimFilterExists() then
+                    Error(RecurringMethodsDimFilterErr, "Recurring Method");
+        end else
+            if LineDimExists() then
+                Error(RecurringMethodsLineDimdErr, "Recurring Method");
     end;
 
     [IntegrationEvent(false, false)]
@@ -8786,6 +8712,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentBalanceOnBeforeCalcBalance(var GenJournalLine: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 }

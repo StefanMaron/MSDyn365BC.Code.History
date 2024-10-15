@@ -23,7 +23,7 @@ page 31020 "Purchase Advance Letter"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Pay-to Vendor No."; "Pay-to Vendor No.")
@@ -35,7 +35,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Pay-to Name"; "Pay-to Name")
@@ -47,7 +47,7 @@ page 31020 "Purchase Advance Letter"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 group("Pay-to")
@@ -180,7 +180,7 @@ page 31020 "Purchase Advance Letter"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", PostingDate);
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -205,15 +205,6 @@ page 31020 "Purchase Advance Letter"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                 }
-                field("Perform. Country/Region Code"; "Perform. Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region code. It is mandatory field by creating documents with VAT registration number for other countries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -223,6 +214,11 @@ page 31020 "Purchase Advance Letter"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;

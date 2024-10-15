@@ -23,15 +23,6 @@ page 22 "Customer List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Registered Name"; "Registered Name")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the registered name of company.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(Name; Name)
                 {
                     ApplicationArea = All;
@@ -265,6 +256,7 @@ page 22 "Customer List"
                 SubPageLink = "No." = FIELD("No.");
                 Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
+#if not CLEAN17
             part(Control35; "Social Listening FactBox")
             {
                 ApplicationArea = All;
@@ -286,6 +278,7 @@ page 22 "Customer List"
                 ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
                 ObsoleteTag = '17.0';
             }
+#endif
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -455,6 +448,7 @@ page 22 "Customer List"
                         ShowContact;
                     end;
                 }
+#if not CLEAN16
                 action("Cross Re&ferences")
                 {
                     ApplicationArea = Basic, Suite;
@@ -468,6 +462,7 @@ page 22 "Customer List"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif
                 action("Item References")
                 {
                     ApplicationArea = Basic, Suite;
@@ -484,20 +479,6 @@ page 22 "Customer List"
                 }
                 separator(Action1220001)
                 {
-                }
-                action("Re&gistration Country")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Re&gistration Country';
-                    Image = CountryRegion;
-                    RunObject = Page "Registration Country/Region";
-                    RunPageLink = "Account Type" = CONST(Customer),
-                                  "Account No." = FIELD("No.");
-                    ToolTip = 'Opens registration country page';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
             group(ActionGroupCRM)
@@ -570,7 +551,7 @@ page 22 "Customer List"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -595,7 +576,7 @@ page 22 "Customer List"
                     Image = History;
                     action(CustomerLedgerEntries)
                     {
-                        ApplicationArea = Advanced;
+                        ApplicationArea = Suite;
                         Caption = 'Ledger E&ntries';
                         Image = CustomerLedger;
                         Promoted = true;
@@ -687,6 +668,7 @@ page 22 "Customer List"
                         RunPageLink = Code = FIELD("Invoice Disc. Code");
                         ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                     }
+#if not CLEAN18
                     action(Sales_Prices)
                     {
                         ApplicationArea = Advanced;
@@ -719,6 +701,7 @@ page 22 "Customer List"
                             ShowLineDiscounts();
                         end;
                     }
+#endif
                     action("Prepa&yment Percentages")
                     {
                         ApplicationArea = Prepayments;
@@ -1144,6 +1127,49 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1163,6 +1189,8 @@ page 22 "Customer List"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
+#endif
+#if not CLEAN17
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1201,6 +1229,7 @@ page 22 "Customer List"
                         ShowLineDiscounts();
                     end;
                 }
+#endif
             }
             group("Request Approval")
             {
@@ -1314,6 +1343,25 @@ page 22 "Customer List"
                 begin
                     CurrPage.SetSelectionFilter(Customer);
                     CustomerTemplMgt.UpdateCustomersFromTemplate(Customer);
+                end;
+            }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTip = 'Apply a Word template on the selected records.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category7;
+
+                trigger OnAction()
+                var
+                    Customer: Record Customer;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Customer);
+                    WordTemplateSelectionWizard.SetData(Customer);
+                    WordTemplateSelectionWizard.RunModal();
                 end;
             }
             action(PaymentRegistration)

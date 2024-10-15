@@ -24,7 +24,7 @@ codeunit 132472 "Payment Service Extension Mock"
         exit(CODEUNIT::"Payment Service Extension Mock");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1060, 'OnRegisterPaymentServiceProviders', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Payment Service Setup", 'OnRegisterPaymentServiceProviders', '', false, false)]
     local procedure MockRegisterTemplate(var PaymentServiceSetup: Record "Payment Service Setup")
     var
         CurrentNo: Text[50];
@@ -43,7 +43,7 @@ codeunit 132472 "Payment Service Extension Mock"
         until TempTemplatePaymentServiceSetup.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1060, 'OnCreatePaymentService', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Payment Service Setup", 'OnCreatePaymentService', '', false, false)]
     local procedure MockNewAccount(var PaymentServiceSetup: Record "Payment Service Setup")
     var
         Customer: Record Customer;
@@ -67,7 +67,7 @@ codeunit 132472 "Payment Service Extension Mock"
         TempAccountPaymentServiceSetup.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1060, 'OnRegisterPaymentServices', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Payment Service Setup", 'OnRegisterPaymentServices', '', false, false)]
     local procedure MockRegisterAccount(var PaymentServiceSetup: Record "Payment Service Setup")
     begin
         PaymentServiceSetup.SetFilter("Management Codeunit ID", '=%1', CODEUNIT::"Payment Service Extension Mock");
@@ -82,7 +82,7 @@ codeunit 132472 "Payment Service Extension Mock"
         until TempAccountPaymentServiceSetup.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     local procedure MockRegisterServiceConnections(var ServiceConnection: Record "Service Connection")
     begin
         if TempAccountPaymentServiceSetup.FindSet then

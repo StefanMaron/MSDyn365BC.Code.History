@@ -352,10 +352,8 @@ codeunit 6153 "API Webhook Notification Mgt."
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
             APIWebhookNotification."Created By User SID" := UserSecurityId();
             APIWebhookNotification."Change Type" := ChangeType;
-            if APIWebhookNotification."Change Type" = APIWebhookNotification."Change Type"::Deleted then
-                APIWebhookNotification."Last Modified Date Time" := CurrentDateTime()
-            else
-                APIWebhookNotification."Last Modified Date Time" := GetLastModifiedDateTime(RecRef);
+            // Cannot use $systemModifiedAt as it is not updated yet in OnDatabaseModify
+            APIWebhookNotification."Last Modified Date Time" := CurrentDateTime();
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
                 if IsDetailedLoggingEnabled() then
@@ -512,16 +510,6 @@ codeunit 6153 "API Webhook Notification Mgt."
             OutBoolean := 'true'
         else
             OutBoolean := 'false';
-    end;
-
-    local procedure GetLastModifiedDateTime(var RecRef: RecordRef): DateTime
-    var
-        LastModifiedDateTime: DateTime;
-    begin
-        LastModifiedDateTime := RecRef.Field(RecRef.SystemModifiedAtNo).Value();
-        if LastModifiedDateTime = 0DT then
-            LastModifiedDateTime := CurrentDateTime();
-        exit(LastModifiedDateTime);
     end;
 
     [Scope('OnPrem')]

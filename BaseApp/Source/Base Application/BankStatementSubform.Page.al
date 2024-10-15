@@ -71,7 +71,7 @@ page 11707 "Bank Statement Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
@@ -82,7 +82,7 @@ page 11707 "Bank Statement Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Bank Statement Currency Code"; "Bank Statement Currency Code")
@@ -101,7 +101,7 @@ page 11707 "Bank Statement Subform"
                           BankStatement."Document Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Bank Statement Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -113,7 +113,7 @@ page 11707 "Bank Statement Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Transit No."; "Transit No.")
@@ -141,7 +141,7 @@ page 11707 "Bank Statement Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -186,7 +186,7 @@ page 11707 "Bank Statement Subform"
             if BankStatementHeader.Get("Bank Statement No.") then begin
                 Validate("Bank Statement Currency Code", BankStatementHeader."Bank Statement Currency Code");
                 "Bank Statement Currency Factor" := BankStatementHeader."Bank Statement Currency Factor";
-                CurrPage.Update;
+                CurrPage.Update();
             end;
     end;
 }

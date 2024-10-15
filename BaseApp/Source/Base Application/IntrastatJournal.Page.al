@@ -75,11 +75,19 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the statistic indication code for the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Movement"; "Specific Movement")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the specific movement code for the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Item Description"; "Item Description")
                 {
@@ -138,21 +146,37 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure code for the Intrastat journal line. This number is assigned to an item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Supplem. UoM Quantity"; "Supplem. UoM Quantity")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure quantity for the Intrastat journal line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Supplem. UoM Net Weight"; "Supplem. UoM Net Weight")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the supplementary unit of measure net weight for the Intrastat journal line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Base Unit of Measure"; "Base Unit of Measure")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the unit in which the item is held in inventory.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(Quantity; Quantity)
                 {
@@ -210,22 +234,36 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the previous declaration number for the Intrastat journal line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Prev. Declaration Line No."; "Prev. Declaration Line No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the declaration line number for the previous declaration for the Intrastat journal line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Additional Costs"; "Additional Costs")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies aditional costs';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Source Entry Date"; "Source Entry Date")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the source entry date of the intrastat journal line';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Partner VAT ID"; "Partner VAT ID")
@@ -344,6 +382,10 @@
                 Ellipsis = true;
                 Image = TestReport;
                 ToolTip = 'Specifies test report';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
 
                 trigger OnAction()
                 var
@@ -444,13 +486,15 @@
                 Ellipsis = true;
                 Image = Export;
                 ToolTip = 'Allows the intrastat journal export do csv.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
 
                 trigger OnAction()
                 var
                     IntrastatDeclExport: Report "Intrastat Declaration Export";
                     StatReportingSetup: Record "Stat. Reporting Setup";
-                    IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-                    RegistrationCountry: Record "Registration Country/Region";
                     USICu: Codeunit "Universal Single Inst. CU";
                     ObjTyp: Option ,,,"Report",,"Codeunit","XMLport";
                     ObjID: Integer;
@@ -459,15 +503,6 @@
                     StatReportingSetup.Get();
                     ObjTyp := StatReportingSetup."Intrastat Export Object Type";
                     ObjID := StatReportingSetup."Intrastat Export Object No.";
-
-                    IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                    if IntrastatJnlBatch."Perform. Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(
-                             RegistrationCountry."Account Type"::"Company Information", '', IntrastatJnlBatch."Perform. Country/Region Code")
-                        then begin
-                            ObjTyp := RegistrationCountry."Intrastat Export Object Type";
-                            ObjID := RegistrationCountry."Intrastat Export Object No.";
-                        end;
 
                     USICu.setIntrastatJnlParam("Journal Template Name", "Journal Batch Name");
                     if ObjID <> 0 then begin
@@ -494,6 +529,10 @@
                 Ellipsis = true;
                 Image = PrintChecklistReport;
                 ToolTip = 'Open the report for intrastat - invoice checklist.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
 
                 trigger OnAction()
                 var

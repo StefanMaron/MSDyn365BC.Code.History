@@ -22,7 +22,7 @@ codeunit 1173 "Document Attachment Mgmt"
     begin
         if RecRef.IsTemporary then
             exit;
-        if DocumentAttachment.IsEmpty then
+        if DocumentAttachment.IsEmpty() then
             exit;
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         case RecRef.Number of
@@ -81,7 +81,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocumentAttachment.DeleteAll();
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteCustomer(var Rec: Record Customer; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -90,7 +90,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -99,7 +99,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -108,7 +108,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 114, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -117,7 +117,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 115, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesCreditMemoLine(var Rec: Record "Sales Cr.Memo Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -126,7 +126,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -135,7 +135,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 113, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteSalesInvoiceLine(var Rec: Record "Sales Invoice Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -144,7 +144,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 122, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchInvHeader(var Rec: Record "Purch. Inv. Header"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -153,7 +153,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 123, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchInvLine(var Rec: Record "Purch. Inv. Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -162,7 +162,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 124, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Cr. Memo Hdr.", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchCreditMemoHeader(var Rec: Record "Purch. Cr. Memo Hdr."; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -171,7 +171,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 125, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Cr. Memo Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchCreditMemoLine(var Rec: Record "Purch. Cr. Memo Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -180,7 +180,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 86, 'OnBeforeDeleteSalesQuote', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", 'OnBeforeDeleteSalesQuote', '', false, false)]
     local procedure DocAttachFlowFormSalesQuoteToSalesOrder(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -209,7 +209,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 87, 'OnBeforeInsertSalesOrderHeader', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Blanket Sales Order to Order", 'OnBeforeInsertSalesOrderHeader', '', false, false)]
     local procedure DocAttachFlowForSalesHeaderFromBlanketOrderToSalesOrder(var SalesOrderHeader: Record "Sales Header"; BlanketOrderSalesHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -243,7 +243,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 87, 'OnAfterInsertSalesOrderLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Blanket Sales Order to Order", 'OnAfterInsertSalesOrderLine', '', false, false)]
     local procedure DocAttachFlowForSalesLinesFromBlanketOrderToSalesOrder(var SalesOrderLine: Record "Sales Line"; SalesOrderHeader: Record "Sales Header"; BlanketOrderSalesLine: Record "Sales Line"; BlanketOrderSalesHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -277,7 +277,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1305, 'OnBeforeDeletionOfQuote', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnBeforeDeletionOfQuote', '', false, false)]
     local procedure DocAttachFlowForSalesHeaderFromSalesQuoteToSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -304,7 +304,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1305, 'OnBeforeInsertSalesInvoiceLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnBeforeInsertSalesInvoiceLine', '', false, false)]
     local procedure DocAttachFlowForSalesLinesFromSalesQuoteToSalesInvoice(SalesQuoteLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header"; var SalesInvoiceLine: Record "Sales Line"; SalesInvoiceHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -327,7 +327,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure DocAttachFlowForSalesHeaderInsert(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         Customer: Record Customer;
@@ -357,7 +357,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 86, 'OnAfterInsertSalesOrderLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", 'OnAfterInsertSalesOrderLine', '', false, false)]
     local procedure DocAttachFlowForSalesQuoteToSalesOrderSalesLines(var SalesOrderLine: Record "Sales Line"; SalesOrderHeader: Record "Sales Header"; SalesQuoteLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header")
     var
         FromRecRef: RecordRef;
@@ -380,7 +380,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
     local procedure DocAttachFlowForSalesHeaderCustomerChg(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; CurrFieldNo: Integer)
     var
         RecRef: RecordRef;
@@ -398,13 +398,13 @@ codeunit 1173 "Document Attachment Mgmt"
         DocAttachFlowForSalesHeaderInsert(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnAfterCopySalesHeader', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterCopySalesHeader', '', false, false)]
     local procedure DocAttachFlowForCopyDocumentSalesHeader(ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header")
     begin
         DocAttachFlowForSalesHeaderCustomerChg(ToSalesHeader, OldSalesHeader, 0);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure DocAttachFlowForSalesLineInsert(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         Item: Record Item;
@@ -435,7 +435,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterValidateEvent', 'No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterValidateEvent', 'No.', false, false)]
     local procedure DocAttachFlowForSalesLineItemChg(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; CurrFieldNo: Integer)
     var
         xRecRef: RecordRef;
@@ -453,7 +453,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocAttachFlowForSalesLineInsert(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeDeleteAfterPosting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeDeleteAfterPosting', '', false, false)]
     local procedure DocAttachForPostedSalesDocs(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         FromRecRef: RecordRef;
@@ -486,7 +486,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachmentsForPostedDocs(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforeDeleteAfterPosting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforeDeleteAfterPosting', '', false, false)]
     local procedure DocAttachForPostedPurchaseDocs(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         FromRecRef: RecordRef;
@@ -520,7 +520,7 @@ codeunit 1173 "Document Attachment Mgmt"
             CopyAttachmentsForPostedDocs(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -529,7 +529,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchaseHeader(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -538,7 +538,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeletePurchaseLine(var Rec: Record "Purchase Line"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -547,7 +547,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure DocAttachFlowForPurchaseHeaderInsert(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     var
         Vendor: Record Vendor;
@@ -577,7 +577,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure DocAttachFlowForPurchaseHeaderVendorChange(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header"; CurrFieldNo: Integer)
     var
         RecRef: RecordRef;
@@ -595,13 +595,13 @@ codeunit 1173 "Document Attachment Mgmt"
         DocAttachFlowForPurchaseHeaderInsert(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnAfterCopyPurchaseHeader', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterCopyPurchaseHeader', '', false, false)]
     local procedure DocAttachFlowForCopyDocumentPurchHeader(ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header")
     begin
         DocAttachFlowForPurchaseHeaderVendorChange(ToPurchaseHeader, OldPurchaseHeader, 0);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure DocAttachFlowForPurchaseLineInsert(var Rec: Record "Purchase Line"; RunTrigger: Boolean)
     var
         Item: Record Item;
@@ -626,7 +626,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterValidateEvent', 'No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'No.', false, false)]
     local procedure DocAttachFlowForPurchaseLineItemChg(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line"; CurrFieldNo: Integer)
     var
         FromRecRef: RecordRef;
@@ -649,7 +649,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocAttachFlowForPurchaseLineInsert(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 96, 'OnBeforeDeletePurchQuote', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Quote to Order", 'OnBeforeDeletePurchQuote', '', false, false)]
     local procedure DocAttachFlowForPurchQuoteToPurchOrder(var QuotePurchHeader: Record "Purchase Header"; var OrderPurchHeader: Record "Purchase Header")
     var
         FromRecRef: RecordRef;
@@ -678,7 +678,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 96, 'OnAfterInsertPurchOrderLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Quote to Order", 'OnAfterInsertPurchOrderLine', '', false, false)]
     local procedure DocAttachFlowForPurchQuoteToPurchOrderLines(var PurchaseQuoteLine: Record "Purchase Line"; var PurchaseOrderLine: Record "Purchase Line")
     var
         FromRecRef: RecordRef;
@@ -701,7 +701,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 97, 'OnBeforePurchOrderHeaderModify', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Blanket Purch. Order to Order", 'OnBeforePurchOrderHeaderModify', '', false, false)]
     local procedure DocAttachFlowForBlanketPurchaseHeader(var PurchOrderHeader: Record "Purchase Header"; BlanketOrderPurchHeader: Record "Purchase Header")
     var
         FromRecRef: RecordRef;
@@ -735,7 +735,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 97, 'OnBeforeInsertPurchOrderLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Blanket Purch. Order to Order", 'OnBeforeInsertPurchOrderLine', '', false, false)]
     local procedure DocAttachFlowForBlanketPurchaseLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; BlanketOrderPurchLine: Record "Purchase Line"; BlanketOrderPurchHeader: Record "Purchase Header")
     var
         FromRecRef: RecordRef;
@@ -769,7 +769,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachments(FromRecRef, ToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteItem(var Rec: Record Item; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -778,7 +778,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 156, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Resource", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteResource(var Rec: Record Resource; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -787,7 +787,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 167, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteJob(var Rec: Record Job; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -796,7 +796,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5200, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Employee", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteEmployee(var Rec: Record Employee; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -805,7 +805,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5600, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Fixed Asset", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteFixedAsset(var Rec: Record "Fixed Asset"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -814,7 +814,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DeleteAttachedDocuments(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameCustomer(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -827,7 +827,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameVendor(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -840,7 +840,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameItem(var Rec: Record Item; var xRec: Record Item; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -853,7 +853,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5200, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Employee", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameEmployee(var Rec: Record Employee; var xRec: Record Employee; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -866,7 +866,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5600, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Fixed Asset", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameFixedAsset(var Rec: Record "Fixed Asset"; var xRec: Record "Fixed Asset"; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -879,7 +879,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 156, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Resource", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameResource(var Rec: Record Resource; var xRec: Record Resource; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -892,7 +892,7 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveAttachmentsWithinSameRecordType(MoveFromRecRef, MoveToRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 167, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterRenameEvent', '', false, false)]
     local procedure MoveAttachedDocumentsOnAfterRenameJob(var Rec: Record Job; var xRec: Record Job; RunTrigger: Boolean)
     var
         MoveFromRecRef: RecordRef;
@@ -916,7 +916,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocumentAttachment.SetRange("File Name", FileName);
         DocumentAttachment.SetRange("File Extension", FileExtension);
 
-        if not DocumentAttachment.IsEmpty then
+        if not DocumentAttachment.IsEmpty() then
             exit(true);
 
         exit(false);
@@ -936,7 +936,7 @@ codeunit 1173 "Document Attachment Mgmt"
         ToLineNo: Integer;
     begin
         FromDocumentAttachment.SetRange("Table ID", FromRecRef.Number);
-        if FromDocumentAttachment.IsEmpty then
+        if FromDocumentAttachment.IsEmpty() then
             exit;
         case FromRecRef.Number of
             DATABASE::Customer,
@@ -1021,7 +1021,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
                 if not ToDocumentAttachment.Insert(true) then;
 
-            until FromDocumentAttachment.Next = 0;
+            until FromDocumentAttachment.Next() = 0;
         end;
 
         // Copies attachments for header and then calls CopyAttachmentsForPostedDocsLines to copy attachments for lines.
@@ -1067,7 +1067,7 @@ codeunit 1173 "Document Attachment Mgmt"
                 Clear(ToDocumentAttachment."Document Type");
                 ToDocumentAttachment.Insert(true);
 
-            until FromDocumentAttachment.Next = 0;
+            until FromDocumentAttachment.Next() = 0;
         end;
         CopyAttachmentsForPostedDocsLines(FromRecRef, ToRecRef);
     end;
@@ -1120,7 +1120,7 @@ codeunit 1173 "Document Attachment Mgmt"
                 ToDocumentAttachmentLines.Validate("No.", ToNo);
 
                 if ToDocumentAttachmentLines.Insert(true) then;
-            until FromDocumentAttachmentLines.Next = 0;
+            until FromDocumentAttachmentLines.Next() = 0;
     end;
 
     local procedure MoveAttachmentsWithinSameRecordType(var MoveFromRecRef: RecordRef; var MoveToRecRef: RecordRef)
@@ -1157,7 +1157,7 @@ codeunit 1173 "Document Attachment Mgmt"
         end;
 
         // Find any attached docs to be moved
-        if DocumentAttachmentFound.IsEmpty then
+        if DocumentAttachmentFound.IsEmpty() then
             exit;
 
         // Create a copy of all found attachments with new number [MoveToRecNo]
@@ -1169,7 +1169,7 @@ codeunit 1173 "Document Attachment Mgmt"
                 DocumentAttachmentToCreate.TransferFields(DocumentAttachmentFound);
                 DocumentAttachmentToCreate.Validate("No.", MoveToRecNo);
                 DocumentAttachmentToCreate.Insert(true);
-            until DocumentAttachmentFound.Next = 0;
+            until DocumentAttachmentFound.Next() = 0;
         end;
 
         // Delete orphan attachments
@@ -1232,7 +1232,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
     PROCEDURE ShowDocumentAttachments(Notification: Notification);
     VAR
-        DocumentAttachment: Record 1173;
+        DocumentAttachment: Record "Document Attachment";
         TableId: Integer;
         DocumentNo: Code[20];
     BEGIN

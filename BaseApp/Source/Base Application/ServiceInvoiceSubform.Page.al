@@ -215,15 +215,6 @@ page 5934 "Service Invoice Subform"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -324,6 +315,9 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin country/region code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Statistic Indication"; "Statistic Indication")
@@ -477,6 +471,17 @@ page 5934 "Service Invoice Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Service;
@@ -528,13 +533,13 @@ page 5934 "Service Invoice Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveServLine.DeleteLineConfirm(Rec) then
+            if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
         end;
     end;
 

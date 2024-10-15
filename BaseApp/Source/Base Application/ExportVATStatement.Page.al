@@ -26,18 +26,6 @@ page 11774 "Export VAT Statement"
                     Editable = false;
                     ToolTip = 'Specifies the name of VAT statement.';
                 }
-                field(XMLFormat; VATStatementTemplate."XML Format")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'XML Format';
-                    Editable = false;
-                    OptionCaption = 'DPHDP2,DPHDP3';
-                    ToolTip = 'Specifies XML format in which vat statement will be exported';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This field will be removed and should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field(StartDate; StartDate)
                 {
                     ApplicationArea = Basic, Suite;
@@ -264,13 +252,10 @@ page 11774 "Export VAT Statement"
         MonthZeroIfQuarterErr: Label 'Month must be 0 if Quarter is filled in.';
         MonthDontEmptyIfQuarErr: Label 'Quarter must be 0 if Month is filled in.';
         MonthOrQuarterErr: Label 'Month or Quarter must be filled in.';
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        FileFormatErr: Label '%1 file format requires %2 to be added to Supplementary or Supplementary/Corrective VAT Statement.', Comment = '%1=Xml Format, %2=FIELDCAPTION';
+        FileFormatErr: Label 'DPHDP3 file format requires %1 to be added to Supplementary or Supplementary/Corrective VAT Statement.', Comment = '%1==FIELDCAPTION';
         ReasonObserverReqErr: Label 'You must specify Reasons Observed On date in Supplementary or Supplementary/Corrective VAT Statement.';
         VATStatementTemplate: Record "VAT Statement Template";
         FileMgt: Codeunit "File Management";
-        [Obsolete('The file format DPHDP2 is deprecated. Only the DPHDP3 format will be supported. This variable will be removed and should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        VATStatementXML2010: XMLport "VAT Statement";
         VATStatementXML2011: XMLport "VAT Statement 2011";
         FileName: Text;
         DeclarationType: Option Recapitulative,Corrective,Supplementary,"Supplementary/Corrective";
@@ -344,13 +329,13 @@ page 11774 "Export VAT Statement"
 
             if VATStatementTemplate."Allow Comments/Attachments" then begin
                 if Comments = 0 then
-                    Error(FileFormatErr, VATStatementTemplate."XML Format", FieldCaption(Comments));
+                    Error(FileFormatErr, FieldCaption(Comments));
                 if Attachments = 0 then
-                    Error(FileFormatErr, VATStatementTemplate."XML Format", FieldCaption(Attachments));
+                    Error(FileFormatErr, FieldCaption(Attachments));
             end;
         end;
 
-        ClearXMLPortVariables();
+        VATStatementXML2011.ClearVariables();
 
         VATStatementLine.Reset();
         VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
@@ -360,8 +345,8 @@ page 11774 "Export VAT Statement"
         VATStatementLine.SetFilter("Attribute Code", '<>%1', '');
         if VATStatementLine.FindSet then
             repeat
-                SetXMLPortAttributeValue(VATStatementLine, GetColumnValue(VATStatementLine));
-            until VATStatementLine.Next = 0;
+                VATStatementXML2011.AddAmount(GetXMLTag(VATStatementLine), GetColumnValue(VATStatementLine));
+            until VATStatementLine.Next() = 0;
 
         TempBlob.CreateOutStream(OutputStream);
         XMLExportWithParametersTo(OutputStream);
@@ -375,71 +360,39 @@ page 11774 "Export VAT Statement"
         StartDateLoc: Date;
         StopDateLoc: Date;
     begin
-        case VATStatementTemplate."XML Format" of
-            VATStatementTemplate."XML Format"::DPHDP2:
-                begin
-                    VATStatementXML2010.SetParameters(
-                      Month, Quarter, Year, DeclarationType, ReasonsObservedOn, FilledByEmployeeNo, NoTax);
-                    VATStatementXML2010.SetDestination(OutputStream);
-                    VATStatementXML2010.Export();
-                end;
-            VATStatementTemplate."XML Format"::DPHDP3:
-                begin
-                    VATStatementXML2011.SetVATStatementName(Rec);
-                    VATStatementXML2011.SetParameters(
-                      Month, Quarter, Year, DeclarationType, ReasonsObservedOn, FilledByEmployeeNo, NoTax);
+        VATStatementXML2011.SetVATStatementName(Rec);
+        VATStatementXML2011.SetParameters(
+          Month, Quarter, Year, DeclarationType, ReasonsObservedOn, FilledByEmployeeNo, NoTax);
 
-                    if Month <> 0 then begin
-                        Date.SetRange("Period Type", Date."Period Type"::Month);
-                        Date.SetRange("Period Start", DMY2Date(1, Month, Year));
-                        Date.SetRange("Period No.", Month);
-                        if Date.FindLast() then begin
-                            StartDateLoc := NormalDate(Date."Period Start");
-                            StopDateLoc := NormalDate(Date."Period End");
-                        end;
-                    end else begin
-                        Date.SetRange("Period Type", Date."Period Type"::Quarter);
-                        Date.SetRange("Period Start", DMY2Date(1, 1, Year), DMY2Date(31, 12, Year));
-                        Date.SetRange("Period No.", Quarter);
-                        if Date.FindLast() then begin
-                            StartDateLoc := NormalDate(Date."Period Start");
-                            StopDateLoc := NormalDate(Date."Period End");
-                        end;
-                    end;
-
-                    if (StartDateLoc <> StartDate) or (StopDateLoc <> EndDateReq) then begin
-                        StartDateLoc := StartDate;
-                        StopDateLoc := EndDateReq;
-                    end else begin
-                        StartDateLoc := 0D;
-                        StopDateLoc := 0D;
-                    end;
-
-                    VATStatementXML2011.SetParam2(ZoCode, StartDateLoc, StopDateLoc);
-                    VATStatementXML2011.SetDestination(OutputStream);
-                    VATStatementXML2011.Export();
-                end;
+        if Month <> 0 then begin
+            Date.SetRange("Period Type", Date."Period Type"::Month);
+            Date.SetRange("Period Start", DMY2Date(1, Month, Year));
+            Date.SetRange("Period No.", Month);
+            if Date.FindLast() then begin
+                StartDateLoc := NormalDate(Date."Period Start");
+                StopDateLoc := NormalDate(Date."Period End");
+            end;
+        end else begin
+            Date.SetRange("Period Type", Date."Period Type"::Quarter);
+            Date.SetRange("Period Start", DMY2Date(1, 1, Year), DMY2Date(31, 12, Year));
+            Date.SetRange("Period No.", Quarter);
+            if Date.FindLast() then begin
+                StartDateLoc := NormalDate(Date."Period Start");
+                StopDateLoc := NormalDate(Date."Period End");
+            end;
         end;
-    end;
 
-    local procedure ClearXMLPortVariables()
-    begin
-        case VATStatementTemplate."XML Format" of
-            VATStatementTemplate."XML Format"::DPHDP2:
-                VATStatementXML2010.ClearVariables();
-            VATStatementTemplate."XML Format"::DPHDP3:
-                VATStatementXML2011.ClearVariables();
+        if (StartDateLoc <> StartDate) or (StopDateLoc <> EndDateReq) then begin
+            StartDateLoc := StartDate;
+            StopDateLoc := EndDateReq;
+        end else begin
+            StartDateLoc := 0D;
+            StopDateLoc := 0D;
         end;
-    end;
 
-    local procedure SetXMLPortAttributeValue(VATStatementLine: Record "VAT Statement Line"; ColumnValue: Decimal)
-    begin
-        case VATStatementTemplate."XML Format" of
-            VATStatementTemplate."XML Format"::DPHDP2:
-                VATStatementXML2010.SetAttributeValue(VATStatementLine, ColumnValue);
-            VATStatementTemplate."XML Format"::DPHDP3:
-                VATStatementXML2011.AddAmount(GetXMLTag(VATStatementLine), ColumnValue);
-        end;
+        VATStatementXML2011.SetParam2(ZoCode, StartDateLoc, StopDateLoc);
+        VATStatementXML2011.SetDestination(OutputStream);
+        VATStatementXML2011.Export();
     end;
 
     local procedure GetColumnValue(var VATStatementLine: Record "VAT Statement Line") ColumnValue: Decimal
@@ -450,7 +403,7 @@ page 11774 "Export VAT Statement"
         VATStatement.InitializeRequest(
           Rec, VATStatementLine, Selection,
           PeriodSelection, PrintInIntegers, UseAmtsInAddCurr,
-          SettlementNoFilter, CountryCodeFillFiter);
+          SettlementNoFilter);
 
         VATStatement.SetRoundingDirection(RoundingDirection);
 
@@ -482,9 +435,8 @@ page 11774 "Export VAT Statement"
 
     local procedure EncodeAttachmentsToXML(var TempBlob: Codeunit "Temp Blob")
     begin
-        if VATStatementTemplate."XML Format" = VATStatementTemplate."XML Format"::DPHDP3 then
-            if Attachments > 0 then
-                EncodeAttachments(TempBlob);
+        if Attachments > 0 then
+            EncodeAttachments(TempBlob);
     end;
 
     local procedure EncodeAttachments(var TempBlob: Codeunit "Temp Blob")

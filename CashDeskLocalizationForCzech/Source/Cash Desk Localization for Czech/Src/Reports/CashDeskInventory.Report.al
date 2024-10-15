@@ -482,7 +482,7 @@ report 11726 "Cash Desk Inventory CZP"
     procedure RefreshNominalValues()
     var
         CurrencyNominalValueCZP: Record "Currency Nominal Value CZP";
-        CashDeskCZP2: Record "Cash Desk CZP";
+        CurrencyCashDeskCZP: Record "Cash Desk CZP";
     begin
         Clear(NominalValue);
         Clear(NominalValueQty);
@@ -490,9 +490,9 @@ report 11726 "Cash Desk Inventory CZP"
             exit;
 
         FieldsNo := 1;
-        CashDeskCZP2.Get(CashDeskNo);
+        CurrencyCashDeskCZP.Get(CashDeskNo);
         CurrencyNominalValueCZP.Ascending(false);
-        CurrencyNominalValueCZP.SetRange("Currency Code", CashDeskCZP2."Currency Code");
+        CurrencyNominalValueCZP.SetRange("Currency Code", CurrencyCashDeskCZP."Currency Code");
         CurrencyNominalValueCZP.FindSet();
         repeat
             NominalValue[FieldsNo] := CurrencyNominalValueCZP."Nominal Value";

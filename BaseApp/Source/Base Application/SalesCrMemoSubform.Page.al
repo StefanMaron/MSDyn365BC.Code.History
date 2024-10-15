@@ -41,9 +41,9 @@
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        TempOptionLookupBuffer.SetCurrentType(Rec.Type.AsInteger());
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, "Option Lookup Type"::Sales) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
                         UpdateTypeText();
@@ -65,6 +65,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -91,6 +92,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -399,6 +401,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin country/region code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
@@ -492,15 +497,17 @@
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
                     ObsoleteTag = '15.3';
                 }
+#endif
                 field("Deferral Code"; "Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -847,6 +854,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -941,13 +959,13 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveSalesLine.DeleteLineConfirm(Rec) then
+            if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveSalesLine.DeleteLine(Rec);
+            SalesLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
@@ -964,7 +982,7 @@
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
     end;
 
@@ -995,8 +1013,6 @@
     end;
 
     var
-        TotalSalesHeader: Record "Sales Header";
-        TotalSalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
         Currency: Record Currency;
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
@@ -1004,20 +1020,16 @@
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
         AmountWithDiscountAllowed: Decimal;
-        InvDiscAmountEditable: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
-		[InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
+        TotalSalesHeader: Record "Sales Header";
+        TotalSalesLine: Record "Sales Line";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1027,8 +1039,14 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        InvDiscAmountEditable: Boolean;
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+        VATAmount: Decimal;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1137,7 +1155,7 @@
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);

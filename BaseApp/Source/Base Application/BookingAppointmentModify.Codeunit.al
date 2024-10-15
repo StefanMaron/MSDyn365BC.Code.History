@@ -16,7 +16,7 @@ codeunit 6724 "Booking Appointment - Modify"
                     HandlePosted(InvoicedBookingItem)
                 else
                     HandleUnposted(InvoicedBookingItem);
-            until InvoicedBookingItem.Next = 0;
+            until InvoicedBookingItem.Next() = 0;
     end;
 
     local procedure HandlePosted(var InvoicedBookingItem: Record "Invoiced Booking Item")

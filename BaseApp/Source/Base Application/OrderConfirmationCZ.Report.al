@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31095 "Order Confirmation CZ"
 {
     DefaultLayout = RDLC;
@@ -188,18 +189,6 @@ report 31095 "Order Confirmation CZ"
             }
             column(AmountIncludingVAT_SalesHeader; "Amount Including VAT")
             {
-            }
-            column(PerformCountryRegionCode; RegCountryRegion."Country/Region Code")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformVATRegistrationNo; RegCountryRegion."VAT Registration No.")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
             column(DocFooterText; DocFooterText)
             {
@@ -425,11 +414,6 @@ report 31095 "Order Confirmation CZ"
                     end;
                 end;
 
-                if not RegCountryRegion.Get(
-                     RegCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegCountryRegion);
-
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
             end;
@@ -519,8 +503,6 @@ report 31095 "Order Confirmation CZ"
         PaymentMethod: Record "Payment Method";
         ShipmentMethod: Record "Shipment Method";
         TempSalesLine: Record "Sales Line" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -590,4 +572,4 @@ report 31095 "Order Confirmation CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

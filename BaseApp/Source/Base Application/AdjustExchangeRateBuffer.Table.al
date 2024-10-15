@@ -77,16 +77,25 @@ table 331 "Adjust Exchange Rate Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,Advance';
             OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,Advance;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11762; "Document No."; Code[20])
         {
             Caption = 'Document No.';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11763; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field Entry No. will be removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(31000; Advance; Boolean)
         {

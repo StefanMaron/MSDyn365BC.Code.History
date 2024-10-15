@@ -57,30 +57,52 @@ page 5610 "Depreciation Book Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether you sell a fixed asset with the net disposal method.';
                 }
+#if not CLEAN18
                 field("Corresp. G/L Entries on Disp."; "Corresp. G/L Entries on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if disposal the same type of FA entries will be used.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Corresp. FA Entries on Disp."; "Corresp. FA Entries on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if disposal the same type of FA entries will be used.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
                 field("Deprication from 1st Month Day"; "Deprication from 1st Month Day")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies depreciation from 1st Month Day.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Deprication from 1st Year Day"; "Deprication from 1st Year Day")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies depreciation from 1st Year Day.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Check Deprication on Disposal"; "Check Deprication on Disposal")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if all depreciation has to be posted before disposal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Allow Identical Document No."; "Allow Identical Document No.")
                 {
@@ -126,6 +148,10 @@ page 5610 "Depreciation Book Card"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies when acqui. can''t be done befor the depreciation.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Mark Errors as Corrections"; "Mark Errors as Corrections")
                 {
@@ -136,6 +162,10 @@ page 5610 "Depreciation Book Card"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if all acquil. has to be posted in the same year.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
             group(Integration)

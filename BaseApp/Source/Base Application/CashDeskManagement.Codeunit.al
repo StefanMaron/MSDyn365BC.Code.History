@@ -63,7 +63,9 @@ codeunit 11730 CashDeskManagement
         ThousandATxt: Label 'thousand';
         ThousandBTxt: Label 'thousand';
         UserSetupMgt: Codeunit "User Setup Management";
+#if not CLEAN18
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+#endif
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
@@ -496,10 +498,10 @@ codeunit 11730 CashDeskManagement
         BankAcc.Get(CashDeskNo);
 
         CashDeskUser.SetRange("Cash Desk No.", CashDeskNo);
-        if CashDeskUser.IsEmpty then
+        if CashDeskUser.IsEmpty() then
             exit;
         CashDeskUser.SetRange("User ID", UserId);
-        if CashDeskUser.IsEmpty then
+        if CashDeskUser.IsEmpty() then
             CashDeskUser.SetRange("User ID", '');
         case ActionType of
             ActionType::Create:
@@ -513,17 +515,19 @@ codeunit 11730 CashDeskManagement
             ActionType::Post, ActionType::"Post and Print":
                 begin
                     CashDeskUser.SetRange(Post, true);
-                    if EETTransaction and CashDeskUser.IsEmpty then begin
+                    if EETTransaction and CashDeskUser.IsEmpty() then begin
                         CashDeskUser.SetRange(Post);
                         CashDeskUser.SetRange("Post EET Only", true);
                     end;
                     if (BankAcc."Responsibility ID (Post)" <> '') and (BankAcc."Responsibility ID (Post)" <> UserId) then
                         Error(NotPermToPostErr, CashDocHeader.TableCaption);
+#if not CLEAN18
                     if not CheckBankAccount(BankAcc."No.") then
                         Error(NotPermToPostToBankAccountErr, BankAcc."No.");
+#endif
                 end;
         end;
-        if CashDeskUser.IsEmpty then
+        if CashDeskUser.IsEmpty() then
             case ActionType of
                 ActionType::Create:
                     Error(NotPermToCreateErr, CashDocHeader.TableCaption);
@@ -533,7 +537,7 @@ codeunit 11730 CashDeskManagement
                     Error(NotPermToPostErr, CashDocHeader.TableCaption);
             end;
     end;
-
+#if not CLEAN18
     local procedure CheckBankAccount(BankAccountNo: Code[20]): Boolean
     begin
         if not UserSetupAdvMgt.IsCheckAllowed then
@@ -542,7 +546,7 @@ codeunit 11730 CashDeskManagement
             exit(true);
         exit(UserSetupAdvMgt.CheckBankAccount(BankAccountNo));
     end;
-
+#endif
     [TryFunction]
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
@@ -584,7 +588,7 @@ codeunit 11730 CashDeskManagement
         TempBankAcc: Record "Bank Account" temporary;
         CashFilter: Code[10];
     begin
-        if User.IsEmpty then
+        if User.IsEmpty() then
             exit;
 
         GetCashDesksForCashDeskUser(UserCode, TempBankAcc);
@@ -592,7 +596,7 @@ codeunit 11730 CashDeskManagement
         if CashDeskNo <> '' then
             TempBankAcc.SetRange("No.", CashDeskNo);
 
-        if TempBankAcc.IsEmpty then begin
+        if TempBankAcc.IsEmpty() then begin
             if CashDeskNo <> '' then
                 Error(NotCashDeskUserOfCashDeskErr, UserCode, CashDeskNo);
             Error(NotCashDeskUserErr, UserCode);
@@ -602,7 +606,7 @@ codeunit 11730 CashDeskManagement
         if CashFilter <> '' then
             TempBankAcc.SetRange("Responsibility Center", CashFilter);
 
-        if TempBankAcc.IsEmpty then begin
+        if TempBankAcc.IsEmpty() then begin
             if CashDeskNo <> '' then
                 Error(NotCashDeskUserOfCashDeskInRespCenterErr, UserCode, CashDeskNo, CashFilter);
             Error(NotCashDeskUserInRespCenterErr, UserCode, CashFilter);
@@ -645,7 +649,7 @@ codeunit 11730 CashDeskManagement
     begin
         TempBankAcc.DeleteAll();
 
-        if CashDeskUser.IsEmpty then begin
+        if CashDeskUser.IsEmpty() then begin
             BankAcc.SetRange("Account Type", BankAcc."Account Type"::"Cash Desk");
             if BankAcc.FindSet() then
                 repeat
@@ -672,12 +676,12 @@ codeunit 11730 CashDeskManagement
         if TempBankAcc.FindSet then
             repeat
                 CashDesksFilter += '|' + TempBankAcc."No.";
-            until TempBankAcc.Next = 0;
+            until TempBankAcc.Next() = 0;
 
         CashDesksFilter := CopyStr(CashDesksFilter, 2);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterPostSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
     local procedure CreateCashDocumentOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -697,7 +701,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPostPurchaseDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostPurchaseDoc', '', false, false)]
     local procedure CreateCashDocumentOnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
     var
         PurchInvHeader: Record "Purch. Inv. Header";

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31090 "Service - Shipment CZ"
 {
     DefaultLayout = RDLC;
@@ -154,18 +155,6 @@ report 31090 "Service - Shipment CZ"
             }
             column(YourReference_ServiceShipmentHeader; "Your Reference")
             {
-            }
-            column(PerformCountryRegionCode; RegistrationCountryRegion."Country/Region Code")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-            }
-            column(PerformVATRegistrationNo; RegistrationCountryRegion."VAT Registration No.")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
             column(DocFooterText; DocFooterText)
             {
@@ -424,11 +413,6 @@ report 31090 "Service - Shipment CZ"
                   ItemTrackingDocMgt.RetrieveDocumentItemTracking(TempTrackingSpecBuf,
                     "No.", DATABASE::"Service Shipment Header", 0);
                 ItemTrackingDocMgt.SetRetrieveAsmItemTracking(false);
-
-                if not RegistrationCountryRegion.Get(
-                     RegistrationCountryRegion."Account Type"::"Company Information", '', "Perform. Country/Region Code")
-                then
-                    Clear(RegistrationCountryRegion);
             end;
         }
     }
@@ -472,8 +456,6 @@ report 31090 "Service - Shipment CZ"
     var
         DocFooter: Record "Document Footer";
         TempTrackingSpecBuf: Record "Tracking Specification" temporary;
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
@@ -509,4 +491,4 @@ report 31090 "Service - Shipment CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

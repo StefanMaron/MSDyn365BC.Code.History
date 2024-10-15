@@ -157,6 +157,10 @@ page 1288 "Payment-to-Entry Match"
                     MatchBankPayments.MatchSingleLineVendor(
                       BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
                       NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
+                "Account Type"::Employee:
+                    MatchBankPayments.MatchSingleLineEmployee(
+                      BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
+                      NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
                 "Account Type"::"Bank Account":
                     MatchBankPayments.MatchSingleLineBankAccountLedgerEntry(
                       BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,

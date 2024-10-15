@@ -42,7 +42,7 @@ table 5603 "FA Setup"
                 InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
                 MakeInsCoverageLedgEntry: Codeunit "Make Ins. Coverage Ledg. Entry";
             begin
-                if InsCoverageLedgEntry.IsEmpty then
+                if InsCoverageLedgEntry.IsEmpty() then
                     exit;
 
                 if "Insurance Depr. Book" <> xRec."Insurance Depr. Book" then
@@ -69,6 +69,9 @@ table 5603 "FA Setup"
         {
             Caption = 'Tax Depr. Book';
             TableRelation = "Depreciation Book";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -85,13 +88,16 @@ table 5603 "FA Setup"
                                 FixedAsset."Tax Depreciation Group Code" := '';
                                 FixedAsset.Modify();
                             end;
-                        until FixedAsset.Next = 0;
+                        until FixedAsset.Next() = 0;
                 end;
             end;
         }
         field(31042; "Fixed Asset History"; Boolean)
         {
             Caption = 'Fixed Asset History';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -106,20 +112,23 @@ table 5603 "FA Setup"
         field(31043; "FA Maintenance By Maint. Code"; Boolean)
         {
             Caption = 'FA Maintenance By Maint. Code';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Maintenance Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31044; "FA Acquisition As Custom 2"; Boolean)
         {
             Caption = 'FA Acquisition As Custom 2';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31045; "FA Disposal By Reason Code"; Boolean)
         {
             Caption = 'FA Disposal By Reason Code';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 

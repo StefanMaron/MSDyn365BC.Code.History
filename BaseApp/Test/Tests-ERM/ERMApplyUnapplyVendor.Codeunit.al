@@ -1425,7 +1425,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
-        VendorLedgerEntry2.FindSet;
+        VendorLedgerEntry2.FindSet();
         repeat
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
@@ -1443,7 +1443,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, Amount);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
-        VendorLedgerEntry2.FindSet;
+        VendorLedgerEntry2.FindSet();
         repeat
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
@@ -2039,18 +2039,18 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         exit(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
     end;
 
-    local procedure FindDetailedLedgerEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Option; DocumentNo: Code[20]; VendorNo: Code[20])
+    local procedure FindDetailedLedgerEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; VendorNo: Code[20])
     begin
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
-        DetailedVendorLedgEntry.FindSet;
+        DetailedVendorLedgEntry.FindSet();
     end;
 
     local procedure FindGLEntries(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     local procedure FindPaymentMethodWithBalanceAccount(): Code[10]
@@ -2091,7 +2091,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Posting Date", PostingDate);
-            FindSet;
+            FindSet();
             repeat
                 DiscountAmount += "Original Pmt. Disc. Possible";
             until Next = 0;
@@ -2181,7 +2181,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Applying Entry", false);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Applies-to ID", DocumentNo);
                 CalcFields("Remaining Amount");
@@ -2349,7 +2349,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             DetailedVendorLedgEntry."Entry Type"));
     end;
 
-    local procedure VerifyApplnRoundingVendLedger(EntryType: Option; DocumentNo: Code[20]; Amount: Decimal; VendorNo: Code[20])
+    local procedure VerifyApplnRoundingVendLedger(EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; Amount: Decimal; VendorNo: Code[20])
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -2436,7 +2436,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             FindLast;
             SetRange("Transaction No.", "Transaction No.");
             Assert.RecordCount(GLEntry, DimSetArrLen + 1);
-            FindSet;
+            FindSet();
             for Index := 1 to DimSetArrLen do begin
                 Assert.AreEqual(DimSetIDs[1], "Dimension Set ID", FieldCaption("Dimension Set ID"));
                 Assert.AreEqual(Amounts[Index], Amount, FieldCaption(Amount));
@@ -2468,7 +2468,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
             until Next = 0;

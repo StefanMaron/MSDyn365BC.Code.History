@@ -1,9 +1,9 @@
 table 11799 "No. Series Link"
 {
     Caption = 'No. Series Link';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
-    ObsoleteTag = '15.3';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -86,55 +86,6 @@ table 11799 "No. Series Link"
             TableRelation = "No. Series";
         }
         field(14; "Receiving Wh. No. Series Desc."; Text[50])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Receiving Wh. No. Series")));
-            Caption = 'Receiving Wh. No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(20; "Initial No. Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Initial No. Series")));
-            Caption = 'Initial No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(21; "Linked No. Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Linked No. Series")));
-            Caption = 'Linked No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(22; "Posting No. Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Posting No. Series")));
-            Caption = 'Posting No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(23; "Shipping No. Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Shipping No. Series")));
-            Caption = 'Shipping No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(24; "Receiving No. Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Receiving No. Series")));
-            Caption = 'Receiving No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(25; "Shipping Wh.No.Series Desc. 2"; Text[100])
-        {
-            CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Shipping Wh. No. Series")));
-            Caption = 'Shipping Wh. No. Series Desc.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(26; "Receiving Wh.No.Series Desc. 2"; Text[100])
         {
             CalcFormula = Lookup("No. Series".Description WHERE(Code = FIELD("Receiving Wh. No. Series")));
             Caption = 'Receiving Wh. No. Series Desc.';

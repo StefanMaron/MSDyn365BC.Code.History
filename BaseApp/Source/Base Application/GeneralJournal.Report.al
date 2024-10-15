@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11777 "General Journal"
 {
     DefaultLayout = RDLC;
@@ -232,4 +233,4 @@ report 11777 "General Journal"
         FromDate: Date;
         ToDate: Date;
 }
-
+#endif

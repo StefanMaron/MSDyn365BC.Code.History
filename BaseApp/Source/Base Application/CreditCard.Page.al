@@ -1,10 +1,13 @@
 page 31050 "Credit Card"
 {
-    Caption = 'Credit Card';
+    Caption = 'Credit Card (Obsolete)';
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Credit Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -22,7 +25,7 @@ page 31050 "Credit Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)

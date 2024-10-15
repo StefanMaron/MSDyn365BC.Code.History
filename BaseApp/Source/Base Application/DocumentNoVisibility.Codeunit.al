@@ -584,7 +584,7 @@ codeunit 1400 DocumentNoVisibility
 
         SeriesDate := WorkDate;
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
-        if not NoSeriesRelationship.IsEmpty then
+        if not NoSeriesRelationship.IsEmpty() then
             exit(true);
 
         if NoSeries."Manual Nos." or (NoSeries."Default Nos." = false) then
@@ -766,6 +766,7 @@ codeunit 1400 DocumentNoVisibility
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CreditCardNoIsVisible(DocNo: Code[20]): Boolean
     var
         NoSeries: Record "No. Series";
@@ -840,7 +841,6 @@ codeunit 1400 DocumentNoVisibility
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
         VIESDeclarationHeader: Record "VIES Declaration Header";
-        ReverseChargeHeader: Record "Reverse Charge Header";
         VATControlReportHeader: Record "VAT Control Report Header";
     begin
         // NAVCZ
@@ -850,11 +850,6 @@ codeunit 1400 DocumentNoVisibility
                 begin
                     CheckNumberSeries(VIESDeclarationHeader, StatReportingSetup."VIES Declaration Nos.", VIESDeclarationHeader.FieldNo("No."));
                     exit(StatReportingSetup."VIES Declaration Nos.");
-                end;
-            DocType::"Reverse Charge":
-                begin
-                    CheckNumberSeries(ReverseChargeHeader, StatReportingSetup."Reverse Charge Nos.", ReverseChargeHeader.FieldNo("No."));
-                    exit(StatReportingSetup."Reverse Charge Nos.");
                 end;
             DocType::"VAT Control Report":
                 begin

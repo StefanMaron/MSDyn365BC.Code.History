@@ -1,5 +1,8 @@
 codeunit 5446 "Graph Webhook Sync To NAV"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The functionality is not supported any more.';
+    ObsoleteTag = '18.0';
     TableNo = "Webhook Notification";
 
     trigger OnRun()

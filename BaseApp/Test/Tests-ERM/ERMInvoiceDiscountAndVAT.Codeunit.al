@@ -2896,7 +2896,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocNo);
             SetRange("G/L Account No.", AccNo);
-            FindSet;
+            FindSet();
             TestField(Amount, FirstExpectedAmt);
             Next;
             TestField(Amount, SecondExpectedAmt)

@@ -24,6 +24,7 @@ page 6661 "Posted Return Receipt Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -33,6 +34,7 @@ page 6661 "Posted Return Receipt Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -111,15 +113,17 @@ page 6661 "Posted Return Receipt Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
                     ObsoleteTag = '15.3';
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

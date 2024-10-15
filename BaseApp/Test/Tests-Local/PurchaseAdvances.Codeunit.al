@@ -1136,7 +1136,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindSet;
+        PurchAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -Amount, 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -VATAmount, 0.01, '');
         PurchAdvLetterEntry.Next;
@@ -1218,7 +1218,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindSet;
+        PurchAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", Amount, 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", VATAmount, 0.01, '');
         PurchAdvLetterEntry.Next;
@@ -1231,7 +1231,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation advance invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindSet;
+        PurchInvHeader.FindSet();
         PurchInvHeader.CalcFields(Amount);
         PurchInvHeader.TestField(Amount, VATAmount);
         PurchInvHeader.Next;
@@ -1428,7 +1428,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindSet;
+        PurchAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -Amount[2], 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -VATAmount[2], 0.01, '');
         PurchAdvLetterEntry.Next;
@@ -1737,7 +1737,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindSet;
+        PurchAdvLetterEntry.FindSet();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", PurchAdvStatAmounts[1] [1], 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", PurchAdvStatAmounts[1] [2], 0.01, '');
         PurchAdvLetterEntry.Next;

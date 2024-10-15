@@ -1177,6 +1177,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderLine: Record "Sales Line";
         VATRateChangeConv: Record "VAT Rate Change Conversion";
         BlanketSalesOrderPage: TestPage "Blanket Sales Order";
+        SalesDocumentType: Enum "Sales Document Type";
+        SalesLineType: Enum "Sales Line Type";
         SalesOrderDocNo: Code[20];
         CustomerNo: Code[20];
         SecondSalesLineNo: Integer;
@@ -1203,10 +1205,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // [GIVEN] Blanket Sales Order with line of type Item, Qty = 10 and one Ext. Text line
         // VAT Prod. Posting Group of Sales Line = 'VPPG1'
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", CustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::"Blanket Order", CustomerNo);
         BlanketSalesOrderPage.OpenEdit();
-        BlanketSalesOrderPage.Filter.SetFilter("No.", SalesHeader."No.");
-        BlanketSalesOrderPage.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        BlanketSalesOrderPage.GoToRecord(SalesHeader);
+        BlanketSalesOrderPage.SalesLines.Type.SetValue(SalesLineType::Item);
         BlanketSalesOrderPage.SalesLines."No.".SetValue(Item."No.");
         BlanketSalesOrderPage.SalesLines.Quantity.SetValue(10);
         BlanketSalesOrderPage.Close();
@@ -1215,7 +1217,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // [GIVEN] Sales Order made out of Sales Blanket Order
         SalesOrderDocNo := LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
 
-        SalesOrderHeader.GET(SalesOrderHeader."Document Type"::Order, SalesOrderDocNo);
+        SalesOrderHeader.GET(SalesDocumentType::Order, SalesOrderDocNo);
         LibrarySales.FindFirstSalesLine(SalesOrderLine, SalesOrderHeader);
 
         // [GIVEN] Sales Order posted with Quanitity = 8.
@@ -2132,7 +2134,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader.Find;
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure GetSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
@@ -2488,7 +2490,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempSalesLn.FindFirst;
         QtyItemCharge := TempSalesLn.Quantity;
         TempSalesLn.SetRange(Type, TempSalesLn.Type::Item);
-        TempSalesLn.FindSet;
+        TempSalesLn.FindSet();
         QtyItem := TempSalesLn.Quantity;
         QtyShippedItem := TempSalesLn."Qty. to Ship";
         TempSalesLn.Next;
@@ -2497,7 +2499,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         with ItemChargeAssignmentSales do begin
             SetRange("Document Type", TempSalesLn."Document Type");
             SetFilter("Document No.", TempSalesLn."Document No.");
-            FindSet;
+            FindSet();
             Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount);
             Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
             Next;
@@ -2517,7 +2519,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
@@ -2531,7 +2533,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
@@ -2556,14 +2558,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLn.Reset();
         SalesLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
         SalesLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
-        SalesLn.FindSet;
+        SalesLn.FindSet();
 
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, SalesLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTableSales(TempRecRef, TempSalesLn);
-        TempSalesLn.FindSet;
+        TempSalesLn.FindSet();
 
         repeat
             if TempSalesLn."Description 2" = Format(TempSalesLn."Line No.") then

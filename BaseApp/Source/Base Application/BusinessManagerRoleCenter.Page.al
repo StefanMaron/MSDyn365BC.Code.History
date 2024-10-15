@@ -467,7 +467,7 @@ page 9022 "Business Manager Role Center"
             {
                 Caption = 'Finance';
                 Image = Journals;
-                ToolTip = 'Collect and make payments, prepare statements, and reconcile bank accounts.';
+                ToolTip = 'Post financial transactions, manage budgets, analyze G/L  data, and prepare financial statements.';
                 action(GeneralJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -712,17 +712,6 @@ page 9022 "Business Manager Role Center"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.4';
                     Visible = false;
-                }
-                action("Reverse Charges")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Reverse Charges';
-                    RunObject = Page "Reverse Charges";
-                    ToolTip = 'Specifies reverse charges list';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 action(CashReceiptJournals)
                 {
@@ -1202,11 +1191,15 @@ page 9022 "Business Manager Role Center"
                     ToolTip = 'Open the list of posted purchase return shipments.';
                 }
             }
+#if not CLEAN18
             group(SetupAndExtensions)
             {
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                ObsoleteTag = '18.0';
                 action(Action104)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1214,6 +1207,9 @@ page 9022 "Business Manager Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Manual Setup")
                 {
@@ -1221,6 +1217,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Manual Setup';
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Action107)
                 {
@@ -1229,6 +1228,9 @@ page 9022 "Business Manager Role Center"
                     Image = ServiceTasks;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Action106)
                 {
@@ -1237,6 +1239,9 @@ page 9022 "Business Manager Role Center"
                     Image = NonStockItemSetup;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install Extensions for greater functionality of the system.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Workflows)
                 {
@@ -1246,8 +1251,12 @@ page 9022 "Business Manager Role Center"
                     PromotedCategory = Process;
                     RunObject = Page Workflows;
                     ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
             }
+#endif
         }
     }
 }

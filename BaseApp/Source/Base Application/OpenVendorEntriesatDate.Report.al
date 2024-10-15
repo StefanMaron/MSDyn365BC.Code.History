@@ -347,7 +347,7 @@ report 11779 "Open Vendor Entries at Date"
                         Vend."No." := '';
                         lreVendEntry.SetCurrentKey("Vendor No.");
                         lreVendEntry.SetRange("Vendor No.", '');
-                        if lreVendEntry.IsEmpty then
+                        if lreVendEntry.IsEmpty() then
                             CurrReport.Skip();
                     end;
                     TCurrencyBuffer.DeleteAll();
@@ -509,7 +509,7 @@ report 11779 "Open Vendor Entries at Date"
                         if not TGLAccBuffer.FindSet then
                             CurrReport.Break();
                     end else
-                        if TGLAccBuffer.Next = 0 then
+                        if TGLAccBuffer.Next() = 0 then
                             CurrReport.Break();
 
                     GLAcc.Get(TGLAccBuffer."No.");
@@ -522,7 +522,7 @@ report 11779 "Open Vendor Entries at Date"
                         CurrReport.Break();
 
                     TGLAccBuffer.Reset();
-                    if TGLAccBuffer.IsEmpty then
+                    if TGLAccBuffer.IsEmpty() then
                         CurrReport.Break();
 
                     SetRange(Number, 1, TGLAccBuffer.Count);

@@ -86,29 +86,6 @@ page 11734 "Cash Document Statistics"
                         UpdateHeaderInfo;
                     end;
                 }
-                field(AmountExclVATDeduct; AmountExclVATDeduct)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'VAT Base (Non Deductible)';
-                    DrillDown = false;
-                    Editable = false;
-                    ToolTip = 'Specifies non deductible vat base of cash document';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field(VATAmountDeduct; VATAmountDeduct)
-                {
-                    ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
-                    AutoFormatType = 1;
-                    Caption = 'VAT Amount (Non Deductible)';
-                    Editable = false;
-                    ToolTip = 'Specifies non deductible vat amount of cash document';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
             }
         }
     }
@@ -137,8 +114,6 @@ page 11734 "Cash Document Statistics"
         AmountExclVATLCY: Decimal;
         VATAmountLCY: Decimal;
         AmountInclVATLCY: Decimal;
-        AmountExclVATDeduct: Decimal;
-        VATAmountDeduct: Decimal;
 
     local procedure UpdateHeaderInfo()
     var
@@ -152,15 +127,11 @@ page 11734 "Cash Document Statistics"
           TotalCashDocLine."VAT Base Amount",
           TotalCashDocLine."Amount Including VAT",
           TotalCashDocLine."VAT Base Amount (LCY)",
-          TotalCashDocLine."Amount Including VAT (LCY)",
-          TotalCashDocLine."VAT Base (Non Deductible)",
-          TotalCashDocLine."VAT Amount (Non Deductible)");
+          TotalCashDocLine."Amount Including VAT (LCY)");
 
         AmountExclVAT := TotalCashDocLine."VAT Base Amount";
-        AmountExclVATDeduct := TotalCashDocLine."VAT Base (Non Deductible)";
         AmountInclVAT := TotalCashDocLine."Amount Including VAT";
         VATAmount := AmountInclVAT - AmountExclVAT;
-        VATAmountDeduct := TotalCashDocLine."VAT Amount (Non Deductible)";
         AmountExclVATLCY := TotalCashDocLine."VAT Base Amount (LCY)";
         AmountInclVATLCY := TotalCashDocLine."Amount Including VAT (LCY)";
         VATAmountLCY := AmountInclVATLCY - AmountExclVATLCY;
@@ -205,15 +176,13 @@ page 11734 "Cash Document Statistics"
                     VATAmountLine."VAT Base" += "VAT Base Amount";
                     VATAmountLine."VAT Amount" += "Amount Including VAT" - "VAT Base Amount";
                     VATAmountLine."Amount Including VAT" += "Amount Including VAT";
-                    VATAmountLine."VAT Base (Non Deductible)" += "VAT Base (Non Deductible)";
-                    VATAmountLine."VAT Amount (Non Deductible)" += "VAT Amount (Non Deductible)";
                     VATAmountLine."VAT Difference" += "VAT Difference";
                     VATAmountLine."VAT Base (LCY)" += "VAT Base Amount (LCY)";
                     VATAmountLine."VAT Amount (LCY)" += "Amount Including VAT (LCY)" - "VAT Base Amount (LCY)";
                     VATAmountLine."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
                     VATAmountLine.Modify();
-                until Next = 0;
+                until Next() = 0;
             SetRange("Account Type");
         end;
 
@@ -222,7 +191,7 @@ page 11734 "Cash Document Statistics"
                 repeat
                     "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
                     Modify;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]

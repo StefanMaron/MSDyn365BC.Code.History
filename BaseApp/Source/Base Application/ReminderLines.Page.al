@@ -70,7 +70,7 @@ page 435 "Reminder Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Due Date"; "Due Date")
@@ -206,7 +206,7 @@ page 435 "Reminder Lines"
             TransferExtendedText.InsertReminderExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure TypeOnAfterValidate()

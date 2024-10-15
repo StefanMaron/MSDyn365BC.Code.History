@@ -35,7 +35,7 @@ page 314 "General Posting Setup"
                             SetAccountsVisibility(
                               PmtToleranceVisible, PmtDiscountVisible, SalesInvDiscVisible, SalesLineDiscVisible, PurchInvDiscVisible, PurchLineDiscVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -208,11 +208,17 @@ page 314 "General Posting Setup"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the account the line and invoice discount will be posted to when a check mark is placed in the Subtract Disc. in Purch. Inv. field.';
                 }
+#if not CLEAN18
                 field("Invt. Rounding Adj. Account"; "Invt. Rounding Adj. Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the inventory rounding adjustment account.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
             }
         }
         area(factboxes)

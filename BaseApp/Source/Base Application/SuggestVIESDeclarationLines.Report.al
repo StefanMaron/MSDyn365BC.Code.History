@@ -224,7 +224,7 @@ report 31067 "Suggest VIES Declaration Lines"
                 VIESLine."Amount (LCY)" := Round(TempVIESLine."Amount (LCY)", 1, '>');
                 VIESLine."Line No." := LastLineNo;
                 VIESLine.Insert();
-            until TempVIESLine.Next = 0;
+            until TempVIESLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -286,7 +286,6 @@ report 31067 "Suggest VIES Declaration Lines"
                     "Amount (LCY)" := -VATEntry."Advance Base"
                 else
                     "Amount (LCY)" := -VATEntry.Base;
-                "Amount (LCY)" := ExchangeAmount(VATEntry, "Amount (LCY)");
                 "EU 3-Party Trade" := VATEntry."EU 3-Party Trade";
                 "EU 3-Party Intermediate Role" := VATEntry."EU 3-Party Intermediate Role";
                 "Trade Role Type" := GetTradeRoleType(VATEntry."EU 3-Party Trade");
@@ -323,21 +322,7 @@ report 31067 "Suggest VIES Declaration Lines"
             end;
             VATEntry.SetRange("VAT Date", "Start Date", "End Date");
             VATEntry.SetFilter(Base, '<>%1', 0);
-            VATEntry.SetRange("Perform. Country/Region Code", "Perform. Country/Region Code");
         end;
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure ExchangeAmount(VATEntry: Record "VAT Entry"; AmountAdd: Decimal): Decimal
-    var
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
-    begin
-        if "VIES Declaration Header"."Perform. Country/Region Code" = '' then
-            exit(AmountAdd);
-
-        with VATEntry do
-            exit(PerfCountryCurrExchRate.ExchangeAmount(
-                "Posting Date", "Perform. Country/Region Code", "Currency Code", AmountAdd * "Currency Factor"));
     end;
 }
 

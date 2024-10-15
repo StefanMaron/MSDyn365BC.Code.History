@@ -177,34 +177,6 @@ page 571 "No. Series List"
                     RunPageLink = Code = FIELD(Code);
                     ToolTip = 'Define the relationship between number series.';
                 }
-                action(Link)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Link';
-                    Image = Link;
-                    RunObject = Page "No. Series Links";
-                    RunPageLink = "Initial No. Series" = FIELD(Code);
-                    ToolTip = 'Allow the connection to the no. series.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-            }
-        }
-        area(processing)
-        {
-            action("No. Series Mask Generator")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'No. Series Mask Generator';
-                Image = CreateSerialNo;
-                RunObject = Report "No. Series Mask Generator";
-                ToolTip = 'Generates No. Series Line according to selected Mask';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
         }
     }
@@ -237,7 +209,7 @@ page 571 "No. Series List"
     local procedure DrillDownActionOnPage()
     begin
         DrillDown;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

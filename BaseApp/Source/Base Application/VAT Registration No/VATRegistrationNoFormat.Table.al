@@ -72,7 +72,7 @@ table 381 "VAT Registration No. Format"
             repeat
                 AppendString(TextString, Finish, Format);
                 Check := Compare(VATRegNo, Format);
-            until Check or (Next = 0);
+            until Check or (Next() = 0);
 
         if not Check then begin
             if EnvInfoProxy.IsInvoicing then
@@ -100,7 +100,6 @@ table 381 "VAT Registration No. Format"
     var
         Cust: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -127,10 +126,8 @@ table 381 "VAT Registration No. Format"
                     CustomerIdentification := Cust."No.";
 
                 AppendString(TextString, Finish, CustomerIdentification);
-            until (Cust.Next = 0) or Finish;
+            until (Cust.Next() = 0) or Finish;
         end;
-        Check :=
-          Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Customer, Number); // NAVCZ
         if not Check then begin
             Message(StrSubstNo(Text002, TextString));
             exit(false);
@@ -142,7 +139,6 @@ table 381 "VAT Registration No. Format"
     local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Vend: Record Vendor;
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -163,10 +159,8 @@ table 381 "VAT Registration No. Format"
             Finish := false;
             repeat
                 AppendString(TextString, Finish, Vend."No.");
-            until (Vend.Next = 0) or Finish;
+            until (Vend.Next() = 0) or Finish;
         end;
-        Check :=
-          Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Vendor, Number); // NAVCZ
         if not Check then begin
             Message(StrSubstNo(Text003, TextString));
             exit(false);
@@ -178,7 +172,6 @@ table 381 "VAT Registration No. Format"
     local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cont: Record Contact;
-        RegistrationCountryRegion: Record "Registration Country/Region";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -199,34 +192,14 @@ table 381 "VAT Registration No. Format"
             Finish := false;
             repeat
                 AppendString(TextString, Finish, Cont."No.");
-            until (Cont.Next = 0) or Finish;
+            until (Cont.Next() = 0) or Finish;
         end;
-        Check :=
-          Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Contact, Number); // NAVCZ
         if not Check then begin
             Message(StrSubstNo(Text004, TextString));
             exit(false);
         end;
 
         exit(true);
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-    local procedure CheckRegCountryRegion(var t: Text; VATRegNo: Text[20]; Type: Option; Number: Code[20]) Check: Boolean
-    var
-        RegistrationCountryRegion: Record "Registration Country/Region";
-        Finish: Boolean;
-    begin
-        // NAVCZ
-        RegistrationCountryRegion.SetCurrentKey("VAT Registration No.");
-        RegistrationCountryRegion.SetRange("VAT Registration No.", VATRegNo);
-        RegistrationCountryRegion.SetRange("Account Type", Type);
-        RegistrationCountryRegion.SetFilter("Account No.", '<>%1', Number);
-        Check := not RegistrationCountryRegion.FindSet;
-        if not Check then
-            repeat
-                AppendString(t, Finish, RegistrationCountryRegion."Account No.");
-            until (RegistrationCountryRegion.Next = 0) or Finish;
     end;
 
     procedure Compare(VATRegNo: Text[20]; Format: Text[20]): Boolean

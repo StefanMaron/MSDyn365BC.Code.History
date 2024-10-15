@@ -286,12 +286,12 @@ report 31074 "Phys. Invt. Counting Document"
                             ChangeCost := ItemLedgEntry."Cost Amount (Actual)";
                         end;
                     else begin
-                            ItemLedgEntry.FindSet;
+                            ItemLedgEntry.FindSet();
                             repeat
                                 ItemLedgEntry.CalcFields("Cost Amount (Actual)");
                                 ChangeCost := ChangeCost + ItemLedgEntry."Cost Amount (Actual)";
                                 ChangeQty := ChangeQty + ItemLedgEntry.Quantity;
-                            until ItemLedgEntry.Next = 0;
+                            until ItemLedgEntry.Next() = 0;
                             ChangeCost := Round(ChangeCost / ChangeQty * ("Qty. (Phys. Inventory)" - "Qty. (Calculated)"), 0.01);
                         end;
                 end;

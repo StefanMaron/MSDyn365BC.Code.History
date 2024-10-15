@@ -29,7 +29,7 @@ codeunit 143021 "Library - VAT Ctrl. Rpt. Stat."
     [Scope('OnPrem')]
     procedure GetLineWithSection(SectionCode: Code[20]; var TempVATControlReportBuffer2: Record "VAT Control Report Buffer" temporary)
     begin
-        if TempVATControlReportBuffer.IsEmpty then
+        if TempVATControlReportBuffer.IsEmpty() then
             exit;
 
         TempVATControlReportBuffer.Get(SectionCode);

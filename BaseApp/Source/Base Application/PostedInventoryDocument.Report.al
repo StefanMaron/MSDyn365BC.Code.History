@@ -168,7 +168,7 @@ report 31078 "Posted Inventory Document"
                     ILE := ItemLedgerEntry;
                     ILE.SetRange("Document No.", "Document No.");
                     ILE.SetFilter("Entry Type", '<>%1', "Entry Type");
-                    if not ILE.IsEmpty then
+                    if not ILE.IsEmpty() then
                         Clear(EntryType);
                     CurrentDocNo := "Document No.";
                 end;

@@ -17,7 +17,7 @@ codeunit 11720 "Exp. Launcher SEPA"
         GenJnlLn.SetRange("Journal Template Name", BankAcc."Payment Jnl. Template Name");
         GenJnlLn.SetRange("Journal Batch Name", BankAcc."Payment Jnl. Batch Name");
         GenJnlLn.SetRange("Document No.", IssuedPmtOrdHdr."No.");
-        if not GenJnlLn.IsEmpty then
+        if not GenJnlLn.IsEmpty() then
             GenJnlLn.DeleteAll(true);
 
         IssuedPmtOrdHdr.CreatePmtJnl(

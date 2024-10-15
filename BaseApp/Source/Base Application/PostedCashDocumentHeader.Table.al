@@ -338,10 +338,10 @@ table 11735 "Posted Cash Document Header"
                     ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.C.Wdrwl");
             end;
             ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.FindSet;
+            ReportSelection.FindSet();
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PostedCashDocHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

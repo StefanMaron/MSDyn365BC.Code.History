@@ -494,7 +494,7 @@ table 5876 "Phys. Invt. Order Line"
                             OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(ExpPhysInvtTracking, ItemLedgEntry);
                             ExpPhysInvtTracking.Modify();
                         end;
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
                 ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
                 TestQtyExpected();
             end else begin
@@ -521,7 +521,7 @@ table 5876 "Phys. Invt. Order Line"
                                 OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
                                 ExpPhysInvtTracking.Modify();
                             end;
-                        until WhseEntry.Next = 0;
+                        until WhseEntry.Next() = 0;
                     ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
                     TestQtyExpected();
                 end else
@@ -644,7 +644,7 @@ table 5876 "Phys. Invt. Order Line"
                             MustSpecifyErr, PhysInvtRecordLine."Recording No.",
                             StrSubstNo(IndenitiedValuesMsg, "Item No.", "Variant Code", "Location Code", "Bin Code")));
                 Sum := Sum + PhysInvtRecordLine."Quantity (Base)";
-            until PhysInvtRecordLine.Next = 0;
+            until PhysInvtRecordLine.Next() = 0;
 
         if "Qty. Recorded (Base)" <> Sum then
             Error(

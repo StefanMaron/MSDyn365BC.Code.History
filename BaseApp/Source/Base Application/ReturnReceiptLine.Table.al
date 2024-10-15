@@ -362,11 +362,18 @@ table 6661 "Return Receipt Line"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -487,8 +494,12 @@ table 6661 "Return Receipt Line"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '15.3';
         }
     }
@@ -527,7 +538,7 @@ table 6661 "Return Receipt Line"
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::"Posted Return Receipt");
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not SalesDocLineComments.IsEmpty then
+        if not SalesDocLineComments.IsEmpty() then
             SalesDocLineComments.DeleteAll();
     end;
 
@@ -698,7 +709,7 @@ table 6661 "Return Receipt Line"
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
 
-        until (Next = 0) or ("Attached to Line No." = 0);
+        until (Next() = 0) or ("Attached to Line No." = 0);
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
@@ -757,8 +768,8 @@ table 6661 "Return Receipt Line"
                                 TempSalesCrMemoLine := SalesCrMemoLine;
                                 if TempSalesCrMemoLine.Insert() then;
                             end;
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 

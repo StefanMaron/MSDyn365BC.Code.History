@@ -2,6 +2,7 @@
 codeunit 11793 "Bank Account Handler CZP"
 {
     var
+        CashDeskSingleInstanceCZP: Codeunit "Cash Desk Single Instance CZP";
 
     [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnBeforeRenameEvent', '', false, false)]
     local procedure SyncOnBeforeRenameBankAccount(var Rec: Record "Bank Account"; RunTrigger: Boolean)
@@ -27,25 +28,37 @@ codeunit 11793 "Bank Account Handler CZP"
         CashDeskChangeAction(Rec, RunTrigger);
     end;
 
-    local procedure CashDeskChangeAction(var Rec: Record "Bank Account"; RunTrigger: Boolean)
-#if not CLEAN17
+    local procedure CashDeskChangeAction(var BankAccount: Record "Bank Account"; RunTrigger: Boolean)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+#if not CLEAN17
         CashDeskDisableChangeErr: Label 'You cannot change Cash Desks because are obsolete.';
 #endif
     begin
         if NavApp.IsInstalling() then
             exit;
-        if Rec.IsTemporary() then
+        if BankAccount.IsTemporary() then
             exit;
         if not RunTrigger then
             exit;
-#if not CLEAN17
-        BankAccountLedgerEntry.SetRange("Bank Account No.", Rec."No.");
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
         if BankAccountLedgerEntry.IsEmpty() then
             exit;
-        if Rec."Account Type" = Rec."Account Type"::"Cash Desk" then
+#if not CLEAN17
+        if BankAccount."Account Type" = BankAccount."Account Type"::"Cash Desk" then
             Error(CashDeskDisableChangeErr);
 #endif
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates CZL", 'OnBeforeOnInitReport', '', false, false)]
+    local procedure ShowCashDesksOnBeforeOnInitReport()
+    begin
+        CashDeskSingleInstanceCZP.SetShowAllBankAccountType(true);
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates CZL", 'OnCloseRequestPage', '', false, false)]
+    local procedure HideCashDesksOnCloseRequestPage()
+    begin
+        CashDeskSingleInstanceCZP.SetShowAllBankAccountType(false);
     end;
 }

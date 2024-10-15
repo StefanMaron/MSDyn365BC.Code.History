@@ -84,7 +84,7 @@ table 31122 "EET Cash Register"
         EETEntry.SetCurrentKey("Business Premises Code", "Cash Register Code");
         EETEntry.SetRange("Business Premises Code", "Business Premises Code");
         EETEntry.SetRange("Cash Register Code", Code);
-        if not EETEntry.IsEmpty then
+        if not EETEntry.IsEmpty() then
             Error(EntryExistsErr, TableCaption, Code);
     end;
 

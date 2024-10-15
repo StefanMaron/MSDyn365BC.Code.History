@@ -382,12 +382,8 @@ table 31020 "Purch. Advance Letter Header"
                 if "Pay-to Vendor No." <> '' then begin
                     GetVend("Pay-to Vendor No.");
                     NewVATRegNo := Vend."VAT Registration No.";
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Vendor, "Pay-to Vendor No.", "VAT Country/Region Code") then
-                            NewVATRegNo := RegistrationCountry."VAT Registration No.";
                 end;
                 "VAT Registration No." := NewVATRegNo;
-                Validate("Perform. Country/Region Code");
             end;
         }
         field(85; "Pay-to Post Code"; Code[20])
@@ -821,47 +817,9 @@ table 31020 "Purch. Advance Letter Header"
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            var
-                RegnCountryRoute: Record "Registr. Country/Region Route";
-                Vend: Record Vendor;
-                PurchAdvPmtTemplate: Record "Purchase Adv. Payment Template";
-                NewVATBusPostingGroup: Code[20];
-            begin
-                if "Pay-to Vendor No." <> '' then begin
-                    Vend.Get("Pay-to Vendor No.");
-                    NewVATBusPostingGroup := Vend."VAT Bus. Posting Group";
-                    if "Template Code" <> '' then begin
-                        PurchAdvPmtTemplate.Get("Template Code");
-                        if PurchAdvPmtTemplate."VAT Bus. Posting Group" <> '' then
-                            NewVATBusPostingGroup := PurchAdvPmtTemplate."VAT Bus. Posting Group";
-                    end;
-                    if "VAT Country/Region Code" <> '' then
-                        if RegistrationCountry.Get(RegistrationCountry."Account Type"::Vendor, "Pay-to Vendor No.", "VAT Country/Region Code") then
-                            NewVATBusPostingGroup := RegistrationCountry."VAT Bus. Posting Group";
-
-                    if "Perform. Country/Region Code" <> '' then begin
-                        CompanyInfo.Get();
-                        RegistrationCountry.Get(RegistrationCountry."Account Type"::Vendor, '', "Perform. Country/Region Code");
-                        if "VAT Country/Region Code" <> '' then begin
-                            RegnCountryRoute.Get("Perform. Country/Region Code", "VAT Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegnCountryRoute."New VAT Bus. Posting Group";
-                        end else begin
-                            RegnCountryRoute.Get("Perform. Country/Region Code", CompanyInfo."Country/Region Code", NewVATBusPostingGroup);
-                            NewVATBusPostingGroup := RegnCountryRoute."New VAT Bus. Posting Group";
-                        end;
-                    end;
-                end;
-                Validate("VAT Bus. Posting Group", NewVATBusPostingGroup);
-                "Perf. Country Currency Factor" := 0;
-                UpdatePerformCountryCurrFactor;
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Perf. Country Currency Factor"; Decimal)
         {
@@ -869,9 +827,9 @@ table 31020 "Purch. Advance Letter Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
@@ -918,7 +876,7 @@ table 31020 "Purch. Advance Letter Header"
         if "Order No." <> '' then begin
             PurchAdvanceLetterHeader2.SetRange("Order No.", "Order No.");
             PurchAdvanceLetterHeader2.SetFilter("No.", '<>%1', "No.");
-            if PurchAdvanceLetterHeader2.IsEmpty then begin
+            if PurchAdvanceLetterHeader2.IsEmpty() then begin
                 if PurchHeader.Get(PurchHeader."Document Type"::Order, "Order No.") then
                     ReleasePurchDoc.Reopen(PurchHeader)
                 else
@@ -933,7 +891,7 @@ table 31020 "Purch. Advance Letter Header"
         if AdvanceLetterLineRelation.FindSet(true, false) then begin
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, false, true);
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
         end;
 
         DeleteLetterLines;
@@ -989,11 +947,6 @@ table 31020 "Purch. Advance Letter Header"
         PaymentTerms: Record "Payment Terms";
         PurchAdvanceLetterLinegre: Record "Purch. Advance Letter Line";
         PostCode: Record "Post Code";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
-        CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -1129,7 +1082,7 @@ table 31020 "Purch. Advance Letter Header"
                       PurchAdvanceLetterLinegre."Shortcut Dimension 2 Code");
                     PurchAdvanceLetterLinegre.Modify();
                 end;
-            until PurchAdvanceLetterLinegre.Next = 0;
+            until PurchAdvanceLetterLinegre.Next() = 0;
         PurchAdvanceLetterLinegre.Reset();
     end;
 
@@ -1190,7 +1143,7 @@ table 31020 "Purch. Advance Letter Header"
                     Error(Text004Err);
 
                 PurchAdvanceLetterLine.Delete(true);
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -1249,7 +1202,7 @@ table 31020 "Purch. Advance Letter Header"
         if PurchAdvanceLetterLine.FindSet then
             repeat
                 PurchPostAdvances.CalcLinkedAmount(PurchAdvanceLetterLine, TempVendLedgEntry);
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
         LinkedPrepayments.InsertVendEntries(TempVendLedgEntry);
         LinkedPrepayments.RunModal;
     end;
@@ -1286,7 +1239,7 @@ table 31020 "Purch. Advance Letter Header"
                 PurchAdvanceLetterLine."Amount To Link" := PurchAdvanceLetterLine."Amount Including VAT";
                 PurchAdvanceLetterLine.SuspendStatusCheck(true);
                 PurchAdvanceLetterLine.Modify(true);
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
 
         OnAfterReleasePurchaseAdvanceLetter(Rec);
     end;
@@ -1311,7 +1264,7 @@ table 31020 "Purch. Advance Letter Header"
                     PurchAdvanceLetterLine.SuspendStatusCheck(true);
                     PurchAdvanceLetterLine.Modify(true);
                 end;
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
 
         OnAfterReopenPurchaseAdvanceLetter(Rec);
     end;
@@ -1372,7 +1325,7 @@ table 31020 "Purch. Advance Letter Header"
         if PurchAdvanceLetterLine.FindSet(false, false) then begin
             repeat
                 RemAmount += PurchAdvanceLetterLine."Amount To Link";
-            until PurchAdvanceLetterLine.Next = 0;
+            until PurchAdvanceLetterLine.Next() = 0;
         end;
     end;
 
@@ -1455,7 +1408,7 @@ table 31020 "Purch. Advance Letter Header"
             repeat
                 if PurchHeader.Get(AdvanceLetterLineRelation."Document Type", AdvanceLetterLineRelation."Document No.") then
                     PurchHeader.Mark(true);
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
         end;
 
         PurchHeader.MarkedOnly(true);
@@ -1501,12 +1454,12 @@ table 31020 "Purch. Advance Letter Header"
 
                         TempPurchAdvanceLetterLine := PurchAdvanceLetterLinegre;
                         TempPurchAdvanceLetterLine.Insert();
-                    until PurchAdvanceLetterLinegre.Next = 0;
+                    until PurchAdvanceLetterLinegre.Next() = 0;
 
                 PurchAdvanceLetterLinegre.DeleteAll(true);
                 PurchAdvanceLetterLinegre.Init();
                 PurchAdvanceLetterLinegre."Line No." := 0;
-                TempPurchAdvanceLetterLine.FindSet;
+                TempPurchAdvanceLetterLine.FindSet();
 
                 repeat
                     PurchAdvanceLetterLinegre.Init();
@@ -1518,7 +1471,7 @@ table 31020 "Purch. Advance Letter Header"
                     else
                         PurchAdvanceLetterLinegre.Validate(Amount, TempPurchAdvanceLetterLine.Amount);
                     PurchAdvanceLetterLinegre.Insert(true);
-                until TempPurchAdvanceLetterLine.Next = 0;
+                until TempPurchAdvanceLetterLine.Next() = 0;
             end else
                 Error(
                   Text009Err, ChangedFieldName);
@@ -1551,7 +1504,7 @@ table 31020 "Purch. Advance Letter Header"
                         PurchAdvanceLetterLinegre.Validate("Advance Due Date", "Advance Due Date");
                 end;
                 PurchAdvanceLetterLinegre.Modify();
-            until PurchAdvanceLetterLinegre.Next = 0;
+            until PurchAdvanceLetterLinegre.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1578,7 +1531,7 @@ table 31020 "Purch. Advance Letter Header"
         if AdvanceLetterLineRelation.FindSet then
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, true, true);
-            until AdvanceLetterLineRelation.Next = 0;
+            until AdvanceLetterLineRelation.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1591,22 +1544,7 @@ table 31020 "Purch. Advance Letter Header"
                 PurchAdvanceLetterLinegre.CalcFields("Amount on Payment Order (LCY)");
                 if PurchAdvanceLetterLinegre."Amount on Payment Order (LCY)" <> 0 then
                     Error(Text012Err, FieldCaption("Due Date from Line"), "Due Date from Line");
-            until PurchAdvanceLetterLinegre.Next = 0;
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure UpdatePerformCountryCurrFactor()
-    begin
-        if "Perform. Country/Region Code" <> '' then begin
-            if "Posting Date" = 0D then
-                CurrencyDate := WorkDate
-            else
-                CurrencyDate := "Posting Date";
-
-            "Perf. Country Currency Factor" :=
-              PerfCountryCurrExchRate.ExchangeRate(CurrencyDate, "Perform. Country/Region Code", "Currency Code");
-        end else
-            "Perf. Country Currency Factor" := 0;
+            until PurchAdvanceLetterLinegre.Next() = 0;
     end;
 
     [Scope('OnPrem')]

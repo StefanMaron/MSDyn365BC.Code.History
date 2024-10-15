@@ -1,7 +1,14 @@
 table 31040 "Classification Code"
 {
     Caption = 'Classification Code';
+#if not CLEAN18
     LookupPageID = "Classification Codes";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

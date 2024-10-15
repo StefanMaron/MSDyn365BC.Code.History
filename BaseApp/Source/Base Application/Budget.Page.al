@@ -43,7 +43,7 @@ page 113 Budget
                         ValidateBudgetName;
                         ValidateLineDimCode;
                         ValidateColumnDimCode;
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(false);
                     end;
 
@@ -417,7 +417,7 @@ page 113 Budget
                     trigger OnAction()
                     begin
                         REPORT.RunModal(REPORT::"Copy G/L Budget", true, false);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Delete Budget")
@@ -569,7 +569,7 @@ page 113 Budget
                     if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
                         exit;
                     FindPeriod('>');
-                    CurrPage.Update;
+                    CurrPage.Update();
                     UpdateMatrixSubform();
                 end;
             }
@@ -589,7 +589,7 @@ page 113 Budget
                     if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
                         exit;
                     FindPeriod('<');
-                    CurrPage.Update;
+                    CurrPage.Update();
                     UpdateMatrixSubform();
                 end;
             }
@@ -1172,7 +1172,7 @@ page 113 Budget
           BudgetDim2Filter, BudgetDim3Filter, BudgetDim4Filter, GLBudgetName, DateFilter,
           GLAccFilter, IncomeBalanceGLAccFilter, GLAccCategoryFilter, RoundingFactor, PeriodType);
 
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure LineDimCodeOnAfterValidate()

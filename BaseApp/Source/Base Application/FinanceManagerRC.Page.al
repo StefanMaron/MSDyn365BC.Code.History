@@ -90,12 +90,18 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#if not CLEAN18
                     action("Reverse Charges")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Reverse Charges';
-                        RunObject = page "Reverse Charges";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Reverse Charge Statement has been removed.';
+                        ObsoleteTag = '18.0';
+                        RunObject = page "Reverse Charge Subform";
+                        Visible = false;
                     }
+#endif                    
                     action("Mass Uncertainty Payer Get")
                     {
                         ApplicationArea = Basic, Suite;
@@ -106,12 +112,18 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#if not CLEAN18
                     action("Non-Deductible VAT Correction")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Non-Deductible VAT Correction';
-                        RunObject = report "Non Deductible VAT Correction";
+                        Caption = 'Non-Deductible VAT Correction (Obsolete)';
+                        RunObject = report "VAT Register";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
+#endif
                     action("VAT Control Reports")
                     {
                         ApplicationArea = Basic, Suite;
@@ -158,10 +170,6 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Statement';
                             RunObject = report "VAT Statement";
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                            ObsoleteTag = '17.0';
-                            Visible = false;
                         }
                         action("VAT- VIES Declaration Tax Auth")
                         {
@@ -417,6 +425,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Dimension Check Value Posting';
                             RunObject = report "Check Value Posting";
                         }
+#if not CLEAN17
                         action("Accounting Sheets")
                         {
                             ApplicationArea = Basic, Suite;
@@ -446,6 +455,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                             ObsoleteTag = '17.0';
                         }
+#endif
                     }
                     group("Group9")
                     {
@@ -541,14 +551,14 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("General Ledger")
                         {
@@ -702,7 +712,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -716,18 +726,28 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Report Setup';
                         RunObject = page "VAT Report Setup";
                     }
+#if not CLEAN18
                     action("Tariff Number Import (XML)")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Tariff Number Import (XML)';
                         RunObject = report "Tariff Number Import (XML)";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Test Tariff Numbers")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Test Tariff Numbers';
                         RunObject = report "Test Tariff Numbers";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
+#endif
                 }
             }
             group("Group13")
@@ -987,6 +1007,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Constant Symbols';
                         RunObject = page "Constant Symbols";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Bank Pmt. Appl. Rule Codes")
                     {
@@ -1319,6 +1343,10 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credits';
                     RunObject = page "Credits List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 group("Group29")
                 {
@@ -1412,6 +1440,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Credits';
                         RunObject = page "Posted Credits List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                 }
                 group("Group33")
@@ -1630,6 +1662,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Credits Setup';
                         RunObject = page "Credits Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Sales Advanced Paym. Templates")
                     {
@@ -1677,6 +1713,10 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credits';
                     RunObject = page "Credits List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 group("Group37")
                 {
@@ -1726,6 +1766,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Credits';
                         RunObject = page "Posted Credits List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                 }
                 group("Group39")
@@ -1974,12 +2018,18 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Index Insurance...';
                     RunObject = report "Index Insurance";
                 }
+#if not CLEAN18
                 action("Adj. Maintenance-Item Entries")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Adj. Maintenance-Item Entries';
-                    RunObject = report "Adj. Maintenance-Item Entries";
+                    Caption = 'Maintenance Register';
+                    RunObject = report "Maintenance Register";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance has been removed.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
                 group("Group43")
                 {
                     Caption = 'Journals';
@@ -2086,60 +2136,98 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'FA Projected Value';
                             RunObject = report "Fixed Asset - Projected Value";
                         }
+#if not CLEAN18
                         action("Fixed Asset Card")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset Card';
                             RunObject = report "Fixed Asset Card";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("Fixed Asset - Analysis 2")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset - Analysis 2';
                             RunObject = report "Fixed Asset - Analysis 2";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA Receipt Report")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Receipt Report';
                             RunObject = report "FA Receipt Report";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA Disposal Report")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Disposal Report';
                             RunObject = report "FA Disposal Report";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA Phys. Inventory List")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Phys. Inventory List';
                             RunObject = report "FA Phys. Inventory List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA History")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA History';
                             RunObject = report "FA History";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA Assignment/Discharge")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Assignment/Discharge';
                             RunObject = report "FA Assignment/Discharge";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("FA - Analysis G/L Account")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA - Analysis G/L Account';
                             RunObject = report "FA - Analysis G/L Account";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
                         action("Fixed Asset - Analys. Dep.Book")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Asset - Analys. Dep.Book';
                             RunObject = report "Fixed Asset - Analys. Dep.Book";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                            ObsoleteTag = '18.0';
+                            Visible = false;
                         }
+#endif
                     }
                     group("Group46")
                     {
@@ -2295,24 +2383,38 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Depreciation Tables';
                         RunObject = page "Depreciation Table List";
                     }
+#if not CLEAN18
                     action("Depreciation Groups")
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Groups';
                         RunObject = page "Depreciation Groups";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("SKP Codes")
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'SKP Codes';
-                        RunObject = page "SKP Codes";
+                        RunObject = page "Classification Codes";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes has been removed and this page should not be used. (Obsolete::Removed in release 01.2021)';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Classification Codes")
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Classification Codes';
                         RunObject = page "Classification Codes";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
+#endif
                     action("FA Journal Templates")
                     {
                         ApplicationArea = FixedAssets;
@@ -2481,16 +2583,6 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
-                    action("Package Tax Calculation")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Package Tax Calculation';
-                        RunObject = report "Package Tax Calculation";
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
-                    }
                     action("Cost Shares Breakdown")
                     {
                         ApplicationArea = Manufacturing;
@@ -2554,17 +2646,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
-                    }
-                    action("Package Materials")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Package Materials';
-                        RunObject = page "Package Materials";
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The functionality of Packaging Material will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                        ObsoleteTag = '15.3';
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {
@@ -2636,16 +2718,10 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Stat. Reporting Setup';
                     RunObject = page "Stat. Reporting Setup";
-                }
-                action("Posting Descriptions")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posting Descriptions';
-                    RunObject = page "Posting Descriptions";
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 group("VAT")
                 {
@@ -2757,6 +2833,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Currency Exch. Rate';
                         RunObject = page "Intrastat Currency Exch. Rate";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Statistic Indications")
                     {
@@ -2773,12 +2853,20 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Specific Movements';
                         RunObject = page "Specific Movements";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                     action("Intrastat Delivery Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Delivery Group';
                         RunObject = page "Intrastat Delivery Group";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                     }
                 }
                 group("Intercompany")

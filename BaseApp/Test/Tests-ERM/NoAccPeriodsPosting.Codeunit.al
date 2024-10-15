@@ -151,7 +151,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         // cod134027.DepreciationAmountWithAppreciationEntry
         VerifyDepreciationAmount(
           FixedAsset."No.", -1 * Round(FADepreciationBook."Book Value" / (FADepreciationBook."No. of Depreciation Years" * 12), 1 ,'>'));
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 
     [Test]
@@ -488,7 +487,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         Assert.RecordCount(GLEntry, DeferralTemplate."No. of Periods" + 1 + AdditionalRecord);
         GLEntry.SetRange(Description, DeferralTemplate."Period Description");
         PostingDate := FirstEntryPostingDate;
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Posting Date", PostingDate);
             PostingDate := CalcDate('<-CM + 1M>', PostingDate);

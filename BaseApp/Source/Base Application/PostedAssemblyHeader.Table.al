@@ -194,6 +194,9 @@ table 910 "Posted Assembly Header"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -331,7 +334,7 @@ table 910 "Posted Assembly Header"
                             ExpCost[RowIdx::ResOvhd] += PostedAssemblyLine."Cost Amount" - DirectLineCost;
                         end;
                 end
-            until PostedAssemblyLine.Next = 0;
+            until PostedAssemblyLine.Next() = 0;
 
         exit(ExpCost[RowIdx::MatCost] + ExpCost[RowIdx::ResCost] + ExpCost[RowIdx::ResOvhd]);
     end;

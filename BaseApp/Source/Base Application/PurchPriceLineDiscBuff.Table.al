@@ -126,7 +126,7 @@ table 1315 "Purch. Price Line Disc. Buff."
                 "Variant Code" := PurchaseLineDiscount."Variant Code";
                 "Vendor No." := PurchaseLineDiscount."Vendor No.";
                 Insert;
-            until PurchaseLineDiscount.Next = 0;
+            until PurchaseLineDiscount.Next() = 0;
     end;
 
     local procedure LoadPurchasePrice(var PurchasePrice: Record "Purchase Price")
@@ -146,7 +146,7 @@ table 1315 "Purch. Price Line Disc. Buff."
                 "Vendor No." := PurchasePrice."Vendor No.";
 
                 Insert;
-            until PurchasePrice.Next = 0;
+            until PurchasePrice.Next() = 0;
     end;
 
     procedure ItemHasLines(Item: Record Item): Boolean
@@ -159,11 +159,11 @@ table 1315 "Purch. Price Line Disc. Buff."
         "Item No." := Item."No.";
 
         PurchasePrice.SetRange("Item No.", "Item No.");
-        if not PurchasePrice.IsEmpty then
+        if not PurchasePrice.IsEmpty() then
             exit(true);
 
         PurchaseLineDiscount.SetRange("Item No.", "Item No.");
-        if not PurchaseLineDiscount.IsEmpty then
+        if not PurchaseLineDiscount.IsEmpty() then
             exit(true);
 
         exit(false);

@@ -56,19 +56,9 @@ table 308 "No. Series"
         field(11790; Mask; Text[20])
         {
             Caption = 'Mask';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-        }
-        field(11791; "No. Series Link Exists"; Boolean)
-        {
-            CalcFormula = Exist ("No. Series Link" WHERE("Initial No. Series" = FIELD(Code)));
-            Caption = 'No. Series Link Exists';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -85,9 +75,6 @@ table 308 "No. Series"
     }
 
     trigger OnDelete()
-    var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
-        NoSeriesLink: Record "No. Series Link";
     begin
         NoSeriesLine.SetRange("Series Code", Code);
         NoSeriesLine.DeleteAll();
@@ -99,10 +86,6 @@ table 308 "No. Series"
         NoSeriesRelationship.SetRange("Series Code", Code);
         NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange("Series Code");
-        // NAVCZ
-        NoSeriesLink.SetRange("Initial No. Series", Code);
-        NoSeriesLink.DeleteAll();
-        // NAVCZ
     end;
 
     var

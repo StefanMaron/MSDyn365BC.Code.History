@@ -1,4 +1,4 @@
-﻿codeunit 7171 "Sales Info-Pane Management"
+codeunit 7171 "Sales Info-Pane Management"
 {
 
     trigger OnRun()
@@ -165,7 +165,7 @@
         AvailableToPromise.ResetItemNo;
     end;
 
-    local procedure GetItem(var SalesLine: Record "Sales Line") Result: Boolean
+    procedure GetItem(var SalesLine: Record "Sales Line") Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -180,6 +180,7 @@
 
             if SalesLine."No." <> "No." then
                 Get(SalesLine."No.");
+
             exit(true);
         end;
     end;

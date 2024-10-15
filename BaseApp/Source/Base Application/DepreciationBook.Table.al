@@ -56,6 +56,7 @@ table 5611 "Depreciation Book"
             OptionCaption = 'Net,Gross';
             OptionMembers = Net,Gross;
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 // NAVCZ
@@ -63,6 +64,7 @@ table 5611 "Depreciation Book"
                     TestField("Corresp. G/L Entries on Disp.", false);
                 // NAVCZ
             end;
+#endif
         }
         field(12; "Use Custom 1 Depreciation"; Boolean)
         {
@@ -257,37 +259,63 @@ table 5611 "Depreciation Book"
                     repeat
                         FADeprBook.CalcDeprPeriod;
                         FADeprBook.Modify();
-                    until FADeprBook.Next = 0;
+                    until FADeprBook.Next() = 0;
             end;
         }
         field(31040; "Deprication from 1st Month Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Month Day';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31041; "Acqui.,Appr.before Depr. Check"; Boolean)
         {
             Caption = 'Acqui.,Appr.before Depr. Check';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31042; "All Acquil. in same Year"; Boolean)
         {
             Caption = 'All Acquil. in same Year';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31043; "Check Deprication on Disposal"; Boolean)
         {
             Caption = 'Check Depreciation on Disposal';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31044; "Deprication from 1st Year Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Year Day';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31045; "Mark Reclass. as Corrections"; Boolean)
         {
             Caption = 'Mark Reclass. as Corrections';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31050; "Corresp. G/L Entries on Disp."; Boolean)
         {
             Caption = 'Corresp. G/L Entries on Disp.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "Corresp. G/L Entries on Disp." then
@@ -295,16 +323,26 @@ table 5611 "Depreciation Book"
                 else
                     TestField("Corresp. FA Entries on Disp.", false);
             end;
+#endif
         }
         field(31051; "Corresp. FA Entries on Disp."; Boolean)
         {
             Caption = 'Corresp. FA Entries on Disp.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "Corresp. FA Entries on Disp." then
                     TestField("Corresp. G/L Entries on Disp.", true);
             end;
+#endif
         }
     }
 
@@ -328,7 +366,7 @@ table 5611 "Depreciation Book"
         FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text000);
 
         if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then

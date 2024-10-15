@@ -1119,7 +1119,7 @@ xmlport 11761 "VAT Statement"
     local procedure SkipEmptyValue(Value: Text[1024])
     begin
         if Value = '' then
-            currXMLport.Skip;
+            currXMLport.Skip();
     end;
 
     local procedure FormatCompanyType(CompanyType: Option " ",Individual,Corporate): Text[1]

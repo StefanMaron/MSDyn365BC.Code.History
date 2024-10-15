@@ -1,5 +1,8 @@
 codeunit 11768 "Posting Group Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin

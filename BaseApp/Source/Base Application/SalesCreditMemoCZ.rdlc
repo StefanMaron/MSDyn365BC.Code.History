@@ -58,7 +58,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -101,7 +101,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VendorLbl.Value</Value>
+                                                    <Value>=Fields!VendorLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -133,7 +133,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=
+                                                    <Value>=
 Cstr(Fields!DocumentLbl.Value &amp; " " &amp; Fields!No_SalesCrMemoHeader.Value) + Chr(177) + 
 Cstr(IIf(Fields!CopyNo.Value &gt; 1, Fields!CopyLbl.Value, "")) + Chr(177) + 
 Cstr(First(Fields!LogoPositiononDocuments_SalesReceivablesSetup.Value, "DataSet_Result")) + Chr(177) + 
@@ -171,7 +171,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustomerLbl.Value</Value>
+                                                    <Value>=Fields!CustomerLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -201,7 +201,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Code.IsNewPage(0,Fields!No_SalesCrMemoHeader.Value,Fields!CopyNo.Value)</Value>
+                                                    <Value>=Code.IsNewPage(0,Fields!No_SalesCrMemoHeader.Value,Fields!CopyNo.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -239,7 +239,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr1.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr1.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
@@ -271,7 +271,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr1.Value</Value>
+                                                    <Value>=Fields!CustAddr1.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -310,7 +310,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr2.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr2.Value, "DataSet_Result")</Value>
                                                     <Style />
                                                   </TextRun>
                                                 </TextRuns>
@@ -340,7 +340,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr2.Value</Value>
+                                                    <Value>=Fields!CustAddr2.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -378,7 +378,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr3.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr3.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -411,7 +411,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr3.Value</Value>
+                                                    <Value>=Fields!CustAddr3.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -449,7 +449,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr4.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr4.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -482,7 +482,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr4.Value</Value>
+                                                    <Value>=Fields!CustAddr4.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -520,7 +520,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr5.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr5.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -553,7 +553,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr5.Value</Value>
+                                                    <Value>=Fields!CustAddr5.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -591,7 +591,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!CompanyAddr6.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!CompanyAddr6.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -624,7 +624,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CustAddr6.Value</Value>
+                                                    <Value>=Fields!CustAddr6.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -661,7 +661,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -700,7 +700,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATRegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!VATRegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -732,9 +732,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=iif(Fields!PerformVATRegistrationNo.Value = "",
-        First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result"),
-        Fields!PerformVATRegistrationNo.Value)</Value>
+                                                    <Value>=First(Fields!VATRegistrationNo_CompanyInformation.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -768,7 +766,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATRegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!VATRegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -800,7 +798,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATRegistrationNo_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!VATRegistrationNo_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -839,7 +837,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!RegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!RegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -871,7 +869,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=First(Fields!RegistrationNo_CompanyInformation.Value, "DataSet_Result")</Value>
+                                                    <Value>=First(Fields!RegistrationNo_CompanyInformation.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -905,7 +903,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!RegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!RegistrationNo_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -937,7 +935,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!RegistrationNo_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!RegistrationNo_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -976,7 +974,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DocFooterText.Value</Value>
+                                                    <Value>=Fields!DocFooterText.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1014,7 +1012,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1057,7 +1055,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1099,7 +1097,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!BankAccountNo_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!BankAccountNo_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1133,7 +1131,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!BankAccountNo_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!BankAccountNo_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1167,7 +1165,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DocumentDate_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!DocumentDate_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1199,7 +1197,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DocumentDate_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!DocumentDate_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>d. M. yyyy</Format>
@@ -1239,7 +1237,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!IBAN_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!IBAN_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1273,7 +1271,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!IBAN_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!IBAN_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1307,7 +1305,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATDate_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!VATDate_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1317,9 +1315,6 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               </Paragraph>
                                             </Paragraphs>
                                             <rd:DefaultName>Textbox163</rd:DefaultName>
-                                            <Visibility>
-                                              <Hidden>=Fields!PostponedVAT_SalesCrMemoHeader.Value</Hidden>
-                                            </Visibility>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -1341,7 +1336,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATDate_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!VATDate_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>d. M. yyyy</Format>
@@ -1355,9 +1350,6 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                             </Paragraphs>
                                             <rd:DefaultName>PostingDate_SalesCrMemoHeader</rd:DefaultName>
                                             <ZIndex>41</ZIndex>
-                                            <Visibility>
-                                              <Hidden>=Fields!PostponedVAT_SalesCrMemoHeader.Value</Hidden>
-                                            </Visibility>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -1384,7 +1376,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!BIC_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!BIC_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1418,7 +1410,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!BIC_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!BIC_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1452,7 +1444,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DueDate_SalesCrMemoHeaderCaption.Value</Value>
+                                                    <Value>=Fields!DueDate_SalesCrMemoHeaderCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1485,7 +1477,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DueDate_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!DueDate_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1526,7 +1518,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PmntSymbol1.Value</Value>
+                                                    <Value>=Fields!PmntSymbol1.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1558,7 +1550,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PmntSymbol2.Value</Value>
+                                                    <Value>=Fields!PmntSymbol2.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>d. M. yyyy</Format>
@@ -1593,7 +1585,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PaymentTermsLbl.Value</Value>
+                                                    <Value>=Fields!PaymentTermsLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1625,7 +1617,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PaymentTerms.Value</Value>
+                                                    <Value>=Fields!PaymentTerms.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>d. M. yyyy</Format>
@@ -1665,7 +1657,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PmntSymbol3.Value</Value>
+                                                    <Value>=Fields!PmntSymbol3.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1696,7 +1688,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PmntSymbol4.Value</Value>
+                                                    <Value>=Fields!PmntSymbol4.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1729,7 +1721,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PaymentMethodLbl.Value</Value>
+                                                    <Value>=Fields!PaymentMethodLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1760,7 +1752,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PaymentMethod.Value</Value>
+                                                    <Value>=Fields!PaymentMethod.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>d. M. yyyy</Format>
@@ -1798,7 +1790,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1843,7 +1835,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1884,7 +1876,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1917,7 +1909,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ReasonCode.Value</Value>
+                                                    <Value>=Fields!ReasonCode.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1950,7 +1942,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToLbl.Value</Value>
+                                                    <Value>=Fields!ShipToLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -1991,7 +1983,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ToInvoiceLbl.Value</Value>
+                                                    <Value>=Fields!ToInvoiceLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2022,7 +2014,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!AppliestoDocNo_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!AppliestoDocNo_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2056,7 +2048,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr1.Value</Value>
+                                                    <Value>=Fields!ShipToAddr1.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2096,7 +2088,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!YourReferenceLbl.Value</Value>
+                                                    <Value>=Fields!YourReferenceLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2127,7 +2119,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ExternalDocumentNo_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!ExternalDocumentNo_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2161,7 +2153,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr2.Value</Value>
+                                                    <Value>=Fields!ShipToAddr2.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2200,7 +2192,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipmentMethodLbl.Value</Value>
+                                                    <Value>=Fields!ShipmentMethodLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2232,7 +2224,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipmentMethod.Value</Value>
+                                                    <Value>=Fields!ShipmentMethod.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2265,7 +2257,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr3.Value</Value>
+                                                    <Value>=Fields!ShipToAddr3.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2304,7 +2296,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!SalespersonLbl.Value</Value>
+                                                    <Value>=Fields!SalespersonLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2335,7 +2327,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Name_SalespersonPurchaser.Value</Value>
+                                                    <Value>=Fields!Name_SalespersonPurchaser.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2369,7 +2361,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr4.Value</Value>
+                                                    <Value>=Fields!ShipToAddr4.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2408,7 +2400,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2441,7 +2433,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!PhoneNo_SalespersonPurchaser.Value</Value>
+                                                    <Value>=Fields!PhoneNo_SalespersonPurchaser.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2474,7 +2466,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr5.Value</Value>
+                                                    <Value>=Fields!ShipToAddr5.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2513,7 +2505,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2546,7 +2538,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!EMail_SalespersonPurchaser.Value</Value>
+                                                    <Value>=Fields!EMail_SalespersonPurchaser.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2579,7 +2571,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!ShipToAddr6.Value</Value>
+                                                    <Value>=Fields!ShipToAddr6.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -2698,7 +2690,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!No_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!No_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2740,7 +2732,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Description_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!Description_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2780,7 +2772,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Quantity_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!Quantity_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2822,7 +2814,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!UoMLbl.Value</Value>
+                                                    <Value>=Fields!UoMLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2862,7 +2854,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!UnitPrice_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!UnitPrice_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2904,7 +2896,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!DiscPercentLbl.Value</Value>
+                                                    <Value>=Fields!DiscPercentLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2944,7 +2936,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VAT_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!VAT_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -2986,7 +2978,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!LineAmount_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!LineAmount_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3033,7 +3025,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3065,7 +3057,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Description_SalesCrMemoLine.Value</Value>
+                                                    <Value>=Fields!Description_SalesCrMemoLine.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3109,7 +3101,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=IIf(Fields!Type_SalesCrMemoLine.Value = 2, Fields!No_SalesCrMemoLine.Value, "")</Value>
+                                                    <Value>=IIf(Fields!Type_SalesCrMemoLine.Value = 2, Fields!No_SalesCrMemoLine.Value, "")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3141,7 +3133,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Description_SalesCrMemoLine.Value</Value>
+                                                    <Value>=Fields!Description_SalesCrMemoLine.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3173,7 +3165,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Code.BlankZero(-Fields!Quantity_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=Code.BlankZero(-Fields!Quantity_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!Quantity_SalesCrMemoLineFormat.Value</Format>
@@ -3206,7 +3198,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!UnitofMeasure_SalesCrMemoLine.Value</Value>
+                                                    <Value>=Fields!UnitofMeasure_SalesCrMemoLine.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3238,7 +3230,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!UnitPrice_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!UnitPrice_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!UnitPrice_SalesCrMemoLineFormat.Value</Format>
@@ -3271,7 +3263,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Code.BlankZero(Fields!LineDiscount_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!LineDiscount_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!LineDiscount_SalesCrMemoLineFormat.Value</Format>
@@ -3306,7 +3298,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=IIf(Fields!Type_SalesCrMemoLine.Value = 0, "", Fields!VAT_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=IIf(Fields!Type_SalesCrMemoLine.Value = 0, "", Fields!VAT_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3340,7 +3332,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Code.BlankZero(-Fields!LineAmount_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=Code.BlankZero(-Fields!LineAmount_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!LineAmount_SalesCrMemoLineFormat.Value</Format>
@@ -3380,7 +3372,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3416,7 +3408,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!SubtottalLbl.Value</Value>
+                                                    <Value>=Fields!SubtottalLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3457,7 +3449,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=-Sum(Fields!LineAmount_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=-Sum(Fields!LineAmount_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3502,7 +3494,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3537,7 +3529,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!InvDiscountAmount_SalesCrMemoLineCaption.Value</Value>
+                                                    <Value>=Fields!InvDiscountAmount_SalesCrMemoLineCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3573,7 +3565,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!InvDiscountAmount_SalesCrMemoLine.Value)</Value>
+                                                    <Value>=Sum(Fields!InvDiscountAmount_SalesCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!LineAmount_SalesCrMemoLineFormat.Value</Format>
@@ -3613,7 +3605,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3649,7 +3641,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Amount_SalesCrMemoHeaderCaption.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!Amount_SalesCrMemoHeaderCaption.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3690,7 +3682,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=-Fields!Amount_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=-Fields!Amount_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3735,7 +3727,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3770,7 +3762,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATLbl.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!VATLbl.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -3806,7 +3798,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=-Fields!AmountIncludingVAT_SalesCrMemoHeader.Value + Fields!Amount_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=-Fields!AmountIncludingVAT_SalesCrMemoHeader.Value + Fields!Amount_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!AmountIncludingVAT_SalesCrMemoHeaderFormat.Value</Format>
@@ -3846,7 +3838,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Normal</FontWeight>
@@ -3882,7 +3874,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!AmountIncludingVAT_SalesCrMemoHeaderCaption.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!AmountIncludingVAT_SalesCrMemoHeaderCaption.Value &amp; " " &amp; Fields!TotalLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -3923,7 +3915,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=-Fields!AmountIncludingVAT_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=-Fields!AmountIncludingVAT_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4063,7 +4055,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATClauseIdentifier.Value</Value>
+                                                    <Value>=Fields!VATClauseIdentifier.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4095,7 +4087,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATClauseDescription.Value &amp; " " &amp; Fields!VATClauseDescription2.Value</Value>
+                                                    <Value>=Fields!VATClauseDescription.Value &amp; " " &amp; Fields!VATClauseDescription2.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4184,7 +4176,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Type2Text1.Value</Value>
+                                                    <Value>=Fields!Type2Text1.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4225,7 +4217,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Type2Text2.Value</Value>
+                                                    <Value>=Fields!Type2Text2.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4260,7 +4252,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4297,7 +4289,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Type2Text3.Value</Value>
+                                                    <Value>=Fields!Type2Text3.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4332,7 +4324,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4374,7 +4366,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto" />
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4415,7 +4407,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!Type2Text4.Value</Value>
+                                                    <Value>=Fields!Type2Text4.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4495,7 +4487,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!CreatorLbl.Value &amp; ": " &amp; Fields!FullName_Employee.Value &amp; IIf(Fields!PhoneNo_Employee.Value is Nothing, "", ", ") &amp; Fields!PhoneNo_Employee.Value &amp; IIf(Fields!CompanyEMail_Employee.Value is Nothing, "", ", ") &amp; Fields!CompanyEMail_Employee.Value</Value>
+                                                    <Value>=Fields!CreatorLbl.Value &amp; ": " &amp; Fields!FullName_Employee.Value &amp; IIf(Fields!PhoneNo_Employee.Value is Nothing, "", ", ") &amp; Fields!PhoneNo_Employee.Value &amp; IIf(Fields!CompanyEMail_Employee.Value is Nothing, "", ", ") &amp; Fields!CompanyEMail_Employee.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4594,7 +4586,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=IIf(Fields!CalculatedExchRate.Value &lt;&gt; 1, Fields!ExchRateText.Value, " ")</Value>
+                                                    <Value>=IIf(Fields!CalculatedExchRate.Value &lt;&gt; 1, Fields!ExchRateText.Value, " ")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Normal</FontWeight>
@@ -4638,7 +4630,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATIdentLbl.Value</Value>
+                                                    <Value>=Fields!VATIdentLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4677,7 +4669,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATPercentLbl.Value</Value>
+                                                    <Value>=Fields!VATPercentLbl.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4718,7 +4710,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATBaseLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!VATBaseLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4759,7 +4751,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATAmtLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
+                                                    <Value>=Fields!VATAmtLbl.Value &amp; " " &amp; Fields!CurrencyCode_SalesCrMemoHeader.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4800,7 +4792,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATBaseLbl.Value &amp; " " &amp; First(Fields!LCYCode_GeneralLedgerSetup.Value, "DataSet_Result")</Value>
+                                                    <Value>=Fields!VATBaseLbl.Value &amp; " " &amp; First(Fields!LCYCode_GeneralLedgerSetup.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4841,7 +4833,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATAmtLbl.Value &amp; " " &amp; First(Fields!LCYCode_GeneralLedgerSetup.Value, "DataSet_Result")</Value>
+                                                    <Value>=Fields!VATAmtLbl.Value &amp; " " &amp; First(Fields!LCYCode_GeneralLedgerSetup.Value, "DataSet_Result")</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -4887,7 +4879,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATAmtLineVATIdentifier.Value</Value>
+                                                    <Value>=Fields!VATAmtLineVATIdentifier.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4921,7 +4913,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Fields!VATAmtLineVATPer.Value</Value>
+                                                    <Value>=Fields!VATAmtLineVATPer.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                     </Style>
@@ -4955,7 +4947,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATBase.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATBase.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!VATAmtLineVATBaseFormat.Value</Format>
@@ -4990,7 +4982,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATAmt.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATAmt.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!VATAmtLineVATAmtFormat.Value</Format>
@@ -5025,7 +5017,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATBaseLCY.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATBaseLCY.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!VATAmtLineVATBaseLCYFormat.Value</Format>
@@ -5059,7 +5051,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATAmtLCY.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATAmtLCY.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <Format>=Fields!VATAmtLineVATAmtLCYFormat.Value</Format>
@@ -5098,7 +5090,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=StrConv(Fields!TotalLbl.Value, VbStrConv.ProperCase)</Value>
+                                                    <Value>=StrConv(Fields!TotalLbl.Value, VbStrConv.ProperCase)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5136,7 +5128,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATBase.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATBase.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5176,7 +5168,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATAmt.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATAmt.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5216,7 +5208,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATBaseLCY.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATBaseLCY.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5255,7 +5247,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value EvaluationMode="Auto">=Sum(Fields!VATAmtLineVATAmtLCY.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATAmtLCY.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -5427,7 +5419,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.GetData(4,1) &amp; " " &amp; Code.GetGroupPageNumber(ReportItems!NewPage.Value,Globals!PageNumber)</Value>
+                      <Value>=Code.GetData(4,1) &amp; " " &amp; Code.GetGroupPageNumber(ReportItems!NewPage.Value,Globals!PageNumber)</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -5458,7 +5450,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.GetData(2,1)</Value>
+                      <Value>=Code.GetData(2,1)</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -5490,7 +5482,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=IIf(Code.SetData(ReportItems!HeaderData.Value,1),Code.GetData(1,1),"")</Value>
+                      <Value>=IIf(Code.SetData(ReportItems!HeaderData.Value,1),Code.GetData(1,1),"")</Value>
                       <Style>
                         <FontSize>14pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -5586,7 +5578,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=ReportItems("FullName_User").Value</Value>
+                      <Value>=ReportItems("FullName_User").Value</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -5612,7 +5604,7 @@ Cstr(IIf(Fields!CreditMemoType_SalesCrMemoHeader.Value = 3, Fields!Type3Text.Val
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!HomePage_CompanyInformation.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!HomePage_CompanyInformation.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -6004,15 +5996,6 @@ End Function</Code>
         </Field>
         <Field Name="AmountIncludingVAT_SalesCrMemoHeaderFormat">
           <DataField>AmountIncludingVAT_SalesCrMemoHeaderFormat</DataField>
-        </Field>
-        <Field Name="PostponedVAT_SalesCrMemoHeader">
-          <DataField>PostponedVAT_SalesCrMemoHeader</DataField>
-        </Field>
-        <Field Name="PerformCountryRegionCode">
-          <DataField>PerformCountryRegionCode</DataField>
-        </Field>
-        <Field Name="PerformVATRegistrationNo">
-          <DataField>PerformVATRegistrationNo</DataField>
         </Field>
         <Field Name="CalculatedExchRate">
           <DataField>CalculatedExchRate</DataField>

@@ -131,24 +131,6 @@ page 456 "No. Series"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to check that numbers are assigned chronologically.';
                 }
-                field(Mask; Mask)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies mask of No. series';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("No. Series Link Exists"; "No. Series Link Exists")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies all number series to use for your company.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
             }
         }
         area(factboxes)
@@ -197,34 +179,6 @@ page 456 "No. Series"
                     RunPageLink = Code = FIELD(Code);
                     ToolTip = 'View or edit relationships between number series.';
                 }
-                action(Link)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Link';
-                    Image = Link;
-                    RunObject = Page "No. Series Links";
-                    RunPageLink = "Initial No. Series" = FIELD(Code);
-                    ToolTip = 'Allow the connection to the no. series.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-            }
-        }
-        area(processing)
-        {
-            action("No. Series Mask Generator")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'No. Series Mask Generator';
-                Image = CreateSerialNo;
-                RunObject = Report "No. Series Mask Generator";
-                ToolTip = 'Generates No. Series Line according to selected Mask';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
             }
         }
     }

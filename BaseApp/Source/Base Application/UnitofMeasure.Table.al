@@ -39,17 +39,23 @@ table 204 "Unit of Measure"
         field(31060; "Unspecified Intrastat"; Boolean)
         {
             Caption = 'Unspecified Intrastat';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Unsupported functionality';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Tariff Number UOM Code"; Code[20])
         {
             Caption = 'Tariff Number UOM Code';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Indivisible Unit"; Boolean)
         {
             Caption = 'Indivisible Unit';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Indivisible unit of measure will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -83,7 +89,7 @@ table 204 "Unit of Measure"
     begin
         Item.SetCurrentKey("Base Unit of Measure");
         Item.SetRange("Base Unit of Measure", Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(UoMIsStillUsedError);
 
         UnitOfMeasureTranslation.SetRange(Code, Code);
@@ -114,7 +120,7 @@ table 204 "Unit of Measure"
     begin
         Item.SetCurrentKey("Base Unit of Measure");
         Item.SetRange("Base Unit of Measure", xRec.Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Base Unit of Measure", Code, true);
     end;
 
@@ -137,7 +143,7 @@ table 204 "Unit of Measure"
                 TempUnitOfMeasure := UnitOfMeasure;
                 TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;
                 TempUnitOfMeasure.Insert();
-            until UnitOfMeasure.Next = 0;
+            until UnitOfMeasure.Next() = 0;
     end;
 
     local procedure SetLastDateTimeModified()

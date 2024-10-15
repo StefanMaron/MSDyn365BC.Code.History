@@ -789,14 +789,14 @@ codeunit 136400 "Resource Employee"
         TextValue := NewTextValue;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5200, 'OnAfterUpdateResource', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Employee/Resource Update", 'OnAfterUpdateResource', '', false, false)]
     local procedure OnAfterUpdateResource(var Resource: Record Resource)
     begin
         // Update resource Name for UT ResourceUpdateEvents
         Resource.Name := TextValue;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5200, 'OnAfterCalculateResourceUpdateNeeded', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Employee/Resource Update", 'OnAfterCalculateResourceUpdateNeeded', '', false, false)]
     local procedure OnAfterCalculateResourceUpdateNeeded(Employee: Record Employee; xEmployee: Record Employee; var UpdateNeeded: Boolean)
     begin
         // Set update required for UT ResourceUpdateEvents

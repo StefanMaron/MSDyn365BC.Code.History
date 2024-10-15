@@ -3,6 +3,9 @@ table 31064 "Intrastat Delivery Group"
     Caption = 'Intrastat Delivery Group';
     DrillDownPageID = "Intrastat Delivery Group";
     LookupPageID = "Intrastat Delivery Group";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

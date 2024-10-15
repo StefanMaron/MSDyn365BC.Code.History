@@ -32,6 +32,10 @@ page 310 "Tariff Numbers"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the supplementary unit of measure code for the tariff number. This number is assigned to an item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Statement Code"; "Statement Code")
                 {
@@ -68,24 +72,6 @@ page 310 "Tariff Numbers"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                     Visible = false;
-                }
-                field("Full Name"; "Full Name")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies full name of tariff number.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Full Name ENG"; "Full Name ENG")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies full name of tariff number.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
             }
         }

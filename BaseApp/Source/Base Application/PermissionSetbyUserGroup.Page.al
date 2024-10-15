@@ -361,7 +361,7 @@ page 9837 "Permission Set by User Group"
                 end else
                     if AllGroupsHavePermission then
                         AllGroupsHavePermission := UserGroupHasPermission(Rec, UserGroup);
-            until (UserGroup.Next = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not AllGroupsHavePermission);
+            until (UserGroup.Next() = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not AllGroupsHavePermission);
     end;
 
     local procedure UserGroupHasPermission(var AggregatePermissionSet: Record "Aggregate Permission Set"; var UserGroup: Record "User Group"): Boolean
@@ -385,7 +385,7 @@ page 9837 "Permission Set by User Group"
             if UserGroup.FindSet then
                 repeat
                     SetUserGroupPermission(UserGroup.Code, UserHasPermission);
-                until UserGroup.Next = 0;
+                until UserGroup.Next() = 0;
     end;
 
     local procedure SetUserGroupPermission(UserGroupCode: Code[20]; UserGroupHasPermission: Boolean)

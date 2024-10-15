@@ -1,9 +1,10 @@
+#if not CLEAN18
 report 5600 "Fixed Asset - Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetAnalysis.rdlc';
     ApplicationArea = FixedAssets;
-    Caption = 'Fixed Asset Analysis';
+    Caption = 'Fixed Asset Analysis (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -198,7 +199,7 @@ report 5600 "Fixed Asset - Analysis"
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
-                        // NAVCZ
+                // NAVCZ
                 end;
                 FAPostingType.CreateTypes;
                 FADateType.CreateTypes;
@@ -480,10 +481,10 @@ report 5600 "Fixed Asset - Analysis"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
-                // NAVCZ
+            // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
-                // NAVCZ
+        // NAVCZ
         end;
         if GroupCodeName <> '' then
             GroupCodeName := StrSubstNo(Text004, GroupCodeName);
@@ -543,10 +544,10 @@ report 5600 "Fixed Asset - Analysis"
                     GroupHeadLine := "Global Dimension 2 Code";
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
-                    // NAVCZ
+                // NAVCZ
                 GroupTotals::"Tax Depreciation Group Code":
                     GroupHeadLine := "Tax Depreciation Group Code";
-                    // NAVCZ
+            // NAVCZ
             end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
@@ -584,7 +585,7 @@ report 5600 "Fixed Asset - Analysis"
                     TypeExist := DateType = "FA Date Type Name";
                     if TypeExist then
                         DateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
 
         if not TypeExist then
@@ -603,7 +604,7 @@ report 5600 "Fixed Asset - Analysis"
                     TypeExist := PostingType = "FA Posting Type Name";
                     if TypeExist then
                         PostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text008, PostingType);
@@ -654,4 +655,4 @@ report 5600 "Fixed Asset - Analysis"
         FADateType.CreateTypes;
     end;
 }
-
+#endif

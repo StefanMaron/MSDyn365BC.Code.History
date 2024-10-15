@@ -116,11 +116,11 @@ page 11777 "Applied General Ledger Entries"
                             then
                                 if Get(DtldGLEntry2."G/L Entry No.") then
                                     Mark(true);
-                        until DtldGLEntry2.Next = 0;
+                        until DtldGLEntry2.Next() = 0;
                 end else
                     if Get(DtldGLEntry1."Applied G/L Entry No.") then
                         Mark(true);
-            until DtldGLEntry1.Next = 0;
+            until DtldGLEntry1.Next() = 0;
     end;
 
     [Scope('OnPrem')]

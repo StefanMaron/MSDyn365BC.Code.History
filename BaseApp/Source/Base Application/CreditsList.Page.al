@@ -1,12 +1,15 @@
 page 31052 "Credits List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Credits';
+    Caption = 'Credits (Obsolete)';
     CardPageID = "Credit Card";
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Credit Header";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

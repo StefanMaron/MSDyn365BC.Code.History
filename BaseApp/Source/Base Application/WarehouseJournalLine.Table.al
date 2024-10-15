@@ -1,4 +1,4 @@
-﻿table 7311 "Warehouse Journal Line"
+table 7311 "Warehouse Journal Line"
 {
     Caption = 'Warehouse Journal Line';
     DrillDownPageID = "Warehouse Journal Lines";
@@ -595,6 +595,28 @@
             Caption = 'New Expiration Date';
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+
+            trigger OnValidate()
+            begin
+                if "Package No." <> '' then
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
+            end;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,2';
+            Editable = false;
+        }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
             Caption = 'Phys Invt Counting Period Code';
@@ -622,12 +644,16 @@
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. (Absolute, Base)";
         }
-        key(Key3; "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key3; "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. (Absolute, Base)", "Qty. (Absolute)", Cubage, Weight;
         }
-        key(Key4; "Item No.", "To Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key4; "Item No.", "To Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Qty. (Absolute, Base)", "Qty. (Absolute)";
@@ -788,6 +814,23 @@
     begin
         TestField("Qty. per Unit of Measure");
         exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+    end;
+
+    procedure CalcReservEntryQuantity(): Decimal
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        if "Source Type" = DATABASE::"Prod. Order Component" then begin
+            ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Subline No.", true);
+            ReservEntry.SetSourceFilter("Journal Batch Name", "Source Line No.");
+        end else begin
+            ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Line No.", true);
+            ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+        end;
+        ReservEntry.SetTrackingFilterFromWhseJnlLine(WhseJnlLine);
+        if ReservEntry.FindFirst() then
+            exit(ReservEntry."Quantity (Base)");
+        exit("Qty. (Base)");
     end;
 
     local procedure GetItemUnitOfMeasure()
@@ -1024,8 +1067,8 @@
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
     begin
         OnBeforeOpenJnl(WhseJnlLine, CurrentJnlBatchName, CurrentLocationCode);
-
         CheckWhseJournalLineUserRestriction; // NAVCZ
+
         WMSMgt.CheckUserIsWhseEmployee;
         CheckTemplateName(
           WhseJnlLine.GetRangeMax("Journal Template Name"), CurrentLocationCode, CurrentJnlBatchName);
@@ -1161,7 +1204,7 @@
                 repeat
                     if not HasSameNewTracking() or ("Expiration Date" <> "New Expiration Date") then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -1202,6 +1245,7 @@
             Validate("Bin Code", BinCode);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by LookupItemTracking()', '17.0')]
     procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50])
     var
@@ -1211,6 +1255,7 @@
         SerialNo := WhseItemTrackingSetup."Serial No.";
         LotNo := WhseItemTrackingSetup."Lot No.";
     end;
+#endif
 
     procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
@@ -1269,7 +1314,7 @@
 
         if IsWarehouseEmployeeLocationDirectPutAwayAndPick(CurrentLocationCode) then begin
             WhseJnlBatch.SetRange("Location Code", CurrentLocationCode);
-            if not WhseJnlBatch.IsEmpty then
+            if not WhseJnlBatch.IsEmpty() then
                 exit(true);
         end;
 
@@ -1291,7 +1336,7 @@
                     CurrentJnlBatchName := WhseJnlBatch.Name;
                     exit(true);
                 end;
-            until WhseJnlBatch.Next = 0;
+            until WhseJnlBatch.Next() = 0;
         end;
 
         exit(false);
@@ -1336,6 +1381,16 @@
         OnAfterCopyTrackingFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
+    procedure CopyNewTrackingFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            "New Serial No." := WhseItemTrackingSetup."Serial No.";
+        if WhseItemTrackingSetup."Lot No. Required" then
+            "New Lot No." := WhseItemTrackingSetup."Lot No.";
+
+        OnAfterCopyNewTrackingFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
     procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         "Serial No." := WhseActivityLine."Serial No.";
@@ -1363,6 +1418,7 @@
             "Source Subline No." := SourceSublineNo;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
     begin
@@ -1371,6 +1427,7 @@
         "Warranty Date" := WarrantyDate;
         "Expiration Date" := ExpirationDate;
     end;
+#endif
 
     procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
     begin
@@ -1399,6 +1456,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemTrackingSetupIfRequired(var WhseJnlLine: Record "Warehouse Journal Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromItemTrackingSetupIfRequired(var WhseJnlLine: Record "Warehouse Journal Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

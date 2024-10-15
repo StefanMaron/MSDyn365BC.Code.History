@@ -70,6 +70,9 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s market type to link business transakcions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field(Description; Description)
@@ -299,6 +302,9 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -306,6 +312,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
@@ -313,6 +322,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
@@ -320,6 +332,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the detail information for payment.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
@@ -327,6 +342,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Transit No."; "Transit No.")
                 {
@@ -334,6 +352,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(IBAN; IBAN)
                 {
@@ -341,6 +362,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
@@ -348,12 +372,18 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Amount on Credit (LCY)"; "Amount on Credit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on credit card. The amount is in the local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Reversed; Reversed)
                 {
@@ -413,6 +443,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies to suggest compensation of entries in the same currency as the customer ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -601,96 +634,6 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'View a summary of the all posted entries and adjustments related to a specific customer ledger entry.';
                 }
             }
-            group("&Tax Corrective Documents for Sales")
-            {
-                Caption = '&Tax Corrective Documents for Sales';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-
-                action("Tax Corrective Sales &Invoices")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Tax Corrective Sales &Invoices';
-                    Image = Invoice;
-                    ToolTip = 'Specifies posted sales invoices';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
-                    trigger OnAction()
-                    var
-                        SalesTaxCorrDocMgt: Codeunit "Sales Tax Corr. Doc Mgt.";
-                    begin
-                        SalesTaxCorrDocMgt.ShowPmtDiscInvoices(Rec);
-                    end;
-                }
-                action("Tax Corrective Sales &Cr. Memos")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Tax Corrective Sales &Cr. Memos';
-                    Image = CreditMemo;
-                    ToolTip = 'Specifies posted sales credit memos';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
-                    trigger OnAction()
-                    var
-                        SalesTaxCorrDocMgt: Codeunit "Sales Tax Corr. Doc Mgt.";
-                    begin
-                        SalesTaxCorrDocMgt.ShowPmtDiscCrMemos(Rec);
-                    end;
-                }
-            }
-            group("T&ax Corrective Documents for Service")
-            {
-                Caption = 'T&ax Corrective Documents for Service';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed. (Obsolete::Removed in release 01.2021)';
-                ObsoleteTag = '15.3';
-
-                action("Tax Corrective Service &Invoices")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Tax Corrective Service &Invoices';
-                    Image = Invoice;
-                    ToolTip = 'Specifies posted service invoices';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
-                    trigger OnAction()
-                    var
-                        ServiceTaxCorrDocMgt: Codeunit "Service Tax Corr. Doc Mgt.";
-                    begin
-                        ServiceTaxCorrDocMgt.ShowPmtDiscInvoices(Rec);
-                    end;
-                }
-                action("Tax Corrective Service &Cr. Memos")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Tax Corrective Service &Cr. Memos';
-                    Image = CreditMemo;
-                    ToolTip = 'Specifies posted service credit memos';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this action should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-
-                    trigger OnAction()
-                    var
-                        ServiceTaxCorrDocMgt: Codeunit "Service Tax Corr. Doc Mgt.";
-                    begin
-                        ServiceTaxCorrDocMgt.ShowPmtDiscCrMemos(Rec);
-                    end;
-                }
-            }
         }
         area(processing)
         {
@@ -698,6 +641,66 @@ page 25 "Customer Ledger Entries"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                action("Create Reminder")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Scope = Repeater;
+                    Ellipsis = true;
+                    Image = CreateReminders;
+                    ToolTip = 'Create reminders for this customer if they have overdue payments.';
+                    trigger OnAction()
+                    var
+                        Customer: Record "Customer";
+                        ReminderHeader: Record "Reminder Header";
+                    begin
+                        ReminderHeader.setrange("Customer No.", Rec."Customer No.");
+                        if ReminderHeader.FindFirst() then begin
+                            page.RunModal(Page::Reminder, ReminderHeader);
+                            exit
+                        end;
+                        Customer.setrange("No.", Rec."Customer No.");
+                        REPORT.RunModal(REPORT::"Create Reminders", true, true, Customer);
+                        ReminderHeader.setrange("Customer No.", Rec."Customer No.");
+                        if ReminderHeader.FindFirst() then begin
+                            commit();
+                            page.RunModal(Page::Reminder, ReminderHeader);
+                            exit
+                        end;
+                        Error(NoReminderCreatedErr);
+                    end;
+                }
+                action("Create Finance Charge Memo")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Scope = Repeater;
+                    Ellipsis = true;
+                    Image = CreateReminders;
+                    ToolTip = 'Create finance charge memos for this customer if they have overdue payments';
+                    trigger OnAction()
+                    var
+                        Customer: Record "Customer";
+                        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+                    begin
+                        FinanceChargeMemoHeader.setrange("Customer No.", Rec."Customer No.");
+                        if FinanceChargeMemoHeader.FindFirst() then begin
+                            page.RunModal(Page::"Finance Charge Memo", FinanceChargeMemoHeader);
+                            exit
+                        end;
+                        Customer.setrange("No.", Rec."Customer No.");
+                        REPORT.RunModal(REPORT::"Create Finance Charge Memos", true, true, Customer);
+                        FinanceChargeMemoHeader.setrange("Customer No.", Rec."Customer No.");
+                        if FinanceChargeMemoHeader.FindFirst() then begin
+                            commit();
+                            page.RunModal(Page::"Finance Charge Memo", FinanceChargeMemoHeader);
+                            exit
+                        end;
+                        Error(NoFinanceChargeMemoHeaderCreatedErr);
+                    end;
+                }
                 action("Apply Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -718,7 +721,7 @@ page 25 "Customer Ledger Entries"
                         CustEntryApplyPostEntries.ApplyCustEntryFormEntry(CustLedgEntry);
                         CustLedgEntry.Get(CustLedgEntry."Entry No.");
                         Rec := CustLedgEntry;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(UnapplyEntries)
@@ -901,12 +904,12 @@ page 25 "Customer Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        HasDocumentAttachment := HasPostedDocAttachment;
+        HasDocumentAttachment := HasPostedDocAttachment();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
     end;
 
     trigger OnInit()
@@ -925,7 +928,7 @@ page 25 "Customer Ledger Entries"
         SetControlVisibility();
         SetDimVisibility();
 
-        if (GetFilters <> '') and ("Entry No." = 0) then // NAVCZ
+        if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
     end;
 
@@ -939,6 +942,8 @@ page 25 "Customer Ledger Entries"
         DebitCreditVisible: Boolean;
         CustNameVisible: Boolean;
         ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
+        NoReminderCreatedErr: Label 'No reminder was created. Check the reminder terms for the customer.';
+        NoFinanceChargeMemoHeaderCreatedErr: Label 'No finance charge memo was created. Check the finance charge terms for the customer.';
 
     protected var
         Dim1Visible: Boolean;

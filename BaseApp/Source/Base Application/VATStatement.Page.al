@@ -284,10 +284,6 @@ page 317 "VAT Statement"
                     PromotedCategory = Process;
                     RunObject = Report "Calc. and Post VAT Settlement";
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
                 action(Export)
                 {

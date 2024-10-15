@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31092 "Order CZ"
 {
     DefaultLayout = RDLC;
@@ -545,4 +546,4 @@ report 31092 "Order CZ"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
 }
-
+#endif

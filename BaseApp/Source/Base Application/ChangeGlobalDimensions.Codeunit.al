@@ -155,7 +155,7 @@ codeunit 483 "Change Global Dimensions"
                         Window.Update(1, StrSubstNo('%1 %2', "Table ID", "Table Name"));
                     if RunTask(ChangeGlobalDimLogEntry) then
                         DeleteEntry(ChangeGlobalDimLogEntry);
-                until Next = 0;
+                until Next() = 0;
             ResetIfAllCompleted;
         end;
     end;
@@ -165,7 +165,7 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
-        if ChangeGlobalDimLogEntry.IsEmpty then
+        if ChangeGlobalDimLogEntry.IsEmpty() then
             ChangeGlobalDimHeader.DeleteAll();
     end;
 
@@ -241,7 +241,7 @@ codeunit 483 "Change Global Dimensions"
                 else
                     ChangeGlobalDimLogEntry.Modify();
                 RecRef.Close;
-            until ChangeGlobalDimLogEntry.Next = 0;
+            until ChangeGlobalDimLogEntry.Next() = 0;
     end;
 
     procedure FillBuffer()
@@ -310,7 +310,7 @@ codeunit 483 "Change Global Dimensions"
     begin
         RecRef.Open(ChangeGlobalDimLogEntry."Table ID");
         RecRef.LockTable(true);
-        if not RecRef.IsEmpty then begin
+        if not RecRef.IsEmpty() then begin
             CurrentRecNo := ChangeGlobalDimLogEntry."Completed Records";
             StartedFromRecord := CurrentRecNo;
             ChangeGlobalDimLogEntry."Total Records" := RecRef.Count();
@@ -343,7 +343,7 @@ codeunit 483 "Change Global Dimensions"
                         if CurrRecord mod Round(NoOfRecords / 100, 1, '>') = 1 then
                             Window.Update(2, Round(CurrRecord / NoOfRecords * 10000, 1));
                     end;
-                until RecRef.Next = 0;
+                until RecRef.Next() = 0;
             end;
             if DependentRecNo > 0 then begin
                 DependentRecRef.Close;
@@ -416,7 +416,7 @@ codeunit 483 "Change Global Dimensions"
                     RecRef.Modify();
                     CurrentRecNo += 1;
                 end;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
         end;
     end;
 
@@ -451,7 +451,7 @@ codeunit 483 "Change Global Dimensions"
             repeat
                 StartTime += DeltaMsec;
                 ScheduleJobForTable(ChangeGlobalDimLogEntry, StartTime);
-            until ChangeGlobalDimLogEntry.Next = 0;
+            until ChangeGlobalDimLogEntry.Next() = 0;
         end;
     end;
 
@@ -495,7 +495,7 @@ codeunit 483 "Change Global Dimensions"
                     Validate("Completed Records", 0);
                     Status := ChangeGlobalDimLogEntry.Status;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -578,7 +578,7 @@ codeunit 483 "Change Global Dimensions"
                 if TempParentTableInteger.Number <> 0 then
                     TempParentTableInteger.Insert();
                 ChangeGlobalDimLogEntry.Insert();
-            until TempAllObjWithCaption.Next = 0;
+            until TempAllObjWithCaption.Next() = 0;
 
             if TempParentTableInteger.FindSet then
                 repeat
@@ -586,7 +586,7 @@ codeunit 483 "Change Global Dimensions"
                         ChangeGlobalDimLogEntry."Is Parent Table" := true;
                         ChangeGlobalDimLogEntry.Modify();
                     end;
-                until TempParentTableInteger.Next = 0;
+                until TempParentTableInteger.Next() = 0;
         end;
         if TotalRecords = 0 then
             ChangeGlobalDimLogEntry.DeleteAll(true);

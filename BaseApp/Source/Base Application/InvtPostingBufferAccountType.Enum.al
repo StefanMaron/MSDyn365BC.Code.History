@@ -63,27 +63,43 @@
     {
         Caption = 'Mfg. Overhead Variance';
     }
-
+#if not CLEAN18
     value(16; AccConsumption)
     {
-        Caption = 'AccConsumption';
+        Caption = 'AccConsumption (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '18.0';
     }
     value(17; AccWIPChange)
     {
-        Caption = 'AccWIPChange';
+        Caption = 'AccWIPChange (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '18.0';
     }
+#endif
     value(18; AccWIP)
     {
         Caption = 'AccWIP';
     }
+#if not CLEAN18
     value(19; AccProdChange)
     {
-        Caption = 'AccProdChange';
+        Caption = 'AccProdChange (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '18.0';
     }
+
     value(20; InvRoundingAdj)
     {
-        Caption = 'InvRoundingAdj';
+        Caption = 'InvRoundingAdj (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '18.0';
     }
+#endif
     value(21; Rounding)
     {
         Caption = 'Rounding';

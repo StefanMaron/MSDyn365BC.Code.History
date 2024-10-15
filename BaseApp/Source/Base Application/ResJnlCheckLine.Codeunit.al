@@ -17,7 +17,9 @@ codeunit 211 "Res. Jnl.-Check Line"
 
     procedure RunCheck(var ResJnlLine: Record "Res. Journal Line")
     var
+#if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -44,12 +46,13 @@ codeunit 211 "Res. Jnl.-Check Line"
                 TimeSheetMgt.CheckResJnlLine(ResJnlLine);
 
             CheckDimensions(ResJnlLine);
-
+#if not CLEAN18
             // NAVCZ
             GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckResJournalLine(ResJnlLine);
             // NAVCZ
+#endif
         end;
 
         OnAfterRunCheck(ResJnlLine);

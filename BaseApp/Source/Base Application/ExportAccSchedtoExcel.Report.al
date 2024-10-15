@@ -108,7 +108,7 @@ report 29 "Export Acc. Sched. to Excel"
                             ColumnNo := ColumnNo + 1;
                             EnterCell(
                               RowNo, ColumnNo, ColumnLayout."Column Header", false, false, false, false, '', TempExcelBuffer."Cell Type"::Text);
-                        until ColumnLayout.Next = 0;
+                        until ColumnLayout.Next() = 0;
                     end;
                     repeat
                         RecNo := RecNo + 1;
@@ -147,10 +147,10 @@ report 29 "Export Acc. Sched. to Excel"
                                       RowNo, ColumnNo, MatrixMgt.FormatValue(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
                                       AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                                       '', TempExcelBuffer."Cell Type"::Number)
-                                until ColumnLayout.Next = 0;
+                                until ColumnLayout.Next() = 0;
                             end;
                         end; // NAVCZ
-                    until AccSchedLine.Next = 0;
+                    until AccSchedLine.Next() = 0;
                 end;
 
                 Window.Close;

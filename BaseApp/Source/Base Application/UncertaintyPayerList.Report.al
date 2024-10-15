@@ -150,7 +150,7 @@ report 11762 "Uncertainty Payer List"
                                 VendBankAccount."Bank Account No.", VendBankAccount.IBAN);
                             if not PublicBankAccount then
                                 WarningText := Text005;
-                        until (VendBankAccount.Next = 0) or (WarningText <> '');
+                        until (VendBankAccount.Next() = 0) or (WarningText <> '');
                 end;
 
                 if OnlyErrors and (WarningText = '') then

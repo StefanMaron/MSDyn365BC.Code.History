@@ -245,16 +245,26 @@ page 5613 "FA Posting Groups"
                     ToolTip = 'Specifies the total percentage for maintenance transactions that can be allocated when maintenance transactions are posted.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Acq. Cost Bal. Acc. on Disp."; "Acq. Cost Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger account for acquisition cost disposal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Fixed Asset Localization for Czech';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Book Value Bal. Acc. on Disp."; "Book Value Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger book value account for disposal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Fixed Asset Localization for Czech';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -280,6 +290,7 @@ page 5613 "FA Posting Groups"
             {
                 Caption = 'P&osting Gr.';
                 Image = Group;
+#if not CLEAN18
                 action("&Extended Posting Gr.")
                 {
                     ApplicationArea = FixedAssets;
@@ -288,7 +299,12 @@ page 5613 "FA Posting Groups"
                     RunObject = Page "FA Extended Posting Groups";
                     RunPageLink = "FA Posting Group Code" = FIELD(Code);
                     ToolTip = 'Allows the setup extended postig group.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
+#endif
                 group(Allocations)
                 {
                     Caption = 'Allocations';

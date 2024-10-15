@@ -300,7 +300,7 @@ page 145 "Posted Purchase Receipts"
             repeat
                 TempPurchRcptHeader := PurchRcptHeader;
                 TempPurchRcptHeader.Insert();
-            until PurchRcptHeader.Next = 0;
+            until PurchRcptHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

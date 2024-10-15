@@ -2694,7 +2694,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
         ServiceInvoiceHeader.FindFirst;
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
         until ServiceInvoiceLine.Next = 0;
@@ -2888,7 +2888,7 @@ codeunit 136108 "Service Posting - Invoice"
     local procedure FindServiceCreditMemoLines(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; DocumentNo: Code[20])
     begin
         ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
-        ServiceCrMemoLine.FindSet;
+        ServiceCrMemoLine.FindSet();
     end;
 
     local procedure FindServiceInvoiceFromOrder(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
@@ -2906,7 +2906,7 @@ codeunit 136108 "Service Posting - Invoice"
     local procedure FindServiceInvoiceLines(var ServiceInvoiceLine: Record "Service Invoice Line"; DocumentNo: Code[20])
     begin
         ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
     end;
 
     local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
@@ -2960,7 +2960,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             // Division by 2 ensures Qty. to Invoice is less than Quantity Shipped.
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" / 2);
@@ -2974,7 +2974,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
@@ -2987,7 +2987,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
@@ -3000,7 +3000,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Invoice", 0);  // Validate Qty. to Invoice as 0 - value 0 is important to test case.
             ServiceLine.Modify(true);
@@ -3021,7 +3021,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Quantity Shipped", 0);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -3064,7 +3064,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::Resource);
         ServiceLine.SetRange("Quantity Shipped", 0);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -3078,7 +3078,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -3107,7 +3107,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
@@ -3135,7 +3135,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceHeader.FindFirst;
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
         DetailedCustLedgEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         repeat
             DetailedCustLedgEntry.TestField(Amount, TotalAmount);
         until DetailedCustLedgEntry.Next = 0;
@@ -3186,7 +3186,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             ServiceShipmentLine.TestField(Quantity, ServiceShipmentLine."Quantity Invoiced");
         until ServiceShipmentLine.Next = 0;
@@ -3198,7 +3198,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField("Quantity Shipped", 0);
         until ServiceLine.Next = 0;
@@ -3243,7 +3243,7 @@ codeunit 136108 "Service Posting - Invoice"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
@@ -3272,7 +3272,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Invoice);
         ServiceLedgerEntry.SetRange("Service Order No.", OrderNo);
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
         until ServiceLedgerEntry.Next = 0;
@@ -3294,7 +3294,7 @@ codeunit 136108 "Service Posting - Invoice"
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
         ItemLedgerEntry.SetRange("Order No.", ServiceLine."Document No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Item No.", ServiceLine."No.");
             ItemLedgerEntry.TestField(Quantity, -ServiceLine.Quantity);
@@ -3346,7 +3346,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceLine.FindFirst;
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VatBaseAmount += VATEntry.Base;
         until VATEntry.Next = 0;
@@ -3384,7 +3384,7 @@ codeunit 136108 "Service Posting - Invoice"
         // relevant Service Line.
         Tolerance := 0.000005;
         TempServiceLineBeforePosting.SetRange(Type, TempServiceLineBeforePosting.Type::Item);
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);

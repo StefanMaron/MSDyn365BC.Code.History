@@ -385,7 +385,11 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Create Vendor from Contact.
+#if CLEAN18
+        Contact.CreateVendor();
+#else
         Contact.CreateVendor(''); // NAVCZ
+#endif
 
         // 3. Verify: Verify Contact Business Relation and Vendor successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
@@ -899,7 +903,7 @@ codeunit 136205 "Marketing Setup"
         Territory.FindFirst;
         CountryRegion.FindFirst;
         Language.FindFirst;
-        Salutation.FindSet;
+        Salutation.FindSet();
 
         MarketingSetup.Get();
         TempMarketingSetup.Init();

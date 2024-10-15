@@ -1,4 +1,4 @@
-﻿codeunit 5980 "Service-Post"
+codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -151,7 +151,7 @@
                         WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
                         WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
                           PostedWhseShipmentLine, TempTrackingSpecification);
-                    until TempWarehouseShipmentLine.Next = 0;
+                    until TempWarehouseShipmentLine.Next() = 0;
                 if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
                     UpdateWhseDocuments();
             end;
@@ -272,7 +272,6 @@
 
     local procedure TestMandatoryFields(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
     var
-        PostingDesc: Record "Posting Description";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         OnBeforeTestMandatoryFields(PassedServiceHeader);
@@ -283,7 +282,7 @@
             TestField("Bill-to Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
-            if PassedServiceLine.IsEmpty then
+            if PassedServiceLine.IsEmpty() then
                 TestServLinePostingDate("Document Type", "No.")
             else begin
                 if "Posting Date" <> PassedServiceLine."Posting Date" then begin
@@ -295,12 +294,6 @@
                         FieldError("Posting Date", Text007);
                 end;
                 // NAVCZ
-                if "Posting Desc. Code" <> '' then begin
-                    PostingDesc.Get("Posting Desc. Code");
-                    if PostingDesc."Validate on Posting" then
-                        GetPostingDescription("Posting Desc. Code", "Posting Description");
-                end;
-                TestField("Posting Description");
                 GLSetup.Get();
                 if not GLSetup."Use VAT Date" then
                     TestField("VAT Date", "Posting Date")
@@ -313,9 +306,6 @@
                 // NAVCZ
             end;
             TestMandatoryFields(PassedServiceLine);
-            // NAVCZ
-            CheckReasonCodeForTaxCorrDoc(PassedServiceHeader);
-            // NAVCZ
         end;
     end;
 
@@ -412,12 +402,11 @@
 
     local procedure LockTables(var ServiceLine: Record "Service Line"; var GLEntry: Record "G/L Entry")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
         ServiceLine.LockTable();
 
-        GLSetup.Get();
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.Find('+') then;
         end;
@@ -488,8 +477,8 @@
                         TempWarehouseShipmentHeader := WarehouseShipmentHeaderLocal;
                         if TempWarehouseShipmentHeader.Insert() then;
                     end;
-                until WarehouseShipmentLineLocal.Next = 0;
-        until ServiceLine.Next = 0;
+                until WarehouseShipmentLineLocal.Next() = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure TestServLinePostingDate(ServHeaderDocType: Enum "Service Document Type"; ServHeaderNo: Code[20])
@@ -505,37 +494,8 @@
                 repeat
                     if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                         FieldError("Posting Date", Text007)
-                until Next = 0;
+                until Next() = 0;
         end;
-    end;
-
-    local procedure CheckReasonCodeForTaxCorrDoc(PassedServiceHeader: Record "Service Header")
-    var
-        ServiceLineForTaxCorrDoc: Record "Service Line";
-    begin
-        // NAVCZ
-
-        // NAVCZ
-        ServiceSetup.Get();
-        if not ServiceSetup."Reas.Cd. on Tax Corr.Doc.Mand." then
-            exit;
-        // NAVCZ
-
-        with PassedServiceHeader do begin
-            if not "Tax Corrective Document" then
-                exit;
-
-            if "Reason Code" <> '' then
-                exit;
-
-            ServiceLineForTaxCorrDoc.SetRange("Document Type", "Document Type");
-            ServiceLineForTaxCorrDoc.SetRange("Document No.", "No.");
-            ServiceLineForTaxCorrDoc.SetRange("Reason Code", '');
-            ServiceLineForTaxCorrDoc.SetFilter(Type, '>''''');
-            if ServiceLineForTaxCorrDoc.FindFirst then
-                TestField("Reason Code");
-        end;
-        // NAVCZ
     end;
 
     [Scope('OnPrem')]
@@ -559,7 +519,7 @@
                             if TariffNo."VAT Stat. Unit of Measure Code" <> '' then
                                 ServLine.TestField("Unit of Measure Code", TariffNo."VAT Stat. Unit of Measure Code");
                     end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
         // NAVCZ
     end;
 

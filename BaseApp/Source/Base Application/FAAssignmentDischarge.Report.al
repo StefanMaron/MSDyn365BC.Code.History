@@ -1,9 +1,13 @@
+#if not CLEAN18
 report 31039 "FA Assignment/Discharge"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAAssignmentDischarge.rdlc';
-    Caption = 'FA Assignment/Discharge';
+    Caption = 'FA Assignment/Discharge (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -396,4 +400,4 @@ report 31039 "FA Assignment/Discharge"
         end;
     end;
 }
-
+#endif

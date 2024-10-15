@@ -51,21 +51,35 @@ page 5826 "Inventory Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post transactions for items in WIP inventory in this combination.';
                 }
+#if not CLEAN18
                 field("Consumption Account"; "Consumption Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the consumption account for inventory posting.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Change In Inv.Of WIP Acc."; "Change In Inv.Of WIP Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a change has been made to the inventory general ledger work in process (WIP) account. This account is used for inventory posting.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Change In Inv.Of Product Acc."; "Change In Inv.Of Product Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a change has been made to the inventory general ledger product account. This account is used for inventory posting.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Material Variance Account"; "Material Variance Account")
                 {
                     ApplicationArea = Basic, Suite;

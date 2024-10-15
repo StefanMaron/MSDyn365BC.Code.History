@@ -300,7 +300,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         if TempWhseJnlLine2.Find('-') then
             repeat
                 WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-            until TempWhseJnlLine2.Next = 0;
+            until TempWhseJnlLine2.Next() = 0;
     end;
 
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
@@ -325,7 +325,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 "VAT Amount" += InvoicePostBuffer."VAT Difference (LCY)";
             TotalVATDifferenceLCY += InvoicePostBuffer."VAT Difference (LCY)";
             "VAT Date" := InvoicePostBuffer."VAT Date";
-            "Postponed VAT" := ServiceHeader."Postponed VAT";
             // NAVCZ
 
             OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
@@ -576,7 +575,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 PassedValueEntryRelation := TempValueEntryRelation;
                 PassedValueEntryRelation."Source RowId" := RowId;
                 PassedValueEntryRelation.Insert();
-            until TempValueEntryRelation.Next = 0;
+            until TempValueEntryRelation.Next() = 0;
 
         TempValueEntryRelation.DeleteAll();
     end;
@@ -702,6 +701,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ServiceLinePostingDate := PostingDate;
     end;
 
+    [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
     [Scope('OnPrem')]
     procedure SetVariableSymbol(VariableSymbolNew: Code[10])
     begin

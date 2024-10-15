@@ -115,7 +115,7 @@ xmlport 31072 "Sales Price Import"
                     greSalesPrice."Allow Line Disc." := "Sales Price"."Allow Line Disc.";
                     greSalesPrice.Insert();
                 end;
-            until "Sales Price".Next = 0;
+            until "Sales Price".Next() = 0;
     end;
 
     var

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11770 "Accounting Sheets"
 {
     DefaultLayout = RDLC;
@@ -914,4 +915,4 @@ report 11770 "Accounting Sheets"
         end;
     end;
 }
-
+#endif

@@ -663,7 +663,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATEntry.SetRange("Bill-to/Pay-to No.", BilltoPaytoNo);
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
         VATEntry.SetRange("Posting Date", WorkDate);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure PostSalesOrderWithVATSetup(CustomerNo: Code[20]; EU3PartyTrade: Boolean; Type: Enum "Sales Line Type"; No: Code[20])
@@ -770,6 +770,7 @@ codeunit 134992 "ERM Financial Reports IV"
     [Scope('OnPrem')]
     procedure RHCalcAndPostVATSettlement(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
+        if CalcAndPostVATSettlement.Editable then;
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 

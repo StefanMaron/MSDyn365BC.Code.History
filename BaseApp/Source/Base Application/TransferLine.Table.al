@@ -1,4 +1,4 @@
-﻿table 5741 "Transfer Line"
+table 5741 "Transfer Line"
 {
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
@@ -29,7 +29,7 @@
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
                 "Item No." := GetItemNo();
-                ReserveTransferLine.VerifyChange(Rec, xRec);
+                TransferLineReserve.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. Inbnd. (Base)");
                 TestField("Reserved Qty. Inbnd. (Base)", 0);
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
@@ -399,7 +399,7 @@
                 TestField("Qty. Shipped (Base)", 0);
                 TestField("Quantity Received", 0);
                 TestField("Qty. Received (Base)", 0);
-                ReserveTransferLine.VerifyChange(Rec, xRec);
+                TransferLineReserve.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
                 if "Unit of Measure Code" = '' then
                     "Unit of Measure" := ''
@@ -449,7 +449,7 @@
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                ReserveTransferLine.VerifyChange(Rec, xRec);
+                TransferLineReserve.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
 
                 OnValidateVariantCodeOnBeforeCheckEmptyVariantCode(Rec, xRec, CurrFieldNo);
@@ -514,7 +514,7 @@
 
                 OnValidateTransferFromCodeOnBeforeCheckItemAvailable(Rec);
                 CheckItemAvailable(FieldNo("Transfer-from Code"));
-                ReserveTransferLine.VerifyChange(Rec, xRec);
+                TransferLineReserve.VerifyChange(Rec, xRec);
                 UpdateWithWarehouseShipReceive;
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
             end;
@@ -536,7 +536,7 @@
                 end;
 
                 OnValidateTransferToCodeOnBeforeVerifyChange(Rec);
-                ReserveTransferLine.VerifyChange(Rec, xRec);
+                TransferLineReserve.VerifyChange(Rec, xRec);
                 UpdateWithWarehouseShipReceive;
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
             end;
@@ -878,6 +878,9 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -889,21 +892,41 @@
         {
             Caption = 'Statistic Indication';
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Ship';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
         {
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
@@ -912,7 +935,7 @@
             trigger OnValidate()
             begin
                 if "Planning Flexibility" <> xRec."Planning Flexibility" then
-                    ReserveTransferLine.UpdatePlanningFlexibility(Rec);
+                    TransferLineReserve.UpdatePlanningFlexibility(Rec);
             end;
         }
     }
@@ -976,13 +999,13 @@
             if TransLine2.FindLast then
                 "Line No." := TransLine2."Line No." + 10000;
         end;
-        ReserveTransferLine.VerifyQuantity(Rec, xRec);
+        TransferLineReserve.VerifyQuantity(Rec, xRec);
     end;
 
     trigger OnModify()
     begin
         if ItemExists(xRec."Item No.") then
-            ReserveTransferLine.VerifyChange(Rec, xRec);
+            TransferLineReserve.VerifyChange(Rec, xRec);
     end;
 
     trigger OnRename()
@@ -1009,20 +1032,20 @@
         Bin: Record Bin;
         DimMgt: Codeunit DimensionManagement;
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         WMSManagement: Codeunit "WMS Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         ConfirmManagement: Codeunit "Confirm Management";
         Reservation: Page Reservation;
         TrackingBlocked: Boolean;
+        CannotAutoReserveErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.', Comment = '%1 - quantity, %2 - line number';
         MustUseTrackingErr: Label 'You must use the %1 page to specify the %2, if you use item tracking.', Comment = '%1 = Form Name, %2 = Value to Enter';
         LedgEntryWillBeOpenedMsg: Label 'When posting the Applied to Ledger Entry %1 will be opened first.', Comment = '%1 = Entry No.';
         ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.', Comment = '%1 = Quantity Value, %2 = Document No.';
         AnotherItemWithSameDescrQst: Label 'We found an item with the description "%2" (No. %1).\Did you mean to change the current item to %1?', Comment = '%1=Item no., %2=item description';
         StatusCheckSuspended: Boolean;
 
-    [Scope('OnPrem')]
     procedure InitOutstandingQty()
     begin
         "Outstanding Quantity" := Quantity - "Quantity Shipped";
@@ -1032,7 +1055,6 @@
         OnAfterInitOutstandingQty(Rec, CurrFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure InitQtyToShip()
     begin
         "Qty. to Ship" := "Outstanding Quantity";
@@ -1041,7 +1063,6 @@
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure InitQtyToReceive()
     begin
         if "In-Transit Code" <> '' then begin
@@ -1056,7 +1077,6 @@
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure InitQtyInTransit()
     begin
         if "In-Transit Code" <> '' then begin
@@ -1127,10 +1147,12 @@
         "Inbound Whse. Handling Time" := TransHeader."Inbound Whse. Handling Time";
         Status := TransHeader.Status;
         "Direct Transfer" := TransHeader."Direct Transfer";
+#if not CLEAN18        
         // NAVCZ
         "Gen. Bus. Post. Group Ship" := TransHeader."Gen. Bus. Post. Group Ship";
         "Gen. Bus. Post. Group Receive" := TransHeader."Gen. Bus. Post. Group Receive";
         // NAVCZ
+#endif
 
         OnAfterGetTransHeader(Rec, TransHeader);
     end;
@@ -1176,7 +1198,7 @@
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         TrackingBlocked := SetBlock;
-        ReserveTransferLine.Block(SetBlock);
+        TransferLineReserve.Block(SetBlock);
     end;
 
     procedure ShowDimensions()
@@ -1253,7 +1275,15 @@
         TestField("Item No.");
         TestField("Quantity (Base)");
 
-        ReserveTransferLine.CallItemTracking(Rec, Direction);
+        TransferLineReserve.CallItemTracking(Rec, Direction);
+    end;
+
+    procedure OpenItemTrackingLinesWithReclass(Direction: Enum "Transfer Direction")
+    begin
+        TestField("Item No.");
+        TestField("Quantity (Base)");
+
+        TransferLineReserve.CallItemTracking(Rec, Direction, true);
     end;
 
     procedure TestStatusOpen()
@@ -1576,10 +1606,10 @@
             SetFilter("Outstanding Qty. (Base)", '>0');
     end;
 
-    local procedure VerifyItemLineDim()
+    procedure VerifyItemLineDim()
     begin
         if IsShippedDimChanged then
-            ConfirmShippedDimChange;
+            ConfirmShippedDimChange();
     end;
 
     [Scope('OnPrem')]
@@ -1608,7 +1638,7 @@
 
                     OnDeleteRelatedTransferLinesOnBeforeDeleteRelatedData(TransLine);
 
-                    ReserveTransferLine.DeleteLine(TransLine2);
+                    TransferLineReserve.DeleteLine(TransLine2);
                     WhseValidateSourceLine.TransLineDelete(TransLine2);
 
                     ItemChargeAssgntPurch.SetCurrentKey(
@@ -1620,8 +1650,29 @@
 
                     if CalledFromHeader then
                         Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
+    end;
+
+    procedure ReserveFromInventory(var TransLine: Record "Transfer Line")
+    var
+        ReservMgt: Codeunit "Reservation Management";
+        SourceRecRef: RecordRef;
+        AutoReserved: Boolean;
+    begin
+        if TransLine.FindSet() then
+            repeat
+                SourceRecRef.GetTable(TransLine);
+                ReservMgt.SetReservSource(SourceRecRef);
+                TransLine.TestField("Shipment Date");
+                TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                ReservMgt.AutoReserveToShip(
+                  AutoReserved, '', TransLine."Shipment Date",
+                  TransLine."Qty. to Ship" - TransLine."Reserved Quantity Outbnd.",
+                  TransLine."Qty. to Ship (Base)" - TransLine."Reserved Qty. Outbnd. (Base)");
+                if not AutoReserved then
+                    Error(CannotAutoReserveErr, TransLine."Qty. to Ship (Base)", TransLine."Line No.");
+            until TransLine.Next() = 0;
     end;
 
     procedure IsShippedDimChanged() Result: Boolean
@@ -1702,7 +1753,7 @@
         if IsHandled then
             exit;
 
-        ReserveTransferLine.VerifyQuantity(Rec, xRec);
+        TransferLineReserve.VerifyQuantity(Rec, xRec);
     end;
 
     local procedure SetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry")

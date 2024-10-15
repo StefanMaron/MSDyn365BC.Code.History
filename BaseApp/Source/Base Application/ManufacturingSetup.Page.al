@@ -69,6 +69,10 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default general bussines posting group.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Exact Cost Rev.Manda. (Cons.)"; "Exact Cost Rev.Manda. (Cons.)")
                 {

@@ -24,7 +24,7 @@ page 41 "Sales Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -38,7 +38,7 @@ page 41 "Sales Quote"
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -55,7 +55,7 @@ page 41 "Sales Quote"
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
 
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
@@ -182,18 +182,37 @@ page 41 "Sales Quote"
                     Editable = "Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the person to contact at the customer.';
                 }
+#if not CLEAN18
                 field("Sell-to Customer Template Code"; "Sell-to Customer Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer Template Code';
-                    Enabled = EnableSellToCustomerTemplateCode;
+                    Enabled = EnableOldSellToCustomerTemplateCode;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the code for the template to create a new customer';
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+
+                    trigger OnValidate()
+                    begin
+                        ActivateFields();
+                        CurrPage.Update();
+                    end;
+                }
+#endif
+                field("Sell-to Customer Templ. Code"; "Sell-to Customer Templ. Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Template Code';
+                    Enabled = EnableNewSellToCustomerTemplateCode;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the template to create a new customer';
 
                     trigger OnValidate()
                     begin
-                        ActivateFields;
-                        CurrPage.Update;
+                        ActivateFields();
+                        CurrPage.Update();
                     end;
                 }
                 field("No. of Archived Versions"; "No. of Archived Versions")
@@ -213,15 +232,6 @@ page 41 "Sales Quote"
                         PAGE.RunModal(PAGE::"Sales List Archive", SalesHeaderArchive);
                         CurrPage.Update(false);
                     end;
-                }
-                field("Posting Desc. Code"; "Posting Desc. Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the posting description code for the sales header.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -324,8 +334,8 @@ page 41 "Sales Quote"
             part(SalesLines; "Sales Quote Subform")
             {
                 ApplicationArea = Basic, Suite;
-                Editable = ("Sell-to Customer No." <> '') OR ("Sell-to Customer Template Code" <> '') OR ("Sell-to Contact No." <> '');
-                Enabled = ("Sell-to Customer No." <> '') OR ("Sell-to Customer Template Code" <> '') OR ("Sell-to Contact No." <> '');
+                Editable = SalesLinesAvailable;
+                Enabled = SalesLinesAvailable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -362,6 +372,10 @@ page 41 "Sales Quote"
                     Caption = 'Intrastat Transaction';
                     Editable = false;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
@@ -895,15 +909,6 @@ page 41 "Sales Quote"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Industry Code"; "Industry Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the industry code for the customer record.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -918,57 +923,102 @@ page 41 "Sales Quote"
             group(Payments)
             {
                 Caption = 'Payments';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '18.0';
+                Visible = false;
+
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to idenfity bank account of my company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the bank.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Branch No."; "Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank branch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Transit No."; "Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
             }
         }
@@ -1555,12 +1605,12 @@ page 41 "Sales Quote"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category7;
@@ -1580,7 +1630,7 @@ page 41 "Sales Quote"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category7;
@@ -1772,6 +1822,8 @@ page 41 "Sales Quote"
         SetControlAppearance;
         IsSaaS := EnvironmentInfo.IsSaaS;
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible;
+
+        SetEnableSellToCustomerTemplateCode();
     end;
 
     var
@@ -1809,6 +1861,11 @@ page 41 "Sales Quote"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsSellToCustomerNotEmpty: Boolean;
+        EnableNewSellToCustomerTemplateCode: Boolean;
+        SalesLinesAvailable: Boolean;
+#if not CLEAN18
+        EnableOldSellToCustomerTemplateCode: Boolean;
+#endif
 
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
@@ -1821,6 +1878,8 @@ page 41 "Sales Quote"
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        SetEnableSellToCustomerTemplateCode();
+        SetSalesLinesAvailability();
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1897,6 +1956,31 @@ page 41 "Sales Quote"
         CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
+    local procedure SetEnableSellToCustomerTemplateCode()
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        EnableNewSellToCustomerTemplateCode := ("Sell-to Customer No." = '') and CustomerTemplMgt.IsEnabled();
+#if not CLEAN18
+        EnableOldSellToCustomerTemplateCode := ("Sell-to Customer No." = '') and not CustomerTemplMgt.IsEnabled();
+#endif
+    end;
+
+    local procedure SetSalesLinesAvailability()
+#if not CLEAN18
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            SalesLinesAvailable := ("Sell-to Customer No." <> '') or ("Sell-to Customer Template Code" <> '') or ("Sell-to Contact No." <> '');
+            exit;
+        end;
+#endif
+        SalesLinesAvailable := ("Sell-to Customer No." <> '') OR ("Sell-to Customer Templ. Code" <> '') OR ("Sell-to Contact No." <> '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
@@ -1912,4 +1996,3 @@ page 41 "Sales Quote"
     begin
     end;
 }
-

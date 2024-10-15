@@ -1,4 +1,4 @@
-﻿page 40 "Item Journal"
+page 40 "Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
     ApplicationArea = Basic, Suite;
@@ -157,6 +157,9 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to include general ledger corrections on the item journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field(Quantity; Quantity)
                 {
@@ -198,6 +201,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Applies-to Entry"; "Applies-to Entry")
@@ -215,6 +221,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry an Intrastat transaction is.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Shpt. Method Code"; "Shpt. Method Code")
@@ -244,6 +253,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Country/Region Code"; "Country/Region Code")
@@ -256,6 +268,9 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin country/region code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
@@ -263,24 +278,6 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
-                }
-                field("FA No."; "FA No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of fixed asset in the item journal.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
-                }
-                field("Maintenance Code"; "Maintenance Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a maintenance code.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -584,6 +581,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -800,12 +808,12 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
         Commit();
-        if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
+        if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

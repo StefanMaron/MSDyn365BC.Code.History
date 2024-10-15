@@ -66,6 +66,7 @@ codeunit 11774 "Init Report Selection Handler"
     begin
         with ReportSelections do
             case ReportUsage of
+#if not CLEAN17
                 Usage::"S.Quote":
                     InsertRepSelection(Usage::"S.Quote", '1', Report::"Sales - Quote CZ");
                 Usage::"S.Order":
@@ -102,6 +103,7 @@ codeunit 11774 "Init Report Selection Handler"
                     InsertRepSelection(Usage::Reminder, '1', Report::"Reminder CZ");
                 Usage::"Fin.Charge":
                     InsertRepSelection(Usage::"Fin.Charge", '1', Report::"Finance Charge Memo CZ");
+#endif
                 Usage::"S.Adv.Let":
                     InsertRepSelection(Usage::"S.Adv.Let", '1', Report::"Sales - Advance Letter CZ");
                 Usage::"S.Adv.Inv":

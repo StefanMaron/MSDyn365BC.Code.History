@@ -30,8 +30,6 @@ codeunit 31100 VATControlReportManagement
         GlobalLineNo: Integer;
         InternalDocCheckMsg: Label 'There is nothing internal document to exclusion in VAT Control Report No. %1.', Comment = '%1=VAT Control Report No.';
         AmountTxt: Label 'Amount';
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-        PerformCountryRegionCode: Code[10];
 
     [Scope('OnPrem')]
     procedure GetVATCtrlReportLines(VATCtrlRptHdr: Record "VAT Control Report Header"; StartDate: Date; EndDate: Date; VATStmTemplCode: Code[10]; VATStmName: Code[10]; ProcessType: Option Add,Rewrite; ShowMessage: Boolean; UseMergeVATEntries: Boolean)
@@ -63,8 +61,6 @@ codeunit 31100 VATControlReportManagement
 
         if ShowMessage then
             Window.Open(ProgressDialogMsg);
-
-        PerformCountryRegionCode := VATCtrlRptHdr."Perform. Country/Region Code";
 
         VATStatementLine.SetRange("Statement Template Name", VATStmTemplCode);
         VATStatementLine.SetRange("Statement Name", VATStmName);
@@ -99,11 +95,7 @@ codeunit 31100 VATControlReportManagement
                                     VATCtrlRptSection.Get(VATStatementLine."VAT Control Rep. Section Code");
 
                                 if UseMergeVATEntries then
-                                    MergeVATEntry(TempVATEntry, TempVATCtrlRepVATEntryLink2)
-                                else begin
-                                    Base -= "VAT Amount (Non Deductible)";
-                                    Amount += "VAT Amount (Non Deductible)";
-                                end;
+                                    MergeVATEntry(TempVATEntry, TempVATCtrlRepVATEntryLink2);
 
                                 DocumentAmount := GetDocumentAmount(
                                     TempVATEntry, VATCtrlRptSection."Group By" = VATCtrlRptSection."Group By"::"External Document No.");
@@ -145,7 +137,7 @@ codeunit 31100 VATControlReportManagement
                                                             InsertVATCtrlRptBufferDocNo(TempVATCtrlRptBuf, TempVATCtrlRepVATEntryLink, TempVATEntry,
                                                               VATPostingSetup, VATCtrlRptSection.Code, TempDropShptPostBuffer."Order No.");
                                                     end;
-                                                until TempDropShptPostBuffer.Next = 0;
+                                                until TempDropShptPostBuffer.Next() = 0;
                                         end;
                                     else
                                         case VATCtrlRptSection."Group By" of
@@ -162,8 +154,8 @@ codeunit 31100 VATControlReportManagement
                                 end;
                             end;
                         end;
-                    until TempVATEntry.Next = 0;
-            until VATStatementLine.Next = 0;
+                    until TempVATEntry.Next() = 0;
+            until VATStatementLine.Next() = 0;
 
         VATCtrlRptLn.SetRange("Control Report No.", VATCtrlRptHdr."No.");
         if not VATCtrlRptLn.FindLast then
@@ -205,10 +197,10 @@ codeunit 31100 VATControlReportManagement
                                     VATCtrlRepVATEntryLink."Line No." := VATCtrlRptLn."Line No.";
                                     VATCtrlRepVATEntryLink."VAT Entry No." := TempVATCtrlRepVATEntryLink2."VAT Entry No.";
                                     VATCtrlRepVATEntryLink.Insert();
-                                until TempVATCtrlRepVATEntryLink2.Next = 0;
-                        until TempVATCtrlRepVATEntryLink.Next = 0;
+                                until TempVATCtrlRepVATEntryLink2.Next() = 0;
+                        until TempVATCtrlRepVATEntryLink.Next() = 0;
                 end;
-            until TempVATCtrlRptBuf.Next = 0;
+            until TempVATCtrlRptBuf.Next() = 0;
 
         if ShowMessage then begin
             Window.Close;
@@ -258,8 +250,8 @@ codeunit 31100 VATControlReportManagement
                     TempVATEntry.Amount := 0;
                     TempVATEntry."Advance Base" := 0;
                     repeat
-                        TempVATEntry.Base += TempVATEntryGlobal.Base - TempVATEntryGlobal."VAT Amount (Non Deductible)";
-                        TempVATEntry.Amount += TempVATEntryGlobal.Amount + TempVATEntryGlobal."VAT Amount (Non Deductible)";
+                        TempVATEntry.Base += TempVATEntryGlobal.Base;
+                        TempVATEntry.Amount += TempVATEntryGlobal.Amount;
                         TempVATEntry."Advance Base" += TempVATEntryGlobal."Advance Base";
 
                         if TempVATEntryGlobal."Entry No." <> TempVATEntry."Entry No." then begin
@@ -268,7 +260,7 @@ codeunit 31100 VATControlReportManagement
                             TempVATCtrlRepVATEntryLink."VAT Entry No." := TempVATEntryGlobal."Entry No.";
                             TempVATCtrlRepVATEntryLink.Insert();
                         end;
-                    until TempVATEntryGlobal.Next = 0;
+                    until TempVATEntryGlobal.Next() = 0;
                     Insert;
                 end;
             end;
@@ -321,7 +313,7 @@ codeunit 31100 VATControlReportManagement
                                 Amount += (TempVATEntryGlobal."Advance Base" + TempVATEntryGlobal.Amount)
                             else
                                 Amount += (TempVATEntryGlobal.Base + TempVATEntryGlobal.Amount);
-                    until TempVATEntryGlobal.Next = 0;
+                    until TempVATEntryGlobal.Next() = 0;
                     Insert;
                 end;
             end;
@@ -354,7 +346,7 @@ codeunit 31100 VATControlReportManagement
             VATCtrlRptLn.SetRange("Posting Date", StartDate, EndDate);
         end;
         VATCtrlRptLn.SetFilter("Closed by Document No.", '%1', '');
-        if not VATCtrlRptLn.IsEmpty then
+        if not VATCtrlRptLn.IsEmpty() then
             VATCtrlRptLn.DeleteAll(true);
     end;
 
@@ -467,8 +459,6 @@ codeunit 31100 VATControlReportManagement
         with VATEntry do begin
             if "VAT Control Report Line No." <> 0 then
                 exit(true);
-            if not "Postponed VAT" then
-                exit(false);
             if Base <> 0 then
                 exit(false);
             if "Unrealized Base" = 0 then
@@ -558,7 +548,7 @@ codeunit 31100 VATControlReportManagement
                       "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Base Amount",
                       SalesInvHdr."Currency Code", SalesInvHdr."VAT Currency Factor", SalesInvHdr."VAT Date",
                       false, Amount);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -581,7 +571,7 @@ codeunit 31100 VATControlReportManagement
                       "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Base Amount",
                       SalesCrMemoHdr."Currency Code", SalesCrMemoHdr."VAT Currency Factor", SalesCrMemoHdr."VAT Date",
                       false, Amount);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -605,7 +595,7 @@ codeunit 31100 VATControlReportManagement
                       "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Base Amount",
                       PurchInvHdr."Currency Code", PurchInvHdr."VAT Currency Factor", PurchInvHdr."VAT Date",
                       true, Amount);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -628,7 +618,7 @@ codeunit 31100 VATControlReportManagement
                       "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Base Amount",
                       PurchCrMemoHdr."Currency Code", PurchCrMemoHdr."VAT Currency Factor", PurchCrMemoHdr."VAT Date",
                       true, Amount);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -644,15 +634,6 @@ codeunit 31100 VATControlReportManagement
                 Init;
                 "Order No." := TariffNumber."Statement Code";
                 Insert;
-            end;
-            if PerformCountryRegionCode <> '' then begin
-                Quantity += PerfCurrExchangeAmount(VATBaseAmount, VATDate, CurrencyCode);
-                if CalcQtyBase then
-                    "Quantity (Base)" += PerfCurrExchangeAmount(LineAmount, VATDate, CurrencyCode)
-                else
-                    "Quantity (Base)" := 0;
-                Modify;
-                exit;
             end;
             Quantity += CalcVATBaseAmtLCY(
                 VATBusPostingGroup,
@@ -761,7 +742,7 @@ codeunit 31100 VATControlReportManagement
                 end;
                 OnBeforeModifyVATCtrlReportBufferForStatistics(TempVATCtrlRptBuf, VATCtrlRptLn);
                 TempVATCtrlRptBuf.Modify();
-            until VATCtrlRptLn.Next = 0;
+            until VATCtrlRptLn.Next() = 0;
 
         if ShowMessage then
             Window.Close;
@@ -871,7 +852,7 @@ codeunit 31100 VATControlReportManagement
 
                 OnBeforeModifyVATCtrlReportBufferForExport(TempVATCtrlRptBuf, VATCtrlRptLn);
                 TempVATCtrlRptBuf.Modify();
-            until VATCtrlRptLn.Next = 0;
+            until VATCtrlRptLn.Next() = 0;
 
         if ShowMessage then
             Window.Close;
@@ -907,7 +888,7 @@ codeunit 31100 VATControlReportManagement
                             FieldRef := RecRef.Field(Field."No.");
                             if IsMandatoryField(VATControlReportLine."VAT Control Rep. Section Code", FieldRef.Number) then
                                 FieldRef.TestField;
-                        until Field.Next = 0;
+                        until Field.Next() = 0;
                 end;
             else
                 if IsMandatoryField(VATControlReportLine."VAT Control Rep. Section Code", FieldNo) then begin
@@ -932,9 +913,9 @@ codeunit 31100 VATControlReportManagement
             exit;
 
         VATCtrlRptLn.SetRange("Control Report No.", VATCtrlRptHdr."No.");
-        if VATCtrlRptLn.IsEmpty then
+        if VATCtrlRptLn.IsEmpty() then
             Error(LinesNotExistErr, VATCtrlRptHdr."No.");
-        VATCtrlRptLn.FindSet;
+        VATCtrlRptLn.FindSet();
 
         if NewCloseDate = 0D then
             NewCloseDate := WorkDate;
@@ -957,7 +938,7 @@ codeunit 31100 VATControlReportManagement
                 VATCtrlRptLn."Closed Date" := NewCloseDate;
                 VATCtrlRptLn.Modify();
             end;
-        until VATCtrlRptLn.Next = 0;
+        until VATCtrlRptLn.Next() = 0;
     end;
 
     local procedure GenerateCloseDocNo(CloseDate: Date): Code[20]
@@ -1021,7 +1002,7 @@ codeunit 31100 VATControlReportManagement
                 end;
                 TempVATCtrlRptBuf."Total Amount" += VATCtrlRptLn.Base + VATCtrlRptLn.Amount;
                 TempVATCtrlRptBuf.Modify();
-            until VATCtrlRptLn.Next = 0;
+            until VATCtrlRptLn.Next() = 0;
 
         TempVATCtrlRptBuf.Reset();
         if TempVATCtrlRptBuf.FindFirst then
@@ -1062,7 +1043,7 @@ codeunit 31100 VATControlReportManagement
                 AddToExcelBuffer(TempExcelBuf, i, 4, TempVATCtrlRptBuf3."External Document No.");
                 AddToExcelBuffer(TempExcelBuf, i, 5, Format(TempVATCtrlRptBuf3."Total Amount"));
                 AddToExcelBuffer(TempExcelBuf, i, 6, Format(TempVATCtrlRptBuf3."Total Base"));
-            until TempVATCtrlRptBuf3.Next = 0;
+            until TempVATCtrlRptBuf3.Next() = 0;
             TempExcelBuf.CreateBook('', 'KH1');
             TempExcelBuf.WriteSheet(
               PadStr(StrSubstNo('%1 %2', VATCtrlRptHdr."No.", VATCtrlRptHdr.Description), 30),
@@ -1108,10 +1089,6 @@ codeunit 31100 VATControlReportManagement
             VATEntry.SetRange("VAT Date", StartDate, EndDate)
         else
             VATEntry.SetRange("Posting Date", StartDate, EndDate);
-        if VATCtrlRptHdr."Perform. Country/Region Code" <> '' then
-            VATEntry.SetRange("Perform. Country/Region Code", VATCtrlRptHdr."Perform. Country/Region Code")
-        else
-            VATEntry.SetRange("Perform. Country/Region Code", '');
         OnAfterSetVATEntryFilters(VATEntry, VATStatementLine, VATCtrlRptHdr);
     end;
 
@@ -1248,7 +1225,7 @@ codeunit 31100 VATControlReportManagement
         TempErrorBuf.DeleteAll();
     end;
 
-    local procedure GetVATEntryBufferForPeriod(var TempVATEntry: Record "VAT Entry" temporary; StartDate: Date; EndDate: Date; PerformCountryRegionCode: Code[10])
+    local procedure GetVATEntryBufferForPeriod(var TempVATEntry: Record "VAT Entry" temporary; StartDate: Date; EndDate: Date)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1265,12 +1242,8 @@ codeunit 31100 VATControlReportManagement
             repeat
                 TempVATEntry.Init();
                 TempVATEntry := VATEntry;
-                if TempVATEntry."Pmt.Disc. Tax Corr.Doc. No." <> '' then
-                    TempVATEntry."Document No." := TempVATEntry."Pmt.Disc. Tax Corr.Doc. No.";
-                if (PerformCountryRegionCode <> '') and (PerformCountryRegionCode = VATEntry."Perform. Country/Region Code") then
-                    ExchangeAmount(TempVATEntry);
                 TempVATEntry.Insert();
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     local procedure GetVATEntryBufferForVATStatementLine(var TempVATEntry: Record "VAT Entry" temporary; VATStatementLine: Record "VAT Statement Line"; VATCtrlRptHdr: Record "VAT Control Report Header"; StartDate: Date; EndDate: Date)
@@ -1279,7 +1252,7 @@ codeunit 31100 VATControlReportManagement
     begin
         DeleteVATEntryBuffer(TempVATEntry);
 
-        GetVATEntryBufferForPeriod(TempVATEntryGlobal, StartDate, EndDate, VATCtrlRptHdr."Perform. Country/Region Code");
+        GetVATEntryBufferForPeriod(TempVATEntryGlobal, StartDate, EndDate);
 
         TempVATEntryGlobalCopy.Copy(TempVATEntryGlobal, true);
         TempVATEntryGlobalCopy.Reset();
@@ -1292,7 +1265,7 @@ codeunit 31100 VATControlReportManagement
                     TempVATEntry := TempVATEntryGlobalCopy;
                     TempVATEntry.Insert();
                 end;
-            until TempVATEntryGlobalCopy.Next = 0;
+            until TempVATEntryGlobalCopy.Next() = 0;
     end;
 
     local procedure DeleteVATEntryBuffer(var TempVATEntry: Record "VAT Entry" temporary)
@@ -1305,78 +1278,6 @@ codeunit 31100 VATControlReportManagement
     begin
         TempVATEntry.Reset();
         exit(TempVATEntry.Count <> 0);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    procedure ExchangeAmount(var VATEntry: Record "VAT Entry")
-    var
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
-    begin
-        with VATEntry do begin
-            if Base <> 0 then
-                Base :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    Base * "Currency Factor");
-
-            if "Advance Base" <> 0 then
-                "Advance Base" :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    "Advance Base" * "Currency Factor");
-
-            if Amount <> 0 then
-                Amount :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    Amount * "Currency Factor");
-
-            if "VAT Amount (Non Deductible)" <> 0 then
-                "VAT Amount (Non Deductible)" :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    "VAT Amount (Non Deductible)" * "Currency Factor");
-
-            if "Unrealized Amount" <> 0 then
-                "Unrealized Amount" :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    "Unrealized Amount" * "Currency Factor");
-
-            if "Unrealized Base" <> 0 then
-                "Unrealized Base" :=
-                  PerfCountryCurrExchRate.ExchangeAmount(
-                    "Posting Date",
-                    "Perform. Country/Region Code",
-                    "Currency Code",
-                    "Unrealized Base" * "Currency Factor");
-        end;
-    end;
-
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
-    local procedure PerfCurrExchangeAmount(SrcAmount: Decimal; SrcDate: Date; SrcCurrencyCode: Code[10]): Decimal
-    var
-        RegistrationCountryRegion: Record "Registration Country/Region";
-        PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
-    begin
-        RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', PerformCountryRegionCode);
-        exit(
-          PerfCountryCurrExchRate.ExchangeAmount(
-            SrcDate,
-            RegistrationCountryRegion."Currency Code (Local)",
-            SrcCurrencyCode,
-            SrcAmount));
     end;
 
     [IntegrationEvent(false, false)]

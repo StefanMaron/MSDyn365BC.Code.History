@@ -69,15 +69,16 @@ table 262 "Intrastat Jnl. Batch"
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
-            TableRelation = "Registration Country/Region"."Country/Region Code" WHERE("Account Type" = CONST("Company Information"),
-                                                                                       "Account No." = FILTER(''));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '18.0';
         }
         field(31061; "Declaration No."; Code[20])
         {
             Caption = 'Declaration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -92,6 +93,9 @@ table 262 "Intrastat Jnl. Batch"
             Caption = 'Statement Type';
             OptionCaption = 'Primary,Null,Replacing,Deleting';
             OptionMembers = Primary,Null,Replacing,Deleting;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -142,6 +146,7 @@ table 262 "Intrastat Jnl. Batch"
         Text1220000: Label 'Declaration No. %1 already exists for Statistics Period %2.';
         Text1220001: Label 'You cannot change %1 value after Intrastat Journal Batch %2 was exported.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckUniqueDeclarationNo()
     var
@@ -159,6 +164,7 @@ table 262 "Intrastat Jnl. Batch"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckJnlLinesExist(CurrentFieldNo: Integer)
     begin
@@ -188,6 +194,7 @@ table 262 "Intrastat Jnl. Batch"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure AssistEdit(OldIntrastatJnlBatch: Record "Intrastat Jnl. Batch"): Boolean
     var
@@ -202,14 +209,6 @@ table 262 "Intrastat Jnl. Batch"
             exit(true);
         end;
         exit(false);
-    end;
-
-    [Scope('OnPrem')]
-    procedure xSetupNewBatch()
-    begin
-        // NAVCZ
-        IntraJnlTemplate.Get("Journal Template Name");
-        "Perform. Country/Region Code" := IntraJnlTemplate."Perform. Country/Region Code";
     end;
 
     procedure GetStatisticsStartDate(): Date

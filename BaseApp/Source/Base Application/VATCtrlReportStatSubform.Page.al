@@ -95,7 +95,7 @@ page 31105 "VAT Ctrl.Report Stat. Subform"
             repeat
                 Copy(NewVATCtrlRptBuf);
                 Insert;
-            until NewVATCtrlRptBuf.Next = 0;
+            until NewVATCtrlRptBuf.Next() = 0;
         CurrPage.Update(false);
     end;
 }

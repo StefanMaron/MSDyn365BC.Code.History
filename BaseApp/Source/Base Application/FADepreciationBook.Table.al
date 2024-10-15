@@ -141,10 +141,13 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             var
                 DeprBook2: Record "Depreciation Book";
+                IsHandled: Boolean;
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                if DeprBook2."Fiscal Year 365 Days" then
-                    Error(FiscalYear365Err);
+                OnBeforeValidateNoOfDepreYears("FA No.", DeprBook2, IsHandled);
+                if not IsHandled then
+                    if DeprBook2."Fiscal Year 365 Days" then
+                        Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -166,10 +169,13 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             var
                 DeprBook2: Record "Depreciation Book";
+                IsHandled: Boolean;
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                if DeprBook2."Fiscal Year 365 Days" then
-                    Error(FiscalYear365Err);
+                OnBeforeValidateNoOfDeprMonths("FA No.", DeprBook2, IsHandled);
+                if not IsHandled then
+                    if DeprBook2."Fiscal Year 365 Days" then
+                        Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -265,18 +271,22 @@ table 5612 "FA Depreciation Book"
             Caption = 'Depreciation Ending Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestField("Depreciation Starting Date");
                 if ("Depreciation Ending Date" <> 0D) and not LinearMethod then
                     DeprMethodError;
                 ModifyDeprFields;
-                CalcDeprPeriod;
+                OnBeforeCalculateDepreEndingDate(Rec, "Depreciation Ending Date", IsHandled);
+                if not IsHandled then
+                    CalcDeprPeriod;
             end;
         }
         field(15; "Acquisition Cost"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Acquisition Cost"),
@@ -288,7 +298,7 @@ table 5612 "FA Depreciation Book"
         field(16; Depreciation; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST(Depreciation),
@@ -300,7 +310,7 @@ table 5612 "FA Depreciation Book"
         field(17; "Book Value"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "Part of Book Value" = CONST(true),
                                                               "FA Posting Date" = FIELD("FA Posting Date Filter")));
@@ -311,7 +321,7 @@ table 5612 "FA Depreciation Book"
         field(18; "Proceeds on Disposal"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Proceeds on Disposal"),
@@ -323,7 +333,7 @@ table 5612 "FA Depreciation Book"
         field(19; "Gain/Loss"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Gain/Loss"),
@@ -335,7 +345,7 @@ table 5612 "FA Depreciation Book"
         field(20; "Write-Down"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Write-Down"),
@@ -347,7 +357,7 @@ table 5612 "FA Depreciation Book"
         field(21; Appreciation; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST(Appreciation),
@@ -359,7 +369,7 @@ table 5612 "FA Depreciation Book"
         field(22; "Custom 1"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Custom 1"),
@@ -371,7 +381,7 @@ table 5612 "FA Depreciation Book"
         field(23; "Custom 2"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Custom 2"),
@@ -383,7 +393,7 @@ table 5612 "FA Depreciation Book"
         field(24; "Depreciable Basis"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "Part of Depreciable Basis" = CONST(true),
                                                               "FA Posting Date" = FIELD("FA Posting Date Filter")));
@@ -394,7 +404,7 @@ table 5612 "FA Depreciation Book"
         field(25; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Salvage Value"),
@@ -406,7 +416,7 @@ table 5612 "FA Depreciation Book"
         field(26; "Book Value on Disposal"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(Disposal),
                                                               "FA Posting Type" = CONST("Book Value on Disposal"),
@@ -418,7 +428,7 @@ table 5612 "FA Depreciation Book"
         field(27; Maintenance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Maintenance Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("Maintenance Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                                        "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                                        "Maintenance Code" = FIELD("Maintenance Code Filter"),
                                                                        "FA Posting Date" = FIELD("FA Posting Date Filter")));
@@ -711,24 +721,30 @@ table 5612 "FA Depreciation Book"
                 DefaultFADeprBook.SetRange("FA No.", "FA No.");
                 DefaultFADeprBook.SetFilter("Depreciation Book Code", '<>%1', "Depreciation Book Code");
                 DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
-                if not DefaultFADeprBook.IsEmpty then
+                if not DefaultFADeprBook.IsEmpty() then
                     FieldError("Default FA Depreciation Book", OnlyOneDefaultDeprBookErr);
             end;
         }
         field(31040; "Depr. FA Appreciation From"; Date)
         {
             Caption = 'Depr. FA Appreciation From';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(31041; "Depreciation Interupt"; Boolean)
         {
             Caption = 'Depreciation Interupt';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31042; "Depreciation Interupt up to"; Date)
         {
             Caption = 'Depreciation Interupt up to';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -740,16 +756,14 @@ table 5612 "FA Depreciation Book"
         {
             Caption = 'Depreciation Group Code';
             TableRelation = "Depreciation Group".Code;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnLookup()
             var
-                SKPCode: Record "SKP Code";
                 DepreciationGroup: Record "Depreciation Group";
             begin
-                FA.Get("FA No.");
-                if SKPCode.Get(FA."SKP Code") then
-                    if SKPCode."Depreciation Group" <> '' then
-                        DepreciationGroup.SetRange("Depreciation Group", SKPCode."Depreciation Group");
                 if "Depreciation Group Code" <> '' then
                     if DepreciationGroup.Get("Depreciation Group Code") then;
                 if PAGE.RunModal(PAGE::"Depreciation Groups", DepreciationGroup) = ACTION::LookupOK then
@@ -758,7 +772,6 @@ table 5612 "FA Depreciation Book"
 
             trigger OnValidate()
             var
-                SKPCode: Record "SKP Code";
                 DepreciationGroup: Record "Depreciation Group";
                 FASetup: Record "FA Setup";
                 FixedAsset: Record "Fixed Asset";
@@ -782,21 +795,17 @@ table 5612 "FA Depreciation Book"
                 DepreciationGroup.Reset();
                 DepreciationGroup.SetRange(Code, "Depreciation Group Code");
                 DepreciationGroup.SetRange("Starting Date", 0D, WorkDate);
-                if DepreciationGroup.FindLast then begin
+                if DepreciationGroup.FindLast then
                     if DepreciationGroup."Depreciation Type" = DepreciationGroup."Depreciation Type"::"Straight-line Intangible" then
                         Validate("No. of Depreciation Months", DepreciationGroup."No. of Depreciation Months");
-
-                    FA.Get("FA No.");
-                    if SKPCode.Get(FA."SKP Code") then begin
-                        if SKPCode."Depreciation Group" <> DepreciationGroup."Depreciation Group" then
-                            Message(Text1220001, FA."SKP Code", "Depreciation Group Code");
-                    end;
-                end;
             end;
         }
         field(31045; "Keep Depr. Ending Date"; Boolean)
         {
             Caption = 'Keep Depr. Ending Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -808,6 +817,9 @@ table 5612 "FA Depreciation Book"
         {
             Caption = 'Summarize Depr. Entries From';
             TableRelation = "Depreciation Book";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -818,6 +830,9 @@ table 5612 "FA Depreciation Book"
         field(31047; Prorated; Boolean)
         {
             Caption = 'Prorated';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             var
@@ -894,13 +909,18 @@ table 5612 "FA Depreciation Book"
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
         "Last Date Modified" := Today;
         LockTable();
         DeprBook.LockTable();
         DeprBook.Get("Depreciation Book Code");
-        if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
-            DeprBook.TestField("Fiscal Year 365 Days", false);
+        IsHandled := false;
+        OnBeforeModifyFADeprBook(Rec, IsHandled);
+        if not IsHandled then
+            if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
+                DeprBook.TestField("Fiscal Year 365 Days", false);
         CheckApplyDeprBookDefaults();
     end;
 
@@ -921,7 +941,6 @@ table 5612 "FA Depreciation Book"
         FADateCalc: Codeunit "FA Date Calculation";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         Text1220000: Label 'There are depreciation entries for FA %1.';
-        Text1220001: Label 'The depreciation group associated with SKP Code %1 doesn''t correspond with depreciation group associated with depreciation group code %2.';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FAPostingGroupCanNotBeChangedErr: Label 'FA Posting Group can not be changed if there is at least one FA Entry for Fixed Asset and Deprecation Book.';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
@@ -1119,6 +1138,7 @@ table 5612 "FA Depreciation Book"
         FALedgEntry.SetRange("Part of Book Value", true);
     end;
 
+    [Obsolete('Moved to FixedAsset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckDepreciation()
     begin
@@ -1184,6 +1204,26 @@ table 5612 "FA Depreciation Book"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var FADeprecBook: Record "FA Depreciation Book"; xFADeprecBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNoOfDepreYears(FANo: Code[20]; DeprecBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNoOfDeprMonths(FANo: Code[20]; DeprecBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateDepreEndingDate(var FADeprBook: Record "FA Depreciation Book"; DeprEndDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyFADeprBook(FADepreBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

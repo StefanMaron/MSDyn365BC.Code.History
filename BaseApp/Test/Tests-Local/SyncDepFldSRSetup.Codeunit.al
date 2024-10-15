@@ -1,3 +1,4 @@
+#if not CLEAN16
 codeunit 145101 "Sync. Dep. Fld - S&RSetup Test"
 {
     Subtype = Test;
@@ -8,7 +9,7 @@ codeunit 145101 "Sync. Dep. Fld - S&RSetup Test"
         Initialized: Boolean;
 
     [Test]
-    [Obsolete('This test should be removed when the obsolete fields in Sales & Receivables Setup is removed','16.0')]
+    [Obsolete('This test should be removed when the obsolete fields in Sales & Receivables Setup is removed', '16.0')]
     procedure TestSyncDepFldToValidFieldSRSetupNoError()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -30,7 +31,7 @@ codeunit 145101 "Sync. Dep. Fld - S&RSetup Test"
     end;
 
     [Test]
-    [Obsolete('This test should be removed when the obsolete fields in Sales & Receivables Setup is removed','16.0')]
+    [Obsolete('This test should be removed when the obsolete fields in Sales & Receivables Setup is removed', '16.0')]
     procedure TestSyncValidFldToDepFieldSRSetupNoError()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -65,3 +66,4 @@ codeunit 145101 "Sync. Dep. Fld - S&RSetup Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sync. Dep. Fld - P&PSetup Test");
     end;
 }
+#endif

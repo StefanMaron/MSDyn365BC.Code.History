@@ -39,8 +39,8 @@ codeunit 134600 "Report Layout Test"
         ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Report Layout Test");
-        LibraryVariableStorage.Clear();
-        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
 
         if IsInitialized then
             exit;
@@ -49,7 +49,7 @@ codeunit 134600 "Report Layout Test"
         ReportSelections.ModifyAll("Report ID", Report::"Return Order Confirmation CZ");
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Report Layout Test");
-        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Report Layout Test");
@@ -433,6 +433,7 @@ codeunit 134600 "Report Layout Test"
         DocumentReportMgt: Codeunit "Document Report Mgt.";
         FileManagement: Codeunit "File Management";
         InStr: InStream;
+        OutStream: OutStream;
         FileXml: File;
         FileNameDocx: Text;
         FileNameXml: Text;
@@ -458,8 +459,7 @@ codeunit 134600 "Report Layout Test"
         REPORT.SaveAsXml(StandardSalesInvoiceReportID, FileNameXml, SalesInvoiceHeader);
         FileXml.Open(FileNameXml, TEXTENCODING::UTF16);
         FileXml.CreateInStream(InStr);
-
-        DocumentReportMgt.MergeWordLayout(StandardSalesInvoiceReportID, 1, InStr, FileNameDocx);
+        DocumentReportMgt.MergeWordLayout(StandardSalesInvoiceReportID, 1, InStr, FileNameDocx, OutStream);
         Assert.IsTrue(Exists(FileNameDocx), '');
 
         FileXml.Close;
@@ -1165,7 +1165,7 @@ codeunit 134600 "Report Layout Test"
         DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
 
         // [THEN] SalesHeader record points to Sales Order "SO"
-        // Checked by subscribing to OnBeforePrintDocument event of Table "Report Selections"
+        // Checked by subscribing to OnBeforePrintSalesOrder event in method PrintSalesOrder of Codeunit "Document-Print"
         // and getting Sales Header RecordId to be sure it point to correct record "SO"
         Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
@@ -1497,7 +1497,7 @@ codeunit 134600 "Report Layout Test"
         exit(REPORT::"Detail Trial Balance");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9651, 'OnBeforeMergeDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Report Mgt.", 'OnBeforeMergeDocument', '', false, false)]
     local procedure OnBeforeMergeDocumentHandler(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; PrinterName: Text; OutStream: OutStream; var Handled: Boolean; IsFileNameBlank: Boolean)
     begin
         case ReportAction of
@@ -1515,14 +1515,13 @@ codeunit 134600 "Report Layout Test"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
-    local procedure OnReportSelectionsOnBeforePrintDocument(tempReportSelections: Record "Report Selections"; isGUI: Boolean; recVarToPrint: Variant; var isHandled: Boolean)
-    var
-        SalesHeader: Record "Sales Header";
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Print", 'OnBeforePrintSalesOrder', '', false, false)]
+    local procedure OnBeforePrintSalesOrder(var SalesHeader: Record "Sales Header"; ReportUsage: Integer; var IsPrinted: Boolean)
     begin
-        SalesHeader := recVarToPrint;
-        MESSAGE(FORMAT(SalesHeader.RECORDID()));
-        isHandled := TRUE;
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            Message(FORMAT(SalesHeader.RecordId()));
+            IsPrinted := true;
+        end;
     end;
 
 }

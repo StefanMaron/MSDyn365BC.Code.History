@@ -257,7 +257,7 @@ page 1190 "Create Payment"
                     VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
                 end;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
 
         CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
     end;
@@ -337,7 +337,7 @@ page 1190 "Create Payment"
                     UpdateDimensions(GenJnlLine, TempPaymentBuffer);
                     Insert;
                 end;
-            until TempPaymentBuffer.Next = 0;
+            until TempPaymentBuffer.Next() = 0;
     end;
 
     local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
@@ -364,7 +364,7 @@ page 1190 "Create Payment"
                         TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                         TempDimSetEntry.Insert();
-                    until DimBuf.Next = 0;
+                    until DimBuf.Next() = 0;
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
 

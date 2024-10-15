@@ -389,6 +389,9 @@ page 5966 "Service Quote Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin country/region code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                     Visible = false;
                 }
                 field("Tariff No."; "Tariff No.")
@@ -510,6 +513,17 @@ page 5966 "Service Quote Lines"
                             ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Service;
@@ -579,7 +593,7 @@ page 5966 "Service Quote Lines"
                     trigger OnAction()
                     begin
                         PickPrice();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Get Li&ne Discount")
@@ -592,7 +606,7 @@ page 5966 "Service Quote Lines"
                     trigger OnAction()
                     begin
                         PickDiscount();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -655,7 +669,7 @@ page 5966 "Service Quote Lines"
                     trigger OnAction()
                     begin
                         ShowNonstock;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -669,13 +683,13 @@ page 5966 "Service Quote Lines"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveServLine.DeleteLineConfirm(Rec) then
+            if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
         end;
     end;
 
@@ -781,7 +795,7 @@ page 5966 "Service Quote Lines"
             TransferExtendedText.InsertServExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure InsertStartFee()
@@ -790,7 +804,7 @@ page 5966 "Service Quote Lines"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 1, false) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure InsertTravelFee()
@@ -799,7 +813,7 @@ page 5966 "Service Quote Lines"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 0, false) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     protected procedure NoOnAfterValidate()
@@ -817,7 +831,7 @@ page 5966 "Service Quote Lines"
 
     local procedure SelectionFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetSelectionFilter;
     end;
 

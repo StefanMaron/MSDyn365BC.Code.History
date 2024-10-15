@@ -558,11 +558,9 @@
         {
             Caption = 'Last IC Transaction No.';
         }
-        field(103; "Bill-to/Sell-to VAT Calc."; Option)
+        field(103; "Bill-to/Sell-to VAT Calc."; Enum "G/L Setup VAT Calculation")
         {
             Caption = 'Bill-to/Sell-to VAT Calc.';
-            OptionCaption = 'Bill-to/Pay-to No.,Sell-to/Buy-from No.';
-            OptionMembers = "Bill-to/Pay-to No.","Sell-to/Buy-from No.";
         }
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
@@ -622,23 +620,14 @@
         }
         field(152; "Use Legacy G/L Entry Locking"; Boolean)
         {
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
             Caption = 'Use Legacy G/L Entry Locking';
-
-            trigger OnValidate()
-            var
-                InventorySetup: Record "Inventory Setup";
-            begin
-                if not "Use Legacy G/L Entry Locking" then begin
-                    if InventorySetup.Get then
-                        if InventorySetup."Automatic Cost Posting" then
-                            Error(Text025,
-                              FieldCaption("Use Legacy G/L Entry Locking"),
-                              "Use Legacy G/L Entry Locking",
-                              InventorySetup.FieldCaption("Automatic Cost Posting"),
-                              InventorySetup.TableCaption,
-                              InventorySetup."Automatic Cost Posting");
-                end;
-            end;
+            ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+            ObsoleteTag = '18.0';
         }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
@@ -649,8 +638,8 @@
         {
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -699,63 +688,62 @@
         field(11760; "Closed Period Entry Pos.Date"; Date)
         {
             Caption = 'Closed Period Entry Pos.Date';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11761; "Rounding Date"; Date)
         {
             Caption = 'Rounding Date';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11762; "Statement Templ. Name Coeff."; Code[10])
         {
             Caption = 'Statement Templ. Name Coeff.';
             TableRelation = "VAT Statement Template";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
 
-            trigger OnValidate()
-            begin
-                if "Statement Templ. Name Coeff." <> xRec."Statement Templ. Name Coeff." then
-                    Validate("Statement Name Coeff.", '');
-            end;
         }
         field(11763; "Statement Name Coeff."; Code[10])
         {
             Caption = 'Statement Name Coeff.';
-            TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("Statement Templ. Name Coeff."));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                if "Statement Name Coeff." <> xRec."Statement Name Coeff." then
-                    Clear("Statement Line No. Coeff.");
-            end;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11764; "Statement Line No. Coeff."; Integer)
         {
             Caption = 'Statement Line No. Coeff.';
-            TableRelation = "VAT Statement Line"."Line No." WHERE("Statement Template Name" = FIELD("Statement Templ. Name Coeff."),
-                                                                   "Statement Name" = FIELD("Statement Name Coeff."),
-                                                                   "Line No." = FIELD("Statement Line No. Coeff."));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
+            ObsoleteTag = '18.0';
         }
         field(11765; "Round VAT Coeff."; Boolean)
         {
             Caption = 'Round VAT Coeff.';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality is no longer needed.';
+            ObsoleteTag = '18.0';
         }
         field(11766; "VAT Coeff. Rounding Precision"; Decimal)
         {
             Caption = 'VAT Coeff. Rounding Precision';
             DecimalPlaces = 2 : 4;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality is no longer needed.';
+            ObsoleteTag = '18.0';
         }
         field(11768; "Allow VAT Posting From"; Date)
         {
@@ -817,14 +805,10 @@
                                 "Allow VAT Posting To" := 0D;
                                 if PurchSetup.Get then
                                     PurchSetup."Default VAT Date" := 0;
-                                if SalesSetup.Get then begin
-                                    SalesSetup."Credit Memo Confirmation" := false;
+                                if SalesSetup.Get then
                                     SalesSetup."Default VAT Date" := 0;
-                                end;
-                                if ServiceSetup.Get then begin
-                                    ServiceSetup."Credit Memo Confirmation" := false;
+                                if ServiceSetup.Get then
                                     ServiceSetup."Default VAT Date" := 0;
-                                end;
                             end else
                                 "Use VAT Date" := xRec."Use VAT Date";
                         end;
@@ -834,17 +818,23 @@
         field(11771; "Check VAT Identifier"; Boolean)
         {
             Caption = 'Check VAT Identifier';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11772; "Check Posting Debit/Credit"; Boolean)
         {
             Caption = 'Check Posting Debit/Credit';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11773; "Mark Neg. Qty as Correction"; Boolean)
         {
             Caption = 'Mark Neg. Qty as Correction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(11774; "Company Officials Nos."; Code[20])
         {
@@ -863,34 +853,52 @@
             Caption = 'Dont Check Dimension';
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';            
+            ObsoleteTag = '17.0';
         }
         field(11790; "User Checks Allowed"; Boolean)
         {
             Caption = 'User Checks Allowed';
-
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "User Checks Allowed" then
                     UserSetupMgt.UserCheckAllowed;
             end;
+#endif
         }
         field(11791; "User ID Lookup only User Check"; Boolean)
         {
             Caption = 'User ID Lookup only User Check';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteReason = 'The functionality of user ID Lookup only user Check has been removed and this field should not be used.';
+#else
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of user ID Lookup only user Check will be removed and this field should not be used.';
+#endif
+            ObsoleteTag = '18.0';
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "User ID Lookup only User Check" then
                     UserSetupMgt.UserCheckAllowed;
             end;
+#endif
         }
         field(11792; "Delete Card with Entries"; Boolean)
         {
             Caption = 'Delete Card with Entries';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '15.3';
+            ObsoleteTag = '18.0';
         }
         field(11793; "Reg. No. Validation URL"; Text[250])
         {
@@ -961,10 +969,11 @@
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         AdjAddReportingCurr: Report "Adjust Add. Reporting Currency";
         UserSetupManagement: Codeunit "User Setup Management";
+#if not CLEAN18
         UserSetupMgt: Codeunit "User Setup Adv. Management";
+#endif
         ErrorMessage: Boolean;
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
-        Text025: Label 'The field %1 should not be set to %2 if field %3 in %4 table is set to %5 because deadlocks can occur.';
         DisableVATDateQst: Label 'Are you sure you want to disable VAT Date functionality?';
         InitVATDateQst: Label 'If you check field %1 you will let system post using %2 different from %3. Field %2 will be initialized from field %3 in all tables. It may take some time and you will not be able to undo this change after posting entries. Do you really want to continue?', Comment = '%1 = fieldcaption of Use VAT Date; %2 = fieldcaption of VAT Date; %3 = fieldcaption of Posting Date';
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
@@ -1078,7 +1087,7 @@
                 IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
                 IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
                 IntrastatJnlLine.DeleteAll();
-            until IntrastatJnlBatch.Next = 0;
+            until IntrastatJnlBatch.Next() = 0;
     end;
 
     local procedure DeleteAnalysisView()
@@ -1098,7 +1107,7 @@
                     AnalysisView."Refresh When Unblocked" := true;
                     AnalysisView.Modify();
                 end;
-            until AnalysisView.Next = 0;
+            until AnalysisView.Next() = 0;
     end;
 
     procedure IsPostingAllowed(PostingDate: Date): Boolean
@@ -1112,19 +1121,19 @@
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 
+#if not CLEAN18
+    [Obsolete('Legacy G/L Locking is no longer supported.', '18.0')]
     procedure OptimGLEntLockForMultiuserEnv(): Boolean
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        if "Use Legacy G/L Entry Locking" then
-            exit(false);
-
         if InventorySetup.Get then
             if InventorySetup."Automatic Cost Posting" then
                 exit(false);
 
         exit(true);
     end;
+#endif
 
     procedure FirstAllowedPostingDate() AllowedPostingDate: Date
     var
@@ -1214,10 +1223,12 @@
             repeat
                 VATDateFieldRef.Value := PostingDateFieldRef.Value;
                 RecRef.Modify();
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
+    [Obsolete('Unnecessary encapsulation. Use the Currency."Amount Rounding Precision" and Currency.VATRoundingDirection instead. For local currency use first Currency.InitRoundingPrecision().', '18.0')]
     procedure GetRoundingParamenters(var Currency: Record Currency; var RoundingPrecision: Decimal; var RoundingDirection: Text[1])
     begin
         // NAVCZ
@@ -1229,12 +1240,14 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Unnecessary encapsulation. Use the Currency."Amount Rounding Precision" and Currency.VATRoundingDirection instead. For local currency use first Currency.InitRoundingPrecision().', '18.0')]
     procedure GetRoundingParamentersLCY(var Currency: Record Currency; var RoundingPrecision: Decimal; var RoundingDirection: Text[1])
     begin
         // NAVCZ
         RoundingPrecision := Currency."Amount Rounding Precision";
         RoundingDirection := Currency.VATRoundingDirection;
     end;
+#endif    
 
     procedure UseVat(): Boolean
     var

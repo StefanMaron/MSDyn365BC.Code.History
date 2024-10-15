@@ -1,10 +1,13 @@
 page 11703 "Constant Symbols"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Constant Symbols';
+    Caption = 'Constant Symbols (Obsolete)';
     PageType = List;
     SourceTable = "Constant Symbol";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

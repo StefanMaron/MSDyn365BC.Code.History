@@ -2351,7 +2351,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.Modify();
     end;
 
-    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -2454,7 +2454,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -2758,7 +2758,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CopyPurchaseDocument.Run;
     end;
 
-    local procedure SetupBillToSellToVATCalc(var SalesHeader: Record "Sales Header"; GLSetupBillToPayToCalc: Option "Bill-to/Pay-to No.","Sell-to/Buy-from No.")
+    local procedure SetupBillToSellToVATCalc(var SalesHeader: Record "Sales Header"; GLSetupBillToPayToCalc: Enum "G/L Setup VAt Calculation")
     var
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
@@ -2809,7 +2809,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATAmountLine.Modify(true);
     end;
 
-    local procedure UpdateGeneralLedgerSetup(BilltoSelltoVATCalc: Option)
+    local procedure UpdateGeneralLedgerSetup(BilltoSelltoVATCalc: Enum "G/L Setup VAt Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin

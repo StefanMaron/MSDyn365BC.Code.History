@@ -1,6 +1,9 @@
 table 31049 "Credit Report Selections"
 {
     Caption = 'Credit Report Selections';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {
@@ -27,7 +30,7 @@ table 31049 "Credit Report Selections"
         }
         field(4; "Report Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Name';
             Editable = false;
@@ -51,6 +54,7 @@ table 31049 "Credit Report Selections"
         CreditReportSelections2: Record "Credit Report Selections";
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure NewRecord()
     begin
         CreditReportSelections2.SetRange(Usage, Usage);

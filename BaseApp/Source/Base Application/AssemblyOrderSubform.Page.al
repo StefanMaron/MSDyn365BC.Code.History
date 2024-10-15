@@ -222,6 +222,9 @@ page 901 "Assembly Order Subform"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for the Gen. Bus. Posting Group that applies to the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -384,6 +387,17 @@ page 901 "Assembly Order Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Assembly;
@@ -505,7 +519,7 @@ page 901 "Assembly Order Subform"
                     trigger OnAction()
                     begin
                         ExplodeAssemblyList;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Reserve Item")

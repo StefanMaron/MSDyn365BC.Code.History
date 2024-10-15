@@ -195,20 +195,17 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
+#if not CLEAN18
                 field("Not Check Doc. Type"; "Not Check Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies will not be check the balance according to Document Type.';
-                }
-                field("Not Check Correction"; "Not Check Correction")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies will not be check field Correction within Document.';
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of Check Balance in G/L Journal by Correction Field will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '15.3';
+                    ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
             }
         }
         area(factboxes)
