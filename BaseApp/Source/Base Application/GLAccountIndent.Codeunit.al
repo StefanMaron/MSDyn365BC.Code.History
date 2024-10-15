@@ -1,4 +1,4 @@
-﻿codeunit 3 "G/L Account-Indent"
+codeunit 3 "G/L Account-Indent"
 {
 
     trigger OnRun()
@@ -57,7 +57,7 @@
                             Error(ArrayExceededErr, ArrayLen(AccNo));
                         AccNo[i] := "No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
 
@@ -105,7 +105,7 @@
                         i := i + 1;
                         AccNo[i] := "No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
         Window.Close;
     end;
 

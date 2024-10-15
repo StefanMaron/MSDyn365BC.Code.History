@@ -15,53 +15,51 @@ codeunit 5772 "Whse.-Purch. Release"
 
     procedure Release(PurchHeader: Record "Purchase Header")
     var
-        WhseType: Option Inbound,Outbound;
-        OldWhseType: Option Inbound,Outbound;
+        WhseType: Enum "Warehouse Request Type";
+        OldWhseType: Enum "Warehouse Request Type";
     begin
         OnBeforeRelease(PurchHeader);
 
-        with PurchHeader do begin
-            case "Document Type" of
-                "Document Type"::Order:
-                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Purchase Order";
-                "Document Type"::"Return Order":
-                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Purchase Return Order";
-                else
-                    exit;
-            end;
-
-            PurchLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetRange(Type, PurchLine.Type::Item);
-            PurchLine.SetRange("Drop Shipment", false);
-            PurchLine.SetRange("Job No.", '');
-            PurchLine.SetRange("Work Center No.", '');
-            OnAfterReleaseSetFilters(PurchLine, PurchHeader);
-            if PurchLine.Find('-') then begin
-                First := true;
-                repeat
-                    if (("Document Type" = "Document Type"::Order) and (PurchLine.Quantity >= 0)) or
-                       (("Document Type" = "Document Type"::"Return Order") and (PurchLine.Quantity < 0))
-                    then
-                        WhseType := WhseType::Inbound
-                    else
-                        WhseType := WhseType::Outbound;
-                    if First or (PurchLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                        CreateWhseRqst(PurchHeader, PurchLine, WhseType);
-
-                    OnReleaseOnAfterCreateWhseRequest(PurchHeader, PurchLine, WhseType);
-
-                    First := false;
-                    OldLocationCode := PurchLine."Location Code";
-                    OldWhseType := WhseType;
-                until PurchLine.Next = 0;
-            end;
-
-            FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Open);
-            if not WhseRqst.IsEmpty then
-                WhseRqst.DeleteAll(true);
+        case PurchHeader."Document Type" of
+            PurchHeader."Document Type"::Order:
+                WhseRqst."Source Document" := WhseRqst."Source Document"::"Purchase Order";
+            PurchHeader."Document Type"::"Return Order":
+                WhseRqst."Source Document" := WhseRqst."Source Document"::"Purchase Return Order";
+            else
+                exit;
         end;
+
+        PurchLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        PurchLine.SetRange("Drop Shipment", false);
+        PurchLine.SetRange("Job No.", '');
+        PurchLine.SetRange("Work Center No.", '');
+        OnAfterReleaseSetFilters(PurchLine, PurchHeader);
+        if PurchLine.FindSet() then begin
+            First := true;
+            repeat
+                if ((PurchHeader."Document Type" = "Purchase Document Type"::Order) and (PurchLine.Quantity >= 0)) or
+                    ((PurchHeader."Document Type" = "Purchase Document Type"::"Return Order") and (PurchLine.Quantity < 0))
+                then
+                    WhseType := WhseType::Inbound
+                else
+                    WhseType := WhseType::Outbound;
+                if First or (PurchLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                    CreateWarehouseRequest(PurchHeader, PurchLine, WhseType);
+
+                OnReleaseOnAfterCreateWhseRequest(PurchHeader, PurchLine, WhseType.AsInteger());
+
+                First := false;
+                OldLocationCode := PurchLine."Location Code";
+                OldWhseType := WhseType;
+            until PurchLine.Next() = 0;
+        end;
+
+        FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Open);
+        if not WhseRqst.IsEmpty() then
+            WhseRqst.DeleteAll(true);
 
         OnAfterRelease(PurchHeader);
     end;
@@ -75,11 +73,9 @@ codeunit 5772 "Whse.-Purch. Release"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
-            if not WhseRqst.IsEmpty then
-                WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
-        end;
+        FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
+        if not WhseRqst.IsEmpty() then
+            WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
 
         OnAfterReopen(PurchHeader);
     end;
@@ -87,14 +83,12 @@ codeunit 5772 "Whse.-Purch. Release"
     [Scope('OnPrem')]
     procedure UpdateExternalDocNoForReleasedOrder(PurchHeader: Record "Purchase Header")
     begin
-        with PurchHeader do begin
-            FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
-            if not WhseRqst.IsEmpty then
-                WhseRqst.ModifyAll("External Document No.", "Vendor Shipment No.");
-        end;
+        FilterWarehouseRequest(WhseRqst, PurchHeader, WhseRqst."Document Status"::Released);
+        if not WhseRqst.IsEmpty() then
+            WhseRqst.ModifyAll("External Document No.", PurchHeader."Vendor Shipment No.");
     end;
 
-    local procedure CreateWhseRqst(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; WhseType: Option Inbound,Outbound)
+    procedure CreateWarehouseRequest(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; WhseType: Enum "Warehouse Request Type")
     var
         PurchLine2: Record "Purchase Line";
     begin
@@ -128,23 +122,21 @@ codeunit 5772 "Whse.-Purch. Release"
             PurchHeader.SetRange("Location Filter", PurchLine."Location Code");
             PurchHeader.CalcFields("Completely Received");
             WhseRqst."Completely Handled" := PurchHeader."Completely Received";
-            OnBeforeCreateWhseRequest(WhseRqst, PurchHeader, PurchLine, WhseType);
+            OnBeforeCreateWhseRequest(WhseRqst, PurchHeader, PurchLine, WhseType.AsInteger());
             if not WhseRqst.Insert() then
                 WhseRqst.Modify();
-            OnAfterCreateWhseRqst(WhseRqst, PurchHeader, PurchLine, WhseType);
+            OnAfterCreateWhseRqst(WhseRqst, PurchHeader, PurchLine, WhseType.AsInteger());
         end;
     end;
 
     local procedure FilterWarehouseRequest(var WarehouseRequest: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header"; DocumentStatus: Option)
     begin
-        with WarehouseRequest do begin
-            Reset;
-            SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", PurchaseHeader."Document Type");
-            SetRange("Source No.", PurchaseHeader."No.");
-            SetRange("Document Status", DocumentStatus);
-        end;
+        WarehouseRequest.Reset;
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
+        WarehouseRequest.SetRange("Source Subtype", PurchaseHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseRequest.SetRange("Document Status", DocumentStatus);
 
         OnAfterFilterWarehouseRequest(WarehouseRequest, PurchaseHeader, DocumentStatus);
     end;

@@ -31,7 +31,9 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         TaxAmount := 0;
+#if not CLEAN17
         OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
+#endif
         IsHandled := false;
         OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
         If IsHandled then
@@ -453,7 +455,7 @@ codeunit 398 "Sales Tax Calculate"
             TotalTaxAmountRounding := 0;
             FirstLine := false;
         end else
-            if TMPTaxDetail.Next = 0 then begin
+            if TMPTaxDetail.Next() = 0 then begin
                 Initialised := false;
                 exit(false);
             end;
@@ -476,13 +478,13 @@ codeunit 398 "Sales Tax Calculate"
 
         exit(true);
     end;
-
+#if not CLEAN17
     [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
     begin

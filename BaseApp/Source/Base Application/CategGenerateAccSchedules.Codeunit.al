@@ -1,4 +1,4 @@
-﻿codeunit 571 "Categ. Generate Acc. Schedules"
+codeunit 571 "Categ. Generate Acc. Schedules"
 {
 
     trigger OnRun()
@@ -209,7 +209,7 @@
                 AddAccShedLine(
                   AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
                   GLAccountCategory.Description, GLAccountCategory.GetTotaling, false, false, false, 1);
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
             // Last line in group should be underlined
             AccScheduleLine.Underline := true;
             AccScheduleLine.Modify();
@@ -294,7 +294,7 @@
         if GLAccountCategory.FindSet then
             repeat
                 AddAccSchedLinesDetail(AccScheduleLine, RowNo, GLAccountCategory, 0);
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
     end;
 
     local procedure AddAccSchedLinesDetail(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; ParentGLAccountCategory: Record "G/L Account Category"; Indentation: Integer)
@@ -316,7 +316,7 @@
             if GLAccountCategory.FindSet then
                 repeat
                     AddAccSchedLinesDetail(AccScheduleLine, RowNo, GLAccountCategory, Indentation + 1);
-                until GLAccountCategory.Next = 0;
+                until GLAccountCategory.Next() = 0;
             AddAccShedLine(
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula,
               StrSubstNo(TotalingTxt, ParentGLAccountCategory.Description),
@@ -392,7 +392,7 @@
                 if (AccFilter <> '') and (Totaling <> '') then
                     AccFilter += '|';
                 AccFilter += Totaling;
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
         exit(CopyStr(AccFilter, 1, 250));
     end;
 

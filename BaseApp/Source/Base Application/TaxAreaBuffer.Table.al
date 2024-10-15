@@ -147,7 +147,7 @@ table 5504 "Tax Area Buffer"
         repeat
             UpdateFromTaxArea(TaxArea);
             Insert;
-        until TaxArea.Next = 0;
+        until TaxArea.Next() = 0;
     end;
 
     local procedure LoadFromVATBusinessPostingGroup()
@@ -160,7 +160,7 @@ table 5504 "Tax Area Buffer"
         repeat
             UpdateFromVATBusinessPostingGroup(VATBusinessPostingGroup);
             Insert;
-        until VATBusinessPostingGroup.Next = 0;
+        until VATBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateFromVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")

@@ -295,7 +295,7 @@
         NextTransactionNo := LastTransactionNo + 1;
     end;
 
-    local procedure InitVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var VATPostingSetup: Record "VAT Posting Setup")
+    procedure InitVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var VATPostingSetup: Record "VAT Posting Setup")
     var
         LCYCurrency: Record Currency;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
@@ -437,7 +437,7 @@
         OnAfterInitVAT(GenJnlLine, GLEntry, VATPostingSetup, AddCurrGLEntryVATAmt);
     end;
 
-    local procedure PostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup")
+    procedure PostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup")
     var
         TaxDetail2: Record "Tax Detail";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
@@ -528,7 +528,7 @@
         OnAfterPostVAT(GenJnlLine, GLEntry, VATPostingSetup);
     end;
 
-    local procedure InsertVAT(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GLEntryAmount: Decimal; GLEntryVATAmount: Decimal; GLEntryBaseAmount: Decimal; SrcCurrCode: Code[10]; SrcCurrGLEntryAmt: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrGLEntryBaseAmt: Decimal)
+    procedure InsertVAT(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GLEntryAmount: Decimal; GLEntryVATAmount: Decimal; GLEntryBaseAmount: Decimal; SrcCurrCode: Code[10]; SrcCurrGLEntryAmt: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrGLEntryBaseAmt: Decimal)
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
         VATAmount: Decimal;
@@ -1628,7 +1628,7 @@
         InsertGLEntry(GenJnlLine, GLEntry, true);
     end;
 
-    local procedure CreateGLEntryBalAcc(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
+    procedure CreateGLEntryBalAcc(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1833,7 +1833,7 @@
                 NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, PmtTolLCY, PmtTolAddCurr,
                 NextTransactionNo, FirstNewVATEntryNo, DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)");
 
-        DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
             GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
             DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance", PmtTol, PmtTolLCY, PmtTolAddCurr, 0, 0, 0);
 
@@ -1898,7 +1898,7 @@
                   NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, PmtDiscLCY, PmtDiscAddCurr,
                   NextTransactionNo, FirstNewVATEntryNo, DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)");
 
-            DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+            DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
                 GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
                 DtldCVLedgEntryBuf."Entry Type"::"Payment Discount", PmtDisc, PmtDiscLCY, PmtDiscAddCurr, 0, 0, 0);
 
@@ -1906,7 +1906,7 @@
         end;
     end;
 
-    local procedure CalcPmtDiscIfAdjVAT(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtDiscLCY2: Decimal; var PmtDiscAddCurr2: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer; EntryType: Integer)
+    local procedure CalcPmtDiscIfAdjVAT(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtDiscLCY2: Decimal; var PmtDiscAddCurr2: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         VATEntry2: Record "VAT Entry";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2085,7 +2085,7 @@
               NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, PmtDiscTolLCY, PmtDiscTolAddCurr,
               NextTransactionNo, FirstNewVATEntryNo, DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)");
 
-        DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
           GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
           DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance", PmtDiscTol, PmtDiscTolLCY, PmtDiscTolAddCurr, 0, 0, 0);
 
@@ -2260,7 +2260,7 @@
         TempVATEntry.Insert();
     end;
 
-    local procedure InsertPmtDiscVATForGLEntry(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; VATEntry2: Record "VAT Entry"; var VATPostingSetup: Record "VAT Posting Setup"; var TaxJurisdiction: Record "Tax Jurisdiction"; EntryType: Integer; VATAmount: Decimal; VATAmountAddCurr: Decimal)
+    local procedure InsertPmtDiscVATForGLEntry(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; VATEntry2: Record "VAT Entry"; var VATPostingSetup: Record "VAT Posting Setup"; var TaxJurisdiction: Record "Tax Jurisdiction"; EntryType: Enum "Detailed CV Ledger Entry Type"; VATAmount: Decimal; VATAmountAddCurr: Decimal)
     begin
         DtldCVLedgEntryBuf.Init();
         DtldCVLedgEntryBuf.CopyFromCVLedgEntryBuf(NewCVLedgEntryBuf);
@@ -2364,7 +2364,7 @@
         if (ApplnRounding = 0) or (Abs(ApplnRounding) > ApplnRoundingPrecision) then
             exit;
 
-        DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
           GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
           DtldCVLedgEntryBuf."Entry Type"::"Appln. Rounding", ApplnRounding, ApplnRoundingLCY, ApplnRounding, 0, 0, 0);
     end;
@@ -2472,11 +2472,11 @@
 
         if UnRealizedGainLossLCY <> 0 then
             if UnRealizedGainLossLCY < 0 then
-                TempDtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+                TempDtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
                   GenJnlLine, CVLedgEntryBuf, TempDtldCVLedgEntryBuf,
                   TempDtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss", 0, -UnRealizedGainLossLCY, 0, 0, 0, 0)
             else
-                TempDtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+                TempDtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
                   GenJnlLine, CVLedgEntryBuf, TempDtldCVLedgEntryBuf,
                   TempDtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain", 0, -UnRealizedGainLossLCY, 0, 0, 0, 0);
     end;
@@ -2500,11 +2500,11 @@
 
         if RealizedGainLossLCY <> 0 then
             if RealizedGainLossLCY < 0 then
-                TempDtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+                TempDtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
                   GenJnlLine, CVLedgEntryBuf, TempDtldCVLedgEntryBuf,
                   TempDtldCVLedgEntryBuf."Entry Type"::"Realized Loss", 0, RealizedGainLossLCY, 0, 0, 0, 0)
             else
-                TempDtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+                TempDtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
                   GenJnlLine, CVLedgEntryBuf, TempDtldCVLedgEntryBuf,
                   TempDtldCVLedgEntryBuf."Entry Type"::"Realized Gain", 0, RealizedGainLossLCY, 0, 0, 0, 0);
     end;
@@ -2523,7 +2523,7 @@
         if AppliedAmount = 0 then
             exit;
 
-        DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
           GenJnlLine, OldCVLedgEntryBuf, DtldCVLedgEntryBuf,
           DtldCVLedgEntryBuf."Entry Type"::Application, OldAppliedAmount, AppliedAmountLCY, 0,
           NewCVLedgEntryBuf."Entry No.", PrevOldCVLedgEntryBuf."Remaining Pmt. Disc. Possible",
@@ -2540,7 +2540,7 @@
         else
             AllApplied := false;
 
-        DtldCVLedgEntryBuf.InitDtldCVLedgEntryBuf(
+        DtldCVLedgEntryBuf.InitDetailedCVLedgEntryBuf(
           GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
           DtldCVLedgEntryBuf."Entry Type"::Application, -AppliedAmount, -AppliedAmountLCY, 0,
           NewCVLedgEntryBuf."Entry No.", PrevNewCVLedgEntryBuf."Remaining Pmt. Disc. Possible",
@@ -5652,7 +5652,7 @@
         exit(TempGLEntryBuf.IsEmpty);
     end;
 
-    local procedure IsVATAdjustment(EntryType: Option): Boolean
+    local procedure IsVATAdjustment(EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
     var
         DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
     begin
@@ -5661,7 +5661,7 @@
                            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)"]);
     end;
 
-    local procedure IsVATExcluded(EntryType: Option): Boolean
+    local procedure IsVATExcluded(EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
     var
         DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
     begin
@@ -6168,7 +6168,7 @@
                         GLEntry.Amount := 0;
                     end;
                     InsertGLEntry(GenJnlLine2, GLEntry, true);
-                until AutoAccLine.Next = 0;
+                until AutoAccLine.Next() = 0;
         end;
         GenJnlLine.Validate("Auto. Acc. Group", '');
     end;

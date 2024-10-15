@@ -362,7 +362,7 @@ codeunit 144018 "ERM REFINV"
         CreditAmount: Decimal;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next = 0;

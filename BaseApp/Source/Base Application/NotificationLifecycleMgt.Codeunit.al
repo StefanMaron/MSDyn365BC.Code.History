@@ -96,7 +96,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
             repeat
                 TempNotificationContextToUpdate."Record ID" := NewRecId;
                 TempNotificationContextToUpdate.Modify(true);
-            until TempNotificationContextToUpdate.Next = 0
+            until TempNotificationContextToUpdate.Next() = 0
     end;
 
     procedure UpdateRecordID(CurrentRecId: RecordID; NewRecId: RecordID)
@@ -169,7 +169,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
             TempNotificationContextToRecall.Delete(true);
             OnAfterDeleteNotificationContext(TempNotificationContextToRecall);
-        until TempNotificationContextToRecall.Next = 0
+        until TempNotificationContextToRecall.Next() = 0
     end;
 
     local procedure GetUsableRecordId(var RecId: RecordID; HandleDelayedInsert: Boolean): Boolean
@@ -194,7 +194,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1511, 'OnAfterNotificationSent', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Notification Lifecycle Mgt.", 'OnAfterNotificationSent', '', true, true)]
     local procedure LogNotificationSentSubscriber(CurrentNotification: Notification; TableNo: Integer)
     begin
         Session.LogMessage('00001KO', StrSubstNo(NotificationSentTelemetryMsg, CurrentNotification.Id, TableNo), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NotificationSentCategoryTxt);

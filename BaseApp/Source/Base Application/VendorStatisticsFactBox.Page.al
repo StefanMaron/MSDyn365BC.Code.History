@@ -87,11 +87,35 @@ page 9094 "Vendor Statistics FactBox"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of payments paid to the vendor.';
+                trigger OnDrillDown()
+                var
+                    VendorLedgerEntry: Record "Vendor Ledger Entry";
+                    VendorLedgerEntries: Page "Vendor Ledger Entries";
+                begin
+                    Clear(VendorLedgerEntries);
+                    SetFilterLastPaymentDateEntry(VendorLedgerEntry);
+                    if VendorLedgerEntry.FindLast() then
+                        VendorLedgerEntries.SetRecord(VendorLedgerEntry);
+                    VendorLedgerEntries.SetTableView(VendorLedgerEntry);
+                    VendorLedgerEntries.Run();
+                end;
             }
             field("Refunds (LCY)"; "Refunds (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of refunds paid to the vendor.';
+                trigger OnDrillDown()
+                var
+                    VendorLedgerEntry: Record "Vendor Ledger Entry";
+                    VendorLedgerEntries: Page "Vendor Ledger Entries";
+                begin
+                    Clear(VendorLedgerEntries);
+                    SetFilterRefundEntry(VendorLedgerEntry);
+                    if VendorLedgerEntry.FindLast() then
+                        VendorLedgerEntries.SetRecord(VendorLedgerEntry);
+                    VendorLedgerEntries.SetTableView(VendorLedgerEntry);
+                    VendorLedgerEntries.Run();
+                end;
             }
             field(LastPaymentDate; LastPaymentDate)
             {
@@ -107,10 +131,10 @@ page 9094 "Vendor Statistics FactBox"
                 begin
                     Clear(VendorLedgerEntries);
                     SetFilterLastPaymentDateEntry(VendorLedgerEntry);
-                    if VendorLedgerEntry.FindLast then
+                    if VendorLedgerEntry.FindLast() then
                         VendorLedgerEntries.SetRecord(VendorLedgerEntry);
                     VendorLedgerEntries.SetTableView(VendorLedgerEntry);
-                    VendorLedgerEntries.Run;
+                    VendorLedgerEntries.Run();
                 end;
             }
         }
@@ -230,5 +254,12 @@ page 9094 "Vendor Statistics FactBox"
         VendorLedgerEntry.SetRange(Reversed, false);
     end;
 
+    local procedure SetFilterRefundEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        VendorLedgerEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+        VendorLedgerEntry.SetRange("Vendor No.", "No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Refund);
+        VendorLedgerEntry.SetRange(Reversed, false);
+    end;
 }
 

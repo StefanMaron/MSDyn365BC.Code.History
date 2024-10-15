@@ -534,7 +534,7 @@ page 9207 "Sales Analysis Matrix"
                 end;
                 SetStyle(i);
                 i := i + 1;
-            until AnalysisColumn.Next = 0;
+            until AnalysisColumn.Next() = 0;
         Emphasize := Bold;
     end;
 

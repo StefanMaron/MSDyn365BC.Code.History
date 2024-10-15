@@ -145,7 +145,7 @@ page 5623 "FA Allocations"
                 AllocationPct := TempFAAlloc."Allocation %";
                 TempFAAlloc.CopyFilters(Rec);
                 TempFAAlloc := xRec;
-                if TempFAAlloc.Next = 0 then
+                if TempFAAlloc.Next() = 0 then
                     AllocationPct := AllocationPct + xRec."Allocation %";
             end;
         end;

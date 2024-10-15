@@ -8,6 +8,9 @@ page 5470 "Item Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Item;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

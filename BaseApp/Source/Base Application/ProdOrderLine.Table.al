@@ -1,4 +1,4 @@
-﻿table 5406 "Prod. Order Line"
+table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -28,7 +28,7 @@
 
             trigger OnValidate()
             begin
-                ReserveProdOrderLine.VerifyChange(Rec, xRec);
+                ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 TestField("Finished Quantity", 0);
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
@@ -94,25 +94,14 @@
                                                        Code = FIELD("Variant Code"));
 
             trigger OnValidate()
-            var
-                ItemVariant: Record "Item Variant";
             begin
-                ReserveProdOrderLine.VerifyChange(Rec, xRec);
+                ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 TestField("Finished Quantity", 0);
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
-
-                if "Variant Code" = '' then begin
-                    Validate("Item No.");
-                    exit;
-                end;
-
-                ItemVariant.Get("Item No.", "Variant Code");
-                Description := ItemVariant.Description;
-                "Description 2" := ItemVariant."Description 2";
-                GetUpdateFromSKU;
-                GetDefaultBin;
+                GetUpdateFromSKU();
+                GetDefaultBin();
             end;
         }
         field(13; Description; Text[100])
@@ -130,7 +119,7 @@
 
             trigger OnValidate()
             begin
-                ReserveProdOrderLine.VerifyChange(Rec, xRec);
+                ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
                 GetDefaultBin;
@@ -219,7 +208,7 @@
                 if "Remaining Quantity" < 0 then
                     "Remaining Quantity" := 0;
                 "Remaining Qty. (Base)" := "Remaining Quantity" * "Qty. per Unit of Measure";
-                ReserveProdOrderLine.VerifyQuantity(Rec, xRec);
+                ProdOrderLineReserve.VerifyQuantity(Rec, xRec);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
 
                 UpdateProdOrderComp(xRec."Qty. per Unit of Measure");
@@ -434,7 +423,7 @@
                           Text99000002,
                           FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
 
-                    if GetSKU then
+                    if GetSKU() then
                         "Unit Cost" := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
                         "Unit Cost" := Item."Unit Cost" * "Qty. per Unit of Measure";
@@ -687,7 +676,7 @@
             trigger OnValidate()
             begin
                 if "Planning Flexibility" <> xRec."Planning Flexibility" then
-                    ReserveProdOrderLine.UpdatePlanningFlexibility(Rec);
+                    ProdOrderLineReserve.UpdatePlanningFlexibility(Rec);
             end;
         }
         field(99000764; "Indirect Cost %"; Decimal)
@@ -776,7 +765,7 @@
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "Prod. Order No.");
             ItemLedgEntry.SetRange("Order Line No.", "Line No.");
-            if not ItemLedgEntry.IsEmpty then
+            if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text99000000,
                   TableCaption, "Line No.", ItemLedgEntry.TableCaption);
@@ -792,7 +781,7 @@
                   TableCaption, "Line No.", PurchLine.TableCaption);
         end;
 
-        ReserveProdOrderLine.DeleteLine(Rec);
+        ProdOrderLineReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -811,7 +800,7 @@
         if Status = Status::Finished then
             Error(Text000, Status, TableCaption);
 
-        ReserveProdOrderLine.VerifyQuantity(Rec, xRec);
+        ProdOrderLineReserve.VerifyQuantity(Rec, xRec);
         if "Routing Reference No." < 0 then
             "Routing Reference No." := "Line No.";
     end;
@@ -821,7 +810,7 @@
         if Status = Status::Finished then
             Error(Text000, Status, TableCaption);
 
-        ReserveProdOrderLine.VerifyChange(Rec, xRec);
+        ProdOrderLineReserve.VerifyChange(Rec, xRec);
     end;
 
     trigger OnRename()
@@ -840,7 +829,7 @@
         ProdOrder: Record "Production Order";
         GLSetup: Record "General Ledger Setup";
         Location: Record Location;
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
+        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
@@ -875,7 +864,7 @@
                 repeat
                     ProdOrderRoutingLine.SetSkipUpdateOfCompBinCodes(true);
                     ProdOrderRoutingLine.Delete(true);
-                until ProdOrderRoutingLine.Next = 0;
+                until ProdOrderRoutingLine.Next() = 0;
         end;
 
         ProdOrderComp.Reset();
@@ -894,7 +883,7 @@
                     ProdOrderComp."Planning Level Code" -= 1;
                     OnDeleteRelationsNotCalledFromComponentInitFields(ProdOrderComp);
                     ProdOrderComp.Modify();
-                until ProdOrderComp.Next = 0;
+                until ProdOrderComp.Next() = 0;
         end;
 
         WhseOutputProdRelease.DeleteLine(Rec);
@@ -936,7 +925,7 @@
         OnBeforeCheckEndingDate(Rec, ShowWarning);
         if not Blocked then begin
             CheckDateConflict.ProdOrderLineCheck(Rec, ShowWarning);
-            ReserveProdOrderLine.AssignForPlanning(Rec);
+            ProdOrderLineReserve.AssignForPlanning(Rec);
         end;
 
         OnAfterCheckEndingDate(Rec);
@@ -945,7 +934,7 @@
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         Blocked := SetBlock;
-        ReserveProdOrderLine.Block(Blocked);
+        ProdOrderLineReserve.Block(Blocked);
         CalcProdOrder.BlockDynamicTracking(Blocked);
     end;
 
@@ -978,7 +967,7 @@
 
     procedure OpenItemTrackingLines()
     begin
-        ReserveProdOrderLine.CallItemTracking(Rec);
+        ProdOrderLineReserve.CallItemTracking(Rec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1023,10 +1012,10 @@
         then
             exit(true);
 
-        if SKU.Get("Location Code", "Item No.", "Variant Code") then
-            exit(true);
-
         Result := false;
+        if SKU.Get("Location Code", "Item No.", "Variant Code") then
+            Result := true;
+
         OnAfterGetSKU(Rec, Result);
     end;
 
@@ -1039,11 +1028,18 @@
         if IsHandled then
             exit;
 
-        GetItem;
-        if GetSKU then
-            "Unit Cost" := SKU."Unit Cost"
-        else
+        GetItem();
+        if GetSKU then begin
+            "Unit Cost" := SKU."Unit Cost";
+            if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then
+                Validate("Routing No.", SKU."Routing No.");
+            if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then
+                Validate("Production BOM No.", SKU."Production BOM No.");
+        end else begin
             "Unit Cost" := Item."Unit Cost";
+            "Routing No." := Item."Routing No.";
+            "Production BOM No." := Item."Production BOM No.";
+        end;
     end;
 
     procedure UpdateDatetime()
@@ -1295,7 +1291,7 @@
                     ProdOrderComp.Validate("Quantity per", "Qty. per Unit of Measure");
                 OnUpdateProdOrderCompOnBeforeModify(Rec, ProdOrderComp);
                 ProdOrderComp.Modify();
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
         end;
     end;
 
@@ -1357,7 +1353,7 @@
                       ProdOrderComp."Dimension Set ID", ProdOrderComp."Shortcut Dimension 1 Code", ProdOrderComp."Shortcut Dimension 2 Code");
                     ProdOrderComp.Modify();
                 end;
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
     end;
 
     procedure ShowRouting()
@@ -1520,9 +1516,9 @@
     local procedure OnBeforeValidateQuantity(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateProdOrderComp(var ProdOrderLine: Record "Prod. Order Line"; QtyPerUnitOfMeasure: Decimal; CurrFieldNo: Integer; var IsHandled: Boolean)    
+    local procedure OnBeforeUpdateProdOrderComp(var ProdOrderLine: Record "Prod. Order Line"; QtyPerUnitOfMeasure: Decimal; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

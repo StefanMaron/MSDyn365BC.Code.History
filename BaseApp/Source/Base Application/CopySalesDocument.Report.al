@@ -490,11 +490,13 @@ report 292 "Copy Sales Document"
         RecalculateLines := NewRecalcLines;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetParameters().', '17.0')]
     procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     begin
         SetParameters("Sales Document Type From".FromInteger(NewDocType), NewDocNo, NewIncludeHeader, NewRecalcLines);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()

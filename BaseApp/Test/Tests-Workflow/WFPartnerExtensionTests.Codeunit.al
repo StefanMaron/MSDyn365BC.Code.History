@@ -128,18 +128,16 @@ codeunit 134319 "WF Partner Extension Tests"
         Assert.ExpectedError(StrSubstNo(NotSupportedResponseErr, WorkflowStepInstance."Function Name"));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowEventsToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CustomAddToEventLibrarySubscriber()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventsToLibrary', '', false, false)]
+    local procedure CustomAddToEventLibrarySubscriber()
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         WorkflowEventHandling.AddEventToLibrary(OnNewCustomEventCode, DATABASE::Integer, OnNewCustomEventCode, 0, false)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnAddWorkflowResponsesToLibrary', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CustomAddToResponseLibrarySubscriber()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
+    local procedure CustomAddToResponseLibrarySubscriber()
     var
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
@@ -147,9 +145,8 @@ codeunit 134319 "WF Partner Extension Tests"
         WorkflowResponseHandling.AddResponseToLibrary(NewCustomResponse2Code, DATABASE::Integer, NewCustomResponse2Code, 'GROUP 0')
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnExecuteWorkflowResponse', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CustomExecuteResponseSubscriber(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', false, false)]
+    local procedure CustomExecuteResponseSubscriber(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
     begin
         ResponseExecuted := false;
 

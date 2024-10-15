@@ -1754,8 +1754,8 @@ codeunit 137091 "SCM Kitting - D2"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
-        SalesLine.FindSet;
-        TempBOMComponent.FindSet;
+        SalesLine.FindSet();
+        TempBOMComponent.FindSet();
 
         repeat
             TempBOMComponent.SetRange("Parent Item No.", TempSalesLine."No.");
@@ -1783,8 +1783,8 @@ codeunit 137091 "SCM Kitting - D2"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
-        PurchaseLine.FindSet;
-        TempBOMComponent.FindSet;
+        PurchaseLine.FindSet();
+        TempBOMComponent.FindSet();
 
         repeat
             TempBOMComponent.SetRange("Parent Item No.", TempPurchaseLine."No.");

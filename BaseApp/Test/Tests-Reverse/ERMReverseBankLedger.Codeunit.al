@@ -1324,7 +1324,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         SuggestVendorPayments.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Report, 1496, 'OnPreDataItemBankAccount', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Suggest Bank Acc. Recon. Lines", 'OnPreDataItemBankAccount', '', false, false)]
     local procedure SuggestBankAccRecLinesOnPreDataItem(var ExcludeReversedEntries: Boolean)
     begin
         ExcludeReversedEntries := true;

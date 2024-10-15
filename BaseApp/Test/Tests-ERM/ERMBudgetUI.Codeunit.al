@@ -535,7 +535,7 @@ codeunit 134927 "ERM Budget UI"
         i: Integer;
         j: Integer;
     begin
-        for i := GLAcc."Account Category"::Assets to GLAcc."Account Category"::Expense do
+        for i := GLAcc."Account Category"::Assets.AsInteger() to GLAcc."Account Category"::Expense.AsInteger() do
             for j := GLAcc."Income/Balance"::"Income Statement" to GLAcc."Income/Balance"::"Balance Sheet" do
                 CreateGLAccountWithSetup(i, j);
     end;
@@ -550,7 +550,7 @@ codeunit 134927 "ERM Budget UI"
         GLAcc.Modify(true);
     end;
 
-    local procedure FindGLAccountByType(var GLAccount: Record "G/L Account"; AccountCategory: Option; IncomeBalance: Option)
+    local procedure FindGLAccountByType(var GLAccount: Record "G/L Account"; AccountCategory: Enum "G/L Account Category"; IncomeBalance: Option)
     begin
         GLAccount.Reset();
         GLAccount.SetRange("Account Category", AccountCategory);

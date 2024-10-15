@@ -24,7 +24,7 @@ codeunit 7318 "Bin Create"
         if BinCreateLine.Find('-') then begin
             repeat
                 BinCreate(BinCreateLine);
-            until BinCreateLine.Next = 0;
+            until BinCreateLine.Next() = 0;
             BinCreateLine.DeleteAll();
         end else
             Message(Text001);

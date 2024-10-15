@@ -296,8 +296,20 @@ page 5741 "Transfer Order Subform"
 
                     trigger OnAction()
                     begin
-                        Find;
-                        ShowReservation();
+                        Rec.Find();
+                        Rec.ShowReservation();
+                    end;
+                }
+                action(ReserveFromInventory)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Reserve from &Inventory';
+                    Image = LineReserve;
+                    ToolTip = 'Reserve items for the selected line from inventory.';
+
+                    trigger OnAction()
+                    begin
+                        ReserveSelectedLines();
                     end;
                 }
             }
@@ -358,6 +370,16 @@ page 5741 "Transfer Order Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Location;
@@ -394,6 +416,7 @@ page 5741 "Transfer Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Shipment';
                         Image = Shipment;
+                        ShortCutKey = 'Shift+Ctrl+I';
                         ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                         trigger OnAction()
@@ -406,11 +429,12 @@ page 5741 "Transfer Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Receipt';
                         Image = Receipt;
+                        ShortCutKey = 'Shift+Ctrl+R';
                         ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines("Transfer Direction"::Inbound);
+                            OpenItemTrackingLinesWithReclass("Transfer Direction"::Inbound);
                         end;
                     }
                 }
@@ -425,12 +449,12 @@ page 5741 "Transfer Order Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
     begin
         Commit();
-        if not ReserveTransferLine.DeleteLineConfirm(Rec) then
+        if not TransferLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveTransferLine.DeleteLine(Rec);
+        TransferLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -460,6 +484,14 @@ page 5741 "Transfer Order Subform"
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
+    end;
+
+    local procedure ReserveSelectedLines()
+    var
+        TransLine: Record "Transfer Line";
+    begin
+        CurrPage.SetSelectionFilter(TransLine);
+        ReserveFromInventory(TransLine);
     end;
 
     local procedure SetDimensionsVisibility()

@@ -1119,7 +1119,7 @@ codeunit 134987 "ERM Financial Reports III"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindSet;
+        BankAccReconciliationLine.FindSet();
         repeat
             Sum += BankAccReconciliationLine."Statement Amount";
         until BankAccReconciliationLine.Next = 0;
@@ -1839,6 +1839,7 @@ codeunit 134987 "ERM Financial Reports III"
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: TestPage Navigate)
     begin
+        Navigate."No. of Records".Value();
         Navigate.Print.Invoke;
     end;
 
@@ -1874,6 +1875,8 @@ codeunit 134987 "ERM Financial Reports III"
     [Scope('OnPrem')]
     procedure PrintCheckReqPageHandler(var Check: TestRequestPage Check)
     var
+        FileName: Text;
+        ParametersFileName: Text;
         Value: Variant;
     begin
         LibraryVariableStorage.Dequeue(Value);
@@ -1883,7 +1886,10 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryVariableStorage.Dequeue(Value);
         Check.OneCheckPerVendorPerDocumentNo.SetValue(Value);
 
-        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ParametersFileName := LibraryReportDataset.GetParametersFileName;
+        FileName := LibraryReportDataset.GetFileName;
+        Check.SaveAsXml(ParametersFileName, FileName);
+        Sleep(200)
     end;
 
     [RequestPageHandler]
@@ -1908,6 +1914,7 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
         SuggestVendorPayments.OK.Invoke;
+        Sleep(200);
     end;
 
     [MessageHandler]
@@ -1920,6 +1927,7 @@ codeunit 134987 "ERM Financial Reports III"
     [Scope('OnPrem')]
     procedure VendorPrePaymentJournalHandler(var VendorPrePaymentJournal: TestRequestPage "Vendor Pre-Payment Journal")
     begin
+        if VendorPrePaymentJournal.Editable() then;
         VendorPrePaymentJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1929,6 +1937,7 @@ codeunit 134987 "ERM Financial Reports III"
     var
         PostingOption: Option ,"Post the Balance as Payment Tolerance","Leave a Remaining Amount";
     begin
+        PaymentToleranceWarning.AppliedAmount.Value();
         PaymentToleranceWarning.Posting.SetValue(PostingOption::"Post the Balance as Payment Tolerance");
         PaymentToleranceWarning.Yes.Invoke;
     end;
@@ -1939,6 +1948,7 @@ codeunit 134987 "ERM Financial Reports III"
     var
         PostingOption: Option ,"Post as Payment Discount Tolerance","Do Not Accept the Late Payment Discount";
     begin
+        PaymentDiscToleranceWarning.AppliedAmount.Value();
         PaymentDiscToleranceWarning.Posting.SetValue(PostingOption::"Post as Payment Discount Tolerance");
         PaymentDiscToleranceWarning.Yes.Invoke;
     end;

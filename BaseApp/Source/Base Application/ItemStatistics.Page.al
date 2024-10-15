@@ -49,7 +49,7 @@ page 5827 "Item Statistics"
                         ColumnDimCode := NewCode;
                         ValidateColumnDimCode;
                         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         exit(true);
                     end;
 
@@ -604,7 +604,7 @@ page 5827 "Item Statistics"
 
     local procedure ItemBufferLineOptionOnAfterVal()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateFilterOnAfterValidate()
@@ -612,12 +612,12 @@ page 5827 "Item Statistics"
         MATRIX_SetWanted: Option Initial,Previous,Same,Next;
     begin
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ColumnDimCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ItemFilterOnAfterValidate()

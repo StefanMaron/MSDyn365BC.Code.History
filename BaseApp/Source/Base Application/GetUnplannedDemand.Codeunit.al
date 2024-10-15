@@ -143,7 +143,7 @@ codeunit 5520 "Get Unplanned Demand"
                             end;
                             InsertSalesLine(UnplannedDemand);
                         end;
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
     end;
 
     local procedure GetUnplannedProdOrderComp(var UnplannedDemand: Record "Unplanned Demand")
@@ -168,7 +168,7 @@ codeunit 5520 "Get Unplanned Demand"
                                 ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp.Status.AsInteger());
                         InsertProdOrderCompLine(UnplannedDemand);
                     end;
-                until ProdOrderComp.Next = 0;
+                until ProdOrderComp.Next() = 0;
     end;
 
     local procedure GetUnplannedAsmLine(var UnplannedDemand: Record "Unplanned Demand")
@@ -193,7 +193,7 @@ codeunit 5520 "Get Unplanned Demand"
                         end;
                         InsertAsmLine(UnplannedDemand);
                     end;
-                until AsmLine.Next = 0;
+                until AsmLine.Next() = 0;
     end;
 
     local procedure GetUnplannedServLine(var UnplannedDemand: Record "Unplanned Demand")
@@ -218,7 +218,7 @@ codeunit 5520 "Get Unplanned Demand"
                         end;
                         InsertServLine(UnplannedDemand);
                     end;
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
     end;
 
     local procedure GetUnplannedJobPlanningLine(var UnplannedDemand: Record "Unplanned Demand")
@@ -243,7 +243,7 @@ codeunit 5520 "Get Unplanned Demand"
                         end;
                         InsertJobPlanningLine(UnplannedDemand);
                     end;
-                until JobPlanningLine.Next = 0;
+                until JobPlanningLine.Next() = 0;
     end;
 
     local procedure GetSalesLineNeededQty(SalesLine: Record "Sales Line") NeededQty: Decimal
@@ -468,7 +468,7 @@ codeunit 5520 "Get Unplanned Demand"
                         end;
                     end;
                     Delete;
-                until Next = 0;
+                until Next() = 0;
                 SetRange("Demand Type");
                 SetRange("Demand SubType");
                 SetRange("Demand Order No.");
@@ -510,7 +510,7 @@ codeunit 5520 "Get Unplanned Demand"
                     ToUnplannedDemand := FromUnplannedDemand;
                     ToUnplannedDemand.Insert();
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

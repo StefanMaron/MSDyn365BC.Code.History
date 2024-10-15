@@ -314,11 +314,11 @@ codeunit 139148 "UT REST"
           '<transform>' +
           '<record>' +
           '<username>MP123456</username>' +
-          '<fullname>Annette Hill</fullname>' +
+          '<fullname>Ester Henderson</fullname>' +
           '</record>' +
           '<record>' +
           '<username>PK123456</username>' +
-          '<fullname>Bart Duncan</fullname>' +
+          '<fullname>Benjamin Chiu</fullname>' +
           '</record>' +
           '</transform>');
     end;
@@ -330,11 +330,11 @@ codeunit 139148 "UT REST"
           '"record": [' +
           '{' +
           '"username": "MP123456",' +
-          '"fullname": "Annette Hill"' +
+          '"fullname": "Ester Henderson"' +
           '},' +
           '{' +
           '"username": "PK123456",' +
-          '"fullname": "Bart Duncan"' +
+          '"fullname": "Benjamin Chiu"' +
           '}' +
           ']' +
           '}');

@@ -11,7 +11,7 @@ codeunit 1354 "Generate Activity Telemetry"
         TraceTagTelemetryMsg: Label '%1: %2', Comment = '%1 = Record Name; %2 = Record Count';
         TableInformation: Record "Table Information";
 
-    [EventSubscriber(ObjectType::Codeunit, 1354, 'OnActivityTelemetry', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate Activity Telemetry", 'OnActivityTelemetry', '', true, true)]
     local procedure SendTelemetryOnActivityTelemetry()
     var
         GLEntry: Record "G/L Entry";

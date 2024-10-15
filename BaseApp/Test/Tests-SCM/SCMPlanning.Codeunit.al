@@ -411,7 +411,7 @@ codeunit 137020 "SCM Planning"
 
         // Validate structure and data of carried out production orders
         ProdOrder.SetRange("Source No.", Item."No.");
-        ProdOrder.FindSet;
+        ProdOrder.FindSet();
         Assert.AreEqual(2, ProdOrder.Count,
           'Unexpected number of production orders after creating two demands and planning for lot-for-lot/prod. order replenished item, and carrying out.');
 
@@ -4936,7 +4936,7 @@ codeunit 137020 "SCM Planning"
         RequisitionWkshName.Insert();
     end;
 
-    local procedure MockRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; Type: Option; No: Code[20]; Description: Text[100])
+    local procedure MockRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; Type: Enum "Requisition Line Type"; No: Code[20]; Description: Text[100])
     begin
         RequisitionLine."Worksheet Template Name" := RequisitionWkshName."Worksheet Template Name";
         RequisitionLine."Journal Batch Name" := RequisitionWkshName.Name;

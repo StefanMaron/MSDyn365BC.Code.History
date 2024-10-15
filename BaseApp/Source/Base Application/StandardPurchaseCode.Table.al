@@ -48,7 +48,7 @@ table 173 "Standard Purchase Code"
                             StdPurchLine."Amount Excl. VAT" :=
                               Round(StdPurchLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
                             StdPurchLine.Modify();
-                        until StdPurchLine.Next = 0;
+                        until StdPurchLine.Next() = 0;
                     end;
                 end;
 

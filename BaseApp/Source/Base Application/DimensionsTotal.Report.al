@@ -582,7 +582,7 @@ report 27 "Dimensions - Total"
                         if StrLen(DimFilterText) + StrLen(ThisFilter) <= 250 then
                             DimFilterText := DimFilterText + ThisFilter;
                         SetAccSchedLineFilter(TempSelectedDim."Dimension Code", TempSelectedDim."Dimension Value Filter", true, '');
-                    until TempSelectedDim.Next = 0;
+                    until TempSelectedDim.Next() = 0;
                 end;
 
                 TempSelectedDim.Reset();
@@ -594,7 +594,7 @@ report 27 "Dimensions - Total"
                         DimCode[i] := TempSelectedDim."Dimension Code";
                         LevelFilter[i] := TempSelectedDim."Dimension Value Filter";
                         i := i + 1;
-                    until (TempSelectedDim.Next = 0) or (i > 4);
+                    until (TempSelectedDim.Next() = 0) or (i > 4);
                 end;
 
                 MaxColumnsDisplayed := ArrayLen(ColumnValuesDisplayed);
@@ -619,7 +619,7 @@ report 27 "Dimensions - Total"
                                 end;
                             end;
                             NoOfCols := NoOfCols + 1;
-                        until (i >= MaxColumnsDisplayed) or (Next = 0);
+                        until (i >= MaxColumnsDisplayed) or (Next() = 0);
                         MaxColumnsDisplayed := i;
                     end;
                 end;
@@ -835,8 +835,8 @@ report 27 "Dimensions - Total"
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
-            until TempSelectedDim.Next = 0;
+                    until DimVal.Next() = 0;
+            until TempSelectedDim.Next() = 0;
         end;
         // Commit added to free resources and allowing the report to use the read only replica
         Commit();
@@ -1087,7 +1087,7 @@ report 27 "Dimensions - Total"
                             ColumnValuesAsText[i, Level] :=
                               AccSchedManagement.FormatCellAsText(ColLayoutTmp, ColumnValuesDisplayed[i], UseAmtsInAddCurr);
                     end;
-                until (i >= MaxColumnsDisplayed) or (Next = 0);
+                until (i >= MaxColumnsDisplayed) or (Next() = 0);
         end;
         exit(NonZero);
     end;
@@ -1112,7 +1112,7 @@ report 27 "Dimensions - Total"
                 TempDimSelectionBuf."Dimension Value Filter" := SelectedDim."Dimension Value Filter";
                 TempDimSelectionBuf.Level := SelectedDim.Level;
                 TempDimSelectionBuf.Insert();
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             TempDimSelectionBuf.SetDimSelection(
               3, REPORT::"Dimensions - Total", AnalysisViewCode, ColumnDim, TempDimSelectionBuf);
         end;
@@ -1255,7 +1255,7 @@ report 27 "Dimensions - Total"
                 TempGLAcc.Init();
                 TempGLAcc := GLAcc;
                 TempGLAcc.Insert();
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
             GLAccRange := GLAccRange + '..' + GLAcc."No.";
         end;
 
@@ -1270,7 +1270,7 @@ report 27 "Dimensions - Total"
                 TempBusUnit.Init();
                 TempBusUnit := BusUnit;
                 TempBusUnit.Insert();
-            until BusUnit.Next = 0;
+            until BusUnit.Next() = 0;
         end;
     end;
 
@@ -1287,7 +1287,7 @@ report 27 "Dimensions - Total"
                 TempCFAccount.Init();
                 TempCFAccount := CFAccount;
                 TempCFAccount.Insert();
-            until CFAccount.Next = 0;
+            until CFAccount.Next() = 0;
             CFAccRange := CFAccRange + '..' + CFAccount."No.";
         end;
 
@@ -1301,7 +1301,7 @@ report 27 "Dimensions - Total"
                 TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
                 TempCashFlowForecast.Insert();
-            until CashFlowForecast.Next = 0;
+            until CashFlowForecast.Next() = 0;
         end;
     end;
 

@@ -52,7 +52,7 @@ codeunit 399 "Copy Tax Setup From Company"
             TaxJurisdiction.Init();
             TaxJurisdiction.TransferFields(SourceTaxJurisdiction);
             if TaxJurisdiction.Insert() then;
-        until SourceTaxJurisdiction.Next = 0;
+        until SourceTaxJurisdiction.Next() = 0;
     end;
 
     local procedure CopyTaxGroup(SourceCompany: Record Company)
@@ -71,7 +71,7 @@ codeunit 399 "Copy Tax Setup From Company"
             TaxGroup.Init();
             TaxGroup.TransferFields(SourceTaxGroup);
             if TaxGroup.Insert() then;
-        until SourceTaxGroup.Next = 0;
+        until SourceTaxGroup.Next() = 0;
     end;
 
     local procedure CopyTaxArea(SourceCompany: Record Company)
@@ -99,8 +99,8 @@ codeunit 399 "Copy Tax Setup From Company"
                     TaxAreaLine.Init();
                     TaxAreaLine.TransferFields(SourceTaxAreaLine);
                     if TaxAreaLine.Insert() then;
-                until SourceTaxAreaLine.Next = 0;
-        until SourceTaxArea.Next = 0;
+                until SourceTaxAreaLine.Next() = 0;
+        until SourceTaxArea.Next() = 0;
     end;
 
     local procedure CopyTaxDetail(SourceCompany: Record Company)
@@ -119,7 +119,7 @@ codeunit 399 "Copy Tax Setup From Company"
             TaxDetail.Init();
             TaxDetail.TransferFields(SourceTaxDetail);
             if TaxDetail.Insert() then;
-        until SourceTaxDetail.Next = 0;
+        until SourceTaxDetail.Next() = 0;
     end;
 }
 

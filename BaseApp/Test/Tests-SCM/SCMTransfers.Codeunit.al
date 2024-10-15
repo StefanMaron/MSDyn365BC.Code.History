@@ -233,7 +233,7 @@ codeunit 137038 "SCM Transfers"
 
         // Execute : Carry Out Action Message in Planning Worksheet for Order Type Purchase.
         RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::Purchase);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         CarryOutActionMsgPlanSetup(RequisitionLine, ItemNo);
 
         // Verify : Verify 5 Requisition Lines are left in Planning Worksheet after purchase order messages have been carried out.
@@ -2589,7 +2589,7 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
-    local procedure MockWhseRequest(RequestType: Option; LocCode: Code[10]; SourceNo: Code[20])
+    local procedure MockWhseRequest(RequestType: Enum "Warehouse Request Type"; LocCode: Code[10]; SourceNo: Code[20])
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
@@ -2598,7 +2598,7 @@ codeunit 137038 "SCM Transfers"
             Type := RequestType;
             "Location Code" := LocCode;
             "Source Type" := DATABASE::"Transfer Line";
-            "Source Subtype" := Abs(RequestType - 1);
+            "Source Subtype" := Abs(RequestType.AsInteger() - 1);
             "Source No." := SourceNo;
             "Shipment Date" := WorkDate;
             "Expected Receipt Date" := WorkDate;
@@ -2606,7 +2606,7 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
-    local procedure FilterWhseRequest(var WarehouseRequest: Record "Warehouse Request"; RequestType: Option; LocCode: Code[10]; SourceSubtype: Option; SourceNo: Code[20])
+    local procedure FilterWhseRequest(var WarehouseRequest: Record "Warehouse Request"; RequestType: Enum "Warehouse Request Type"; LocCode: Code[10]; SourceSubtype: Option; SourceNo: Code[20])
     begin
         with WarehouseRequest do begin
             SetRange(Type, RequestType);
@@ -2735,7 +2735,7 @@ codeunit 137038 "SCM Transfers"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Validate("Location Code", LocationCode);
             SalesLine.Modify(true);
@@ -2748,7 +2748,7 @@ codeunit 137038 "SCM Transfers"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Validate("Location Code", LocationCode);
             PurchaseLine.Validate("Expected Receipt Date", CalcDate('<CM>', PurchaseHeader."Order Date"));
@@ -2760,7 +2760,7 @@ codeunit 137038 "SCM Transfers"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo[1], ItemNo[4]);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
@@ -2788,7 +2788,7 @@ codeunit 137038 "SCM Transfers"
         LibraryPurchase.CreateVendor(Vendor);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo[1], ItemNo[4]);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Vendor No.", Vendor."No.");
             RequisitionLine.Modify(true);
@@ -2899,7 +2899,7 @@ codeunit 137038 "SCM Transfers"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)");
                 TestField("Cost Amount (Actual)", ExpectedCost * Quantity);

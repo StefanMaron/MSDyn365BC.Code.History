@@ -10,12 +10,10 @@ table 485 "Business Chart Buffer"
             Caption = 'ID';
             DataClassification = SystemMetadata;
         }
-        field(2; "Chart Type"; Option)
+        field(2; "Chart Type"; Enum "Business Chart Type")
         {
             Caption = 'Chart Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,Area,,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel';
-            OptionMembers = Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,"Area",,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel;
         }
         field(3; "Data Type"; Option)
         {
@@ -156,6 +154,16 @@ table 485 "Business Chart Buffer"
           CopyStr(Caption, 1, MaxStrLen(TempBusChartMapToMeasure.Name)), Value);
     end;
 
+    procedure AddDecimalMeasure(Caption: Text; Value: Variant; ChartType: Enum "Business Chart Type")
+    begin
+        AddMeasure(Caption, Value, "Data Type"::Decimal, ChartType.AsInteger());
+    end;
+
+    procedure AddIntegerMeasure(Caption: Text; Value: Variant; ChartType: Enum "Business Chart Type")
+    begin
+        AddMeasure(Caption, Value, "Data Type"::Integer, ChartType.AsInteger());
+    end;
+
     procedure GetMaxNumberOfMeasures(): Integer
     var
         MaximumNumberOfColoursInChart: Integer;
@@ -264,7 +272,7 @@ table 485 "Business Chart Buffer"
     procedure FindFirstMeasure(var BusChartMap: Record "Business Chart Map") Result: Boolean
     begin
         TempBusChartMapToMeasure.Reset();
-        Result := TempBusChartMapToMeasure.FindSet;
+        Result := TempBusChartMapToMeasure.FindSet();
         BusChartMap := TempBusChartMapToMeasure;
     end;
 
@@ -277,7 +285,7 @@ table 485 "Business Chart Buffer"
     procedure FindFirstColumn(var BusChartMap: Record "Business Chart Map") Result: Boolean
     begin
         TempBusChartMapToColumn.Reset();
-        Result := TempBusChartMapToColumn.FindSet;
+        Result := TempBusChartMapToColumn.FindSet();
         BusChartMap := TempBusChartMapToColumn;
     end;
 

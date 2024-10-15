@@ -70,7 +70,7 @@ page 1626 "Office OCR Incoming Documents"
                             if OfficeMgt.SendToIncomingDocument(Rec, IncomingDocument, IncomingDocumentAttachment) then
                                 OfficeMgt.SendApprovalRequest(IncomingDocument);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 if InitiatedAction = InitiatedAction::InitiateSendToOCR then
                     OfficeMgt.DisplayOCRUploadSuccessMessage(Count);
             end;
@@ -94,7 +94,7 @@ page 1626 "Office OCR Incoming Documents"
                 TempExchangeObject.CalcFields(Content);
                 TransferFields(TempExchangeObject);
                 Insert;
-            until TempExchangeObject.Next = 0;
+            until TempExchangeObject.Next() = 0;
     end;
 }
 

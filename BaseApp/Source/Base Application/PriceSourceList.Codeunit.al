@@ -21,7 +21,7 @@ codeunit 7011 "Price Source List"
     begin
         LocalTempPriceSource.Copy(TempPriceSource, true);
         LocalTempPriceSource.Reset();
-        if LocalTempPriceSource.IsEmpty then begin
+        if LocalTempPriceSource.IsEmpty() then begin
             Level[2] := Level[1] - 1;
             exit;
         end;
@@ -101,6 +101,25 @@ codeunit 7011 "Price Source List"
         TempPriceSource.NewEntry(SourceType, CurrentLevel);
         ValidatePriceType(TempPriceSource."Price Type");
         TempPriceSource.Insert(true);
+    end;
+
+    procedure Add(PriceSource: Record "Price Source")
+    begin
+        PriceSource.Level := CurrentLevel;
+        TempPriceSource.TransferFields(PriceSource);
+        ValidatePriceType(TempPriceSource."Price Type");
+        TempPriceSource.Insert(true);
+    end;
+
+    procedure AddChildren(PriceSource: Record "Price Source")
+    var
+        TempChildPriceSource: Record "Price Source" temporary;
+    begin
+        OnBeforeAddChildren(PriceSource, TempChildPriceSource);
+        if TempChildPriceSource.FindSet() then
+            repeat
+                Add(TempChildPriceSource);
+            until TempChildPriceSource.Next() = 0;
     end;
 
     procedure GetValue(SourceType: Enum "Price Source Type") Result: Code[20];
@@ -239,6 +258,11 @@ codeunit 7011 "Price Source List"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetValue(SourceType: Enum "Price Source Type"; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeAddChildren(PriceSource: Record "Price Source"; var TempChildPriceSource: Record "Price Source" temporary)
     begin
     end;
 }

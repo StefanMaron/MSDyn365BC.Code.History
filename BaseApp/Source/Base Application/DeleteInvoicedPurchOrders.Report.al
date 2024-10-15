@@ -16,7 +16,7 @@ report 499 "Delete Invoiced Purch. Orders"
 
             trigger OnAfterGetRecord()
             var
-                ReservePurchLine: Codeunit "Purch. Line-Reserve";
+                PurchLineReserve: Codeunit "Purch. Line-Reserve";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostPurchDelete: Codeunit "PostPurch-Delete";
                 IsHandled: Boolean;
@@ -87,13 +87,13 @@ report 499 "Delete Invoiced Purch. Orders"
                         OnBeforePurchLineDelete(PurchLine);
                         PurchLine.Delete();
                         OnAfterPurchLineDelete(PurchLine);
-                    until PurchLine.Next = 0;
+                    until PurchLine.Next() = 0;
 
                 PostPurchDelete.DeleteHeader(
                 "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader,
                 ReturnShptHeader, PrepmtPurchInvHeader, PrepmtPurchCrMemoHeader);
 
-                ReservePurchLine.DeleteInvoiceSpecFromHeader("Purchase Header");
+                PurchLineReserve.DeleteInvoiceSpecFromHeader("Purchase Header");
 
                 PurchCommentLine.SetRange("Document Type", "Document Type");
                 PurchCommentLine.SetRange("No.", "No.");
@@ -102,7 +102,7 @@ report 499 "Delete Invoiced Purch. Orders"
                 WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
                 WhseRequest.SetRange("Source Subtype", "Document Type");
                 WhseRequest.SetRange("Source No.", "No.");
-                if not WhseRequest.IsEmpty then
+                if not WhseRequest.IsEmpty() then
                     WhseRequest.DeleteAll(true);
 
                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);

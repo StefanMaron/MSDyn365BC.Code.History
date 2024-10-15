@@ -32,6 +32,8 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies whether the price list line is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Source Type"; Rec."Source Type")
                 {
@@ -40,6 +42,8 @@ page 7005 "Price List Line Review"
                     Editable = false;
                     Visible = not HideSourceControls;
                     ToolTip = 'Specifies the type of the source the price applies to.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Source No."; Rec."Source No.")
                 {
@@ -48,6 +52,8 @@ page 7005 "Price List Line Review"
                     Editable = false;
                     Visible = not HideSourceControls;
                     ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
@@ -56,6 +62,8 @@ page 7005 "Price List Line Review"
                     Editable = false;
                     Visible = not HideProductControls;
                     ToolTip = 'Specifies the type of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Asset No."; Rec."Asset No.")
                 {
@@ -65,6 +73,8 @@ page 7005 "Price List Line Review"
                     Visible = not HideProductControls;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                     trigger OnValidate()
                     begin
                         SetEditable();
@@ -73,47 +83,68 @@ page 7005 "Price List Line Review"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    Editable = IsDraft;
+                    Editable = PriceEditable;
                     Visible = not HideProductControls;
                     ToolTip = 'Specifies the description of the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = All;
                     Visible = ItemAsset;
-                    Editable = ItemAsset and IsDraft;
+                    Editable = ItemAsset and PriceEditable;
                     ToolTip = 'Specifies the item variant.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = All;
                     Visible = ResourceAsset;
-                    Editable = ResourceAsset and IsDraft;
+                    Editable = ResourceAsset and PriceEditable;
                     ToolTip = 'Specifies the work type code for the resource.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
                     Enabled = UOMEditable;
-                    Editable = UOMEditable and IsDraft;
+                    Editable = UOMEditable and PriceEditable;
                     ToolTip = 'Specifies the unit of measure for the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = IsDraft;
+                    Editable = PriceEditable;
                     ToolTip = 'Specifies the minimum quantity of the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Amount Type"; Rec."Amount Type")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
                     Visible = AmountTypeIsVisible;
-                    Editable = AmountTypeIsEditable and IsDraft;
+                    Editable = AmountTypeIsEditable and PriceEditable;
                     ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                     trigger OnValidate()
                     begin
                         SetMandatoryAmount();
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Currency Code"; Rec."Currency Code")
@@ -125,43 +156,59 @@ page 7005 "Price List Line Review"
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and IsDraft;
+                    Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit price of the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Cost Factor"; Rec."Cost Factor")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and IsDraft;
+                    Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(DirectUnitCost; Rec."Direct Unit Cost")
                 {
                     Caption = 'Direct Unit Cost';
                     ApplicationArea = All;
-                    Editable = AmountEditable and IsDraft;
+                    Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the direct unit cost of the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and IsDraft and ResourceAsset;
+                    Editable = AmountEditable and PriceEditable and ResourceAsset;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice and ResourceAsset;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost of the resource.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
@@ -180,10 +227,14 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
-                    Editable = PriceMandatory and IsDraft;
+                    Editable = PriceMandatory and PriceEditable;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
@@ -191,10 +242,14 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Visible = DiscountVisible and IsSalesPrice;
                     Enabled = DiscountMandatory;
-                    Editable = DiscountMandatory and IsDraft;
+                    Editable = DiscountMandatory and PriceEditable;
                     Style = Subordinate;
                     StyleExpr = not DiscountMandatory;
                     ToolTip = 'Specifies the line discount percentage for the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(PurchLineDiscountPct; Rec."Line Discount %")
                 {
@@ -202,20 +257,28 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Visible = DiscountVisible and not IsSalesPrice;
                     Enabled = DiscountMandatory;
-                    Editable = DiscountMandatory and IsDraft;
+                    Editable = DiscountMandatory and PriceEditable;
                     Style = Subordinate;
                     StyleExpr = not DiscountMandatory;
                     ToolTip = 'Specifies the line discount percentage for the product.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = All;
                     Visible = PriceVisible and IsSalesPrice;
                     Enabled = PriceMandatory;
-                    Editable = PriceMandatory and IsDraft;
+                    Editable = PriceMandatory and PriceEditable;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
             }
         }
@@ -238,6 +301,25 @@ page 7005 "Price List Line Review"
                 trigger OnAction()
                 begin
                     EditPriceList();
+                end;
+            }
+            action(VerifyLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Ellipsis = true;
+                Image = CheckDuplicates;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Verify Lines';
+                ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
+
+                trigger OnAction()
+                var
+                    PriceListLine: Record "Price List Line";
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListLine.Copy(Rec);
+                    PriceListManagement.ActivateDraftLines(PriceListLine);
                 end;
             }
             group(New)
@@ -341,6 +423,7 @@ page 7005 "Price List Line Review"
         SetEditable();
         SetMandatoryAmount();
         LineExists := false;
+        LineToVerify := Rec.IsLineToVerify();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -348,6 +431,18 @@ page 7005 "Price List Line Review"
         SetEditable();
         SetMandatoryAmount();
         LineExists := Rec."Price List Code" <> '';
+        LineToVerify := Rec.IsLineToVerify();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean;
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        if HasDraftLines() then begin
+            PriceListManagement.SendVerifyLinesNotification();
+            exit(false);
+        end;
+        exit(true)
     end;
 
     var
@@ -360,12 +455,13 @@ page 7005 "Price List Line Review"
         PriceMandatory: Boolean;
         PriceVisible: Boolean;
         IsSalesPrice: Boolean;
-        IsDraft: Boolean;
+        PriceEditable: Boolean;
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
         HideProductControls: Boolean;
         HideSourceControls: Boolean;
         LineExists: Boolean;
+        LineToVerify: Boolean;
         DataCaptionSourceAssetTok: Label '%1 %2 - %3 %4 %5', Locked = true, Comment = '%1-%5 - Source Type, Source No., Product Type, Product No, Description';
         DataCaptionAssetTok: Label '%1 %2 %3', Locked = true, Comment = '%1 %2 %3 - Product Type, Product No, Description';
 
@@ -391,6 +487,20 @@ page 7005 "Price List Line Review"
             PriceListHeader."Price Type"::Purchase:
                 Page.RunModal(Page::"Purchase Price List", PriceListHeader);
         end;
+    end;
+
+    local procedure HasDraftLines(): Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.Copy(Rec);
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        if PriceListLine.FindSet() then
+            repeat
+                if PriceListLine.IsHeaderActive() then
+                    exit(true);
+            until PriceListLine.Next() = 0;
+        exit(false);
     end;
 
     local procedure ShowPriceLists()
@@ -437,6 +547,17 @@ page 7005 "Price List Line Review"
         UpdateColumnVisibility();
     end;
 
+    procedure Set(PriceSourceList: Codeunit "Price Source List"; NewAmountType: Enum "Price Amount Type")
+    var
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        PriceType := PriceSourceList.GetPriceType();
+        ViewAmountType := NewAmountType;
+        PriceUXManagement.SetPriceListLineFilters(Rec, PriceSourceList, ViewAmountType);
+        SetDataCaptionExpr(PriceSourceList);
+        UpdateColumnVisibility();
+    end;
+
     local procedure SetDataCaptionExpr(PriceAssetList: Codeunit "Price Asset List")
     var
         TempPriceAsset: Record "Price Asset" temporary;
@@ -474,6 +595,23 @@ page 7005 "Price List Line Review"
             end;
     end;
 
+    local procedure SetDataCaptionExpr(PriceSourceList: Codeunit "Price Source List")
+    var
+        TempPriceSource: Record "Price Source" temporary;
+        FirstEntryNo: Integer;
+    begin
+        if PriceSourceList.GetList(TempPriceSource) then begin
+            FirstEntryNo := TempPriceSource."Entry No.";
+            if TempPriceSource.FindLast() then begin
+                DataCaptionExpr :=
+                    StrSubstNo(DataCaptionAssetTok,
+                        TempPriceSource."Source Type", TempPriceSource."Source No.", TempPriceSource.Description);
+                HideSourceControls := FirstEntryNo = TempPriceSource."Entry No.";
+                HideProductControls := false;
+            end;
+        end;
+    end;
+
     local procedure SetEditable()
     begin
         AmountTypeIsEditable := Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group";
@@ -481,7 +619,7 @@ page 7005 "Price List Line Review"
         UOMEditable := Rec.IsUOMSupported();
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();
-        IsDraft := Rec.Status = Rec.Status::Draft;
+        PriceEditable := Rec.IsEditable();
     end;
 
     local procedure SetMandatoryAmount()

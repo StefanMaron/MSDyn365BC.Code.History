@@ -590,7 +590,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
 
         // Verify Table Layout
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        DataExchField.FindSet;
+        DataExchField.FindSet();
         i := 0;
         repeat
             i += 1;

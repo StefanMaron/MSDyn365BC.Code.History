@@ -406,7 +406,7 @@ codeunit 134153 "Test Intrastat"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
@@ -466,7 +466,7 @@ codeunit 134153 "Test Intrastat"
     begin
         TariffNumber.FindFirst;
         Item.SetRange("Tariff No.", '');
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
     end;
 

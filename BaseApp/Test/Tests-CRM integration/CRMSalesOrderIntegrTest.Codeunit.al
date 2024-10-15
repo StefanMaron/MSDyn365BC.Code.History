@@ -18,9 +18,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         CurrencyNotExistsErr: Label 'The Currency does not exist.';
@@ -1614,7 +1614,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         GLSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         Item: Record Item;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = TRUE
         Initialize();
@@ -1634,8 +1633,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item.Validate("Unit Price", LibraryRandom.RandInt(100));
         Item.Modify(true);
 
-        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify();
         GLSetup.GET();
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
 
@@ -1671,7 +1668,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine: Record "Sales Line";
         GLSetup: Record "General Ledger Setup";
         Item: Record Item;
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = FALSE
         Initialize();
@@ -1685,8 +1681,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item.Validate("Unit Price", LibraryRandom.RandInt(100));
         Item.Modify(true);
 
-        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify();
         GLSetup.GET();
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
 
@@ -1986,7 +1980,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Next;
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
@@ -1999,7 +1993,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         repeat
             SalesLine.Next;
@@ -2024,7 +2018,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         RecordLink.SetAutoCalcFields(Note);
         RecordLink.SetRange("Record ID", SalesHeader.RecordId);
-        RecordLink.FindSet;
+        RecordLink.FindSet();
         repeat
             ActualText := RecordLinkManagement.ReadNote(RecordLink);
             if ActualText = AnnotationText then
@@ -2043,7 +2037,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesorderID);
         CRMAnnotation.SetRange(ObjectId, CRMSalesorderID);
-        CRMAnnotation.FindSet;
+        CRMAnnotation.FindSet();
         repeat
             CRMAnnotation.CalcFields(NoteText);
             CRMAnnotation.NoteText.CreateInStream(InStream, TEXTENCODING::UTF16);

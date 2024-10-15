@@ -1,5 +1,8 @@
 codeunit 5450 "Graph Subscription Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The functionality is not supported any more.';
+    ObsoleteTag = '18.0';
     Permissions = TableData "Webhook Subscription" = rimd;
 
     trigger OnRun()
@@ -60,9 +63,10 @@ codeunit 5450 "Graph Subscription Management"
                     WebhookSubscription2.Get(WebhookSubscription."Subscription ID", WebhookSubscription.Endpoint);
                     WebhookSubscription2.Delete();
                 end;
-            until WebhookSubscription.Next = 0;
+            until WebhookSubscription.Next() = 0;
     end;
 
+    [Obsolete('This function will be removed, Graph Integration Record is not supported any more.', '18.0')]
     procedure GetDestinationRecordRef(var NAVRecordRef: RecordRef; WebhookNotification: Record "Webhook Notification"; TableID: Integer) Retrieved: Boolean
     var
         GraphIntegrationRecord: Record "Graph Integration Record";
@@ -98,6 +102,7 @@ codeunit 5450 "Graph Subscription Management"
         exit('AL SyncEngine');
     end;
 
+    [Obsolete('This function will be removed, Graph Integration Record is not supported any more.', '18.0')]
     procedure UpdateGraphOnAfterDelete(var EntityRecordRef: RecordRef)
     var
         IntegrationRecordArchive: Record "Integration Record Archive";
@@ -226,7 +231,7 @@ codeunit 5450 "Graph Subscription Management"
         OnScheduleSyncTask(CodeunitID, FailureCodeunitID, NextTask, RecordID);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnScheduleSyncTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnScheduleSyncTask', '', false, false)]
     local procedure InvokeTaskSchedulerOnScheduleSyncTask(CodeunitID: Integer; FailureCodeunitID: Integer; NotBefore: DateTime; RecordID: Variant)
     begin
         if CanScheduleSyncTasks then begin

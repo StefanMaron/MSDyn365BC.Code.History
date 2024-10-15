@@ -130,7 +130,7 @@ table 99000758 "Machine Center"
                         Window.Update(2, Round(i / NoOfRecords * 10000, 1));
                         CalendarEntry.Validate("Work Center No.", "Work Center No.");
                         CalendarEntry.Modify();
-                    until CalendarEntry.Next = 0;
+                    until CalendarEntry.Next() = 0;
 
                 i := 0;
                 CalAbsentEntry.SetCurrentKey("Capacity Type", "No.");
@@ -144,7 +144,7 @@ table 99000758 "Machine Center"
                         Window.Update(4, Round(i / NoOfRecords * 10000, 1));
                         CalAbsentEntry.Validate("Work Center No.", "Work Center No.");
                         CalAbsentEntry.Modify();
-                    until CalAbsentEntry.Next = 0;
+                    until CalAbsentEntry.Next() = 0;
 
                 i := 0;
                 ProdOrderCapNeed.SetCurrentKey(Type, "No.");
@@ -158,7 +158,7 @@ table 99000758 "Machine Center"
                         Window.Update(8, Round(i / NoOfRecords * 10000, 1));
                         ProdOrderCapNeed.Validate("Work Center No.", "Work Center No.");
                         ProdOrderCapNeed.Modify();
-                    until ProdOrderCapNeed.Next = 0;
+                    until ProdOrderCapNeed.Next() = 0;
 
                 OnValidateWorkCenterNoBeforeModify(Rec, xRec, CurrFieldNo);
                 Modify;
@@ -170,7 +170,7 @@ table 99000758 "Machine Center"
                     repeat
                         RtngLine.Validate("Work Center No.", "Work Center No.");
                         RtngLine.Modify();
-                    until RtngLine.Next = 0;
+                    until RtngLine.Next() = 0;
 
                 PlanningRtngLine.SetCurrentKey(Type, "No.");
                 PlanningRtngLine.SetRange(Type, PlanningRtngLine.Type::"Machine Center");
@@ -179,7 +179,7 @@ table 99000758 "Machine Center"
                     repeat
                         PlanningRtngLine.Validate("Work Center No.", "Work Center No.");
                         PlanningRtngLine.Modify();
-                    until PlanningRtngLine.Next = 0;
+                    until PlanningRtngLine.Next() = 0;
 
                 ProdOrderRtngLine.SetCurrentKey(Type, "No.");
                 ProdOrderRtngLine.SetRange(Type, PlanningRtngLine.Type::"Machine Center");
@@ -188,7 +188,7 @@ table 99000758 "Machine Center"
                     repeat
                         ProdOrderRtngLine.Validate("Work Center No.", "Work Center No.");
                         ProdOrderRtngLine.Modify();
-                    until ProdOrderRtngLine.Next = 0;
+                    until ProdOrderRtngLine.Next() = 0;
 
                 Window.Close;
             end;
@@ -584,7 +584,7 @@ table 99000758 "Machine Center"
     begin
         CapLedgEntry.SetRange(Type, CapLedgEntry.Type::"Machine Center");
         CapLedgEntry.SetRange("No.", "No.");
-        if not CapLedgEntry.IsEmpty then
+        if not CapLedgEntry.IsEmpty() then
             Error(Text007, TableCaption, "No.", CapLedgEntry.TableCaption);
 
         CheckRoutingWithMachineCenterExists();
@@ -592,7 +592,7 @@ table 99000758 "Machine Center"
         StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Machine Center");
         StdCostWksh.SetRange("No.", "No.");
-        if not StdCostWksh.IsEmpty then
+        if not StdCostWksh.IsEmpty() then
             Error(Text007, TableCaption, "No.", StdCostWksh.TableCaption);
 
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
@@ -609,7 +609,7 @@ table 99000758 "Machine Center"
 
         ProdOrderRtngLine.SetRange(Type, ProdOrderRtngLine.Type::"Machine Center");
         ProdOrderRtngLine.SetRange("No.", "No.");
-        if not ProdOrderRtngLine.IsEmpty then
+        if not ProdOrderRtngLine.IsEmpty() then
             Error(Text000);
     end;
 

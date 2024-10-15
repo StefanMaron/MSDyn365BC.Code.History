@@ -94,7 +94,7 @@ table 11207 "SIE Dimension"
             if Find('-') then
                 repeat
                     AddDimCodeToText("Dimension Code", SelectedDimText);
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(SelectedDimText);
     end;

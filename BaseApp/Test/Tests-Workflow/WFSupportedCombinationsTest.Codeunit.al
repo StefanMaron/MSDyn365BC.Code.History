@@ -544,7 +544,7 @@ codeunit 134207 "WF Supported Combinations Test"
         Initialize;
         WorkflowEventHandling.CreateEventsLibrary;
         WorkflowResponseHandling.CreateResponsesLibrary;
-        WorkflowEvent.FindSet;
+        WorkflowEvent.FindSet();
         repeat
             if WorkflowEvent."Function Name" <> WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode then begin
                 asserterror WFEventResponseCombination.Get(

@@ -257,7 +257,7 @@ codeunit 21 "Item Jnl.-Check Line"
                             repeat
                                 if ReservationEntry."Appl.-to Item Entry" = 0 then
                                     ShowError := true;
-                            until (ReservationEntry.Next = 0) or ShowError
+                            until (ReservationEntry.Next() = 0) or ShowError
                         else
                             ShowError := ItemJnlLine.LastOutputOperation(ItemJnlLine);
                     end;

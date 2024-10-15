@@ -6,7 +6,7 @@ codeunit 9901 "Data Upgrade In Progress"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9900, 'OnIsUpgradeInProgress', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Upgrade Mgt.", 'OnIsUpgradeInProgress', '', false, false)]
     local procedure OnIsUpgradeInProgressHandler(var UpgradeIsInProgress: Boolean)
     begin
         UpgradeIsInProgress := true;

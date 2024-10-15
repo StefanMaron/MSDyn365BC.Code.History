@@ -133,7 +133,7 @@ page 7392 "Posted Invt. Pick"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     var

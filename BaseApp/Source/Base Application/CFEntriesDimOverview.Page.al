@@ -114,7 +114,7 @@ page 860 "CF Entries Dim. Overview"
             repeat
                 TempCFForecastEntry := NewCFForecastEntry;
                 TempCFForecastEntry.Insert();
-            until NewCFForecastEntry.Next = 0;
+            until NewCFForecastEntry.Next() = 0;
     end;
 
     local procedure MATRIX_GenerateColumnCaptions(Step: Option First,Previous,Same,Next)

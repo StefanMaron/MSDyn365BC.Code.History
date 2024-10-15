@@ -454,7 +454,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Planned);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Type, Type);
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
     end;
 
     local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; Type: Enum "Capacity Type"; No: Code[20])
@@ -471,7 +471,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         ProdOrderCapacityNeed.SetRange(Status, ProductionOrder.Status);
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderCapacityNeed.FindSet;
+        ProdOrderCapacityNeed.FindSet();
         repeat
             ExpectedlAllocatedTime += ProdOrderCapacityNeed."Allocated Time"
         until ProdOrderCapacityNeed.Next = 0;
@@ -484,7 +484,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Planned);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             ActualAllocatedTime += ProdOrderRoutingLine."Setup Time" + ProductionOrder.Quantity * ProdOrderRoutingLine."Run Time";
         until ProdOrderRoutingLine.Next = 0;

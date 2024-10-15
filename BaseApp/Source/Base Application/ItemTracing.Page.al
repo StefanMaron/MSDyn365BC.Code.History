@@ -34,8 +34,8 @@ page 6520 "Item Tracing"
 
                         Clear(SerialNoList);
                         SerialNoList.SetTableView(SerialNoInfo);
-                        if SerialNoList.RunModal = ACTION::LookupOK then
-                            SerialNoFilter := SerialNoList.GetSelectionFilter;
+                        if SerialNoList.RunModal() = ACTION::LookupOK then
+                            SerialNoFilter := SerialNoList.GetSelectionFilter();
                     end;
                 }
                 field(LotNoFilter; LotNoFilter)
@@ -53,8 +53,28 @@ page 6520 "Item Tracing"
 
                         Clear(LotNoList);
                         LotNoList.SetTableView(LotNoInfo);
-                        if LotNoList.RunModal = ACTION::LookupOK then
-                            LotNoFilter := LotNoList.GetSelectionFilter;
+                        if LotNoList.RunModal() = ACTION::LookupOK then
+                            LotNoFilter := LotNoList.GetSelectionFilter();
+                    end;
+                }
+                field(PackageNoFilter; PackageNoFilter)
+                {
+                    Caption = 'Package No. Filter';
+                    CaptionClass = '6,3';
+                    ToolTip = 'Specifies the package number or a filter on the package numbers that you would like to trace.';
+                    Visible = PackageTrackingVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        PackageNoInfo: Record "Package No. Information";
+                        PackageNoInfoList: Page "Package No. Information List";
+                    begin
+                        PackageNoInfo.Reset();
+
+                        Clear(PackageNoInfoList);
+                        PackageNoInfoList.SetTableView(PackageNoInfo);
+                        if PackageNoInfoList.RunModal() = ACTION::LookupOK then
+                            PackageNoFilter := PackageNoInfoList.GetSelectionFilter();
                     end;
                 }
                 field(ItemNoFilter; ItemNoFilter)
@@ -73,8 +93,8 @@ page 6520 "Item Tracing"
                         Clear(ItemList);
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode(true);
-                        if ItemList.RunModal = ACTION::LookupOK then
-                            ItemNoFilter := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then
+                            ItemNoFilter := ItemList.GetSelectionFilter();
                     end;
 
                     trigger OnValidate()
@@ -103,7 +123,7 @@ page 6520 "Item Tracing"
                         ItemVariant.SetFilter("Item No.", ItemNoFilter);
                         ItemVariants.SetTableView(ItemVariant);
                         ItemVariants.LookupMode(true);
-                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                        if ItemVariants.RunModal() = ACTION::LookupOK then begin
                             ItemVariants.GetRecord(ItemVariant);
                             VariantFilter := ItemVariant.Code;
                         end;
@@ -162,71 +182,79 @@ page 6520 "Item Tracing"
                     Style = Strong;
                     ToolTip = 'Specifies the serial number to be traced.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     Style = Strong;
                     ToolTip = 'Specifies the traced lot number.';
                 }
-                field("Item No."; "Item No.")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Editable = false;
+                    Style = Strong;
+                    ToolTip = 'Specifies the traced package number.';
+                    Visible = PackageTrackingVisible;
+                }
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     Style = Strong;
                     ToolTip = 'Specifies the number of the traced item.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of the traced document.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the date when the traced item was posted.';
                     Visible = false;
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the type of record, such as Sales Header, that the item is traced from.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Source Name"; "Source Name")
+                field("Source Name"; Rec."Source Name")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the name of the record that the item is traced from.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the location of the traced item.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the quantity of the traced item in the line.';
@@ -240,12 +268,12 @@ page 6520 "Item Tracing"
                         PAGE.RunModal(0, ItemLedgerEntry);
                     end;
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                 }
-                field("Created by"; "Created by")
+                field("Created by"; Rec."Created by")
                 {
                     ApplicationArea = ItemTracking;
                     Lookup = true;
@@ -259,24 +287,24 @@ page 6520 "Item Tracing"
                         UserMgt.DisplayUserInformation("Created by");
                     end;
                 }
-                field("Created on"; "Created on")
+                field("Created on"; Rec."Created on")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the date when the traced record was created.';
                     Visible = false;
                 }
-                field("Already Traced"; "Already Traced")
+                field("Already Traced"; Rec."Already Traced")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies if additional transaction history under this line has already been traced by other lines above it.';
                 }
-                field("Item Ledger Entry No."; "Item Ledger Entry No.")
+                field("Item Ledger Entry No."; Rec."Item Ledger Entry No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number of the traced item ledger entry.';
                     Visible = false;
                 }
-                field("Parent Item Ledger Entry No."; "Parent Item Ledger Entry No.")
+                field("Parent Item Ledger Entry No."; Rec."Parent Item Ledger Entry No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the parent of the traced item ledger entry.';
@@ -306,7 +334,7 @@ page 6520 "Item Tracing"
 
                     trigger OnAction()
                     begin
-                        ItemTracingMgt.ShowDocument("Record Identifier");
+                        ItemTracingMgt.ShowDocument(Rec."Record Identifier");
                     end;
                 }
             }
@@ -363,7 +391,7 @@ page 6520 "Item Tracing"
                             TraceMethod := TraceMethod::"Usage->Origin"
                         else
                             TraceMethod := TraceMethod::"Origin->Usage";
-                        OppositeTraceFromLine;
+                        OppositeTraceFromLine();
                     end;
                 }
                 action(SetFiltersWithLineValues)
@@ -389,7 +417,7 @@ page 6520 "Item Tracing"
 
                     trigger OnAction()
                     begin
-                        SetFocus("Item Ledger Entry No.");
+                        SetFocus(Rec."Item Ledger Entry No.");
                     end;
                 }
                 action(NextTraceResult)
@@ -436,8 +464,8 @@ page 6520 "Item Tracing"
                     Clear(PrintTracking);
                     xItemTracingBuffer.Copy(Rec);
                     PrintTracking.TransferEntries(Rec);
-                    Copy(xItemTracingBuffer);
-                    PrintTracking.Run;
+                    Rec.Copy(xItemTracingBuffer);
+                    PrintTracking.Run();
                 end;
             }
             action(Navigate)
@@ -453,10 +481,12 @@ page 6520 "Item Tracing"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking("Serial No.", "Lot No.");
-                    Navigate.Run;
+                    ItemTrackingSetup.CopyTrackingFromItemTracingBuffer(Rec);
+                    Navigate.SetTracking(ItemTrackingSetup);
+                    Navigate.Run();
                 end;
             }
             action(Trace)
@@ -471,7 +501,7 @@ page 6520 "Item Tracing"
 
                 trigger OnAction()
                 begin
-                    FindRecords;
+                    FindRecords();
                 end;
             }
         }
@@ -481,7 +511,7 @@ page 6520 "Item Tracing"
     begin
         DescriptionIndent := 0;
         ItemTracingMgt.SetExpansionStatus(Rec, TempTrackEntry, Rec, ActualExpansionStatus);
-        DescriptionOnFormat;
+        DescriptionOnFormat();
     end;
 
     trigger OnInit()
@@ -493,9 +523,11 @@ page 6520 "Item Tracing"
 
     trigger OnOpenPage()
     begin
-        InitButtons;
+        InitButtons();
         TraceMethod := TraceMethod::"Usage->Origin";
         ShowComponents := ShowComponents::"Item-tracked Only";
+
+        SetPackageTrackingVisibility();
     end;
 
     var
@@ -504,13 +536,9 @@ page 6520 "Item Tracing"
         TraceMethod: Option "Origin->Usage","Usage->Origin";
         ShowComponents: Option No,"Item-tracked Only",All;
         ActualExpansionStatus: Option "Has Children",Expanded,"No Children";
-        SerialNoFilter: Text;
-        LotNoFilter: Text;
-        ItemNoFilter: Text;
-        VariantFilter: Text;
         Text001: Label 'Item No. Filter is required.';
         TraceText: Text;
-        Text002: Label 'Serial No.: %1, Lot No.: %2, Item: %3, Variant: %4, Trace Method: %5, Show Components: %6';
+        TraceTextTxt: Label 'Serial No.: %1, Lot No.: %2, Package No. %3, Item: %4, Variant: %5, Trace Method: %6, Show Components: %7', Comment = '%1 - Serial No.';
         PreviousExists: Boolean;
         NextExists: Boolean;
         Text003: Label 'Filters are too large to show.';
@@ -524,17 +552,26 @@ page 6520 "Item Tracing"
         PrintEnable: Boolean;
         [InDataSet]
         NavigateEnable: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
+
+    protected var
+        SerialNoFilter: Text;
+        LotNoFilter: Text;
+        PackageNoFilter: Text;
+        ItemNoFilter: Text;
+        VariantFilter: Text;
 
     procedure FindRecords()
     begin
         ItemTracingMgt.FindRecords(TempTrackEntry, Rec,
           SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter,
           TraceMethod, ShowComponents);
-        InitButtons;
+        InitButtons();
 
         ItemTracingMgt.GetHistoryStatus(PreviousExists, NextExists);
 
-        UpdateTraceText;
+        UpdateTraceText();
 
         ItemTracingMgt.ExpandAll(TempTrackEntry, Rec);
         CurrPage.Update(false)
@@ -543,12 +580,12 @@ page 6520 "Item Tracing"
     local procedure OppositeTraceFromLine()
     begin
         ItemTracingMgt.InitSearchParm(Rec, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindRecords;
+        FindRecords();
     end;
 
     procedure InitButtons()
     begin
-        if not TempTrackEntry.FindFirst then begin
+        if not TempTrackEntry.FindFirst() then begin
             FunctionsEnable := false;
             PrintEnable := false;
             NavigateEnable := false;
@@ -565,6 +602,7 @@ page 6520 "Item Tracing"
     begin
         SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
         LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
+        PackageNoFilter := ItemTrackingEntry.GetFilter("Package No.");
         ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
         VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
         TraceMethod := TraceMethod::"Usage->Origin";
@@ -597,8 +635,8 @@ page 6520 "Item Tracing"
     begin
         ItemTracingMgt.RecallHistory(Steps, TempTrackEntry, Rec, SerialNoFilter,
           LotNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
-        UpdateTraceText;
-        InitButtons;
+        UpdateTraceText();
+        InitButtons();
         ItemTracingMgt.GetHistoryStatus(PreviousExists, NextExists);
 
         ItemTracingMgt.ExpandAll(TempTrackEntry, Rec);
@@ -610,15 +648,15 @@ page 6520 "Item Tracing"
         LengthOfText: Integer;
         Overflow: Boolean;
     begin
-        LengthOfText := (StrLen(Text002 + SerialNoFilter + LotNoFilter + ItemNoFilter + VariantFilter) +
-                         StrLen(Format(TraceMethod)) + StrLen(Format(ShowComponents)) - 6); // 6 = number of positions in Text002
+        LengthOfText := (StrLen(TraceTextTxt + SerialNoFilter + LotNoFilter + PackageNoFilter + ItemNoFilter + VariantFilter) +
+                         StrLen(Format(TraceMethod)) + StrLen(Format(ShowComponents)) - 6); // 6 = number of positions in TraceTextTxt
 
         Overflow := LengthOfText > 512;
 
         if Overflow then
             TraceText := Text003
         else
-            TraceText := StrSubstNo(Text002, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter,
+            TraceText := StrSubstNo(TraceTextTxt, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter,
                 SelectStr(TraceMethod + 1, Text004), SelectStr(ShowComponents + 1, Text005));
 
         OnAfterUpdateTraceText(TraceText, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
@@ -626,17 +664,24 @@ page 6520 "Item Tracing"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Level;
+        DescriptionIndent := Rec.Level;
     end;
 
     local procedure SetFocus(ItemLedgerEntryNo: Integer)
     begin
-        if "Already Traced" then begin
+        if Rec."Already Traced" then begin
             TempTrackEntry.SetCurrentKey("Item Ledger Entry No.");
             TempTrackEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-            TempTrackEntry.FindFirst;
+            TempTrackEntry.FindFirst();
             CurrPage.SetRecord(TempTrackEntry);
         end;
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

@@ -13,7 +13,7 @@ codeunit 5471 "Graph Mgt - Customer"
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(OnlyCustomersWithoutId: Boolean)
     var
         DummyCustomer: Record Customer;
@@ -40,14 +40,14 @@ codeunit 5471 "Graph Mgt - Customer"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);
         UpdateIds;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnUpdateRelatedRecordIdFields', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnUpdateRelatedRecordIdFields', '', false, false)]
     local procedure HandleUpdateRelatedRecordIdFields(var RecRef: RecordRef)
     var
         Customer: Record Customer;
@@ -79,7 +79,7 @@ codeunit 5471 "Graph Mgt - Customer"
         repeat
             Customer.UpdateReferencedIds;
             Customer.Modify(false);
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
     end;
 }
 

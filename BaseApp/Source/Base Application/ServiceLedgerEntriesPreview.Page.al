@@ -1,4 +1,4 @@
-﻿page 168 "Service Ledger Entries Preview"
+page 168 "Service Ledger Entries Preview"
 {
     Caption = 'Service Ledger Entries Preview';
     DataCaptionFields = "Service Contract No.", "Service Item No. (Serviced)", "Service Order No.";

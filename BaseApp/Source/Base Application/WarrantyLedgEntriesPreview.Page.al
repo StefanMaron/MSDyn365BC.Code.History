@@ -1,4 +1,4 @@
-﻿page 163 "Warranty Ledg. Entries Preview"
+page 163 "Warranty Ledg. Entries Preview"
 {
     Caption = 'Warranty Ledger Entries Preview';
     DataCaptionFields = "Service Order No.", "Service Item No. (Serviced)", "Service Contract No.";

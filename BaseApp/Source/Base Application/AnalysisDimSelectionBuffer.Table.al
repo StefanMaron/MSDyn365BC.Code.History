@@ -108,7 +108,7 @@ table 7158 "Analysis Dim. Selection Buffer"
         if AnalysisSelectedDim.Find('-') then
             repeat
                 AddDimCodeToText(AnalysisSelectedDim."Dimension Code", SelectedDimTextFromDb);
-            until AnalysisSelectedDim.Next = 0;
+            until AnalysisSelectedDim.Next() = 0;
         if SelectedDimTextFromDb <> SelectedDimText then
             Error(
               Text000 +
@@ -143,7 +143,7 @@ table 7158 "Analysis Dim. Selection Buffer"
                 AnalysisSelectedDim."User ID" := UserId;
                 AnalysisSelectedDim."Object Type" := ObjectType;
                 AnalysisSelectedDim."Object ID" := ObjectID;
-                AnalysisSelectedDim."Analysis Area" := AnalysisArea;
+                AnalysisSelectedDim."Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                 AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
                 AnalysisSelectedDim."Dimension Code" := AnalysisDimSelBuf.Code;
                 AnalysisSelectedDim."New Dimension Value Code" := AnalysisDimSelBuf."New Dimension Value Code";
@@ -151,7 +151,7 @@ table 7158 "Analysis Dim. Selection Buffer"
                 AnalysisSelectedDim.Level := AnalysisDimSelBuf.Level;
                 AnalysisSelectedDim.Insert();
                 AddDimCodeToText(AnalysisSelectedDim."Dimension Code", SelectedDimText);
-            until AnalysisDimSelBuf.Next = 0;
+            until AnalysisDimSelBuf.Next() = 0;
     end;
 
     procedure SetDimSelectionLevel(ObjectType: Integer; ObjectID: Integer; AnalysisArea: Integer; AnalysisViewCode: Code[10]; var SelectedDimText: Text[250])

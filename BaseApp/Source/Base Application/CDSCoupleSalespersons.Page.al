@@ -1,5 +1,6 @@
 page 7209 "CDS Couple Salespersons"
 {
+    AccessByPermission = TableData "CRM Integration Record" = R;
     Caption = 'Couple Dataverse Users with Salespersons', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -21,7 +22,7 @@ page 7209 "CDS Couple Salespersons"
                     ApplicationArea = Suite;
                     Caption = 'User Name Dataverse', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     Editable = false;
-                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies data from a corresponding column in a Dataverse table.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field(InternalEMailAddress; InternalEMailAddress)
                 {
@@ -90,6 +91,7 @@ page 7209 "CDS Couple Salespersons"
 
                 action(CreateFromCDS)
                 {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
                     ApplicationArea = Suite;
                     Caption = 'Create Salesperson';
                     Image = NewCustomer;
@@ -110,7 +112,37 @@ page 7209 "CDS Couple Salespersons"
 
                         CRMIntegrationManagement.CreateNewSystemUsersFromCRM(CRMSystemuser);
                         AddUsersToDefaultOwningTeam(CRMSystemuser, true, false);
-                        HasCreatedFromCds := true;
+                    end;
+                }
+
+                action(DeleteCDSCoupling)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = D;
+                    ApplicationArea = Suite;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Caption = 'Delete Coupling';
+                    Image = UnLinkAccount;
+                    ToolTip = 'Delete the coupling between the user in Dataverse and salesperson in Business Central.';
+
+                    trigger OnAction()
+                    var
+                        CRMSystemuser: Record "CRM Systemuser";
+                        CRMIntegrationRecord: Record "CRM Integration Record";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        SalesPersonRecordID: RecordId;
+                    begin
+                        CurrPage.SetSelectionFilter(CRMSystemuser);
+                        if not CRMSystemuser.FindSet() then
+                            exit;
+                        repeat
+                            if CRMIntegrationRecord.FindRecordIDFromID(CRMSystemuser.SystemUserId, DATABASE::"Salesperson/Purchaser", SalesPersonRecordID) then
+                                CRMIntegrationManagement.RemoveCoupling(SalesPersonRecordID, false);
+                        until CRMSystemuser.Next() = 0;
+
+                        Commit();
                     end;
                 }
             }
@@ -192,7 +224,6 @@ page 7209 "CDS Couple Salespersons"
         TeamMember: Option No,Yes;
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
-        HasCreatedFromCds: Boolean;
         ClosePageUncoupledUserTxt: Label '%1 out of %2 users are coupled. To prevent issues in initial synchronization Business Central will create salespeople for uncoupled users, couple them and add them to default team. Would you like to continue?', Comment = '%1=No. of users that were coupled, %2=Total no. of users.';
 
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")

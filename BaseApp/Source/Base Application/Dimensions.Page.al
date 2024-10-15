@@ -104,7 +104,19 @@ page 536 Dimensions
                     RunObject = Page "Account Type Default Dim.";
                     RunPageLink = "Dimension Code" = FIELD(Code),
                                   "No." = CONST('');
-                    ToolTip = 'Specify default dimension settings for the relevant account types such as customers, vendors, or items. For example, you can make a dimension required.';
+                    ToolTip = 'Specify default dimension settings for account types such as customers, vendors, or items. For example, you can make a dimension required.';
+                }
+                action("Allowed Dimension Values per Account")
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Allowed Dimension Values per Account';
+                    Image = DefaultDimension;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedOnly = true;
+                    RunObject = Page "Dim. Values per Account";
+                    RunPageLink = "Dimension Code" = FIELD(Code);
+                    ToolTip = 'Specify allowed dimension values settings for accounts such as customers, vendors, or items.';
                 }
                 action(Translations)
                 {
@@ -150,7 +162,7 @@ page 536 Dimensions
                         if Dimension.Find('-') and Confirm(Text000) then
                             repeat
                                 ICMapping.MapOutgoingICDimensions(Dimension);
-                            until Dimension.Next = 0;
+                            until Dimension.Next() = 0;
                     end;
                 }
             }

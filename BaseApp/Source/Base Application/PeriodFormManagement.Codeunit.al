@@ -25,7 +25,7 @@ codeunit 359 PeriodFormManagement
             SearchString := '=<>';
         if PeriodType = PeriodType::"Accounting Period" then begin
             AccountingPeriod.SetRange("Starting Date");
-            if AccountingPeriod.IsEmpty then begin
+            if AccountingPeriod.IsEmpty() then begin
                 AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, GetCalendarPeriodMinDate(Calendar));
                 Found := true;
             end else begin
@@ -47,7 +47,7 @@ codeunit 359 PeriodFormManagement
         Calendar.SetRange("Period Type", PeriodType);
         Calendar."Period Type" := PeriodType;
         if PeriodType = PeriodType::"Accounting Period" then begin
-            if AccountingPeriod.IsEmpty then
+            if AccountingPeriod.IsEmpty() then
                 AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, CalcDate('<+1M>', GetCalendarPeriodMinDate(Calendar)))
             else begin
                 SetAccountingPeriodFilter(Calendar);
@@ -138,10 +138,10 @@ codeunit 359 PeriodFormManagement
         Calendar.Init();
         Calendar."Period Start" := AccountingPeriod."Starting Date";
         Calendar."Period Name" := AccountingPeriod.Name;
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             Calendar."Period End" := AccountingPeriodMgt.GetDefaultPeriodEndingDate(Calendar."Period Start")
         else
-            if AccountingPeriod.Next = 0 then
+            if AccountingPeriod.Next() = 0 then
                 Calendar."Period End" := EndOfPeriod()
             else
                 Calendar."Period End" := AccountingPeriod."Starting Date" - 1;

@@ -295,6 +295,7 @@ table 8627 "Config. Setup"
         PostCode: Record "Post Code";
         HideDialog: Boolean;
         PackageDataNotDefinedErr: Label '%1 should be defined in the imported package.', Comment = '%1 = "Package Code"';
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
 
     [Scope('OnPrem')]
     procedure CompleteWizard(): Boolean
@@ -450,7 +451,7 @@ table 8627 "Config. Setup"
         if ConfigQuestionnaire.FindSet then
             repeat
                 ConfigQuestionnaireMgt.ApplyAnswers(ConfigQuestionnaire);
-            until ConfigQuestionnaire.Next = 0;
+            until ConfigQuestionnaire.Next() = 0;
     end;
 
     procedure CopyCompInfo()
@@ -485,7 +486,6 @@ table 8627 "Config. Setup"
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
         FileMgt: Codeunit "File Management";
-        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         if UploadToServer then
             DecompressedFileName := ConfigXMLExchange.DecompressPackage(FileMgt.UploadFile(ChooseFileTitleMsg, ''))

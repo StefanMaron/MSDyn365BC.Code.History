@@ -286,14 +286,14 @@ report 5199 "Update Contact Classification"
                                                 then
                                                     DaysOverdue := DaysOverdue + (CustLedgEntry2."Closed at Date" - CustLedgEntry."Due Date");
                                             end;
-                                    until CustLedgEntry.Next = 0;
+                                    until CustLedgEntry.Next() = 0;
                                     InsertContactValue(ProfileQuestionnaireLine, CustContactNo, DaysOverdue / NoOfInvoices, 0D, 0);
                                 end else
                                     InsertContactValue(ProfileQuestionnaireLine, CustContactNo, 0, 0D, 0);
                             end;
                     end;
                 end;
-            until Cust.Next = 0
+            until Cust.Next() = 0
     end;
 
     local procedure FindVendorValues(ProfileQuestionnaireLine: Record "Profile Questionnaire Line")
@@ -406,14 +406,14 @@ report 5199 "Update Contact Classification"
                                                 then
                                                     DaysOverdue := DaysOverdue + (VendLedgEntry2."Closed at Date" - VendLedgEntry."Due Date");
                                             end;
-                                    until VendLedgEntry.Next = 0;
+                                    until VendLedgEntry.Next() = 0;
                                     InsertContactValue(ProfileQuestionnaireLine, VendContactNo, DaysOverdue / NoOfInvoices, 0D, 0);
                                 end else
                                     InsertContactValue(ProfileQuestionnaireLine, VendContactNo, 0, 0D, 0);
                             end;
                     end;
                 end;
-            until Vend.Next = 0
+            until Vend.Next() = 0
     end;
 
     local procedure FindContactValues(ProfileQuestionnaireLine: Record "Profile Questionnaire Line")
@@ -486,7 +486,7 @@ report 5199 "Update Contact Classification"
                             end;
                     end;
                 end;
-            until Cont.Next = 0
+            until Cont.Next() = 0
     end;
 
     local procedure ContactNo(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; TableID: Integer; No: Code[20]) ContactNo: Code[20]
@@ -530,7 +530,7 @@ report 5199 "Update Contact Classification"
         else
             ContBusRel.SetRange("Contact No.", ContactNo);
         ContBusRel.SetRange("Business Relation Code", ProfileQuestnHeader."Business Relation Code");
-        if not ContBusRel.IsEmpty then
+        if not ContBusRel.IsEmpty() then
             exit(ContactNo);
         ContactNo := '';
     end;
@@ -558,7 +558,7 @@ report 5199 "Update Contact Classification"
                     MarkContact(
                       ProfileQuestnLineQuestion, ProfileQuestnLineAnswer, ContactValue."Contact No.",
                       ContactValue."Last Date Updated", ContactValue."Questions Answered (%)")
-            until ContactValue.Next = 0;
+            until ContactValue.Next() = 0;
     end;
 
     local procedure MarkByPercentageOfValue(ProfileQuestnLineQuestion: Record "Profile Questionnaire Line"; ProfileQuestnLineAnswer: Record "Profile Questionnaire Line")
@@ -592,7 +592,7 @@ report 5199 "Update Contact Classification"
                     MarkContact(
                       ProfileQuestnLineQuestion, ProfileQuestnLineAnswer, ContactValue."Contact No.",
                       ContactValue."Last Date Updated", ContactValue."Questions Answered (%)");
-            until ContactValue.Next = 0
+            until ContactValue.Next() = 0
     end;
 
     local procedure MarkByPercentageOfContacts(ProfileQuestnLineQuestion: Record "Profile Questionnaire Line"; ProfileQuestnLineAnswer: Record "Profile Questionnaire Line")
@@ -628,7 +628,7 @@ report 5199 "Update Contact Classification"
                     MarkContact(
                       ProfileQuestnLineQuestion, ProfileQuestnLineAnswer, ContactValue."Contact No.",
                       ContactValue."Last Date Updated", ContactValue."Questions Answered (%)")
-            until ContactValue.Next = 0
+            until ContactValue.Next() = 0
         end;
     end;
 
@@ -663,7 +663,7 @@ report 5199 "Update Contact Classification"
             if ContPers.Find('-') then
                 repeat
                     MarkContact(ProfileQuestnLineQuestion, ProfileQuestnLineAnswer, ContPers."No.", UpdateDate, QuestionsAnsweredPrc);
-                until ContPers.Next = 0
+                until ContPers.Next() = 0
         end;
 
         if (ProfileQuestnHeader2."Contact Type" = ProfileQuestnHeader2."Contact Type"::People) and
@@ -716,7 +716,7 @@ report 5199 "Update Contact Classification"
         repeat
             ProfileQuestnLine.Mark(true);
             NoOfRatingLines := NoOfRatingLines + 1;
-        until ProfileQuestnLine.Next = 0;
+        until ProfileQuestnLine.Next() = 0;
         ProfileQuestnLine.MarkedOnly(true);
 
         // Calculate Ratings
@@ -740,7 +740,7 @@ report 5199 "Update Contact Classification"
                                     Leaf := false;
                                 ProfileQuestnLine := ProfileQuestnLine2;
                             end;
-                        until (Rating.Next = 0) or (not Leaf);
+                        until (Rating.Next() = 0) or (not Leaf);
 
                     // Calculate Rating
                     if Leaf then begin
@@ -770,12 +770,12 @@ report 5199 "Update Contact Classification"
                                     if QuestionsAnsweredPrc >= ProfileQuestnLine."Min. % Questions Answered" then
                                         InsertContactValue(ProfileQuestnLine, Cont."No.", Points, UpdateDate, QuestionsAnsweredPrc);
                                 end;
-                            until Cont.Next = 0;
+                            until Cont.Next() = 0;
                         MarkContactByMethod(ProfileQuestnLine, UpdateContNo);
                         ProfileQuestnLine.Mark(false);
                         Changed := true;
                     end;
-                until ProfileQuestnLine.Next = 0;
+                until ProfileQuestnLine.Next() = 0;
         until Changed = false;
 
         if ProfileQuestnLine.Find('-') then
@@ -816,7 +816,7 @@ report 5199 "Update Contact Classification"
                     if ContProfileAnswer."Last Date Updated" < UpdateDate then
                         UpdateDate := ContProfileAnswer."Last Date Updated";
                 end;
-            until Rating.Next = 0;
+            until Rating.Next() = 0;
 
         if TempProfileQuestnLine.Count <> 0 then
             QuestionsAnsweredPrc := NoOfAnsweredQuestions / TempProfileQuestnLine.Count * 100
@@ -845,7 +845,7 @@ report 5199 "Update Contact Classification"
                     ProfileQuestnLine."Classification Method"::"Percentage of Contacts":
                         MarkByPercentageOfContacts(ProfileQuestnLine, ProfileQuestnLine2);
                 end;
-            until (ProfileQuestnLine2.Next = 0) or
+            until (ProfileQuestnLine2.Next() = 0) or
                   (ProfileQuestnLine2.Type = ProfileQuestnLine2.Type::Question);
     end;
 }

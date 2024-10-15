@@ -10,6 +10,9 @@ page 5473 "Company Information Entity"
     PageType = API;
     SaveValues = true;
     SourceTable = "Company Information";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -460,7 +460,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
                             Tooltip = 'Run the Cash Flow Statement codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
@@ -468,7 +468,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
                             Tooltip = 'Run the Retained Earnings Statement codeunit.';
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                     }
                     group("Group10")
@@ -573,7 +573,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
                         Tooltip = 'Open the G/L Account Categories page.';
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -2198,7 +2198,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
                         Tooltip = 'Open the Rounding Methods page.';
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

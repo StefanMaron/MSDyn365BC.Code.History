@@ -1,4 +1,4 @@
-﻿table 203 "Res. Ledger Entry"
+table 203 "Res. Ledger Entry"
 {
     Caption = 'Res. Ledger Entry';
     DrillDownPageID = "Resource Ledger Entries";

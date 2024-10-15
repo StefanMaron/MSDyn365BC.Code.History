@@ -41,7 +41,7 @@ table 99000779 "Production BOM Version"
                 if Item.FindSet then
                     repeat
                         ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code");
-                    until Item.Next = 0;
+                    until Item.Next() = 0;
             end;
         }
         field(22; "Last Date Modified"; Date)

@@ -232,7 +232,7 @@ report 11207 "SIE Export"
                             DimensionString :=
                               DimensionString +
                               ' "' + Format(SieDimension."SIE Dimension") + '" "' + DimensionSetEntry."Dimension Value Code" + '"';
-                    until DimensionSetEntry.Next = 0;
+                    until DimensionSetEntry.Next() = 0;
                     ExportFile.Write(
                       StrSubstNo('  #TRANS  %1  {%2}  %3  %4',
                         GLEntry."G/L Account No.", Ascii2Ansi(DimensionString),
@@ -246,7 +246,7 @@ report 11207 "SIE Export"
                 PostingDate := GLEntry."Posting Date";
                 DialogWindow.Update(5, Counter);
                 DialogWindow.Update(6, Round(Counter / CounterTotal * 10000, 1));
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         if DocNo <> '' then
             ExportFile.Write('}');
     end;
@@ -273,7 +273,7 @@ report 11207 "SIE Export"
         if SieDimension.Find('-') then
             repeat
                 ExportFile.Write(StrSubstNo('#DIM  %1  "%2"', SieDimension."SIE Dimension", Ascii2Ansi(SieDimension."Dimension Code")));
-            until SieDimension.Next = 0;
+            until SieDimension.Next() = 0;
         if SieDimension.Find('-') then
             repeat
                 DimensionValue.SetRange("Dimension Code", SieDimension."Dimension Code");
@@ -283,8 +283,8 @@ report 11207 "SIE Export"
                           StrSubstNo(
                             '#OBJEKT  %1  "%2"  "%3"', SieDimension."SIE Dimension", Ascii2Ansi(DimensionValue.Code),
                             Ascii2Ansi(DimensionValue.Name)));
-                    until DimensionValue.Next = 0;
-            until SieDimension.Next = 0;
+                    until DimensionValue.Next() = 0;
+            until SieDimension.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -296,7 +296,7 @@ report 11207 "SIE Export"
                 ExportFile.Write(StrSubstNo('#KONTO  %1  "%2"', GLAccount."No.", Ascii2Ansi(GLAccount.Name)));
                 if FiscalYear <> '' then
                     ExportFile.Write(StrSubstNo('#SRU  %1  %2', GLAccount."No.", GLAccount."SRU-code"));
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -321,7 +321,7 @@ report 11207 "SIE Export"
                     ResultBalance;
                 DialogWindow.Update(3, GLAccount."No.");
                 DialogWindow.Update(4, Round(Counter / CounterTotal * 10000, 1));
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -401,8 +401,8 @@ report 11207 "SIE Export"
                                                     ("Date Filter")), 6), GLAccount2."No.", SieDimension."SIE Dimension", Ascii2Ansi(DimensionValue.Code),
                                                 FormatAmount(GLAccount2."Budget at Date")));
                                     end;
-                                until DimensionValue.Next = 0;
-                        until SieDimension.Next = 0;
+                                until DimensionValue.Next() = 0;
+                        until SieDimension.Next() = 0;
                 end;
                 GLAccount.Reset();
                 GLAccount := GLAccountRec;
@@ -437,7 +437,7 @@ report 11207 "SIE Export"
                 end;
                 DialogWindow.Update(7, GLAccount."No.");
                 DialogWindow.Update(8, Round(Counter / CounterTotal * 10000, 1));
-            until GLAccountRec.Next = 0;
+            until GLAccountRec.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -489,12 +489,12 @@ report 11207 "SIE Export"
                                 if GLAccount2."Balance at Date" <> 0 then
                                     ExportFile.Write(StrSubstNo('#OUB  %1  %2  {%3 "%4"}  %5', -1, GLAccount."No.", SieDimension."SIE Dimension",
                                         Ascii2Ansi(DimensionValue.Code), FormatAmount(GLAccount2."Balance at Date")));
-                            until DimensionValue.Next = 0;
-                    until SieDimension.Next = 0;
+                            until DimensionValue.Next() = 0;
+                    until SieDimension.Next() = 0;
 
                 DialogWindow.Update(5, GLAccount."No.");
                 DialogWindow.Update(6, Round(Counter / CounterTotal * 10000, 1));
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]

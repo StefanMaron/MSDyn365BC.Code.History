@@ -48,6 +48,12 @@ page 6513 "Enter Quantity to Create"
                     ApplicationArea = ItemTracking;
                     Caption = 'Create New Lot No.';
                 }
+                field(CreateSNInfo; CreateSNInfo)
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Create SN Information';
+                    ToolTip = 'Create Serial Number Information card for each serial number.';
+                }
             }
         }
     }
@@ -62,6 +68,7 @@ page 6513 "Enter Quantity to Create"
         VariantCode := InitVariantCode;
         QtyToCreate := InitQtyToCreate;
         CreateNewLotNo := InitCreateNewLotNo;
+        CreateSNInfo := InitCreateSNInfo;
     end;
 
     var
@@ -71,11 +78,14 @@ page 6513 "Enter Quantity to Create"
         VariantCode: Code[10];
         QtyToCreate: Integer;
         CreateNewLotNo: Boolean;
+        CreateSNInfo: Boolean;
         InitItemNo: Code[20];
         InitVariantCode: Code[10];
         InitQtyToCreate: Integer;
         InitCreateNewLotNo: Boolean;
+        InitCreateSNInfo: Boolean;
 
+    [Obsolete('Replaced by SetFields procedure with additional parameter.', '18.0')]
     procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean)
     begin
         InitItemNo := SetItemNo;
@@ -84,10 +94,27 @@ page 6513 "Enter Quantity to Create"
         InitCreateNewLotNo := SetCreateNewLotNo;
     end;
 
+    [Obsolete('Replaced by GetFields procedure with additional parameter.', '18.0')]
     procedure GetFields(var GetQtyToCreate: Integer; var GetCreateNewLotNo: Boolean)
     begin
         GetQtyToCreate := QtyToCreate;
         GetCreateNewLotNo := CreateNewLotNo;
+    end;
+
+    procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean; SetCreateSNInfo: Boolean)
+    begin
+        InitItemNo := SetItemNo;
+        InitVariantCode := SetVariantCode;
+        InitQtyToCreate := SetQtyToCreate;
+        InitCreateNewLotNo := SetCreateNewLotNo;
+        InitCreateSNInfo := SetCreateSNInfo;
+    end;
+
+    procedure GetFields(var GetQtyToCreate: Integer; var GetCreateNewLotNo: Boolean; var GetCreateSNInfo: Boolean)
+    begin
+        GetQtyToCreate := QtyToCreate;
+        GetCreateNewLotNo := CreateNewLotNo;
+        GetCreateSNInfo := CreateSNInfo;
     end;
 }
 

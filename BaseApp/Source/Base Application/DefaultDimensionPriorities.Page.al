@@ -155,7 +155,7 @@ page 543 "Default Dimension Priorities"
 
     local procedure PriorityOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrentSourceCodeOnAfterValida()

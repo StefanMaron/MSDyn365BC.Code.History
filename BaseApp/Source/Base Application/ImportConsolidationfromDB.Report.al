@@ -153,7 +153,7 @@ report 90 "Import Consolidation from DB"
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
-                    until Dim.Next = 0;
+                    until Dim.Next() = 0;
                 end;
                 TempDim.Reset();
                 TempDimVal.Reset();
@@ -163,7 +163,7 @@ report 90 "Import Consolidation from DB"
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
+                    until DimVal.Next() = 0;
                 end;
 
                 AdditionalCurrencyCode := '';
@@ -331,7 +331,7 @@ report 90 "Import Consolidation from DB"
             GLEntry.SetRange("G/L Account No.", GLAccNo);
             repeat
                 GLEntry.SetRange("Posting Date", ClosingDate(AccountingPeriod."Starting Date" - 1));
-                if not GLEntry.IsEmpty then
+                if not GLEntry.IsEmpty() then
                     Error(
                       Text022,
                       GLEntry.TableCaption,
@@ -339,7 +339,7 @@ report 90 "Import Consolidation from DB"
                       GLEntry.GetFilter("Posting Date"),
                       GLEntry.FieldCaption("G/L Account No."),
                       GLAccNo);
-            until AccountingPeriod.Next = 0;
+            until AccountingPeriod.Next() = 0;
         end;
     end;
 
@@ -372,7 +372,7 @@ report 90 "Import Consolidation from DB"
                     ConsolPeriodInclInFiscalYears :=
                       ConsolPeriodInclInFiscalYears and CheckDatesToBusUnitDates(StartDate, EndDate, BusUnit);
                 end;
-        until BusUnit.Next = 0;
+        until BusUnit.Next() = 0;
 
         if not ConsolPeriodInclInFiscalYears then
             if not ConfirmManagement.GetResponseOrDefault(

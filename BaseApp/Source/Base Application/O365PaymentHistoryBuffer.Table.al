@@ -80,7 +80,7 @@ table 2105 "O365 Payment History Buffer"
         if PaymentCustLedgerEntry.FindSet then
             repeat
                 CopyFromCustomerLedgerEntry(PaymentCustLedgerEntry);
-            until PaymentCustLedgerEntry.Next = 0;
+            until PaymentCustLedgerEntry.Next() = 0;
     end;
 
     local procedure CopyFromCustomerLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -105,7 +105,7 @@ table 2105 "O365 Payment History Buffer"
             Error(CanOnlyCancelPaymentsErr);
         TempO365PaymentHistoryBuffer.Copy(Rec, true);
         TempO365PaymentHistoryBuffer.SetFilter("Ledger Entry No.", '>%1', "Ledger Entry No.");
-        if not TempO365PaymentHistoryBuffer.IsEmpty then
+        if not TempO365PaymentHistoryBuffer.IsEmpty() then
             Error(CanOnlyCancelLastPaymentErr);
         if not Confirm(MarkAsUnpaidConfirmQst) then
             exit(false);

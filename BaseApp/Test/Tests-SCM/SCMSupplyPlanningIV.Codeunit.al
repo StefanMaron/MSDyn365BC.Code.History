@@ -37,7 +37,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         VendorNoError: Label 'Vendor No. must have a value in Requisition Line';
         NewWorksheetMessage: Label 'You are now in worksheet';
         RequisitionLinesQuantity: Label 'Quantity value must match.';
-        AvailabilityWarningConfirmationMessage: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarningConfirmationMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         EditableError: Label 'The value must not be editable.';
         ReleasedProdOrderCreated: Label 'Released Prod. Order';
         SalesLineQtyChangedMsg: Label 'This Sales Line is currently planned. Your changes will not cause any replanning.';
@@ -2109,7 +2109,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate);
         PurchaseLine.Validate("Location Code", LocationBlue.Code);
         PurchaseLine.Modify(true);
 
@@ -3297,12 +3297,12 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         SalesHeader: Record "Sales Header";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         CreateSalesOrder(ItemNo, '');
         FindSalesOrderHeader(SalesHeader, ItemNo);
         LibraryVariableStorage.Enqueue(ReleasedProdOrderCreated);
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
     end;
 
     local procedure CreateWorkCenterWith2MachineCenters(var WorkCenter: Record "Work Center"; var MachineCenter: array[2] of Record "Machine Center")

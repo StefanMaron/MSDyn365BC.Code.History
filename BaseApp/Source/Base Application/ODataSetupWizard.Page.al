@@ -330,7 +330,7 @@ page 6711 "OData Setup Wizard"
                 trigger OnAction()
                 begin
                     CurrentPage := CurrentPage - 1;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(NextAction)
@@ -360,7 +360,7 @@ page 6711 "OData Setup Wizard"
                                 if "Object ID" = 0 then
                                     Error(MissingObjectIDErr);
 
-                                CurrPage.Update;
+                                CurrPage.Update();
                                 CurrPage.ODataColSubForm.PAGE.InitColumns(ObjectTypeLookup, "Object ID", ActionType, ServiceNameLookup, ServiceNameEdit);
                                 CurrentPage := CurrentPage + 1;
                             end;
@@ -380,7 +380,7 @@ page 6711 "OData Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     if TempTenantWebServiceColumns.FindFirst then
                         TempTenantWebServiceColumns.DeleteAll();
@@ -389,7 +389,7 @@ page 6711 "OData Setup Wizard"
                         Error(PublishWithoutFieldsErr);
                     CopyTempTableToConcreteTable;
                     oDataUrl := DisplayODataUrl;
-                    AssistedSetup.Complete(PAGE::"OData Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"OData Setup Wizard");
                     PublishFlag := true;
                     CurrentPage := CurrentPage + 1;
                     CurrPage.Update(false);
@@ -516,7 +516,7 @@ page 6711 "OData Setup Wizard"
             end;
 
             OldTableNo := TempTenantWebServiceColumns."Data Item";
-        until TempTenantWebServiceColumns.Next = 0;
+        until TempTenantWebServiceColumns.Next() = 0;
 
         foreach keyValuePair in DataItemDictionary do begin
             FilterText := '';
@@ -576,7 +576,7 @@ page 6711 "OData Setup Wizard"
                             FilterPage.AddField(AllObjWithCaption."Object Caption", FieldRef);
                     end;
                 end;
-            until TempTenantWebServiceColumns.Next = 0;
+            until TempTenantWebServiceColumns.Next() = 0;
 
         if FilterPage.RunModal then begin
             Clear(TempTenantWebServiceFilter);
@@ -678,7 +678,7 @@ page 6711 "OData Setup Wizard"
                 TenantWebServiceColumns."Entry ID" := 0;
                 TenantWebServiceColumns.TenantWebServiceID := TenantWebService.RecordId;
                 TenantWebServiceColumns.Insert(true);
-            until TempTenantWebServiceColumns.Next = 0;
+            until TempTenantWebServiceColumns.Next() = 0;
         end;
 
         if TempTenantWebServiceFilter.Find('-') then begin
@@ -695,7 +695,7 @@ page 6711 "OData Setup Wizard"
                 TenantWebServiceFilter.TenantWebServiceID := TenantWebService.RecordId;
 
                 TenantWebServiceFilter.Insert(true);
-            until TempTenantWebServiceFilter.Next = 0;
+            until TempTenantWebServiceFilter.Next() = 0;
         end else
             if ActionType = ActionType::"Create a copy of an existing data set" then
                 if SourceTenantWebService.Get(ObjectTypeLookup, ServiceNameLookup) then begin
@@ -709,7 +709,7 @@ page 6711 "OData Setup Wizard"
                             TenantWebServiceFilter.TenantWebServiceID := TenantWebService.RecordId;
 
                             TenantWebServiceFilter.Insert(true);
-                        until SourceTenantWebServiceFilter.Next = 0;
+                        until SourceTenantWebServiceFilter.Next() = 0;
                 end;
 
         if (ActionType = ActionType::"Create a new data set") or

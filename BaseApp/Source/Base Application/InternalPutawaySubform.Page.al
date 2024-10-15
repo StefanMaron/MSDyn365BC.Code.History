@@ -213,19 +213,19 @@ page 7355 "Internal Put-away Subform"
     local procedure ItemNoOnAfterValidate()
     begin
         if GetActualSortMethod().AsInteger() = SortMethod::Item then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure FromBinCodeOnAfterValidate()
     begin
         if GetActualSortMethod().AsInteger() = SortMethod::"Shelf/Bin No." then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure DueDateOnAfterValidate()
     begin
         if GetActualSortMethod().AsInteger() = SortMethod::"Due Date" then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 }
 

@@ -58,7 +58,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     i := i + 1;
                     AddSegLinetoTargetGr(SegLine);
                     Window.Update(1, Round(i / NoOfRecords * 10000, 1));
-                until Next = 0;
+                until Next() = 0;
                 Window.Close;
             end;
         end;
@@ -79,7 +79,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     i := i + 1;
                     AddInteractionLogEntry(InteractLogEntry);
                     Window.Update(1, Round(i / NoOfRecords * 10000, 1));
-                until Next = 0;
+                until Next() = 0;
                 Window.Close;
             end;
         end;
@@ -96,7 +96,7 @@ codeunit 7030 "Campaign Target Group Mgt"
 
         CampaignTargetGr.SetCurrentKey("Campaign No.");
         CampaignTargetGr.SetRange("Campaign No.", Campaign."No.");
-        if not CampaignTargetGr.IsEmpty then
+        if not CampaignTargetGr.IsEmpty() then
             CampaignTargetGr.DeleteAll();
         if ShowMessage then
             Message(Text001, Campaign.TableCaption, Campaign."No.");
@@ -217,7 +217,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     InsertTargetGroup(
                       CampaignTargetGr2.Type::Customer, Customer."No.", CampaignTargetGr2."Campaign No.");
                     CampaignTargetGr2.Delete();
-                until CampaignTargetGr2.Next = 0;
+                until CampaignTargetGr2.Next() = 0;
         end;
     end;
 
@@ -232,7 +232,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     InsertTargetGroup(
                       CampaignTargetGr2.Type::Contact, CompanyContNo, CampaignTargetGr2."Campaign No.");
                     CampaignTargetGr2.Delete();
-                until CampaignTargetGr2.Next = 0;
+                until CampaignTargetGr2.Next() = 0;
         end;
     end;
 

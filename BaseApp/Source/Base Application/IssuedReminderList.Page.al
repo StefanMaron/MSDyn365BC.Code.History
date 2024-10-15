@@ -194,7 +194,7 @@ page 440 "Issued Reminder List"
                                 IssuedReminderHeader2.PrintRecords(false, true, false);
                             end;
                             PrevCustomerNo := IssuedReminderHeader."Customer No.";
-                        until IssuedReminderHeader.Next = 0;
+                        until IssuedReminderHeader.Next() = 0;
                 end;
             }
             action("&Navigate")

@@ -27,7 +27,11 @@ page 1627 "Office No Customer Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        CreateCustomer(ChooseCustomerTemplate);
+#if not CLEAN18
+                        CreateCustomer(ChooseCustomerTemplate());
+#else
+                        CreateCustomerFromTemplate(ChooseNewCustomerTemplate());
+#endif
                         CurrPage.Close;
                     end;
                 }
