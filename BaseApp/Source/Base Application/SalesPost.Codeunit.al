@@ -684,7 +684,7 @@
 
             CheckSalesLines(SalesHeader);
 
-            OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive);
+            OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive, PreviewMode, ErrorMessageMgt);
             if not LogErrorMode then
                 ErrorMessageMgt.Finish(RecordId);
         end;
@@ -8885,7 +8885,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
+    local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean; PreviewMode: Boolean; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 

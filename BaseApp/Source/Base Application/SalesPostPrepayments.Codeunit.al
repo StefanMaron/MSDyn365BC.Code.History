@@ -383,7 +383,7 @@
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             CheckDimensions.CheckSalesPrepmtDim(SalesHeader);
-            ErrorMessageMgt.Finish(RecordId);
+
             CheckSalesPostRestrictions();
             Cust.Get("Sell-to Customer No.");
             Cust.CheckBlockedCustOnDocs(Cust, "Sales Document Type".FromInteger(PrepmtDocTypeToDocType(DocumentType)), false, true);
@@ -391,7 +391,8 @@
                 Cust.Get("Bill-to Customer No.");
                 Cust.CheckBlockedCustOnDocs(Cust, "Sales Document Type".FromInteger(PrepmtDocTypeToDocType(DocumentType)), false, true);
             end;
-            OnAfterCheckPrepmtDoc(SalesHeader, DocumentType, SuppressCommit);
+            OnAfterCheckPrepmtDoc(SalesHeader, DocumentType, SuppressCommit, ErrorMessageMgt);
+            ErrorMessageMgt.Finish(RecordId);
         end;
     end;
 
@@ -1882,7 +1883,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterCheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 
