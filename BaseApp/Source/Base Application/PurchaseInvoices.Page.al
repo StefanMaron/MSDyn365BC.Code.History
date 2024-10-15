@@ -294,13 +294,8 @@ page 9308 "Purchase Invoices"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
-                    var
-                        PurchPostAdvances: Codeunit "Purchase-Post Advances";
                     begin
-                        CalcInvDiscForHeader;
-                        PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

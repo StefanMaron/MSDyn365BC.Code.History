@@ -35,11 +35,17 @@ page 11757 "Registration Config"
                     ToolTip = 'Specifies if the service is enabled.';
 
                     trigger OnValidate()
+                    var
+                        CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                     begin
                         if Enabled = xRec.Enabled then
                             exit;
 
                         if Enabled then begin
+                            if not CustomerConsentMgt.ConfirmUserConsent() then begin
+                                Rec.Enabled := false;
+                                exit;
+                            end;
                             TestField("Service Endpoint");
                             Message(TermsAndAgreementMsg);
                         end;

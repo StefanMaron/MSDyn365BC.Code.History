@@ -159,11 +159,6 @@ report 5706 "Create Stockkeeping Unit"
         actions
         {
         }
-
-        trigger OnOpenPage()
-        begin
-            ReplacePreviousSKUs := false;
-        end;
     }
 
     labels

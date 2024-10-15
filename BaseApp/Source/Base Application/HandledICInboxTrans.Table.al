@@ -142,6 +142,8 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxPurchDoc.RunModal;
                 end;
         end;
+
+        OnAfterShowDetails(Rec);
     end;
 
     local procedure DeleteComments(TransactionNo: Integer; ICPartnerCode: Code[20])
@@ -152,6 +154,11 @@ table 420 "Handled IC Inbox Trans."
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
         ICCommentLine.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDetails(var HandledICInboxTrans: Record "Handled IC Inbox Trans.")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

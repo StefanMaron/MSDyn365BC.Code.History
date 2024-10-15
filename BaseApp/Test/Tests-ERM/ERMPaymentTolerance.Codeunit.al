@@ -3398,7 +3398,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PaymentApplicationModalPageHandler')]
     [Scope('OnPrem')]
     procedure ApplyReconciliationWithCurrencyAndPaymentToleranceSales()
     var
@@ -3466,7 +3466,7 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PaymentApplicationModalPageHandler')]
     [Scope('OnPrem')]
     procedure ApplyReconciliationWithCurrencyAndPaymentTolerancePurch()
     var
@@ -5184,6 +5184,13 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyCustEntriesOKPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 
     [ModalPageHandler]

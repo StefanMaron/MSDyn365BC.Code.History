@@ -26,7 +26,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTransactionsAlreadyImported()
     var
@@ -48,6 +48,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryLowerPermissions.AddAccountReceivables;
         OnePurchOnePmt1(BankAccRecon1, BankAcc, TempBlobUTF8);
         OnePurchOnePmt1(BankAccRecon2, BankAcc, TempBlobUTF8);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon1);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon2);
 
         OpenPmtReconJnl(BankAccRecon1, PmtReconJnl);
         PmtReconJnl.Post.Invoke;
@@ -70,6 +72,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
         SetupSourceMock(BankAcc."Bank Statement Import Format", TempBlobUTF8);
         BankAccRecon.ImportBankStatement;
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
 
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -78,7 +81,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePmt()
     var
@@ -92,6 +95,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         LibraryLowerPermissions.AddAccountReceivables;
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -105,7 +109,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePrePostedPmt()
     var
@@ -119,6 +123,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -131,7 +136,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchTwoPmt()
     var
@@ -150,7 +155,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchTwoPrePostedPmt()
     var
@@ -170,6 +175,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -182,7 +188,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchTwoPmt()
     var
@@ -197,7 +203,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchTwoPrePostedPmt()
     var
@@ -212,6 +218,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -241,6 +248,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -256,7 +264,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchOnePmt()
     var
@@ -276,6 +284,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -287,7 +296,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchOnePrePostedPmt()
     var
@@ -308,6 +317,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         SetOnMatchOnClosingDocumentNumber(BankAccRecon);
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -322,7 +332,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePmtWithPmtDisc()
     var
@@ -341,6 +351,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
@@ -353,7 +364,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchTwoPmtWithPmtDisc()
     var
@@ -372,7 +383,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchTwoPmtWithPmtDisc()
     var
@@ -392,7 +403,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchOnePmtWithPmtDisc()
     var
@@ -412,6 +423,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -423,7 +435,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoPurchOnePmtWithPmtDisc2()
     var
@@ -443,6 +455,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
@@ -456,7 +469,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePmtWithLateDueDatePmtDisc()
     var
@@ -475,6 +488,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
@@ -487,7 +501,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOneFCYPurchOnePmtWithLateDueDatePmtDisc()
     var
@@ -506,6 +520,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
@@ -518,7 +533,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOneFCYPurchOneFCYPmtWithLateDueDatePmtDisc()
     var
@@ -547,6 +562,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
                 BankAccReconLine.Modify();
             until BankAccReconLine.Next = 0;
         // NAVCZ
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(VendLedgEntry, PmtReconJnl);
@@ -560,7 +576,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePmtWithWrongPmtDiscPct()
     var
@@ -579,6 +595,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscAmt(VendLedgEntry, PmtReconJnl);
@@ -591,7 +608,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestBankTransfer()
     var
@@ -612,6 +629,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostBankTransfer(BankAcc."No.", BankAccRecon."Bank Account No.", TransferAmount);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -624,7 +642,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestMappedGLAccountPayment()
     var
@@ -649,6 +667,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         BankAccount.Get(BankAccRecon."Bank Account No.");
         TextToAccountMapping.Init();
         TextToAccountMapping."Mapping Text" := TransactionText;
@@ -667,7 +686,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestUnMappedGLAccountPayment()
     var
@@ -690,6 +709,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -701,7 +721,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestRecurringInterest()
     var
@@ -723,6 +743,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
         LibraryVariableStorage.Enqueue(GLAcc."No.");
@@ -738,7 +759,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestRecurringRent()
     var
@@ -760,6 +781,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
         LibraryVariableStorage.Enqueue(GLAcc."No.");
@@ -775,7 +797,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,TextMapperHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestEndToEnd()
     var
@@ -795,6 +817,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         AddTextMapperRules(PmtReconJnl, InterestGLAcc, RentGLAcc);
         ApplyAutomatically(PmtReconJnl);
@@ -942,7 +965,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestAccountNameWhenApplyingToBankAccountLedgerEntry()
     var
@@ -958,6 +981,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -966,6 +990,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         repeat
             Assert.AreEqual(Vendor.Name, BankAccReconciliationLine.GetAppliedToName, '');
         until BankAccReconciliationLine.Next = 0;
+
         PmtReconJnl.Post.Invoke;
 
         // Verify that all Vendors | gls | banks go to zero
@@ -974,7 +999,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOnePurchOnePmtExcessiveAmount()
     var
@@ -995,6 +1020,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         PmtReconJnl.Accept.Invoke;
@@ -1037,7 +1063,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,TransferDiffToAccountHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,TransferDiffToAccountHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTransferDiffToAccount()
     var
@@ -1059,6 +1085,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         LibraryVariableStorage.Enqueue(DummyGenJournalLine."Account Type"::Vendor);
@@ -1160,7 +1187,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestOneOutstandingPaymentTrxsTotalPost()
     var
@@ -1191,7 +1218,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTwoOutstandingPaymentTrxsTotalPost()
     var
@@ -1225,6 +1252,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // [WHEN] Statement is imported
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
 
         // [WHEN] Two GL Journals are created as a manual check
         CreateManualCheckAndPostGenJnlLine(GenJnlLine, VendLedgEntry, BankAccRecon."Bank Account No.", -VendLedgerAmount);
@@ -1410,7 +1438,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler')]
+    [HandlerFunctions('MsgHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SingleVendorAutoMatchAndPostTwoPaymentsTwoInvoicesInViceVersaOrder()
     var
@@ -1461,6 +1489,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
           InvVendLedgerEntry[2]."Applies-to ID", InvVendLedgerEntry[2].FieldCaption("Applies-to ID"));
 
         // [WHEN] Post the journal
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccReconciliation);
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] The journal has been posted and two invoices "PI1", "PI2" are closed:
@@ -1484,6 +1513,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure VATEntryCreatedWhenCopyVATSetupToJnlLineEnabledInBankAccReconciliation()
     var
@@ -1504,6 +1534,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateBankAccReconciliationLineWithVATGLAcc(BankAccReconciliationLine, BankAccReconciliation);
 
         // [WHEN] Post Payment Reconciliation
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation,
+                                         BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] VAT Entry is created for Payment Reconciliation
@@ -1513,6 +1545,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoVATEntryCreatedWhenCopyVATSetupToJnlLineDisabledInBankAccReconciliation()
     var
@@ -1533,6 +1566,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateBankAccReconciliationLineWithVATGLAcc(BankAccReconciliationLine, BankAccReconciliation);
 
         // [WHEN] Post Payment Reconciliation
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation,
+                                         BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] VAT Entry is not created for Payment Reconciliation
@@ -2846,6 +2881,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
@@ -2872,6 +2908,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Statement is imported
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        if (not BankAccRecon."Post Payments Only") then
+            GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
 
         // GL Journal is created as a manual check
         CreateManualCheckAndPostGenJnlLine(GenJnlLine, VendLedgEntry, BankAccRecon."Bank Account No.", -VendLedgerAmount);
@@ -2902,6 +2940,31 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Payment Reconciliation Journal is opened
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+    end;
+
+    local procedure GetLinesAndUpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation")
+    var
+        BankAccRecLine: Record "Bank Acc. Reconciliation Line";
+        TotalLinesAmount: Decimal;
+    begin
+        BankAccRecLine.LinesExist(BankAccRecon);
+        repeat
+            TotalLinesAmount += BankAccRecLine."Statement Amount";
+        until BankAccRecLine.Next() = 0;
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + TotalLinesAmount);
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

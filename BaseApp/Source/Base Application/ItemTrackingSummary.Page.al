@@ -238,6 +238,8 @@ page 6500 "Item Tracking Summary"
             until ReservEntry.Next() = 0;
 
         xEntrySummary.SetView(Rec.GetView());
+        OnSetSourcesOnAfterxEntrySummarySetview(xEntrySummary);
+
         Rec.Reset;
         Rec.DeleteAll();
         if EntrySummary.FindSet() then
@@ -294,6 +296,8 @@ page 6500 "Item Tracking Summary"
                 AvailableQty := Rec."Total Available Quantity";
                 if Rec."Bin Active" then
                     AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, Rec."Total Available Quantity");
+
+                AvailableQty -= Rec."Non-specific Reserved Qty.";
 
                 if AvailableQty > 0 then begin
                     Rec."Selected Quantity" := MinValueAbs(AvailableQty, SelectedQty);
@@ -445,6 +449,11 @@ page 6500 "Item Tracking Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownEntriesOnAfterTempReservEntrySetFilters(var TempReservEntry: Record "Reservation Entry" temporary; EntrySummary: Record "Entry Summary" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourcesOnAfterxEntrySummarySetview(var xEntrySummary: Record "Entry Summary")
     begin
     end;
 }

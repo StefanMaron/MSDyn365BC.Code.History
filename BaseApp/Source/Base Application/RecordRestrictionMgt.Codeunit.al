@@ -270,6 +270,9 @@ codeunit 1550 "Record Restriction Mgt."
     var
         RecRef: RecordRef;
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RecRef.Get(Rec."Record ID to Print") then
             exit;
 
@@ -281,6 +284,9 @@ codeunit 1550 "Record Restriction Mgt."
     var
         RecRef: RecordRef;
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RecRef.Get(Rec."Record ID to Print") then
             exit;
 

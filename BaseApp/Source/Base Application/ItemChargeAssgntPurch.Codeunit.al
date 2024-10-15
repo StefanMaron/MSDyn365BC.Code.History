@@ -564,10 +564,7 @@
                     ItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Order",
                     ItemChargeAssgntPurch."Applies-to Doc. Type"::"Credit Memo":
                         begin
-                            PurchLine.Get(
-                              ItemChargeAssgntPurch."Applies-to Doc. Type",
-                              ItemChargeAssgntPurch."Applies-to Doc. No.",
-                              ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                            GetPurchLineForItemChargeAssgntPurch(PurchLine, ItemChargeAssgntPurch);
                             TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                               Abs(PurchLine."Line Amount");
                         end;
@@ -686,6 +683,18 @@
                 end;
             until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    local procedure GetPurchLineForItemChargeAssgntPurch(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetPurchLineForItemChargeAssgntPurch(PurchaseLine, ItemChargeAssgntPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseLine.Get(ItemChargeAssgntPurch."Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
     end;
 
     local procedure AssignByWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal)
@@ -992,6 +1001,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowSuggestItemChargeAssignStrMenu(PurchLine: Record "Purchase Line"; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var Selection: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchLineForItemChargeAssgntPurch(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
     begin
     end;
 

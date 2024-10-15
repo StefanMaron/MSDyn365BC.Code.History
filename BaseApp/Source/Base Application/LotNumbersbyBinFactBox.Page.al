@@ -61,6 +61,7 @@ page 9126 "Lot Numbers by Bin FactBox"
         LotNosByBinCode.SetRange(Variant_Code, GetRangeMin("Variant Code"));
         LotNosByBinCode.SetRange(Location_Code, GetRangeMin("Location Code"));
         LotNosByBinCode.SetFilter(Lot_No, '<>%1', '');
+        OnFillTempTableOnAfterLotNosByBinCodeSetFilters(LotNosByBinCode);
         LotNosByBinCode.Open;
 
         DeleteAll();
@@ -73,6 +74,7 @@ page 9126 "Lot Numbers by Bin FactBox"
             "Bin Code" := LotNosByBinCode.Bin_Code;
             "Location Code" := LotNosByBinCode.Location_Code;
             "Lot No." := LotNosByBinCode.Lot_No;
+            OnFillTempTableOnAfterPopulateLotNosByBinCodeFields(Rec, LotNosByBinCode);
             if Find then begin
                 "Qty. (Base)" += LotNosByBinCode.Sum_Qty_Base;
                 Modify;
@@ -81,6 +83,16 @@ page 9126 "Lot Numbers by Bin FactBox"
                 Insert;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillTempTableOnAfterLotNosByBinCodeSetFilters(var LotNosByBinCode: Query "Lot Numbers by Bin")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillTempTableOnAfterPopulateLotNosByBinCodeFields(var LotBinBuffer: record "Lot Bin Buffer"; var LotNosByBinCode: query "Lot Numbers by Bin")
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 1535 "Approvals Mgmt."
+﻿codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -845,7 +845,10 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup.Get(ApproverId) then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
 
-        OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
+        IsHandled := false;
+        OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+        if IsHandled then
+            exit;
 
         if not IsSufficientApprover(UserSetup, ApprovalEntryArgument) then
             repeat
@@ -1620,8 +1623,15 @@ codeunit 1535 "Approvals Mgmt."
           WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode));
     end;
 
-    procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not IsPurchaseApprovalsWorkflowEnabled(PurchaseHeader) then
             Error(NoWorkflowEnabledErr);
 
@@ -2571,6 +2581,11 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateApprovalRequests(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; var IsHandled: Boolean)
     begin
     end;
@@ -2691,7 +2706,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 

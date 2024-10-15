@@ -314,13 +314,8 @@ page 9301 "Sales Invoice List"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
-                    var
-                        SalesPostAdvances: Codeunit "Sales-Post Advances";
                     begin
-                        CalcInvDiscForHeader;
-                        SalesPostAdvances.SetAmtToDedOnSalesDoc(Rec, true); // NAVCZ
-                        Commit();
-                        PAGE.RunModal(PAGE::"Sales Statistics", Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

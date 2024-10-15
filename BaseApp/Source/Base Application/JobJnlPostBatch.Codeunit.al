@@ -281,15 +281,18 @@ codeunit 1013 "Job Jnl.-Post Batch"
                                     "Journal Batch Name" := JobJnlBatch.Name;
                                 end;
                         JobJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                        if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast then begin
-                            JobJnlLine3.Init();
-                            JobJnlLine3."Journal Template Name" := "Journal Template Name";
-                            JobJnlLine3."Journal Batch Name" := "Journal Batch Name";
-                            JobJnlLine3."Line No." := 10000;
-                            JobJnlLine3.Insert();
-                            JobJnlLine3.SetUpNewLine(JobJnlLine2);
-                            JobJnlLine3.Modify();
-                        end;
+                        IsHandled := false;
+                        OnUpdateAndDeleteLinesOnBeforeSetUpNewLine(JobJnlBatch, JobJnlLine3, IsHandled);
+                        if not IsHandled then
+                            if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast then begin
+                                JobJnlLine3.Init();
+                                JobJnlLine3."Journal Template Name" := "Journal Template Name";
+                                JobJnlLine3."Journal Batch Name" := "Journal Batch Name";
+                                JobJnlLine3."Line No." := 10000;
+                                JobJnlLine3.Insert();
+                                JobJnlLine3.SetUpNewLine(JobJnlLine2);
+                                JobJnlLine3.Modify();
+                            end;
                     end;
                 end;
 
@@ -355,6 +358,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCheckLines(var JobJournalLine: Record "Job Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeSetUpNewLine(JobJnlBatch: Record "Job Journal Batch"; var JobJnlLine3: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

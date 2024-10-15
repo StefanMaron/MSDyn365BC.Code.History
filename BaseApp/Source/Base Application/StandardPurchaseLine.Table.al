@@ -1,4 +1,4 @@
-table 174 "Standard Purchase Line"
+﻿table 174 "Standard Purchase Line"
 {
     Caption = 'Standard Purchase Line';
 
@@ -268,6 +268,8 @@ table 174 "Standard Purchase Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', "Standard Purchase Code", "Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec, DimMgt);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -307,6 +309,11 @@ table 174 "Standard Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShortcutDimCode(var StandardPurchaseLine: Record "Standard Purchase Line"; var xStandardPurchaseLine: Record "Standard Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var StandardPurchaseLine: Record "Standard Purchase Line"; var DimMgt: Codeunit DimensionManagement)
     begin
     end;
 

@@ -204,11 +204,17 @@ codeunit 5815 "Undo Sales Shipment Line"
         end;
     end;
 
-    local procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line"): Integer;
+    local procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line") Result: Integer;
     var
         SalesShptLine2: Record "Sales Shipment Line";
         LineSpacing: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCorrectionLineNo(SalesShptLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with SalesShptLine do begin
             SalesShptLine2.SetRange("Document No.", "Document No.");
             SalesShptLine2."Document No." := "Document No.";
@@ -222,8 +228,9 @@ codeunit 5815 "Undo Sales Shipment Line"
             end else
                 LineSpacing := 10000;
 
-            exit("Line No." + LineSpacing);
+            Result := "Line No." + LineSpacing;
         end;
+        OnAfterGetCorrectionLineNo(SalesShptLine, Result);
     end;
 
     local procedure PostItemJnlLine(SalesShptLine: Record "Sales Shipment Line"; var DocLineNo: Integer): Integer
@@ -270,7 +277,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 ItemJnlLine."Unit of Measure Code" := Item."Base Unit of Measure";
             // NAVCZ
 
-            OnAfterCopyItemJnlLineFromSalesShpt(ItemJnlLine, SalesShptHeader, SalesShptLine, TempWhseJnlLine);
+            OnAfterCopyItemJnlLineFromSalesShpt(ItemJnlLine, SalesShptHeader, SalesShptLine, TempWhseJnlLine, WhseUndoQty);
 
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
@@ -567,7 +574,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromSalesShpt(var ItemJournalLine: Record "Item Journal Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    local procedure OnAfterCopyItemJnlLineFromSalesShpt(var ItemJournalLine: Record "Item Journal Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
     begin
     end;
 
@@ -582,12 +589,22 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCorrectionLineNo(SalesShipmentLine: Record "Sales Shipment Line"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesLine(var SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBlanketOrderInitOutstanding(var BlanketOrderSalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCorrectionLineNo(SalesShipmentLine: Record "Sales Shipment Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

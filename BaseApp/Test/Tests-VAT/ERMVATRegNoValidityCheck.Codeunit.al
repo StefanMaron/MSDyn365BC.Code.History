@@ -916,6 +916,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('CustomerConsentConfirmationPageChooseYesModalPageHandler')]
     [Scope('OnPrem')]
     procedure UI_VIESSettingCannotEnableWithBlankUrl()
     var
@@ -938,7 +939,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
-    [HandlerFunctions('StoreMessageMessageHandler')]
+    [HandlerFunctions('StoreMessageMessageHandler,CustomerConsentConfirmationPageChooseYesModalPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure UI_VIESSettingDisclaimerMessageOnEnable()
@@ -1607,6 +1608,13 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     procedure StoreMessageMessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerConsentConfirmationPageChooseYesModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
+    begin
+        CustConsentConfPage.Yes().Invoke();
     end;
 }
 

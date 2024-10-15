@@ -26,7 +26,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransHeader := Rec;
         TransHeader.SetHideValidationDialog(HideValidationDialog);
 
-        OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit);
+        OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, ItemJnlPostLine);
 
         with TransHeader do begin
             CheckBeforePost;
@@ -158,6 +158,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     TransLine.Modify();
                     OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
                 until TransLine.Next() = 0;
+
+            OnRunOnBeforePostUpdateDocumens(ItemJnlPostLine);
 
             if WhseReceive then
                 WhseRcptLine.LockTable();
@@ -719,7 +721,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 
@@ -840,6 +842,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterInsertTransRcptLines(TransRcptHeader: Record "Transfer Receipt Header"; TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforePostUpdateDocumens(var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 

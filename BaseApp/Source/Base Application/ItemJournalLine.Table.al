@@ -2941,7 +2941,13 @@
     procedure CopyDim(DimesionSetID: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyDim(Rec, DimesionSetID, IsHandled);
+        if IsHandled then
+            exit;
+
         ReadGLSetup;
         "Dimension Set ID" := DimesionSetID;
         DimSetEntry.SetRange("Dimension Set ID", DimesionSetID);
@@ -2966,6 +2972,11 @@
         i: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateProdDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" := 0;
@@ -4838,6 +4849,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterProdOrderCompSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDim(var ItemJournalLine: Record "Item Journal Line"; DimenionSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateProdDim(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

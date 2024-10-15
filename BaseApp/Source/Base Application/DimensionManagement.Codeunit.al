@@ -1051,7 +1051,7 @@ codeunit 408 DimensionManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled);
+        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled, GLSetupShortcutDimCode);
         if IsHandled then
             exit;
 
@@ -1455,11 +1455,17 @@ codeunit 408 DimensionManagement
         exit(true);
     end;
 
-    local procedure CheckDimValueAllowed(DimVal: Record "Dimension Value"): Boolean
+    local procedure CheckDimValueAllowed(DimVal: Record "Dimension Value") Result: Boolean
     var
         DimValueAllowed: Boolean;
         DimErr: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimValueAllowed(DimVal, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         DimValueAllowed :=
           (DimVal."Dimension Value Type" in [DimVal."Dimension Value Type"::Standard, DimVal."Dimension Value Type"::"Begin-Total"]);
         if not DimValueAllowed then
@@ -2163,6 +2169,8 @@ codeunit 408 DimensionManagement
             DimensionSetID :=
               GetRecDefaultDimID(
                 JobJournalLine, CurrFieldNo, HighPriorityTableID, HighPriorityNo, SourceCode, DimValue1, DimValue2, 0, 0);
+
+        OnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine, CurrFieldNo, DimensionSetID, DimValue1, DimValue2, SourceCode, PriorityTableID, TableID, No, HighPriorityTableID, HighPriorityNo);
     end;
 
     local procedure GetTableIDsForHigherPriorities(TableID: array[10] of Integer; No: array[10] of Code[20]; var HighPriorityTableID: array[10] of Integer; var HighPriorityNo: array[10] of Code[20]; SourceCode: Code[10]; PriorityTableID: Integer) Result: Boolean
@@ -2333,6 +2341,8 @@ codeunit 408 DimensionManagement
         UpdateGlobalDimFromDimSetID(
           GenJnlLine."Dimension Set ID",
           GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
+
+        OnAfterUpdateGenJnlLineDim(GenJnlLine, DimSetID);
     end;
 
     procedure UpdateGenJnlLineDimFromCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
@@ -2816,6 +2826,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var HighPriorityTableID: array[10] of Integer; var HighPriorityNo: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterEditDimensionSet2(var DimSetID: Integer; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20])
     begin
     end;
@@ -2846,6 +2861,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateGenJnlLineDim(var GenJournalLine: Record "Gen. Journal Line"; DimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimValues(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer)
     begin
     end;
@@ -2867,6 +2887,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValue(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValueAllowed(var DimensionValue: Record "Dimension Value"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2961,7 +2986,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean; var GLSetupShortcutDimCode: array[8] of Code[20])
     begin
     end;
 

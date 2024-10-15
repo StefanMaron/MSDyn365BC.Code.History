@@ -1166,17 +1166,14 @@ page 43 "Sales Invoice"
 
                     trigger OnAction()
                     var
-                        SalesPostAdvances: Codeunit "Sales-Post Advances";
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            CalcInvDiscForHeader;
-                            SalesPostAdvances.SetAmtToDedOnSalesDoc(Rec, true); // NAVCZ
-                            Commit();
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec);
-                            SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -1388,6 +1385,7 @@ page 43 "Sales Invoice"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1406,6 +1404,7 @@ page 43 "Sales Invoice"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

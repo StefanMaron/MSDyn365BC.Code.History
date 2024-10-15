@@ -56,8 +56,14 @@ table 31120 "EET Service Setup"
             Caption = 'Enabled';
 
             trigger OnValidate()
+            var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
             begin
                 if Enabled then begin
+                    if not CustomerConsentMgt.ConfirmUserConsent() then begin
+                        Enabled := false;
+                        exit;
+                    end;
                     ScheduleJobQueueEntry;
                     if Confirm(JobQEntryCreatedQst) then
                         ShowJobQueueEntry;

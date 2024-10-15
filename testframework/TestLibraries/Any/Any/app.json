@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Library used to generate pseudo-random values.",
     "description":  "In test code, Any should be used to generate values that should not be hardcoded to a specific values.",
-    "version":  "18.4.28601.29139",
+    "version":  "18.5.29545.0",
     "privacyStatement":  "",
     "EULA":  "",
     "help":  "",

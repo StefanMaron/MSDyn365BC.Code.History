@@ -1329,7 +1329,14 @@ table 5741 "Transfer Line"
     end;
 
     procedure UpdateWithWarehouseShipReceive()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWithWarehouseShipReceive(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Location.RequireShipment("Transfer-from Code") then
             Validate("Qty. to Ship", 0)
         else
@@ -1872,6 +1879,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 

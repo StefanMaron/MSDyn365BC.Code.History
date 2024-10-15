@@ -40,6 +40,12 @@ table 2585 "Dim Correct Selection Criteria"
         {
             DataClassification = CustomerContent;
         }
+
+        field(8; "UTF16 Encoding"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            InitValue = true;
+        }
     }
 
     keys
@@ -66,15 +72,24 @@ table 2585 "Dim Correct Selection Criteria"
     end;
 
     procedure SetSelectionFilter(var MainRecordRef: RecordRef)
+    var
+        CurrentLanguage: Integer;
     begin
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
         Rec.SetSelectionFilter(MainRecordRef.GetView());
+        GlobalLanguage(CurrentLanguage);
     end;
 
     procedure SetSelectionFilter(NewSelectionFilter: Text)
     var
         SelectionFilterOutStream: OutStream;
     begin
-        Rec."Selection Filter".CreateOutStream(SelectionFilterOutStream);
+        if Rec."UTF16 Encoding" then
+            Rec."Selection Filter".CreateOutStream(SelectionFilterOutStream, TextEncoding::UTF16)
+        else
+            Rec."Selection Filter".CreateOutStream(SelectionFilterOutStream);
+
         SelectionFilterOutStream.WriteText(NewSelectionFilter);
         Rec."Language Id" := GlobalLanguage();
     end;
@@ -86,7 +101,11 @@ table 2585 "Dim Correct Selection Criteria"
         CurrentGlobalLanguage: Integer;
     begin
         Rec.CalcFields("Selection Filter");
-        Rec."Selection Filter".CreateInStream(SelectionFilterInStream);
+        if "UTF16 Encoding" then
+            Rec."Selection Filter".CreateInStream(SelectionFilterInStream, TextEncoding::UTF16)
+        else
+            Rec."Selection Filter".CreateInStream(SelectionFilterInStream);
+
         SelectionFilterInStream.ReadText(SelectionFilterText);
 
         if Rec."Language Id" = 0 then

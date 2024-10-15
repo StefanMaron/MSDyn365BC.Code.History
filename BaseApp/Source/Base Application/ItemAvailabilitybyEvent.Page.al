@@ -450,6 +450,7 @@ page 5530 "Item Availability by Event"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage(IncludeBlanketOrders);
         if ItemIsSet then
             InitAndCalculatePeriodEntries()
         else
@@ -623,6 +624,11 @@ page 5530 "Item Availability by Event"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var IncludeBlanketOrders: Boolean)
     begin
     end;
 }

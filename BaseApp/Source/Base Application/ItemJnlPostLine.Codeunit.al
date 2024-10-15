@@ -566,7 +566,7 @@
                 MfgItem.TestField("Gen. Prod. Posting Group");
 
                 if Subcontracting then
-                    MfgUnitCost := ProdOrderLine."Unit Cost"
+                    MfgUnitCost := ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure"
                 else
                     if MfgSKU.Get(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
                         MfgUnitCost := MfgSKU."Unit Cost"
@@ -2412,7 +2412,7 @@
 
             OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem, OldItemLedgEntry);
             ItemLedgEntry.Insert(true);
-            OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo);
+            OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo, GlobalValueEntry, TransferItem, InventoryPostingToGL, OldItemLedgEntry);
 
             InsertItemReg(ItemLedgEntry."Entry No.", 0, 0, 0);
         end;
@@ -3099,7 +3099,7 @@
                     ItemLedgEntry.Modify();
             end;
 
-            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry);
+            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry, TransferItem, InventoryPostingToGL);
             if ((ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
                 (ValueEntry."Item Charge No." = '')) and
                (((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
@@ -3135,7 +3135,8 @@
                     ValueEntry."G/L Correction" := ValueEntry."Valued Quantity" < 0;
             // NAVCZ
 
-            OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment);
+            OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment,
+                OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
 
             if ValueEntry.Inventoriable and not Item."Inventory Value Zero" then
                 PostInventoryToGL(ValueEntry);
@@ -4028,7 +4029,7 @@
             GlobalItemTrackingCode, ItemJnlLine."Entry Type",
             ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, GlobalItemTrackingSetup);
 
-        OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(GlobalItemTrackingCode, ItemJnlLine2, GlobalItemTrackingSetup);
+        OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(GlobalItemTrackingCode, ItemJnlLine2, GlobalItemTrackingSetup, ItemJnlLine);
 
         if Item."Costing Method" = Item."Costing Method"::Specific then begin
             Item.TestField("Item Tracking Code");
@@ -4056,6 +4057,7 @@
                     if Format(Item."Expiration Calculation") <> '' then
                         CalcExpirationDate := CalcDate(Item."Expiration Calculation", ItemJnlLine2."Document Date");
 
+                IsHandled := false;
                 OnSetupSplitJnlLineOnBeforeReallocateTrkgSpecification(GlobalItemTrackingCode, TempTrackingSpecification, ItemJnlLine2, SignFactor, IsHandled);
                 if not IsHandled then
                     if SignFactor * ItemJnlLine2.Quantity < 0 then // Demand
@@ -4071,6 +4073,7 @@
                     TempTrackingSpecification.TestFieldError(TempTrackingSpecification.FieldCaption("Qty. to Invoice (Base)"),
                       TempTrackingSpecification."Qty. to Invoice (Base)", SignFactor * ItemJnlLine2."Invoiced Qty. (Base)");
 
+                OnSetupSplitJnlLineOnBeforeCalcNonDistrQuantity(TempTrackingSpecification, ItemJnlLine2, Invoice, SignFactor);
                 NonDistrQuantity :=
                     UOMMgt.CalcQtyFromBase(
                         ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", ItemJnlLine2."Unit of Measure Code",
@@ -4341,6 +4344,7 @@
                         SumLot := SignFactor * ItemTrackingMgt.SumNewLotOnTrackingSpec(TempTrackingSpecification)
                     else
                         SumLot := SignFactor * TempTrackingSpecification."Quantity (Base)";
+                    OnCheckExpirationDateOnAfterCalcSumLot(SumLot, SignFactor, TempTrackingSpecification);
                     if (SumOfEntries > 0) and
                        ((SumOfEntries <> SumLot) or (TempTrackingSpecification."New Lot No." <> TempTrackingSpecification."Lot No."))
                     then
@@ -4451,8 +4455,10 @@
               OldValueEntry, NewValueEntry, NewItemLedgEntry, ItemJnlLine."Document Line No.", -1,
               NewItemLedgEntry.Quantity, NewItemLedgEntry.Quantity);
 
+        OnUndoQuantityPostingOnBeforeUpdateOldItemLedgEntry(OldValueEntry, NewItemLedgEntry, NewValueEntry, ItemJnlLine);
         UpdateOldItemLedgEntry(OldItemLedgEntry, NewItemLedgEntry."Posting Date");
         UpdateItemApplnEntry(OldItemLedgEntry."Entry No.", NewItemLedgEntry."Posting Date");
+        OnUndoQuantityPostingOnAfterUpdateItemApplnEntry(ItemJnlLine, OldItemLedgEntry, NewItemLedgEntry, NewValueEntry, InventoryPostingToGL);
 
         if GlobalItemLedgEntry.Quantity > 0 then
             IsReserved :=
@@ -5668,7 +5674,7 @@
                 "Applies-to Entry" := TempTrackingSpecification."Appl.-to Item Entry";
             "Applies-from Entry" := TempTrackingSpecification."Appl.-from Item Entry";
 
-            OnBeforeInsertSetupTempSplitItemJnlLine(TempTrackingSpecification, TempSplitItemJnlLine, PostItemJnlLine, ItemJnlLine2, SignFactor);
+            OnBeforeInsertSetupTempSplitItemJnlLine(TempTrackingSpecification, TempSplitItemJnlLine, PostItemJnlLine, ItemJnlLine2, SignFactor, FloatingFactor);
 
             Insert;
         end;
@@ -5906,7 +5912,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgEntryNo: Integer; var ValueEntryNo: Integer; var ItemApplnEntryNo: Integer)
+    local procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgEntryNo: Integer; var ValueEntryNo: Integer; var ItemApplnEntryNo: Integer; GlobalValueEntry: Record "Value Entry"; TransferItem: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var OldItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -5926,7 +5932,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean)
+    local procedure OnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; var OldItemLedgEntry: Record "Item Ledger Entry"; var Item: Record Item; TransferItem: Boolean; var GlobalValueEntry: Record "Value Entry")
     begin
     end;
 
@@ -6015,7 +6021,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean)
     begin
     end;
@@ -6041,7 +6047,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSetupTempSplitItemJnlLine(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempItemJournalLine: Record "Item Journal Line" temporary; var PostItemJnlLine: Boolean; var ItemJournalLine2: Record "Item Journal Line"; SignFactor: Integer)
+    local procedure OnBeforeInsertSetupTempSplitItemJnlLine(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempItemJournalLine: Record "Item Journal Line" temporary; var PostItemJnlLine: Boolean; var ItemJournalLine2: Record "Item Journal Line"; SignFactor: Integer; FloatingFactor: Decimal)
     begin
     end;
 
@@ -6076,7 +6082,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(ItemTrackingCode: Record "Item Tracking Code"; ItemJnlLine: Record "Item Journal Line"; var ItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnSetupSplitJnlLineOnAfterGetItemTrackingSetup(ItemTrackingCode: Record "Item Tracking Code"; ItemJnlLine: Record "Item Journal Line"; var ItemTrackingSetup: Record "Item Tracking Setup"; GlobalItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6576,6 +6582,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSetupSplitJnlLineOnBeforeCalcNonDistrQuantity(var TempTrackingSpecification: Record "Tracking Specification" temporary; var ItemJournalLine: Record "Item Journal Line"; Invoice: Boolean; SignFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSplitItemJnlLineOnBeforeTracking(
         var ItemJnlLine2: Record "Item Journal Line"; var PostItemJnlLine: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary;
         var GlobalItemLedgEntry: Record "Item Ledger Entry"; var TempItemEntryRelation: Record "Item Entry Relation" temporary;
@@ -7005,6 +7016,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckExpirationDateOnAfterCalcSumLot(var SumLot: Decimal; SignFactor: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckExpirationDateOnBeforeAssignExpirationDate(var TempTrackingSpecification: Record "Tracking Specification" temporary; ExistingExpirationDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -7020,7 +7036,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry")
+    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
     begin
     end;
 
@@ -7111,6 +7127,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertApplEntryOnBeforeModify(var ItemApplicationEntry: Record "Item Application Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnAfterUpdateItemApplnEntry(var ItemJnlLine: Record "Item Journal Line"; OldItemLedgEntry: Record "Item Ledger Entry"; NewItemLedgEntry: Record "Item Ledger Entry"; NewValueEntry: Record "Value Entry"; InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnBeforeUpdateOldItemLedgEntry(var OldValueEntry2: Record "Value Entry"; var NewItemLedgEntry: Record "Item Ledger Entry"; var NewValueEntry: Record "Value Entry"; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

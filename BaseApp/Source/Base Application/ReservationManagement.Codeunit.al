@@ -724,7 +724,13 @@
         ReservSummaryType: Enum "Reservation Summary Type";
         Search: Text[1];
         NextStep: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAutoReserveOneLine(IsHandled);
+        if IsHandled then
+            exit;
+
         CalcReservEntry.TestField("Source Type");
 
         if RemainingQtyToReserveBase = 0 then
@@ -903,6 +909,8 @@
                     IsFound := CalcItemLedgEntry.Next(InvNextStep) <> 0;
             until not IsFound or (RemainingQtyToReserveBase = 0);
         end;
+
+        OnAfterAutoReserveItemLedgEntry(CalcItemLedgEntry, RemainingQtyToReserveBase);
     end;
 
     local procedure AutoReservePurchLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer)
@@ -1399,6 +1407,8 @@
             RemainingQtyToReserveBase := RemainingQtyToReserveBase - QtyThisLineBase;
             ReservationCreated := true;
         end;
+
+        OnAfterInsertReservationEntries(TrackingSpecification, CalcReservEntry, RemainingQtyToReserve, RemainingQtyToReserveBase, QtyThisLine, QtyThisLineBase, ReservationCreated);
     end;
 
     procedure CreateReservation(Description: Text[100]; ExpectedDate: Date; Quantity: Decimal; QuantityBase: Decimal; TrackingSpecification: Record "Tracking Specification")
@@ -1499,7 +1509,7 @@
             ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
             HandleItemTracking2 := not ReservEntry.IsEmpty;
             ReservEntry.SetRange("Item Tracking");
-            OnDeleteReservEntriesOnAfterReservEntrySetFilters(ReservEntry);
+            OnDeleteReservEntriesOnAfterReservEntrySetFilters(ReservEntry, ItemTrackingHandling);
             case ItemTrackingHandling of
                 ItemTrackingHandling::None:
                     ReservEntry.SetTrackingFilterBlank;
@@ -1752,6 +1762,7 @@
         // Item Tracking
         if ItemTrackingHandling = ItemTrackingHandling::None then
             ReservEntry2.SetTrackingFilterBlank;
+        OnClearSurplusOnAfterReservEntry2SetFilters(ReservEntry2, ItemTrackingHandling);
 
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then begin
             ReservEntry2.Lock;
@@ -3019,6 +3030,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAutoReserveItemLedgEntry(var CalcItemLedgEntry: Record "Item Ledger Entry"; var RemainingQtyToReserveBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertReservationEntries(var TrackingSpecification: Record "Tracking Specification"; var CalcReservEntry: Record "Reservation Entry"; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal; var ReservationCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteDocumentReservation(TableID: Integer; DocType: Option; DocNo: Code[20]; var HideValidationDialog: Boolean)
     begin
     end;
@@ -3177,6 +3203,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnClearSurplusOnAfterReservEntry2SetFilters(var ReservationEntry: Record "Reservation Entry"; ItemTrackingHandling: Option "None","Allow deletion",Match)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateReservation(SourceRecRef: RecordRef; TrackingSpecification: Record "Tracking Specification"; ForReservEntry: Record "Reservation Entry"; Description: Text[100]; ExpectedDate: Date; Quantity: Decimal; QuantityBase: Decimal);
     begin
     end;
@@ -3195,7 +3226,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteReservEntriesOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry")
+    local procedure OnDeleteReservEntriesOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry"; var ItemTrackingHandling: Option "None","Allow deletion",Match)
     begin
     end;
 

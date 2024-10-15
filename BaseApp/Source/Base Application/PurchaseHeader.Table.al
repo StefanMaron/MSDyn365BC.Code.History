@@ -3079,6 +3079,7 @@
         Text052: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.';
         UpdateDocumentDate: Boolean;
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
+        StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
         Text054: Label 'There are unpaid prepayment invoices that are related to the document of type %1 with the number %2.';
         DeferralLineQst: Label 'You have changed the %1 on the purchase header, do you want to update the deferral schedules for the lines with this date?', Comment = '%1=The posting date on the document.';
         UpdateChangedFieldQst: Label 'You have changed %1. Do you want to update %2?', Comment = '%1 = field caption, %2 = field caption';
@@ -3204,6 +3205,8 @@
         InitVATDate(PurchSetup."Default VAT Date");
         InitOriginalDocumentVATDate(PurchSetup."Default Orig. Doc. VAT Date");
         // NAVCZ
+
+        OnInitRecordOnAfterAssignDates(Rec);
 
         ValidateEmptySellToCustomerAndLocation();
 
@@ -3645,7 +3648,7 @@
                         ItemChargeAssgntPurch.Init();
                         ItemChargeAssgntPurch := TempItemChargeAssgntPurch;
                         ItemChargeAssgntPurch."Document Line No." := TempInteger.Number;
-                        ItemChargeAssgntPurch.Validate("Unit Cost", 0);
+                        ItemChargeAssgntPurch.Validate("Qty. to Assign", 0);
                         ItemChargeAssgntPurch.Insert();
                     until TempItemChargeAssgntPurch.Next() = 0;
                     TempInteger.Delete();
@@ -5135,7 +5138,6 @@
 
     procedure OpenPurchaseOrderStatistics()
     var
-        PurchPostAdvances: Codeunit "Purchase-Post Advances";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5143,12 +5145,80 @@
         if IsHandled then
             exit;
 
-        CalcInvDiscForHeader;
+        OpenDocumentStatisticsInternal();
+    end;
+
+    procedure OpenDocumentStatistics()
+    begin
+        OpenDocumentStatisticsInternal();
+    end;
+
+    procedure PrepareOpeningDocumentStatistics()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchPostAdvances: Codeunit "Purchase-Post Advances";
+    begin
+        if not WritePermission() or not PurchaseLine.WritePermission() then
+            Error(StatisticsInsuffucientPermissionsErr);
+
+        CalcInvDiscForHeader();
+
         if "Document Type" = "Document Type"::Order then
             PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
-        CreateDimSetForPrepmtAccDefaultDim;
+
+        if IsOrderDocument() then
+            CreateDimSetForPrepmtAccDefaultDim();
+
+        OnAfterPrepareOpeningDocumentStatistics(Rec);
+
         Commit();
-        PAGE.RunModal(PAGE::"Purchase Order Statistics", Rec);
+    end;
+
+    procedure ShowDocumentStatisticsPage()
+    var
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        StatisticsPageId: Integer;
+    begin
+        StatisticsPageId := GetStatisticsPageID();
+
+        OnGetStatisticsPageID(StatisticsPageId, Rec);
+
+        PAGE.RunModal(StatisticsPageId, Rec);
+
+        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+    end;
+
+    local procedure OpenDocumentStatisticsInternal()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenDocumentStatistics(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PrepareOpeningDocumentStatistics();
+        ShowDocumentStatisticsPage();
+    end;
+
+    local procedure IsOrderDocument(): Boolean
+    begin
+        case "Document Type" of
+            "Document Type"::Order,
+            "Document Type"::"Blanket Order",
+            "Document Type"::"Return Order":
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure GetStatisticsPageID(): Integer
+    begin
+        if IsOrderDocument() then
+            exit(PAGE::"Purchase Order Statistics");
+
+        exit(PAGE::"Purchase Statistics");
     end;
 
     procedure GetCardpageID(): Integer
@@ -7061,6 +7131,21 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)
     begin
@@ -7093,6 +7178,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitInsertOnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnAfterAssignDates(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

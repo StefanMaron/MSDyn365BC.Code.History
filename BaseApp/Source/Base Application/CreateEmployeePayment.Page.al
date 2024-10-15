@@ -290,17 +290,26 @@ page 1191 "Create Employee Payment"
               DATABASE::"Job Task", "Job Task No.",// NAVCZ
               DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
               DATABASE::Campaign, "Campaign No.");
-            if NewDimensionID <> "Dimension Set ID" then begin
-                DimSetIDArr[1] := "Dimension Set ID";
-                DimSetIDArr[2] := NewDimensionID;
-                "Dimension Set ID" :=
-                  DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
+            if NewDimensionID <> "Dimension Set ID" then
+                AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
 
             DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
               "Shortcut Dimension 2 Code");
         end;
+
+        OnAfterUpdateDimensions(GenJnlLine);
+    end;
+
+    local procedure AssignCombinedDimensionSetID(var GenJournalLine: Record "Gen. Journal Line"; var DimSetIDArr: array[10] of Integer; NewDimensionID: Integer)
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        DimSetIDArr[1] := GenJournalLine."Dimension Set ID";
+        DimSetIDArr[2] := NewDimensionID;
+        GenJournalLine."Dimension Set ID" := DimensionManagement.GetCombinedDimensionSetID(DimSetIDArr, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+
+        OnAfterAssignCombinedDimensionSetID(GenJournalLine, DimSetIDArr);
     end;
 
     local procedure SetJournalTemplate()
@@ -330,6 +339,16 @@ page 1191 "Create Employee Payment"
                 NextDocNo := NoSeriesMgt.GetNextNo(GenJournalBatchNoSeries, PostingDate, false);
             Clear(NoSeriesMgt);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDimensions(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignCombinedDimensionSetID(var GenJournalLine: Record "Gen. Journal Line"; DimSetIDArr: array[10] of Integer)
+    begin
     end;
 }
 

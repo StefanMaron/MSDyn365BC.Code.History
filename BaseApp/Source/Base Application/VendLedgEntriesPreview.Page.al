@@ -142,6 +142,8 @@ page 128 "Vend. Ledg. Entries Preview"
                     Caption = 'Original Amount';
                     Editable = false;
                     ToolTip = 'Specifies the amount on the vendor ledger entry before you post.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin
@@ -167,6 +169,8 @@ page 128 "Vend. Ledg. Entries Preview"
                     Caption = 'Amount';
                     Editable = false;
                     ToolTip = 'Specifies the net amount of all the lines in the vendor entry.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin
@@ -216,6 +220,8 @@ page 128 "Vend. Ledg. Entries Preview"
                     Caption = 'Remaining Amount';
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount on the vendor ledger entry before you post.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin

@@ -337,7 +337,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             SetRange("Item No.", PhysInvtOrderLine."Item No.");
             SetRange("Variant Code", PhysInvtOrderLine."Variant Code");
             SetRange("Location Code", PhysInvtOrderLine."Location Code");
-            SetRange("Posting Date", 0D, "Posting Date");
+            SetRange("Posting Date", 0D, PhysInvtOrderHeader."Posting Date");
             if Find('-') then
                 repeat
                     UpdateBufferExpectedQty("Serial No.", "Lot No.", Quantity);

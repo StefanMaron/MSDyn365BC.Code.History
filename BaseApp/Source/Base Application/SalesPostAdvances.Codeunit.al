@@ -585,6 +585,7 @@ codeunit 31000 "Sales-Post Advances"
 
                 SalesAdvanceLetterLine.SuspendStatusCheck(true);
                 SalesAdvanceLetterLine.Modify(true);
+                OnRemoveLinksOnBeforeUpdInvAmountToLineRelations(AdvanceLink);
                 UpdInvAmountToLineRelations(SalesAdvanceLetterLine);
                 AdvanceLink.Delete();
                 TempCustLedgEntry."Entry No." := AdvanceLink."CV Ledger Entry No.";
@@ -746,7 +747,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
         AdvanceLink.SetRange("Invoice No.", '');
-        OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink);
+        OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink, SalesAdvanceLetterHeader);
         if AdvanceLink.FindSet then
             repeat
                 if (AdvanceLink."Transfer Date" <> 0D) and
@@ -1198,7 +1199,7 @@ codeunit 31000 "Sales-Post Advances"
             "Source No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
             "External Document No." := SalesAdvanceLetterHeader."External Document No.";
         end;
-        OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesAdvanceLetterEntry, GenJournalLine);
+        OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesAdvanceLetterEntry, GenJournalLine, DocumentType);
     end;
 
     local procedure PostLetter_UpdtAdvLines(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; LineAmount: Decimal; PostingDate: Date)
@@ -1372,7 +1373,7 @@ codeunit 31000 "Sales-Post Advances"
 
                     TempSalesAdvanceLetterHeader2.TestField("VAT Country/Region Code", SalesInvHeader."VAT Country/Region Code");
 
-                    UpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct);
+                    UpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, SalesInvHeader);
 
                     TempCustLedgEntryGre.Reset();
                     TempCustLedgEntryGre.DeleteAll();
@@ -1437,12 +1438,12 @@ codeunit 31000 "Sales-Post Advances"
         SaveDeductionEntries;
     end;
 
-    local procedure UpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; AmountToDeduct: Decimal)
+    local procedure UpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; AmountToDeduct: Decimal; SalesInvHeader: Record "Sales Invoice Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, IsHandled);
+        OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, IsHandled, SalesInvHeader);
         if IsHandled then
             exit;
 
@@ -1836,7 +1837,7 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
-    local procedure PostPaymentCorrection(SalesInvHeader: Record "Sales Invoice Header"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary)
+    procedure PostPaymentCorrection(SalesInvHeader: Record "Sales Invoice Header"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     var
         GenJnlLine: Record "Gen. Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
@@ -2071,7 +2072,7 @@ codeunit 31000 "Sales-Post Advances"
         end;
     end;
 
-    local procedure CalcVATToDeduct(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalBase: Decimal; var TotalAmount: Decimal; var TotalBaseLCY: Decimal; var TotalAmountLCY: Decimal; CustEntryNo: Integer)
+    procedure CalcVATToDeduct(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalBase: Decimal; var TotalAmount: Decimal; var TotalBaseLCY: Decimal; var TotalAmountLCY: Decimal; CustEntryNo: Integer)
     var
         SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry";
     begin
@@ -2231,7 +2232,11 @@ codeunit 31000 "Sales-Post Advances"
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         AmtDif: Decimal;
+        IsHandled: boolean;
     begin
+        OnBeforeUpdInvAmountToLineRelations(SalesAdvanceLetterLine, IsHandled);
+        if IsHandled then
+            exit;
         SalesAdvanceLetterLine.CalcFields("Document Linked Inv. Amount");
         AmtDif := SalesAdvanceLetterLine."Amount Invoiced" - SalesAdvanceLetterLine."Document Linked Inv. Amount";
         if AmtDif > 0 then begin
@@ -2779,7 +2784,7 @@ codeunit 31000 "Sales-Post Advances"
             "Line No." := SalesAdvanceLetterLine."Line No.";
             Description := SalesAdvanceLetterLine.Description;
         end;
-        OnAfterFillCreditMemoLineBuf(SalesAdvanceLetterEntry, CloseAll, PrepmtInvLineBuf);
+        OnAfterFillCreditMemoLineBuf(SalesAdvanceLetterEntry, CloseAll, PrepmtInvLineBuf, SalesAdvanceLetterLine);
     end;
 
     [Scope('OnPrem')]
@@ -3347,6 +3352,7 @@ codeunit 31000 "Sales-Post Advances"
                             then
                                 GenJnlLine."Advance Exch. Rate Difference" := -SalesAdvanceLetterEntry2."VAT Amount (LCY)";
                             GenJnlLine.Validate(Amount, -SalesAdvanceLetterEntry."VAT Amount (LCY)");
+                            OnUnPostInvoiceCorrectionOnBeforeUnPost(SalesAdvanceLetterEntry, GenJnlLine);
                             UnPostInvCorrGL(SalesInvHeader, GenJnlLine);
                             if SalesAdvanceLetterLine2."VAT Calculation Type" <>
                                SalesAdvanceLetterLine2."VAT Calculation Type"::"Reverse Charge VAT"
@@ -3596,6 +3602,7 @@ codeunit 31000 "Sales-Post Advances"
                 GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Refund;
                 GenJnlLine."Applies-to Doc. No." := SalesInvHeader."No.";
                 GenJnlLine."Posting Group" := CustLedgEntry."Customer Posting Group";
+                OnUnPostInvCorrUpdtOnBeforeUnPost(CustLedgEntry, GenJnlLine);
                 UnPostInvCorrGL(SalesInvHeader, GenJnlLine);
             until TempCustLedgEntry.Next() = 0;
         end;
@@ -4344,6 +4351,9 @@ codeunit 31000 "Sales-Post Advances"
         end;
 
         OnRecalcPrepmOnAfterCalcLinkedAmounts(TempSalesLine, PriceInclVAT, LinkedAmt, LinkedRemAmtLine, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempSalesLine."Amount Including VAT" < LinkedRemAmtLine then
             SalesLine.FieldError("Prepmt. Line Amount");
 
@@ -4706,7 +4716,7 @@ codeunit 31000 "Sales-Post Advances"
         AmountToDeduct: Decimal;
         IsHandled: Boolean;
     begin
-        OnBeforeCalcVATCorrection(SalesHeader, TempVATAmountLine, IsHandled);
+        OnBeforeCalcVATCorrection(SalesHeader, TempVATAmountLine, IsHandled, TempSalesAdvanceLetterEntry);
         if IsHandled then
             exit;
 
@@ -4892,7 +4902,7 @@ codeunit 31000 "Sales-Post Advances"
         end;
     end;
 
-    local procedure CalcLinkedPmtAmountToApplyTmp(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; TotalAmountToApply: Decimal; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempCustLedgEntryLink: Record "Cust. Ledger Entry" temporary; var TempAdvanceLink: Record "Advance Link" temporary)
+    procedure CalcLinkedPmtAmountToApplyTmp(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; TotalAmountToApply: Decimal; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempCustLedgEntryLink: Record "Cust. Ledger Entry" temporary; var TempAdvanceLink: Record "Advance Link" temporary)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         AmountToApply: Decimal;
@@ -5638,7 +5648,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcVATCorrection(SalesHeader: Record "Sales Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalcVATCorrection(SalesHeader: Record "Sales Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean; var TempSalesAdvanceLetterEntry: Record "Sales Advance Letter Entry" temporary)
     begin
     end;
 
@@ -5663,7 +5673,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; var AmountToDeduct: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; var AmountToDeduct: Decimal; var IsHandled: Boolean; SalesInvHeader: Record "Sales Invoice Header")
     begin
     end;
 
@@ -5673,7 +5683,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 
@@ -5698,7 +5708,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillCreditMemoLineBuf(SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; CloseAll: boolean; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
+    local procedure OnAfterFillCreditMemoLineBuf(SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; CloseAll: boolean; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
     end;
 
@@ -5778,7 +5788,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(var AdvanceLink: Record "Advance Link")
+    local procedure OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(var AdvanceLink: Record "Advance Link"; SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
     end;
 
@@ -5834,6 +5844,26 @@ codeunit 31000 "Sales-Post Advances"
 
     [IntegrationEvent(false, false)]
     local procedure OnLetterOnBeforeInsertSalesAdvanceLetterLine(var TempPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvCorrUpdtOnBeforeUnPost(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnBeforeUnPost(SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdInvAmountToLineRelations(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveLinksOnBeforeUpdInvAmountToLineRelations(AdvanceLink: record "Advance Link")
     begin
     end;
 }

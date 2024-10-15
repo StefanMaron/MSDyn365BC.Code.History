@@ -426,12 +426,13 @@ table 92 "Customer Posting Group"
             Error(YouCannotDeleteErr, Code);
     end;
 
-    procedure GetReceivablesAccount(): Code[20]
+    procedure GetReceivablesAccount() Result: Code[20]
     begin
         if "Receivables Account" = '' then
             PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Receivables Account"));
         TestField("Receivables Account");
-        exit("Receivables Account");
+        Result := "Receivables Account";
+        OnAfterGetReceivablesAccount(Rec, Result);
     end;
 
     procedure GetPmtDiscountAccount(Debit: Boolean): Code[20]
@@ -613,6 +614,11 @@ table 92 "Customer Posting Group"
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckOpenCustLedgEntries(var Prepayment1: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetReceivablesAccount(var CustomerPostingGroup: Record "Customer Posting Group"; var Result: Code[20])
     begin
     end;
 }

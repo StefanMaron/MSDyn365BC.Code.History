@@ -620,6 +620,8 @@ page 5805 "Item Charge Assignment (Purch)"
                 end;
         // NAVCZ
         end;
+
+        OnAfterUpdateQty(Rec, QtyToReceiveBase, QtyReceivedBase, QtyToShipBase, QtyShippedBase);
     end;
 
     procedure Initialize(NewPurchLine: Record "Purchase Line"; NewLineAmt: Decimal)
@@ -638,6 +640,11 @@ page 5805 "Item Charge Assignment (Purch)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitialize(var PurchaseLine: Record "Purchase Line"; var AssgntAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateQty(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var QtyToReceiveBase: Decimal; var QtyReceivedBase: Decimal; var QtyToShipBase: Decimal; var QtyShippedBase: Decimal)
     begin
     end;
 

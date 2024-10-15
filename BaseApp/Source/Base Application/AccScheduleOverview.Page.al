@@ -793,6 +793,7 @@ page 490 "Acc. Schedule Overview"
                       AccSchedManagement.CalcCell(Rec, TempColumnLayout, UseAmtsInAddCurr),
                       TempColumnLayout."Rounding Factor"),
                     TempColumnLayout."Rounding Factor");
+                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, UseAmtsInAddCurr);
                 ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
                 GetStyle(ColumnNo - ColumnOffset, "Line No.", TempColumnLayout."Line No.");
             end;
@@ -853,6 +854,8 @@ page 490 "Acc. Schedule Overview"
         DateFilter := GetFilter("Date Filter");
 
         OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
+
+        OnAfterOnOpenPage(Rec, CurrentColumnName);
     end;
 
     var
@@ -1019,6 +1022,7 @@ page 490 "Acc. Schedule Overview"
     begin
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
         AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, PeriodType);
+        OnAfterDrillDown(ColumnNo, TempColumnLayout, PeriodType);
     end;
 
     local procedure UpdateColumnCaptions()
@@ -1084,7 +1088,7 @@ page 490 "Acc. Schedule Overview"
         GLBudgetFilter := '';
         CostBudgetFilter := '';
 
-        OnAfterUpdateDimFilterControls();
+        OnAfterUpdateDimFilterControls(Dim4FilterEnable);
     end;
 
     local procedure CurrentSchedNameOnAfterValidate()
@@ -1213,7 +1217,22 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterUpdateDimFilterControls()
+    local procedure OnAfterUpdateDimFilterControls(var Dim4FilterEnable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterDrillDown(ColumnNo: Integer; var TempColumnLayout: Record "Column Layout" temporary; var PeriodType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var AccScheduleLine: Record "Acc. Schedule Line"; var CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnAfterGetRecordOnAfterAssignColumnValue(var ColumnValues: array[12] of Decimal; var ColumnNo: Integer; var ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; var UseAmtsInAddCurr: Boolean)
     begin
     end;
 

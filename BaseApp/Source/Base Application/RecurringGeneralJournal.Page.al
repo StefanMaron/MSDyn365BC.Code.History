@@ -965,9 +965,9 @@
     end;
 
     trigger OnOpenPage()
-    var
-        JnlSelected: Boolean;
     begin
+        OnBeforeOnOpenPage();
+
         SetControlVisibility;
         SetDimensionsVisibility;
 
@@ -976,10 +976,10 @@
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Recurring General Journal", "Gen. Journal Template Type"::General, true, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
+        SelectJournalWithError();
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+
+        OnAfterOnOpenPage(CurrentJnlBatchName);
     end;
 
     var
@@ -1026,6 +1026,21 @@
         TotalBalanceVisible := ShowTotalBalance;
         if ShowTotalBalance then
             NumberOfRecords := Count();
+    end;
+
+    local procedure SelectJournalWithError()
+    var
+        JnlSelected: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectJournalWithError(CurrentJnlBatchName, GenJnlManagement, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlManagement.TemplateSelection(PAGE::"Recurring General Journal", "Gen. Journal Template Type"::General, true, Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -1076,6 +1091,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSelectJournalWithError(var CurrentJnlBatchName: Code[10]; GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
     begin
     end;
 }

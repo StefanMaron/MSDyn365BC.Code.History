@@ -1115,14 +1115,8 @@ page 51 "Purchase Invoice"
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
-                    var
-                        PurchPostAdvances: Codeunit "Purchase-Post Advances";
                     begin
-                        CalcInvDiscForHeader;
-                        PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenDocumentStatistics();
                         CurrPage.PurchLines.PAGE.ForceCalculateTotals(); // NAVCZ
                     end;
                 }
@@ -1401,6 +1395,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1419,6 +1414,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

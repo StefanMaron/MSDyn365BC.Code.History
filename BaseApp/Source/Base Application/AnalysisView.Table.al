@@ -60,7 +60,14 @@ table 363 "Analysis View"
             Caption = 'Blocked';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBlocked(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not Blocked and "Refresh When Unblocked" then begin
                     ValidateDelete(FieldCaption(Blocked));
                     AnalysisViewReset;
@@ -84,7 +91,13 @@ table 363 "Analysis View"
                 AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
                 GLAcc: Record "G/L Account";
                 CFAccount: Record "Cash Flow Account";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAccountFilter(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Blocked, false);
                 if "Account Source" = "Account Source"::"G/L Account" then begin
                     if ("Last Entry No." <> 0) and (xRec."Account Filter" = '') and ("Account Filter" <> '')
@@ -155,7 +168,13 @@ table 363 "Analysis View"
                 AnalysisViewEntry: Record "Analysis View Entry";
                 AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
                 TempBusUnit: Record "Business Unit" temporary;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBusinessUnitFilter(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and (xRec."Business Unit Filter" = '') and
                    ("Business Unit Filter" <> xRec."Business Unit Filter")
@@ -195,7 +214,14 @@ table 363 "Analysis View"
             Caption = 'Starting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStartingDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Blocked, false);
                 if CheckIfLastEntryOrDateIsSet and ("Starting Date" <> xRec."Starting Date") then begin
                     ValidateDelete(FieldCaption("Starting Date"));
@@ -211,7 +237,14 @@ table 363 "Analysis View"
             OptionMembers = "None",Day,Week,Month,Quarter,Year,Period;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDateCompression(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Blocked, false);
                 if CheckIfLastEntryOrDateIsSet and ("Date Compression" <> xRec."Date Compression") then begin
                     ValidateDelete(FieldCaption("Date Compression"));
@@ -226,6 +259,7 @@ table 363 "Analysis View"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateDimension1Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 1 Code", 13, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
@@ -243,6 +277,7 @@ table 363 "Analysis View"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateDimension2Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 2 Code", 14, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
@@ -260,6 +295,7 @@ table 363 "Analysis View"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateDimension3Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 3 Code", 15, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
@@ -277,6 +313,7 @@ table 363 "Analysis View"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateDimension4Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 4 Code", 16, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
@@ -293,7 +330,14 @@ table 363 "Analysis View"
             Caption = 'Include Budgets';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIncludeBudgets(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 VerificationForCashFlow;
 
                 TestField(Blocked, false);
@@ -714,6 +758,7 @@ table 363 "Analysis View"
                     SelectedDim.Insert();
                 end;
         end;
+        OnAfterCopyAnalysisViewFilters(Rec, ObjectType, ObjectID, AnalysisViewCode, GLAcc);
     end;
 
     local procedure VerificationForCashFlow()
@@ -807,6 +852,61 @@ table 363 "Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAnalysisViewReset(var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyAnalysisViewFilters(var AnalysisView: Record "Analysis View"; ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; var GLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDimension1Code(var Rec: Record "Analysis View"; var xRec: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDimension2Code(var Rec: Record "Analysis View"; var xRec: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDimension3Code(var Rec: Record "Analysis View"; var xRec: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDimension4Code(var Rec: Record "Analysis View"; var xRec: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDateCompression(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBlocked(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStartingDate(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIncludeBudgets(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAccountFilter(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBusinessUnitFilter(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
     begin
     end;
 }

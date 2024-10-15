@@ -1,4 +1,4 @@
-codeunit 230 GenJnlManagement
+﻿codeunit 230 GenJnlManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -42,18 +42,29 @@ codeunit 230 GenJnlManagement
 
         JnlSelected := FindTemplateFromSelection(GenJnlTemplate, PageTemplate, RecurringJnl);
 
-        if JnlSelected then begin
-            GenJnlLine.SetRange("Journal Template Name"); // NAVCZ
-            GenJnlLine.FilterGroup := 2;
-            GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
-            GenJnlLine.FilterGroup := 0;
-            if OpenFromBatch then begin
-                GenJnlLine."Journal Template Name" := '';
-                PAGE.Run(GenJnlTemplate."Page ID", GenJnlLine);
-            end;
-        end;
+        if JnlSelected then
+            RunTemplateJournalPage(GenJnlTemplate, GenJnlLine);
 
         OnAfterTemplateSelection(GenJnlTemplate, GenJnlLine, JnlSelected, OpenFromBatch, RecurringJnl);
+    end;
+
+    local procedure RunTemplateJournalPage(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunTemplateJournalPage(GenJnlTemplate, GenJnlLine, OpenFromBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlLine.SetRange("Journal Template Name"); // NAVCZ
+        GenJnlLine.FilterGroup := 2;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlLine.FilterGroup := 0;
+        if OpenFromBatch then begin
+            GenJnlLine."Journal Template Name" := '';
+            PAGE.Run(GenJnlTemplate."Page ID", GenJnlLine);
+        end;
     end;
 
     procedure TemplateSelectionFromBatch(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -105,6 +116,8 @@ codeunit 230 GenJnlManagement
             CheckTemplateName(GenJnlLine."Journal Template Name", CurrentJnlBatchName)
         else
             CheckTemplateName(GenJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
+        OnOpenJnlOnAfterCheckTemplateName(GenJnlLine, CurrentJnlBatchName);
+
         GenJnlLine.FilterGroup := 2;
         GenJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
         GenJnlLine.FilterGroup := 0;
@@ -182,6 +195,7 @@ codeunit 230 GenJnlManagement
     [Scope('OnPrem')]
     procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         GenJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
@@ -531,12 +545,22 @@ codeunit 230 GenJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunTemplateJournalPage(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlLine: Record "Gen. Journal Line"; OpenFromBatch: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option; var RecurringJnl: Boolean; PageId: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFindTemplateFromSelectionOnBeforeGenJnlTemplateInsert(var GenJnlTemplate: Record "Gen. Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenJnlOnAfterCheckTemplateName(var GenJournalLine: Record "Gen. Journal Line"; var CurrentJnlBatchName: Code[10])
     begin
     end;
 }

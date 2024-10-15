@@ -825,6 +825,8 @@ table 753 "Standard Item Journal Line"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Standard Journal Code", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -964,6 +966,11 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(StandardItemJournalLine: Record "Standard Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(StandardItemJournalLine: Record "Standard Item Journal Line")
     begin
     end;
 

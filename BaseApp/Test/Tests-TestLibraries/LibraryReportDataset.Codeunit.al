@@ -347,7 +347,7 @@ codeunit 131007 "Library - Report Dataset"
         else
             REPORT.SaveAs(ReportID, RequestPageParametersXML, REPORTFORMAT::Xml, ReportOutStream);
 
-        TempBlob.CreateInStream(ReportInStream);
+        TempBlob.CreateInStream(ReportInStream, TextEncoding::UTF8);
 
         LoadFromInStream(ReportInStream);
     end;

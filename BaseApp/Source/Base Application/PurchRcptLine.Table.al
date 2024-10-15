@@ -1,4 +1,4 @@
-table 121 "Purch. Rcpt. Line"
+﻿table 121 "Purch. Rcpt. Line"
 {
     Caption = 'Purch. Rcpt. Line';
     DrillDownPageID = "Posted Purchase Receipt Lines";
@@ -850,6 +850,7 @@ table 121 "Purch. Rcpt. Line"
         end;
 
         TransferOldExtLines.ClearLineNumbers;
+        OnInsertInvLineFromRcptLineOnAfterTransferOldExtLinesClearLineNumbers(Rec);
 
         repeat
             OnInsertInvLineFromRcptLineOnBeforeCopyFromPurchRcptLine(Rec, PurchLine, TempPurchLine, NextLineNo);
@@ -1340,6 +1341,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnBeforePurchLineUpdatePrePaymentAmounts(var PurchaseLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnAfterTransferOldExtLinesClearLineNumbers(var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 }

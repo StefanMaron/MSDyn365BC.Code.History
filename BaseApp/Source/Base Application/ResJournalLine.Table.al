@@ -1,4 +1,4 @@
-table 207 "Res. Journal Line"
+﻿table 207 "Res. Journal Line"
 {
     Caption = 'Res. Journal Line';
 
@@ -503,6 +503,8 @@ table 207 "Res. Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -687,6 +689,8 @@ table 207 "Res. Journal Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     procedure IsOpenedFromBatch(): Boolean
@@ -786,6 +790,11 @@ table 207 "Res. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ResJournalLine: Record "Res. Journal Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var ResJournalLine: Record "Res. Journal Line"; LastResJournalLine: Record "Res. Journal Line")
     begin
     end;
@@ -798,6 +807,11 @@ table 207 "Res. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckResJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var ResJnlLine: Record "Res. Journal Line")
     begin
     end;
 

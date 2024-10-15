@@ -403,11 +403,13 @@
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Credit Memo":
                         begin
+                            IsHandled := false;
                             OnAssignByAmountOnBeforeGetSalesLine(SalesLine, ItemChargeAssignmentSales, IsHandled);
-                            SalesLine.Get(
-                              ItemChargeAssignmentSales."Applies-to Doc. Type",
-                              ItemChargeAssignmentSales."Applies-to Doc. No.",
-                              ItemChargeAssignmentSales."Applies-to Doc. Line No.");
+                            if not IsHandled then
+                                SalesLine.Get(
+                                  ItemChargeAssignmentSales."Applies-to Doc. Type",
+                                  ItemChargeAssignmentSales."Applies-to Doc. No.",
+                                  ItemChargeAssignmentSales."Applies-to Doc. Line No.");
                             TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                               Abs(SalesLine."Line Amount");
                         end;

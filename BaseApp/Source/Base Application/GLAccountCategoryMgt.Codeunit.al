@@ -1,4 +1,4 @@
-codeunit 570 "G/L Account Category Mgt."
+﻿codeunit 570 "G/L Account Category Mgt."
 {
 
     trigger OnRun()
@@ -278,7 +278,13 @@ codeunit 570 "G/L Account Category Mgt."
         GLAccountCategory: Record "G/L Account Category";
         GLAccount: Record "G/L Account";
         CategoryID: array[3] of Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitializeAccountCategories(IsHandled);
+        if IsHandled then
+            exit;
+
         GLAccount.SetFilter("Account Subcategory Entry No.", '<>0');
         if not GLAccount.IsEmpty() then
             if not GLAccountCategory.IsEmpty() then
@@ -365,6 +371,8 @@ codeunit 570 "G/L Account Category Mgt."
             CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, VehicleExpensesTxt, false, 0);
             CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, BadDebtExpenseTxt, false, 0);
         end;
+
+        OnAfterInitializeAccountCategories();
     end;
 
     procedure InitializeLocalizedAccountCategories()
@@ -1880,6 +1888,16 @@ codeunit 570 "G/L Account Category Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRunAccountScheduleReport(AccSchedName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeAccountCategories(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeAccountCategories()
     begin
     end;
 }
