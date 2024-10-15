@@ -804,6 +804,151 @@ codeunit 137023 "SCM Reservation Worksheet"
         // [THEN] All allocation policy lines for this batch are deleted.
     end;
 
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler')]
+    procedure AllocatingQuantityByCustomerPriorityRule()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        AllocationPolicy: Record "Allocation Policy";
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+        ItemList: List of [Code[20]];
+        SalesOrderList: List of [Code[20]];
+        i: Integer;
+    begin
+        // [SCENARIO] Distribute available stock among reservation worksheet lines using "By Customer Priority" allocation rule.
+        Initialize();
+
+        // [GIVEN] Item with 130 units in inventory.
+        ItemList.Add(LibraryInventory.CreateItemNo());
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemList.Get(1), '', '', 130);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Prepare set of 6 sales orders for 3 customers. Each order is for 50 units.
+        // [GIVEN] Assign priority 1 to the first customer, priority 2 to the second customer, priority 3 to the third customer.
+        for i := 1 to 3 do begin
+            LibrarySales.CreateCustomer(Customer);
+            Customer.Validate(Priority, i);
+            Customer.Modify(true);
+
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", ItemList.Get(1), 50, '', WorkDate());
+            SalesOrderList.Add(SalesHeader."No.");
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", ItemList.Get(1), 50, '', WorkDate());
+            SalesOrderList.Add(SalesHeader."No.");
+        end;
+
+        // [GIVEN] Set up the only allocation rule = "By Customer Priority".
+        ReservationWkshBatch.FindFirst();
+        AllocationPolicy.Init();
+        AllocationPolicy."Journal Batch Name" := ReservationWkshBatch.Name;
+        AllocationPolicy."Line No." := 10000;
+        AllocationPolicy."Allocation Rule" := "Allocation Rules Impl."::"By Customer Priority";
+        AllocationPolicy.Insert();
+
+        // [GIVEN] Open Reservation Worksheet and run "Get Demand" filtered by the item.
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+
+        // [WHEN] Allocate quantity.
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWorksheetMgt.AllocateQuantity(ReservationWkshLine);
+
+        // [THEN] Verify that only sales orders for the customer with the highest priority 3 are fulfilled.
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(1), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(2), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(3), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(4), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(5), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(5)));
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(6), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(6)));
+
+        // [THEN] Post 130 more units to inventory.
+        // [THEN] Run "Get Demand" and allocate quantity.
+        // [THEN] Verify that sales orders for the customers with priorities 3 and 2 are fulfilled.
+        // [THEN] The system allocates 0 units for the customer with priority 1 because their sales orders cannot be fully fulfilled.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemList.Get(1), '', '', 130);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+        ReservationWkshLine.Reset();
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWorksheetMgt.AllocateQuantity(ReservationWkshLine);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(1), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(2), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(3), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(3)));
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(4), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(4)));
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(5), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(5)));
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(6), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(6)));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler')]
+    procedure AllocatingQuantityByCustomerDontJumpOverPriority()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        AllocationPolicy: Record "Allocation Policy";
+        ReservationWorksheetMgt: Codeunit "Reservation Worksheet Mgt.";
+        ItemList: List of [Code[20]];
+        SalesOrderList: List of [Code[20]];
+        SalesQtys: List of [Decimal];
+        i: Integer;
+    begin
+        // [SCENARIO] Stop distribution by customer priority if the current priority cannot be fulfilled.
+        Initialize();
+
+        // [GIVEN] Item with 100 units in inventory.
+        ItemList.Add(LibraryInventory.CreateItemNo());
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemList.Get(1), '', '', 100);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Prepare set of 3 sales orders for 3 customers:
+        // [GIVEN] Customer "A", lowest priority, 40 units.
+        // [GIVEN] Customer "B", middle priority, 80 units.
+        // [GIVEN] Customer "C", highest priority, 40 units.
+        SalesQtys.Add(40);
+        SalesQtys.Add(80);
+        SalesQtys.Add(40);
+
+        for i := 1 to 3 do begin
+            LibrarySales.CreateCustomer(Customer);
+            Customer.Validate(Priority, i);
+            Customer.Modify(true);
+
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", ItemList.Get(1), SalesQtys.Get(i), '', WorkDate());
+            SalesOrderList.Add(SalesHeader."No.");
+        end;
+
+        // [GIVEN] Set up the only allocation rule = "By Customer Priority".
+        ReservationWkshBatch.FindFirst();
+        AllocationPolicy.Init();
+        AllocationPolicy."Journal Batch Name" := ReservationWkshBatch.Name;
+        AllocationPolicy."Line No." := 10000;
+        AllocationPolicy."Allocation Rule" := "Allocation Rules Impl."::"By Customer Priority";
+        AllocationPolicy.Insert();
+
+        // [GIVEN] Open Reservation Worksheet and run "Get Demand" filtered by the item.
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+
+        // [WHEN] Allocate quantity.
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWorksheetMgt.AllocateQuantity(ReservationWkshLine);
+
+        // [THEN] Verify that only sales order for the customer with the highest priority is fulfilled.
+        // [THEN] Since it isn't possible to fulfill the customer with the middle priority, the allocation process stops.
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(1), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(2), 0);
+        VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(3), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(3)));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation Worksheet");

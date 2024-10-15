@@ -1544,6 +1544,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Table Caption]D;]A;(LookupHint=Codeunit Workflow Additional Scenarios - NamedType SameEventConditionsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2088442401 - NamedType 1407685390" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected overdue notifications.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Additional Scenarios - NamedType UnExpectedOverdueNotificationTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1152258713 - NamedType 2723863605" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Enabled workflows cannot be deleted.]]></Val>

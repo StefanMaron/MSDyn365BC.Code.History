@@ -546,7 +546,7 @@ table 5950 "Service Order Allocation"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := true;
+        IsHandled := false;
         OnBeforeCheckAllocationEntry(Rec, IsHandled);
         if IsHandled then
             exit;

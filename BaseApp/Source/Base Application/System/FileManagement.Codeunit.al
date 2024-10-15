@@ -116,15 +116,15 @@ codeunit 419 "File Management"
         exit(BLOBExportLocal(NVInStream, Name, CommonDialog));
     end;
 
-    procedure BLOBExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean): Text
+    procedure BLOBExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean) Result: Text
     var
         NVInStream: InStream;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBlobExport(TempBlob, Name, CommonDialog, IsHandled);
+        OnBeforeBlobExport(TempBlob, Name, CommonDialog, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         TempBlob.CreateInStream(NVInStream);
         exit(BLOBExportLocal(NVInStream, Name, CommonDialog));
@@ -712,7 +712,7 @@ codeunit 419 "File Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBlobExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeBlobExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; var IsHandled: Boolean; var Result: Text)
     begin
     end;
 

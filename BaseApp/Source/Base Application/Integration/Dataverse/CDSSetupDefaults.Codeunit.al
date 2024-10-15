@@ -1454,6 +1454,8 @@ codeunit 7204 "CDS Setup Defaults"
             repeat
                 CRMIntegrationManagement.AddExtraFieldMappings(IntegrationTableMapping);
             until IntegrationTableMapping.Next() = 0;
+
+        OnAfterAddExtraIntegrationFieldMappings(CRMIntegrationManagement, IntegrationTableMapping);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1523,6 +1525,11 @@ codeunit 7204 "CDS Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateJobQueueEntryOnBeforeJobQueueEnqueue(var JobQueueEntry: Record "Job Queue Entry"; var IntegrationTableMapping: Record "Integration Table Mapping"; JobCodeunitId: Integer; JobDescription: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddExtraIntegrationFieldMappings(var CRMIntegrationManagement: Codeunit "CRM Integration Management"; var IntegrationTableMapping: Record "Integration Table Mapping")
     begin
     end;
 }

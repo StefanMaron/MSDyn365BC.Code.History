@@ -111,6 +111,12 @@ table 5777 "Item Reference"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Item No.", "Variant Code", "Unit of Measure", "Reference Type", "Reference Type No.", "Reference No.")
+        {
+        }
+        fieldgroup(Brick; "Item No.", "Variant Code", "Unit of Measure", "Reference Type", "Reference Type No.", "Reference No.")
+        {
+        }
     }
 
     trigger OnDelete()

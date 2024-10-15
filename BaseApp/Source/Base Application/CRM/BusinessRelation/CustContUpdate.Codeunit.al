@@ -7,7 +7,8 @@ using Microsoft.Sales.Customer;
 
 codeunit 5056 "CustCont-Update"
 {
-
+    Permissions = tabledata Contact = rimd;
+                  
     trigger OnRun()
     begin
     end;

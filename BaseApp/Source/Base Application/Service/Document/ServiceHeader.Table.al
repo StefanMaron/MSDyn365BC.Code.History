@@ -4394,6 +4394,7 @@ table 5900 "Service Header"
                     ExtendedTextAdded := true;
                 end;
             RestoreServiceCommentLine(TempServiceCommentLine, TempServLine."Line No.", ServLine."Line No.");
+            OnCreateServiceLinesOnBeforeCopyReservEntryFromTemp(ServLine, TempServLine, Rec, xRec);
             CopyReservEntryFromTemp(TempServLine, ServLine."Line No.");
         until TempServLine.Next() = 0;
         RestoreServiceCommentLine(TempServiceCommentLine, 0, 0);
@@ -5388,6 +5389,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetHideValidationDialog(var ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; NewHideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLinesOnBeforeCopyReservEntryFromTemp(var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 }

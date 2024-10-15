@@ -329,6 +329,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType ExpectedErrLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2240449890 - NamedType 4139432870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[..]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType FilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240449890 - NamedType 2843121800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are no dimension values for allowed values filter %1.]]></Val>
