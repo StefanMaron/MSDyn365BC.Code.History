@@ -2770,15 +2770,26 @@
 
     local procedure UpdateExpDateColor()
     begin
-        if (Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0) then;
+        if not IsExpirationDateEditable() then;
     end;
 
     local procedure UpdateExpDateEditable()
     begin
-        ExpirationDateEditable := ItemTrackingCode."Use Expiration Dates" and
-          not ((Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0));
-
+        ExpirationDateEditable := IsExpirationDateEditable();
         OnAfterUpdateExpDateEditable(Rec, ExpirationDateEditable, ItemTrackingCode, NewExpirationDateEditable, CurrentSignFactor);
+    end;
+
+    local procedure IsExpirationDateEditable(): Boolean
+    begin
+        if (Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or
+           not ItemTrackingCode."Use Expiration Dates"
+        then
+            exit(false);
+
+        if InboundIsSet then
+            exit(Inbound);
+
+        exit(CurrentSignFactor >= 0);
     end;
 
     local procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")

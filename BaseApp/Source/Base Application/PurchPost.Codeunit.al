@@ -3612,6 +3612,7 @@
             "Succeeded Company Name" := PurchHeader."Succeeded Company Name";
             "Succeeded VAT Registration No." := PurchHeader."Succeeded VAT Registration No.";
             "ID Type" := PurchHeader."ID Type";
+            "Do Not Send To SII" := PurchHeader."Do Not Send To SII";
 
             OnBeforePostVendorEntry(GenJnlLine, PurchHeader, TotalPurchLine2, TotalPurchLineLCY2, PreviewMode, SuppressCommit, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);

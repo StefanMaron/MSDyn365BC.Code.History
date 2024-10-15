@@ -86,27 +86,26 @@ codeunit 139006 "Test My Settings"
     [Test]
     [HandlerFunctions('MyNotificationsModalPageHandler')]
     [Scope('OnPrem')]
-    procedure PostingOutsideFiscalYear()
+    procedure PostingAfterWorkingDate()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
         MySettings: TestPage "My Settings";
     begin
-        // [FEATURE] [Fiscal Year] [Posting Outside Fiscal Year]
-        // [SCENARIO 169269] "My Settings" page saved the value of setup "Posting Outside Fiscal Year"
-
-        Initialize;
+        // [FEATURE] [Posting After Working Date]
+        // [SCENARIO 169269] "My Settings" page saved the value of setup "Posting After Working Date"
+        Initialize();
 
         // [GIVEN] Opened page "My Settings"
         MySettings.OpenEdit;
 
-        // [WHEN] Set "Posting Outside Fiscal Year Not Allowed" = False, close "My Settings" page and open once again
+        // [WHEN] Set "Posting After Working Date Not Allowed" = False, close "My Settings" page and open once again
         ActionToDo := ActionToDo::VerifyValue;
         EnabledValue := true;
         MySettings.MyNotificationsLbl.DrillDown;
 
         // [THEN] Default value of the Posting dialog is True- verified in the MyNotificationsModalPageHandler.
 
-        // [WHEN] Set "Posting Outside Fiscal Year Not Allowed" = False, close "My Settings" page and open once again
+        // [WHEN] Set "Posting After Working Date Not Allowed" = False, close "My Settings" page and open once again
         ActionToDo := ActionToDo::SetValue;
         EnabledValue := false;
         MySettings.MyNotificationsLbl.DrillDown;
@@ -114,16 +113,16 @@ codeunit 139006 "Test My Settings"
         MySettings.OpenView;
 
         // [THEN] InstructionMgt
-        Assert.IsFalse(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode),
+        Assert.IsFalse(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterWorkingDateNotAllowedCode()),
           'Disabling should invoke the OnStateChanged event for MyNotifications.');
 
-        // [THEN] Value of "Posting Outside Fiscal Year" in "My Settings" page is FALSE
+        // [THEN] Value of "Posting After Working Date" in "My Settings" page is FALSE
         ActionToDo := ActionToDo::VerifyValue;
         MySettings.MyNotificationsLbl.DrillDown;
         MySettings.Close;
 
         // Tear Down
-        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode);
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.PostingAfterWorkingDateNotAllowedCode());
     end;
 
     [Test]
@@ -505,7 +504,7 @@ codeunit 139006 "Test My Settings"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        MyNotifications.FILTER.SetFilter("Notification Id", InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId);
+        MyNotifications.FILTER.SetFilter("Notification Id", InstructionMgt.GetPostingAfterWorkingDateNotificationId());
         case ActionToDo of
             ActionToDo::SetValue:
                 MyNotifications.Enabled.SetValue(EnabledValue);

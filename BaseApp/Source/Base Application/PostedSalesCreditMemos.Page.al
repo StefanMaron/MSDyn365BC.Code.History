@@ -231,6 +231,11 @@ page 144 "Posted Sales Credit Memos"
                         SIIManagement.SIIStateDrilldown(SIIDocUploadState);
                     end;
                 }
+                field("Do Not Send To SII"; "Do Not Send To SII")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the document must not be sent to SII.';
+                }
                 field("Sent to SII"; "Sent to SII")
                 {
                     ApplicationArea = Basic, Suite;

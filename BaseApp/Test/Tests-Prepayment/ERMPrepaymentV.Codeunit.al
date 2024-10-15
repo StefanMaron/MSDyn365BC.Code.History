@@ -15,7 +15,9 @@
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
@@ -3706,9 +3708,161 @@
         PurchInvLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesOrderConfRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPartialConfirmationAfterPaymentAppliedToPrepaymentInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Customer: Record Customer;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        DocumentPrint: Codeunit "Document-Print";
+        ItemNo: Code[20];
+        PrepaymentInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 427453] Stan can print "Order Confirmation" for prepaid and released Sales Order with modified "Qty. To Ship"
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetup, 10);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        Customer.Get(
+          LibrarySales.CreateCustomerWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Validate("Prepayment %", 100);
+        Customer.Modify(true);
+
+        ItemNo :=
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        UpdateSalesPrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Sales order "SO" with partial prepayment.
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineOrder, SalesHeaderOrder, SalesLineOrder.Type::Item, ItemNo, LibraryRandom.RandIntInRange(2, 5) * 3);
+        SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(20, 500));
+        SalesLineOrder.Modify(true);
+
+        // [GIVEN] Posted the prepayment invoice.
+        PrepaymentInvoiceNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeaderOrder);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, SalesHeaderOrder."Sell-to Customer No.", -SalesLineOrder."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PrepaymentInvoiceNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        SalesHeaderOrder.Find;
+        LibrarySales.ReleaseSalesDocument(SalesHeaderOrder);
+
+        SalesLineOrder.Find();
+        SalesLineOrder.Validate("Qty. to Ship", SalesLineOrder."Qty. to Ship" / 3);
+        SalesLineOrder.Modify(true);
+
+        SalesHeaderOrder.Find();
+        SalesHeaderOrder.SetRecFilter();
+
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.");
+        Commit();
+        DocumentPrint.PrintSalesOrder(SalesHeaderOrder, 0); // 0 = Order Confirmation = ReportSelections.Usage::"S.Order"
+
+        SalesHeaderOrder.Find();
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialConfirmationAfterPaymentAppliedToPrepaymentInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        ReportSelections: Record "Report Selections";
+        DocumentPrint: Codeunit "Document-Print";
+        ItemNo: Code[20];
+        PrepaymentInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 427453] Stan can print "Order" for prepaid and released Purchase Order with modified "Qty. To Receive"
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetup, 10);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        Vendor.Get(
+          LibraryPurchase.CreateVendorWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Prepayment %", 100);
+        Vendor.Modify(true);
+
+        ItemNo :=
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        UpdatePurchasePrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Sales order "SO" with partial prepayment.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineOrder, PurchaseHeaderOrder, PurchaseLineOrder.Type::Item, ItemNo, LibraryRandom.RandIntInRange(2, 5) * 3);
+        PurchaseLineOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 500));
+        PurchaseLineOrder.Modify(true);
+
+        // [GIVEN] Posted the prepayment invoice.
+        PrepaymentInvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeaderOrder);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, PurchaseHeaderOrder."Buy-from Vendor No.", PurchaseLineOrder."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PrepaymentInvoiceNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        PurchaseHeaderOrder.Find();
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeaderOrder);
+
+        PurchaseLineOrder.Find();
+        PurchaseLineOrder.Validate("Qty. to Receive", PurchaseLineOrder."Qty. to Receive" / 3);
+        PurchaseLineOrder.Modify(true);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.SetRecFilter();
+
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Order", REPORT::Order);
+        Commit();
+        DocumentPrint.PrintPurchHeader(PurchaseHeaderOrder);
+
+        PurchaseHeaderOrder.Find();
+        UpdatePurchInvoiceNo(PurchaseHeaderOrder);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        CompanyInformation: Record "Company Information";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment V");
         LibraryVariableStorage.Clear();
@@ -3717,6 +3871,9 @@
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
 
+        CompanyInformation.Get();
+        CompanyInformation."SWIFT Code" := 'A';
+        CompanyInformation.Modify();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -5019,6 +5176,20 @@
     procedure SalesOrdStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesOrderConfRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
+    begin
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderRequestPageHandler(var "Order": TestRequestPage "Order")
+    begin
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [StrMenuHandler]

@@ -163,6 +163,7 @@ codeunit 10757 "SII Recreate Missing Entries"
           "Document Type", '%1|%2', VendLedgerEntry."Document Type"::Invoice, VendLedgerEntry."Document Type"::"Credit Memo");
         VendLedgerEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
+        VendLedgerEntry.SetRange("Do Not Send To SII", false);
         if VendLedgerEntry.FindSet then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, VendLedgerEntry);
             repeat
@@ -184,6 +185,7 @@ codeunit 10757 "SII Recreate Missing Entries"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         DataTypeManagement: Codeunit "Data Type Management";
         SIIManagement: Codeunit "SII Management";
@@ -210,15 +212,18 @@ codeunit 10757 "SII Recreate Missing Entries"
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 DataTypeManagement.GetRecordRef(DetailedVendorLedgEntry, DetailedVendorLedgerRecRef);
-                if SIIManagement.IsDetailedLedgerCashFlowBased(DetailedVendorLedgerRecRef) then
-                    if RequestNeedsToBeCreated(DetailedVendorLedgEntry."Posting Date",
-                         SIIDocUploadState."Document Source"::"Detailed Vendor Ledger",
-                         DetailedVendorLedgEntry."Entry No.")
-                    then begin
-                        TempDetailedVendorLedgEntry.Init();
-                        TempDetailedVendorLedgEntry := DetailedVendorLedgEntry;
-                        TempDetailedVendorLedgEntry.Insert();
-                    end;
+                if SIIManagement.IsDetailedLedgerCashFlowBased(DetailedVendorLedgerRecRef) then begin
+                    VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
+                    if not VendorLedgerEntry."Do Not Send To SII" then
+                        if RequestNeedsToBeCreated(DetailedVendorLedgEntry."Posting Date",
+                             SIIDocUploadState."Document Source"::"Detailed Vendor Ledger",
+                             DetailedVendorLedgEntry."Entry No.")
+                        then begin
+                            TempDetailedVendorLedgEntry.Init();
+                            TempDetailedVendorLedgEntry := DetailedVendorLedgEntry;
+                            TempDetailedVendorLedgEntry.Insert();
+                        end;
+                end;
             until DetailedVendorLedgEntry.Next() = 0;
             LastEntryNo := DetailedVendorLedgEntry."Entry No.";
             CloseWindow;
@@ -242,6 +247,7 @@ codeunit 10757 "SII Recreate Missing Entries"
           "Document Type", '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
         CustLedgerEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
+        CustLedgerEntry.SetRange("Do Not Send To SII", false);
         if CustLedgerEntry.FindSet then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, CustLedgerEntry);
             repeat
@@ -263,6 +269,7 @@ codeunit 10757 "SII Recreate Missing Entries"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         DataTypeManagement: Codeunit "Data Type Management";
         SIIManagement: Codeunit "SII Management";
@@ -289,15 +296,18 @@ codeunit 10757 "SII Recreate Missing Entries"
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 DataTypeManagement.GetRecordRef(DetailedCustLedgEntry, DetailedCustomerLedgerRecRef);
-                if SIIManagement.IsDetailedLedgerCashFlowBased(DetailedCustomerLedgerRecRef) then
-                    if RequestNeedsToBeCreated(DetailedCustLedgEntry."Posting Date",
-                         SIIDocUploadState."Document Source"::"Detailed Customer Ledger",
-                         DetailedCustLedgEntry."Entry No.")
-                    then begin
-                        TempDetailedCustLedgEntry.Init();
-                        TempDetailedCustLedgEntry := DetailedCustLedgEntry;
-                        TempDetailedCustLedgEntry.Insert();
-                    end;
+                if SIIManagement.IsDetailedLedgerCashFlowBased(DetailedCustomerLedgerRecRef) then begin
+                    CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
+                    if not CustLedgerEntry."Do Not Send To SII" then
+                        if RequestNeedsToBeCreated(DetailedCustLedgEntry."Posting Date",
+                             SIIDocUploadState."Document Source"::"Detailed Customer Ledger",
+                             DetailedCustLedgEntry."Entry No.")
+                        then begin
+                            TempDetailedCustLedgEntry.Init();
+                            TempDetailedCustLedgEntry := DetailedCustLedgEntry;
+                            TempDetailedCustLedgEntry.Insert();
+                        end;
+                end;
             until DetailedCustLedgEntry.Next() = 0;
             LastEntryNo := DetailedCustLedgEntry."Entry No.";
             CloseWindow;

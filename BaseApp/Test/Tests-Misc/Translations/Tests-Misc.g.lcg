@@ -5846,13 +5846,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Evaluation - NamedType NonStockNoSeriesTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1582082966 - NamedType 4011242704" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1582082966 - NamedType 2979876091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Posting Outside Fiscal Year option is on]]></Val>
+      <Val><![CDATA[Posting After Working Date option is on]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Evaluation - NamedType PostingOutsideFYIsOnErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Evaluation - NamedType PostingAfterWDIsOnErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1582082966 - NamedType 3872277850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5945,13 +5945,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType NoSalesHeaderErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4291575073 - NamedType 4011242704" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4291575073 - NamedType 2979876091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Posting Outside Fiscal Year option is on]]></Val>
+      <Val><![CDATA[Posting After Working Date option is on]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType PostingOutsideFYIsOnErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType PostingAfterWDIsOnErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4291575073 - NamedType 115038370" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -650,6 +650,10 @@ table 25 "Vendor Ledger Entry"
             OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
             OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -1008,6 +1012,7 @@ table 25 "Vendor Ledger Entry"
         "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
         "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
         "ID Type" := GenJnlLine."ID Type";
+        "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

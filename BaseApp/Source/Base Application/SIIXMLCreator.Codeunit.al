@@ -1802,52 +1802,64 @@
         ReturnReceiptLine: Record "Return Receipt Line";
         LastShipDate: Date;
         PostingDate: Date;
+        DocDate: Date;
     begin
+        GetSIISetup;
         case CustLedgerEntry."Document Type" of
             CustLedgerEntry."Document Type"::Invoice:
                 if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then begin
                     PostingDate := SalesInvoiceHeader."Posting Date";
+                    DocDate := SalesInvoiceHeader."Document Date";
                     SalesInvoiceLine.SetRange("Document No.", CustLedgerEntry."Document No.");
                     SalesInvoiceLine.SetFilter(Quantity, '>%1', 0);
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             if SalesInvoiceLine."Shipment No." = '' then begin
                                 if SalesInvoiceLine."Shipment Date" <> 0D then
-                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesInvoiceLine."Shipment Date";
                             end else
                                 if SalesShipmentLine.Get(SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Line No.") then
                                     if (SalesShipmentLine."Posting Date" > LastShipDate) and
-                                       (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                       (Date2DMY(SalesShipmentLine."Posting Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesShipmentLine."Posting Date";
                         until SalesInvoiceLine.Next() = 0;
                     OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(LastShipDate, SalesInvoiceHeader);
-                end;
+                end else
+                    if SIISetup."Operation Date" = SIISetup."Operation Date"::"Document Date" then begin
+                        PostingDate := CustLedgerEntry."Posting Date";
+                        DocDate := CustLedgerEntry."Document Date";
+                    end;
             CustLedgerEntry."Document Type"::"Credit Memo":
                 if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then begin
                     PostingDate := SalesCrMemoHeader."Posting Date";
+                    DocDate := SalesCrMemoHeader."Document Date";
                     SalesCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
                     SalesCrMemoLine.SetFilter(Quantity, '>%1', 0);
                     if SalesCrMemoLine.FindSet() then
                         repeat
                             if SalesCrMemoLine."Return Receipt No." = '' then begin
                                 if SalesCrMemoLine."Shipment Date" <> 0D then
-                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := SalesCrMemoLine."Shipment Date";
                             end else
                                 if ReturnReceiptLine.Get(SalesCrMemoLine."Return Receipt No.", SalesCrMemoLine."Return Receipt Line No.") then
                                     if (ReturnReceiptLine."Posting Date" > LastShipDate) and
-                                       (Date2DMY(ReturnReceiptLine."Posting Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                       (Date2DMY(ReturnReceiptLine."Posting Date", 3) = Date2DMY(PostingDate, 3))
                                     then
                                         LastShipDate := ReturnReceiptLine."Posting Date";
                         until SalesCrMemoLine.Next() = 0;
-                end;
+                end else
+                    if SIISetup."Operation Date" = SIISetup."Operation Date"::"Document Date" then begin
+                        PostingDate := CustLedgerEntry."Posting Date";
+                        DocDate := CustLedgerEntry."Document Date";
+                    end;
         end;
         if PostingDate <> 0D then
-            FillFechaOperacion(XMLNode, LastShipDate, PostingDate, true, RegimeCodes);
+            FillFechaOperacion(XMLNode, LastShipDate, PostingDate, DocDate, true, RegimeCodes);
     end;
 
     local procedure GenerateNodeForFechaOperacionPurch(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1856,20 +1868,28 @@
         PurchInvLine: Record "Purch. Inv. Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         LastRcptDate: Date;
+        PostingDate: Date;
+        DocDate: Date;
         DummyRegimeCodes: array[3] of Code[2];
     begin
-        if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then
+        if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then begin
             if PurchInvHeader.Get(VendorLedgerEntry."Document No.") then begin
+                PostingDate := PurchInvHeader."Posting Date";
+                DocDate := PurchInvHeader."Document Date";
                 PurchInvLine.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                if PurchInvLine.FindSet then
+                if PurchInvLine.FindSet() then
                     repeat
                         if PurchInvLine."Receipt No." <> '' then
                             if PurchRcptLine.Get(PurchInvLine."Receipt No.", PurchInvLine."Receipt Line No.") then
                                 if PurchRcptLine."Posting Date" > LastRcptDate then
                                     LastRcptDate := PurchRcptLine."Posting Date"
                     until PurchInvLine.Next() = 0;
-                FillFechaOperacion(XMLNode, LastRcptDate, PurchInvHeader."Posting Date", false, DummyRegimeCodes);
+            end else begin
+                PostingDate := VendorLedgerEntry."Posting Date";
+                DocDate := VendorLedgerEntry."Document Date";
             end;
+            FillFechaOperacion(XMLNode, LastRcptDate, PostingDate, DocDate, false, DummyRegimeCodes);
+        end;
     end;
 
     local procedure GenerateRecargoEquivalenciaNodes(var XMLNode: DotNet XmlNode; ECPercent: Decimal; ECAmount: Decimal)
@@ -2364,7 +2384,8 @@
                 begin
                     IsInvoice :=
                       SIIDocUploadState."Sales Cr. Memo Type" in [SIIDocUploadState."Sales Cr. Memo Type"::"F1 Invoice",
-                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice"];
+                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F2 Simplified Invoice",
+                                                                  SIIDocUploadState."Sales Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices"];
                     if IsInvoice then
                         InvoiceType := CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2);
                 end;
@@ -2487,22 +2508,29 @@
           XMLNode, 'FechaRegContable', FormatDate(NodePostingDate), 'sii', SiiTxt, TempXMLNode);
     end;
 
-    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date; IsSales: Boolean; RegimeCodes: array[3] of Code[2])
+    local procedure FillFechaOperacion(var XMLNode: DotNet XmlNode; LastShptRcptDate: Date; PostingDate: Date; DocumentDate: Date; IsSales: Boolean; RegimeCodes: array[3] of Code[2])
     var
         TempXMLNode: DotNet XmlNode;
     begin
-        if ((LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate)) and
-           not (IsSales and RegimeCodesContainsValue(RegimeCodes, '14'))
-        then
-            exit;
-
-        if LastShptRcptDate > WorkDate then
-            LastShptRcptDate := PostingDate;
-        if IsSales then begin
-            if not IncludeFechaOperationForSales(PostingDate, LastShptRcptDate, RegimeCodes) then
+        GetSIISetup();
+        if SIISetup."Operation Date" = SIISetup."Operation Date"::"Posting Date" then begin
+            if ((LastShptRcptDate = 0D) or (LastShptRcptDate = PostingDate)) and
+               not (IsSales and RegimeCodesContainsValue(RegimeCodes, '14'))
+            then
                 exit;
-            if IsShptDateMustBeAfterPostingDate(RegimeCodes) then
-                LastShptRcptDate := PostingDate + 1;
+
+            if LastShptRcptDate > WorkDate() then
+                LastShptRcptDate := PostingDate;
+            if IsSales then begin
+                if not IncludeFechaOperationForSales(PostingDate, LastShptRcptDate, RegimeCodes) then
+                    exit;
+                if IsShptDateMustBeAfterPostingDate(RegimeCodes) then
+                    LastShptRcptDate := PostingDate + 1;
+            end;
+        end else begin
+            if PostingDate = DocumentDate then
+                exit;
+            LastShptRcptDate := DocumentDate;
         end;
         OnFillFechaOperacionOnBeforeAddElementWithPrefix(LastShptRcptDate, PostingDate);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FechaOperacion', FormatDate(LastShptRcptDate), 'sii', SiiTxt, TempXMLNode);

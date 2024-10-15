@@ -69,7 +69,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
         if not SIISetup.IsEnabled then
             exit;
 
-        if SalesHeader.IsTemporary then
+        if SalesHeader.IsTemporary or SalesHeader."Do Not Send To SII" then
             exit;
 			
         if (SalesInvHdrNo = '') and (SalesCrMemoHdrNo = '') then
@@ -92,7 +92,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
         if not SIISetup.IsEnabled then
             exit;
 
-        if PurchaseHeader.IsTemporary then
+        if PurchaseHeader.IsTemporary or PurchaseHeader."Do Not Send To SII" then
             exit;
 			
         if (PurchInvHdrNo = '') and (PurchCrMemoHdrNo = '') then
@@ -111,7 +111,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
         if not SIISetup.IsEnabled then
             exit;
 
-        if ServiceHeader.IsTemporary then
+        if ServiceHeader.IsTemporary or ServiceHeader."Do Not Send To SII" then
             exit;
 
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
@@ -128,6 +128,9 @@ codeunit 10753 "SII Job Upload Pending Docs."
             exit;
 
         if GenJnlLine.IsTemporary then
+            exit;
+
+        if GenJnlLine."Do Not Send To SII" then
             exit;
 
         if GenJnlLine."Document Type" in [GenJnlLine."Document Type"::"Credit Memo",
@@ -165,7 +168,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
         with CustLedgEntry do begin
             if IsTemporary() or
-               (not ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice]))
+               (not ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice])) or
+               "Do Not Send To SII"
             then
                 exit;
 
@@ -197,7 +201,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
         with VendorLedgerEntry do begin
             if IsTemporary() or
-               (not ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice]))
+               (not ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice])) or
+               "Do Not Send To SII"
             then
                 exit;
 
@@ -239,6 +244,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
                 exit;
 
             VendorLedgerEntry.Get("Vendor Ledger Entry No.");
+            if VendorLedgerEntry."Do Not Send To SII" then
+                exit;
             if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Bill then begin
                 VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
                 VendorLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
@@ -291,6 +298,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
                 exit;
 
             CustLedgerEntry.Get("Cust. Ledger Entry No.");
+            if CustLedgerEntry."Do Not Send To SII" then
+                exit;
             if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Bill then begin
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                 CustLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");

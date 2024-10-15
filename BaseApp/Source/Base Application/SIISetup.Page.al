@@ -72,6 +72,11 @@ page 10751 "SII Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if you want to exclude lines that are negative from the export to the SII file.';
                 }
+                field("Operation Date"; "Operation Date")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether the posting date of the shipment or the document date of entry will be used for the FechaOperacion xml node.';
+                }
             }
             group(Certificate)
             {

@@ -2971,6 +2971,10 @@
             OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
             OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -5893,6 +5897,7 @@
         "On Hold" := PurchHeader."On Hold";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
+        "Do Not Send To SII" := PurchHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromPurchHeader(PurchHeader, Rec);
     end;
@@ -5994,6 +5999,7 @@
         "On Hold" := SalesHeader."On Hold";
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
+        "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6090,6 +6096,7 @@
         "Sales Special Scheme Code" := ServiceHeader."Special Scheme Code";
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
+        "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
     end;

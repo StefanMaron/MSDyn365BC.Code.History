@@ -295,7 +295,10 @@ page 1190 "Create Payment"
                     Validate("Journal Batch Name", JournalBatchName);
                     LastLineNo += 10000;
                     "Line No." := LastLineNo;
-                    if TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
+                    if TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" in
+                       [TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice,
+                        TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Bill]
+                    then
                         "Document Type" := "Document Type"::Payment
                     else
                         "Document Type" := "Document Type"::Refund;
