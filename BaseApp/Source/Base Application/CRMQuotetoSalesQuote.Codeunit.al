@@ -39,7 +39,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales quote from a %1 quote.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
         SuccessfullyCoupledSalesQuoteTelemetryMsg: Label 'The user successfully coupled a sales quote to a %1 quote.', Locked = true;
-        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'The user successfully coupled a sales order to a %1 order.', Locked = true;
 
     procedure ProcessInNAV(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"): Boolean
     begin
@@ -87,10 +86,10 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMSalesOrder: Record "CRM Salesorder";
         OrderSalesHeader: Record "Sales Header";
         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
-        PageManagement: Codeunit "Page Management";
         BlankGuid: Guid;
         OpType: Option Create,Update;
         IsOrderAlreadyCreated: Boolean;
+        YourReferenceFilter: Text;
     begin
         if CRMQuote.StateCode = CRMQuote.StateCode::Won then begin
             QuoteCRMIntegrationRecord.Reset();
@@ -110,19 +109,20 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
                 if SalesHeader.GetBySystemId(QuoteCRMIntegrationRecord."Integration ID") then begin
                     if not IsOrderAlreadyCreated then begin
-                        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
-                        OrderSalesHeader.SetRange("Quote No.", SalesHeader."No.");
+                        CRMSalesOrderToSalesOrder.SetLastBackOfficeSubmit(CRMSalesOrder, Today());
+                        CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesOrder);
+                        YourReferenceFilter := CopyStr(CRMSalesOrder.orderNumber, 1, MaxStrLen(OrderSalesHeader."Your Reference"));
+                        OrderSalesHeader.SetRange("Your Reference", YourReferenceFilter);
                         if not OrderSalesHeader.FindFirst() then begin
                             SendTraceTag('0000D6L', CrmTelemetryCategoryTok, VERBOSITY::Warning, UnableToFindOrderTelemetryErr, DATACLASSIFICATION::SystemMetadata);
                             Error(UnableToFindOrderErr)
                         end else
                             SendTraceTag('0000D6M', CrmTelemetryCategoryTok, VERBOSITY::Normal, OrderCreatedFromQuoteTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
-                    end else begin
+                    end else
                         OrderSalesHeader.GetBySystemId(OrderCRMIntegrationRecord."Integration ID");
-                        OrderSalesHeader."Quote No." := SalesHeader."No.";
-                        OrderSalesHeader.Modify();
-                        SendTraceTag('0000D6N', CrmTelemetryCategoryTok, VERBOSITY::Normal, UpdatedQuoteNoOnExistingOrderTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
-                    end;
+                    OrderSalesHeader."Quote No." := SalesHeader."No.";
+                    OrderSalesHeader.Modify();
+                    SendTraceTag('0000D6N', CrmTelemetryCategoryTok, VERBOSITY::Normal, UpdatedQuoteNoOnExistingOrderTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
                     ManageSalesQuoteArchive(SalesHeader);
                 end;
 
@@ -130,13 +130,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
                 WonQuoteCRMIntegrationRecord.Validate("CRM ID", CRMQuote.QuoteId);
                 WonQuoteCRMIntegrationRecord.Validate("Integration ID", BlankGuid);
                 WonQuoteCRMIntegrationRecord.Insert(true);
-
-                if not IsOrderAlreadyCreated then begin
-                    OrderCRMIntegrationRecord.CoupleRecordIdToCRMID(OrderSalesHeader.RecordId(), CRMSalesOrder.SalesOrderId);
-                    CRMSalesOrderToSalesOrder.SetLastBackOfficeSubmit(CRMSalesOrder, Today());
-                    SendTraceTag('0000D6O', CrmTelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.SHORT()), DATACLASSIFICATION::SystemMetadata);
-                    PageManagement.PageRun(OrderSalesHeader);
-                end;
             end;
             exit(true)
         end;
@@ -383,8 +376,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
     local procedure InitializeSalesQuoteLine(CRMQuotedetail: Record "CRM Quotedetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CRMProduct: Record "CRM Product";
-        InStream: InStream;
-        CRMQuoteDescription: Text;
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -402,12 +393,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
                     Error(UnexpectedProductTypeErr, CannotCreateSalesQuoteInNAVTxt, CRMProduct.ProductNumber);
             end;
         end;
-        CRMQuotedetail.CalcFields(Description);
-        CRMQuotedetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
-        InStream.ReadText(CRMQuoteDescription);
-        if CRMQuoteDescription = '' then
-            CRMQuoteDescription := CRMQuotedetail.ProductDescription;
-        SetLineDescription(SalesHeader, SalesLine, CRMQuoteDescription);
+        SetLineDescription(SalesHeader, SalesLine, CRMQuoteDetail);
 
         SalesLine.Validate(Quantity, CRMQuotedetail.Quantity);
         SalesLine.Validate("Unit Price", CRMQuotedetail.PricePerUnit);
@@ -461,25 +447,38 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RecordLink.Insert(true);
     end;
 
-    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text);
+    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMQuoteDetail: Record "CRM Quotedetail");
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LineDescriptionInStream: InStream;
         ExtendedDescription: Text;
+        CRMQuoteLineDescription: Text;
     begin
-        ExtendedDescription := LineDescription;
+        CRMQuotedetail.CalcFields(Description);
+        CRMQuotedetail.Description.CreateInStream(LineDescriptionInStream, TEXTENCODING::UTF16);
+        LineDescriptionInStream.ReadText(CRMQuoteLineDescription);
+        if CRMQuoteLineDescription = '' then
+            CRMQuoteLineDescription := CRMQuotedetail.ProductDescription;
+        ExtendedDescription := CRMQuoteLineDescription;
 
         // in case of write-in product - write the description directly in the main sales line description
         if SalesReceivablesSetup.Get() then
             if SalesLine."No." = SalesReceivablesSetup."Write-in Product No." then begin
-                SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-                if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then
-                    ExtendedDescription := CopyStr(LineDescription, MaxStrLen(SalesLine.Description) + 1)
+                SalesLine.Description := CopyStr(CRMQuoteLineDescription, 1, MaxStrLen(SalesLine.Description));
+                if StrLen(CRMQuoteLineDescription) > MaxStrLen(SalesLine.Description) then
+                    ExtendedDescription := CopyStr(CRMQuoteLineDescription, MaxStrLen(SalesLine.Description) + 1)
                 else
                     ExtendedDescription := '';
             end;
 
         // in case of inventory item - write the item name in the main line and create extended lines with the extended description
         CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
+
+        // in case of line descriptions with multple lines, add all lines of the line descirption
+        while not LineDescriptionInStream.EOS() do begin
+            LineDescriptionInStream.ReadText(ExtendedDescription);
+            CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
+        end;
     end;
 
     procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
