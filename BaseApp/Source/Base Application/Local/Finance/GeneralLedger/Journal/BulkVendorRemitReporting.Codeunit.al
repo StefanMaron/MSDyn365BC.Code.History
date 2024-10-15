@@ -10,6 +10,7 @@ using Microsoft.Bank.ElectronicFundsTransfer;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Setup;
 using Microsoft.Foundation.Reporting;
+using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.IO;
@@ -170,11 +171,51 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                                 UpdateCheckInfoForGenLedgLine(GenJournalLine, EFTExport);
 
                                 CreateCreditTransferRegister(BankAccountNo, GenJournalLine."Bal. Account No.", BankPaymentType);
+                                UpdateApplication(GenJournalLine);
                             end;
                         until GenJournalLineRecRef.Next() = 0;
                     end;
                 end;
             until ReportSelections.Next() = 0;
+    end;
+
+    local procedure UpdateApplication(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if GenJournalLine."Document No." = '' then
+            exit;
+
+        UpdateVendorLedgerEntryByAppliesToID(GenJournalLine);
+
+        if GenJournalLine."Applies-to ID" <> '' then begin
+            GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+            GenJournalLine.Modify();
+        end;
+    end;
+
+    local procedure UpdateVendorLedgerEntryByAppliesToID(GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+    begin
+        if (GenJournalLine."Document No." = GenJournalLine."Applies-to ID") or (GenJournalLine."Applies-to ID" = '') then
+            exit;
+
+        VendorNo := GetVendorNo(GenJournalLine);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
+            until VendorLedgerEntry.Next() = 0;
+    end;
+
+    local procedure GetVendorNo(GenJournalLine: Record "Gen. Journal Line"): Code[20]
+    begin
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then
+            exit(GenJournalLine."Account No.");
+
+        exit(GenJournalLine."Bal. Account No.");
     end;
 
     local procedure CheckReportSelectionsExists()

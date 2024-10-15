@@ -41,6 +41,8 @@ codeunit 137074 "SCM Capacity Requirements"
         PutawayActivitiesCreatedMsg: Label 'Number of Invt. Put-away activities created';
         InboundWhseRequestCreatedMsg: Label 'Inbound Whse. Requests are created.';
         OutputQuantityMustMatchErr: Label 'Output Quantity muct match.';
+        CapacityErr: Label '%1 must be %2 in %3', Comment = '%1 = Capacity, %2 = value, %3 = WorkCenterGroupLoadlines';
+        ProdOrderNeedQtyErr: Label '%1 must be %2 in %3', Comment = '%1 = Prod. Order Need (Qty.), %2 = value, %3 = WorkCenterGroupLoadlines';
 
     [Test]
     [Scope('OnPrem')]
@@ -4572,6 +4574,141 @@ codeunit 137074 "SCM Capacity Requirements"
         Assert.AreEqual(OutputQuantity, CapacityLedgerEntry."Output Quantity", OutputQuantityMustMatchErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WorkCenterGroupLoadLinesCapacityShowsSumOfWorkCenterLoadCapacity()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        WorkCenter, WorkCenter2 : Record "Work Center";
+        WorkCenterGroup: Record "Work Center Group";
+        RoutingHeader: Record "Routing Header";
+        Routingline: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        WorkCenterLoad: TestPage "Work Center Load";
+        WorkCenterGroupLoad: TestPage "Work Center Group Load";
+        Capacity, Capacity2, TotalCapacity : Decimal;
+        RunTime, RunTime2, TotalRunTime : Decimal;
+        ShopCalendarCode: Code[10];
+    begin
+        // [SCENARIO 525882] Work Center Group Load page of a Work Center Group shows correct Capacity and Allocated (Qty.) which is the sum of Capacities (shown when Calculate Work Center Calendar) of all Work Centers having that particular Work Center Group Code in them.
+        Initialize();
+
+        // [GIVEN] Set Work Date as Today and Set Working Day in Work Date.
+        WorkDate(Today);
+        WorkDate(SetWorkingDayInWorkDate());
+
+        // [GIVEN] Create Capacity Unit of Measure.
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes);
+
+        // [GIVEN] Create Work Center Group.
+        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
+
+        // [GIVEN] Create Shop Calendar.
+        ShopCalendarCode := CreateShopCalendar(080000T, 160000T);
+
+        // [GIVEN] Create Work Center with Work Center Group Code.
+        CreateWorkCenterWithWorkCenterGrpCode(WorkCenter, WorkCenterGroup.Code, ShopCalendarCode, LibraryRandom.RandIntInRange(3, 3), CapacityUnitOfMeasure.Code);
+
+        // [GIVEN] Create Work Center 2 with Work Center Group Code.
+        CreateWorkCenterWithWorkCenterGrpCode(WorkCenter2, WorkCenterGroup.Code, ShopCalendarCode, LibraryRandom.RandInt(0), CapacityUnitOfMeasure.Code);
+
+        // [GIVEN] Calculate Work Center Calendar for Work Center.
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [GIVEN] Calculate Work Center Calendar for Work Center 2.
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [GIVEN] Open Work Center Load page of Work Center.
+        OpenWorkCenterLoadPage(WorkCenterLoad, WorkCenter."No.");
+
+        // [GIVEN] Generate and save Capacity of Work Center Load in a Variable.
+        Capacity := WorkCenterLoad.MachineCenterLoadLines.Capacity.AsDecimal();
+        WorkCenterLoad.Close();
+
+        // [GIVEN] Open Work Center Load page of Work Center 2.
+        OpenWorkCenterLoadPage(WorkCenterLoad, WorkCenter2."No.");
+
+        // [GIVEN] Generate and save Capacity of Work Center 2 Load in a Variable.
+        Capacity2 := WorkCenterLoad.MachineCenterLoadLines.Capacity.AsDecimal();
+        WorkCenterLoad.Close();
+
+        // [GIVEN] Generate and save Total Capacity of both Work Center's Load in a Variable.
+        TotalCapacity := Capacity + Capacity2;
+
+        // [WHEN] Open Work Center Group Load page.
+        OpenWorkCenterGroupLoadPage(WorkCenterGroupLoad, WorkCenterGroup.Code);
+        WorkCenterGroupLoad.PeriodType.SetValue("Analysis Period Type"::Day);
+        WorkCenterGroupLoad.AmountType.SetValue("Analysis Amount Type"::"Net Change");
+        WorkCenterGroupLoad.WorkCtrGroupLoadLines.Filter.SetFilter("Period Start", Format(WorkDate()));
+
+        // [THEN] Capacity in Work Center Group Load Lines is equal to Total Capacity of both Work Center's Load.
+        Assert.AreEqual(
+          TotalCapacity,
+          WorkCenterGroupLoad.WorkCtrGroupLoadLines.Capacity.AsDecimal(),
+          StrSubstNo(
+            CapacityErr,
+            WorkCenterGroupLoad.WorkCtrGroupLoadLines.Capacity.Caption(),
+            TotalCapacity,
+            WorkCenterGroupLoad.WorkCtrGroupLoadLines.Caption()));
+
+        // [GIVEN] Close Work Center Group Load page.
+        WorkCenterGroupLoad.Close();
+
+        // [GIVEN] Create Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [GIVEN] Create Routing Line and Validate Run Time.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, Routingline, '', Format(LibraryRandom.RandInt(0)), Routingline.Type::"Work Center", WorkCenter."No.");
+        Routingline.Validate("Run Time", LibraryRandom.RandIntInRange(60, 60));
+        Routingline.Modify(true);
+
+        // [GIVEN] Generate and save Run Time of first Routing Line in a Variable.
+        RunTime := Routingline."Run Time";
+
+        // [GIVEN] Create another Routing Line and Validate Run Time.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, Routingline, '', Format(LibraryRandom.RandIntInRange(2, 2)), Routingline.Type::"Work Center", WorkCenter2."No.");
+        Routingline.Validate("Run Time", LibraryRandom.RandIntInRange(30, 30));
+        Routingline.Modify(true);
+
+        // [GIVEN] Generate and save Run Time of second Routing Line in a Variable.
+        RunTime2 := Routingline."Run Time";
+
+        // [GIVEN] Generate and save Total Run Time of both Routing Lines in a Variable.
+        TotalRunTime := RunTime + RunTime2;
+
+        // [GIVEN] Update Routing Status.
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create Item and Validate Routing No.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Released Production Order and Refresh it.
+        CreateReleasedProdOrderAndRefresh(ProductionOrder, Item, Location.Code, '', LibraryRandom.RandInt(0));
+
+        // [WHEN] Open Work Center Group Load page.
+        OpenWorkCenterGroupLoadPage(WorkCenterGroupLoad, WorkCenterGroup.Code);
+        WorkCenterGroupLoad.PeriodType.SetValue("Analysis Period Type"::Day);
+        WorkCenterGroupLoad.AmountType.SetValue("Analysis Amount Type"::"Net Change");
+        WorkCenterGroupLoad.WorkCtrGroupLoadLines.Filter.SetFilter("Period Start", Format(ProductionOrder."Starting Date"));
+
+        // [THEN] Prod. Order Need (Qty.) in Work Center Group Load Lines is equal to Total Run Time of both Routing Lines.
+        Assert.AreEqual(
+          TotalRunTime,
+          WorkCenterGroupLoad.WorkCtrGroupLoadLines."WorkCenterGroup.""Prod. Order Need (Qty.)""".AsDecimal(),
+          StrSubstNo(
+            ProdOrderNeedQtyErr,
+            WorkCenterGroupLoad.WorkCtrGroupLoadLines."WorkCenterGroup.""Prod. Order Need (Qty.)""".Caption(),
+            TotalRunTime,
+            WorkCenterGroupLoad.WorkCtrGroupLoadLines.Caption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5467,7 +5604,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         LibraryVariableStorage.Enqueue(FirmPlannedProductionOrderCreated);  // Enqueue value for Message Handler.
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
-          SalesHeader, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ProjectOrder);
+              SalesHeader, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ProjectOrder);
     end;
 
     local procedure FilterOnWorkCenterLoadPage(var WorkCenterLoad: TestPage "Work Center Load"; PeriodStart: Date)
@@ -5822,6 +5959,44 @@ codeunit 137074 "SCM Capacity Requirements"
         Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
+    end;
+
+    local procedure OpenWorkCenterGroups(var WorkCenterGroups: TestPage "Work Center Groups"; WorkCenterGroupCode: Code[10])
+    begin
+        WorkCenterGroups.OpenEdit();
+        WorkCenterGroups.FILTER.SetFilter("Code", WorkCenterGroupCode);
+    end;
+
+    local procedure OpenWorkCenterGroupLoadPage(var WorkCenterGroupLoad: TestPage "Work Center Group Load"; WorkCenterGroupCode: Code[10])
+    var
+        WorkCenterGroups: TestPage "Work Center Groups";
+    begin
+        OpenWorkCenterGroups(WorkCenterGroups, WorkCenterGroupCode);
+        WorkCenterGroupLoad.Trap();
+        WorkCenterGroups."Lo&ad".Invoke();
+    end;
+
+    local procedure CreateWorkCenterWithWorkCenterGrpCode(
+      var WorkCenter: Record "Work Center";
+      WorkCenterGroupCode: Code[10];
+      ShopCalendarCode: Code[10];
+      Capacity: Decimal;
+      UnitOfMeasureCode: Code[10])
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", WorkCenterGroupCode);
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Manual);
+        WorkCenter.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WorkCenter.Validate(Capacity, Capacity);
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure SetWorkingDayInWorkDate(): Date
+    begin
+        if Date2DWY(WorkDate(), 1) in [1, 6, 7] then
+            exit(CalcDate('<3D>', WorkDate()));
     end;
 
     [StrMenuHandler]

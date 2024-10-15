@@ -5939,14 +5939,14 @@
         // [THEN] ComercioExterior/Mercancia has CantidadAduana = 2, ValorUnitarioAduana = 50 (1000 / 20), ValorDolares = 100 (2000 / 20) (TFS 472803)          
         VerifyComercioExteriorLine(
           OriginalStr, SalesLine, SalesLine.Quantity,
-          ROUND(SalesLine."Unit Price" / ExchRateAmount, 0.01, '<'), SalesLine.Amount / ExchRateAmount, 68, 0);
+          ROUND(SalesLine."Unit Price" / ExchRateAmount, 0.000001, '<'), SalesLine.Amount / ExchRateAmount, 66, 0);
         // [THEN] NumRegIdTrib contains "VAT Registration No." from Customer for foreign customer (TFS 471571)
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Receptor',
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Receptor',
           'NumRegIdTrib', Customer."VAT Registration No.");
         Assert.AreEqual(
           Customer."VAT Registration No.",
-          SELECTSTR(60, OriginalStr), STRSUBSTNO(IncorrectOriginalStrValueErr, 'NumRegIdTrib', OriginalStr));
+          SELECTSTR(58, OriginalStr), STRSUBSTNO(IncorrectOriginalStrValueErr, 'NumRegIdTrib', OriginalStr));
     end;
 
     [Test]
@@ -5999,14 +5999,14 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        // [THEN] Comercio Exterior node has TipoCambioUSD = 17.825200, TotalUSD = 85.26
-        // [THEN] Line1 'cce11:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 12.88, ValorDolares = 25.78
-        // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.87, ValorDolares = 59.48
+        // [THEN] Comercio Exterior node has TipoCambioUSD = 17.825200, TotalUSD = 85.26 
+        // [THEN] Line1 'cce20:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 12.888489, ValorDolares = 25.7770
+        // [THEN] Line2 'cce20:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.871333, ValorDolares = 59.4853
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
           SalesInvoiceHeader."Exchange Rate USD", 85.26, 60);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.88, 25.78, 82, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.87, 59.48, 88, 1);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.888489, 25.7770, 80, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.871333, 59.4853, 86, 1);
     end;
 
     [Test]
@@ -6060,13 +6060,13 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Comercio Exterior node has TipoCambioUSD = 17.567300, TotalUSD = 83.22
-        // [THEN] Line1 'cce11:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 12.58, ValorDolares = 25.16
-        // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.51, ValorDolares = 58.06
+        // [THEN] Line1 'cce20:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 12.580191, ValorDolares = 25.1604
+        // [THEN] Line2 'cce20:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.515605, ValorDolares = 58.0624
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
           SalesInvoiceHeader."Exchange Rate USD", 83.22, 60);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.58, 25.16, 82, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.51, 58.06, 88, 1);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.580191, 25.1604, 80, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.515605, 58.0624, 86, 1);
     end;
 
     [Test]
@@ -6120,13 +6120,13 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Comercio Exterior node has TipoCambioUSD = 17.567300, TotalUSD = 97.91
-        // [THEN] Line1 'cce11:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 14.80, ValorDolares = 29.60
-        // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 17.07, ValorDolares = 68.31
+        // [THEN] Line1 'cce20:Mercancia' node has CantidadAduana = 2, ValorUnitarioAduana = 14.800225, ValorDolares = 29.6005
+        // [THEN] Line2 'cce20:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 17.077183, ValorDolares = 68.3087
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
           SalesInvoiceHeader."Exchange Rate USD", 97.91, 60);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 14.8, 29.6, 82, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 17.07, 68.31, 88, 1);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 14.800225, 29.6005, 80, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 17.077183, 68.3087, 86, 1);
     end;
 
     [Test]
@@ -6179,12 +6179,12 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Comercio Exterior node has TipoCambioUSD = 17.506300, TotalUSD = 91.49
-        // [THEN] One line 'cce11:Mercancia' node has CantidadAduana = 6, ValorUnitarioAduana = 15.24, ValorDolares = 91.49
+        // [THEN] One line 'cce20:Mercancia' node has CantidadAduana = 6, ValorUnitarioAduana = 15.247798, ValorDolares = 91.4868
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
           SalesInvoiceHeader."Exchange Rate USD", 91.49, 60);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 6, 15.24, 91.49, 82, 0);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 1);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 6, 15.247798, 91.4868, 80, 0);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 1);
     end;
 
     [Test]
@@ -8748,7 +8748,7 @@
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
-        LibraryXPathXMLReader.AddAdditionalNamespace('cce11', 'http://www.sat.gob.mx/ComercioExterior11');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cce20', 'http://www.sat.gob.mx/ComercioExterior20');
     end;
 
     local procedure InitXMLReaderForCartaPorte(RecordVariant: Variant; FieldNo: Integer)
@@ -8760,7 +8760,7 @@
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte30', 'http://www.sat.gob.mx/CartaPorte30');
-        LibraryXPathXMLReader.AddAdditionalNamespace('cce11', 'http://www.sat.gob.mx/ComercioExterior11');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cce20', 'http://www.sat.gob.mx/ComercioExterior20');
     end;
 
     local procedure OriginalStringMandatoryFields(HeaderTableNo: Integer; LineTableNo: Integer; DocumentNoFieldNo: Integer; CustomerFieldNo: Integer; CFDIPurposeFieldNo: Integer; CFDIRelationFieldNo: Integer; PaymentMethodCodeFieldNo: Integer; PaymentTermsCodeFieldNo: Integer; UnitOfMeasureCodeFieldNo: Integer; RelationIdx: Integer)
@@ -9133,36 +9133,29 @@
 
     local procedure VerifyComercioExteriorHeader(OriginalStr: Text; SATInternationalTermsCode: Code[10]; ExchRateUSD: Decimal; TotalAmountUSD: Decimal; StartPosition: Integer)
     begin
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Version', '1.1');
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'Version', '2.0');
         Assert.AreEqual(
-          '1.1', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TipoOperacion', '2');
+          '2.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'ClaveDePedimento', 'A1');
         Assert.AreEqual(
-          '2', SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoOperacion', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'ClaveDePedimento', 'A1');
+          'A1', SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'CertificadoOrigen', '0');
         Assert.AreEqual(
-          'A1', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'CertificadoOrigen', '0');
-        Assert.AreEqual(
-          '0', SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Incoterm', SATInternationalTermsCode);
+          '0', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'Incoterm', SATInternationalTermsCode);
         Assert.AreEqual(
           SATInternationalTermsCode,
-          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
+          SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cce11:ComercioExterior', 'Subdivision', '0');
-        Assert.AreEqual(
-          '0', SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Subdivision', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cce11:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6));
+          'cfdi:Complemento/cce20:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6));
         Assert.AreEqual(
           FormatDecimal(ExchRateUSD, 6),
-          SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cce11:ComercioExterior', 'TotalUSD', FormatDecimal(TotalAmountUSD, 2));
+          'cfdi:Complemento/cce20:ComercioExterior', 'TotalUSD', FormatDecimal(TotalAmountUSD, 2));
         Assert.AreEqual(
           FormatDecimal(TotalAmountUSD, 2),
-          SelectStr(StartPosition + 7, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
+          SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
     end;
 
     local procedure VerifyComercioExteriorLine(OriginalStr: Text; SalesLine: Record "Sales Line"; Quantity: Decimal; UnitPrice: Decimal; AmountUSD: Decimal; StartPosition: Integer; Index: Integer)
@@ -9173,40 +9166,40 @@
         Item.Get(SalesLine."No.");
         UnitOfMeasure.Get(SalesLine."Unit of Measure Code");
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia',
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia',
           'NoIdentificacion', SalesLine."No.", Index);
         Assert.AreEqual(
           SalesLine."No.",
           SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NoIdentificacion', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'FraccionArancelaria', Item."Tariff No.", Index);
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 'FraccionArancelaria', Item."Tariff No.", Index);
         Assert.AreEqual(
           Item."Tariff No.",
           SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FraccionArancelaria', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'CantidadAduana', Format(Quantity), Index);
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 'CantidadAduana', Format(Quantity), Index);
         Assert.AreEqual(
           Format(Quantity),
           SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CantidadAduana', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'UnidadAduana',
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 'UnidadAduana',
           UnitOfMeasure."SAT Customs Unit", Index);
         Assert.AreEqual(
           UnitOfMeasure."SAT Customs Unit",
           SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadAduana', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'ValorUnitarioAduana',
-          FormatDecimal(UnitPrice, 2), Index);
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 'ValorUnitarioAduana',
+          FormatDecimal(UnitPrice, 6), Index);
         Assert.AreEqual(
-          FormatDecimal(UnitPrice, 2),
+          FormatDecimal(UnitPrice, 6),
           SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitarioAduana', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 'ValorDolares',
-          FormatDecimal(AmountUSD, 2), Index);
+          'cfdi:Complemento/cce20:ComercioExterior/cce20:Mercancias/cce20:Mercancia', 'ValorDolares',
+          FormatDecimal(AmountUSD, 4), Index);
         Assert.AreEqual(
-          FormatDecimal(AmountUSD, 2),
+          FormatDecimal(AmountUSD, 4),
           SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorDolares', OriginalStr));
     end;
 
@@ -9640,7 +9633,7 @@
         CompanyInformation: Record "Company Information";
         CCEOffset: Integer;
     begin
-        CCEOffset := 28;
+        CCEOffset := 26;
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'Version', '3.0'); // Version
         Assert.AreEqual('3.0', SelectStr(StartPosition + CCEOffset, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'IdCCP', IdCCP); // IdCCP
@@ -9649,36 +9642,30 @@
         Assert.AreEqual('Sí', SelectStr(StartPosition + CCEOffset + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
 
         // CoercioExterior
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Version', '1.1'); // Version
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'Version', '2.0'); // Version
         Assert.AreEqual(
-          '1.1', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'MotivoTraslado', SATTransferReason); // MotivoTraslado
+          '2.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'MotivoTraslado', SATTransferReason); // MotivoTraslado
         Assert.AreEqual(
           SATTransferReason, SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MotivoTraslado', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TipoOperacion', '2'); // TipoOperacion
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'ClaveDePedimento', 'A1'); // ClaveDePedimento
         Assert.AreEqual(
-          '2', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoOperacion', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'ClaveDePedimento', 'A1'); // ClaveDePedimento
+          'A1', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'CertificadoOrigen', '0');
         Assert.AreEqual(
-          'A1', SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'CertificadoOrigen', '0');
-        Assert.AreEqual(
-          '0', SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Incoterm', SATInternationalTermsCode); // Incoterm
+          '0', SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'Incoterm', SATInternationalTermsCode); // Incoterm
         Assert.AreEqual(
           SATInternationalTermsCode,
-          SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Subdivision', '0'); // Subdivision
-        Assert.AreEqual(
-          '0', SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Subdivision', OriginalStr));
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cce11:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6)); // TipoCambioUSD
+          'cfdi:Complemento/cce20:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6)); // TipoCambioUSD
         Assert.AreEqual(
           FormatDecimal(ExchRateUSD, 6),
-          SelectStr(StartPosition + 7, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TotalUSD', FormatDecimal(0, 2)); // TotalUSD
+          SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce20:ComercioExterior', 'TotalUSD', FormatDecimal(0, 2)); // TotalUSD
         Assert.AreEqual(
-          FormatDecimal(0, 2), SelectStr(StartPosition + 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
+          FormatDecimal(0, 2), SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
 
         // Ubicaciones
         CompanyInformation.Get();
