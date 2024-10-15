@@ -1249,7 +1249,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetFilter("No.", ItemNoFilter);
         RequisitionLine.ModifyAll("Accept Action Message", true);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             CarryOutAction.Run(RequisitionLine);
         until RequisitionLine.Next = 0;

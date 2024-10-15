@@ -197,6 +197,11 @@ table 1381 "Customer Templ."
             Caption = 'Reminder Terms Code';
             TableRelation = "Reminder Terms";
         }
+        field(107; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+        }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';

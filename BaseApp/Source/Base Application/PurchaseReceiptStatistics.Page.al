@@ -91,7 +91,7 @@ page 399 "Purchase Receipt Statistics"
                     TotalParcels := TotalParcels + Round(PurchRcptLine.Quantity / PurchRcptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -61,9 +61,9 @@ table 1051 "Sorting Table"
         MeasureB := Format(ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic");
         MeasureC := Format(ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic");
 
-        BusChartBuf.AddMeasure(MeasureA, 1, BusChartBuf."Data Type"::Decimal, BusChartBuf."Chart Type"::Line);
-        BusChartBuf.AddMeasure(MeasureB, 1, BusChartBuf."Data Type"::Decimal, BusChartBuf."Chart Type"::Line);
-        BusChartBuf.AddMeasure(MeasureC, 1, BusChartBuf."Data Type"::Decimal, BusChartBuf."Chart Type"::Line);
+        BusChartBuf.AddDecimalMeasure(MeasureA, 1, BusChartBuf."Chart Type"::Line);
+        BusChartBuf.AddDecimalMeasure(MeasureB, 1, BusChartBuf."Chart Type"::Line);
+        BusChartBuf.AddDecimalMeasure(MeasureC, 1, BusChartBuf."Chart Type"::Line);
         BusChartBuf.SetXAxis(RemAmountTxt, BusChartBuf."Data Type"::Decimal);
 
         AddFeeSetup.SetRange("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
@@ -136,7 +136,7 @@ table 1051 "Sorting Table"
                           (AddFeeSetup."Additional Fee %" / 100));
                     end;
                 end;
-            until AddFeeSetup.Next = 0;
+            until AddFeeSetup.Next() = 0;
 
             // Add final entries
             RemAmount := RemAmount * 1.5;
@@ -164,7 +164,7 @@ table 1051 "Sorting Table"
                   AddFeeSetup.GetAdditionalFeeFromSetup(ReminderLevel,
                     TempSortingTable.Decimal * CurrencyFactor, Currency, ChargePerLine, 2, Today));
                 XIndex += 1;
-            until TempSortingTable.Next = 0;
+            until TempSortingTable.Next() = 0;
     end;
 
     local procedure SetValuesAt(var TempSortingTable: Record "Sorting Table" temporary; RemAmount: Decimal)

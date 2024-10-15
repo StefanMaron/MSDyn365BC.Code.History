@@ -301,7 +301,7 @@ table 290 "VAT Amount Line"
                       LineAmount + Round("Line Amount" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision")
                 else
                     LineAmount := LineAmount + "Line Amount";
-            until Next = 0;
+            until Next() = 0;
 
         exit(LineAmount);
     end;
@@ -335,7 +335,7 @@ table 290 "VAT Amount Line"
                       Round("Inv. Disc. Base Amount" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision")
                 else
                     InvDiscBaseAmount := InvDiscBaseAmount + "Inv. Disc. Base Amount";
-            until Next = 0;
+            until Next() = 0;
         exit(InvDiscBaseAmount);
     end;
 
@@ -373,7 +373,7 @@ table 290 "VAT Amount Line"
                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
                   "VAT Amount" + "VAT Difference";
                 VATBase := VATBase - Round(VATBase, Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-            until Next = 0;
+            until Next() = 0;
         exit(VATDiscount);
     end;
 
@@ -383,7 +383,7 @@ table 290 "VAT Amount Line"
             repeat
                 if Modified then
                     exit(true);
-            until Next = 0;
+            until Next() = 0;
         exit(false);
     end;
 
@@ -413,7 +413,7 @@ table 290 "VAT Amount Line"
                 end;
                 NewRemainder := NewRemainder - "Invoice Discount Amount";
             end;
-        until Next = 0;
+        until Next() = 0;
     end;
 
     procedure SetInvoiceDiscountPercent(NewInvoiceDiscountPct: Decimal; NewCurrencyCode: Code[10]; NewPricesIncludingVAT: Boolean; CalcInvDiscPerVATID: Boolean; NewVATBaseDiscPct: Decimal)
@@ -439,7 +439,7 @@ table 290 "VAT Amount Line"
                     else
                         NewRemainder := NewRemainder - "Invoice Discount Amount";
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetCalculatedVAT(NewCurrencyCode: Code[10]; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal): Decimal
@@ -526,7 +526,7 @@ table 290 "VAT Amount Line"
                     "VAT Difference" -= VATAmountLineDeduct."VAT Difference";
                     Modify;
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
@@ -664,7 +664,7 @@ table 290 "VAT Amount Line"
                 TotalVATAmount -= "VAT Amount";
                 "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure CopyFromPurchInvLine(PurchInvLine: Record "Purch. Inv. Line")

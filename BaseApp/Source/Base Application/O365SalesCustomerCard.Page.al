@@ -402,13 +402,13 @@ page 2107 "O365 Sales Customer Card"
 
     local procedure CreateCustomerFromTemplate()
     var
-        MiniCustomerTemplate: Record "Mini Customer Template";
         Customer: Record Customer;
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         if NewMode then begin
-            if MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then begin
+            if CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then begin
                 Copy(Customer);
-                CurrPage.Update;
+                CurrPage.Update();
             end;
             CustomerCardState := CustomerCardState::Delete;
             NewMode := false;
@@ -482,7 +482,7 @@ page 2107 "O365 Sales Customer Card"
         City := CopyStr(deviceContact.PreferredAddress.Locality, 1, MaxStrLen(City));
         County := CopyStr(deviceContact.PreferredAddress.Region, 1, MaxStrLen(County));
 
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -175,7 +175,7 @@ page 1818 "Cash Flow Forecast Wizard"
                                 DummyCashFlowSetup.EmptyTaxBalAccountIfTypeChanged(CurrentTaxBalAccountType);
                                 CurrentTaxBalAccountType := DummyCashFlowSetup."Tax Bal. Account Type";
                                 TaxAccountValidType := DummyCashFlowSetup.HasValidTaxAccountInfo;
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                     }
@@ -297,10 +297,10 @@ page 1818 "Cash Flow Forecast Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Cash Flow Forecast Wizard") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard") then
                 if not Confirm(SetupNotCompletedQst, false) then
                     Error('');
     end;
@@ -339,7 +339,7 @@ page 1818 "Cash Flow Forecast Wizard"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         if (Step = Step::Creation) and not Backwards then
-            if not CashFlowForecast.IsEmpty then
+            if not CashFlowForecast.IsEmpty() then
                 if not Confirm(ExistingSetupWillBeDeletedQst) then
                     CurrPage.Close;
 
@@ -363,7 +363,7 @@ page 1818 "Cash Flow Forecast Wizard"
     var
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowManagement: Codeunit "Cash Flow Management";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         CashFlowManagement.SetupCashFlow(LiquidFundsGLAccountFilter);
 
@@ -378,7 +378,7 @@ page 1818 "Cash Flow Forecast Wizard"
         CashFlowSetup.Modify();
 
         CashFlowManagement.UpdateCashFlowForecast(AzureAIEnabled);
-        AssistedSetup.Complete(PAGE::"Cash Flow Forecast Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard");
         CurrPage.Close;
     end;
 

@@ -50,7 +50,7 @@ codeunit 134096 "ERM VAT Return"
         // [THEN] VAT Values are calculated from the VAT Entries
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
-        VATStatementReportLine.FindSet;
+        VATStatementReportLine.FindSet();
         Assert.RecordCount(VATStatementReportLine, 9);
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
         VATStatementReportLine.Next;

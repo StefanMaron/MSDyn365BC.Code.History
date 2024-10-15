@@ -189,6 +189,16 @@ table 9500 "Email Item"
             ObsoleteReason = 'Replaced with method AddAttachment that accepts Streams.';
             ObsoleteTag = '17.2';
         }
+        field(33; "Source Table"; Integer)
+        {
+            Access = Internal;
+            Caption = 'Email Source Table';
+        }
+        field(34; "Source System Id"; Guid)
+        {
+            Access = Internal;
+            Caption = 'The system id of the source record';
+        }
     }
 
     keys
@@ -272,7 +282,7 @@ table 9500 "Email Item"
         BodyText.Write(DataStream);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure GetBodyText() Value: Text
     var
         TempBlob: Codeunit "Temp Blob";

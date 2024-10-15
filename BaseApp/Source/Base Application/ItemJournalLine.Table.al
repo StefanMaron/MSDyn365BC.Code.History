@@ -1,4 +1,4 @@
-﻿table 83 "Item Journal Line"
+table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -174,7 +174,7 @@
                       DATABASE::"Work Center", "Work Center No.");
 
                 OnBeforeVerifyReservedQty(Rec, xRec, FieldNo("Item No."));
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(4; "Posting Date"; Date)
@@ -237,7 +237,7 @@
 
                 SetDefaultPriceCalculationMethod();
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(6; "Source No."; Code[20])
@@ -301,7 +301,7 @@
 
                 Validate("Unit of Measure Code");
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(10; "Inventory Posting Group"; Code[20])
@@ -375,7 +375,7 @@
                 CheckReservedQtyBase();
 
                 if Item."Item Tracking Code" <> '' then
-                    ReserveItemJnlLine.VerifyQuantity(Rec, xRec);
+                    ItemJnlLineReserve.VerifyQuantity(Rec, xRec);
             end;
         }
         field(15; "Invoiced Quantity"; Decimal)
@@ -659,12 +659,10 @@
                         "Overhead Rate" * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
             end;
         }
-        field(39; "Source Type"; Option)
+        field(39; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(40; "Shpt. Method Code"; Code[10])
         {
@@ -734,7 +732,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(51; "New Shortcut Dimension 1 Code"; Code[20])
@@ -1098,7 +1096,7 @@
                     "Unit Cost" := UnitCost;
                     Validate("Unit Amount");
                     Validate("Unit of Measure Code");
-                    ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                    ItemJnlLineReserve.VerifyChange(Rec, xRec);
                 end;
 
                 if "Variant Code" <> '' then begin
@@ -1163,7 +1161,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -1202,7 +1200,7 @@
                     end;
                 end;
 
-                ReserveItemJnlLine.VerifyChange(Rec, xRec);
+                ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(5407; "Unit of Measure Code"; Code[10])
@@ -1908,9 +1906,19 @@
                                                                                                           "Prod. Order Line No." = FIELD("Order Line No."));
 
             trigger OnValidate()
+            var
+                ProdOrderComponent: Record "Prod. Order Component";
             begin
-                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then
-                    CreateProdDim;
+                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then begin
+                    if ("Order Type" = "Order Type"::Production) and ("Prod. Order Comp. Line No." <> 0) then begin
+                        ProdOrderComponent.Get(
+                          ProdOrderComponent.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
+                        if "Item No." <> ProdOrderComponent."Item No." then
+                            Validate("Item No.", ProdOrderComponent."Item No.");
+                    end;
+
+                    CreateProdDim();
+                end;
             end;
         }
         field(5885; Finished; Boolean)
@@ -1993,6 +2001,18 @@
         field(6506; "Item Expiration Date"; Date)
         {
             Caption = 'Item Expiration Date';
+            Editable = false;
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,1';
             Editable = false;
         }
         field(6600; "Return Reason Code"; Code[10])
@@ -2133,7 +2153,7 @@
 
     trigger OnDelete()
     begin
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -2156,13 +2176,13 @@
     trigger OnModify()
     begin
         OnBeforeVerifyReservedQty(Rec, xRec, 0);
-        ReserveItemJnlLine.VerifyChange(Rec, xRec);
+        ItemJnlLineReserve.VerifyChange(Rec, xRec);
         CheckPlanningAssignment;
     end;
 
     trigger OnRename()
     begin
-        ReserveItemJnlLine.RenameLine(Rec, xRec);
+        ItemJnlLineReserve.RenameLine(Rec, xRec);
     end;
 
     var
@@ -2181,7 +2201,7 @@
         Location: Record Location;
         Bin: Record Bin;
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
@@ -2208,6 +2228,8 @@
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
         PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
         BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
+        SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
+        LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
 
     procedure EmptyLine(): Boolean
     begin
@@ -2466,13 +2488,13 @@
             "New Bin Code" := "Bin Code";
     end;
 
-    local procedure GetUnitAmount(CalledByFieldNo: Integer)
+    procedure GetUnitAmount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
         UnitCostValue: Decimal;
         IsHandled: Boolean;
     begin
-        RetrieveCosts;
+        RetrieveCosts();
         if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
            ("Item Charge No." <> '')
         then
@@ -2553,7 +2575,7 @@
 
     procedure OpenItemTrackingLines(IsReclass: Boolean)
     begin
-        ReserveItemJnlLine.CallItemTracking(Rec, IsReclass);
+        ItemJnlLineReserve.CallItemTracking(Rec, IsReclass);
     end;
 
     local procedure PickDimension(TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
@@ -2789,7 +2811,7 @@
         repeat
             if not (ValueEntry."Expected Cost" or ValueEntry."Partial Revaluation") then
                 CostAmtActual := CostAmtActual + ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
 
         Validate("Inventory Value (Calculated)", CostAmtActual);
         Validate("Inventory Value (Revalued)", CostAmtActual);
@@ -2850,7 +2872,9 @@
         "Unit of Measure Code" := SalesLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
         "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
+#if not CLEAN16        
         "Cross-Reference No." := SalesLine."Cross-Reference No.";
+#endif        
         "Item Reference No." := SalesLine."Item Reference No.";
         "Originally Ordered No." := SalesLine."Originally Ordered No.";
         "Originally Ordered Var. Code" := SalesLine."Originally Ordered Var. Code";
@@ -2920,7 +2944,9 @@
         end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
+#if not CLEAN16        
         "Cross-Reference No." := PurchLine."Cross-Reference No.";
+#endif        
         "Item Reference No." := PurchLine."Item Reference No.";
         "Document Line No." := PurchLine."Line No.";
         "Unit Cost" := PurchLine."Unit Cost (LCY)";
@@ -2994,6 +3020,7 @@
         "Job No." := ServiceLine."Job No.";
         "Job Task No." := ServiceLine."Job Task No.";
         "Price Calculation Method" := ServiceLine."Price Calculation Method";
+        "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
 
         OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
     end;
@@ -3389,7 +3416,7 @@
             if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
                 exit;
 
-            ReserveItemJnlLine.AssignForPlanning(Rec);
+            ItemJnlLineReserve.AssignForPlanning(Rec);
         end;
     end;
 
@@ -3815,6 +3842,36 @@
         TestField("Serial No.", TrackingSpecification."Serial No.");
 
         OnAfterCheckTrackingEqualTrackingSpecification(Rec, TrackingSpecification);
+    end;
+
+    procedure CheckTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            TestField("Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            TestField("Lot No.");
+
+        OnAfterCheckTrackingIfRequired(Rec, ItemTrackingSetup);
+    end;
+
+    procedure CheckNewTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            TestField("New Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            TestField("New Lot No.");
+
+        OnAfterCheckNewTrackingIfRequired(Rec, ItemTrackingSetup);
+    end;
+
+    procedure CheckTrackingIfRequiredNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" and ("Serial No." = '') then
+            Error(SerialNoRequiredErr, "Item No.");
+        if ItemTrackingSetup."Lot No. Required" and ("Lot No." = '') then
+            Error(LotNoRequiredErr, "Item No.");
+
+        OnAfterCheckTrackingIfRequiredNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure ValidateTypeWithItemNo()
@@ -4308,6 +4365,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLocation(var Location: Record Location; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckNewTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfrequiredNotBlank(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

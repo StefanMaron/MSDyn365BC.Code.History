@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Purch Documents - NamedType ReverseChargeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Intrastat file was not created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
@@ -41,15 +50,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType TransactionTypeMustHaveValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2056330323 - NamedType 4108904761" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Import from Sage Line 50 delivered by Technology Management]]></Val>
@@ -57,6 +57,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Third Party Migrators - NamedType SageDataMigratorDescriptionTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1321511241 - NamedType 307025812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Disabled]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test UK Postcode Config - NamedType DisabledTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1321511241 - NamedType 1236632559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -68,13 +77,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test UK Postcode Config - NamedType DummyServiceTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1321511241 - NamedType 307025812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1633055909 - NamedType 1297662191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Disabled]]></Val>
+      <Val><![CDATA[Custom1Text]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test UK Postcode Config - NamedType DisabledTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType Custom1TextCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1633055909 - NamedType 4218956186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DeprCustom1Text]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType DeprCustom1TextCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1633055909 - NamedType 1563950077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Depreciation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType DepreciationCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1633055909 - NamedType 1226722529" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -111,33 +138,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType MainAssetCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1633055909 - NamedType 1563950077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Depreciation]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType DepreciationCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1633055909 - NamedType 1297662191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Custom1Text]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType Custom1TextCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1633055909 - NamedType 4218956186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DeprCustom1Text]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP ACCPER - Fixed Asset - NamedType DeprCustom1TextCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2205879830 - NamedType 529359131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -203,15 +203,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP UKGEN - NamedType DimensionTextCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1872375250 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 filter %2 must be corrected, to run the report monthly or quarterly. ]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1:FieldCaption;%2:FieldValue]D;]A;(LookupHint=Codeunit UT REP VAT 2010 - NamedType PostingDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1872375250 - NamedType 3595057082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1..%2]]></Val>
@@ -219,6 +210,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT 2010 - NamedType DateFilterCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1872375250 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 filter %2 must be corrected, to run the report monthly or quarterly. ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1:FieldCaption;%2:FieldValue]D;]A;(LookupHint=Codeunit UT REP VAT 2010 - NamedType PostingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1872375250 - NamedType 4262839963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

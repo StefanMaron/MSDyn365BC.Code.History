@@ -80,7 +80,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         UndoSalesShipmentErr: Label 'Shipment Line with zero Quantity should not be considered for Undo Shipemnt';
         WhsShpmtHeaderExternalDocumentNoIsWrongErr: Label 'Warehouse Shipment Header."External Document No." is wrong.';
         WhsRcptHeaderVendorShpmntNoIsWrongErr: Label 'Warehouse Receipt Header."Vendor Shipment No." is wrong.';
-        AvailWarningMsg: Label 'There are availability warnings on one or more lines.';
+        AvailWarningMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         WrongQtyToHandleInTrackingSpecErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently %2. It must be %3.\\Check the assignment for serial number %4, lot number %5.', Comment = '%1: Field(Item No.), %2: Field(Qty. to Handle (Base)), %3: expected quantity, %4: Field(Serial No.), %5: Field(Lot No.)';
         PostedInvoicesQtyErr: Label 'There must be 2 Sales Invoices.';
         PostedShpmtsQtyErr: Label 'There must be 2 Sales Shipments.';
@@ -5220,7 +5220,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLinesWithItemNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ItemNo: Code[20])
+    local procedure FindWarehouseActivityLinesWithItemNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ItemNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -5441,7 +5441,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", SourceNo,
           WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         FindBinWithBinTypeCode(Bin, LocationCode, false, true, true);  // Bin Type Code as PUTPICK.
         repeat
             WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
@@ -5962,7 +5962,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
     begin
         PostedInvtPickLine.SetRange("Source Document", SourceDocument);
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
-        PostedInvtPickLine.FindSet;
+        PostedInvtPickLine.FindSet();
         if Next then
             PostedInvtPickLine.Next;
         PostedInvtPickLine.TestField("Location Code", LocationCode);
@@ -6017,7 +6017,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         SalesShipmentLine.TestField(Quantity, Quantity);
         SalesShipmentLine.Next;
         SalesShipmentLine.TestField(Quantity, -Quantity);
@@ -6108,7 +6108,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo,
           WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         Count := 1;
         repeat
             WarehouseActivityLine.TestField("Serial No.", Format(Count));  // Value required for the Serial No.

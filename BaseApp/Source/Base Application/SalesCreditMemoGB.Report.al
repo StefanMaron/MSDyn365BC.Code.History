@@ -259,7 +259,7 @@ report 10573 "Sales - Credit Memo GB"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -479,7 +479,7 @@ report 10573 "Sales - Credit Memo GB"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()
@@ -986,7 +986,7 @@ report 10573 "Sales - Credit Memo GB"
                     TotalQuantity := TotalQuantity - ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]
@@ -1013,8 +1013,8 @@ report 10573 "Sales - Credit Memo GB"
                 if SalesCrMemoLine2.Find('-') then
                     repeat
                         TotalQuantity := TotalQuantity + SalesCrMemoLine2.Quantity;
-                    until SalesCrMemoLine2.Next = 0;
-            until SalesCrMemoHeader.Next = 0;
+                    until SalesCrMemoLine2.Next() = 0;
+            until SalesCrMemoHeader.Next() = 0;
 
         ReturnReceiptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
         ReturnReceiptLine.SetRange("Return Order No.", "Sales Cr.Memo Header"."Return Order No.");
@@ -1046,7 +1046,7 @@ report 10573 "Sales - Credit Memo GB"
                           -Quantity,
                           ReturnReceiptHeader."Posting Date");
                 end;
-            until (ReturnReceiptLine.Next = 0) or (TotalQuantity = 0);
+            until (ReturnReceiptLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]
@@ -1060,7 +1060,7 @@ report 10573 "Sales - Credit Memo GB"
         if SalesCrMemoLine.Find('-') then
             repeat
                 ReturnReceiptLine.Quantity := ReturnReceiptLine.Quantity - SalesCrMemoLine.Quantity;
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

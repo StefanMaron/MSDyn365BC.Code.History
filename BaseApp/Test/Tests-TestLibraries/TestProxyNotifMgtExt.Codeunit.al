@@ -6,7 +6,7 @@ codeunit 130232 "Test Proxy Notif. Mgt. Ext."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 130231, 'OnCheckIgnoringNotification', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy Notification Mgt.", 'OnCheckIgnoringNotification', '', false, false)]
     local procedure SetIgnoreOnCheckIgnoringNotification(NotificationID: Guid; var Ignore: Boolean)
     begin
     end;

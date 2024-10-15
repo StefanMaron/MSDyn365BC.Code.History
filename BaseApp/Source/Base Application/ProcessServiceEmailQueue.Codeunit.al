@@ -33,7 +33,7 @@ codeunit 5917 "Process Service Email Queue"
                     ServEmailQueue2.Status := ServEmailQueue2.Status::Error;
                 ServEmailQueue2.Modify();
                 Sleep(200);
-            until ServEmailQueue.Next = 0;
+            until ServEmailQueue.Next() = 0;
     end;
 }
 

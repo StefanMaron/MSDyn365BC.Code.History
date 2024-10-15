@@ -40,7 +40,7 @@ report 5687 "Copy Depreciation Book"
                             JournalType::FAJnlType:
                                 InsertFAJnlLine(FALedgEntry);
                         end;
-                    until FALedgEntry.Next = 0;
+                    until FALedgEntry.Next() = 0;
             end;
 
             trigger OnPreDataItem()

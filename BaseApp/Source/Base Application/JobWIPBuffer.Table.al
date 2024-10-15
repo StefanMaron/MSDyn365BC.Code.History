@@ -10,12 +10,10 @@ table 1018 "Job WIP Buffer"
             Caption = 'Posting Group';
             DataClassification = SystemMetadata;
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Job WIP Buffer Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Applied Costs,Applied Sales,Recognized Costs,Recognized Sales,Accrued Costs,Accrued Sales';
-            OptionMembers = "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales";
         }
         field(3; "WIP Entry Amount"; Decimal)
         {

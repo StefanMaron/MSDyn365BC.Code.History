@@ -344,7 +344,7 @@ report 10529 "Reverse Charge Sales List"
             MaxCount := AccountingPeriod.Count();
             if MaxCount > 12 then
                 MaxCount := 12;
-            AccountingPeriod.FindSet;
+            AccountingPeriod.FindSet();
             for i := 2 to MaxCount do begin
                 AccountingPeriod.Next;
                 StartDate[i] := AccountingPeriod."Starting Date";
@@ -362,7 +362,7 @@ report 10529 "Reverse Charge Sales List"
             MaxCount := Calendar.Count();
             if MaxCount > 12 then
                 MaxCount := 12;
-            Calendar.FindSet;
+            Calendar.FindSet();
             for i := 2 to MaxCount do begin
                 Calendar.Next;
                 StartDate[i] := Calendar."Period Start";

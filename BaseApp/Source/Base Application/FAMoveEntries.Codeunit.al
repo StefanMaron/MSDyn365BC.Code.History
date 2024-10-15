@@ -104,7 +104,7 @@ codeunit 5623 "FA MoveEntries"
                     "FA No." := '';
                     "Insurance No." := '';
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -118,7 +118,7 @@ codeunit 5623 "FA MoveEntries"
                     "Insurance No." := '';
                     "FA No." := '';
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

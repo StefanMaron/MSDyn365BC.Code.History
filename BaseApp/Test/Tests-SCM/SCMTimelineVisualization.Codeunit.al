@@ -54,6 +54,7 @@ codeunit 137023 "SCM Timeline Visualization"
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Timeline Visualization");
+        ClearShopCalendarManagement();
     end;
 
     local procedure NoSeriesSetup()
@@ -285,7 +286,7 @@ codeunit 137023 "SCM Timeline Visualization"
         RequisitionLine.SetFilter("No.", Item."No.");
         Assert.AreEqual(Count, RequisitionLine.Count,
           'Excess or missing requisition lines after creating one new supply in timeline, and saving.');
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure ValidateRequsitionLine(var RequisitionLine: Record "Requisition Line"; Quantity: Decimal; Date: Date; Location: Code[10]; Variant: Code[10])
@@ -1085,6 +1086,7 @@ codeunit 137023 "SCM Timeline Visualization"
         ExpectTimelineEvent(TimelineEvent, Show(RecRef), ProdOrderLine."Due Date", FixedSupply, ProdOrderLine.Quantity);
 
         // EXECUTE CompItem
+        ClearShopCalendarManagement();
         GetTimelineEvents(TimelineEvent, CompItem, IncludePlanning(false), '', '');
 
         // VALIDATE CompItem
@@ -1096,6 +1098,7 @@ codeunit 137023 "SCM Timeline Visualization"
         ExpectTimelineEventILE(TimelineEvent, CompItem, '');
 
         // EXECUTE CompItem2
+        ClearShopCalendarManagement();
         ProdOrderComponent.Next;
         GetTimelineEvents(TimelineEvent, CompItem2, IncludePlanning(false), '', '');
 
@@ -1380,7 +1383,7 @@ codeunit 137023 "SCM Timeline Visualization"
 
         CalcItemAvailTimeline.CreateTimelineEvents(TimelineEvent);
         Clear(TimelineEvent);
-        TimelineEvent.FindSet;
+        TimelineEvent.FindSet();
     end;
 
     local procedure GetTimelineEventsNo(var TimelineEvent: Record "Timeline Event"; ItemNo: Code[20]; IncludePlanning: Boolean; Location: Code[10])
@@ -1564,12 +1567,12 @@ codeunit 137023 "SCM Timeline Visualization"
         Item.Get(ProductionOrder."Source No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
         Assert.IsTrue(ProdOrderLine.Count = 1, 'Expected exactly one line on production order.');
 
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         Assert.IsTrue(ProdOrderComponent.Count >= 2, 'Expected at least two components on production order line');
 
         CopyProdOrderComponent := ProdOrderComponent;
@@ -1635,11 +1638,11 @@ codeunit 137023 "SCM Timeline Visualization"
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningComponent.FindSet;
+        PlanningComponent.FindSet();
 
         BOMComponent.SetRange("Parent Item No.", ItemBase."No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        BOMComponent.FindSet;
+        BOMComponent.FindSet();
 
         Assert.AreEqual(BOMComponent.Count, PlanningComponent.Count, 'Bom component/planning component mismatch');
     end;
@@ -1687,7 +1690,7 @@ codeunit 137023 "SCM Timeline Visualization"
           StrSubstNo('Excess  transactions for Item %1. Expected: %2, Got: %3.', Item."No.", Quantity, TimelineEvent.Count));
         Assert.IsTrue(TimelineEvent.Count >= Quantity,
           StrSubstNo('Missing transactions for Item %1. Expected: %2, Got: %3.', Item."No.", Quantity, TimelineEvent.Count));
-        TimelineEvent.FindSet;
+        TimelineEvent.FindSet();
     end;
 
     local procedure ValidateTimelineEventChange(var TimelineEventChange: Record "Timeline Event Change"; "Count": Integer; NewQty: Decimal; OriginalQty: Decimal; NewDate: Date; OriginalDate: Date; Type: Text[40])
@@ -1944,6 +1947,13 @@ codeunit 137023 "SCM Timeline Visualization"
         Assert.AreEqual(
           InventoryEventBuffer[5]."Ref. Order Type"::Assembly,
           InventoryEventBuffer[5]."Ref. Order Type", InvEventBufferRefOrderTypeErr);
+    end;
+
+    local procedure ClearShopCalendarManagement()
+    var
+        ShopCalendarManagement: Codeunit "Shop calendar Management";
+    begin
+        ShopCalendarManagement.ClearInternals();
     end;
 }
 

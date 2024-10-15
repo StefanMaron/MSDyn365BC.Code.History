@@ -1,4 +1,4 @@
-﻿table 115 "Sales Cr.Memo Line"
+table 115 "Sales Cr.Memo Line"
 {
     Caption = 'Sales Cr.Memo Line';
     DrillDownPageID = "Posted Sales Credit Memo Lines";
@@ -449,11 +449,18 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -607,7 +614,7 @@
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::"Posted Credit Memo");
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not SalesDocLineComments.IsEmpty then
+        if not SalesDocLineComments.IsEmpty() then
             SalesDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(
@@ -655,7 +662,7 @@
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesCrMemoLine(Rec);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
@@ -743,7 +750,7 @@
                         TempReturnRcptLine := ReturnRcptLine;
                         if TempReturnRcptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -772,7 +779,7 @@
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")

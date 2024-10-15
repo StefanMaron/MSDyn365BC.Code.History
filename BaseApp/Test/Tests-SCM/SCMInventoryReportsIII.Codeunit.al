@@ -1485,7 +1485,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalAmount += ItemLedgerEntry."Cost Amount (Actual)";
@@ -1871,7 +1871,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     local procedure FindPostValueEntry(var PostValueEntryToGL: Record "Post Value Entry to G/L"; ItemNo: Code[20])
     begin
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostValueEntryToGL.FindSet;
+        PostValueEntryToGL.FindSet();
     end;
 
     local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20])
@@ -2322,7 +2322,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
             PurchaseLine.Modify(true);

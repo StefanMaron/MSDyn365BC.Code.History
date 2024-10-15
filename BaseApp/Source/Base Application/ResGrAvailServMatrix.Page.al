@@ -588,7 +588,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
                         MATRIX_CellData[I] := Format(MatrixRec.Capacity - MatrixRec."Qty. on Service Order")
                     else
                         MATRIX_CellData[I] := '';
-                until MatrixRec.Next = 0;
+                until MatrixRec.Next() = 0;
         end;
         SetVisible;
     end;

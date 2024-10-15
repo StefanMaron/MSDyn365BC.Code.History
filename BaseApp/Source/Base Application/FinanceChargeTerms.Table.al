@@ -22,7 +22,7 @@ table 5 "Finance Charge Terms"
             begin
                 FinChrgInterestRate.Reset();
                 FinChrgInterestRate.SetRange("Fin. Charge Terms Code", Code);
-                if not FinChrgInterestRate.IsEmpty then
+                if not FinChrgInterestRate.IsEmpty() then
                     Message(InterestRateNotificationMsg);
             end;
         }

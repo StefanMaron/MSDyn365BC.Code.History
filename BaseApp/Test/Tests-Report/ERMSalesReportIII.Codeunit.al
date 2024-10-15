@@ -1740,51 +1740,6 @@ codeunit 134984 "ERM Sales Report III"
     end;
 
     [Test]
-    [HandlerFunctions('EditAnalysisReportSaleRequestPageHandler,SaleAnalysisMatrixExcludeByShowReportPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesAnalysisReportExcludesNoShowLinesAndColumns()
-    var
-        AnalysisReportName: Record "Analysis Report Name";
-        AnalysisLineTemplate: Record "Analysis Line Template";
-        AnalysisColumnTemplate: Record "Analysis Column Template";
-        AnalysisLine: array[2] of Record "Analysis Line";
-        AnalysisColumn: array[2] of Record "Analysis Column";
-    begin
-        // [FEATURE] [Sales Analysis Report]
-        // [SCENARIO 359346] Sales analysis matrix does not show lines with Show = "No" and columns with Show = "Never".
-        Initialize;
-
-        // [GIVEN] Sales analysis report.
-        LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Sales);
-        LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Sales);
-        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Sales);
-
-        // [GIVEN] Analysis line "L1" is set up for Show = "No".
-        CreateSalesAnalysisLineWithShowSetting(AnalysisLine[1], AnalysisLineTemplate.Name, AnalysisLine[1].Show::No);
-        LibraryVariableStorage.Enqueue(AnalysisLine[1]);
-
-        // [GIVEN] Analysis line "L2" is set up for Show = "Yes".
-        CreateSalesAnalysisLineWithShowSetting(AnalysisLine[2], AnalysisLineTemplate.Name, AnalysisLine[2].Show::Yes);
-        LibraryVariableStorage.Enqueue(AnalysisLine[2]);
-
-        // [GIVEN] Analysis column "C1" is set up for Show = "Never".
-        CreateSalesAnalysisColumnWithShowSetting(AnalysisColumn[1], AnalysisColumnTemplate.Name, AnalysisColumn[1].Show::Never);
-        LibraryVariableStorage.Enqueue(AnalysisColumn[1]);
-
-        // [GIVEN] Analysis column "C2" is set up for Show = "Always".
-        CreateSalesAnalysisColumnWithShowSetting(AnalysisColumn[2], AnalysisColumnTemplate.Name, AnalysisColumn[2].Show::Always);
-        LibraryVariableStorage.Enqueue(AnalysisColumn[2]);
-
-        // [WHEN] Open Sales Analysis Matrix to view the report.
-        OpenAnalysisReportSales(AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
-
-        // [THEN] Line "L1" is not shown, Line "L2" is visible.
-        // [THEN] Column "C1" is not shown, Column "C2" is visible.
-        // [THEN] The matrix has maximum of 32 columns, but only one column ("C2") is now visible.
-        // The verification is done in SaleAnalysisMatrixExcludeByShowReportPageHandler handler.
-    end;
-
-    [Test]
     [HandlerFunctions('AnalysisReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure AnalysisReportPrintoutFormattingCheck()
@@ -1797,7 +1752,7 @@ codeunit 134984 "ERM Sales Report III"
         AnalysisReport: Report "Analysis Report";
     begin
         // [FEATURE] [Analysis Report]
-        // [SCENARIO 359346] Analysis report printout should respect analysis line format settings.
+        // [SCENARIO 280460] Analysis report printout should respect analysis line format settings.
         Initialize;
 
         // [GIVEN] Sales analysis report with one column.
@@ -1816,7 +1771,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // [WHEN] Run "Analysis Report".
         Commit();
-        AnalysisReport.SetParams(
+        AnalysisReport.SetParameters(
           AnalysisLine[1]."Analysis Area"::Sales, AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
         AnalysisReport.SetFilters(Format(WorkDate), '', '', '', '', '', 0, '');
         AnalysisReport.Run;
@@ -1843,7 +1798,7 @@ codeunit 134984 "ERM Sales Report III"
         DateFilter: Text;
     begin
         // [FEATURE] [Analysis Report]
-        // [SCENARIO 359346] When "Date Filter" set on analysis line is not a single date, but a date period, it should be printed as text on the filter section in "Analysis Report to Excel" worksheet.
+        // [SCENARIO 280460] When "Date Filter" set on analysis line is not a single date, but a date period, it should be printed as text on the filter section in "Analysis Report to Excel" worksheet.
         Initialize;
 
         // [GIVEN] Sales analysis report with one line and one column.
@@ -2922,21 +2877,6 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
-    local procedure CreateSalesAnalysisLineWithShowSetting(var AnalysisLine: Record "Analysis Line"; AnalysisLineTemplateName: Code[10]; ShowSetting: Option)
-    begin
-        LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisLine."Analysis Area"::Sales, AnalysisLineTemplateName);
-        AnalysisLine.Validate(Show, ShowSetting);
-        AnalysisLine.Modify(true);
-    end;
-
-    local procedure CreateSalesAnalysisColumnWithShowSetting(var AnalysisColumn: Record "Analysis Column"; AnalysisColumnTemplateName: Code[10]; ShowSetting: Option)
-    begin
-        LibraryInventory.CreateAnalysisColumn(AnalysisColumn, AnalysisColumn."Analysis Area"::Sales, AnalysisColumnTemplateName);
-        AnalysisColumn.Validate("Column Header", LibraryUtility.GenerateGUID);
-        AnalysisColumn.Validate(Show, ShowSetting);
-        AnalysisColumn.Modify(true);
-    end;
-
     local procedure CreateItemWithDetails(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -3112,7 +3052,7 @@ codeunit 134984 "ERM Sales Report III"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -3170,7 +3110,7 @@ codeunit 134984 "ERM Sales Report III"
           CustomerNo, CustLedgEntryNo, DetailedCustLedgEntry."Entry Type"::Application, EntryAmount, UnappliedEntry, PostingDate);
     end;
 
-    local procedure MockDtldCLE(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; CustLedgEntryNo: Integer; EntryType: Option; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
+    local procedure MockDtldCLE(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; CustLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
         with DetailedCustLedgEntry do begin
             Init;
@@ -3183,17 +3123,6 @@ codeunit 134984 "ERM Sales Report III"
             Unapplied := UnappliedEntry;
             Insert;
         end;
-    end;
-
-    local procedure OpenAnalysisReportSales(AnalysisReportName: Code[10]; AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
-    var
-        AnalysisReportSale: TestPage "Analysis Report Sale";
-    begin
-        AnalysisReportSale.OpenEdit;
-        AnalysisReportSale.FILTER.SetFilter(Name, AnalysisReportName);
-        AnalysisReportSale."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
-        AnalysisReportSale."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        AnalysisReportSale.EditAnalysisReport.Invoke;
     end;
 
     local procedure SaveAgedAccountsReceivable(var Customer: Record Customer; AgingBy: Option; HeadingType: Option; PeriodLength: DateFormula; AmountLCY: Boolean; PrintDetails: Boolean)
@@ -4037,7 +3966,7 @@ codeunit 134984 "ERM Sales Report III"
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
             VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
             Next;
             VerifyProformaInvoiceLineValues(SalesLine, TotalWeight, TotalAmount, TotalVATAmount, TotalAmountInclVAT);
@@ -4144,6 +4073,7 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: TestPage Navigate)
     begin
+        Navigate."No. of Records".Value();
         Navigate.Print.Invoke;
     end;
 
@@ -4151,6 +4081,7 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure PostAndApplyCustPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
+        if ApplyCustomerEntries.Editable() then;
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries."Post Application".Invoke;
     end;
@@ -4160,6 +4091,7 @@ codeunit 134984 "ERM Sales Report III"
     procedure PostApplicationPageHandler(var PostApplication: Page "Post Application"; var Response: Action)
     begin
         // Modal Page Handler.
+        if PostApplication.Editable() then;
         Response := ACTION::OK
     end;
 
@@ -4167,6 +4099,7 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure RHAgedAccountsReceivable(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
     begin
+        if AgedAccountsReceivable.Editable() then;
         AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -4174,6 +4107,7 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure RHAgedAccountsReceivableEmptyPeriodLength(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
     begin
+        if AgedAccountsReceivable.Editable() then;
         AgedAccountsReceivable.PeriodLength.SetValue('');
         AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -4310,81 +4244,6 @@ codeunit 134984 "ERM Sales Report III"
     procedure AnalysisReportRequestPageHandler(var AnalysisReport: TestRequestPage "Analysis Report")
     begin
         AnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure EditAnalysisReportSaleRequestPageHandler(var SalesAnalysisReport: TestPage "Sales Analysis Report")
-    var
-        SalesPeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-    begin
-        SalesAnalysisReport.PeriodType.SetValue(SalesPeriodType::Year);
-        SalesAnalysisReport.ShowMatrix.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SaleAnalysisMatrixExcludeByShowReportPageHandler(var SalesAnalysisMatrix: TestPage "Sales Analysis Matrix")
-    var
-        AnalysisLine: Record "Analysis Line";
-        AnalysisColumn: Record "Analysis Column";
-        RecordVariant: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(RecordVariant);
-        AnalysisLine := RecordVariant;
-        Assert.AreEqual(
-          AnalysisLine.Show <> AnalysisLine.Show::No, SalesAnalysisMatrix.GotoRecord(AnalysisLine),
-          RowVisibilityErr);
-
-        LibraryVariableStorage.Dequeue(RecordVariant);
-        AnalysisLine := RecordVariant;
-        Assert.AreEqual(
-          AnalysisLine.Show <> AnalysisLine.Show::No, SalesAnalysisMatrix.GotoRecord(AnalysisLine),
-          RowVisibilityErr);
-
-        LibraryVariableStorage.Dequeue(RecordVariant);
-        AnalysisColumn := RecordVariant;
-        Assert.AreEqual(
-          AnalysisColumn."Column Header" = SalesAnalysisMatrix.Field1.Caption, AnalysisColumn.Show <> AnalysisColumn.Show::Never,
-          ColumnVisibilityErr);
-
-        LibraryVariableStorage.Dequeue(RecordVariant);
-        AnalysisColumn := RecordVariant;
-        Assert.AreEqual(
-          AnalysisColumn."Column Header" = SalesAnalysisMatrix.Field1.Caption, AnalysisColumn.Show <> AnalysisColumn.Show::Never,
-          ColumnVisibilityErr);
-
-        Assert.IsFalse(SalesAnalysisMatrix.Field2.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field3.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field4.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field5.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field6.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field7.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field8.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field9.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field10.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field11.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field12.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field13.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field14.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field15.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field16.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field17.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field18.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field19.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field20.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field21.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field22.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field23.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field24.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field25.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field26.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field27.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field28.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field29.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field30.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field31.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(SalesAnalysisMatrix.Field32.Visible, ColumnDoesNotExistErr);
     end;
 
     [ModalPageHandler]

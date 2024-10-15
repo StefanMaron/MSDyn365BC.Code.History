@@ -205,7 +205,7 @@ page 123 "VAT Entries Preview"
             repeat
                 Rec := TempVATEntry;
                 Insert;
-            until TempVATEntry.Next = 0;
+            until TempVATEntry.Next() = 0;
     end;
 }
 

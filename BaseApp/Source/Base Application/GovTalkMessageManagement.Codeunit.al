@@ -596,7 +596,7 @@ codeunit 10520 GovTalkMessageManagement
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Page, 740, 'OnAfterInitPageControllers', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"VAT Report", 'OnAfterInitPageControllers', '', false, false)]
     local procedure OnAfterInitPageControllers(VATReportHeader: Record "VAT Report Header"; var SubmitControllerStatus: Boolean; var MarkAsSubmitControllerStatus: Boolean)
     var
         GovTalkSetup: Record "GovTalk Setup";

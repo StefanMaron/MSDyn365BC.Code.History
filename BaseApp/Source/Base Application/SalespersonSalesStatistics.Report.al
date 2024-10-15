@@ -80,7 +80,7 @@ report 114 "Salesperson - Sales Statistics"
                             AdjProfit += CustLedgEntry."Profit (LCY)" + CostCalculationMgt.CalcCustLedgAdjmtCostLCY(CustLedgEntry)
                         else
                             AdjProfit += CustLedgEntry."Profit (LCY)"
-                    until CustLedgEntry.Next = 0
+                    until CustLedgEntry.Next() = 0
                 else
                     CurrReport.Skip
             end;

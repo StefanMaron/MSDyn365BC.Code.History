@@ -722,7 +722,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         ActualRemainingPmtDiscPossible: Decimal;
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             ActualRemainingPmtDiscPossible += CustLedgerEntry."Remaining Pmt. Disc. Possible";
         until CustLedgerEntry.Next = 0;

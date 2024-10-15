@@ -1,4 +1,4 @@
-﻿page 50 "Purchase Order"
+page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
     PageType = Document;
@@ -24,7 +24,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -52,7 +52,7 @@
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -224,7 +224,7 @@
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the date when the order was created.';
+                    ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
                 }
                 field("Quote No."; "Quote No.")
                 {
@@ -609,7 +609,7 @@
                                     if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                         SetRange("Pay-to Vendor No.");
 
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                         field("Pay-to Address"; "Pay-to Address")
@@ -1270,6 +1270,20 @@
                         StdVendPurchCode.InsertPurchLines(Rec);
                     end;
                 }
+                action("Create Tracking Information")
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Create Tracking Information';
+                    Image = ItemTracking;
+                    ToolTip = 'Create item tracking information for the entire purchase order.';
+
+                    trigger OnAction()
+                    var
+                        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+                    begin
+                        ItemTrackingDocMgt.CreateTrackingInfo(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                    end;
+                }
                 action(CopyDocument)
                 {
                     ApplicationArea = Suite;
@@ -1482,12 +1496,12 @@
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1507,7 +1521,7 @@
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1978,6 +1992,7 @@
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1990,6 +2005,11 @@
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
@@ -2031,22 +2051,22 @@
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure Prepayment37OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShowPreview()
@@ -2199,6 +2219,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 

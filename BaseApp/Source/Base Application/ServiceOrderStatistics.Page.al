@@ -1195,8 +1195,6 @@ page 5914 "Service Order Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
-        TotalServLine: array[7] of Record "Service Line";
-        TotalServLineLCY: array[7] of Record "Service Line";
         Cust: Record Customer;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
@@ -1222,6 +1220,10 @@ page 5914 "Service Order Statistics"
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
         Text006: Label 'Placeholder';
+
+    protected var
+        TotalServLine: array[7] of Record "Service Line";
+        TotalServLineLCY: array[7] of Record "Service Line";
 
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var

@@ -212,7 +212,7 @@ page 615 "IC Inbox Transactions"
                                 repeat
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"No Action";
                                     ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next = 0;
+                                until ICInboxTransaction.Next() = 0;
                         end;
                     }
                     action(Accept)
@@ -235,7 +235,7 @@ page 615 "IC Inbox Transactions"
                                     TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
                                     ICInboxTransaction.Validate("Line Action", ICInboxTransaction."Line Action"::Accept);
                                     ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next = 0;
+                                until ICInboxTransaction.Next() = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                                 RunInboxTransactions(ICInboxTransaction);
@@ -261,7 +261,7 @@ page 615 "IC Inbox Transactions"
                                     TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"Return to IC Partner";
                                     ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next = 0;
+                                until ICInboxTransaction.Next() = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                                 RunInboxTransactions(ICInboxTransaction);
@@ -286,7 +286,7 @@ page 615 "IC Inbox Transactions"
                                 repeat
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Cancel;
                                     ICInboxTransaction.Modify();
-                                until ICInboxTransaction.Next = 0;
+                                until ICInboxTransaction.Next() = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                                 RunInboxTransactions(ICInboxTransaction);
@@ -367,7 +367,7 @@ page 615 "IC Inbox Transactions"
         ICInboxTransactionCopy.Copy(ICInboxTransaction);
         ICInboxTransactionCopy.SetRange("Source Type", ICInboxTransactionCopy."Source Type"::Journal);
 
-        if not ICInboxTransactionCopy.IsEmpty then
+        if not ICInboxTransactionCopy.IsEmpty() then
             RunReport := true;
 
         Commit();

@@ -136,7 +136,7 @@ table 1504 "Workflow Step Instance"
     begin
         WorkflowTableRelationValue.SetRange("Workflow Step Instance ID", ID);
         WorkflowTableRelationValue.SetRange("Workflow Code", "Workflow Code");
-        if not WorkflowTableRelationValue.IsEmpty then
+        if not WorkflowTableRelationValue.IsEmpty() then
             WorkflowTableRelationValue.DeleteAll();
         DeleteStepInstanceRules;
         RemoveRecordRestrictions();
@@ -209,7 +209,7 @@ table 1504 "Workflow Step Instance"
 
                 while WorkflowInstance.Read do
                     WorkflowTableRelationValue.CreateNew(WorkflowInstance.Step_ID, Rec, WorkflowTableRelation, RecRef);
-            until WorkflowTableRelation.Next = 0;
+            until WorkflowTableRelation.Next() = 0;
     end;
 
     procedure MatchesRecordValues(RecRef: RecordRef): Boolean
@@ -232,7 +232,7 @@ table 1504 "Workflow Step Instance"
                     ComparisonValue := Format(WorkflowTableRelationValue."Record ID");
                 if Format(FieldRef.Value) <> ComparisonValue then
                     SkipRecord := true;
-            until (WorkflowTableRelationValue.Next = 0) or SkipRecord;
+            until (WorkflowTableRelationValue.Next() = 0) or SkipRecord;
             exit(not SkipRecord);
         end;
 
@@ -251,7 +251,7 @@ table 1504 "Workflow Step Instance"
                 repeat
                     WorkflowStepInstanceArchive.TransferFields(Rec, true);
                     WorkflowStepInstanceArchive.Insert(true);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll(true);
             end;
     end;
@@ -330,7 +330,7 @@ table 1504 "Workflow Step Instance"
             repeat
                 NewStepId += 1;
                 CreateTree(TempWorkflowStepInstance, WorkflowInstanceId, WorkflowStepInstance."Workflow Step ID", NewStepId);
-            until WorkflowStepInstance.Next = 0;
+            until WorkflowStepInstance.Next() = 0;
     end;
 
     local procedure CreateNode(var TempWorkflowStepInstance: Record "Workflow Step Instance" temporary; WorkflowInstanceId: Guid; OriginalStepId: Integer; NewStepId: Integer)

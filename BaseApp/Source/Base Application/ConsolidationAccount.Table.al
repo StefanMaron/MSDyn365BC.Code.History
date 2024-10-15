@@ -147,7 +147,7 @@ table 1829 "Consolidation Account"
         if GLAccount.Find('-') then
             repeat
                 InsertData(GLAccount."No.", GLAccount.Name, GLAccount."Income/Balance", GLAccount."Direct Posting");
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     procedure ValidateCountry(CountryCode: Code[2]): Boolean

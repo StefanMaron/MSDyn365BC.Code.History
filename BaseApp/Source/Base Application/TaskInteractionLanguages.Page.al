@@ -34,7 +34,7 @@ page 5196 "Task Interaction Languages"
                             CreateAttachment(("To-do No." = '') or Task.Closed)
                         else
                             OpenAttachment(("To-do No." = '') or Task.Closed);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

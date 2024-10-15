@@ -76,10 +76,10 @@ report 10580 "Payment Practices"
             begin
                 if (StartingDate = 0D) or (EndingDate = 0D) then
                     Error(DatesNotSpecifiedErr);
-                if PaymentPeriodSetup.IsEmpty then
+                if PaymentPeriodSetup.IsEmpty() then
                     Error(PaymentPeriodSetupEmptyErr);
                 PaymentPracticesMgt.BuildPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate);
-                if TempPaymentApplicationBuffer.IsEmpty then
+                if TempPaymentApplicationBuffer.IsEmpty() then
                     Error(NoInvoicesForPeriodErr);
             end;
         }
@@ -108,7 +108,7 @@ report 10580 "Payment Practices"
             trigger OnAfterGetRecord()
             begin
                 if Number <> 1 then
-                    if TempAvgPmtApplicationBuffer.Next = 0 then
+                    if TempAvgPmtApplicationBuffer.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -143,7 +143,7 @@ report 10580 "Payment Practices"
             trigger OnAfterGetRecord()
             begin
                 if Number <> 1 then
-                    if TempOverduePmtApplicationBuffer.Next = 0 then
+                    if TempOverduePmtApplicationBuffer.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -267,7 +267,7 @@ report 10580 "Payment Practices"
                 TempAvgPmtApplicationBuffer := TempPaymentApplicationBuffer;
                 TempAvgPmtApplicationBuffer.Insert();
                 Exists := true;
-            until TempPaymentApplicationBuffer.Next = 0;
+            until TempPaymentApplicationBuffer.Next() = 0;
         TempPaymentApplicationBuffer.MarkedOnly(false);
         TempPaymentApplicationBuffer.ClearMarks;
     end;

@@ -122,7 +122,7 @@ page 1291 "Pmt. Recon. Journal Overview"
                     trigger OnAction()
                     begin
                         SetFilter(Difference, '<>0');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(ShowAllLines)
@@ -138,7 +138,7 @@ page 1291 "Pmt. Recon. Journal Overview"
                     trigger OnAction()
                     begin
                         SetRange(Difference);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

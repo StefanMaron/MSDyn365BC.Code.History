@@ -35,7 +35,7 @@ report 1511 "Delegate Approval Requests"
                 if not (Format(ApprovalEntry."Delegation Date Formula") = '') then
                     if CalcDate(ApprovalEntry."Delegation Date Formula", DT2Date(ApprovalEntry."Date-Time Sent for Approval")) <= Today then
                         ApprovalsMgmt.DelegateSelectedApprovalRequest(ApprovalEntry, false);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
     end;
 }
 

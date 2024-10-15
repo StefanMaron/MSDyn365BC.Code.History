@@ -69,7 +69,7 @@ codeunit 10522 "Submit VAT Declaration Request"
                 repeat
                     AddElementWithPrefix(GovTalkRequestXMLNode,
                       ChildXMLBuffer.Name, ChildXMLBuffer.Value, 'vat', VATDeclarationNameSpaceTxt, DummyXMLNode);
-                until ChildXMLBuffer.Next = 0;
+                until ChildXMLBuffer.Next() = 0;
         end;
         XmlDoc := GovTalkMessageXMLNode.ParentNode;
         XmlDoc.PreserveWhitespace := true;

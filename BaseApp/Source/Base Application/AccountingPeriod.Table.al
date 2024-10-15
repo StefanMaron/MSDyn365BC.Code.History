@@ -122,7 +122,7 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CY>', ReferenceDate));
 
         with AccountingPeriod do begin
@@ -139,7 +139,7 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CY>', ReferenceDate));
 
         with AccountingPeriod do begin

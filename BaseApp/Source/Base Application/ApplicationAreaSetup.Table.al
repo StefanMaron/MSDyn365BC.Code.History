@@ -25,9 +25,9 @@ table 9178 "Application Area Setup"
         field(40; Invoicing; Boolean)
         {
             Caption = 'Invoicing';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(100; Basic; Boolean)
         {
@@ -276,43 +276,43 @@ table 9178 "Application Area Setup"
     {
     }
 
+    [Obsolete('Use ApplicationAreaMgmtFacade.IsFoundationEnabled instead', '18.0')]
     procedure IsFoundationEnabled(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsFoundationEnabled instead.
         exit(ApplicationAreaMgmtFacade.IsFoundationEnabled())
     end;
 
+    [Obsolete('Use ApplicationAreaMgmtFacade.IsAdvancedEnabled instead', '18.0')]
     procedure IsAdvanced(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsAdvancedEnabled instead.
         exit(ApplicationAreaMgmtFacade.IsAdvancedEnabled())
     end;
 
+    [Obsolete('Use ApplicationAreaMgmtFacade.IsSuiteEnabled instead', '18.0')]
     procedure IsSuiteEnabled(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsSuiteEnabled instead.
         exit(ApplicationAreaMgmtFacade.IsSuiteEnabled())
     end;
 
+    [Obsolete('Use ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany instead', '18.0')]
     procedure GetExperienceTierCurrentCompany(var ExperienceTier: Option)
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany instead.
         ApplicationAreaMgmtFacade.DeprecatedGetExperienceTierCurrentCompany(ExperienceTier);
     end;
 
+    [Obsolete('ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany', '18.0')]
     procedure SetExperienceTierCurrentCompany(ExperienceTier: Option)
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany instead.
         ApplicationAreaMgmtFacade.DeprecatedSetExperienceTierCurrentCompany(ExperienceTier);
     end;
 }

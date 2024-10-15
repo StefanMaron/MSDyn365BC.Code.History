@@ -50,7 +50,7 @@ report 8611 "Create Customer Journal Lines"
                             end;
 
                             GenJnlLine.Modify(true);
-                        until StdGenJournalLine.Next = 0;
+                        until StdGenJournalLine.Next() = 0;
                 end else begin
                     GenJnlLine.Validate("Journal Template Name", GenJnlLine.GetFilter("Journal Template Name"));
                     GenJnlLine.Validate("Journal Batch Name", BatchName);

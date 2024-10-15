@@ -249,7 +249,7 @@ table 5611 "Depreciation Book"
                     repeat
                         FADeprBook.CalcDeprPeriod;
                         FADeprBook.Modify();
-                    until FADeprBook.Next = 0;
+                    until FADeprBook.Next() = 0;
             end;
         }
         field(10500; "Use Accounting Period"; Boolean)
@@ -263,7 +263,7 @@ table 5611 "Depreciation Book"
                 if "Use Accounting Period" then begin
                     FADeprBook.SetRange("Depreciation Book Code", Code);
                     FADeprBook.SetFilter("Depreciation Method", '<> %1', FADeprBook."Depreciation Method"::"Straight-Line");
-                    if not FADeprBook.IsEmpty then
+                    if not FADeprBook.IsEmpty() then
                         Error(Text10500, FieldCaption("Use Accounting Period"), true);
                 end;
             end;
@@ -290,7 +290,7 @@ table 5611 "Depreciation Book"
         FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text000);
 
         if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then

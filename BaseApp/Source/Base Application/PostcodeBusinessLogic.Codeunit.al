@@ -59,7 +59,7 @@ codeunit 10500 "Postcode Business Logic"
                 exit;
 
             // No data retrieved - raise error
-            if TempAddressListNameValueBuffer.IsEmpty then
+            if TempAddressListNameValueBuffer.IsEmpty() then
                 Error(NoDataRetrievedErr);
 
             if ShowAddressSelection(TempAddressListNameValueBuffer) then
@@ -86,7 +86,7 @@ codeunit 10500 "Postcode Business Logic"
         RecExists: Boolean;
     begin
         PostcodeServiceManager.DiscoverPostcodeServices(TempServiceListNameValueBuffer);
-        if TempServiceListNameValueBuffer.IsEmpty then
+        if TempServiceListNameValueBuffer.IsEmpty() then
             exit;
 
         if PostcodeNotificationMemory.Get(UserId) then
@@ -142,7 +142,7 @@ codeunit 10500 "Postcode Business Logic"
         // Entered postcode already exists
         PostCode.SetRange(Code, TempAutocompleteAddress.Postcode);
         PostCode.SetRange(City, TempAutocompleteAddress.City);
-        if not PostCode.IsEmpty then
+        if not PostCode.IsEmpty() then
             exit;
 
         // Otherwise create one
@@ -202,9 +202,8 @@ codeunit 10500 "Postcode Business Logic"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RegisterServiceOnRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure RegisterServiceOnRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin

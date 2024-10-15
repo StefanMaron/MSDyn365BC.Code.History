@@ -1059,7 +1059,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", DocumentType);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             VATAmount += SalesLine."Line Amount" * VATFactor;
         until SalesLine.Next = 0;
@@ -1072,7 +1072,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", DocumentType);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LineAmount += SalesLine."Line Amount";
             VATAmount += SalesLine."Line Amount" * VATFactor;
@@ -1087,7 +1087,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("Document Type", DocumentType);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             Amount += PurchaseLine."Line Amount";
             VATAmount += PurchaseLine."Line Amount" * VATFactor;
@@ -1400,7 +1400,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             VATAmount += (PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount") * VATPercent;
         until PurchaseLine.Next = 0;
@@ -1421,7 +1421,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             VATAmount += (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount") * VATPercent;
         until SalesLine.Next = 0;
@@ -1468,7 +1468,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         GeneralLedgerSetup.Get();
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindSet;
+        PurchCrMemoLine.FindSet();
         repeat
             Amount += PurchCrMemoLine."Amount Including VAT";
         until PurchCrMemoLine.Next = 0;
@@ -1485,7 +1485,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindSet;
+        PurchInvLine.FindSet();
         repeat
             Amount += PurchInvLine."Amount Including VAT";
         until PurchInvLine.Next = 0;
@@ -1502,7 +1502,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         repeat
             Amount += SalesInvoiceLine."Amount Including VAT";
         until SalesInvoiceLine.Next = 0;
@@ -1519,7 +1519,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-        SalesCrMemoLine.FindSet;
+        SalesCrMemoLine.FindSet();
         repeat
             Amount += SalesCrMemoLine."Amount Including VAT";
         until SalesCrMemoLine.Next = 0;
@@ -1544,7 +1544,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1573,7 +1573,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             Amount += VATEntry.Amount;
         until VATEntry.Next = 0;

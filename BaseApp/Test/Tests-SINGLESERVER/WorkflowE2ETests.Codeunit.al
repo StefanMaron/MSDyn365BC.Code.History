@@ -674,7 +674,7 @@ codeunit 134302 "Workflow E2E Tests"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure FindNotificationEntry(var NotificationEntry: Record "Notification Entry"; UserID: Code[50]; Type: Integer; CreatedByUserID: Code[50])
+    local procedure FindNotificationEntry(var NotificationEntry: Record "Notification Entry"; UserID: Code[50]; Type: Enum "Notification Entry Type"; CreatedByUserID: Code[50])
     begin
         NotificationEntry.SetRange(Type, Type);
         NotificationEntry.SetRange("Recipient User ID", UserID);
@@ -697,7 +697,7 @@ codeunit 134302 "Workflow E2E Tests"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure CreatePurchInvLoopbackWorkflow(var Workflow: Record Workflow)

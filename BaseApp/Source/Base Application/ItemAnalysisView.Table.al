@@ -8,11 +8,9 @@ table 7152 "Item Analysis View"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(2; "Code"; Code[10])
         {
@@ -77,7 +75,7 @@ table 7152 "Item Analysis View"
                     if Item.Find('-') then
                         repeat
                             Item.Mark := true;
-                        until Item.Next = 0;
+                        until Item.Next() = 0;
                     Item.SetRange("No.");
                     if Item.Find('-') then
                         repeat
@@ -91,7 +89,7 @@ table 7152 "Item Analysis View"
                                 ItemAnalysisViewBudgetEntry.SetRange("Item No.", Item."No.");
                                 ItemAnalysisViewBudgetEntry.DeleteAll();
                             end;
-                        until Item.Next = 0;
+                        until Item.Next() = 0;
                 end;
                 if ("Last Entry No." <> 0) and ("Item Filter" <> xRec."Item Filter") and (xRec."Item Filter" <> '') then begin
                     ValidateDelete(FieldCaption("Item Filter"));
@@ -121,7 +119,7 @@ table 7152 "Item Analysis View"
                         repeat
                             TempLocation := Location;
                             TempLocation.Insert();
-                        until Location.Next = 0;
+                        until Location.Next() = 0;
                     TempLocation.Init();
                     TempLocation.Code := '';
                     TempLocation.Insert();
@@ -138,7 +136,7 @@ table 7152 "Item Analysis View"
                             ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                             ItemAnalysisViewBudgetEntry.SetRange("Location Code", TempLocation.Code);
                             ItemAnalysisViewBudgetEntry.DeleteAll();
-                        until TempLocation.Next = 0
+                        until TempLocation.Next() = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Location Filter" <> '') and
                    ("Location Filter" <> xRec."Location Filter")
@@ -185,7 +183,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 1 Code", 20, '', Code, "Analysis Area") then
+                if Dim.CheckIfDimUsed("Dimension 1 Code", 20, '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr);
                 ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
                 Modify;
@@ -199,7 +197,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 2 Code", 21, '', Code, "Analysis Area") then
+                if Dim.CheckIfDimUsed("Dimension 2 Code", 21, '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr);
                 ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
                 Modify;
@@ -213,7 +211,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 3 Code", 22, '', Code, "Analysis Area") then
+                if Dim.CheckIfDimUsed("Dimension 3 Code", 22, '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr);
                 ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
                 Modify;
@@ -326,7 +324,7 @@ table 7152 "Item Analysis View"
                                 NewItemAnalysisViewEntry."Dimension 3 Value Code" := '';
                         end;
                         InsertItemAnalysisViewEntry;
-                    until ItemAnalysisViewEntry.Next = 0;
+                    until ItemAnalysisViewEntry.Next() = 0;
                 if ItemAnalysisViewBudgetEntry.Find('-') then
                     repeat
                         ItemAnalysisViewBudgetEntry.Delete();
@@ -340,7 +338,7 @@ table 7152 "Item Analysis View"
                                 NewItemAnalysisViewBudgetEntry."Dimension 3 Value Code" := '';
                         end;
                         InsertAnalysisViewBudgetEntry;
-                    until ItemAnalysisViewBudgetEntry.Next = 0;
+                    until ItemAnalysisViewBudgetEntry.Next() = 0;
             end;
         end;
     end;
@@ -393,7 +391,7 @@ table 7152 "Item Analysis View"
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 1 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 2 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 3 Code", Code, Name);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure CheckDimIsRetained(ObjectType: Integer; ObjectID: Integer; DimCode: Code[20]; AnalysisViewCode: Code[10]; AnalysisViewName: Text[50])
@@ -424,7 +422,7 @@ table 7152 "Item Analysis View"
                        "Include Budgets" and ("Last Budget Entry No." < ItemBudgetEntry."Entry No.")
                     then
                         NoNotUpdated := NoNotUpdated + 1;
-                until Next = 0;
+                until Next() = 0;
             if NoNotUpdated > 0 then
                 if Confirm(
                      Text004 +
@@ -441,7 +439,7 @@ table 7152 "Item Analysis View"
                                 Modify;
                             end else
                                 UpdateItemAnalysisView.Update(Rec, 2, true);
-                        until Next = 0;
+                        until Next() = 0;
                 end else
                     Error(Text010);
         end;
@@ -495,7 +493,7 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."User ID" := UserId;
                     AnalysisSelectedDim."Object Type" := ObjectType;
                     AnalysisSelectedDim."Object ID" := ObjectID;
-                    AnalysisSelectedDim."Analysis Area" := AnalysisArea;
+                    AnalysisSelectedDim."Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
                     AnalysisSelectedDim."Dimension Code" := Item.TableCaption;
                     AnalysisSelectedDim."Dimension Value Filter" := "Item Filter";
@@ -514,7 +512,7 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."User ID" := UserId;
                     AnalysisSelectedDim."Object Type" := ObjectType;
                     AnalysisSelectedDim."Object ID" := ObjectID;
-                    AnalysisSelectedDim."Analysis Area" := AnalysisArea;
+                    AnalysisSelectedDim."Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
                     AnalysisSelectedDim."Dimension Code" := Location.TableCaption;
                     AnalysisSelectedDim."Dimension Value Filter" := "Location Filter";

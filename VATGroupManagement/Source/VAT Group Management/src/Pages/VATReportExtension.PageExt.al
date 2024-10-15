@@ -114,6 +114,24 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 end;
             }
         }
+        addafter("Mark as Submitted")
+        {
+            action("Mark as Accepted")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark as Accepted';
+                Visible = Rec.Status = Rec.Status::Submitted;
+                Image = Approve;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
+                ToolTip = 'Indicate that the submitted report has been accepted by the tax authority';
+                trigger OnAction()
+                begin
+                    Rec.Status := Rec.Status::Accepted;
+                end;
+            }
+        }
         modify(SuggestLines)
         {
             trigger OnBeforeAction()

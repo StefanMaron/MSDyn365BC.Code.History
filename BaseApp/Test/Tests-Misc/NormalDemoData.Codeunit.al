@@ -5,13 +5,15 @@ codeunit 138200 "Normal DemoData"
 
     trigger OnRun()
     begin
-        // [FEATURE] [DEMO] [Normal]
+        // [FEATURE] [DEMO] [Extended]
     end;
 
     var
         Assert: Codeunit Assert;
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
+        XOUTGOINGTxt: Label 'OUTGOING';
+        XINCOMETxt: Label 'INCOME';
         NoSalesHeaderErr: Label 'There is no Sales Header within the filter';
 
     [Test]
@@ -183,6 +185,34 @@ codeunit 138200 "Normal DemoData"
 
     [Test]
     [Scope('OnPrem')]
+    procedure InteractionTemplateOutgoing()
+    var
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [CRM] [Interaction Template]
+        // [SCENARIO 390815] Interaction Template OUTGOING should have Information Flow = Outbound, "Ignore Contact Corres. Type"=Yes
+
+        InteractionTemplate.Get(XOUTGOINGTxt);
+        InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
+        InteractionTemplate.TestField("Information Flow", InteractionTemplate."Information Flow"::Outbound);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InteractionTemplateIncom()
+    var
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [CRM] [Interaction Template]
+        // [SCENARIO 390815] Interaction Template INCOM should have Information Flow = Inbound, "Ignore Contact Corres. Type"=Yes
+
+        InteractionTemplate.Get(XINCOMETxt);
+        InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
+        InteractionTemplate.TestField("Information Flow", InteractionTemplate."Information Flow"::Inbound);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VATPostingGroupsCount()
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -240,8 +270,8 @@ codeunit 138200 "Normal DemoData"
         // [FEATURE] [Electronic Document]
         // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
-                Get('PEPPOL BIS3', UsageOption);
+            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Service Validation".AsInteger() do
+                ElectronicDocumentFormat.Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]
@@ -311,6 +341,19 @@ codeunit 138200 "Normal DemoData"
         Assert.IsTrue(StrPos(VATStatementLine."Row Totaling", '290') > 0, 'VATStatementLine."Row Totaling" should include 290 for Box 7.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultDimensionAllowedValuesFilter()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        // [FEATURE] [Default Dimension]
+        // [SCENARIO 386881] At least one "Default Dimension" record with non empty "Allowed Values Filter"
+
+        DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        Assert.RecordIsNotEmpty(DefaultDimension);
+    end;
+    
     [Test]
     procedure VATStatementSetupGB_BoxCaptions()
     var

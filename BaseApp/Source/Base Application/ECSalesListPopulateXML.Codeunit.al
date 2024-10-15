@@ -75,7 +75,7 @@ codeunit 141 "EC Sales List Populate XML"
                 IndicatorVar := ECSLVATReportLine."Transaction Indicator";
                 XMLDOMManagement.AddElementWithPrefix(SaleElement, 'TransactionIndicator', Format(IndicatorVar),
                   'VATCore', ECSLVATCoreNameSpaceTok, DummyElement);
-            until ECSLVATReportLine.Next = 0;
+            until ECSLVATReportLine.Next() = 0;
         end
     end;
 

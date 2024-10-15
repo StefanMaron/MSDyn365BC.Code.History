@@ -64,7 +64,8 @@ codeunit 6299 "Power BI Embed Helper"
 
         case true of
             StrPos(UrlTokenText, '/rendered') > 0,
-            StrPos(UrlTokenText, '/pageChanged') > 0:
+            StrPos(UrlTokenText, '/pageChanged') > 0,
+            StrPos(UrlTokenText, '/selectionChanged') > 0:
                 exit; // Power BI notifies us of these events: no reaction needed
             StrPos(UrlTokenText, '/loaded') > 0:
                 // Step 1: Power BI report is ready, get all pages of the report

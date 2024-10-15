@@ -15,12 +15,10 @@ table 770 "Analysis Report Chart Setup"
         {
             Caption = 'Name';
         }
-        field(10; "Analysis Area"; Option)
+        field(10; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
             Editable = false;
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(20; "Analysis Report Name"; Code[10])
         {
@@ -35,8 +33,8 @@ table 770 "Analysis Report Chart Setup"
                 AnalysisReportName.Get("Analysis Area", "Analysis Report Name");
                 "Analysis Line Template Name" := AnalysisReportName."Analysis Line Template Name";
                 "Analysis Column Template Name" := AnalysisReportName."Analysis Column Template Name";
-                AnalysisReportChartMgt.CheckDuplicateAnalysisLineDescription("Analysis Area", "Analysis Line Template Name");
-                AnalysisReportChartMgt.CheckDuplicateAnalysisColumnHeader("Analysis Area", "Analysis Column Template Name");
+                AnalysisReportChartMgt.CheckDuplicateAnalysisLineDescription("Analysis Area".AsInteger(), "Analysis Line Template Name");
+                AnalysisReportChartMgt.CheckDuplicateAnalysisColumnHeader("Analysis Area".AsInteger(), "Analysis Column Template Name");
 
                 RefreshLines(false);
             end;
@@ -248,7 +246,7 @@ table 770 "Analysis Report Chart Setup"
             repeat
                 AnalysisReportChartLine := TempAnalysisReportChartLine;
                 AnalysisReportChartLine.Insert();
-            until TempAnalysisReportChartLine.Next = 0;
+            until TempAnalysisReportChartLine.Next() = 0;
     end;
 
     procedure FilterAnalysisLine(var AnalysisLine: Record "Analysis Line")
@@ -281,8 +279,8 @@ table 770 "Analysis Report Chart Setup"
                             if AnalysisLine.FindSet then
                                 repeat
                                     InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
-                                until AnalysisLine.Next = 0;
-                        until AnalysisColumn.Next = 0;
+                                until AnalysisLine.Next() = 0;
+                        until AnalysisColumn.Next() = 0;
                 end;
             "Base X-Axis on"::Line,
             "Base X-Axis on"::Column:
@@ -290,12 +288,12 @@ table 770 "Analysis Report Chart Setup"
                     if AnalysisLine.FindSet then
                         repeat
                             InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
-                        until AnalysisLine.Next = 0;
+                        until AnalysisLine.Next() = 0;
                     Clear(AnalysisLine);
                     if AnalysisColumn.FindSet then
                         repeat
                             InsertLineIntoTemp(TempAnalysisReportChartLine, AnalysisLine, AnalysisColumn);
-                        until AnalysisColumn.Next = 0;
+                        until AnalysisColumn.Next() = 0;
                 end;
         end;
 
@@ -361,7 +359,7 @@ table 770 "Analysis Report Chart Setup"
         TempAnalysisReportChartLine2.Reset();
         SetLinkToDimensionLines(TempAnalysisReportChartLine2);
         TempAnalysisReportChartLine2.SetFilter("Chart Type", '<>%1', TempAnalysisReportChartLine2."Chart Type"::" ");
-        if TempAnalysisReportChartLine2.IsEmpty then
+        if TempAnalysisReportChartLine2.IsEmpty() then
             SetDimensionChartTypesToDefault(TempAnalysisReportChartLine2);
     end;
 
@@ -383,7 +381,7 @@ table 770 "Analysis Report Chart Setup"
                     AnalysisReportChartLine."Chart Type" := AnalysisReportChartLine.GetDefaultChartType;
                     AnalysisReportChartLine.Modify();
                     NumOfMeasuresToBeSet -= 1;
-                until (NumOfMeasuresToBeSet = 0) or (AnalysisReportChartLine.Next = 0);
+                until (NumOfMeasuresToBeSet = 0) or (AnalysisReportChartLine.Next() = 0);
         end;
     end;
 

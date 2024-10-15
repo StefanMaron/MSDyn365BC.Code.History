@@ -303,7 +303,7 @@ report 10511 "VAT Entry Exception Report"
             repeat
                 TempVATPostingSetup := VATPostingSetup;
                 TempVATPostingSetup.Insert();
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
     end;
 
     var

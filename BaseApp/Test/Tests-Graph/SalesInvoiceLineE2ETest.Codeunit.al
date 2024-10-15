@@ -1259,7 +1259,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         CurrentIndex := 0;
 
         repeat

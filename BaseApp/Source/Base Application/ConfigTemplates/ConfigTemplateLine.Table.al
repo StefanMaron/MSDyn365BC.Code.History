@@ -60,7 +60,7 @@ table 8619 "Config. Template Line"
             begin
                 ConfigTemplateLine.SetRange("Data Template Code", "Data Template Code");
                 ConfigTemplateLine.SetRange("Field Name", "Field Name");
-                if not ConfigTemplateLine.IsEmpty then
+                if not ConfigTemplateLine.IsEmpty() then
                     Error(TemplateFieldExistsErr, "Field Name");
 
                 ConfigTemplateMgt.TestHierarchy(Rec);
@@ -117,7 +117,7 @@ table 8619 "Config. Template Line"
 
                 ConfigTemplateLine.SetRange("Data Template Code", "Data Template Code");
                 ConfigTemplateLine.SetRange("Template Code", "Template Code");
-                if not ConfigTemplateLine.IsEmpty then
+                if not ConfigTemplateLine.IsEmpty() then
                     Error(TemplateHierarchyErr, "Template Code");
             end;
         }

@@ -12,7 +12,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         PrevAccSchedName: Code[10];
         PrevGlBudgetName: Code[10];
 
-    [EventSubscriber(ObjectType::Table, 135, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Setup", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyAccSchedKpiSetup(var Rec: Record "Acc. Sched. KPI Web Srv. Setup"; var xRec: Record "Acc. Sched. KPI Web Srv. Setup"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -21,7 +21,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         PrevGlBudgetName := '';
     end;
 
-    [EventSubscriber(ObjectType::Table, 136, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertAccSchedKpiLine(var Rec: Record "Acc. Sched. KPI Web Srv. Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -29,7 +29,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetAccSchedKPIWevSrvSetup;
     end;
 
-    [EventSubscriber(ObjectType::Table, 136, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Line", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyAccSchedKpiLine(var Rec: Record "Acc. Sched. KPI Web Srv. Line"; var xRec: Record "Acc. Sched. KPI Web Srv. Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -37,7 +37,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetAccSchedKPIWevSrvSetup;
     end;
 
-    [EventSubscriber(ObjectType::Table, 136, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteAccSchedKpiLine(var Rec: Record "Acc. Sched. KPI Web Srv. Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -47,7 +47,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
             TempAccSchedKPIWebSrvLine.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Table, 85, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Line", 'OnAfterInsertEvent', '', true, true)]
     local procedure OnInsertAccSchedLine(var Rec: Record "Acc. Schedule Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -55,7 +55,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfAccSchedChanged(Rec."Schedule Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, 85, 'OnAfterModifyEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Line", 'OnAfterModifyEvent', '', true, true)]
     local procedure OnModifyAccSchedLine(var Rec: Record "Acc. Schedule Line"; var xRec: Record "Acc. Schedule Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -63,7 +63,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfAccSchedChanged(Rec."Schedule Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, 85, 'OnAfterDeleteEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Acc. Schedule Line", 'OnAfterDeleteEvent', '', true, true)]
     local procedure OnDeleteAccSchedLine(var Rec: Record "Acc. Schedule Line"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -71,7 +71,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfAccSchedChanged(Rec."Schedule Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, 96, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterInsertEvent', '', true, true)]
     local procedure OnInsertGlBudgetEntry(var Rec: Record "G/L Budget Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -79,7 +79,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfGlBudgetChanged(Rec."Budget Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, 96, 'OnAfterModifyEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterModifyEvent', '', true, true)]
     local procedure OnModifyGlBudgetEntry(var Rec: Record "G/L Budget Entry"; var xRec: Record "G/L Budget Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
@@ -87,7 +87,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfGlBudgetChanged(Rec."Budget Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, 96, 'OnAfterDeleteEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterDeleteEvent', '', true, true)]
     local procedure OnDeleteGlBudgetEntry(var Rec: Record "G/L Budget Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then

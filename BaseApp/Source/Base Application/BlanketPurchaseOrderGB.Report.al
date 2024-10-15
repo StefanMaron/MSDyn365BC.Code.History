@@ -213,7 +213,7 @@ report 10579 "Blanket Purchase Order GB"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -320,7 +320,7 @@ report 10579 "Blanket Purchase Order GB"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()

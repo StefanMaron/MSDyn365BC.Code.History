@@ -35,7 +35,7 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.SetFilter("Box No.", '<>%1', '');
                 if VATStatementLine.Count() <> 9 then
                     Error(StrSubstNo(WrongVATSatementSetupErr, "Statement Template Name", "Statement Name"));
-                VATStatementLine.FindSet;
+                VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
                   VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency");
@@ -59,7 +59,7 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate(Description, VATStatementLine.Description);
                     VATStatementReportLine.Validate(Amount, ColumnValue);
                     VATStatementReportLine.Insert();
-                until VATStatementLine.Next = 0;
+                until VATStatementLine.Next() = 0;
             end;
         }
     }

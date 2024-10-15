@@ -5,7 +5,7 @@ codeunit 1883 "Sandbox Cleanup local"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1882, 'OnClearConfiguration', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Deploymt. Cleanup", 'OnClearConfiguration', '', false, false)]
     local procedure OnClearConfiguration(CompanyToBlock: Text)
     var
         GovTalkSetup: Record "GovTalk Setup";

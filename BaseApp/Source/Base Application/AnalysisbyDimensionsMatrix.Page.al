@@ -845,7 +845,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     if GLAccount.FindSet then
                         repeat
                             CopyGLAccToBuf(GLAccount, DimCodeBuf);
-                        until GLAccount.Next = 0;
+                        until GLAccount.Next() = 0;
                 end;
             DimOption::"Cash Flow Account":
                 begin
@@ -854,7 +854,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     if CashFlowAccount.FindSet then
                         repeat
                             CopyCFAccToBuf(CashFlowAccount, DimCodeBuf);
-                        until CashFlowAccount.Next = 0;
+                        until CashFlowAccount.Next() = 0;
                 end;
             DimOption::Period:
                 begin
@@ -872,7 +872,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     if BusinessUnit.FindSet then
                         repeat
                             CopyBusUnitToBuf(BusinessUnit, DimCodeBuf);
-                        until BusinessUnit.Next = 0;
+                        until BusinessUnit.Next() = 0;
                 end;
             DimOption::"Cash Flow Forecast":
                 begin
@@ -881,7 +881,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     if CashFlowForecast.FindSet then
                         repeat
                             CopyCashFlowToBuf(CashFlowForecast, DimCodeBuf);
-                        until CashFlowForecast.Next = 0;
+                        until CashFlowForecast.Next() = 0;
                 end;
             DimOption::"Dimension 1":
                 InitDimValue(
@@ -1036,7 +1036,7 @@ page 9249 "Analysis by Dimensions Matrix"
                         ExcludeClosingDateFilter :=
                           ExcludeClosingDateFilter + StrSubstNo('&<>%1', ClosingDate(AccountingPeriod."Starting Date" - 1));
                     FirstRec := false;
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end;
     end;
 
@@ -1486,15 +1486,17 @@ page 9249 "Analysis by Dimensions Matrix"
         Field32Visible := ColumnCaptions[32] <> '';
     end;
 
-    [Obsolete('This function is replaced with another overload','16.0')]
+#if not CLEAN16
+    [Obsolete('This function is replaced with another overload', '16.0')]
     procedure Load(LineDimOptionLocal: Option; ColumnDimOptionLocal: Option; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewAccountFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; NewCashFlowFilter: Text)
     begin
     end;
 
-    [Obsolete('This function is replaced with another overload','16.0')]
+    [Obsolete('This function is replaced with another overload', '16.0')]
     procedure Load(NewAmountType: Option; ViewCode: Code[50]; ShowOp: Boolean; ShowColumnNameLocal: Boolean; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
     begin
     end;
+#endif
 
     procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
     begin
@@ -1557,7 +1559,7 @@ page 9249 "Analysis by Dimensions Matrix"
             if DimensionValue.FindSet then
                 repeat
                     CopyDimValueToBuf(DimensionValue, DimensionCodeBuffer);
-                until DimensionValue.Next = 0;
+                until DimensionValue.Next() = 0;
         end;
     end;
 

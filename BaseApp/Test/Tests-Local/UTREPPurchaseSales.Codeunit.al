@@ -329,7 +329,7 @@ codeunit 144052 "UT REP Purchase & Sales"
 
         // [GIVEN] No report is set for Report Selections "Vendor Remittance".
         // [GIVEN] Payment for Vendor.
-        ReportSelections.FilterPrintUsage(ReportSelections.Usage::"V.Remittance");
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
         Assert.RecordIsEmpty(ReportSelections);
         CreatePaymentGenJournalBatch(GenJournalBatch);
         CreateVendorPayment(

@@ -51,7 +51,7 @@ codeunit 849 "Cash Flow Account - Indent"
                             Error(ArrayExceededErr, ArrayLen(AccNo));
                         AccNo[i] := "No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;

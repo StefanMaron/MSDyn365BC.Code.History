@@ -472,7 +472,7 @@ report 10560 "FA - Projected Value"
                     if not FABufferProjection.Find('-') then
                         CurrReport.Break();
                 end else
-                    if FABufferProjection.Next = 0 then
+                    if FABufferProjection.Next() = 0 then
                         CurrReport.Break();
             end;
 

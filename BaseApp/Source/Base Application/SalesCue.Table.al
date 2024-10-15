@@ -1,4 +1,4 @@
-﻿table 9053 "Sales Cue"
+table 9053 "Sales Cue"
 {
     Caption = 'Sales Cue';
 
@@ -165,7 +165,7 @@
         if SalesHeader.FindSet then begin
             repeat
                 SummarizeDelayedData(SalesHeader, SumDelayDays, CountDelayedInvoices);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
             AverageDays := SumDelayDays / CountDelayedInvoices;
         end;
     end;
@@ -182,7 +182,7 @@
             repeat
                 if WorkDate - SalesLine."Shipment Date" > MaxDelay then
                     MaxDelay := WorkDate - SalesLine."Shipment Date";
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure CountOrders(FieldNumber: Integer): Integer

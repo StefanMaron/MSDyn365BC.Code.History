@@ -134,7 +134,7 @@ report 10512 "VAT Audit"
                             if StrLen(InvPostingDates) < 240 then
                                 InvPostingDates := InvPostingDates + Format(CustLedgEntry."Posting Date");
                         end;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 CustLedgEntry.Reset();
                 CustLedgEntry.SetCurrentKey("Closed by Entry No.");
                 CustLedgEntry.SetRange("Closed by Entry No.", "Entry No.");
@@ -147,7 +147,7 @@ report 10512 "VAT Audit"
                             if StrLen(InvPostingDates) < 240 then
                                 InvPostingDates := InvPostingDates + Format(CustLedgEntry."Posting Date");
                         end;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
 
                 if not LateInvoice then
                     CurrReport.Skip();

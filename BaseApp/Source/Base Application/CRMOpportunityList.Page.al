@@ -125,6 +125,27 @@ page 5343 "CRM Opportunity List"
                 }
             }
         }
+        area(processing)
+        {
+            action(CreateFromCRM)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Create in Business Central';
+                Image = NewOpportunity;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Generate an opportunity from the coupled Dynamics 365 Sales opportunity.';
+
+                trigger OnAction()
+                var
+                    CRMOpportunity: Record "CRM Opportunity";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                begin
+                    CurrPage.SetSelectionFilter(CRMOpportunity);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMOpportunity);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()

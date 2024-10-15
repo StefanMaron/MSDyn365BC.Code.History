@@ -259,7 +259,7 @@ report 10572 "Sales - Invoice GB"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -503,7 +503,7 @@ report 10572 "Sales - Invoice GB"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()
@@ -1034,7 +1034,7 @@ report 10572 "Sales - Invoice GB"
                     TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]
@@ -1061,8 +1061,8 @@ report 10572 "Sales - Invoice GB"
                 if SalesInvoiceLine2.Find('-') then
                     repeat
                         TotalQuantity := TotalQuantity + SalesInvoiceLine2.Quantity;
-                    until SalesInvoiceLine2.Next = 0;
-            until SalesInvoiceHeader.Next = 0;
+                    until SalesInvoiceLine2.Next() = 0;
+            until SalesInvoiceHeader.Next() = 0;
 
         SalesShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
         SalesShipmentLine.SetRange("Order No.", "Sales Invoice Header"."Order No.");
@@ -1094,7 +1094,7 @@ report 10572 "Sales - Invoice GB"
                           Quantity,
                           SalesShipmentHeader."Posting Date");
                 end;
-            until (SalesShipmentLine.Next = 0) or (TotalQuantity = 0);
+            until (SalesShipmentLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]
@@ -1108,7 +1108,7 @@ report 10572 "Sales - Invoice GB"
         if SalesInvoiceLine.Find('-') then
             repeat
                 SalesShipmentLine.Quantity := SalesShipmentLine.Quantity - SalesInvoiceLine.Quantity;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

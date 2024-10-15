@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -106,10 +106,18 @@
                     "Applies-from Entry" := 0;
                     CheckedAvailability := false;
                     "Job Planning Line No." := 0;
+                    if Type = Type::Item then begin
+                        "Bin Code" := '';
+                        if ("No." <> '') and ("Location Code" <> '') then begin
+                            GetLocation("Location Code");
+                            if IsDefaultBin() then
+                                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                        end;
+                    end;
                     if "No." = '' then begin
                         UpdateDimensions;
                         exit;
-                    end
+                    end;
                 end;
 
                 case Type of
@@ -278,6 +286,10 @@
                 GetLocation("Location Code");
                 Location.TestField("Directed Put-away and Pick", false);
                 Validate(Quantity);
+                if (Type = Type::Item) and ("Location Code" <> xRec."Location Code") then
+                    if ("Location Code" <> '') and ("No." <> '') then
+                        if IsDefaultBin() then
+                            WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
             end;
         }
         field(22; Chargeable; Boolean)
@@ -604,11 +616,9 @@
                 UpdateAllAmounts;
             end;
         }
-        field(1003; "Line Type"; Option)
+        field(1003; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
 
             trigger OnValidate()
             begin
@@ -816,7 +826,7 @@
                     JobPlanningLine.TestField("Usage Link", true);
                     JobPlanningLine.TestField("System-Created Entry", false);
 
-                    "Line Type" := JobPlanningLine."Line Type" + 1;
+                    "Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Remaining Qty.", CalcQtyFromBaseQty(JobPlanningLine."Remaining Qty. (Base)" - "Quantity (Base)"));
                 end else
                     Validate("Remaining Qty.", 0);
@@ -962,6 +972,11 @@
         field(6501; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            Editable = false;
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
             Editable = false;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -1882,6 +1897,11 @@
         "Lot No." := JobPlanningLine."Lot No.";
 
         OnAfterCopyTrackingFromJobPlanningLine(rec, JobPlanningLine);
+    end;
+
+    local procedure IsDefaultBin() Result: Boolean
+    begin
+        Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
     end;
 
     [IntegrationEvent(false, false)]

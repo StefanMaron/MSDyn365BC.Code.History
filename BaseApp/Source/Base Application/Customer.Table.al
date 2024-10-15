@@ -1,4 +1,4 @@
-﻿table 18 Customer
+table 18 Customer
 {
     Caption = 'Customer';
     DataCaptionFields = "No.", Name;
@@ -667,11 +667,9 @@
             Editable = false;
             FieldClass = FlowField;
         }
-        field(80; "Application Method"; Option)
+        field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
-            OptionCaption = 'Manual,Apply to Oldest';
-            OptionMembers = Manual,"Apply to Oldest";
         }
         field(82; "Prices Including VAT"; Boolean)
         {
@@ -1188,8 +1186,10 @@
 
                     CheckCustomerContactRelation(Cont);
 
-                    if Cont.Type = Cont.Type::Person then
+                    if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;
+                        exit;
+                    end;
 
                     if Cont.Image.HasValue then
                         CopyContactPicture(Cont);
@@ -1222,7 +1222,7 @@
                         repeat
                             SalesHeader.Validate("Prices Including VAT", "Prices Including VAT");
                             SalesHeader.Modify(true);
-                        until SalesHeader.Next = 0;
+                        until SalesHeader.Next() = 0;
                 end;
             end;
         }
@@ -1703,7 +1703,7 @@
                 Error(Text009);
 
         Job.SetRange("Bill-to Customer No.", "No.");
-        if not Job.IsEmpty then
+        if not Job.IsEmpty() then
             Error(Text015, TableCaption, "No.", Job.TableCaption);
 
         MoveEntries.MoveCustEntries(Rec);
@@ -1726,7 +1726,7 @@
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty then begin
+        if not SocialListeningSearchTopic.IsEmpty() then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Customer, "No.");
             SocialListeningSearchTopic.DeleteAll();
         end;
@@ -1753,21 +1753,18 @@
             ContactBusRel.FindFirst;
             repeat
                 CampaignTargetGrMgmt.ConverttoContact(Rec, ContactBusRel."Contact No.");
-            until CampaignTargetGr.Next = 0;
+            until CampaignTargetGr.Next() = 0;
         end;
 
         ServHeader.SetCurrentKey("Customer No.", "Order Date");
         ServHeader.SetRange("Customer No.", "No.");
-        if ServHeader.FindFirst then
-            Error(
-              Text013,
-              TableCaption, "No.", ServHeader."Document Type");
+        if ServHeader.FindFirst() then
+            Error(ServiceDocumentExistErr, "No.", ServHeader."Document Type");
 
-        ServHeader.SetRange("Bill-to Customer No.");
-        if ServHeader.FindFirst then
-            Error(
-              Text013,
-              TableCaption, "No.", ServHeader."Document Type");
+        ServHeader.SetRange("Customer No.");
+        ServHeader.SetRange("Bill-to Customer No.", "No.");
+        if ServHeader.FindFirst() then
+            Error(ServiceDocumentExistErr, "No.", ServHeader."Document Type");
 
         UpdateContFromCust.OnDelete(Rec);
 
@@ -1792,7 +1789,6 @@
         OnBeforeInsert(Rec, IsHandled);
         if IsHandled then
             exit;
-
 
         if "No." = '' then begin
             SalesSetup.Get();
@@ -1832,8 +1828,6 @@
     end;
 
     trigger OnRename()
-    var
-        CustomerTemplate: Record "Customer Template";
     begin
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Customer, xRec."No.", "No.");
@@ -1842,8 +1836,7 @@
         SetLastModifiedDateTime;
         if xRec."Invoice Disc. Code" = xRec."No." then
             "Invoice Disc. Code" := "No.";
-        CustomerTemplate.SetRange("Invoice Disc. Code", xRec."No.");
-        CustomerTemplate.ModifyAll("Invoice Disc. Code", "No.");
+        UpdateCustomerTemplateInvoiceDiscCodes();
 
         CalendarManagement.RenameCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Customer, "No.", xRec."No.");
     end;
@@ -1882,7 +1875,7 @@
         Text010: Label 'The %1 %2 has been assigned to %3 %4.\The same %1 cannot be entered on more than one %3. Enter another code.';
         Text011: Label 'Reconciling IC transactions may be difficult if you change IC Partner Code because this %1 has ledger entries in a fiscal year that has not yet been closed.\ Do you still want to change the IC Partner Code?';
         Text012: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.';
-        Text013: Label 'You cannot delete %1 %2 because there is at least one outstanding Service %3 for this customer.';
+        ServiceDocumentExistErr: Label 'You cannot delete customer %1 because there is at least one outstanding Service %2 for this customer.', Comment = '%1 - customer no., %2 - service document type.';
         Text014: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         Text015: Label 'You cannot delete %1 %2 because there is at least one %3 associated to this customer.';
         AllowPaymentToleranceQst: Label 'Do you want to allow payment tolerance for entries that are currently open?';
@@ -1966,7 +1959,7 @@
 
             Cont.FilterGroup(2);
             Cont.SetRange("Company No.", ContBusRel."Contact No.");
-            if Cont.IsEmpty then begin
+            if Cont.IsEmpty() then begin
                 Cont.SetRange("Company No.");
                 Cont.SetRange("No.", ContBusRel."Contact No.");
             end;
@@ -2094,6 +2087,15 @@
                 Method := SalesSetup."Price Calculation Method";
             end;
         end;
+    end;
+
+    procedure GetPrimaryContact(CustomerNo: Code[20]; var PrimaryContact: Record Contact)
+    var
+        Customer: Record Customer;
+    begin
+        Clear(PrimaryContact);
+        if Customer.Get(CustomerNo) then
+            if PrimaryContact.Get(Customer."Primary Contact No.") then;
     end;
 
     local procedure GetCustomerPriceGroupPriceCalcMethod(): Enum "Price Calculation Method";
@@ -2535,14 +2537,14 @@
                 if Abs(CustomerTextLength - StrLen(Customer.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(CustomerText), UpperCase(Customer.Name)) <= Treshold then
                         Customer.Mark(true);
-            until Customer.Mark or (Customer.Next = 0) or (CustomerCount > 1000);
+            until Customer.Mark or (Customer.Next() = 0) or (CustomerCount > 1000);
         Customer.MarkedOnly(true);
     end;
 
     procedure CreateNewCustomer(CustomerName: Text[100]; ShowCustomerCard: Boolean) NewCustomerCode: Code[20]
     var
         Customer: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
         CustomerCard: Page "Customer Card";
         IsHandled: Boolean;
     begin
@@ -2552,7 +2554,7 @@
             exit(NewCustomerCode);
 
         Customer.Name := CustomerName;
-        if not MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then
+        if not CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then
             Customer.Insert(true)
         else
             if CustomerName <> Customer.Name then begin
@@ -2617,9 +2619,17 @@
         if Customer.FindSet then
             repeat
                 Customer.Mark(true);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
         if Customer.FindFirst then;
         Customer.MarkedOnly := true;
+    end;
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Sale;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Customer);
+        PriceSource.Validate("Source No.", "No.");
     end;
 
     procedure OpenCustomerLedgerEntries(FilterOnDueEntries: Boolean)
@@ -2727,7 +2737,7 @@
             exit(true);
 
         CustLedgerEntry.SetRange("Customer No.", "No.");
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             exit(true);
 
         HasAnyDocs := false;
@@ -2735,6 +2745,8 @@
         exit(HasAnyDocs);
     end;
 
+#if not CLEAN18
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by CopyFromNewCustomerTemplate(CustomerTemplate: Record "Customer Templ.")', '18.0')]
     procedure CopyFromCustomerTemplate(CustomerTemplate: Record "Customer Template")
     begin
         "Territory Code" := CustomerTemplate."Territory Code";
@@ -2755,6 +2767,29 @@
         "Shipment Method Code" := CustomerTemplate."Shipment Method Code";
 
         OnAfterCopyFromCustomerTemplate(Rec, CustomerTemplate);
+    end;
+#endif
+
+    procedure CopyFromNewCustomerTemplate(CustomerTemplate: Record "Customer Templ.")
+    begin
+        "Territory Code" := CustomerTemplate."Territory Code";
+        "Global Dimension 1 Code" := CustomerTemplate."Global Dimension 1 Code";
+        "Global Dimension 2 Code" := CustomerTemplate."Global Dimension 2 Code";
+        "Customer Posting Group" := CustomerTemplate."Customer Posting Group";
+        "Currency Code" := CustomerTemplate."Currency Code";
+        "Invoice Disc. Code" := CustomerTemplate."Invoice Disc. Code";
+        "Customer Price Group" := CustomerTemplate."Customer Price Group";
+        "Customer Disc. Group" := CustomerTemplate."Customer Disc. Group";
+        "Country/Region Code" := CustomerTemplate."Country/Region Code";
+        "Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
+        "Gen. Bus. Posting Group" := CustomerTemplate."Gen. Bus. Posting Group";
+        "VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
+        Validate("Payment Terms Code", CustomerTemplate."Payment Terms Code");
+        Validate("Payment Method Code", CustomerTemplate."Payment Method Code");
+        "Prices Including VAT" := CustomerTemplate."Prices Including VAT";
+        "Shipment Method Code" := CustomerTemplate."Shipment Method Code";
+
+        OnAfterCopyFromNewCustomerTemplate(Rec, CustomerTemplate);
     end;
 
     local procedure CopyContactPicture(var Cont: Record Contact)
@@ -2896,7 +2931,7 @@
                     Customer.Get(ContactBusinessRelation."No.");
                     exit(true);
                 end;
-            until LocalContact.Next = 0
+            until LocalContact.Next() = 0
         end;
     end;
 
@@ -3102,13 +3137,40 @@
                 Error(Text003, Cont."No.", Cont.Name, "No.", Name);
     end;
 
+    local procedure UpdateCustomerTemplateInvoiceDiscCodes()
+    var
+        CustomerTempl: Record "Customer Templ.";
+#if not CLEAN18
+        CustomerTemplate: Record "Customer Template";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            CustomerTemplate.SetRange("Invoice Disc. Code", xRec."No.");
+            CustomerTemplate.ModifyAll("Invoice Disc. Code", "No.");
+            exit;
+        end;
+#endif
+        CustomerTempl.SetRange("Invoice Disc. Code", xRec."No.");
+        CustomerTempl.ModifyAll("Invoice Disc. Code", "No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean)
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnAfterCopyFromNewCustomerTemplate()', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Template")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromNewCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
     begin
     end;
 

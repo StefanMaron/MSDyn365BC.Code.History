@@ -70,7 +70,7 @@ page 6032 "Service Shipment Statistics"
                 TotalVolume := TotalVolume + (ServShptLine.Quantity * ServShptLine."Unit Volume");
                 if ServShptLine."Units per Parcel" > 0 then
                     TotalParcels := TotalParcels + Round(ServShptLine.Quantity / ServShptLine."Units per Parcel", 1, '>');
-            until ServShptLine.Next = 0;
+            until ServShptLine.Next() = 0;
     end;
 
     var

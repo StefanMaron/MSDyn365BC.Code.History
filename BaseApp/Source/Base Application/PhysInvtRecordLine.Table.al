@@ -371,7 +371,7 @@ table 5878 "Phys. Invt. Record Line"
                     InsertTrackingBuffer(
                       TempPhysInvtTracking, WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
                     OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(TempPhysInvtTracking, WhseEntry);
-                until WhseEntry.Next = 0;
+                until WhseEntry.Next() = 0;
         end else begin
             ItemLedgEntry.SetItemVariantLocationFilters(
               "Item No.", "Variant Code", "Location Code", PhysInvtOrderHeader."Posting Date");
@@ -381,7 +381,7 @@ table 5878 "Phys. Invt. Record Line"
                     InsertTrackingBuffer(
                       TempPhysInvtTracking, ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry.Quantity);
                     OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(TempPhysInvtTracking, ItemLedgEntry);
-                until ItemLedgEntry.Next = 0;
+                until ItemLedgEntry.Next() = 0;
         end;
 
         if TempPhysInvtTracking.FindFirst then begin
@@ -411,7 +411,7 @@ table 5878 "Phys. Invt. Record Line"
                         if (PhysInvtRecordLine."Line No." <> "Line No.") or (PhysInvtRecordLine."Recording No." <> "Recording No.") then
                             if Abs(PhysInvtRecordLine."Quantity (Base)") + Abs("Quantity (Base)") > 1 then
                                 Error(SerialNoAlreadyExistErr, "Serial No.", "Item No.");
-            until PhysInvtRecordLine.Next = 0;
+            until PhysInvtRecordLine.Next() = 0;
     end;
 
     local procedure InsertTrackingBuffer(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)

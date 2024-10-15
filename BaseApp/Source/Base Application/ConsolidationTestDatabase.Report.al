@@ -174,7 +174,7 @@ report 14 "Consolidation - Test Database"
                                                 TempDimBufIn."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                                             TempDimBufIn.Insert();
                                         end;
-                                    until DimSetEntry.Next = 0;
+                                    until DimSetEntry.Next() = 0;
 
                                     if not DimMgt.CheckDimBuffer(TempDimBufIn) then
                                         AddError(StrSubstNo(
@@ -286,7 +286,7 @@ report 14 "Consolidation - Test Database"
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
-                    until Dim.Next = 0;
+                    until Dim.Next() = 0;
                 end;
                 TempConsolidDim.Reset();
                 TempConsolidDim.DeleteAll();
@@ -295,7 +295,7 @@ report 14 "Consolidation - Test Database"
                         TempConsolidDim.Init();
                         TempConsolidDim := ConsolidDim;
                         TempConsolidDim.Insert();
-                    until ConsolidDim.Next = 0;
+                    until ConsolidDim.Next() = 0;
                 end;
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object Type", 3);
@@ -324,7 +324,7 @@ report 14 "Consolidation - Test Database"
                                         CompanyName));
                         end;
                         TempSelectedDim.Insert();
-                    until SelectedDim.Next = 0;
+                    until SelectedDim.Next() = 0;
                 end;
                 TempDim.Reset();
                 TempDimVal.Reset();
@@ -335,7 +335,7 @@ report 14 "Consolidation - Test Database"
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
+                    until DimVal.Next() = 0;
                 end;
                 TempConsolidDimVal.Reset();
                 TempConsolidDimVal.DeleteAll();
@@ -344,7 +344,7 @@ report 14 "Consolidation - Test Database"
                         TempConsolidDimVal.Init();
                         TempConsolidDimVal := ConsolidDimVal;
                         TempConsolidDimVal.Insert();
-                    until ConsolidDimVal.Next = 0;
+                    until ConsolidDimVal.Next() = 0;
                 end;
             end;
         }

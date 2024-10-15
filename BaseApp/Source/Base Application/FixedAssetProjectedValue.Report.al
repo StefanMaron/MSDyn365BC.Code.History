@@ -515,7 +515,7 @@ report 5607 "Fixed Asset - Projected Value"
                     if not TempFABufferProjection.Find('-') then
                         CurrReport.Break();
                 end else
-                    if TempFABufferProjection.Next = 0 then
+                    if TempFABufferProjection.Next() = 0 then
                         CurrReport.Break();
             end;
 
@@ -909,7 +909,7 @@ report 5607 "Fixed Asset - Projected Value"
         AccountingPeriod: Record "Accounting Period";
         UntilDate2: Date;
     begin
-        if not UseAccountingPeriod or AccountingPeriod.IsEmpty then
+        if not UseAccountingPeriod or AccountingPeriod.IsEmpty() then
             exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days,

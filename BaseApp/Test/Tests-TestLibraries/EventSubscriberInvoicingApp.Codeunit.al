@@ -89,9 +89,8 @@ codeunit 132221 "EventSubscriber Invoicing App"
         BindSubscription(EnvironmentInfoTestLibrary);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
-    [Scope('OnPrem')]
-    procedure ManuallyRunJobQueueTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    local procedure ManuallyRunJobQueueTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true; // Scheduling tasks are not possible while executing tests
 
@@ -113,9 +112,8 @@ codeunit 132221 "EventSubscriber Invoicing App"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 400, 'OnBeforeSend', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SaveEmailContentBeforeSending(var Sender: Codeunit "SMTP Mail")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail", 'OnBeforeSend', '', false, false)]
+    local procedure SaveEmailContentBeforeSending(var Sender: Codeunit "SMTP Mail")
     begin
         EmailAddress := Sender.GetFrom();
         EmailSubject := Sender.GetSubject();
@@ -138,9 +136,8 @@ codeunit 132221 "EventSubscriber Invoicing App"
         CustomErrorMessage := ErrorToShow;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9520, 'OnBeforeDoSending', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SucceedOrFailEmailSending(var CancelSending: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeDoSending', '', false, false)]
+    local procedure SucceedOrFailEmailSending(var CancelSending: Boolean)
     begin
         if JobQueueResultOverrideRequested then begin
             if NewJobQueueOutcome then begin
@@ -154,13 +151,13 @@ codeunit 132221 "EventSubscriber Invoicing App"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6303, 'OnAcquireAcquireOnBehalfOfToken', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireAcquireOnBehalfOfToken', '', false, false)]
     local procedure OnAcquireAcquireOnBehalfOfToken(ResourceName: Text; var AccessToken: Text)
     begin
         AccessToken := 'TestAccessToken';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6303, 'OnCheckProvider', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnCheckProvider', '', false, false)]
     local procedure OnCheckProvider(var Result: Boolean)
     begin
         Result := true;
@@ -172,7 +169,7 @@ codeunit 132221 "EventSubscriber Invoicing App"
         AlwaysRunCodeunitNo := CodeunitNoToRun;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6303, 'OnAcquireOnBehalfOfTokenAndTokenCacheState', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireOnBehalfOfTokenAndTokenCacheState', '', false, false)]
     local procedure OnAcquireOnBehalfOfTokenAndTokenCacheState(ResourceName: Text; var AccessToken: Text; var TokenCacheState: Text)
     begin
         if ResourceName <> 'TESTRESOURCE' then
@@ -188,7 +185,7 @@ codeunit 132221 "EventSubscriber Invoicing App"
         AvoidExcessiveRecursion := NewAvoidExcessiveRecursion;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6303, 'OnAcquireTokenFromCacheState', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireTokenFromCacheState', '', false, false)]
     local procedure OnAcquireTokenFromCacheState(ResourceName: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text; var AccessToken: Text)
     var
         Assert: Codeunit Assert;
@@ -199,7 +196,7 @@ codeunit 132221 "EventSubscriber Invoicing App"
         NewTokenCacheState := 'NEWREFRESHTOKEN';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 405, 'OnGetGraphDomain', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mail", 'OnGetGraphDomain', '', false, false)]
     local procedure OnGetGraphDomain(var GraphDomain: Text)
     begin
         GraphDomain := 'https://localhost:8080/' + GraphEndpointSuffix;

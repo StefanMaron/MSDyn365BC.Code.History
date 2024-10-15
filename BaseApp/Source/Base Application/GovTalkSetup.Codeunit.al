@@ -11,9 +11,8 @@ codeunit 10523 "GovTalk Setup"
         GovTalkSetupLbl: Label 'GovTalk Setup';
         GovTalkVendorIdTok: Label '7572';
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RegisterServiceInServiceConnections(var ServiceConnection: Record "Service Connection")
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure RegisterServiceInServiceConnections(var ServiceConnection: Record "Service Connection")
     var
         GovTalkSetup: Record "GovTalk Setup";
     begin

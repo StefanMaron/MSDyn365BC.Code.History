@@ -85,7 +85,7 @@ table 1006 "Job WIP Method"
                 JobsSetup: Record "Jobs Setup";
             begin
                 JobsSetup.SetRange("Default WIP Method", Code);
-                if not JobsSetup.IsEmpty then
+                if not JobsSetup.IsEmpty() then
                     Error(Text007, JobsSetup.FieldCaption("Default WIP Method"));
             end;
         }
@@ -132,7 +132,7 @@ table 1006 "Job WIP Method"
             Error(Text004, JobWIPEntry.TableCaption, JobWIPGLEntry.TableCaption);
 
         JobsSetup.SetRange("Default WIP Method", Code);
-        if not JobsSetup.IsEmpty then
+        if not JobsSetup.IsEmpty() then
             Error(Text006);
     end;
 

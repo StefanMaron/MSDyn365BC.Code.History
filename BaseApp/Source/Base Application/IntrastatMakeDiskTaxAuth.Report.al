@@ -199,7 +199,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                   "Country/Region Code" + ',' +
                   "Document No.");
 
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

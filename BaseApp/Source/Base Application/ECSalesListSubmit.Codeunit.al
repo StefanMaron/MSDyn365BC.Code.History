@@ -21,7 +21,7 @@ codeunit 142 "EC Sales List Submit"
                 exit;
 
             GovTalkMessageManagement.SubmitECSLGovTalkRequest(Rec, GovTalkRequestXMLNode, GovTalkMessageParts."Part Id");
-        until GovTalkMessageParts.Next = 0;
+        until GovTalkMessageParts.Next() = 0;
     end;
 
     var
@@ -38,7 +38,7 @@ codeunit 142 "EC Sales List Submit"
         MaxLineNo := GetMaxLineNo(VATReportHeader);
 
         SetGovTalkPartsFilter(GovTalkMessageParts, VATReportHeader);
-        if not GovTalkMessageParts.IsEmpty then
+        if not GovTalkMessageParts.IsEmpty() then
             exit;
         InitGovTalkMessagePart(GovTalkMessageParts, VATReportHeader);
 
@@ -58,11 +58,11 @@ codeunit 142 "EC Sales List Submit"
                 Counter := 0;
             end;
             Counter += 1;
-        until ECSLVATReportLine.Next = 0;
+        until ECSLVATReportLine.Next() = 0;
 
         ModifyECSLVATReportLine.Reset();
         ModifyECSLVATReportLine.SetRange("XML Part Id", GovTalkMessageParts."Part Id");
-        if ModifyECSLVATReportLine.IsEmpty then
+        if ModifyECSLVATReportLine.IsEmpty() then
             GovTalkMessageParts.Delete(true);
     end;
 

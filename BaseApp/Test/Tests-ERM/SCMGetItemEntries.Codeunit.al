@@ -510,7 +510,7 @@ codeunit 137209 "SCM Get Item Entries"
         RetrievedLines := 0;
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             IntrastatJnlLine.SetRange(Type, ItemLedgerEntry."Document Type");
             IntrastatJnlLine.SetRange(Date, ItemLedgerEntry."Posting Date");

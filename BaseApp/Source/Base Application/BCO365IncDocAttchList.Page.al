@@ -82,7 +82,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
                 trigger OnAction()
                 begin
                     Delete;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

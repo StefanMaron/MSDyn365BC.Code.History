@@ -1,4 +1,4 @@
-﻿codeunit 5701 "Item Subst."
+codeunit 5701 "Item Subst."
 {
 
     trigger OnRun()
@@ -65,7 +65,7 @@
         ItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
         OnItemSubstGetOnAfterItemSubstitutionSetFilters(ItemSubstitution);
         if ItemSubstitution.Find('-') then begin
-            CalcCustPrice;
+            CalcCustPrice(TempItemSubstitution, ItemSubstitution, TempSalesLine);
             TempItemSubstitution.Reset();
             TempItemSubstitution.SetRange("No.", TempSalesLine."No.");
             TempItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
@@ -132,7 +132,7 @@
         OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine, SalesLine, TempItemSubstitution);
     end;
 
-    local procedure CalcCustPrice()
+    procedure CalcCustPrice(var TempItemSubstitution: Record "Item Substitution" temporary; var ItemSubstitution: Record "Item Substitution"; var TempSalesLine: Record "Sales Line" temporary)
     var
         IsHandled: Boolean;
     begin
@@ -175,7 +175,7 @@
                 end;
                 OnCalcCustPriceOnBeforeTempItemSubstitutionInsert(TempItemSubstitution, ItemSubstitution);
                 TempItemSubstitution.Insert();
-            until ItemSubstitution.Next = 0;
+            until ItemSubstitution.Next() = 0;
     end;
 
     local procedure AssemblyCalcCustPrice(AssemblyLine: Record "Assembly Line")
@@ -215,7 +215,7 @@
                     TempItemSubstitution.Inventory := 0;
                 end;
                 TempItemSubstitution.Insert();
-            until ItemSubstitution.Next = 0;
+            until ItemSubstitution.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -379,7 +379,7 @@
                         end;
                     end;
                 end;
-            until ItemSubstitution.Next = 0;
+            until ItemSubstitution.Next() = 0;
     end;
 
     local procedure GetSetupData()
@@ -533,7 +533,7 @@
                             TempItemSubstitution.Modify();
                         end;
                 end;
-            until ItemSubstitution.Next = 0;
+            until ItemSubstitution.Next() = 0;
     end;
 
     procedure GetTempItemSubstList(var TempItemSubstitutionList: Record "Item Substitution" temporary)
@@ -545,7 +545,7 @@
             repeat
                 TempItemSubstitutionList := TempItemSubstitution;
                 TempItemSubstitutionList.Insert();
-            until TempItemSubstitution.Next = 0;
+            until TempItemSubstitution.Next() = 0;
     end;
 
     procedure ErrorMessage(ItemNo: Code[20]; VariantCode: Code[10])
@@ -624,7 +624,7 @@
                 SetRange("Substitute Type", ItemSubstitution."Substitute Type");
                 SetRange("Substitute No.", ItemSubstitution."Substitute No.");
                 SetRange("Substitute Variant Code", ItemSubstitution."Substitute Variant Code");
-                if IsEmpty then
+                if IsEmpty() then
                     exit(Insert);
             end;
         exit(false);

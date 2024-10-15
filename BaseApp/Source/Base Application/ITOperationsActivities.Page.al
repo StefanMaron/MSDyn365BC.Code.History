@@ -9,6 +9,7 @@ page 9072 "IT Operations Activities"
     {
         area(content)
         {
+#if not CLEAN18
             cuegroup("Intelligent Cloud")
             {
                 Caption = 'Intelligent Cloud';
@@ -38,6 +39,10 @@ page 9072 "IT Operations Activities"
                         Image = TileCloud;
                         RunPageMode = View;
                         ToolTip = 'View your Intelligent Cloud insights.';
+                        Visible = false;
+                        ObsoleteTag = '18.0';
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                        ObsoleteState = Pending;
 
                         trigger OnAction()
                         var
@@ -48,6 +53,7 @@ page 9072 "IT Operations Activities"
                     }
                 }
             }
+#endif
             cuegroup(Administration)
             {
                 Caption = 'Administration';

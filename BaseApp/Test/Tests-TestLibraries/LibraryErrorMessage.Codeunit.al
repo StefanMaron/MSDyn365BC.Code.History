@@ -29,9 +29,9 @@ codeunit 132215 "Library - Error Message"
         SYSTEM.Clear(TempErrorMessage);
     end;
 
-    procedure DrillDownOnDescription()
+    procedure DrillDownOnContext()
     begin
-        ErrorMessages.Description.DrillDown;
+        ErrorMessages.Context.DrillDown;
     end;
 
     procedure DrillDownOnSource()

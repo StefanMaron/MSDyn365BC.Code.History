@@ -3,7 +3,7 @@ page 5779 "Warehouse Pick"
     Caption = 'Warehouse Pick';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Pick';
+    PromotedActionCategories = 'New,Process,Report,Print/Send,Pick,Navigate';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Warehouse Activity Header";
@@ -25,7 +25,7 @@ page 5779 "Warehouse Pick"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(CurrentLocationCode; CurrentLocationCode)
@@ -153,7 +153,7 @@ page 5779 "Warehouse Pick"
                     Caption = 'Registered Picks';
                     Image = RegisteredDocs;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category6;
                     RunObject = Page "Registered Whse. Activity List";
                     RunPageLink = Type = FIELD(Type),
                                   "Whse. Activity No." = FIELD("No.");
@@ -242,7 +242,7 @@ page 5779 "Warehouse Pick"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnOpenPage()
@@ -276,12 +276,12 @@ page 5779 "Warehouse Pick"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BreakbulkFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 
