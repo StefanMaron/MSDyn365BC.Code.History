@@ -299,13 +299,12 @@ codeunit 1485 "Rolecenter Selector Mgt."
         exit(UpperCase('RoleCenterOverviewShowState'));
     end;
 
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Login Time Tracker", 'OnAfterCreateorUpdateLoginInfo', '', true, true)]
-    local procedure AddRoleCenterOverviewSetupOnUserLoginInsert(UserSecurityId: Guid)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', true, true)]
+    local procedure AddRoleCenterOverviewSetupOnAfterLogin()
     var
         User: Record User;
     begin
-        if User.Get(UserSecurityId) then
+        if User.Get(UserSecurityId()) then
             if User."User Name" <> '' then
                 SetShowStateFromUserPreference(User."User Name", true);
     end;

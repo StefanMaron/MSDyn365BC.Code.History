@@ -3324,6 +3324,43 @@ codeunit 137077 "SCM Supply Planning -IV"
         TransferLine.TestField("Dimension Set ID", DimSetId);
     end;
 
+    [Test]
+    procedure DirectUnitCostSetOnPlanningLineGoesToPOUnlessPurchPricesAreSet()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 425945] Direct Unit Cost on planning line goes to a new purchase order unless purchase prices are set.
+        Initialize();
+
+        // [GIVEN] Lot-for-lot item with vendor, unit cost = "X".
+        CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Sales order.
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate regenerative plan.
+        // [GIVEN] Set Direct Unit Cost = "Y" on the planning line.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        RequisitionLine.Modify(true);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        // [WHEN] Carry out action message.
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] "Direct Unit Cost" on a new purchase line = "Y".
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Direct Unit Cost", RequisitionLine."Direct Unit Cost");
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

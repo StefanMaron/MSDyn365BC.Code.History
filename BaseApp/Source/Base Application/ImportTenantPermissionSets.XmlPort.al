@@ -102,6 +102,10 @@ xmlport 9174 "Import Tenant Permission Sets"
                     fieldelement(ObjectID; TempTenantPermission."Object ID")
                     {
                     }
+                    fieldelement(Type; TempTenantPermission.Type)
+                    {
+                        MinOccurs = Zero;
+                    }
                     fieldelement(ReadPermission; TempTenantPermission."Read Permission")
                     {
                         MinOccurs = Zero;
@@ -194,6 +198,7 @@ xmlport 9174 "Import Tenant Permission Sets"
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        OnAfterOnPreXmlPort(UpdatePermissions);
     end;
 
     trigger OnPostXmlPort()
@@ -322,5 +327,10 @@ xmlport 9174 "Import Tenant Permission Sets"
         PermissionSetAlreadyExistsErr: Label 'Permission set %1 already exists.', Comment = '%1 = Role ID';
         UpdatePermissions: Boolean;
         SystemPermissionsExist: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreXmlPort(var UpdatePermissions: boolean)
+    begin
+    end;
 }
 

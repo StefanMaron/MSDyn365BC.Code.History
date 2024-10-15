@@ -1,4 +1,4 @@
-page 9243 "Res. Group Capacity Matrix"
+﻿page 9243 "Res. Group Capacity Matrix"
 {
     Caption = 'Res. Group Capacity Matrix';
     Editable = true;
@@ -408,6 +408,8 @@ page 9243 "Res. Group Capacity Matrix"
             MATRIX_CellData[MATRIX_ColumnOrdinal] := Format(Capacity)
         else
             MATRIX_CellData[MATRIX_ColumnOrdinal] := '';
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData, MATRIX_ColumnOrdinal);
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
@@ -454,10 +456,22 @@ page 9243 "Res. Group Capacity Matrix"
         CalcFields(Capacity);
         Evaluate(Capacity, MATRIX_CellData[ColumnID]);
         Validate(Capacity);
+
+        OnAfterValidateCapacity(Rec, MATRIX_CellData, ColumnID);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMatrixOnDrillDown(var ResCapacityEntry: Record "Res. Capacity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var ResourceGroup: Record "Resource Group"; var MATRIXCellData: array[32] of Text[1024]; MATRIXColumnOrdinal: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCapacity(var ResourceGroup: Record "Resource Group"; var MATRIXCellData: array[32] of Text[1024]; ColumnID: Integer)
     begin
     end;
 }

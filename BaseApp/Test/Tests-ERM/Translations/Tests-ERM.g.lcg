@@ -1474,11 +1474,11 @@
   </Item>
   <Item ItemId=";Codeunit 1111060729 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Value for %1 is missing.]]></Val>
+      <Val><![CDATA[Dimension Value %1 - %2 is missing.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Dim Code]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMissingErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[ %1 = Dim Code, %2 = Dim Value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMissingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1111060729 - NamedType 3144747853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4262,22 +4262,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Pmt. Tolerance VAT Appln. - NamedType WrongVATEntriesAmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 375889437 - NamedType 376861855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 375889437 - NamedType 756227391" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The posting date of one or more journal lines is after the current calendar date. Do you want to continue?]]></Val>
+      <Val><![CDATA[The posting date of one or more journal lines is after the working date. Do you want to continue?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posting Outside Date - NamedType ConfirmPostingAfterCurrentDateQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posting Outside Date - NamedType ConfirmPostingAfterWorkingDateQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 375889437 - NamedType 1223287262" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 375889437 - NamedType 2446591662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot post because one or more transactions have dates after the current calendar date.]]></Val>
+      <Val><![CDATA[Cannot post because one or more transactions have dates after the working date.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posting Outside Date - NamedType NotAllowedToPostAfterCurrentDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posting Outside Date - NamedType NotAllowedToPostAfterWorkingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 375889437 - NamedType 2378513873" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9682,7 +9682,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9691,7 +9691,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must have a value]]></Val>
+      <Val><![CDATA[Assign-to No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9853,7 +9853,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9862,7 +9862,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must have a value]]></Val>
+      <Val><![CDATA[Assign-to No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -10087,7 +10087,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -10096,7 +10096,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assign-to must have a value]]></Val>
+      <Val><![CDATA[Assign-to No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

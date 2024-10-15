@@ -150,6 +150,66 @@ codeunit 137211 "SCM Update Unit Cost"
         TestUpdateUnitCost(Item."Costing Method"::FIFO, Item."Costing Method"::Average, true);
     end;
 
+    [Test]
+    procedure UpdateUnitCostOfReservedProdOrderComponent()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        CalcMethod: Option "One Level","All Levels";
+        QtyPerBaseUOM: Decimal;
+    begin
+        // [FEATURE] [Reservation] [Item Unit of Measure] [Make-to-Order]
+        // [SCENARIO 432749] Update unit cost of reserved prod. order component in an alternate unit of measure.
+        Initialize();
+        QtyPerBaseUOM := 0.25;
+
+        // [GIVEN] Component item "C" with base unit of measure "BOX" and alternate unit of measure "PCS" (1 "PCS" = 0.25 "BOX").
+        // [GIVEN] "C"."Unit Cost" = 10.0 LCY.
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CompItem."No.", QtyPerBaseUOM);
+        CompItem.Validate("Costing Method", CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Modify(true);
+
+        // [GIVEN] Finished item "P", create and certify production BOM: 1 pcs of "P" consists of 1 "PCS" of component "C".
+        // [GIVEN] Note that we're using non-base unit of measure for the BOM component.
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Set up both "C" and "P" for "Make-to-Order" manufacturing policy.
+        ProdItem.Validate("Costing Method", ProdItem."Costing Method"::FIFO);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and refresh make-to-order production order for 1 pcs of "C" and "P".
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Run "Update Unit Cost" report for the production order.
+        ProductionOrder.SetRecFilter();
+        UpdateOrderCost(ProductionOrder, CalcMethod::"All Levels", false);
+
+        // [THEN] Unit Cost on the prod. order line for "P" = 2.5 LCY (1 "BOX" costs 10.0 LCY, 1 "PCS" therefore costs 2.5 LCY).
+        ProdOrderLine.SetRange("Item No.", ProdItem."No.");
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        ProdOrderLine.TestField("Unit Cost", CompItem."Unit Cost" * QtyPerBaseUOM);
+    end;
+
     [Normal]
     local procedure SetupProdItem(var Item: Record Item; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method")
     var
@@ -210,7 +270,7 @@ codeunit 137211 "SCM Update Unit Cost"
     end;
 
     [Normal]
-    local procedure UpdateOrderCost(ProductionOrder: Record "Production Order"; CalcMethod: Option; UpdateReservations: Boolean)
+    local procedure UpdateOrderCost(var ProductionOrder: Record "Production Order"; CalcMethod: Option; UpdateReservations: Boolean)
     var
         UpdateUnitCost: Report "Update Unit Cost";
     begin

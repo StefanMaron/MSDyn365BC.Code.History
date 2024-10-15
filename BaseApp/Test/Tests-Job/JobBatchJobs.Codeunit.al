@@ -1592,11 +1592,9 @@ codeunit 136310 "Job Batch Jobs"
         Customer: Record Customer;
         Job: Record Job;
     begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Apply Usage Link", true);
-        Job.Modify(true);
         LibrarySales.CreateCustomer(Customer);
-        Job.Validate("Sell-to Customer No.", Customer."No.");
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.Validate("Apply Usage Link", true);
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;

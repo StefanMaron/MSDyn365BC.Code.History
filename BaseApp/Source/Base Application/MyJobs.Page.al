@@ -106,6 +106,13 @@ page 9154 "My Jobs"
             "Percent Completed" := Job.PercentCompleted;
             "Percent Invoiced" := Job.PercentInvoiced;
         end;
+
+        OnAfterGetJob(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetJob(var MyJob: Record "My Job")
+    begin
     end;
 }
 

@@ -1,5 +1,7 @@
 page 389 "Bank Account Statement List"
 {
+    ApplicationArea = Basic, Suite;
+    UsageCategory = Lists;
     Caption = 'Bank Account Statement List';
     CardPageID = "Bank Account Statement";
     Editable = false;

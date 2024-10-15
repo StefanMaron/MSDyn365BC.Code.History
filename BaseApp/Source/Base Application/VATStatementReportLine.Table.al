@@ -48,6 +48,10 @@
             Caption = 'Amount';
             Editable = false;
         }
+        field(9; Note; Text[250])
+        {
+            Caption = 'Note';
+        }
         field(4800; RepresentativeAmount; Decimal)
         {
             ObsoleteState = Removed;

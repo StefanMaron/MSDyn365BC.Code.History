@@ -133,7 +133,7 @@ codeunit 1387 "Employee Templ. Mgt."
         OnAfterIsEnabled(Result);
     end;
 
-    local procedure InitEmployeeNo(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
+    procedure InitEmployeeNo(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin

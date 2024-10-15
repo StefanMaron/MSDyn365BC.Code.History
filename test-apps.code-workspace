@@ -55,6 +55,9 @@
       "path": "./UKMakingTaxDigital/Test/Making Tax Digital Localization for United Kingdom Tests"
     },
     {
+      "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
       "path": "./Email - Outlook REST API/Test"
     },
     {

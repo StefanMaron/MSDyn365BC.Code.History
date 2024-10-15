@@ -12,7 +12,14 @@ codeunit 1411 "Doc. Exch. Links"
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
 
     procedure UpdateDocumentRecord(DocRecRef: RecordRef; DocIdentifier: Text; DocOrigIdentifier: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDocumentRecord(DocRecRef, DocIdentifier, DocOrigIdentifier, IsHandled);
+        if IsHandled then
+            exit;
+
         DocRecRef.Find;
         case DocRecRef.Number of
             DATABASE::"Sales Invoice Header":
@@ -202,6 +209,11 @@ codeunit 1411 "Doc. Exch. Links"
             else
                 exit("Service Document Exchange Status"::"Sent to Document Exchange Service");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDocumentRecord(DocRecRef: RecordRef; DocIdentifier: Text; DocOrigIdentifier: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -157,12 +157,18 @@ codeunit 5616 "Depreciation Calculation"
         end;
     end;
 
-    procedure UseDeprStartingDate(FANo: Code[20]; DeprBookCode: Code[10]): Boolean
+    procedure UseDeprStartingDate(FANo: Code[20]; DeprBookCode: Code[10]) Result: Boolean
     var
         FALedgEntry: Record "FA Ledger Entry";
         EntryDates: array[4] of Date;
         i: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUseDeprStartingDate(FANo, DeprBookCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
         if FALedgEntry.Find('-') then
@@ -634,6 +640,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFirstDeprDate(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; Year365Days: Boolean; var LocalDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUseDeprStartingDate(FANo: Code[20]; DeprBookCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 1032 "Job Planning Line-Reserve"
+﻿codeunit 1032 "Job Planning Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -220,7 +220,13 @@ codeunit 1032 "Job Planning Line-Reserve"
     procedure VerifyQuantity(var NewJobPlanningLine: Record "Job Planning Line"; var OldJobPlanningLine: Record "Job Planning Line")
     var
         JobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewJobPlanningLine, OldJobPlanningLine, IsHandled);
+        if IsHandled then
+            exit;
+        
         with NewJobPlanningLine do begin
             if Type <> Type::Item then
                 exit;
@@ -617,6 +623,11 @@ codeunit 1032 "Job Planning Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedQtyBase(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; var QuantityBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyQuantity(var NewJobPlanningLine: Record "Job Planning Line"; var OldJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

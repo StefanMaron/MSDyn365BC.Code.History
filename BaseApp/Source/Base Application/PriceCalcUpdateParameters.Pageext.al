@@ -1,7 +1,12 @@
-#pragma warning disable AS0029
 #if not CLEAN19
 pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Data Update"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
+#pragma warning disable AS0072
+    ObsoleteTag = '19.0';
+#pragma warning restore AS0072
+
     layout
     {
         addbefore(Review)
@@ -71,4 +76,3 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
     end;
 }
 #endif
-#pragma warning restore AS0029
