@@ -679,9 +679,9 @@ page 490 "Acc. Schedule Overview"
                     action("Update Existing Document")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Update Existing Document';
+                        Caption = 'Update Copy Of Existing Document';
                         Image = ExportToExcel;
-                        ToolTip = 'Refresh the data in an existing Excel workbook. You must specify the workbook that you want to update.';
+                        ToolTip = 'Refresh the data in the copy of the existing Excel workbook, and download it to your device. You must specify the workbook that you want to update.';
 
                         trigger OnAction()
                         var
@@ -988,6 +988,8 @@ page 490 "Acc. Schedule Overview"
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
         GLBudgetFilter := '';
         CostBudgetFilter := '';
+
+        OnAfterUpdateDimFilterControls();
     end;
 
     local procedure CurrentSchedNameOnAfterValidate()
@@ -1108,6 +1110,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCostObjectFilter(var AccScheduleLine: Record "Acc. Schedule Line"; var CostObjectFilter: Text; var Dim2Filter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateDimFilterControls()
     begin
     end;
 }

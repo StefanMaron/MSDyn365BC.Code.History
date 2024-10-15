@@ -880,6 +880,20 @@ page 132 "Posted Sales Invoice"
                         ExportEDocument;
                     end;
                 }
+                action(ExportEDocumentPDF)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'Export E-Document as PDF';
+                    Image = ExportToBank;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    ToolTip = 'Export the posted sales invoice as an electronic invoice, a PDF document, when the stamp is received.';
+
+                    trigger OnAction()
+                    begin
+                        ExportEDocumentPDF();
+                    end;
+                }
                 action("CFDI Information")
                 {
                     ApplicationArea = Basic, Suite;

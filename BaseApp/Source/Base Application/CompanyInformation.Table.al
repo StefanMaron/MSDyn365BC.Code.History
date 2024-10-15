@@ -725,25 +725,36 @@ table 79 "Company Information"
           "Allow Blank Payment Info.");
     end;
 
-    procedure GetRegistrationNumber(): Text
+    procedure GetRegistrationNumber() Result: Text
     begin
-        exit("Registration No.");
+        Result := "Registration No.";
+        OnAfterGetRegistrationNumber(Result);
     end;
 
-    procedure GetRegistrationNumberLbl(): Text
+    procedure GetRegistrationNumberLbl() Result: Text
     begin
-        exit(FieldCaption("Registration No."));
+        Result := FieldCaption("Registration No.");
+        OnAfterGetRegistrationNumberLbl(Result);
     end;
 
-    procedure GetVATRegistrationNumber(): Text
+    procedure GetVATRegistrationNumber() Result: Text
     begin
-        exit("VAT Registration No.");
+        Result := "VAT Registration No.";
+        OnAfterGetVATRegistrationNumber(Result);
     end;
 
-    procedure GetVATRegistrationNumberLbl(): Text
+    procedure GetVATRegistrationNumberLbl() Result: Text
+    var
+        IsHandled: Boolean;
     begin
         if Name = '' then // Is the record loaded?
             Get;
+
+        IsHandled := false;
+        OnBeforeGetVATRegistrationNumberLbl(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "VAT Registration No." = '' then
             exit('');
         exit(FieldCaption("VAT Registration No."));
@@ -943,6 +954,26 @@ table 79 "Company Information"
         Get;
         exit(("CURP No." = '') and ("State Inscription" = '') and
           ("Tax Scheme" = '') and ("Post Code" = '') and ("RFC No." = ''));
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRegistrationNumber(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRegistrationNumberLbl(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetVATRegistrationNumber(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetVATRegistrationNumberLbl(var Result: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

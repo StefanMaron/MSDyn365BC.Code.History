@@ -317,6 +317,17 @@ page 5977 "Posted Service Invoices"
                         ExportEDocument;
                     end;
                 }
+                action(ExportEDocumentPDF)
+                {
+                    Caption = 'Export E-Document as PDF';
+                    Image = ExportToBank;
+                    ToolTip = 'Export the posted sales service invoice as an electronic service invoice, a PDF document, when the stamp is received.';
+
+                    trigger OnAction()
+                    begin
+                        ExportEDocumentPDF();
+                    end;
+                }
                 action("&Cancel")
                 {
                     Caption = '&Cancel';

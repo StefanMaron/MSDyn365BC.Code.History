@@ -338,6 +338,18 @@ page 144 "Posted Sales Credit Memos"
                         ExportEDocument;
                     end;
                 }
+                action(ExportEDocumentPDF)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'Export E-Document as PDF';
+                    Image = ExportToBank;
+                    ToolTip = 'Export the posted sales credit memo as an electronic credit memo, a PDF document, when the stamp is received.';
+
+                    trigger OnAction()
+                    begin
+                        ExportEDocumentPDF();
+                    end;
+                }
                 action(CFDIRelationDocuments)
                 {
                     ApplicationArea = BasicMX;

@@ -792,7 +792,6 @@ table 114 "Sales Cr.Memo Header"
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
         Text10000: Label 'There is no electronic stamp for document no. %1.';
-        DocTxt: Label 'Credit Memo';
         PluralDocTxt: Label 'Credit Memos';
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
 
@@ -800,32 +799,40 @@ table 114 "Sales Cr.Memo Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendRecords(DummyReportSelections, Rec, DocTxt, IsHandled);
+        OnBeforeSendRecords(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled);
         if IsHandled then
             exit;
 
         EInvoiceMgt.EDocPrintValidation(0, "No.");
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, DocTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"S.Cr.Memo", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendProfile(DummyReportSelections, Rec, DocTxt, IsHandled, DocumentSendingProfile);
+        OnBeforeSendProfile(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled, DocumentSendingProfile);
         if IsHandled then
             exit;
 
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"S.Cr.Memo", Rec, "No.", "Bill-to Customer No.",
-          DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+          DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)
@@ -848,16 +855,21 @@ table 114 "Sales Cr.Memo Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeEmailRecords(DummyReportSelections, Rec, DocTxt, ShowRequestPage, IsHandled);
+        OnBeforeEmailRecords(DummyReportSelections, Rec, DocumentTypeTxt, ShowRequestPage, IsHandled);
         if IsHandled then
             exit;
 
         EInvoiceMgt.EDocPrintValidation(0, "No.");
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowRequestPage);
+          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("No."), DocumentTypeTxt,
+          FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure PrintToDocumentAttachment(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -950,6 +962,22 @@ table 114 "Sales Cr.Memo Header"
         if "Signed Document XML".HasValue then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             RBMgt.BLOBExport(TempBlob, "No." + '.xml', true);
+        end else
+            Error(Text10000, "No.");
+    end;
+
+    procedure ExportEDocumentPDF()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        FileManagement: Codeunit "File Management";
+        FilePath: Text;
+    begin
+        if "Electronic Document Status" in ["Electronic Document Status"::Sent, "Electronic Document Status"::"Stamp Received"] then begin
+            SalesCrMemoHeader := Rec;
+            SalesCrMemoHeader.SetRecFilter();
+            FilePath := FileManagement.ServerTempFileName('pdf');
+            REPORT.SaveAsPdf(REPORT::"Elec. Sales Credit Memo MX", FilePath, SalesCrMemoHeader);
+            FileManagement.DownloadHandler(FilePath, '', '', '', "No." + '.pdf');
         end else
             Error(Text10000, "No.");
     end;

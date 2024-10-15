@@ -14,7 +14,11 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryResource: Codeunit "Library - Resource";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -26,6 +30,7 @@ codeunit 144018 "SCM Inventory Reports"
         isInitialized: Boolean;
         ProfitErr: Label 'Contribution Margin (Profit) column is not correct.';
         FieldInvisibleErr: Label 'The Field is invisible.';
+        AssemblyWarningTxt: Label '%1 %2 is before work date %3 in one or more of the assembly lines';
 
     [Test]
     [HandlerFunctions('ItemStatusBySalespersonPageHandler')]
@@ -282,19 +287,106 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('InventoryToGLReconcileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryToGLReconcileReportNonInventoryItems()
+    var
+        ItemNonInv: Record Item;
+        ItemInv: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Non-Inventory]
+        // [SCENARIO 362714] "Inventory To G\L Reconcile" report doesn't include Non-Inventory Items
+        Initialize();
+
+        // [GIVEN] Non-Inventory Item "NONINV"
+        // [GIVEN] Inventory Item "INV"
+        LibraryInventory.CreateNonInventoryTypeItem(ItemNonInv);
+        LibraryInventory.CreateItem(ItemInv);
+        Qty := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Purchased 100 pcs of "NONINV" and "INV" on 22.01
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNonInv."No.", Qty);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemInv."No.", Qty);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run "Inventory to G/L Reconcile" report on 23.01
+        RunInventoryToGLReconcileReport(ItemNonInv."No.", ItemInv."No.", WorkDate + 1);
+
+        // [THEN] Report doesn't include "NONINV"
+        // [THEN] Report include "INV"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('Item__No__', ItemNonInv."No.");
+        LibraryReportDataset.AssertElementWithValueExists('Item__No__', ItemInv."No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyingMessageHandler,SalesShipmentRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesShipmentWithAssemblyItem()
+    var
+        ItemAssembly: Record Item;
+        ItemBOMComponent: Record Item;
+        ResourceBOMComponent: Record Resource;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Assembly] [BOM] [Shipment] [Report]
+        // [SCENARIO] North american report "Sales Shipment NA" (10077) prints without duplicated assembly details
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Assembly item "I-A" with Item and Resource
+        CreateAssemblyItemWithBOMItemAndResource(ItemAssembly, ItemBOMComponent, ResourceBOMComponent, Customer);
+        PostPositiveAdjustmentForItem(ItemBOMComponent);
+
+        // [GIVEN] Posted sales order with "I-A"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibraryVariableStorage.Enqueue(
+          StrSubstNo(AssemblyWarningTxt, SalesHeader.FieldCaption("Due Date"), SalesHeader."Due Date" - 1, WorkDate));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemAssembly."No.", 1);
+        UpdateAccountsOnGeneralPostingSetup(SalesLine."Gen. Prod. Posting Group");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Print posted sales shipment with "Assembly Details" = TRUE
+        FileName := FileManagement.ServerTempFileName('xml');
+        LibraryVariableStorage.Enqueue(true); // print assembly details
+        LibraryVariableStorage.Enqueue(false); // do not log interaction
+        LibraryVariableStorage.Enqueue(FileName);
+
+        PrintPostedSalesShipment(Customer);
+
+        // [THEN] Assembly with details printed once
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('/DataSet/Result/TempSalesShptLineNo', ItemAssembly."No.", 2);
+        LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('/DataSet/Result/PostedAsmLineItemNo', ItemBOMComponent."No.", 1);
+        LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('/DataSet/Result/PostedAsmLineItemNo', ResourceBOMComponent."No.", 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports");
         // Lazy Setup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -384,6 +476,30 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
+    local procedure CreateAssemblyItemWithBOMItemAndResource(var ItemAssembly: Record Item; var ItemBOMComponent: Record Item; var ResourceBOMComponent: Record Resource; Customer: Record Customer)
+    var
+        BOMComponent: array[2] of Record "BOM Component";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        InventoryPostingGroup.FindFirst();
+        LibraryERM.FindGenProductPostingGroup(GenProductPostingGroup);
+        LibraryAssembly.CreateItem(
+          ItemAssembly, ItemAssembly."Costing Method"::Standard, ItemAssembly."Replenishment System"::Assembly,
+          GenProductPostingGroup.Code, InventoryPostingGroup.Code);
+        ItemAssembly.Validate("Assembly Policy", ItemAssembly."Assembly Policy"::"Assemble-to-Order");
+        ItemAssembly.Modify(true);
+
+        LibraryInventory.CreateItem(ItemBOMComponent);
+        LibraryResource.CreateResource(ResourceBOMComponent, Customer."VAT Bus. Posting Group");
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent[1], ItemAssembly."No.", BOMComponent[1].Type::Item, ItemBOMComponent."No.",
+          LibraryRandom.RandIntInRange(2, 10), ItemBOMComponent."Base Unit of Measure");
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent[2], ItemAssembly."No.", BOMComponent[2].Type::Resource, ResourceBOMComponent."No.",
+          LibraryRandom.RandIntInRange(2, 10), ResourceBOMComponent."Base Unit of Measure");
+    end;
+
     local procedure FindItemLedgerEntryNo(ItemNo: Code[20]): Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -393,6 +509,34 @@ codeunit 144018 "SCM Inventory Reports"
         exit(ItemLedgerEntry."Entry No.");
     end;
 
+    local procedure PostPositiveAdjustmentForItem(Item: Record Item)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandIntInRange(30, 50));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure PrintPostedSalesShipment(Customer: Record Customer)
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentNA: Report "Sales Shipment NA";
+    begin
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentHeader.SetRecFilter();
+        SalesShipmentNA.SetTableView(SalesShipmentHeader);
+        SalesShipmentNA.UseRequestPage(true);
+        SalesShipmentNA.RunModal();
+    end;
+
     local procedure RunInventoryValuationReport(ItemNo: Code[20]; ValuationDate: Date)
     var
         Item: Record Item;
@@ -400,6 +544,15 @@ codeunit 144018 "SCM Inventory Reports"
         Item.SetRange("No.", ItemNo);
         LibraryVariableStorage.Enqueue(ValuationDate);
         REPORT.Run(REPORT::"Inventory Valuation", true, false, Item);
+    end;
+
+    local procedure RunInventoryToGLReconcileReport(ItemNo1: Code[20]; ItemNo2: Code[20]; ValuationDate: Date)
+    var
+        Item: Record Item;
+    begin
+        Item.SetFilter("No.", '%1|%2', ItemNo1, ItemNo2);
+        LibraryVariableStorage.Enqueue(ValuationDate);
+        REPORT.Run(REPORT::"Inventory to G/L Reconcile", true, false, Item);
     end;
 
     [Scope('OnPrem')]
@@ -443,6 +596,15 @@ codeunit 144018 "SCM Inventory Reports"
         exit(ItemJournalLine."Unit Cost (Revalued)");
     end;
 
+    local procedure UpdateAccountsOnGeneralPostingSetup(GenProdPostingGroupCode: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        GeneralPostingSetup.ModifyAll("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo(), true);
+        GeneralPostingSetup.ModifyAll("COGS Account", LibraryERM.CreateGLAccountNo(), true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemStatusBySalespersonPageHandler(var ItemStatusBySalesperson: TestRequestPage "Item Status by Salesperson")
@@ -466,6 +628,30 @@ codeunit 144018 "SCM Inventory Reports"
         Assert.IsTrue(InventoryValuation.BreakdownByVariants.Visible, FieldInvisibleErr);
         Assert.IsTrue(InventoryValuation.BreakdownByLocation.Visible, FieldInvisibleErr);
         Assert.IsTrue(InventoryValuation.UseAdditionalReportingCurrency.Visible, FieldInvisibleErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InventoryToGLReconcileRequestPageHandler(var InventorytoGLReconcile : TestRequestPage "Inventory to G/L Reconcile")
+    begin
+        InventorytoGLReconcile.AsOfDate.SetValue(LibraryVariableStorage.DequeueDate);
+        InventorytoGLReconcile.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure VerifyingMessageHandler(MessageText: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), MessageText);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentRequestPageHandler(var SalesShipmentNA: TestRequestPage "Sales Shipment NA")
+    begin
+        SalesShipmentNA.DisplayAsmInfo.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SalesShipmentNA.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SalesShipmentNA.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryVariableStorage.DequeueText());
     end;
 }
 

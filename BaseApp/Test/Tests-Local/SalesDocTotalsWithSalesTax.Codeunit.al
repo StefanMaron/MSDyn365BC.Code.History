@@ -534,6 +534,84 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         exit(Customer."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConformTrueHandler')]
+    procedure TaxAreaOnSalesOrderFromShipToAddress()
+    var
+        SalesHeader: Record "Sales Header";
+        ShipToAddressTaxAreaCode: Code[20];
+        SellToCustomerTaxAreaCode: Code[20];
+        BillToCustomerTaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Tax Area]
+        // [SCENARIO 358143] Tax Area Code on Sales Order should be the same as Tax Area Code of Ship-to Address if specified 
+        Initialize();
+
+        // [GIVEN] Tax Area Code specified for Sell-to Customer, Bill-to Customer and Ship-to Address
+        ShipToAddressTaxAreaCode := CreateTaxAreaCode();
+        SellToCustomerTaxAreaCode := CreateTaxAreaCode();
+        BillToCustomerTaxAreaCode := CreateTaxAreaCode();
+
+        // [WHEN] Create a Sales Order
+        CreateSalesOrderWithTaxAreaSetup(SalesHeader, ShipToAddressTaxAreaCode, SellToCustomerTaxAreaCode, BillToCustomerTaxAreaCode);
+
+        // [THEN] Tax Area Code of Sales Order have to be the same as Tax Area Code of Ship-to Address 
+        SalesHeader.TestField("Tax Area Code", ShipToAddressTaxAreaCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConformTrueHandler')]
+    procedure TaxAreaOnSalesOrderFromSellToCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        ShipToAddressTaxAreaCode: Code[20];
+        SellToCustomerTaxAreaCode: Code[20];
+        BillToCustomerTaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Tax Area]
+        // [SCENARIO 358143] Tax Area Code on Sales Order should be the same as Tax Area Code of Sell-to Customer if there is no Tax Area Code for Ship-to Address
+        Initialize();
+
+        // [GIVEN] Tax Area Code specified for Sell-to Customer and Bill-to Customer
+        ShipToAddressTaxAreaCode := '';
+        SellToCustomerTaxAreaCode := CreateTaxAreaCode();
+        BillToCustomerTaxAreaCode := CreateTaxAreaCode();
+
+        // [WHEN] Create a Sales Order
+        CreateSalesOrderWithTaxAreaSetup(SalesHeader, ShipToAddressTaxAreaCode, SellToCustomerTaxAreaCode, BillToCustomerTaxAreaCode);
+
+        // [THEN] Tax Area Code of Sales Order have to be the same as Tax Area Code of Sell-to Customer
+        SalesHeader.TestField("Tax Area Code", SellToCustomerTaxAreaCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConformTrueHandler')]
+    procedure TaxAreaOnSalesOrderFromBillToCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        ShipToAddressTaxAreaCode: Code[20];
+        SellToCustomerTaxAreaCode: Code[20];
+        BillToCustomerTaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Tax Area]
+        // [SCENARIO 358143] Tax Area Code on Sales Order should be the same as Tax Area Code of Bill-to Customer if there are no Tax Area Code for Ship-to Address and Sell-to Customer
+        Initialize();
+
+        // [GIVEN] Tax Area Code specified only for Bill-to Customer
+        ShipToAddressTaxAreaCode := '';
+        SellToCustomerTaxAreaCode := '';
+        BillToCustomerTaxAreaCode := CreateTaxAreaCode();
+
+        // [WHEN] Create a Sales Order
+        CreateSalesOrderWithTaxAreaSetup(SalesHeader, ShipToAddressTaxAreaCode, SellToCustomerTaxAreaCode, BillToCustomerTaxAreaCode);
+
+        // [THEN] Tax Area Code of Sales Order have to be the same as Tax Area Code of Bill-to Customer 
+        SalesHeader.TestField("Tax Area Code", BillToCustomerTaxAreaCode);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -752,6 +830,42 @@ codeunit 142054 SalesDocTotalsWithSalesTax
           'Posted Tax Amount not equal to pre-posted value.');
         Assert.AreEqual(SalesHeaderAmounts[FieldType::TotalAmountIncTax], SalesPostedAmounts[FieldType::TotalAmountIncTax],
           'Posted Total Amount Including Tax not equal to pre-posted value.');
+    end;
+
+    local procedure CreateSalesOrderWithTaxAreaSetup(var SalesHeader: Record "Sales Header"; ShipToAddressTaxAreaCode: Code[20]; SellToCustomerTaxAreaCode: Code[20]; BillToCustomerTaxAreaCode: Code[20])
+    var
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        SellToCustomer.Get(CreateCustomer(SellToCustomerTaxAreaCode));
+        BillToCustomer.Get(CreateCustomer(BillToCustomerTaxAreaCode));
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, SellToCustomer."No.");
+        ShipToAddress.Validate("Tax Liable", true);
+        ShipToAddress.Validate("Tax Area Code", ShipToAddressTaxAreaCode);
+        ShipToAddress.Modify(true);
+
+        SellToCustomer.Validate("Ship-to Code", ShipToAddress.Code);
+        SellToCustomer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SellToCustomer."No.");
+        SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateTaxAreaCode(): Code[20];
+    var
+        TaxArea: Record "Tax Area";
+    begin
+        LibraryERM.CreateTaxArea(TaxArea);
+        exit(TaxArea.Code);
+    end;
+
+    [ConfirmHandler]
+    procedure ConformTrueHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := True;
     end;
 }
 

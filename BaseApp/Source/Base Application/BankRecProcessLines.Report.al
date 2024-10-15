@@ -416,6 +416,8 @@ report 10406 "Bank Rec. Process Lines"
                     end else
                         InsertLine(BankRecLine2);
                 end;
+
+                OnAfterWriteLine(BankRecHdr2, BankRecLine2);
             end;
     end;
 
@@ -470,6 +472,11 @@ report 10406 "Bank Rec. Process Lines"
                 Ok := BankRecLine2.Insert();
             until Ok
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWriteLine(BankRecHdr2: Record "Bank Rec. Header"; var BankRecLine2: Record "Bank Rec. Line")
+    begin
     end;
 }
 

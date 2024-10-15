@@ -133,6 +133,7 @@
         ACHUSHeader."Originator Status Code" := 1;
         ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSHeader."Batch Number" := EFTValues.GetBatchNo;
+        OnStartExportBatchOnBeforeACHUSHeaderModify(ACHUSHeader);
         ACHUSHeader.Modify();
     end;
 
@@ -497,6 +498,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnStartExportFileOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportBatchOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header")
     begin
     end;
 }

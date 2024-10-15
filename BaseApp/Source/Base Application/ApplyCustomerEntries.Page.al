@@ -1346,6 +1346,7 @@ page 232 "Apply Customer Entries"
                 Rec := ApplyingCustLedgEntry;
                 ApplicationDate := CustEntryApplyPostedEntries.GetApplicationDate(Rec);
 
+                OnPostDirectApplicationBeforeSetValues(ApplicationDate);
                 PostApplication.SetValues("Document No.", ApplicationDate);
                 if ACTION::OK = PostApplication.RunModal then begin
                     PostApplication.GetValues(NewDocumentNo, NewApplicationDate);
@@ -1354,6 +1355,7 @@ page 232 "Apply Customer Entries"
                 end else
                     Error(Text019);
 
+                OnPostDirectApplicationBeforeApply();
                 if PreviewMode then
                     CustEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate)
                 else
@@ -1479,6 +1481,16 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeApply()
     begin
     end;
 }

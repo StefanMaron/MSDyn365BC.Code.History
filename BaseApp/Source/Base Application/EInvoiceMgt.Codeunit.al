@@ -3130,6 +3130,7 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         DataTypeManagement: Codeunit "Data Type Management";
+        SATUtilities: Codeunit "SAT Utilities";
         RecRef: RecordRef;
         LineVatPercent: Decimal;
     begin
@@ -3158,6 +3159,8 @@ codeunit 10145 "E-Invoice Mgt."
                                 CalcDocumentLineForPricesInclVAT(TempDocumentLine, SalesInvoiceHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesInvoiceLine."Inv. Discount Amount";
+                            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"Fixed Asset" then
+                                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
                         until SalesInvoiceLine.Next = 0;
                 end;
@@ -3181,6 +3184,8 @@ codeunit 10145 "E-Invoice Mgt."
                                 CalcDocumentLineForPricesInclVAT(TempDocumentLine, SalesCrMemoHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesCrMemoLine."Inv. Discount Amount";
+                            if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"Fixed Asset" then
+                                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
                             TempDocumentLine.Insert();
                         until SalesCrMemoLine.Next = 0;
                 end;
@@ -3479,13 +3484,14 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure SumStampedPayments(CustLedgerEntry: Record "Cust. Ledger Entry"): Decimal
+    local procedure SumStampedPayments(CustLedgerEntry: Record "Cust. Ledger Entry"; var StampedAmount: Decimal; var PaymentNo: Integer)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntryLoc: Record "Cust. Ledger Entry";
         CustLedgerEntryLoc2: Record "Cust. Ledger Entry";
-        StampedAmount: Decimal;
     begin
+        StampedAmount := 0;
+        PaymentNo := 1;
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
@@ -3498,8 +3504,8 @@ codeunit 10145 "E-Invoice Mgt."
                 if CustLedgerEntryLoc2.FindSet then
                     repeat
                         StampedAmount += CustLedgerEntryLoc2."Closed by Amount";
+                        PaymentNo += 1;
                     until CustLedgerEntryLoc2.Next = 0;
-                exit(StampedAmount);
             end;
         end;
     end;
@@ -3680,12 +3686,8 @@ codeunit 10145 "E-Invoice Mgt."
 
     local procedure CreateXMLPayment33(var TempCustomer: Record Customer temporary; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; var XMLDoc: DotNet XmlDocument)
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         CustomerBankAccount: Record "Customer Bank Account";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -3695,6 +3697,9 @@ codeunit 10145 "E-Invoice Mgt."
         InvoiceDoc: Boolean;
         PaymentAmount: Decimal;
         UUID: Text[50];
+        PaymentNo: Integer;
+        AmountInclVAT: Decimal;
+        SATPaymentTerm: Code[10];
     begin
         InitPaymentXML33(XMLDoc, XMLCurrNode);
         with TempCustLedgerEntry do begin
@@ -3806,17 +3811,6 @@ codeunit 10145 "E-Invoice Mgt."
                     if TempDetailedCustLedgEntry."Initial Document Type" = TempDetailedCustLedgEntry."Initial Document Type"::Invoice then
                         InvoiceDoc := true;
 
-                    if ServiceDoc then
-                        if InvoiceDoc then
-                            ServiceInvoiceHeader.Get(CustLedgerEntry2."Document No.")
-                        else
-                            ServiceCrMemoHeader.Get(CustLedgerEntry2."Document No.")
-                    else
-                        if InvoiceDoc then
-                            SalesInvoiceHeader.Get(CustLedgerEntry2."Document No.")
-                        else
-                            SalesCrMemoHeader.Get(CustLedgerEntry2."Document No.");
-
                     UUID := GetPaymentInvoiceUUID("Entry No.", InvoiceDoc);
                     AddAttribute(XMLDoc, XMLCurrNode, 'IdDocumento', UUID);// this needs to be changed
 
@@ -3826,44 +3820,16 @@ codeunit 10145 "E-Invoice Mgt."
                     else
                         AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', GLSetup."LCY Code");
 
-                    AddAttribute(XMLDoc, XMLCurrNode, 'MetodoDePagoDR', 'PUE');
-                    AddAttribute(XMLDoc, XMLCurrNode, 'NumParcialidad', '1');
-                    if ServiceDoc then
-                        if InvoiceDoc then begin
-                            ServiceInvoiceHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            AddAttribute(
-                              XMLDoc, XMLCurrNode, 'ImpSaldoAnt', FormatAmount(ServiceInvoiceHeader."Amount Including VAT" + SumOfStamped));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpPagado', FormatAmount(TempDetailedCustLedgEntry.Amount));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpSaldoInsoluto',
-                              FormatAmount(ServiceInvoiceHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
-                        end else begin
-                            ServiceCrMemoHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            AddAttribute(
-                              XMLDoc, XMLCurrNode, 'ImpSaldoAnt', FormatAmountNoABS(ServiceCrMemoHeader."Amount Including VAT" + SumOfStamped));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpPagado', FormatAmountNoABS(TempDetailedCustLedgEntry.Amount));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpSaldoInsoluto',
-                              FormatAmount(-1 * ServiceCrMemoHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
-                        end;
-                    if not ServiceDoc then
-                        if InvoiceDoc then begin
-                            SalesInvoiceHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            AddAttribute(
-                              XMLDoc, XMLCurrNode, 'ImpSaldoAnt', FormatAmount(SalesInvoiceHeader."Amount Including VAT" + SumOfStamped));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpPagado', FormatAmount(TempDetailedCustLedgEntry.Amount));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpSaldoInsoluto',
-                              FormatAmount(SalesInvoiceHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
-                        end else begin
-                            SalesCrMemoHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            AddAttribute(
-                              XMLDoc, XMLCurrNode, 'ImpSaldoAnt', FormatAmountNoABS(SalesCrMemoHeader."Amount Including VAT" + SumOfStamped));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpPagado', FormatAmountNoABS(TempDetailedCustLedgEntry.Amount));
-                            AddAttribute(XMLDoc, XMLCurrNode, 'ImpSaldoInsoluto',
-                              FormatAmount(-1 * SalesCrMemoHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
-                        end;
+                    GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
+                    AddAttribute(XMLDoc, XMLCurrNode, 'MetodoDePagoDR', SATPaymentTerm);
+                    SumStampedPayments(TempCustLedgerEntry, SumOfStamped, PaymentNo);
+                    AddAttribute(XMLDoc, XMLCurrNode, 'NumParcialidad', Format(PaymentNo));
+                    AddAttribute(
+                      XMLDoc, XMLCurrNode, 'ImpSaldoAnt', FormatAmount(AmountInclVAT + SumOfStamped));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'ImpPagado', FormatAmount(TempDetailedCustLedgEntry.Amount));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'ImpSaldoInsoluto',
+                      FormatAmount(AmountInclVAT + (TempDetailedCustLedgEntry.Amount + SumOfStamped)));
+
                     XMLCurrNode := XMLCurrNode.ParentNode;
                 until TempDetailedCustLedgEntry.Next = 0;
 
@@ -3874,12 +3840,8 @@ codeunit 10145 "E-Invoice Mgt."
 
     procedure CreateOriginalPaymentStr33(var TempCustomer: Record Customer temporary; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; DateTimeFirstReqSent: Text; var TempBlob: Codeunit "Temp Blob")
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         CustomerBankAccount: Record "Customer Bank Account";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
         SumOfStamped: Decimal;
@@ -3888,6 +3850,9 @@ codeunit 10145 "E-Invoice Mgt."
         InvoiceDoc: Boolean;
         PaymentAmount: Decimal;
         UUID: Text[50];
+        PaymentNo: Integer;
+        AmountInclVAT: Decimal;
+        SATPaymentTerm: Code[10];
     begin
         with TempCustLedgerEntry do begin
             if TempCustomer."Currency Code" = '' then begin
@@ -3972,16 +3937,6 @@ codeunit 10145 "E-Invoice Mgt."
                     if TempDetailedCustLedgEntry."Initial Document Type" = TempDetailedCustLedgEntry."Initial Document Type"::Invoice then
                         InvoiceDoc := true;
 
-                    if ServiceDoc then
-                        if InvoiceDoc then
-                            ServiceInvoiceHeader.Get(CustLedgerEntry2."Document No.")
-                        else // Has to be a credit memo
-                            ServiceCrMemoHeader.Get(CustLedgerEntry2."Document No.")
-                    else
-                        if InvoiceDoc then
-                            SalesInvoiceHeader.Get(CustLedgerEntry2."Document No.")
-                        else
-                            SalesCrMemoHeader.Get(CustLedgerEntry2."Document No.");
                     UUID := GetPaymentInvoiceUUID("Entry No.", InvoiceDoc);
 
                     WriteOutStr(OutStream, UUID + '|');// IdDocumento
@@ -3990,43 +3945,14 @@ codeunit 10145 "E-Invoice Mgt."
                         WriteOutStr(OutStream, CustLedgerEntry2."Currency Code" + '|') // MonedaDR
                     else
                         WriteOutStr(OutStream, GLSetup."LCY Code" + '|'); // MonedaDR
-                    WriteOutStr(OutStream, 'PUE|');// MotodoDePagoDr
-                    WriteOutStr(OutStream, '1|');// NumParcialidad
-
-                    if ServiceDoc then
-                        if InvoiceDoc then begin
-                            ServiceInvoiceHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            WriteOutStr(OutStream, FormatAmount(ServiceInvoiceHeader."Amount Including VAT" + SumOfStamped) + '|');// ImpSaldoAnt
-                            WriteOutStr(OutStream, FormatAmount(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
-                            WriteOutStr(OutStream,
-                              FormatAmount(ServiceInvoiceHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
-                        end else begin
-                            ServiceCrMemoHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            WriteOutStr(OutStream, FormatAmountNoABS(ServiceCrMemoHeader."Amount Including VAT" + SumOfStamped) + '|');// ImpSaldoAnt
-                            WriteOutStr(OutStream, FormatAmountNoABS(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
-                            WriteOutStr(OutStream,
-                              FormatAmount(
-                                -1 * ServiceCrMemoHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
-                        end;
-                    if not ServiceDoc then
-                        if InvoiceDoc then begin
-                            SalesInvoiceHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            WriteOutStr(OutStream, FormatAmount(SalesInvoiceHeader."Amount Including VAT" + SumOfStamped) + '|');// ImpSaldoAnt
-                            WriteOutStr(OutStream, FormatAmount(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
-                            WriteOutStr(OutStream,
-                              FormatAmount(SalesInvoiceHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
-                        end else begin
-                            SalesCrMemoHeader.CalcFields("Amount Including VAT");
-                            SumOfStamped := SumStampedPayments(TempCustLedgerEntry);
-                            WriteOutStr(OutStream, FormatAmountNoABS(SalesCrMemoHeader."Amount Including VAT" + SumOfStamped) + '|');// ImpSaldoAnt
-                            WriteOutStr(OutStream, FormatAmountNoABS(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
-                            WriteOutStr(OutStream,
-                              FormatAmount(
-                                -1 * SalesCrMemoHeader."Amount Including VAT" + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
-                        end;
+                    GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
+                    WriteOutStr(OutStream, SATPaymentTerm + '|');// MetodoDePagoDr
+                    SumStampedPayments(TempCustLedgerEntry, SumOfStamped, PaymentNo);
+                    WriteOutStr(OutStream, Format(PaymentNo) + '|');// NumParcialidad
+                    WriteOutStr(OutStream, FormatAmount(AmountInclVAT + SumOfStamped) + '|');// ImpSaldoAnt
+                    WriteOutStr(OutStream, FormatAmount(TempDetailedCustLedgEntry.Amount) + '|'); // ImpPagado
+                    WriteOutStr(OutStream, 
+                      FormatAmount(AmountInclVAT + (TempDetailedCustLedgEntry.Amount + SumOfStamped)) + '|');// ImpSaldoInsoluto
                 until TempDetailedCustLedgEntry.Next = 0;
             // Need one more pipe character at end of built string...
             WriteOutStrAllowOneCharacter(OutStream, '|');
@@ -4060,6 +3986,42 @@ codeunit 10145 "E-Invoice Mgt."
         TempCFDIRelationDocument.Init();
         TempCFDIRelationDocument."Fiscal Invoice Number PAC" := UUID;
         TempCFDIRelationDocument.Insert();
+    end;
+
+    local procedure GetDocumentDataForPmt(var AmountInclVAT: Decimal; var SATPaymentTerm: Code[10]; DocumentNo: Code[20]; ServiceDoc: Boolean; InvoiceDoc: Boolean)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        SATPaymentTerm := 'PUE';
+        AmountInclVAT := 0;
+        if ServiceDoc then
+            if InvoiceDoc then begin
+                ServiceInvoiceHeader.Get(DocumentNo);
+                ServiceInvoiceHeader.CalcFields("Amount Including VAT");
+                AmountInclVAT := ServiceCrMemoHeader."Amount Including VAT";
+                SATPaymentTerm := SATUtilities.GetSATPaymentTerm(ServiceInvoiceHeader."Payment Terms Code");
+            end else begin
+                ServiceCrMemoHeader.Get(DocumentNo);
+                ServiceCrMemoHeader.CalcFields("Amount Including VAT");
+                AmountInclVAT := -ServiceCrMemoHeader."Amount Including VAT";
+                SATPaymentTerm := SATUtilities.GetSATPaymentTerm(ServiceCrMemoHeader."Payment Method Code");
+            end
+        else
+            if InvoiceDoc then begin
+                SalesInvoiceHeader.Get(DocumentNo);
+                SalesInvoiceHeader.CalcFields("Amount Including VAT");
+                AmountInclVAT := SalesInvoiceHeader."Amount Including VAT";
+                SATPaymentTerm := SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code");
+            end else begin
+                SalesCrMemoHeader.Get(DocumentNo);
+                SalesCrMemoHeader.CalcFields("Amount Including VAT");
+                AmountInclVAT := -SalesCrMemoHeader."Amount Including VAT";
+                SATPaymentTerm := SATUtilities.GetSATPaymentTerm(SalesCrMemoHeader."Payment Terms Code");
+            end;
     end;
 
     local procedure GetPaymentInvoiceUUID(EntryNumber: Integer; InvoiceDoc: Boolean): Text[50]
@@ -4555,8 +4517,9 @@ codeunit 10145 "E-Invoice Mgt."
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo(Description), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit Price/Direct Unit Cost"), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Amount Including VAT"), "Message Type"::Error);
-                LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
-                if not (DocumentLine.Type in [DocumentLine.Type::Item, DocumentLine.Type::Resource]) then
+                if DocumentLine.Type <> DocumentLine.Type::"Fixed Asset" then
+                    LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
+                if not (DocumentLine.Type in [DocumentLine.Type::Item, DocumentLine.Type::Resource, DocumentLine.Type::"Fixed Asset"]) then
                     LogMessage(
                       LineVariant, DocumentLine.FieldNo(Type), "Message Type"::Error,
                       StrSubstNo(

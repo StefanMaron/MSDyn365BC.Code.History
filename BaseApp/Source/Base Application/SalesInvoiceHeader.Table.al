@@ -918,14 +918,18 @@ table 112 "Sales Invoice Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendRecords(DummyReportSelections, Rec, DocTxt, IsHandled);
+        OnBeforeSendRecords(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled);
         if not IsHandled then begin
             EInvoiceMgt.EDocPrintValidation(0, "No.");
             DocumentSendingProfile.SendCustomerRecords(
-              DummyReportSelections.Usage::"S.Invoice", Rec, DocTxt, "Bill-to Customer No.", "No.",
+              DummyReportSelections.Usage::"S.Invoice", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
               FieldNo("Bill-to Customer No."), FieldNo("No."));
         end;
     end;
@@ -933,14 +937,18 @@ table 112 "Sales Invoice Header"
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendProfile(DummyReportSelections, Rec, DocTxt, IsHandled, DocumentSendingProfile);
+        OnBeforeSendProfile(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled, DocumentSendingProfile);
         if not IsHandled then
             DocumentSendingProfile.Send(
               DummyReportSelections.Usage::"S.Invoice", Rec, "No.", "Bill-to Customer No.",
-              DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+              DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)
@@ -981,18 +989,25 @@ table 112 "Sales Invoice Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeEmailRecords(DummyReportSelections, Rec, DocTxt, ShowDialog, IsHandled);
+        OnBeforeEmailRecords(DummyReportSelections, Rec, DocumentTypeTxt, ShowDialog, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.TrySendToEMail(
-              DummyReportSelections.Usage::"S.Invoice", Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowDialog);
+              DummyReportSelections.Usage::"S.Invoice", Rec, FieldNo("No."), DocumentTypeTxt,
+              FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure GetDocTypeTxt(): Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
-        exit(DocTxt);
+        exit(ReportDistributionMgt.GetFullDocumentTypeText(Rec));
     end;
 
     procedure Navigate()
@@ -1110,6 +1125,22 @@ table 112 "Sales Invoice Header"
         if "Signed Document XML".HasValue then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             RBMgt.BLOBExport(TempBlob, "No." + '.xml', true);
+        end else
+            Error(Text10000, "No.");
+    end;
+
+    procedure ExportEDocumentPDF()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FileManagement: Codeunit "File Management";
+        FilePath: Text;
+    begin
+        if "Electronic Document Status" in ["Electronic Document Status"::Sent, "Electronic Document Status"::"Stamp Received"] then begin
+            SalesInvoiceHeader := Rec;
+            SalesInvoiceHeader.SetRecFilter();
+            FilePath := FileManagement.ServerTempFileName('pdf');
+            REPORT.SaveAsPdf(REPORT::"Elec. Sales Invoice MX", FilePath, SalesInvoiceHeader);
+            FileManagement.DownloadHandler(FilePath, '', '', '', "No." + '.pdf');
         end else
             Error(Text10000, "No.");
     end;

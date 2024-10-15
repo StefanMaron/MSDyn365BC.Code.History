@@ -516,6 +516,18 @@ page 143 "Posted Sales Invoices"
                         ExportEDocument;
                     end;
                 }
+                action(ExportEDocumentPDF)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'Export E-Document as PDF';
+                    Image = ExportToBank;
+                    ToolTip = 'Export the posted sales invoice as an electronic invoice, a PDF document, when the stamp is received.';
+
+                    trigger OnAction()
+                    begin
+                        ExportEDocumentPDF();
+                    end;
+                }
                 action("&Cancel")
                 {
                     ApplicationArea = BasicMX;

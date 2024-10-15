@@ -1,4 +1,4 @@
-codeunit 10096 "Export EFT (Cecoban)"
+﻿codeunit 10096 "Export EFT (Cecoban)"
 {
 
     trigger OnRun()
@@ -95,6 +95,7 @@ codeunit 10096 "Export EFT (Cecoban)"
         ACHCecobanHeader."Future Cecoban Use" := ' ';
         ACHCecobanHeader."Future Bank Use" := ' ';
         ACHCecobanHeader."Currency Code" := '01';
+        OnStartExportBatchOnBeforeACHCecobanHeaderModify(ACHCecobanHeader);
         ACHCecobanHeader.Modify();
     end;
 
@@ -315,6 +316,11 @@ codeunit 10096 "Export EFT (Cecoban)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeACHCecobanDetailModify(var ACHCecobanDetail: Record "ACH Cecoban Detail"; var TempEFTExportWorkset: Record "EFT Export Workset" temporary; BankAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportBatchOnBeforeACHCecobanHeaderModify(var ACHCecobanHeader: Record "ACH Cecoban Header")
     begin
     end;
 }

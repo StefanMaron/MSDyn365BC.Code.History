@@ -109,6 +109,8 @@ codeunit 7320 "Whse. Undo Quantity"
     end;
 
     procedure FindPostedWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; UndoType: Integer; UndoID: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer) Ok: Boolean
+    var
+        WhseManagement: Codeunit "Whse. Management";
     begin
         if not PostedWhseRcptLine.ReadPermission then
             exit;
@@ -122,7 +124,7 @@ codeunit 7320 "Whse. Undo Quantity"
                 else
                     exit;
             end;
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+            WhseManagement.SetSourceFilterForPostedWhseRcptLine(PostedWhseRcptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             SetRange("Posted Source No.", UndoID);
             OnFindPostedWhseRcptLineOnAfterSetFilters(PostedWhseRcptLine);
             if FindFirst then begin
@@ -136,6 +138,7 @@ codeunit 7320 "Whse. Undo Quantity"
     procedure FindPostedWhseShptLine(var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; UndoType: Integer; UndoID: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer) Ok: Boolean
     var
         PostedWhseShptLine2: Record "Posted Whse. Shipment Line";
+        WhseManagement: Codeunit "Whse. Management";
     begin
         if not PostedWhseShptLine.ReadPermission then
             exit;
@@ -150,7 +153,7 @@ codeunit 7320 "Whse. Undo Quantity"
                 else
                     exit;
             end;
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+            WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             SetRange("Posted Source No.", UndoID);
             OnFindPostedWhseShptLineOnAfterSetFilters(PostedWhseShptLine);
             if FindFirst then begin

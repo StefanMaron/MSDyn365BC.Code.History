@@ -102,6 +102,7 @@ codeunit 7201 "CDS Integration Impl."
         OwnerDiffersFromExpectedTxt: Label 'Owner differs from the expected one.', Locked = true;
         SynchronizeCompanyTxt: Label 'Synchronize company entity.', Locked = true;
         CompanySynchronizedTxt: Label 'Company has been synchronized.', Locked = true;
+        PreviousIntegrationUserRolesAddedTxt: Label 'Previous integration user security roles added to current integration user.', Locked = true;
         RoleAssignedToTeamTxt: Label 'Role is assigned to team.', Locked = true;
         RoleAssignedToUserTxt: Label 'Role is assigned to user.', Locked = true;
         UserAddedToTeamTxt: Label 'User is added to team.', Locked = true;
@@ -1148,17 +1149,17 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [NonDebuggable]
-    local procedure GetTempAdminConnectionSetup(var TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary; var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUser: Text; AdminPassword: Text; AccessToken: Text)
-        ConnectionString: Text[2048];
+    local procedure GetTempAdminConnectionSetup(var TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary; var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUser: Text; AdminPassword: Text; AccessToken: Text);
     begin
         TempAdminCDSConnectionSetup.Init();
         TempAdminCDSConnectionSetup."Proxy Version" := CDSConnectionSetup."Proxy Version";
         TempAdminCDSConnectionSetup."Server Address" := CDSConnectionSetup."Server Address";
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
-            ConnectionString :=
-                StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
-            SetConnectionString(TempAdminCDSConnectionSetup, ConnectionString);
-        end else begin
+            TempAdminCDSConnectionSetup.SetAccessToken(AccessToken);
+            SetConnectionString(TempAdminCDSConnectionSetup, OAuthConnectionStringFormatTok);
+        end;
+
+        if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
             UpdateConnectionString(TempAdminCDSConnectionSetup);
@@ -1841,7 +1842,7 @@ codeunit 7201 "CDS Integration Impl."
         // in this case, the connection string contains the URL and access token, so just use the connection string
         if CDSConnectionSetup.IsTemporary() then
             if CDSConnectionSetup."User Name" = '' then begin
-                ConnectionStringWithAccessToken := CDSConnectionSetup."Connection String";
+                ConnectionStringWithAccessToken := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", CDSConnectionSetup.GetAccessToken(), CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
                 exit(ConnectionStringWithAccessToken);
             end;
 
@@ -2053,6 +2054,97 @@ codeunit 7201 "CDS Integration Impl."
     begin
         UserId := CrmHelper.GetUserId(UserName);
     end;
+
+    [NonDebuggable]
+    local procedure AssignPreviousIntegrationUserRoles(var CrmHelper: DotNet CrmHelper; var CDSConnectionSetup: Record "CDS Connection Setup"; AccessToken: Text)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        Company: Record Company;
+        TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        CRMSystemUserRoles: Record "CRM Systemuserroles";
+        RootCRMBusinessunit: Record "CRM Businessunit";
+        DefaultCRMBusinessunit: Record "CRM Businessunit";
+        DefaultCRMTeam: Record "CRM Team";
+        CRMRole: Record "CRM Role";
+        PreviousIntegrationUserRole: Record "CRM Role";
+        TeamName: Text[160];
+        CompanyId: Text[36];
+        CompanyName: Text[30];
+        BusinessUnitName: Text[160];
+        TempConnectionName: Text;
+        PreviousIntegrationUserId: Guid;
+        CurrentIntegrationUserId: Guid;
+        EmptyGuid: Guid;
+    begin
+        if not CRMConnectionSetup.Get() then
+            exit;
+
+        if CRMConnectionSetup."User Name" = '' then
+            exit;
+
+        if CRMConnectionSetup."User Name" = CDSConnectionSetup."User Name" then
+            exit;
+
+        if not TryGetUserId(CrmHelper, CRMConnectionSetup."User Name", PreviousIntegrationUserId) then begin
+            SendTraceTag('0000D4A', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            exit;
+        end;
+
+        if not TryGetUserId(CrmHelper, CDSConnectionSetup."User Name", CurrentIntegrationUserId) then begin
+            SendTraceTag('0000D4B', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            exit;
+        end;
+
+        ResetCache();
+
+        Company.Get(CompanyName());
+        CompanyId := GetCompanyExternalId(Company);
+        CompanyName := CopyStr(Company.Name, 1, MaxStrLen(CompanyName));
+        BusinessUnitName := GetDefaultBusinessUnitName(CompanyName, CompanyId);
+
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, '', '', AccessToken);
+        TempConnectionName := GetTempConnectionName();
+        RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
+        SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
+
+        // Table connection is scoped, therefore all manipulations with CDS tables must be placed
+        // in this procedure between SetDefaultTableConnection and UnregisterConnection
+
+        RootCRMBusinessunit.SetRange(ParentBusinessUnitId, EmptyGuid);
+        RootCRMBusinessunit.FindFirst();
+        DefaultCRMBusinessunit.SetRange(ParentBusinessUnitId, RootCRMBusinessunit.BusinessUnitId);
+        DefaultCRMBusinessunit.SetRange(Name, BusinessUnitName);
+        if not DefaultCRMBusinessunit.FindFirst() then
+            exit;
+        TeamName := GetOwningTeamName(DefaultCRMBusinessunit.Name);
+        FilterTeam(DefaultCRMBusinessunit.BusinessUnitId, TeamName, DefaultCRMTeam);
+        if not DefaultCRMTeam.FindFirst() then
+            exit;
+
+        // assign the roles of the previous integration user to the current (newly set up) integration user and to the default owning team
+        // if one of those roles is System Administrator, ignore it
+        CRMSystemUserRoles.SetRange(SystemUserId, PreviousIntegrationUserId);
+        if CRMSystemUserRoles.FindSet() then
+            repeat
+                if PreviousIntegrationUserRole.Get(CRMSystemUserRoles.RoleId) then
+                    if PreviousIntegrationUserRole.RoleTemplateId <> GetSystemAdminRoleTemplateId() then begin
+                        if not TryAssignUserRole(CrmHelper, CurrentIntegrationUserId, CRMSystemUserRoles.RoleId) then
+                            SendTraceTag('0000D4C', CategoryTok, VERBOSITY::Warning, CannotAssignRoleToUserTxt, DataClassification::SystemMetadata);
+
+                        CRMRole.SetRange(ParentRoleId, CRMSystemUserRoles.RoleId);
+                        CRMRole.SetRange(BusinessUnitId, DefaultCRMBusinessunit.BusinessUnitId);
+                        if not CRMRole.FindFirst() then
+                            SendTraceTag('0000D4D', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata)
+                        else
+                            if not AssignTeamRole(CrmHelper, DefaultCRMTeam.TeamId, CRMRole.RoleId) then
+                                SendTraceTag('0000D4E', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata)
+                    end;
+            until CRMSystemUserRoles.Next() = 0;
+
+        UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
+        SendTraceTag('0000D4F', CategoryTok, VERBOSITY::Normal, PreviousIntegrationUserRolesAddedTxt, DataClassification::SystemMetadata);
+    end;
+
 
     [Scope('OnPrem')]
     procedure AssignIntegrationRole(var CrmHelper: DotNet CrmHelper; UserName: Text)
@@ -2319,6 +2411,7 @@ codeunit 7201 "CDS Integration Impl."
         end;
 
         SyncCompany(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        AssignPreviousIntegrationUserRoles(CrmHelper, CDSConnectionSetup, AccessToken);
 
         SendTraceTag('0000AU5', CategoryTok, VERBOSITY::Normal, SolutionConfiguredTxt, DataClassification::SystemMetadata);
     end;

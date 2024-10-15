@@ -1454,7 +1454,7 @@
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount");
-                                OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, SalesLine, SalesHeader);
+                                OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, SalesLine, SalesHeader, Amount);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -1581,7 +1581,7 @@
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (PurchLine."Line Amount" - PurchLine."Inv. Discount Amount");
-                                OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, PurchLine, PurchHeader);
+                                OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxLine, PurchLine, PurchHeader, Amount);
                                 if "Tax Difference" <> 0 then
                                     TaxAmount := Amount * "Tax Amount" / "Tax Base Amount"
                                 else
@@ -2265,7 +2265,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    local procedure OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; var Amount: Decimal)
     begin
     end;
 
@@ -2290,7 +2290,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var Amount: Decimal)
     begin
     end;
 

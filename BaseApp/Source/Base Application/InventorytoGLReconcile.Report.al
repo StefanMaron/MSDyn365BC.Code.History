@@ -10,6 +10,7 @@ report 10138 "Inventory to G/L Reconcile"
     {
         dataitem(Item; Item)
         {
+            DataItemTableView = WHERE(Type = CONST(Inventory));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Inventory Posting Group", "Costing Method", "Location Filter", "Variant Filter";
             column(CompanyInformation_Name; CompanyInformation.Name)

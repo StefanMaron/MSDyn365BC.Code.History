@@ -290,10 +290,11 @@
             Modify;
         end;
 
-        OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(SalesHeader, SalesInvHeader, SalesCrMemoHeader, GenJnlPostLine);
+        OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(SalesHeader, SalesInvHeader, SalesCrMemoHeader, GenJnlPostLine, PreviewMode);
 
         if PreviewMode then begin
             Window.Close;
+            OnBeforeThrowPreviewError(SalesHeader);
             GenJnlPostPreview.ThrowError;
         end;
 
@@ -455,10 +456,7 @@
             if SalesLine.Find('-') then
                 repeat
                     if PrepmtAmount(SalesLine, DocumentType, "Prepmt. Include Tax") <> 0 then begin
-                        if SalesLine.Quantity < 0 then
-                            SalesLine.FieldError(Quantity, StrSubstNo(Text018, FieldCaption("Prepayment %")));
-                        if SalesLine."Unit Price" < 0 then
-                            SalesLine.FieldError("Unit Price", StrSubstNo(Text018, FieldCaption("Prepayment %")));
+                        CheckSalesLineIsNegative(SalesHeader, SalesLine);
 
                         FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                         if UpdateLines then
@@ -1606,6 +1604,21 @@
         PreviewMode := NewPreviewMode;
     end;
 
+    local procedure CheckSalesLineIsNegative(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLineIsNegative(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesLine.Quantity < 0 then
+            SalesLine.FieldError(Quantity, StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
+        if SalesLine."Unit Price" < 0 then
+            SalesLine.FieldError("Unit Price", StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyFilter(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; DocumentType: Option)
     begin
@@ -1647,7 +1660,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
     begin
     end;
 
@@ -1788,6 +1801,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeSalesLineModify(SalesHeader: Record "Sales Header"; VAR SalesLine: Record "Sales Line"; VAR TempVATAmountLineRemainder: Record "VAT Amount Line"; NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeThrowPreviewError(SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLineIsNegative(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

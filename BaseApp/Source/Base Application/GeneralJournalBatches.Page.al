@@ -245,7 +245,12 @@ page 251 "General Journal Batches"
     end;
 
     trigger OnOpenPage()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
+        then
+            exit;
         GenJnlManagement.OpenJnlBatch(Rec);
         ShowAllowPaymentExportForPaymentTemplate;
         // Doing this because if user is using web client then filters on REC are being removed

@@ -52,6 +52,7 @@
                 OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Rejected by Current Company"
             else
                 OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Created by Current Company";
+            OnCreateOutboxJnlTransactionOnBeforeOutboxJnlTransactionInsert(OutboxJnlTransaction, TempGenJnlLine);
             OutboxJnlTransaction.Insert();
         end;
         OnInsertICOutboxTransaction(OutboxJnlTransaction);
@@ -855,6 +856,8 @@
             SalesLine."Shortcut Dimension 2 Code" := '';
             SalesLine.Insert(true);
             SalesLine.Validate("Qty. to Assemble to Order");
+            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Reserve = SalesLine.Reserve::Always) then
+                SalesLine.AutoReserve();
 
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
@@ -1361,6 +1364,7 @@
                             if HandledOutboxSalesLine.Find('-') then
                                 repeat
                                     OutboxSalesLine.TransferFields(HandledOutboxSalesLine);
+                                    OnRecreateOutboxTransactionOnBeforeOutboxSalesLineInsert(OutboxSalesLine, HandledOutboxSalesLine);
                                     OutboxSalesLine.Insert();
                                     ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
@@ -1566,6 +1570,7 @@
                                         DimMgt.CopyICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Line", OutboxPurchLine."Transaction Source");
                                     HndlInboxPurchLine.TransferFields(InboxPurchLine);
+                                    OnForwardToOutBoxOnBeforeHndlInboxPurchLineInsert(HndlInboxPurchLine, InboxPurchLine);
                                     HndlInboxPurchLine.Insert();
                                     if ICDocDim.Find('-') then
                                         DimMgt.MoveICDocDimtoICDocDim(
@@ -1807,6 +1812,7 @@
         ICInboxJnlLine."Payment Discount Date" := ICOutboxJnlLine."Payment Discount Date";
         ICInboxJnlLine.Quantity := -ICOutboxJnlLine.Quantity;
         ICInboxJnlLine."Document No." := ICOutboxJnlLine."Document No.";
+        OnOutboxJnlLineToInboxOnBeforeICInboxJnlLineInsert(ICInboxJnlLine, ICOutboxJnlLine);
         ICInboxJnlLine.Insert();
     end;
 
@@ -2646,6 +2652,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxJnlTransactionOnBeforeOutboxJnlTransactionInsert(var OutboxJnlTransaction: Record "IC Outbox Transaction"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxPurchDocTransOnAfterICOutBoxPurchLineInsert(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -2677,6 +2688,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesDocumentOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnForwardToOutBoxOnBeforeHndlInboxPurchLineInsert(var HandledICInboxPurchLine: Record "Handled IC Inbox Purch. Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
     begin
     end;
 
@@ -2737,6 +2753,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateOutboxTransactionOnBeforeOutboxPurchLineInsert(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; HandledICOutboxPurchLine: Record "Handled IC Outbox Purch. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateOutboxTransactionOnBeforeOutboxSalesLineInsert(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; HandledICOutboxSalesLine: Record "Handled IC Outbox Sales Line")
     begin
     end;
 
@@ -2857,6 +2878,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxSalesLineDelete(ICOutboxSalesLine: Record "IC Outbox Sales Line"; HandledICOutboxSalesLine: Record "Handled IC Outbox Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOutboxJnlLineToInboxOnBeforeICInboxJnlLineInsert(var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICOutboxJnlLine: Record "IC Outbox Jnl. Line");
     begin
     end;
 

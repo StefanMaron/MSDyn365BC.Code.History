@@ -316,6 +316,7 @@ report 1320 "Notification Email"
     begin
         Line1 := StrSubstNo(Line1Lbl, ReceipientUser."Full Name");
         Line2 := StrSubstNo(Line2Lbl, CompanyInformation.Name);
+        OnAfterSetReportLinePlaceholders(ReceipientUser, CompanyInformation, Line1, Line2);
     end;
 
     local procedure GetTargetRecRef(RecRef: RecordRef; var TargetRecRefOut: RecordRef)
@@ -460,6 +461,11 @@ report 1320 "Notification Email"
         if User.FindFirst and (User."Full Name" <> '') then
             exit(User."Full Name");
         exit(NotificationUserID);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReportLinePlaceholders(ReceipientUser: Record User; CompanyInformation: Record "Company Information"; var Line1: Text; var Line2: Text)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

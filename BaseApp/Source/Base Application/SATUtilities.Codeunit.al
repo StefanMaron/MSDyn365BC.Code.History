@@ -55,11 +55,13 @@ codeunit 27030 "SAT Utilities"
     var
         Item: Record Item;
     begin
-        if Type = Type::Item then
-            if Item.Get(ItemNumber) then
-                exit(Item."SAT Item Classification");
-        if Type = Type::Resource then
-            exit('01010101'); // Does not exist in the catalog
+        case Type of
+            Type::Item:
+                if Item.Get(ItemNumber) then
+                    exit(Item."SAT Item Classification");
+            Type::Resource, Type::"Fixed Asset":
+                exit('01010101'); // Does not exist in the catalog
+        end;
         exit('');
     end;
 
@@ -94,6 +96,12 @@ codeunit 27030 "SAT Utilities"
         if SATTaxScheme.Get(TaxScheme) then
             exit(SATTaxScheme.Description);
         exit(TaxScheme);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetSATUnitOfMeasureFixedAsset(): Code[10]
+    begin
+        exit('H87');
     end;
 
     [Scope('OnPrem')]

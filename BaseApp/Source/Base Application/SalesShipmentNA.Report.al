@@ -327,6 +327,8 @@ report 10077 "Sales Shipment NA"
                                     CurrReport.Break();
                                 if not AsmHeaderExists then
                                     CurrReport.Break();
+                                if not TempSalesShipmentLineAsm.Get(TempSalesShipmentLine."Document No.", TempSalesShipmentLine."Line No.") then
+                                    CurrReport.Break();
                                 PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
                                 SetRange(Number, 1, PostedAsmLine.Count);
                             end;
