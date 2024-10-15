@@ -635,6 +635,73 @@ codeunit 144719 "ERM Reconciliation Report"
         VerifyCustomerReconciliationAct_298588(DebitTurnover, TotalCreditBalance);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithFullDiscountNoErrorInCustRecon()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerNo: Code[20];
+        SalesInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Line Discount]
+        // [SCENARIO 359745] Sales Invoice with 100% Line discount gets exported in Customer Reconciliation Act with no error
+        Initialize();
+
+        // [GIVEN] Sales Invoice created
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        // [GIVEN] Sales Line created with 100% Line Discount
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", 100);
+        SalesLine.Modify();
+
+        // [GIVEN] Sales Invoice was posted
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [WHEN] Printing report "Customer - Reconciliation Act"
+        PrintCustomerReconciliation(CustomerNo, '', WorkDate);
+
+        // [THEN] Report prints with no error and contains this document
+        LibraryReportValidation.VerifyCellValue(15, 4, StrSubstNo('Invoice %1 Invoice %2', SalesInvoiceNo, SalesHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceWithFullDiscountNoErrorInVendRecon()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        PurchaseInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Line Discount]
+        // [SCENARIO 359745] Purchase Invoice with 100% Line discount gets exported in Vendor Reconciliation Act with no error
+        Initialize();
+
+        // [GIVEN] Purchase Invoice created
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
+
+        // [GIVEN] Purchase Line on this document has 100% Line Discount
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Line Discount %", 100);
+        PurchaseLine.Modify();
+
+        // [GIVEN] Purchase Invoice was posted
+        PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [WHEN] Printing report "Vendor - Reconciliation Act"
+        PrintVendorReconciliation(VendorNo, WorkDate);
+
+        // [THEN] Report prints with no error and contains this document
+        LibraryReportValidation.VerifyCellValue(15, 4, StrSubstNo('Invoice %1 Invoice %2', PurchaseInvoiceNo, PurchaseHeader."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

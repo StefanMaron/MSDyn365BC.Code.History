@@ -124,7 +124,7 @@
         }
         field(26; Quantity; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Entry".Quantity WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Entry".Quantity WHERE("Location Code" = FIELD("Location Code"),
                                                                 "Bin Code" = FIELD("Bin Code"),
                                                                 "Item No." = FIELD("Item No."),
                                                                 "Variant Code" = FIELD("Variant Code"),
@@ -139,7 +139,7 @@
         }
         field(29; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
                                                                                   "Bin Code" = FIELD("Bin Code"),
                                                                                   "Item No." = FIELD("Item No."),
                                                                                   "Variant Code" = FIELD("Variant Code"),
@@ -155,7 +155,7 @@
         }
         field(30; "Neg. Adjmt. Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                 "From Bin Code" = FIELD("Bin Code"),
                                                                                 "Item No." = FIELD("Item No."),
                                                                                 "Variant Code" = FIELD("Variant Code"),
@@ -170,7 +170,7 @@
         }
         field(31; "Put-away Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
                                                                                   "Bin Code" = FIELD("Bin Code"),
                                                                                   "Item No." = FIELD("Item No."),
                                                                                   "Variant Code" = FIELD("Variant Code"),
@@ -185,7 +185,7 @@
         }
         field(32; "Pos. Adjmt. Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                 "To Bin Code" = FIELD("Bin Code"),
                                                                                 "Item No." = FIELD("Item No."),
                                                                                 "Variant Code" = FIELD("Variant Code"),
@@ -221,7 +221,7 @@
         }
         field(50; "Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Entry"."Qty. (Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Entry"."Qty. (Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                      "Bin Code" = FIELD("Bin Code"),
                                                                      "Item No." = FIELD("Item No."),
                                                                      "Variant Code" = FIELD("Variant Code"),
@@ -236,7 +236,7 @@
         }
         field(51; "Pick Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                          "Bin Code" = FIELD("Bin Code"),
                                                                                          "Item No." = FIELD("Item No."),
                                                                                          "Variant Code" = FIELD("Variant Code"),
@@ -252,7 +252,7 @@
         }
         field(52; "Negative Adjmt. Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                       "From Bin Code" = FIELD("Bin Code"),
                                                                                       "Item No." = FIELD("Item No."),
                                                                                       "Variant Code" = FIELD("Variant Code"),
@@ -267,7 +267,7 @@
         }
         field(53; "Put-away Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                          "Bin Code" = FIELD("Bin Code"),
                                                                                          "Item No." = FIELD("Item No."),
                                                                                          "Variant Code" = FIELD("Variant Code"),
@@ -282,7 +282,7 @@
         }
         field(54; "Positive Adjmt. Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                       "To Bin Code" = FIELD("Bin Code"),
                                                                                       "Item No." = FIELD("Item No."),
                                                                                       "Variant Code" = FIELD("Variant Code"),
@@ -297,7 +297,7 @@
         }
         field(55; "ATO Components Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
                                                                                   "Bin Code" = FIELD("Bin Code"),
                                                                                   "Item No." = FIELD("Item No."),
                                                                                   "Variant Code" = FIELD("Variant Code"),
@@ -314,7 +314,7 @@
         }
         field(56; "ATO Components Pick Qty (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
                                                                                          "Bin Code" = FIELD("Bin Code"),
                                                                                          "Item No." = FIELD("Item No."),
                                                                                          "Variant Code" = FIELD("Variant Code"),
@@ -885,8 +885,15 @@
         exit(true);
     end;
 
-    procedure CheckWhseClass(IgnoreError: Boolean): Boolean
+    procedure CheckWhseClass(IgnoreError: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWhseClass(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetItem("Item No.");
         if IgnoreError then
             exit("Warehouse Class Code" = Item."Warehouse Class Code");
@@ -1386,6 +1393,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseClass(var BinContent: Record "Bin Content"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetWhseLocation(LocationCode: Code[10]; ZoneCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -1421,7 +1433,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckDecreaseBinContentOnAfterCalcTotalQtyAvailToTake(WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyAvailToPickBase: Decimal; var DecreaseQtyBase: Decimal)
+    local procedure OnCheckDecreaseBinContentOnAfterCalcTotalQtyAvailToTake(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyAvailToPickBase: Decimal; var DecreaseQtyBase: Decimal)
     begin
     end;
 

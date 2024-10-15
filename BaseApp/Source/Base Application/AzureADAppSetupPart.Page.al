@@ -59,11 +59,13 @@ page 6301 "Azure AD App Setup Part"
     var
         HomePageUrl: Text;
         RedirectUrl: Text[150];
+        [NonDebuggable]
         SecretKey: Text;
         AppId: Guid;
         InvalidAppIdErr: Label 'Enter valid GUID for Application ID.';
         InvalidClientSecretErr: Label 'Key is required.';
 
+    [NonDebuggable]
     procedure Save()
     begin
         "Redirect URL" := RedirectUrl;
@@ -91,6 +93,7 @@ page 6301 "Azure AD App Setup Part"
         RedirectUrl := AzureADMgt.GetDefaultRedirectUrl;
     end;
 
+    [NonDebuggable]
     procedure SetAppDetails(ApplicationId: Guid; "Key": Text)
     begin
         AppId := ApplicationId;

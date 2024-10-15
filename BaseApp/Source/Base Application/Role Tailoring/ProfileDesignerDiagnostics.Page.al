@@ -67,6 +67,7 @@ page 9197 "Profile Designer Diagnostics"
         Reset();
         DeleteAll();
         ProfileDesignerDiagnostic.SetRange("Import ID", ImportID);
+        ProfileDesignerDiagnosticCounter.SetRange("Import ID", ImportID);
         if ProfileDesignerDiagnostic.FindSet() then
             repeat
                 if ((ProfileDesignerDiagnostic."Profile App ID" <> PreviousAppId) or (ProfileDesignerDiagnostic."Profile ID" <> PreviousProfileId)) then begin

@@ -607,15 +607,15 @@ codeunit 229 "Document-Print"
                 begin
                     CopyOfSalesHeader := SalesHeader;
                     if CorrDocMgt.IsCorrDocument(CopyOfSalesHeader) then
-                        exit(ReportSelections.Usage::"S.Invoice Draft");
+                        exit(ReportSelections.Usage::UCSD);
                     exit(ReportSelections.Usage::USI);
                 end;
             SalesHeader."Document Type"::"Credit Memo":
                 begin
                     CopyOfSalesHeader := SalesHeader;
                     if CorrDocMgt.IsCorrDocument(CopyOfSalesHeader) then
-                        exit(ReportSelections.Usage::"S.Invoice Draft");
-                    exit(ReportSelections.Usage::"S.Invoice Draft");
+                        exit(ReportSelections.Usage::UCSD);
+                    exit(ReportSelections.Usage::USCM);
                 end;
             else begin
                     IsHandled := false;

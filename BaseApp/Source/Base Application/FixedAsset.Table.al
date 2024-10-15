@@ -77,13 +77,11 @@ table 5600 "Fixed Asset"
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin
-                    if FASubclass."FA Class Code" in ['', "FA Class Code"] then
-                        exit;
+                    if not (FASubclass."FA Class Code" in ['', "FA Class Code"]) then
+                        Error(UnexpctedSubclassErr);
+                end else
+                    Validate("FA Class Code", FASubclass."FA Class Code");
 
-                    Error(UnexpctedSubclassErr);
-                end;
-
-                Validate("FA Class Code", FASubclass."FA Class Code");
                 if "FA Posting Group" = '' then
                     Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             end;

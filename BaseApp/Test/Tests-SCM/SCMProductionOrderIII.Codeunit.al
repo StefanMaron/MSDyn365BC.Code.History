@@ -3285,8 +3285,8 @@ codeunit 137079 "SCM Production Order III"
 
         CalendarEntry.Init();
         CalendarEntry."No." := LibraryUtility.GenerateGUID;
-        CalendarEntry."Starting Date-Time" := CreateDateTime(WorkDate, Time);
-        CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+        CalendarEntry."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
+        CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
 
         CalendarEntry.GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
 
@@ -3385,7 +3385,7 @@ codeunit 137079 "SCM Production Order III"
         PlannedProdOrder.Find;
         PlannedProdOrder.TestField("Starting Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         PlannedProductionOrderCard."Starting Time".SetValue(NewTime);
         PlannedProdOrder.Find;
         PlannedProdOrder.TestField("Starting Time", NewTime);
@@ -3395,7 +3395,7 @@ codeunit 137079 "SCM Production Order III"
         PlannedProdOrder.Find;
         PlannedProdOrder.TestField("Ending Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         PlannedProductionOrderCard."Ending Time".SetValue(NewTime);
         PlannedProdOrder.Find;
         PlannedProdOrder.TestField("Ending Time", NewTime);
@@ -3434,7 +3434,7 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrder.Find;
         FirmPlannedProdOrder.TestField("Starting Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         FirmPlannedProdOrderCard."Starting Time".SetValue(NewTime);
         FirmPlannedProdOrder.Find;
         FirmPlannedProdOrder.TestField("Starting Time", NewTime);
@@ -3444,7 +3444,7 @@ codeunit 137079 "SCM Production Order III"
         FirmPlannedProdOrder.Find;
         FirmPlannedProdOrder.TestField("Ending Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         FirmPlannedProdOrderCard."Ending Time".SetValue(NewTime);
         FirmPlannedProdOrder.Find;
         FirmPlannedProdOrder.TestField("Ending Time", NewTime);
@@ -3483,7 +3483,7 @@ codeunit 137079 "SCM Production Order III"
         ReleasedProdOrder.Find;
         ReleasedProdOrder.TestField("Starting Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         ReleasedProductionOrderCard."Starting Time".SetValue(NewTime);
         ReleasedProdOrder.Find;
         ReleasedProdOrder.TestField("Starting Time", NewTime);
@@ -3493,7 +3493,7 @@ codeunit 137079 "SCM Production Order III"
         ReleasedProdOrder.Find;
         ReleasedProdOrder.TestField("Ending Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         ReleasedProductionOrderCard."Ending Time".SetValue(NewTime);
         ReleasedProdOrder.Find;
         ReleasedProdOrder.TestField("Ending Time", NewTime);
@@ -3554,7 +3554,7 @@ codeunit 137079 "SCM Production Order III"
         SimulatedProdOrder.Find;
         SimulatedProdOrder.TestField("Starting Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         SimulatedProductionOrderCard."Starting Time".SetValue(NewTime);
         SimulatedProdOrder.Find;
         SimulatedProdOrder.TestField("Starting Time", NewTime);
@@ -3564,7 +3564,7 @@ codeunit 137079 "SCM Production Order III"
         SimulatedProdOrder.Find;
         SimulatedProdOrder.TestField("Ending Date", NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         SimulatedProductionOrderCard."Ending Time".SetValue(NewTime);
         SimulatedProdOrder.Find;
         SimulatedProdOrder.TestField("Ending Time", NewTime);
@@ -3591,8 +3591,8 @@ codeunit 137079 "SCM Production Order III"
 
         ProdOrderCapacityNeed.Init();
         ProdOrderCapacityNeed."Prod. Order No." := LibraryUtility.GenerateGUID;
-        ProdOrderCapacityNeed."Starting Date-Time" := CreateDateTime(WorkDate, Time);
-        ProdOrderCapacityNeed."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+        ProdOrderCapacityNeed."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
+        ProdOrderCapacityNeed."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
         ProdOrderCapacityNeed.Insert();
 
         ProdOrderCapacityNeedPage.OpenEdit;
@@ -3606,12 +3606,12 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderCapacityNeed.Find;
         ProdOrderCapacityNeed.TestField(Date, NewDate);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         ProdOrderCapacityNeedPage."Starting Time".SetValue(NewTime);
         ProdOrderCapacityNeed.Find;
         ProdOrderCapacityNeed.TestField("Starting Time", NewTime);
 
-        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, 120000T)));
         ProdOrderCapacityNeedPage."Ending Time".SetValue(NewTime);
         ProdOrderCapacityNeed.Find;
         ProdOrderCapacityNeed.TestField("Ending Time", NewTime);
@@ -3635,8 +3635,8 @@ codeunit 137079 "SCM Production Order III"
 
         ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine."Prod. Order No." := LibraryUtility.GenerateGUID;
-        ProdOrderRoutingLine."Starting Date-Time" := CreateDateTime(WorkDate, Time);
-        ProdOrderRoutingLine."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+        ProdOrderRoutingLine."Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
+        ProdOrderRoutingLine."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
 
         ProdOrderRoutingLine.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
 
@@ -4932,8 +4932,8 @@ codeunit 137079 "SCM Production Order III"
             Init;
             Status := ProdOrderStatus;
             "No." := LibraryUtility.GenerateGUID;
-            "Starting Date-Time" := CreateDateTime(WorkDate, Time);
-            "Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+            "Starting Date-Time" := CreateDateTime(WorkDate, 120000T);
+            "Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
             Insert;
         end;
     end;

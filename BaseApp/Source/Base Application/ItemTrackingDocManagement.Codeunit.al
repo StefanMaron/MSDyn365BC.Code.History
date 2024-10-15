@@ -82,7 +82,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry.Reset();
     end;
 
-    local procedure FillTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; LN: Code[50]; SN: Code[50]; CD: Code[30]; Qty: Decimal; Correction: Boolean)
+    local procedure FillTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; LN: Code[50]; SN: Code[50]; CD: Code[30]; Qty: Decimal; Correction: Boolean)
     var
         LastEntryNo: Integer;
     begin
@@ -97,7 +97,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         end else begin
             LastEntryNo += 1;
             InitTrackingSpecBuffer(TempTrackingSpecBuffer, LastEntryNo, Type, Subtype, ID, BatchName,
-              ProdOrderLine, RefNo, Description, ItemNo, LN, SN, Correction, CD);
+              ProdOrderLine, RefNo, Description, ItemNo, VariantCode, LN, SN, Correction, CD);
             TempTrackingSpecBuffer."Quantity (Base)" := Abs(Qty);
             TempTrackingSpecBuffer.Insert();
         end;
@@ -112,7 +112,8 @@ codeunit 6503 "Item Tracking Doc. Management"
                 if TempItemLedgEntry.TrackingExists then begin
                     FillTrackingSpecBuffer(
                         TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description,
-                        TempItemLedgEntry."Item No.", TempItemLedgEntry."Lot No.", TempItemLedgEntry."Serial No.", TempItemLedgEntry."CD No.",
+                        TempItemLedgEntry."Item No.", TempItemLedgEntry."Variant Code",
+                        TempItemLedgEntry."Lot No.", TempItemLedgEntry."Serial No.", TempItemLedgEntry."CD No.",
                         TempItemLedgEntry.Quantity, TempItemLedgEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromItemLedgEntry(TempTrackingSpecBuffer, TempItemLedgEntry);
                 end;
@@ -131,8 +132,9 @@ codeunit 6503 "Item Tracking Doc. Management"
             repeat
                 if ReservEntry.TrackingExists then begin
                     FillTrackingSpecBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
-                      ProdOrderLine, RefNo, Description, ReservEntry."Item No.", ReservEntry."Lot No.",
-                      ReservEntry."Serial No.", ReservEntry."CD No.", ReservEntry."Quantity (Base)", ReservEntry.Correction);
+                      ProdOrderLine, RefNo, Description, ReservEntry."Item No.",
+                      ReservEntry."Variant Code", ReservEntry."Lot No.", ReservEntry."Serial No.",
+                      ReservEntry."CD No.", ReservEntry."Quantity (Base)", ReservEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromReservEntry(TempTrackingSpecBuffer, ReservEntry);
                 end;
             until ReservEntry.Next = 0;
@@ -150,8 +152,9 @@ codeunit 6503 "Item Tracking Doc. Management"
             repeat
                 if TrackingSpec.TrackingExists then begin
                     FillTrackingSpecBuffer(TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
-                      ProdOrderLine, RefNo, Description, TrackingSpec."Item No.", TrackingSpec."Lot No.",
-                      TrackingSpec."Serial No.", TrackingSpec."CD No.", TrackingSpec."Quantity (Base)", TrackingSpec.Correction);
+                      ProdOrderLine, RefNo, Description, TrackingSpec."Item No.",
+                      TrackingSpec."Variant Code", TrackingSpec."Lot No.", TrackingSpec."Serial No.",
+                      TrackingSpec."CD No.", TrackingSpec."Quantity (Base)", TrackingSpec.Correction);
                     OnAfterFillTrackingSpecBufferFromTrackingEntries(TempTrackingSpecBuffer, TrackingSpec);
                 end;
             until TrackingSpec.Next = 0;
@@ -183,7 +186,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer.Reset();
     end;
 
-    local procedure InitTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; EntryNo: Integer; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; LN: Code[50]; SN: Code[50]; Correction: Boolean; CD: Code[30])
+    local procedure InitTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; EntryNo: Integer; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; VariantCode: Code[10]; LN: Code[50]; SN: Code[50]; Correction: Boolean; CD: Code[30])
     begin
         // initializes a new record for TempTrackingSpecBuffer
 
@@ -191,6 +194,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer."Source Type" := Type;
         TempTrackingSpecBuffer."Entry No." := EntryNo;
         TempTrackingSpecBuffer."Item No." := ItemNo;
+        TempTrackingSpecBuffer."Variant Code" := VariantCode;
         TempTrackingSpecBuffer.Description := Description;
         TempTrackingSpecBuffer."Source Subtype" := Subtype;
         TempTrackingSpecBuffer."Source ID" := ID;

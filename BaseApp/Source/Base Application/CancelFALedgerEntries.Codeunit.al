@@ -129,7 +129,10 @@ codeunit 5624 "Cancel FA Ledger Entries"
             "Dimension Set ID" := FALedgEntry."Dimension Set ID";
             "FA Error Entry No." := FALedgEntry."Entry No.";
             Quantity := -Quantity;
-            Validate(Amount, -Amount);
+            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
+                Validate(Amount, Amount)
+            else
+                Validate(Amount, -Amount);
             Validate(Correction, DeprBook."Mark Errors as Corrections");
             "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             "Line No." := "Line No." + 10000;

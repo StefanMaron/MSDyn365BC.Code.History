@@ -552,7 +552,13 @@
     local procedure CheckValidity(var ReservEntry: Record "Reservation Entry")
     var
         IsError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckValidity(ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation then
             exit;
 
@@ -980,6 +986,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferReservEntry(NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckValidity(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean);
     begin
     end;
 

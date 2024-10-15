@@ -39,7 +39,7 @@ codeunit 5330 "CRM Integration Management"
         CRMProductName: Codeunit "CRM Product Name";
         CRMIntegrationEnabledState: Option " ","Not Enabled",Enabled,"Enabled But Not For Current User";
         CDSIntegrationEnabledState: Option " ","Not Enabled",Enabled,"Enabled But Not For Current User";
-        NotEnabledForCurrentUserMsg: Label '%3 Integration is enabled.\However, because the %2 Users Must Map to %3 Users field is set, %3 integration is not enabled for %1.', Comment = '%1 = Current User Id %2 - product name, %3 = CRM product name';
+        NotEnabledForCurrentUserMsg: Label '%3 Integration is enabled.\However, because the %2 Users Must Map to %4 Users field is set, %3 integration is not enabled for %1.', Comment = '%1 = Current User Id %2 - product name, %3 = CRM product name, %4 = CDS service name';
         CRMIntegrationEnabledLastError: Text;
         ImportSolutionConnectStringTok: Label '%1api%2/XRMServices/2011/Organization.svc', Locked = true;
         UserDoesNotExistCRMErr: Label 'There is no user with email address %1 in %2. Enter a valid email address.', Comment = '%1 = User email address, %2 = CRM product name';
@@ -54,7 +54,7 @@ codeunit 5330 "CRM Integration Management"
         ReplaceServerAddressQst: Label 'The URL is not valid. Do you want to replace it with the URL suggested below?\\Entered URL: "%1".\Suggested URL: "%2".', Comment = '%1 and %2 are URLs';
         CRMConnectionURLWrongErr: Label 'The URL is incorrect. Enter the URL for the %1 connection.', Comment = '%1 = CRM product name';
         NoOf: Option ,Scheduled,Failed,Skipped,Total;
-        CRMConnSetupWizardQst: Label 'Do you want to open the %1 Connection assisted setup wizard?', Comment = '%1 = CRM product name';
+        NotEnabledMsg: Label 'To perform this action you must be connected to %1. You can set up the connection to %1 from the %2 page.', Comment = '%1 = CDS service name, %2 = Assisted Setup page caption.';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         OAuthConnectionStringFormatTok: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
         CRMDisabledErrorReasonNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2072';
@@ -357,6 +357,8 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     procedure CheckOrEnableCRMConnection()
+    var
+        AssistedSetup: Page "Assisted Setup";
     begin
         if IsCDSIntegrationEnabled() then
             exit;
@@ -367,11 +369,11 @@ codeunit 5330 "CRM Integration Management"
         if CRMIntegrationEnabledLastError <> '' then
             Error(CRMIntegrationEnabledLastError);
 
-        if CRMIntegrationEnabledState = CRMIntegrationEnabledState::"Enabled But Not For Current User" then
-            Message(NotEnabledForCurrentUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT)
-        else
-            if Confirm(CRMConnSetupWizardQst, true, CRMProductName.SHORT) then
-                PAGE.Run(PAGE::"CRM Connection Setup Wizard");
+        if GuiAllowed then
+            if CRMIntegrationEnabledState = CRMIntegrationEnabledState::"Enabled But Not For Current User" then
+                Message(NotEnabledForCurrentUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT(), CRMProductName.CDSServiceName())
+            else
+                Message(NotEnabledMsg, CRMProductName.CDSServiceName(), AssistedSetup.Caption());
 
         Error('');
     end;

@@ -1,4 +1,4 @@
-codeunit 7301 "Whse. Jnl.-Register Line"
+﻿codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -505,7 +505,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateBinEmpty(WarehouseEntry: Record "Warehouse Entry"; Bin: Record Bin; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateBinEmpty(WarehouseEntry: Record "Warehouse Entry"; var Bin: Record Bin; var IsHandled: Boolean)
     begin
     end;
 

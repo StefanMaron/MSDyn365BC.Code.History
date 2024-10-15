@@ -177,6 +177,7 @@ report 1001 "Inventory Valuation"
             trigger OnAfterGetRecord()
             var
                 SkipItem: Boolean;
+                IsHandled: Boolean;
             begin
                 SkipItem := false;
                 OnBeforeOnAfterItemGetRecord(Item, SkipItem);
@@ -269,8 +270,11 @@ report 1001 "Inventory Valuation"
                 DecreaseExpectedValue += DecreaseInvoicedValue;
                 CostPostedToGL := ExpCostPostedToGL + InvCostPostedToGL;
 
-                if IsEmptyLine then
-                    CurrReport.Skip();
+                IsHandled := false;
+                OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled);
+                if not IsHandled then
+                    if IsEmptyLine then
+                        CurrReport.Skip();
             end;
         }
     }
@@ -438,6 +442,11 @@ report 1001 "Inventory Valuation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnAfterItemGetRecord(var Item: Record Item; var SkipItem: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; StartingInvoicedQty: Decimal; IncreaseInvoicedQty: Decimal; DecreaseInvoicedQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

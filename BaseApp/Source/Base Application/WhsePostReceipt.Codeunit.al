@@ -7,7 +7,7 @@
 
     trigger OnRun()
     begin
-        OnBeforeRun(Rec);
+        OnBeforeRun(Rec, SuppressCommit);
 
         WhseRcptLine.Copy(Rec);
         Code;
@@ -865,7 +865,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnBeforeRun(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var SuppressCommit: Boolean)
     begin
     end;
 

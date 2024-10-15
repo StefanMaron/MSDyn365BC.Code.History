@@ -28,6 +28,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         TmpMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
         FAReg: Record "FA Register";
         FAJnlLine: Record "FA Journal Line";
+        TempFALedgerEntryReverse: Record "FA Ledger Entry" temporary;	
         FALedgEntryDeprTransfer: Record "FA Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
@@ -175,6 +176,11 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
 
         FALedgEntry.Insert(true);
+        if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then begin
+            TempFALedgerEntryReverse := FALedgEntry;
+            TempFALedgerEntryReverse.Insert();
+            ReverseFALedgerEntryAmounts(FALedgEntry);
+        end;
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
@@ -280,15 +286,7 @@ codeunit 5600 "FA Insert Ledger Entry"
     local procedure SetFAPostingType(var FALedgEntry: Record "FA Ledger Entry")
     begin
         with FALedgEntry do begin
-            if (Amount > 0) and not Correction or
-               (Amount < 0) and Correction
-            then begin
-                "Debit Amount" := Amount;
-                "Credit Amount" := 0
-            end else begin
-                "Debit Amount" := 0;
-                "Credit Amount" := -Amount;
-            end;
+            UpdateDebitCredit(FALedgEntry);
             "Part of Book Value" := false;
             "Part of Depreciable Basis" := false;
             if "FA Posting Category" <> "FA Posting Category"::" " then
@@ -456,7 +454,13 @@ codeunit 5600 "FA Insert Ledger Entry"
     local procedure CheckFADocNo(FALedgEntry: Record "FA Ledger Entry")
     var
         OldFALedgEntry: Record "FA Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckFADocNo(FALedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         OldFALedgEntry.SetCurrentKey(
           "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Document No.");
         OldFALedgEntry.SetRange("FA No.", FALedgEntry."FA No.");
@@ -511,6 +515,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 Clear(AccNo);
                 TableID[1] := DATABASE::"Fixed Asset";
                 AccNo[1] := FALedgEntry3."FA No.";
+                OnInsertReverseEntryOnNonSalvageValueFAPostingTypeOnBeforeCheckDimValuePosting(TableID, AccNo, FALedgEntry3);
                 if not DimMgt.CheckDimValuePosting(TableID, AccNo, FALedgEntry3."Dimension Set ID") then
                     Error(DimMgt.GetDimValuePostingErr);
                 if NextEntryNo = 0 then begin
@@ -626,6 +631,20 @@ codeunit 5600 "FA Insert Ledger Entry"
         if RegisterInserted then begin
             FAReg."G/L Register No." := GLReg."No.";
             FAReg.Modify();
+        end;
+    end;
+
+    procedure FinalizeInsertFA()
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+    begin
+        if TempFALedgerEntryReverse.FindSet() then begin
+            repeat
+                FALedgerEntry.Get(TempFALedgerEntryReverse."Entry No.");
+                ReverseFALedgerEntryAmounts(FALedgerEntry);
+                FALedgerEntry.Modify();
+            until TempFALedgerEntryReverse.Next() = 0;
+            TempFALedgerEntryReverse.DeleteAll();
         end;
     end;
 
@@ -1076,6 +1095,27 @@ codeunit 5600 "FA Insert Ledger Entry"
         GLRegisterNo := NewGLRegisterNo;
     end;
 
+    procedure ReverseFALedgerEntryAmounts(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+        FALedgerEntry.Amount := -FALedgerEntry.Amount;
+        FALedgerEntry."Amount (LCY)" := -FALedgerEntry."Amount (LCY)";
+        UpdateDebitCredit(FALedgerEntry);
+    end;
+
+    local procedure UpdateDebitCredit(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+        with FALedgerEntry do
+            if (Amount > 0) and not Correction or
+               (Amount < 0) and Correction
+            then begin
+                "Debit Amount" := Amount;
+                "Credit Amount" := 0
+            end else begin
+                "Debit Amount" := 0;
+                "Credit Amount" := -Amount;
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFA(var FALedgerEntry: Record "FA Ledger Entry")
     begin
@@ -1088,6 +1128,16 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertReverseEntryOnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnNonSalvageValueFAPostingTypeOnBeforeCheckDimValuePosting(var TableID: array[10] of Integer; var AccNo: array[10] of Code[20]; var FALedgEntry3: Record "FA Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFADocNo(FALedgEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
