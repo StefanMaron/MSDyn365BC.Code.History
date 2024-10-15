@@ -30,8 +30,10 @@ codeunit 1405 "Purch. Inv. Header - Edit"
 
     local procedure UpdateSIIDocUploadState(PurchInvHeader: Record "Purch. Inv. Header")
     var
+        xSIIDocUploadState: Record "SII Doc. Upload State";
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIManagement: Codeunit "SII Management";
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
         if not SIIManagement.IsSIISetupEnabled then
             exit;
@@ -44,8 +46,10 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         then
             exit;
 
+        xSIIDocUploadState := SIIDocUploadState;
         SIIDocUploadState."Purch. Invoice Type" := PurchInvHeader."Invoice Type" + 1;
         SIIDocUploadState."Purch. Special Scheme Code" := PurchInvHeader."Special Scheme Code" + 1;
+        SIISchemeCodeMgt.ValidatePurchSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState.IDType := PurchInvHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchInvHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchInvHeader."Succeeded VAT Registration No.";
