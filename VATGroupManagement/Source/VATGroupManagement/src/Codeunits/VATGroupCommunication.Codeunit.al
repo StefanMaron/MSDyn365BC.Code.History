@@ -3,13 +3,18 @@ codeunit 4700 "VAT Group Communication"
     var
         VATReportSetup: Record "VAT Report Setup";
         AuthFlow: DotNet ALAzureAdCodeGrantFlow;
-        NoVATSetupErr: Label 'The VAT Report Setup could not be found';
+        NoVATSetupErr: Label 'The VAT Report Setup could not be found.';
         BearerTokenFromCacheErr: Label 'The Bearer token could not be retrieved from cache. Please refresh the VAT Group bearer token by logging in the %1 page', Comment = '%1 the caption of a page.';
-        OAuthFailedNoErr: label 'Authorization has failed with an unexpected error!';
+        OAuthFailedNoErr: label 'Authorization has failed with an unexpected error.';
         OAuthFailedErr: Label 'Authorization has failed with the error %1', Comment = '%1 is the error description.';
         URLAppendixCompanyLbl: Label '/api/microsoft/vatgroup/v1.0/companies(name=''%1'')', Locked = true;
         URLAppendixLbl: Label '/api/microsoft/vatgroup/v1.0', Locked = true;
+        URLAppendixCompany2018Lbl: Label '/api/v1.0/companies(name=''%1'')', Locked = true;
+        URLAppendix2018Lbl: Label '/api/v1.0', Locked = true;
+        URLAppendixCompany2017Lbl: Label '/OData/Company(''%1'')', Locked = true;
+        URLAppendix2017Lbl: Label '/OData', Locked = true;
         VATGroupSubmissionStatusEndpointTxt: Label '/vatGroupSubmissionStatus?$filter=no eq ''%1'' and groupMemberId eq %2&$select=no,status', Locked = true;
+        VATGroupSubmissionStatusEndpoint2017Txt: Label '/vatGroupSubmissionStatus?$filter=no eq ''%1'' and groupMemberId eq (guid''%2'')&$select=no,status&$format=json', Locked = true;
         InvalidSyntaxErr: Label 'Bad Request: the server could not understand the request due to invalid syntax.'; // 400
         UnauthorizedErr: Label 'Unauthorized: authentication credentials are not valid.'; // 401
         ForbiddenErr: Label 'Forbidden: missing permissions to access the requested resource.'; // 403
@@ -28,39 +33,39 @@ codeunit 4700 "VAT Group Communication"
         Oauth2CategoryLbl: Label 'OAuth2', Locked = true;
         RedirectUrlTxt: Label 'The defined redirectURL is: %1', Comment = '%1 = The redirect URL', Locked = true;
         RedirectURLMissingErr: Label 'The redirect URL is missing, the OAuth2 token cannot be retrieved. Please fill in the Redirect URL and try again.';
+        VATReportSetupIsLoaded: Boolean;
 
     [TryFunction]
     internal procedure Send(Method: Text; Endpoint: Text; Content: Text; var HttpResponseBodyText: Text; IsBatch: Boolean)
     var
         HttpClient: HttpClient;
-        HttpRequest: HttpRequestMessage;
-        HttpResponse: HttpResponseMessage;
+        HttpRequestMessage: HttpRequestMessage;
+        HttpResponseMessage: HttpResponseMessage;
     begin
-        if not VATReportSetup.Get() then
-            Error(NoVATSetupErr);
+        CheckLoadVATReportSetup();
 
-        HttpRequest.Method(Method);
+        HttpRequestMessage.Method(Method);
         if IsBatch then
-            HttpRequest.SetRequestUri(PrepareBatchURI(Endpoint))
+            HttpRequestMessage.SetRequestUri(PrepareBatchURI(Endpoint))
         else
-            HttpRequest.SetRequestUri(PrepareURI(Endpoint));
-        PrepareHeaders(HttpRequest, IsBatch);
-        PrepareContent(HttpRequest, Content);
+            HttpRequestMessage.SetRequestUri(PrepareURI(Endpoint));
+        PrepareHeaders(HttpRequestMessage, IsBatch);
+        PrepareContent(HttpRequestMessage, Content);
 
         if VATReportSetup."Authentication Type" = VATReportSetup."Authentication Type"::WindowsAuthentication then
             HttpClient.UseDefaultNetworkWindowsAuthentication();
 
-        HttpClient.Send(HttpRequest, HttpResponse);
-        HttpResponse.Content().ReadAs(HttpResponseBodyText);
-        HandleHttpResponse(HttpResponse);
+        HttpClient.Send(HttpRequestMessage, HttpResponseMessage);
+        HttpResponseMessage.Content().ReadAs(HttpResponseBodyText);
+        HandleHttpResponse(HttpResponseMessage);
     end;
 
-    local procedure HandleHttpResponse(HttpResponse: HttpResponseMessage)
+    local procedure HandleHttpResponse(HttpResponseMessage: HttpResponseMessage)
     var
         FriendlyErrorMsg: Text;
         ErrorMsg: Text;
     begin
-        case Format(HttpResponse.HttpStatusCode()) of
+        case Format(HttpResponseMessage.HttpStatusCode()) of
             '200':
                 begin
                     SendTraceTag('0000D7D', VATGroupTok, VERBOSITY::Normal, HttpSuccessMsg, DATACLASSIFICATION::SystemMetadata);
@@ -87,8 +92,8 @@ codeunit 4700 "VAT Group Communication"
                 FriendlyErrorMsg := GeneralHttpErr;
         end;
 
-        HttpResponse.Content().ReadAs(ErrorMsg);
-        SendTraceTag('0000D7E', VATGroupTok, VERBOSITY::Error, StrSubstNo(HttpErrorMsg, HttpResponse.HttpStatusCode(), ErrorMsg), DATACLASSIFICATION::SystemMetadata);
+        HttpResponseMessage.Content().ReadAs(ErrorMsg);
+        SendTraceTag('0000D7E', VATGroupTok, VERBOSITY::Error, StrSubstNo(HttpErrorMsg, HttpResponseMessage.HttpStatusCode(), ErrorMsg), DATACLASSIFICATION::SystemMetadata);
         Error(FriendlyErrorMsg);
     end;
 
@@ -97,7 +102,6 @@ codeunit 4700 "VAT Group Communication"
     internal procedure GetBearerToken(ClientId: Text; ClientSecret: Text; AuthorityURL: Text; RedirectURL: Text; ResourceURL: Text)
     var
         BearerToken: Text;
-        AuthError: Text;
         AuthCode: Text;
         AuthCodeErr: Text;
         AuthRequestUrl: Text;
@@ -114,10 +118,10 @@ codeunit 4700 "VAT Group Communication"
             exit;
         end;
 
-        if AuthError = '' then
+        if AuthCodeErr = '' then
             Error(OAuthFailedNoErr)
         else
-            Error((StrSubstNo(OAuthFailedErr, AuthError)));
+            Error((StrSubstNo(OAuthFailedErr, AuthCodeErr)));
     end;
 
     [NonDebuggable]
@@ -166,8 +170,7 @@ codeunit 4700 "VAT Group Communication"
         VATReportSetupPage: Page "VAT Report Setup";
         BearerToken: Text;
     begin
-        if not VATReportSetup.Get() then
-            Error(NoVATSetupErr);
+        CheckLoadVATReportSetup();
 
         InitializeAuthFlow(VATReportSetup."Redirect URL");
         BearerToken := AuthFlow.ALAcquireTokenFromCacheWithCredentials(VATReportSetup.GetSecret(VATReportSetup."Client ID Key"),
@@ -181,13 +184,13 @@ codeunit 4700 "VAT Group Communication"
     end;
 
     [NonDebuggable]
-    local procedure PrepareHeaders(HttpRequest: HttpRequestMessage; IsBatch: Boolean)
+    local procedure PrepareHeaders(HttpRequestMessage: HttpRequestMessage; IsBatch: Boolean)
     var
         Base64Convert: Codeunit "Base64 Convert";
         HttpRequestHeaders: HttpHeaders;
         Base64AuthHeader: Text;
     begin
-        HttpRequest.GetHeaders(HttpRequestHeaders);
+        HttpRequestMessage.GetHeaders(HttpRequestHeaders);
 
         HttpRequestHeaders.Add('Accept', 'application/json');
 
@@ -203,7 +206,7 @@ codeunit 4700 "VAT Group Communication"
             HttpRequestHeaders.Add('Prefer', 'odata.continue-on-error');
     end;
 
-    local procedure PrepareContent(HttpRequest: HttpRequestMessage; Content: Text)
+    local procedure PrepareContent(HttpRequestMessage: HttpRequestMessage; Content: Text)
     var
         HttpContent: HttpContent;
         HttpContentHeaders: HttpHeaders;
@@ -215,7 +218,7 @@ codeunit 4700 "VAT Group Communication"
         HttpContent.WriteFrom(Content);
         HttpContentHeaders.Remove('Content-Type');
         HttpContentHeaders.Add('Content-Type', 'application/json');
-        HttpRequest.Content(HttpContent);
+        HttpRequestMessage.Content(HttpContent);
     end;
 
     [NonDebuggable]
@@ -267,26 +270,53 @@ codeunit 4700 "VAT Group Communication"
         AuthCodeErr := VATGroupAccessDialog.GetAuthError();
     end;
 
-    internal procedure PrepareURI(Endpoint: Text): Text
-    var
-        URI: Text;
+    internal procedure PrepareURI(Endpoint: Text) Result: Text
     begin
-        VATReportSetup.Get();
-
-        URI := VATReportSetup."Group Representative API URL" + StrSubstNo(URLAppendixCompanyLbl, VATReportSetup."Group Representative Company") + Endpoint;
-        exit(URI);
+        CheckLoadVATReportSetup();
+        Result := VATReportSetup."Group Representative API URL";
+        CASE VATReportSetup."VAT Group BC Version" OF
+            VATReportSetup."VAT Group BC Version"::BC:
+                Result += StrSubstNo(URLAppendixCompanyLbl, VATReportSetup."Group Representative Company");
+            VATReportSetup."VAT Group BC Version"::NAV2018:
+                Result += StrSubstNo(URLAppendixCompany2018Lbl, VATReportSetup."Group Representative Company");
+            VATReportSetup."VAT Group BC Version"::NAV2017:
+                Result += StrSubstNo(URLAppendixCompany2017Lbl, VATReportSetup."Group Representative Company");
+        END;
+        Result += Endpoint;
     end;
 
     internal procedure GetVATGroupSubmissionStatusEndpoint(): Text
     begin
-        exit(VATGroupSubmissionStatusEndpointTxt);
+        CheckLoadVATReportSetup();
+        case VATReportSetup."VAT Group BC Version" of
+            VATReportSetup."VAT Group BC Version"::BC,
+            VATReportSetup."VAT Group BC Version"::NAV2018:
+                exit(VATGroupSubmissionStatusEndpointTxt);
+            VATReportSetup."VAT Group BC Version"::NAV2017:
+                exit(VATGroupSubmissionStatusEndpoint2017Txt);
+        end;
     end;
 
-    local procedure PrepareBatchURI(Endpoint: Text): Text
-    var
-        URI: Text;
+    local procedure PrepareBatchURI(Endpoint: Text) Result: Text
     begin
-        URI := VATReportSetup."Group Representative API URL" + URLAppendixLbl + Endpoint;
-        exit(URI);
+        Result := VATReportSetup."Group Representative API URL";
+        case VATReportSetup."VAT Group BC Version" of
+            VATReportSetup."VAT Group BC Version"::BC:
+                Result += URLAppendixLbl;
+            VATReportSetup."VAT Group BC Version"::NAV2018:
+                Result += URLAppendix2018Lbl;
+            VATReportSetup."VAT Group BC Version"::NAV2017:
+                Result += URLAppendix2017Lbl;
+        end;
+        Result += Endpoint;
+    end;
+
+    local procedure CheckLoadVATReportSetup()
+    begin
+        if not VATReportSetupIsLoaded then begin
+            if not VATReportSetup.Get() then
+                Error(NoVATSetupErr);
+            VATReportSetupIsLoaded := true;
+        end;
     end;
 }

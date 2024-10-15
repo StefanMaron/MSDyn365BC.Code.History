@@ -368,6 +368,7 @@ report 594 "Get Item Ledger Entries"
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
+            "Location Code" := "Item Ledger Entry"."Location Code";
 
             // NAVCZ
             CalcDataForItemJnlLine;
@@ -466,6 +467,7 @@ report 594 "Get Item Ledger Entries"
             Area := "Job Ledger Entry".Area;
             "Transaction Specification" := "Job Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Job Ledger Entry"."Shpt. Method Code";
+            "Location Code" := "Job Ledger Entry"."Location Code";
 
             if IntrastatJnlBatch."Amounts in Add. Currency" then
                 Amount := Round(Abs(Amount), Currency."Amount Rounding Precision", Direction) // NAVCZ
@@ -673,6 +675,7 @@ report 594 "Get Item Ledger Entries"
             "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
+            "Location Code" := "Item Ledger Entry"."Location Code";
             // NAVCZ
             CalcDataForItemJnlLine;
             "Source Type" := "Source Type"::"Item Entry";

@@ -4757,6 +4757,11 @@ table 5900 "Service Header"
         FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
     end;
 
+    procedure IsCreditDocType(): Boolean
+    begin
+        exit("Document Type" = "Document Type"::"Credit Memo");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
