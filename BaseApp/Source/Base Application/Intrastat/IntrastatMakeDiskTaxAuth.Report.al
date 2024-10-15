@@ -351,7 +351,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         IntrastatFileWriter.WriteLine(
           Format(CountryRegion."Intrastat Code", 2) + ';' +
           Format(IntrastatJnlLine."Transaction Type", 1) + ';' +
-          PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + ';' +
+          PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + ';' +
           DecimalFormat(IntrastatJnlLine.Quantity, '<Sign><Integer><Decimals>') + ';' +
           DecimalFormat(IntrastatJnlLine."Total Weight", '<Sign><Integer><Decimals>') + ';' +
           DecimalFormat(IntrastatJnlLine."Statistical Value", '<Sign><Integer><Decimals>'));
@@ -374,7 +374,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         sep[1] := 9; // TAB
 
         IntrastatFileWriter.WriteLine(
-          PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + sep +
+          PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + sep +
           Format(CountryRegion."Intrastat Code", 3) + sep +
           Format(IntrastatJnlLine."Transaction Type", 2) + sep +
           DecimalNumeralZeroFormat(IntrastatJnlLine.Quantity, 11) + sep +
