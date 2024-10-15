@@ -426,6 +426,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
         FormatAddress: Codeunit "Format Address";
         TotalAmounExclVATLbl: Text[50];
     begin
+        FormatAddress.SetLanguageCode(SalesHeader."Language Code");
         with SalesHeader do begin
             Customer.Get("Sell-to Customer No.");
             FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonLblText);
