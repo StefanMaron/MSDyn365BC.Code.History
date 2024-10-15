@@ -1021,6 +1021,9 @@
 
                 if not ToDocumentAttachment.Insert(true) then;
 
+                ToDocumentAttachment."Attached Date" := FromDocumentAttachment."Attached Date";
+                ToDocumentAttachment.Modify();
+
             until FromDocumentAttachment.Next() = 0;
         end;
 

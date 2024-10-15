@@ -5711,6 +5711,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT TAB Sales Tax - NamedType ValueMustNotExistMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2394327821 - NamedType 606204268" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot remove Tax Group Code from G/L Account :%1 because it is attached to Service Contract Group : %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - G/L Account No., %2 - Service Contract Group Code]D;]A;(LookupHint=Codeunit UT TAB Sales Tax II - NamedType CannotRemoveTaxGroupErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2394327821 - NamedType 1110202056" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Tax Group Code must have a value in G/L Account: No.=%1. It cannot be zero or empty.]]></Val>

@@ -478,6 +478,12 @@ table 15 "G/L Account"
         {
             Caption = 'Tax Group Code';
             TableRelation = "Tax Group";
+
+            trigger OnValidate()
+            begin
+                if (xRec."Tax Group Code" <> '') and (Rec."Tax Group Code" = '') then
+                    CheckServiceContractAccGroup(Rec."No.");
+            end;
         }
         field(57; "VAT Bus. Posting Group"; Code[20])
         {
@@ -797,6 +803,7 @@ table 15 "G/L Account"
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';
+        CannotRemoveTaxGroupErr: Label 'You cannot remove Tax Group Code from G/L Account :%1 because it is attached to Service Contract Group : %2.', Comment = '%1 - G/L Account No., %2 - Service Contract Group Code';
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
@@ -969,7 +976,7 @@ table 15 "G/L Account"
         if not GeneralLedgerSetup."VAT in Use" then
             exit;
 
-        if "Gen. Prod. Posting Group" = '' then 
+        if "Gen. Prod. Posting Group" = '' then
             ErrorMessageManagement.LogContextFieldError(
                 0,
                 StrSubstNo(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No."),
@@ -997,6 +1004,21 @@ table 15 "G/L Account"
                 GeneralPostingSetup.CheckOrdersPrepmtToDeduct(
                     StrSubstNo(CannotChangeSetupOnPrepmtAccErr, '%1', FldCaption, "No."));
             until GeneralPostingSetup.Next() = 0;
+    end;
+
+    local procedure CheckServiceContractAccGroup(GLAccNo: Code[20])
+    var
+        ServiceContractAccGroup: Record "Service Contract Account Group";
+    begin
+        ServiceContractAccGroup.SetRange("Non-Prepaid Contract Acc.", GLAccNo);
+        if ServiceContractAccGroup.FindFirst() then
+            Error(CannotRemoveTaxGroupErr, GLAccNo, ServiceContractAccGroup.Code);
+
+        ServiceContractAccGroup.SetRange("Non-Prepaid Contract Acc.");
+
+        ServiceContractAccGroup.SetRange("Prepaid Contract Acc.", GLAccNo);
+        if ServiceContractAccGroup.FindFirst() then
+            Error(CannotRemoveTaxGroupErr, GLAccNo, ServiceContractAccGroup.Code);
     end;
 
     procedure IsTotaling(): Boolean

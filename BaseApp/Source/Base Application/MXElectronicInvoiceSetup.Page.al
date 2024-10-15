@@ -19,6 +19,11 @@ page 10457 "MX Electronic Invoice Setup"
             {
                 ApplicationArea = Basic, Suite;
             }
+            field("Download XML with Requests"; "Download XML with Requests")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Download the XML document when sending a request to an electronic invoicing authority.';
+            }
         }
     }
 

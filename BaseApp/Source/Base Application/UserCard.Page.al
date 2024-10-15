@@ -340,6 +340,21 @@ page 9807 "User Card"
                         EditWebServiceID;
                     end;
                 }
+                Action(RemoveWSAccessKey)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Clear Web Service Access Key';
+                    Enabled = AllowChangeWebServiceAccessKey;
+                    Image = ServiceCode;
+                    ToolTip = 'By clearing the Web Service Access Key field on the User Card page, you can ensure that access keys cannot be used to authenticate from another service.';
+
+                    trigger OnAction()
+                    begin
+                        if WebServiceID <> '' then
+                            RemoveWebServiceAccessKey(Rec."User Security ID");
+                    end;
+                }
+
                 action(DeleteExchangeIdentifier)
                 {
                     ApplicationArea = Basic, Suite;
@@ -575,6 +590,19 @@ page 9807 "User Card"
         User.SetFilter("User Security ID", '<>%1', "User Security ID");
         if not User.IsEmpty() then
             Error(Text002Err, User."User Name");
+    end;
+
+    procedure RemoveWebServiceAccessKey(UserSecurityId: Guid): Boolean
+    var
+        UserProperty: Record "User Property";
+    begin
+        if UserProperty.Get(UserSecurityId) then begin
+            UserProperty."WebServices Key" := '';
+            UserProperty."WebServices Key Expiry Date" := CreateDateTime(20220901D, 020000T);
+            UserProperty.Modify();
+            exit(true);
+        end;
+        exit(false);
     end;
 
     local procedure ValidateAuthentication(): Boolean

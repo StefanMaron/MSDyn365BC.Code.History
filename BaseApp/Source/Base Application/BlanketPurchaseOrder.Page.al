@@ -88,7 +88,10 @@ page 509 "Blanket Purchase Order"
                     }
                     field("Buy-from County"; "Buy-from County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
+                        Importance = Additional;
+                        QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }
                     field("Buy-from Post Code"; "Buy-from Post Code")
@@ -415,7 +418,10 @@ page 509 "Blanket Purchase Order"
                     }
                     field("Ship-to County"; "Ship-to County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
+                        Importance = Additional;
+                        QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }
                     field("Ship-to Post Code"; "Ship-to Post Code")
@@ -485,9 +491,11 @@ page 509 "Blanket Purchase Order"
                     }
                     field("Pay-to County"; "Pay-to County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
                         Editable = "Buy-from Vendor No." <> "Pay-to Vendor No.";
                         Enabled = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                        Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }

@@ -19,6 +19,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibraryRandom: Codeunit "Library - Random";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
         ExpectedTaxGroupCodeErr: Label 'Tax Group Code must have a value in G/L Account: No.=%1. It cannot be zero or empty.';
+        CannotRemoveTaxGroupErr: Label 'You cannot remove Tax Group Code from G/L Account :%1 because it is attached to Service Contract Group : %2.', Comment = '%1 - G/L Account No., %2 - Service Contract Group Code';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
@@ -646,6 +647,35 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [THEN] Error is shown
         asserterror ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", GLAccount."No.");
         Assert.ExpectedError(StrSubstNo(ExpectedTaxGroupCodeErr, GLAccount."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OnValidateTaxGroupCodeOnGLAccount()
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        GLAccount: Record "G/L Account";
+        NewGLAccount: Record "G/L Account";
+        TaxGroup: Record "Tax Group";
+    begin
+        // [FEATURE] [Service Contract Account Group] [UT]
+        // [SCENARIO 441079] To validate that Tax Group Code cannot be blank on GL Account if it is used in Contract Account Group.
+        Initialize();
+        // [GIVEN] GLAccount with Tax Group Code undefined - X
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount.Validate("Tax Group Code", TaxGroup.Code);
+        GLAccount.Insert();
+        // [GIVEN] Service Contract Account Group
+        ServiceContractAccountGroup.Code := LibraryUTUtility.GetNewCode10;
+        ServiceContractAccountGroup."Non-Prepaid Contract Acc." := GLAccount."No.";
+        ServiceContractAccountGroup.Insert();
+
+        // [WHEN] Validate Tax Group code with blank
+        // [THEN] Error is shown
+        NewGLAccount.Get(GLAccount."No.");
+        asserterror NewGLAccount.Validate("Tax Group Code", '');
+        Assert.ExpectedError(StrSubstNo(CannotRemoveTaxGroupErr, NewGLAccount."No.", ServiceContractAccountGroup.Code));
     end;
 
     local procedure Initialize()
