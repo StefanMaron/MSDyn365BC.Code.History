@@ -2,7 +2,7 @@ codeunit 6204 "Trans. Storage Error Handler"
 {
     Access = Internal;
     TableNo = "Transact. Storage Task Entry";
-    Permissions = tabledata "Transact. Storage Export State" = rim;
+    Permissions = tabledata "Transact. Storage Export State" = RIM;
 
     var
         TransactionStorageTok: Label 'Transaction Storage', Locked = true;

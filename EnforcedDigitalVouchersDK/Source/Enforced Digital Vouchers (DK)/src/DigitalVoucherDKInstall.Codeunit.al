@@ -24,7 +24,7 @@
         DigitalVouchersEntrySetup: Record "Digital Voucher Entry Setup";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        InsertDigitalVoucherSetup(DigitalVouchersEntrySetup."Entry Type"::"Sales Document", DigitalVouchersEntrySetup."Check Type"::Attachment, false);
+        InsertDigitalVoucherSetup(DigitalVouchersEntrySetup."Entry Type"::"Sales Document", DigitalVouchersEntrySetup."Check Type"::Attachment, true);
         SourceCodeSetup.Get();
         InsertDigitalVoucherEntrySourceCode(DigitalVouchersEntrySetup."Entry Type"::"Sales Document", SourceCodeSetup.Sales);
         InsertDigitalVoucherEntrySourceCode(DigitalVouchersEntrySetup."Entry Type"::"Sales Document", SourceCodeSetup."Sales Deferral");
@@ -36,7 +36,7 @@
         InsertDigitalVoucherEntrySourceCode(DigitalVouchersEntrySetup."Entry Type"::"Purchase Document", SourceCodeSetup."Purchase Deferral");
         InsertDigitalVoucherSetup(DigitalVouchersEntrySetup."Entry Type"::"Purchase Journal", DigitalVouchersEntrySetup."Check Type"::Attachment, false);
         InsertDigitalVoucherEntrySourceCode(DigitalVouchersEntrySetup."Entry Type"::"Purchase Journal", SourceCodeSetup."Purchase Journal");
-        InsertDigitalVoucherSetup(DigitalVouchersEntrySetup."Entry Type"::"General Journal", DigitalVouchersEntrySetup."Check Type"::Attachment, false);
+        InsertDigitalVoucherSetup(DigitalVouchersEntrySetup."Entry Type"::"General Journal", DigitalVouchersEntrySetup."Check Type"::"No Check", false);
     end;
 
     local procedure InsertDigitalVoucherSetup(EntryType: Enum "Digital Voucher Entry Type"; CheckType: Enum "Digital Voucher Check Type"; GenerateAutomatically: Boolean)

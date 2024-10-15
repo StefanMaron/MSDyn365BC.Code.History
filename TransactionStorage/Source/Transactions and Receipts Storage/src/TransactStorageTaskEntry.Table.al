@@ -37,6 +37,10 @@ table 6202 "Transact. Storage Task Entry"
         {
             Editable = false;
         }
+        field(10; "Scheduled Date/Time"; DateTime)
+        {
+            Editable = false;
+        }
     }
 
     keys

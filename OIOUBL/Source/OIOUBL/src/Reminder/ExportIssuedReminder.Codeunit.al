@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -100,11 +100,22 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
 
     trigger OnRun();
     var
+        OIOUBLManagement: Codeunit "OIOUBL-Management";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        GenerateTempBlob(Rec, TempBlob);
+        OIOUBLManagement.ExportXMLFile("No.", TempBlob, SalesSetup."OIOUBL-Reminder Path", '');
+
+        IssuedReminder.GET("No.");
+        IssuedReminder."OIOUBL-Electronic Reminder Created" := TRUE;
+        IssuedReminder.MODIFY();
+    end;
+
+    procedure GenerateTempBlob(IssuedReminderHeader: Record "Issued Reminder Header"; var TempBlob: Codeunit "Temp Blob")
+    var
         IssuedReminderLine2: Record "Issued Reminder Line";
         ContactStandardAddress: Record "Standard Address";
         ContactInfo: Record Contact;
-        OIOUBLManagement: Codeunit "OIOUBL-Management";
-        TempBlob: Codeunit "Temp Blob";
         XMLdocOut: XmlDocument;
         XMLCurrNode: XmlElement;
         CurrencyCode: Code[10];
@@ -114,16 +125,16 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
         TotalAmount: Decimal;
         FileOutstream: Outstream;
     begin
-        CODEUNIT.RUN(CODEUNIT::"OIOUBL-Check Issued Reminder", Rec);
+        CODEUNIT.RUN(CODEUNIT::"OIOUBL-Check Issued Reminder", IssuedReminderHeader);
         GLSetup.GET();
         CompanyInfo.GET();
 
-        if "Currency Code" = '' then
+        if IssuedReminderHeader."Currency Code" = '' then
             CurrencyCode := GLSetup."LCY Code"
         else
-            CurrencyCode := "Currency Code";
+            CurrencyCode := IssuedReminderHeader."Currency Code";
 
-        if not ContainsValidLine(IssuedReminderLine, Rec."No.") then
+        if not ContainsValidLine(IssuedReminderLine, IssuedReminderHeader."No.") then
             exit;
 
         // Reminder
@@ -141,11 +152,11 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
             XmlAttribute.Create('schemeAgencyID', '320'),
             'Procurement-BilSim-1.0'));
 
-        XMLCurrNode.Add(XmlElement.Create('ID', DocNameSpace, "No."));
+        XMLCurrNode.Add(XmlElement.Create('ID', DocNameSpace, IssuedReminderHeader."No."));
         XMLCurrNode.Add(XmlElement.Create('CopyIndicator', DocNameSpace,
-          OIOUBLDocumentEncode.BooleanToText("OIOUBL-Electronic Reminder Created")));
+          OIOUBLDocumentEncode.BooleanToText(IssuedReminderHeader."OIOUBL-Electronic Reminder Created")));
         XMLCurrNode.Add(XmlElement.Create('IssueDate', DocNameSpace,
-          OIOUBLDocumentEncode.DateToText("Posting Date")));
+          OIOUBLDocumentEncode.DateToText(IssuedReminderHeader."Posting Date")));
 
         XMLCurrNode.Add(
           XmlElement.Create('ReminderTypeCode', DocNameSpace,
@@ -155,30 +166,30 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
 
         XMLCurrNode.Add(XmlElement.Create('ReminderSequenceNumeric', DocNameSpace, '1'));
         XMLCurrNode.Add(XmlElement.Create('DocumentCurrencyCode', DocNameSpace, CurrencyCode));
-        XMLCurrNode.Add(XmlElement.Create('AccountingCostCode', DocNameSpace, "OIOUBL-Account Code"));
+        XMLCurrNode.Add(XmlElement.Create('AccountingCostCode', DocNameSpace, IssuedReminderHeader."OIOUBL-Account Code"));
 
         // Reminder->AccountingSupplierParty
         OIOUBLCommonLogic.InsertAccountingSupplierParty(XMLCurrNode, '');
 
         // Reminder->AccountingCustomerParty
-        ContactStandardAddress.Address := "Address";
-        ContactStandardAddress."Address 2" := "Address 2";
-        ContactStandardAddress.City := "City";
-        ContactStandardAddress."Post Code" := "Post Code";
-        ContactStandardAddress."Country/Region Code" := "Country/Region Code";
-        ContactInfo.Name := "Contact";
-        ContactInfo."Phone No." := "OIOUBL-Contact Phone No.";
-        ContactInfo."Fax No." := "OIOUBL-Contact Fax No.";
-        ContactInfo."E-Mail" := "OIOUBL-Contact E-Mail";
+        ContactStandardAddress.Address := IssuedReminderHeader."Address";
+        ContactStandardAddress."Address 2" := IssuedReminderHeader."Address 2";
+        ContactStandardAddress.City := IssuedReminderHeader."City";
+        ContactStandardAddress."Post Code" := IssuedReminderHeader."Post Code";
+        ContactStandardAddress."Country/Region Code" := IssuedReminderHeader."Country/Region Code";
+        ContactInfo.Name := IssuedReminderHeader."Contact";
+        ContactInfo."Phone No." := IssuedReminderHeader."OIOUBL-Contact Phone No.";
+        ContactInfo."Fax No." := IssuedReminderHeader."OIOUBL-Contact Fax No.";
+        ContactInfo."E-Mail" := IssuedReminderHeader."OIOUBL-Contact E-Mail";
         OIOUBLCommonLogic.InsertAccountingCustomerParty(XMLCurrNode,
-          "OIOUBL-GLN",
-          "VAT Registration No.",
-          "Name",
+          IssuedReminderHeader."OIOUBL-GLN",
+          IssuedReminderHeader."VAT Registration No.",
+          IssuedReminderHeader."Name",
           ContactStandardAddress,
           ContactInfo);
 
         // Reminder->PaymentMeans
-        OIOUBLCommonLogic.InsertPaymentMeans(XMLCurrNode, "Due Date");
+        OIOUBLCommonLogic.InsertPaymentMeans(XMLCurrNode, IssuedReminderHeader."Due Date");
 
         // Reminder->PaymentTerms
         TotalAmount := 0;
@@ -193,7 +204,7 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
           0,
           CurrencyCode,
           CalcDate('<0D>'),
-          "Due Date",
+          IssuedReminderHeader."Due Date",
           TotalAmount);
 
         // Reminder->TaxTotal (for ("Normal VAT" AND "VAT %" <> 0) OR "Full VAT")
@@ -243,14 +254,8 @@ codeunit 13639 "OIOUBL-Export Issued Reminder"
         SalesSetup.GET();
 
         TempBlob.CreateOutStream(FileOutstream);
-        OnRunOnBeforeXmlDocumentWriteToFileStream(XMLdocOut, Rec, DocNameSpace, DocNameSpace2);
+        OnRunOnBeforeXmlDocumentWriteToFileStream(XMLdocOut, IssuedReminderHeader, DocNameSpace, DocNameSpace2);
         XMLdocOut.WriteTo(FileOutstream);
-
-        OIOUBLManagement.ExportXMLFile("No.", TempBlob, SalesSetup."OIOUBL-Reminder Path", '');
-
-        IssuedReminder.GET("No.");
-        IssuedReminder."OIOUBL-Electronic Reminder Created" := TRUE;
-        IssuedReminder.MODIFY();
     end;
 
     procedure UpdateTaxAmtAndTaxableAmt(Amount: Decimal; VATAmount: Decimal; var TaxableAmountParam: Decimal; var TaxAmountParam: Decimal);
