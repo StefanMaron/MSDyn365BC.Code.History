@@ -16,6 +16,8 @@ codeunit 147314 "Cartera Payables Installments"
         LibraryCarteraCommon: Codeunit "Library - Cartera Common";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         LocalCurrencyCode: Code[10];
 
     [Test]
@@ -351,6 +353,57 @@ codeunit 147314 "Cartera Payables Installments"
         ValidateInstallmentCarteraDocuments(Vendor."No.", DocumentNo, -TotalAmount, 1);
     end;
 
+    [Test]
+    procedure VATIsFullyRealizedAfterSevPmtToBillApplicationsForSevInstallments()
+    var
+        PaymentMethod: Record "Payment Method";
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+        SalesUnrVATAccount: Code[20];
+        PurchUnrVATAccount: Code[20];
+    begin
+        // [FEATURE] [Unrealized VAT]
+        // [SCENARIO 403927] Purchase invoice unrealized VAT is fully realized after several payment to Bill applications
+        // [SCENARIO 403927] in case of several installments
+        Initialize();
+
+        // [GIVEN] Unrealized VAT setup, payment term with 2 installments
+        LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
+        LibraryCarteraPayables.CreateCarteraVendorForUnrealizedVAT(Vendor, LocalCurrencyCode);
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, LocalCurrencyCode);
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+          Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+        LibraryCarteraPayables.CreateMultipleInstallments(Vendor."Payment Terms Code", 2);
+
+        // [GIVEN] Posted purchase invoice with 2 opened Bills
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        PurchaseHeader.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("Unrealized Base");
+        VATEntry.TestField("Unrealized Amount");
+        VATEntry.TestField("Remaining Unrealized Base", VATEntry."Unrealized Base");
+        VATEntry.TestField("Remaining Unrealized Amount", VATEntry."Unrealized Amount");
+
+        // [GIVEN] Apply and post the first Bill
+        ApplyPostFirstOpenBill(Vendor."No.", DocumentNo);
+
+        // [WHEN] Apply and post the second Bill
+        ApplyPostFirstOpenBill(Vendor."No.", DocumentNo);
+
+        // [THEN] Original document unrealized VAT is fully realized
+        VATEntry.Find();
+        VATEntry.TestField("Remaining Unrealized Base", 0);
+        VATEntry.TestField("Remaining Unrealized Amount", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
@@ -378,6 +431,28 @@ codeunit 147314 "Cartera Payables Installments"
         VendorLedgerEntries.OpenEdit;
         VendorLedgerEntries.GotoKey(EntryNo);
         VendorLedgerEntries.ActionApplyEntries.Invoke;
+    end;
+
+    local procedure ApplyPostFirstOpenBill(VendorNo: Code[20]; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange(Open, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Bill, DocumentNo);
+        VendorLedgerEntry.CalcFields(Amount);
+        VendorLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry.Amount);
+        VendorLedgerEntry.Modify(true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, VendorNo, -VendorLedgerEntry.Amount);
+        GenJournalLine.Validate("Applies-to ID", VendorLedgerEntry."Applies-to ID");
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure VerifyRemainingAmountOnFirstInstallment(ApplyingVendorLedgerEntryNo: Integer; AppliedToVendorLedgerEntryNo: Integer)

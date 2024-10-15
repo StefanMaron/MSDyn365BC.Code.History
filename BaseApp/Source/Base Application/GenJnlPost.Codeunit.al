@@ -6,14 +6,10 @@ codeunit 231 "Gen. Jnl.-Post"
     trigger OnRun()
     var
         GenJnlLine: Record "Gen. Journal Line";
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
     begin
         GenJnlLine.Copy(Rec);
         Code(GenJnlLine);
         Copy(GenJnlLine);
-
-        // SII Integration point
-        SIIJobUploadPendingDocs.OnAfterGLLinePost(Rec);
     end;
 
     var
