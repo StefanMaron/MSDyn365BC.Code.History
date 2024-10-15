@@ -4117,7 +4117,7 @@
             if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") then
                 exit(false);
 
-            if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
+            if (xRec."Location Code" <> Rec."Location Code") and (xRec."Bill-to Customer No." <> '') then
                 exit(true);
             if (xRec."Salesperson Code" <> '') and (xRec."Salesperson Code" <> Rec."Salesperson Code") then
                 exit(true);
