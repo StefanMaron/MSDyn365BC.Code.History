@@ -290,6 +290,7 @@ codeunit 5052 AttachmentManagement
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
+        [NonDebuggable]
         AccessToken: Text;
     begin
         AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);

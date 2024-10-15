@@ -8719,7 +8719,7 @@
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 1601927816" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.]]></Val>
+      <Val><![CDATA[No. must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8728,7 +8728,7 @@
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 3421419371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Demand Date must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Demand Date must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8737,7 +8737,7 @@
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 3453833794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Demand Quantity (Base) must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Demand Quantity (Base) must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8746,7 +8746,7 @@
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 2687287108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Location Code must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Location Code must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8755,7 +8755,7 @@
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 163488030" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. per UOM (Demand) must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Qty. per UOM (Demand) must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8827,7 +8827,7 @@
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 1601927816" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.]]></Val>
+      <Val><![CDATA[No. must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8836,7 +8836,7 @@
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 3421419371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Demand Date must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Demand Date must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8845,7 +8845,7 @@
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 3453833794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Demand Quantity (Base) must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Demand Quantity (Base) must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8854,7 +8854,7 @@
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 2687287108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Location Code must be equal to '%1'  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=]]></Val>
+      <Val><![CDATA[Location Code must be equal to '%1'  in Requisition Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -16473,6 +16473,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Unit Tests - NamedType CannotCreateBinWithoutLocationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3751593413 - NamedType 429288331" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Unit Tests - NamedType ItemTrkgManagedByWhseMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3383261961 - NamedType 2829083344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

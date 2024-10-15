@@ -11,7 +11,7 @@ codeunit 1922 "Camera Impl."
         Camera: Page Camera;
         PictureFileNameTok: Label 'Picture_%1.jpeg', Comment = '%1 = String generated from current datetime to make sure file names are unique ';
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
-        UnsupportedFieldTypeErr: Label 'Unsupported field type: %1', Comment = 'The type of the field';
+        UnsupportedFieldTypeErr: Label 'The field type %1 is not supported.', Comment = '%1 - The type of the field', Locked = true;
 
     procedure GetPicture(PictureStream: InStream; var PictureName: Text): Boolean
     var

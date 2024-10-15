@@ -77,6 +77,10 @@ page 7201 "CDS Connection Setup Wizard"
                     trigger OnValidate()
                     begin
                         CDSIntegrationImpl.CheckModifyConnectionURL("Server Address");
+                        if "Server Address" <> xRec."Server Address" then begin
+                            HasAdminSignedIn := false;
+                            NextActionEnabled := false;
+                        end;
                         CurrPage.Update();
                     end;
 
@@ -88,8 +92,12 @@ page 7201 "CDS Connection Setup Wizard"
                         AuthenticationType := "Authentication Type";
 
                         CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
-                        Validate("Authentication Type", AuthenticationType);
+                        "Authentication Type" := AuthenticationType;
 
+                        if "Server Address" <> xRec."Server Address" then begin
+                            HasAdminSignedIn := false;
+                            NextActionEnabled := false;
+                        end;
                         CurrPage.Update();
                     end;
                 }
@@ -229,7 +237,6 @@ page 7201 "CDS Connection Setup Wizard"
                         trigger OnValidate()
                         begin
                             IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
-
                             CurrPage.Update(false);
                         end;
 
@@ -431,7 +438,7 @@ page 7201 "CDS Connection Setup Wizard"
                     if Step = Step::Info then begin
                         AuthenticationType := "Authentication Type";
                         GetCDSEnvironment();
-                        Validate("Authentication Type", AuthenticationType);
+                        "Authentication Type" := AuthenticationType;
                     end;
 
                     if (Step = Step::Admin) then begin
@@ -559,7 +566,6 @@ page 7201 "CDS Connection Setup Wizard"
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
         Insert();
-        IsCurrentTenantCDSOwner := true;
         Step := Step::Info;
         EnableControls();
     end;
@@ -592,7 +598,6 @@ page 7201 "CDS Connection Setup Wizard"
         AdminUserName: Text;
         [NonDebuggable]
         AdminPassword: Text;
-        IsCurrentTenantCDSOwner: Boolean;
         TopBannerVisible: Boolean;
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
@@ -609,6 +614,7 @@ page 7201 "CDS Connection Setup Wizard"
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
+        GlobalDiscoUrlTokTxt: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Common Data Service before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         UserPassword: Text;
@@ -635,7 +641,7 @@ page 7201 "CDS Connection Setup Wizard"
         OAuth2: Codeunit OAuth2;
         Token: Text;
     begin
-        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), '', Token);
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), GlobalDiscoUrlTokTxt, Token);
         CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
     end;
 

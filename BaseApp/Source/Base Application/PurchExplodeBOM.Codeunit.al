@@ -37,6 +37,7 @@ codeunit 73 "Purch.-Explode BOM"
         ToPurchLine.Init();
         ToPurchLine.Description := Description;
         ToPurchLine."Description 2" := "Description 2";
+        OnRunOnBeforeToPurchLineModify(ToPurchLine, Rec);
         ToPurchLine.Modify();
 
         if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
@@ -173,6 +174,11 @@ codeunit 73 "Purch.-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnExplodeBOMCompLinesOnBeforeCreatePurchLine(PurchaseLine: Record "Purchase Line"; BOMComponent: Record "BOM Component"; var IsAvailable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeToPurchLineModify(var ToPurchLine: Record "Purchase Line"; RecPurchLine: Record "Purchase Line")
     begin
     end;
 }

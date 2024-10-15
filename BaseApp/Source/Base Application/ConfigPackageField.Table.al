@@ -165,6 +165,7 @@ table 8616 "Config. Package Field"
         ConfigPackageData: Record "Config. Package Data";
         ConfigPackageField: Record "Config. Package Field";
         TempConfigPackageTable: Record "Config. Package Table" temporary;
+        ConfigPackageRecord: Record "Config. Package Record";
         ConfigPackageMgt: Codeunit "Config. Package Management";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         ConfigProgressBar: Codeunit "Config. Progress Bar";
@@ -183,6 +184,8 @@ table 8616 "Config. Package Field"
                 ConfigProgressBar.Init(ConfigPackageData.Count, 1, Text002);
                 repeat
                     ConfigProgressBar.Update(ConfigPackageData.Value);
+                    ConfigPackageRecord.Get(
+                      ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
                     ConfigPackageMgt.CleanFieldError(ConfigPackageData);
                     if "Include Field" then begin
                         ConfigPackageMgt.FieldError(ConfigPackageData, ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, false), 0);
@@ -193,7 +196,9 @@ table 8616 "Config. Package Field"
                             ConfigPackageField.SetRange("Package Code", "Package Code");
                             ConfigPackageField.SetRange("Table ID", "Table ID");
                             ConfigPackageField.SetRange("Field ID", "Field ID");
-                            if not ConfigPackageMgt.ValidateFieldRelation(ConfigPackageField, TempConfigPackageTable) then
+                            if not ConfigPackageMgt.ValidateFieldRelationInRecord(
+                                 ConfigPackageField, TempConfigPackageTable, ConfigPackageRecord, RecRef)
+                            then
                                 ConfigPackageMgt.FieldError(ConfigPackageData, StrSubstNo(Text001, FieldRef.Caption, ConfigPackageData.Value), 0);
                         end;
                     end;

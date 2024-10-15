@@ -63,6 +63,7 @@ table 38 "Purchase Header"
                 "VAT Country/Region Code" := Vend."Country/Region Code";
                 "VAT Registration No." := Vend."VAT Registration No.";
                 Validate("Lead Time Calculation", Vend."Lead Time Calculation");
+                "Shipment Method Code" := Vend."Shipment Method Code";
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
                 ValidateEmptySellToCustomerAndLocation();
                 OnAfterCopyBuyFromVendorFieldsFromVendor(Rec, Vend, xRec);
@@ -2735,6 +2736,7 @@ table 38 "Purchase Header"
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TempInteger: Record "Integer" temporary;
         SalesHeader: Record "Sales Header";
+        PurchCommentLine: Record "Purch. Comment Line";
         TempPurchCommentLine: Record "Purch. Comment Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -2802,6 +2804,7 @@ table 38 "Purchase Header"
                 until PurchLine.Next() = 0;
 
                 StorePurchCommentLineToTemp(TempPurchCommentLine);
+                PurchCommentLine.DeleteComments("Document Type", "No.");
 
                 TransferItemChargeAssgntPurchToTemp(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
 

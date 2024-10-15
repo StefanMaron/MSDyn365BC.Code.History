@@ -96,6 +96,7 @@ page 5335 "Integration Table Mapping List"
                     var
                         FilterPageBuilder: FilterPageBuilder;
                     begin
+                        Codeunit.Run(Codeunit::"CRM Integration Management");
                         FilterPageBuilder.AddTable(IntegrationTableCaptionValue, "Integration Table ID");
                         if IntegrationTableFilter <> '' then
                             FilterPageBuilder.SetView(IntegrationTableCaptionValue, IntegrationTableFilter);

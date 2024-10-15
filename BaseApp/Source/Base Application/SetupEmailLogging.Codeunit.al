@@ -60,6 +60,9 @@ codeunit 1641 "Setup Email Logging"
         PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
         SetupConnectionTxt: Label 'Set up email logging';
+        EmptyAccessTokenTxt: Label 'Access token is empty.', Locked = true;
+        CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
+        CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
 
     [TryFunction]
     [Scope('OnPrem')]
@@ -493,16 +496,31 @@ codeunit 1641 "Setup Email Logging"
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ExtractTenantIdFromAccessToken(var TenantId: Text; AccessToken: Text)
-    var
-        JSONManagement: Codeunit "JSON Management";
-        Base64Convert: Codeunit "Base64 Convert";
-        JsonObject: DotNet JObject;
     begin
-        if AccessToken = '' then
-            exit;
-        JSONManagement.InitializeFromString(Base64Convert.FromBase64(AccessToken.Split('.').Get(2) + 'g'));
-        JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, 'tid', TenantId);
+        if AccessToken <> '' then begin
+            if TryExtractTenantIdFromAccessToken(TenantId, AccessToken) then begin
+                if TenantId <> '' then
+                    exit
+                else
+                    SendTraceTag('0000CR1', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent);
+            end else
+                SendTraceTag('0000CR2', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent)
+        end else
+            SendTraceTag('0000CR3', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, EmptyAccessTokenTxt, DataClassification::SystemMetadata);
+
+        Error(CannotExtractTenantIdErr);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryExtractTenantIdFromAccessToken(var TenantId: Text; AccessToken: Text)
+    var
+        JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
+        JwtSecurityToken: DotNet JwtSecurityToken;
+    begin
+        JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
+        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(AccessToken);
+        JwtSecurityToken.Payload().TryGetValue('tid', TenantId);
     end;
 
     [Scope('OnPrem')]
