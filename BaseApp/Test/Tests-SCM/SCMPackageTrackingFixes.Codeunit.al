@@ -202,6 +202,51 @@ codeunit 137268 "SCM Package Tracking Fixes"
           IncorrectErrorMessageErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationModalPageHandler,AvailItemLedgEntriesModalPageHandler')]
+    procedure ViewingAvailItemEntriesWithPackageTrkgForReservation()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PackageNo: Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Package Tracking] [Reservation]
+        // [SCENARIO 420498] Viewing available item entries with package tracking for reservation.
+        Initialize();
+        PackageNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Package-tracked item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post the item to inventory, assign package no. "P".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', '', PackageNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
+
+        // [WHEN] Run "Reserve" on the sales order line and drill down "Total Quantity" on the Reservation page.
+        LibraryVariableStorage.Enqueue(PackageNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        SalesLine.ShowReservation();
+
+        // [THEN] "Available - Item Ledg. Entries" page shows the item entry with package no. "P".
+        // The verification is done in AvailItemLedgEntriesModalPageHandler.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -301,6 +346,21 @@ codeunit 137268 "SCM Package Tracking Fixes"
         if TrackingOption = ItemTrackingOption::ReclassPackageNo then
             ItemTrackingLines."New Package No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationModalPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Total Quantity".Drilldown();
+    end;
+
+
+    [ModalPageHandler]
+    procedure AvailItemLedgEntriesModalPageHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
+    begin
+        AvailableItemLedgEntries."Package No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        AvailableItemLedgEntries."Remaining Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        AvailableItemLedgEntries.OK().Invoke();
     end;
 }
 

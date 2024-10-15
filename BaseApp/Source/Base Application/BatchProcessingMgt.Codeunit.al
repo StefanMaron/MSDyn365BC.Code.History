@@ -12,7 +12,7 @@ codeunit 1380 "Batch Processing Mgt."
         PostingTemplateMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
         RecRefCustomerProcessing: RecordRef;
         ProcessingCodeunitID: Integer;
-        BatchID: Guid;
+        BatchIDGlobal: Guid;
         ProcessingCodeunitNotSetErr: Label 'A processing codeunit has not been selected.';
         BatchCompletedMsg: Label 'All the documents were processed.';
         IsCustomProcessingHandled: Boolean;
@@ -26,6 +26,7 @@ codeunit 1380 "Batch Processing Mgt."
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgtHandler: Codeunit "Batch Processing Mgt. Handler";
         Window: Dialog;
         CounterTotal: Integer;
         CounterToPost: Integer;
@@ -41,6 +42,8 @@ codeunit 1380 "Batch Processing Mgt."
         with RecRef do begin
             if IsEmpty() then
                 exit;
+
+            BindSubscription(BatchProcessingMgtHandler);
 
             FillBatchProcessingMap(RecRef);
             Commit();
@@ -65,6 +68,9 @@ codeunit 1380 "Batch Processing Mgt."
                 until Next() = 0;
 
             OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
+
+            UnbindSubscription(BatchProcessingMgtHandler);
+
             ResetBatchID;
 
             IsHandled := false;
@@ -122,12 +128,12 @@ codeunit 1380 "Batch Processing Mgt."
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        if IsNullGuid(BatchID) then
+        if IsNullGuid(BatchIDGlobal) then
             exit;
 
         BatchProcessingSessionMap.Init();
         BatchProcessingSessionMap."Record ID" := RecRef.RecordId;
-        BatchProcessingSessionMap."Batch ID" := BatchID;
+        BatchProcessingSessionMap."Batch ID" := BatchIDGlobal;
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := SessionId;
         BatchProcessingSessionMap.Insert();
@@ -180,8 +186,8 @@ codeunit 1380 "Batch Processing Mgt."
 
     local procedure InitBatchID()
     begin
-        if IsNullGuid(BatchID) then
-            BatchID := CreateGuid;
+        if IsNullGuid(BatchIDGlobal) then
+            BatchIDGlobal := CreateGuid();
     end;
 
     local procedure ProcessRecord(var RecRef: RecordRef; var BatchConfirm: Option): Boolean
@@ -203,23 +209,38 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
         if not KeepParameters then begin
-            BatchProcessingParameter.SetRange("Batch ID", BatchID);
+            BatchProcessingParameter.SetRange("Batch ID", BatchIDGlobal);
             BatchProcessingParameter.DeleteAll();
 
-            BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
+            BatchProcessingSessionMap.SetRange("Batch ID", BatchIDGlobal);
             BatchProcessingSessionMap.DeleteAll();
         end;
 
-        Clear(BatchID);
+        Clear(BatchIDGlobal);
 
         Commit();
+    end;
+
+    procedure AddArtifact(ArtifactType: Enum "Batch Processing Artifact Type"; ArtifactName: Text[1024]; var TempBlobArtivactValue: Codeunit "Temp Blob")
+    begin
+        OnAddArtifact(BatchIDGlobal, ArtifactType, ArtifactName, TempBlobArtivactValue);
+    end;
+
+    procedure HasArtifacts(ArtifactType: Enum "Batch Processing Artifact Type") Result: Boolean
+    begin
+        OnHasArtifacts(ArtifactType, Result);
+    end;
+
+    procedure GetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifact: Record "Batch Processing Artifact" temporary) Result: Boolean
+    begin
+        OnGetArtifacts(ArtifactType, TempBatchProcessingArtifact, Result);
     end;
 
     procedure DeleteBatchProcessingSessionMapForRecordId(RecordIdToClean: RecordId)
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
+        BatchProcessingSessionMap.SetRange("Batch ID", BatchIDGlobal);
         BatchProcessingSessionMap.SetRange("Record ID", RecordIdToClean);
         BatchProcessingSessionMap.DeleteAll();
     end;
@@ -232,7 +253,7 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.SetRange("Record ID", RecordID);
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
         BatchProcessingSessionMap.SetRange("Session ID", SessionId);
-        BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchID);
+        BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchIDGlobal);
         if BatchProcessingSessionMap.FindSet then begin
             repeat
                 BatchProcessingParameter.SetRange("Batch ID", BatchProcessingSessionMap."Batch ID");
@@ -242,7 +263,6 @@ codeunit 1380 "Batch Processing Mgt."
             BatchProcessingSessionMap.DeleteAll();
         end;
     end;
-
 
     [Obsolete('Replaced by SetParameter().', '17.0')]
     procedure AddParameter(ParameterId: Integer; Value: Variant)
@@ -255,10 +275,10 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingParameter: Record "Batch Processing Parameter";
         IsProcessed: Boolean;
     begin
-        InitBatchID;
+        InitBatchID();
 
         BatchProcessingParameter.Init();
-        BatchProcessingParameter."Batch ID" := BatchID;
+        BatchProcessingParameter."Batch ID" := BatchIDGlobal;
         BatchProcessingParameter."Parameter Id" := ParameterId.AsInteger();
         BatchProcessingParameter."Parameter Value" := Format(Value);
 
@@ -356,6 +376,11 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
+    procedure IsActive() Result: Boolean
+    begin
+        OnSystemSetBatchProcessingActive(Result);
+    end;
+
     procedure GetIsCustomProcessingHandled(): Boolean
     begin
         exit(IsCustomProcessingHandled);
@@ -383,7 +408,7 @@ codeunit 1380 "Batch Processing Mgt."
             BatchProcessingSessionMap."Session ID" := SessionId;
             BatchProcessingSessionMap.Modify();
         end;
-        BatchID := BatchProcessingSessionMap."Batch ID";
+        BatchIDGlobal := BatchProcessingSessionMap."Batch ID";
     end;
 
     procedure SetRecRefForCustomProcessing(RecRef: RecordRef)
@@ -482,6 +507,26 @@ codeunit 1380 "Batch Processing Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessBatchInBackground(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnSystemSetBatchProcessingActive(var Result: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAddArtifact(BatchID: Guid; ArtifactType: Enum "Batch Processing Artifact Type"; ArtifactName: Text[1024]; var TempBlobArtifactValue: Codeunit "Temp Blob")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnHasArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var Result: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifactResult: Record "Batch Processing Artifact" temporary; var Result: Boolean)
     begin
     end;
 }

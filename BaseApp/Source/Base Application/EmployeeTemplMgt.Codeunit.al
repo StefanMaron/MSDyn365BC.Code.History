@@ -35,6 +35,7 @@ codeunit 1387 "Employee Templ. Mgt."
         Employee."Application Method" := EmployeeTempl."Application Method";
         Employee."Cost Center Code" := EmployeeTempl."Cost Center Code";
         Employee."Cost Object Code" := EmployeeTempl."Cost Object Code";
+        OnApplyTemplateOnBeforeEmployeeModify(Employee, EmployeeTempl);
         Employee.Modify(true);
     end;
 
@@ -167,7 +168,7 @@ codeunit 1387 "Employee Templ. Mgt."
         EmployeeTempl."Application Method" := Employee."Application Method";
         EmployeeTempl."Cost Center Code" := Employee."Cost Center Code";
         EmployeeTempl."Cost Object Code" := Employee."Cost Object Code";
-
+        OnInsertTemplateFromEmployeeOnBeforeEmployeeTemplInsert(EmployeeTempl, Employee);
         EmployeeTempl.Insert();
     end;
 
@@ -247,6 +248,16 @@ codeunit 1387 "Employee Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyTemplateOnBeforeEmployeeModify(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTemplateFromEmployeeOnBeforeEmployeeTemplInsert(var EmployeeTempl: Record "Employee Templ."; Employee: Record Employee)
     begin
     end;
 }

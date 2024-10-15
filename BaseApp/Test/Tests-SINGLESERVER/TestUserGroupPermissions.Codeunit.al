@@ -22,6 +22,7 @@ codeunit 134610 "Test User Group Permissions"
         WrongRoleIDErr: Label 'Wrong Role ID for User Group.';
         SubscriptionPlanTok: Label 'My subscription plan';
         XTestPermissionTxt: Label 'TEST PERMISSION';
+        InvalidPermissionSetErr: Label 'User Group Permission Set table can only reference permission sets present in the system.';
 
     [Test]
     [HandlerFunctions('ConfirmYes')]
@@ -61,7 +62,7 @@ codeunit 134610 "Test User Group Permissions"
         // Verify that the OnDelete trigger of table 9000 also deletes from table 9003.
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, 'X');
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, 'TEST TABLES');
         UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
         Assert.AreEqual(1, UserGroupPermissionSet.Count, '');
 
@@ -219,6 +220,132 @@ codeunit 134610 "Test User Group Permissions"
 
         // [THEN] User "U" has Permission Set "P"
         VerifyUserGroupAccessControlCount(UserGroupCode, UserSecurityID, 1);
+
+        // Tear Down
+        TestCleanup;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestUserGroupPermissionSetSystemScopeNullAppIDOnInsert()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        RoleId: Code[20];
+        UserSecurityID: Guid;
+        UserGroupCode: Code[20];
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] OnInsert trigger of table 9003 "User Group Permission Set"
+
+        // [GIVEN] User "U" in User Group "UG"
+        CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
+
+        UserGroupPermissionSet.SetRange(Scope, UserGroupPermissionSet.Scope::System);
+        UserGroupPermissionSet.FindFirst();
+        RoleId := UserGroupPermissionSet."Role ID";
+
+        Clear(UserGroupPermissionSet);
+
+        // [WHEN] Create UGPS with a different user group code and null app id 
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, RoleId, UserGroupPermissionSet.Scope::System, NullGuid);
+
+        // [THEN] The null app id should be automatically replaced with a proper app id as it is a system PS
+        Assert.AreNotEqual(UserGroupPermissionSet."App ID", NullGuid, 'The app id is null.');
+
+        // Tear Down
+        TestCleanup;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestUserGroupPermissionSetSUPERSECURITYOnInsert()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        UserSecurityID: Guid;
+        UserGroupCode: Code[20];
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] OnInsert trigger of table 9003 "User Group Permission Set"
+
+        // [GIVEN] User "U" in User Group "UG"
+        CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
+
+        // [WHEN] Add new Permission Set "P" to group "UG"
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, 'SUPER', UserGroupPermissionSet.Scope::System, NullGuid);
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, 'SECURITY', UserGroupPermissionSet.Scope::System, NullGuid);
+
+        // [THEN] Then should be no error
+
+        // Tear Down
+        TestCleanup;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestUserGroupPermissionSetSystemScopeNullAppIDOnModify()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        RoleId: Code[20];
+        UserSecurityID: Guid;
+        UserGroupCode: Code[20];
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] OnInsert trigger of table 9003 "User Group Permission Set"
+
+        // [GIVEN] User "U" in User Group "UG"
+        CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
+
+        UserGroupPermissionSet.SetRange(Scope, UserGroupPermissionSet.Scope::System);
+        UserGroupPermissionSet.SetFilter("App ID", '<>%1', NullGuid);
+        UserGroupPermissionSet.FindFirst();
+
+        // [WHEN] Modify permission set to have null app id
+        UserGroupPermissionSet."App ID" := NullGuid;
+        UserGroupPermissionSet.Modify(true);
+
+        // [THEN] The null app id should be automatically replaced with a proper app id as it is a system PS
+        UserGroupPermissionSet.SetRange("Role ID", UserGroupPermissionSet."Role ID");
+        UserGroupPermissionSet.SetRange(Scope, UserGroupPermissionSet.Scope::System);
+        UserGroupPermissionSet.SetRange("App ID", NullGuid);
+
+        Assert.IsTrue(UserGroupPermissionSet.IsEmpty(), 'The app id is null');
+
+        // Tear Down
+        TestCleanup;
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestUserGroupPermissionSetSystemScopeNullAppIDOnRename()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        RoleId: Code[20];
+        UserSecurityID: Guid;
+        UserGroupCode: Code[20];
+        NullGuid: Guid;
+    begin
+        // [SCENARIO] OnInsert trigger of table 9003 "User Group Permission Set"
+
+        // [GIVEN] User "U" in User Group "UG"
+        CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
+
+        UserGroupPermissionSet.SetRange(Scope, UserGroupPermissionSet.Scope::System);
+        UserGroupPermissionSet.SetFilter("App ID", '<>%1', NullGuid);
+        UserGroupPermissionSet.FindFirst();
+
+        // [WHEN] Modify permission set to have null app id
+        UserGroupPermissionSet.Rename(UserGroupPermissionSet."User Group Code", UserGroupPermissionSet."Role ID", UserGroupPermissionSet.Scope, NullGuid);
+
+        // [THEN] The null app id should be automatically replaced with a proper app id as it is a system PS
+        UserGroupPermissionSet.SetRange("Role ID", UserGroupPermissionSet."Role ID");
+        UserGroupPermissionSet.SetRange(Scope, UserGroupPermissionSet.Scope::System);
+        UserGroupPermissionSet.SetRange("App ID", NullGuid);
+
+        Assert.IsTrue(UserGroupPermissionSet.IsEmpty(), 'The app id is null');
 
         // Tear Down
         TestCleanup;
@@ -1066,17 +1193,18 @@ codeunit 134610 "Test User Group Permissions"
         User: Record User;
         UserGroup: array[3] of Record "User Group";
         UserGroupPermissionSet: array[3] of Record "User Group Permission Set";
+        PermSetName: Text;
         UserCard: TestPage "User Card";
     begin
         // [SCENARIO 225576] User Card page is updated on insert\modify\delete user groups subpage
         LibraryPermissions.CreateUser(User, '', false);
 
-        // [GIVEN] User group "A" with permission set "B"
+        // [GIVEN] User group "A" with permission set 'TEST TOOL'
         LibraryPermissions.CreateUserGroup(UserGroup[1], '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet[1], UserGroup[1].Code, 'B');
-        // [GIVEN] User group "B" with permission set "A"
+        CreateUserGroupPermissionSet(UserGroupPermissionSet[1], UserGroup[1].Code, 'TEST TOOL');
+        // [GIVEN] User group "B" with permission set 'TEST TABLES'
         LibraryPermissions.CreateUserGroup(UserGroup[2], '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet[2], UserGroup[2].Code, 'A');
+        CreateUserGroupPermissionSet(UserGroupPermissionSet[2], UserGroup[2].Code, 'TEST TABLES');
 
         // [GIVEN] User card
         UserCard.OpenEdit;
@@ -1086,7 +1214,7 @@ codeunit 134610 "Test User Group Permissions"
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[1].Code);
         UserCard.UserGroups.Next;
 
-        // [GIVEN] User permission set "B" has been added
+        // [GIVEN] User permission set 'TEST TOOL' has been added
         UserCard.Permissions.First;
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[1]."Role ID");
 
@@ -1096,7 +1224,8 @@ codeunit 134610 "Test User Group Permissions"
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[2].Code);
         UserCard.UserGroups.Next;
 
-        // [THEN] User permission set "A" has been added and is shown as first record in "User Permission Sets" subpage
+        // [THEN] User permission set 'TEST TABLES' has been added and is shown as first record in "User Permission Sets" subpage
+        // (as 'TEST TABLES' > 'TEST TOOL' in alphabetical order)
         UserCard.Permissions.First;
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[2]."Role ID");
         UserCard.Close;
@@ -1197,6 +1326,16 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."Role ID" := RoleID;
         UserGroupPermissionSet."App ID" := CreateGuid();
+        UserGroupPermissionSet.Insert(true);
+    end;
+
+    local procedure CreateUserGroupPermissionSet(var UserGroupPermissionSet: Record "User Group Permission Set"; UserGroupCode: Code[20]; RoleID: Code[20]; Scope: Option; AppID: Guid)
+    begin
+        UserGroupPermissionSet.Init();
+        UserGroupPermissionSet."User Group Code" := UserGroupCode;
+        UserGroupPermissionSet.Scope := Scope;
+        UserGroupPermissionSet."Role ID" := RoleID;
+        UserGroupPermissionSet."App ID" := AppID;
         UserGroupPermissionSet.Insert(true);
     end;
 
@@ -1614,6 +1753,7 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."App ID" := CreateGuid();
+        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
         UserGroupPermissionSet.Insert();
         Commit();
 
