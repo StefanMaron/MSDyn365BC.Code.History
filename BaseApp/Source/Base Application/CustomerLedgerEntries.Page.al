@@ -169,7 +169,7 @@ page 25 "Customer Ledger Entries"
                 {
                     ApplicationArea = Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
+                    ToolTip = 'Specifies the total sales amount excl. VAT to the customer in LCY.';
                 }
                 field("Bal. Account Type"; "Bal. Account Type")
                 {
