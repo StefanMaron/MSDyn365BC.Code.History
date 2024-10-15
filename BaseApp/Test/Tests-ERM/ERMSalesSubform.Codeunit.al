@@ -38,6 +38,8 @@ codeunit 134393 "ERM Sales Subform"
         NotEditableErr: Label '%1 should NOT be editable';
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
+        MustMatchErr: Label '%1 and %2 must match.';
+        InvoiceDiscPct: Label 'Invoice Disc. Pct.';
 
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
@@ -4385,6 +4387,89 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UpdateInvoiceDiscountPercentOnSalesOrderPage()
+    var
+        Customer: Record Customer;
+        Item1: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesOrder: TestPage "Sales Order";
+        SalesOrderSubform: TestPage "Sales Order Subform";
+        MinAmount1: Decimal;
+        MinAmount2: Decimal;
+        InvDiscPct: Decimal;
+    begin
+        // [SCENARIO 477664] Invoice Discount % field is not calculated correctly in documents.
+        Initialize();
+
+        // [GIVEN] Disable Calc. Inv. Discount on Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Calc. Inv. Discount", false);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create two variables & save Minimum Amount values.
+        MinAmount1 := LibraryRandom.RandIntInRange(1000, 1000);
+        MinAmount2 := LibraryRandom.RandIntInRange(2000, 2000);
+
+        // [GIVEN] Create two Invoice Discounts for Customer.
+        CreateInvoiceDiscForCustWithDiscPctAndMinValue(Customer, LibraryRandom.RandInt(0), MinAmount1);
+        CreateInvoiceDiscForCustWithDiscPctAndMinValue(Customer, LibraryRandom.RandIntInRange(2, 2), MinAmount2);
+
+        // [GIVEN] Create an Item 1.
+        LibraryInventory.CreateItem(Item1);
+
+        // [GIVEN] Create an Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a Sales Line for Item 1 & Validate Unit Price.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item1."No.", LibraryRandom.RandInt(0));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1900, 1999, 0));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create a Sales Line for Item 2 & Validate Unit Price.
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, Item2."No.", LibraryRandom.RandInt(0));
+        SalesLine2.Validate("Unit Price", LibraryRandom.RandDecInRange(500, 501, 0));
+        SalesLine2.Modify(true);
+
+        // [GIVEN] Open Sales Order Page & Calculate Invoice Discount.
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesLine."Document No.");
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
+
+        // [GIVEN] Trap Sales Order Page.
+        SalesOrder.Trap();
+
+        // [GIVEN] Open Sales Order Subform Page & save Invoice Discount Percent value in a variable.
+        SalesOrderSubform.OpenView();
+        SalesOrderSubform.Filter.SetFilter("Document No.", SalesLine."Document No.");
+        InvDiscPct := SalesOrderSubform."Invoice Disc. Pct.".AsDecimal();
+        SalesOrderSubform.Close();
+
+        // [WHEN] Find Customer Invoice Discount.
+        CustInvoiceDisc.SetRange(Code, Customer."No.");
+        CustInvoiceDisc.SetRange("Minimum Amount", MinAmount2);
+        CustInvoiceDisc.FindFirst();
+
+        // [VERIFY] Verify Invoice Discount Percent applied on Sales Order is correct.
+        Assert.AreEqual(
+           CustInvoiceDisc."Discount %",
+           InvDiscPct,
+           StrSubstNo(MustMatchErr, CustInvoiceDisc.FieldCaption("Discount %"), InvoiceDiscPct));
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5256,6 +5341,16 @@ codeunit 134393 "ERM Sales Subform"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Document Default Line Type" := SalesLineType;
         SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure CreateInvoiceDiscForCustWithDiscPctAndMinValue(var Customer: Record Customer; DiscountPct: Decimal; MinValue: Decimal)
+    var
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        LibraryERM.CreateInvDiscForCustomer(
+          CustInvoiceDisc, Customer."No.", Customer."Currency Code", MinValue);
+        CustInvoiceDisc.Validate("Discount %", DiscountPct);
+        CustInvoiceDisc.Modify(true);
     end;
 
     [ConfirmHandler]

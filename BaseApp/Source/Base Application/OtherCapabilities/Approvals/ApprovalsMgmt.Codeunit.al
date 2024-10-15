@@ -859,7 +859,13 @@ codeunit 1535 "Approvals Mgmt."
     var
         UserSetup: Record "User Setup";
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalRequestForSalespersPurchaser(WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+        if IsHandled then
+            exit;
+
         SequenceNo := GetLastSequenceNo(ApprovalEntryArgument);
 
         FindUserSetupBySalesPurchCode(UserSetup, ApprovalEntryArgument);
@@ -2662,6 +2668,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalRequestForSalespersPurchaser(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 }

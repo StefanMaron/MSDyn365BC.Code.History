@@ -19,12 +19,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.20706in</Width>
+                  <Width>18.30593cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>4.99276in</Height>
+                  <Height>12.68161cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -60,15 +60,15 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.3588in</Width>
+                                    <Width>3.45135cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>5.84824in</Width>
+                                    <Width>14.85453cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.28716in</Height>
+                                    <Height>0.72939cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -98,7 +98,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.14827in</Height>
+                                    <Height>0.37661cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -195,7 +195,7 @@
                                 </Filter>
                               </Filters>
                               <Top>11.57562cm</Top>
-                              <Height>1.10599cm</Height>
+                              <Height>1.106cm</Height>
                               <Width>18.30588cm</Width>
                               <ZIndex>1</ZIndex>
                               <Visibility>
@@ -208,27 +208,27 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.82947in</Width>
+                                    <Width>2.10685cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.81905in</Width>
+                                    <Width>2.08039cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.93716in</Width>
+                                    <Width>2.38039cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.81905in</Width>
+                                    <Width>2.08039cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.59071in</Width>
+                                    <Width>6.5804cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.21162in</Width>
+                                    <Width>3.07751cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -424,7 +424,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -465,7 +465,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -512,7 +512,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -550,7 +550,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -733,7 +733,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -910,7 +910,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1084,7 +1084,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1257,7 +1257,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1432,7 +1432,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1606,7 +1606,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1643,7 +1643,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1715,7 +1715,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2016,12 +2016,12 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>7.20496in</Width>
+                                    <Width>18.3006cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.27778in</Height>
+                                    <Height>0.70556cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2054,7 +2054,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2134,21 +2134,21 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.85733in</Width>
+                                    <Width>4.71762cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.73275in</Width>
+                                    <Width>4.40118cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.82592in</Width>
+                                    <Width>4.63784cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.78176in</Width>
+                                    <Width>4.52567cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.27778in</Height>
+                                    <Height>0.70556cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2185,7 +2185,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2225,7 +2225,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2264,7 +2264,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2395,7 +2395,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2429,7 +2429,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2470,7 +2470,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2603,7 +2603,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2675,7 +2675,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2804,7 +2804,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3025,8 +3025,8 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>5.19559cm</Top>
-                              <Height>3.17497cm</Height>
-                              <Width>18.2823cm</Width>
+                              <Height>3.17498cm</Height>
+                              <Width>18.28231cm</Width>
                               <ZIndex>4</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF((Fields!VATpercentCaption.Value = "") or (Sum(Fields!VALVATAmount.Value, "DataSet_Result") = 0),True,False)</Hidden>
@@ -3040,18 +3040,18 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.85733in</Width>
+                                    <Width>4.71762cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.67952in</Width>
+                                    <Width>6.80598cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.67021in</Width>
+                                    <Width>6.78233cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.27778in</Height>
+                                    <Height>0.70556cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3086,7 +3086,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3180,7 +3180,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3271,7 +3271,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3370,7 +3370,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3466,7 +3466,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3507,7 +3507,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3606,7 +3606,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3704,7 +3704,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.06944in</Height>
+                                    <Height>0.17638cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3739,7 +3739,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.13889in</Height>
+                                    <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3920,7 +3920,7 @@
                                 </Filter>
                               </Filters>
                               <Top>8.38597cm</Top>
-                              <Height>3.17497cm</Height>
+                              <Height>3.17498cm</Height>
                               <Width>18.30593cm</Width>
                               <ZIndex>5</ZIndex>
                               <Visibility>
@@ -3968,7 +3968,7 @@ Cstr(Fields!CompanyInfoPhoneNo.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVATRegNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!BankName_CompanyInfo.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!CustNo_IssFinChrgMemoHdr.Value) + Chr(177) + 
 Cstr(Fields!VATNoText.Value) + Chr(177) + 
 Cstr(Fields!VATRegNo_IssFinChrgMemoHdr.Value) + Chr(177) + 
@@ -3986,7 +3986,7 @@ Cstr(Fields!CompanyInfoVATRegistrationNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoGiroNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!CustNo_IssFinChrgMemoHdrCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNoCaption.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderNoCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderDueDateCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderPostingDateCaption.Value) + Chr(177) + 
@@ -4052,7 +4052,7 @@ Cstr(Fields!DocumentDateCaption.Value)
       <Width>7.22095in</Width>
       <Page>
         <PageHeader>
-          <Height>3.77236in</Height>
+          <Height>3.92in</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -4137,33 +4137,6 @@ Cstr(Fields!DocumentDateCaption.Value)
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoGiroNoCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(34,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.60012cm</Top>
-              <Left>12.69653cm</Left>
-              <Height>11pt</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>3</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
             <Textbox Name="CompanyInfoBankNameCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -4182,11 +4155,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.02312cm</Top>
+              <Top>7.59692cm</Top>
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>2.1cm</Width>
-              <ZIndex>4</ZIndex>
+              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4209,15 +4182,15 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.9572cm</Top>
+              <Top>6.5922cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>5</ZIndex>
+              <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNoCaption1">
+            <Textbox Name="CompanyInfoIBANCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -4235,11 +4208,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.41436cm</Top>
+              <Top>7.98816cm</Top>
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>6</ZIndex>
+              <Width>1.71194cm</Width>
+              <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4262,10 +4235,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.54841cm</Top>
+              <Top>8.18341cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4288,10 +4261,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.38063cm</Top>
+              <Top>9.01563cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4314,10 +4287,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.95763cm</Top>
+              <Top>8.59263cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4344,7 +4317,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.63933cm</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4367,11 +4340,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.49455cm</Top>
+              <Top>3.12955cm</Top>
               <Left>0.00139in</Left>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4398,7 +4371,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.64463cm</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4421,10 +4394,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.88261cm</Top>
+              <Top>3.51761cm</Top>
               <Height>11pt</Height>
               <Width>358.90164pt</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4451,7 +4424,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.64463cm</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4474,10 +4447,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.24212cm</Top>
+              <Top>3.87712cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4504,7 +4477,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.64463cm</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4527,10 +4500,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.66512cm</Top>
+              <Top>4.30012cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4557,7 +4530,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.64463cm</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4580,10 +4553,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.02461cm</Top>
+              <Top>4.65961cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4610,7 +4583,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.72299cm</Left>
               <Height>11pt</Height>
               <Width>5.61287cm</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4633,10 +4606,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.41586cm</Top>
+              <Top>5.05086cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4659,10 +4632,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.77537cm</Top>
+              <Top>5.41037cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4689,7 +4662,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>14.82681cm</Left>
               <Height>11pt</Height>
               <Width>3.51435cm</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4712,10 +4685,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.19837cm</Top>
+              <Top>5.83337cm</Top>
               <Height>11pt</Height>
               <Width>12.66125cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4742,34 +4715,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>14.85327cm</Left>
               <Height>11pt</Height>
               <Width>3.48259cm</Width>
-              <ZIndex>25</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(17,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.60012cm</Top>
-              <Left>14.82681cm</Left>
-              <Height>11pt</Height>
-              <Width>3.50905cm</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4792,11 +4738,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.02312cm</Top>
+              <Top>7.59692cm</Top>
               <Left>14.82681cm</Left>
               <Height>11pt</Height>
               <Width>3.50905cm</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4819,16 +4765,16 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.96822cm</Top>
+              <Top>6.60322cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.65047cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNo1">
+            <Textbox Name="CompanyInfoIBAN1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -4846,11 +4792,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.44611cm</Top>
-              <Left>14.82681cm</Left>
+              <Top>8.01991cm</Top>
+              <Left>14.40847cm</Left>
               <Height>11pt</Height>
-              <Width>3.51435cm</Width>
-              <ZIndex>29</ZIndex>
+              <Width>3.93269cm</Width>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4873,10 +4819,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.34963cm</Top>
+              <Top>6.98463cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4899,11 +4845,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.38138cm</Top>
+              <Top>7.01638cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.61519cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4926,10 +4872,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.74089cm</Top>
+              <Top>7.37589cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4952,11 +4898,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.73842cm</Top>
+              <Top>7.37342cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.65047cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4979,11 +4925,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.55194cm</Top>
+              <Top>8.18694cm</Top>
               <Left>4.01431cm</Left>
               <Height>11pt</Height>
               <Width>8.65047cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5007,11 +4953,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.38063cm</Top>
+              <Top>9.01563cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.654cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5035,11 +4981,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.95763cm</Top>
+              <Top>8.59263cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.65047cm</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5062,11 +5008,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.16036cm</Top>
+              <Top>7.79536cm</Top>
               <Left>4.01078cm</Left>
               <Height>11pt</Height>
               <Width>8.65047cm</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5093,7 +5039,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.69653cm</Left>
               <Height>11pt</Height>
               <Width>5.64462cm</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5122,7 +5068,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.67919cm</Left>
               <Height>11pt</Height>
               <Width>2.1cm</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5154,7 +5100,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>14.77919cm</Left>
               <Height>11pt</Height>
               <Width>3.56197cm</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5184,7 +5130,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12.67919cm</Left>
               <Height>11pt</Height>
               <Width>2.1cm</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5216,7 +5162,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>14.77919cm</Left>
               <Height>11pt</Height>
               <Width>3.53839cm</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5244,10 +5190,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox122</rd:DefaultName>
-              <Top>7.14977cm</Top>
+              <Top>7.78477cm</Top>
               <Height>11pt</Height>
               <Width>3.96139cm</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5263,7 +5209,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo2Picture.Value) = True,true,false)</Hidden>
               </Visibility>
@@ -5280,7 +5226,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo1Picture.Value) = True,true,false)</Hidden>
               </Visibility>
@@ -5296,7 +5242,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>44</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo3Picture.Value) = True,true,false)</Hidden>
               </Visibility>
@@ -5461,6 +5407,9 @@ End Function
         <Field Name="CompanyInfoBankAccountNo">
           <DataField>CompanyInfoBankAccountNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CustNo_IssFinChrgMemoHdr">
           <DataField>CustNo_IssFinChrgMemoHdr</DataField>
         </Field>
@@ -5553,6 +5502,9 @@ End Function
         </Field>
         <Field Name="CompanyInfoBankAccountNoCaption">
           <DataField>CompanyInfoBankAccountNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="CompanyInfoBankNameCaption">
           <DataField>CompanyInfoBankNameCaption</DataField>

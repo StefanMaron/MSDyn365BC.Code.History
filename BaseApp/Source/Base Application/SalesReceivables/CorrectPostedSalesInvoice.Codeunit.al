@@ -7,6 +7,7 @@
     trigger OnRun()
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
         UnapplyCostApplication("No.");
 
@@ -17,9 +18,13 @@
         if SalesInvoiceLinesContainJob("No.") then
             CreateAndProcessJobPlanningLines(SalesHeader);
 
-        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
-        SetTrackInfoForCancellation(Rec);
-        UpdateSalesOrderLinesFromCancelledInvoice("No.");
+        IsHandled := false;
+        OnRunOnBeforePostCorrectiveSalesCrMemo(Rec, SalesHeader, IsHandled);
+        if not IsHandled then begin
+            CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+            SetTrackInfoForCancellation(Rec);
+            UpdateSalesOrderLinesFromCancelledInvoice("No.");
+        end;
         OnOnRunOnAfterUpdateSalesOrderLinesFromCancelledInvoice(Rec, SalesHeader);
 
         Commit();
@@ -131,7 +136,7 @@
 
         case DocumentType of
             SalesHeader."Document Type"::"Credit Memo":
-                CopyDocMgt.SetPropertiesForCreditMemoCorrection();
+                CopyDocMgt.SetPropertiesForCorrectiveCreditMemo(true);
             SalesHeader."Document Type"::Invoice:
                 CopyDocMgt.SetPropertiesForInvoiceCorrection(SkipCopyFromDescription);
             else
@@ -893,6 +898,39 @@
         OnHasLineDiscountSetup(SalesReceivablesSetup, Result);
     end;
 
+    internal procedure UpdateSalesOrderLineIfExist(SalesCreditMemoNo: Code[20])
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesCrMemoLine.SetLoadFields("Document No.", Type, "No.", "Appl.-from Item Entry", Quantity, "Variant Code");
+        SalesCrMemoLine.SetRange("Document No.", SalesCreditMemoNo);
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+        SalesCrMemoLine.SetFilter("No.", '<>%1', '');
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                SalesCrMemoLine.GetSalesInvoiceLine(SalesInvoiceLine);
+                if SalesInvoiceLine."Line No." <> 0 then
+                    UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine);
+            until SalesCrMemoLine.Next() = 0;
+    end;
+
+    local procedure UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        SalesLine: Record "Sales Line";
+        UndoPostingManagement: Codeunit "Undo Posting Management";
+    begin
+        if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
+            SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
+            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+            if SalesLine."Qty. to Ship" = 0 then
+                UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
+            TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
+            UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
+        end;
+    end;
+
     local procedure UpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20])
     var
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -1121,6 +1159,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWasNotCancelled(InvNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforePostCorrectiveSalesCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

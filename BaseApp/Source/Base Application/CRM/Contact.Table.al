@@ -2916,6 +2916,7 @@
     procedure CreateSalesQuoteFromContact()
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
         OnBeforeCreateSalesQuoteFromContact(Rec, SalesHeader);
 
@@ -2927,7 +2928,12 @@
         SalesHeader.Validate("Document Date", WorkDate());
         SalesHeader.Validate("Sell-to Contact No.", "No.");
         SalesHeader.Modify();
+        IsHandled := false;
+        OnCreateSalesQuoteFromContactOnBeforeRunPage(Rec, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
         PAGE.Run(PAGE::"Sales Quote", SalesHeader);
+        OnCreateSalesQuoteFromContactOnAfterRunPage(Rec, SalesHeader);
     end;
 
     procedure ContactToCustBusinessRelationExist(): Boolean
@@ -3758,6 +3764,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupCity(var Contact: Record Contact; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesQuoteFromContactOnBeforeRunPage(Contact: Record Contact; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesQuoteFromContactOnAfterRunPage(Contact: Record Contact; SalesHeader: Record "Sales Header")
     begin
     end;
 }

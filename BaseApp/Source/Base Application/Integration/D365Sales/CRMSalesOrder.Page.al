@@ -432,14 +432,26 @@ page 5380 "CRM Sales Order"
                     trigger OnAction()
                     var
                         SalesHeader: Record "Sales Header";
+                        CRMSalesorder: Record "CRM Salesorder";
+                        CRMProductName: Codeunit "CRM Product Name";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         CRMCouplingManagement: Codeunit "CRM Coupling Management";
                         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
                     begin
-                        if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
-                            Commit();
-                            CRMIsCoupledToRecord :=
-                              CRMCouplingManagement.IsRecordCoupledToNAV(SalesOrderId, DATABASE::"Sales Header") and CRMIntegrationEnabled;
-                            PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
+                        if Rec.IsEmpty() then
+                            exit;
+
+                        if BidirectionalSalesOrderIntEnabled then begin
+                            CRMSalesOrder := Rec;
+                            CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMSalesorder)
+                        end else begin
+                            Session.LogMessage('0000KVP', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                            if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
+                                Session.LogMessage('0000KVQ', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                                Commit();
+                                CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToNAV(Rec.SalesOrderId, DATABASE::"Sales Header") and CRMIntegrationEnabled;
+                                PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
+                            end;
                         end;
                         RecalculateRecordCouplingStatus();
                     end;
@@ -469,14 +481,19 @@ page 5380 "CRM Sales Order"
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
+        BidirectionalSalesOrderIntEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
         SetCRMAccountAndContactName();
     end;
 
     var
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BidirectionalSalesOrderIntEnabled: Boolean;
         CRMAccountName: Text[160];
         CRMContactName: Text[160];
+        CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
+        StartingToCreateSalesOrderTelemetryMsg: Label 'Starting to create sales order from %1 order %2 via a page action.', Locked = true;
+        CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Committing after processing %1 order %2 via a page action.', Locked = true;
 
     local procedure SetCRMAccountAndContactName()
     var

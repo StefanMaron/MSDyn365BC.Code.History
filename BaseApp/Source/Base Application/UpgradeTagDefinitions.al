@@ -1100,5 +1100,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-474260-ReceivedFromCountryCode-20230531');
     end;
+
+    internal procedure GetVATSetupUpgradeTag(): Code[250]
+    begin
+        exit('MS-478432-VATSetupUpgrade-20230717');
+    end;
 }
 

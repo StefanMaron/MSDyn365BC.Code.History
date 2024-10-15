@@ -230,17 +230,17 @@ report 99003802 "Copy Production Order Document"
         OnAfterCopyProdLines(ToProdOrderLine, FromProdOrderLine, IncludeHeader);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCopyProdLines(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line"; IncludeHeader: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeToProdOrderModify(var ToProdOrder: Record "Production Order"; FromProdOrder: Record "Production Order")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeToProdOrderLineInsert(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
     begin
     end;
