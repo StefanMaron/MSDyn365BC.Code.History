@@ -137,7 +137,14 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     [Scope('OnPrem')]
     procedure SetURLsToDefault(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"; Sandbox: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetURLsToDefault(DocExchServiceSetup, Sandbox, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Sandbox then begin
             DocExchServiceSetup."Sign-up URL" := DefaultSignUpUrlProdTxt;
             DocExchServiceSetup."Sign-in URL" := DefaultSignInUrlProdTxt;
@@ -446,7 +453,13 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         ActivateAppNotification: Notification;
         ClientId: Text;
         Sandbox: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendActivateAppNotification(IsHandled);
+        if IsHandled then
+            exit;
+
         if not GuiAllowed() then
             exit;
 
@@ -1724,7 +1737,13 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         PageDocExchServiceSetup: Page "Doc. Exch. Service Setup";
         Success: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyPrerequisites(ShowFailure, Success, IsHandled);
+        if IsHandled then
+            exit(Success);
+
         if DocExchServiceSetup.Get() then
             if DocExchServiceSetup."Service URL" <> '' then
                 if DocExchServiceSetup."Auth URL" <> '' then
@@ -1752,6 +1771,21 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         GetServiceSetUp(DocExchServiceSetup);
         Session.LogMessage('000089T', DocExchServiceDocumentSuccessfullyReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         Session.LogMessage('000089U', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendActivateAppNotification(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetURLsToDefault(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"; Sandbox: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyPrerequisites(ShowFailure: Boolean; var Success: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

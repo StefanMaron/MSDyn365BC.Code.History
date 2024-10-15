@@ -209,6 +209,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether you are able to post an application in a closed period.';
                 }
+                field("Control VAT Period"; Rec."Control VAT Period")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies a way of using VAT Date against VAT Return Periods. If you choose ‘Block posting within closed and warn for released period’, system will not allow postings in closed VAT Return Period, but if the period is not closed, but VAT returns are released or submitted, user will be warned what try to post an entry with VAT Date in this period. If you choose ‘Block posting within closed period’, system will still not allow postings in closed VAT Return Period, but there will be no warnings for release or submitted VAT returns. If you choose ‘Warn when posting in closed period’, system will not block posting entry with VAT Date in the closed VAT return period, but it will show warning message before posting. And if you choose ‘Disabled’ options, system will allow you to post without any control regardless of VAT return or period status.';
+                }
                 field("Bank Account Nos."; Rec."Bank Account Nos.")
                 {
                     ApplicationArea = Basic, Suite;

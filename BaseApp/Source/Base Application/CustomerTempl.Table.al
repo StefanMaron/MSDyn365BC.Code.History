@@ -479,6 +479,7 @@ table 1381 "Customer Templ."
     begin
         CopyTemplate(SourceCustomerTempl);
         CopyDimensions(SourceCustomerTempl);
+        OnAfterCopyFromTemplate(SourceCustomerTempl, Rec);
     end;
 
     local procedure CopyTemplate(SourceCustomerTempl: Record "Customer Templ.")
@@ -489,6 +490,7 @@ table 1381 "Customer Templ."
         TransferFields(SourceCustomerTempl, false);
         Code := SavedCustomerTempl.Code;
         Description := SavedCustomerTempl.Description;
+        OnCopyTemplateOnBeforeModify(SourceCustomerTempl, SavedCustomerTempl, Rec);
         Modify();
     end;
 
@@ -513,5 +515,15 @@ table 1381 "Customer Templ."
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
                 if DestDefaultDimension.Insert(true) then;
             until SourceDefaultDimension.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromTemplate(SourceCustomerTempl: Record "Customer Templ."; var CustomerTempl: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTemplateOnBeforeModify(SourceCustomerTempl: Record "Customer Templ."; SavedCustomerTempl: Record "Customer Templ."; var CustomerTempl: Record "Customer Templ.")
+    begin
     end;
 }

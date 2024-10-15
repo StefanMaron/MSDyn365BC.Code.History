@@ -202,7 +202,7 @@ codeunit 8618 "Config. Excel Exchange"
               StrSubstNo(ExcelFileNameTok, Format(CurrentDateTime, 0, '<Day,2>_<Month,2>_<Year4>_<Hours24>_<Minutes,2>_<Seconds,2>'));
 
         DurationAsInt := CurrentDateTime() - StartTime;
-        // Tag used for analytics - DO NOT MODIFY
+
         Session.LogMessage('00009QB', StrSubstNo(ExcelExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         OnBeforeBLOBExport(TempBlob);
@@ -352,7 +352,7 @@ codeunit 8618 "Config. Excel Exchange"
         DataColumnTableId: Integer;
         SheetCount: Integer;
         ExcelImportStartMsg: Label 'Converting Excel data started.', Locked = true;
-        ExcelImportFinishMsg: Label 'Converting Excel data finished. Duration: %1 milliseconds. File size: %3.', Locked = true;
+        ExcelImportFinishMsg: Label 'Converting Excel data finished. Duration: %1 milliseconds. File size: %2.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
         FileSize: Integer;
@@ -390,7 +390,7 @@ codeunit 8618 "Config. Excel Exchange"
         ConfigXMLExchange.SetExcelMode(true);
 
         DurationAsInt := CurrentDateTime() - StartTime;
-        // Tag used for analytics - DO NOT MODIFY
+
         Session.LogMessage('00009QD', StrSubstNo(ExcelImportFinishMsg, DurationAsInt, FileSize), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
         if ConfigXMLExchange.ImportPackageXMLFromStream(InStream) then
             Imported := true;

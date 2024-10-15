@@ -1,9 +1,10 @@
-report 3 "G/L Register"
+﻿report 3 "G/L Register"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLRegister.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'G/L Register';
+    PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
 

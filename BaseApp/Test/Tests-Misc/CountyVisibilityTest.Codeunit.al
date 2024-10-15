@@ -1521,6 +1521,57 @@ codeunit 134449 "County Visibility Test"
         CountyCaptionTestList.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderCountyVisibility()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [SCENARIO 464217] County/State Field Missing From Blanket Sales Order Page
+        Initialize();
+
+        // Create Blanket Sales Order
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '', '', 1, '', 0D);
+
+        // [GIVEN] Open Blanket Sales Order Page and Verify visibility of fields
+        BlanketSalesOrder.OpenNew();
+        Assert.IsFalse(BlanketSalesOrder."Sell-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Sell-to County'));
+        Assert.IsTrue(BlanketSalesOrder."Sell-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Sell-to County'));
+        Assert.IsFalse(BlanketSalesOrder."Bill-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Bill-to County'));
+        Assert.IsTrue(BlanketSalesOrder."Bill-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Bill-to County'));
+        Assert.IsFalse(BlanketSalesOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
+        Assert.IsTrue(BlanketSalesOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
+        BlanketSalesOrder.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderCountyVisibility()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [SCENARIO 464217] County/State Field Missing From Blanket Purchase Order Page
+        Initialize();
+
+        // [GIVEN] Create Blanket Purchase Order
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", '', '', 1, '', 0D);
+
+        // [GIVEN] Open Blanket Purchase Order Page and Verify visibility of fields
+        BlanketPurchaseOrder.OpenNew();
+        Assert.IsFalse(BlanketPurchaseOrder."Buy-from County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Buy-from County'));
+        Assert.IsTrue(BlanketPurchaseOrder."Buy-from County".Visible, StrSubstNo(CountyVisibleTxt, 'Buy-from County'));
+        Assert.IsFalse(BlanketPurchaseOrder."Pay-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Pay-to County'));
+        Assert.IsTrue(BlanketPurchaseOrder."Pay-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Pay-to County'));
+        Assert.IsFalse(BlanketPurchaseOrder."Ship-to County".Visible, StrSubstNo(CountyNotVisibleTxt, 'Ship-to County'));
+        Assert.IsTrue(BlanketPurchaseOrder."Ship-to County".Visible, StrSubstNo(CountyVisibleTxt, 'Ship-to County'));
+        BlanketPurchaseOrder.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"County Visibility Test");

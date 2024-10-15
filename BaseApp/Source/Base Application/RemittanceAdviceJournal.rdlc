@@ -3292,6 +3292,12 @@ End Function
         <Field Name="CompAddr6">
           <DataField>CompAddr6</DataField>
         </Field>
+        <Field Name="CompAddr7">
+          <DataField>CompAddr7</DataField>
+        </Field>
+        <Field Name="CompAddr8">
+          <DataField>CompAddr8</DataField>
+        </Field>
         <Field Name="VendAddr7">
           <DataField>VendAddr7</DataField>
         </Field>

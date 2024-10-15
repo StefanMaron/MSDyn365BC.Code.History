@@ -19,6 +19,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         DimensionValueCode: Code[20];
         SourceDocumentNo: Code[20];
@@ -434,7 +435,7 @@ codeunit 134558 "ERM Cash Flow Pages"
     end;
 
     [Test]
-    [HandlerFunctions('CFLedgerEntriesDimensionOverviewMatrixModalFormHandler')]
+    [HandlerFunctions('ConfirmHandlerNo,CFLedgerEntriesDimensionOverviewMatrixModalFormHandler')]
     [Scope('OnPrem')]
     procedure ServiceOrderInCFLedgerEntriesDimensionOverviewMatrix()
     var
@@ -463,6 +464,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // The dimension columns on page CFLEDimOverview cannot be accessed right now via code
         Dimension.SetRange(Blocked, false);
         Dimension.FindFirst();
+        CreateDefDimensionForFirstIfNotExist(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ServiceHeader.Validate("Dimension Set ID",
           LibraryDimension.CreateDimSet(ServiceHeader."Dimension Set ID", Dimension.Code, DimensionValue.Code));
@@ -898,6 +900,32 @@ codeunit 134558 "ERM Cash Flow Pages"
     begin
         LibraryDimension.CreateDimension(Dimension);
         exit(Dimension.Code);
+    end;
+
+    local procedure CreateDefDimensionForFirstIfNotExist(var Dimension: Record Dimension)
+    var
+        DefDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+    begin
+        DefDimension.SetRange("Dimension Code", Dimension.Code);
+        DefDimension.SetRange("Value Posting", DefDimension."Value Posting"::"Code Mandatory");
+        DefDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        if not DefDimension.IsEmpty() then
+            exit;
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefDimension, GLAccount."No.", Dimension.Code, DimensionValue.Code);
+        DefDimension.Validate("Value Posting", DefDimension."Value Posting"::"Code Mandatory");
+        DefDimension.Validate("Allowed Values Filter", DimensionValue.Code);
+        DefDimension.Modify();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

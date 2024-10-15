@@ -304,6 +304,7 @@
                         end;
                         SetVatPostingSetupToGenJnlLine(GenJnlLine, "VAT Posting Setup");
                         GenJnlLine."Posting Date" := PostingDate;
+                        GenJnlLine."VAT Reporting Date" := VATDate;
                         GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                         GenJnlLine."Document No." := DocNo;
                         GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
@@ -508,6 +509,7 @@
 
                     GenJnlLine.Validate("Account No.", GLAccSettle."No.");
                     GenJnlLine."Posting Date" := PostingDate;
+                    GenJnlLine."VAT Reporting Date" := VATDate;
                     GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                     GenJnlLine."Document No." := DocNo;
                     GenJnlLine.Description := Text004;
@@ -552,7 +554,7 @@
                 VATAmount := 0;
                 VATAmountAddCurr := 0;
                 VATAmountOfPropDedSettled := 0;
-                
+
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(AllAmountsAreInTxt, GLSetup."Additional Reporting Currency")
                 else begin
@@ -575,7 +577,7 @@
                 group(Options)
                 {
                     Caption = 'Options';
-                    
+
 #if not CLEAN22
                     field(VATDateTypeField; VATDateType)
                     {
@@ -606,6 +608,12 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date on which the transfer to the VAT account is posted. This field must be filled in.';
+                    }
+                    field(VATDt; VATDate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Date';
+                        ToolTip = 'Specifies the VAT date for the transfer to the VAT account. This field must be filled in.';
                     }
                     field(DocumentNo; DocNo)
                     {
@@ -675,6 +683,8 @@
 
         if PostingDate = 0D then
             Error(Text000);
+        if VATDate = 0D then
+            Error(EnterVATDateLbl);
         if DocNo = '' then
             Error(Text001);
         if GLAccSettle."No." = '' then
@@ -711,6 +721,7 @@
         VATDateType: Enum "VAT Date Type";
 #endif
         PostingDate: Date;
+        VATDate: Date;
         DocNo: Code[20];
         VATType: Enum "General Posting Type";
         VATAmount: Decimal;
@@ -734,6 +745,7 @@
         AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
+        EnterVATDateLbl: Label 'Enter the VAT Date';
         CalcandPostVATSettlementCaptionLbl: Label 'Calc. and Post VAT Settlement';
         PageCaptionLbl: Label 'Page';
         TestReportnotpostedCaptionLbl: Label 'Test Report (Not Posted)';
@@ -744,19 +756,24 @@
         TotalCaptionLbl: Label 'Total';
         SettlementCaptionLbl: Label 'Settlement';
         VATDateLbl: Label 'VAT Date';
-        
+
 
     protected var
         GLAccSettle: Record "G/L Account";
         [InDataSet]
         PostSettlement: Boolean;
 
-
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
+    begin
+        InitializeRequest(NewStartDate, NewEndDate, NewPostingDate, NewPostingDate, NewDocNo, NewSettlementAcc, ShowVATEntries, Post);
+    end;
+
+    internal procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewVATDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         EntrdStartDate := NewStartDate;
         EnteredEndDate := NewEndDate;
         PostingDate := NewPostingDate;
+        VATDate := NewVATDate;
         DocNo := NewDocNo;
         GLAccSettle."No." := NewSettlementAcc;
         PrintVATEntries := ShowVATEntries;
@@ -842,6 +859,7 @@
         GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
         GenJnlLine2.Description := GenJnlLine.Description;
         GenJnlLine2."Posting Date" := PostingDate;
+        GenJnlLine2."VAT Reporting Date" := VATDate;
         GenJnlLine2."Document Type" := GenJnlLine2."Document Type"::" ";
         GenJnlLine2."Document No." := DocNo;
         GenJnlLine2."Source Code" := SourceCodeSetup."VAT Settlement";

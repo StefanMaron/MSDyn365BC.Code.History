@@ -2238,6 +2238,71 @@ codeunit 137161 "SCM Warehouse Orders"
         Assert.AreEqual(Qty / 2, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
     end;
 
+    [Test]
+    procedure S460314_AvailQtyToPickInPickWorksheetHavingAnotherShipmentPickedAndPartiallyShipped_WithDisabledDirectedPutAwayAndPick()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Qty: Decimal;
+        QtyToShip: Decimal;
+    begin
+        // [FEATURE] [Pick Worksheet] [Available Qty. to Pick] [Warehouse Shipment] [Partial Shipment]
+        // [SCENARIO 460314] Available Qty. to Pick in pick worksheet when there is another picked warehouse shipment exists for this item that is picked and partially shipped.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Item and location with required shipment and pick.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create bin "B1" and set it as "Shipment Bin Code" at location.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create bin "B2" and post inventory adjustment of 20 pcs to it.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[2].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order "SO1" for 5 pcs. Release and create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty / 4, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [GIVEN] Create and register pick.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        RegisterWarehouseActivity("Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", "Warehouse Activity Type"::Pick);
+
+        // [GIVEN] Ship and invoice 2 pcs.
+        QtyToShip := LibraryRandom.RandIntInRange(2, 4);
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.Validate("Qty. to Ship", QtyToShip);
+        WarehouseShipmentLine.Modify(true);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
+
+        // [GIVEN] Sales order "SO2" for 20 pcs. Release and create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Open pick worksheet and pull the warehouse shipment.
+        GetWarehouseDocumentOnWarehouseWorksheetLine(WhseWorksheetName, Location.Code, WarehouseShipmentHeader."No.", '''''');
+
+        // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 15.
+        FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
+        Assert.AreEqual(Qty * 3 / 4, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

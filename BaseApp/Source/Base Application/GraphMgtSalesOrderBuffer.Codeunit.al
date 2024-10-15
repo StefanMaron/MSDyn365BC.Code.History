@@ -549,17 +549,13 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         CompletelyShipped: Boolean;
     begin
         SearchSalesLine.CopyFilters(SalesLine);
-        SearchSalesLine.SetLoadFields(Type, "Location Code", "Completely Shipped");
         SearchSalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SearchSalesLine.SetRange("Document No.", SalesLine."Document No.");
-        CompletelyShipped := true;
-        if SearchSalesLine.FindSet() then
-            repeat
-                if (SearchSalesLine.Type <> SalesLine.Type::" ") and (SearchSalesLine."Location Code" = SalesLine."Location Code") and (SearchSalesLine."Completely Shipped" = false) then begin
-                    CompletelyShipped := false;
-                    break;
-                end;
-            until SearchSalesLine.Next() = 0;
+        SearchSalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
+        SearchSalesLine.SetRange("Completely Shipped", false);
+
+        CompletelyShipped := SearchSalesLine.IsEmpty();
 
         if not SalesOrderEntityBuffer.Get(SalesLine."Document No.") then
             exit;

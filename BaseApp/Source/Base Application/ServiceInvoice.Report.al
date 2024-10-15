@@ -138,6 +138,12 @@ report 5911 "Service - Invoice"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(DocDate_ServInvHeader; Format("Service Invoice Header"."Document Date", 0, 4))
                     {
                     }

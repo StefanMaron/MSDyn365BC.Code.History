@@ -63,6 +63,14 @@ page 44 "Sales Credit Memo"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
