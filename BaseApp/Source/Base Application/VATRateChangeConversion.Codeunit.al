@@ -408,6 +408,7 @@ codeunit 550 "VAT Rate Change Conversion"
         ConvertVATProdPostingGroup: Boolean;
         ConvertGenProdPostingGroup: Boolean;
         RoundingPrecision: Decimal;
+        IsModified: Boolean;
     begin
         ProgressWindow.Update(1, SalesHeader.TableCaption);
         ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Sales Documents");
@@ -452,6 +453,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                               ConvertGenProdPostGrp(VATRateChangeSetup."Update Sales Documents"));
 
                                             SalesLine.Find();
+                                            IsModified := false;
                                             if SalesHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
                                                (SalesLine."VAT %" <> SalesLineOld."VAT %") and
                                                UpdateUnitPriceInclVAT(SalesLine.Type)
@@ -461,8 +463,14 @@ codeunit 550 "VAT Rate Change Conversion"
                                                   "Unit Price",
                                                   Round(
                                                     SalesLineOld."Unit Price" * (100 + SalesLine."VAT %") / (100 + SalesLineOld."VAT %"), RoundingPrecision));
-                                                SalesLine.Modify(true);
+                                                IsModified := true;
                                             end;
+                                            if SalesLine."Prepayment %" <> 0 then begin
+                                                SalesLine.UpdatePrepmtSetupFields();
+                                                IsModified := true;
+                                            end;
+                                            if IsModified then
+                                                SalesLine.Modify(true);
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (SalesLine."Outstanding Quantity" <> 0) then begin
                                                 NewVATProdPotingGroup := SalesLine."VAT Prod. Posting Group";
@@ -736,6 +744,7 @@ codeunit 550 "VAT Rate Change Conversion"
         ConvertVATProdPostingGroup: Boolean;
         ConvertGenProdPostingGroup: Boolean;
         RoundingPrecision: Decimal;
+        IsModified: Boolean;
     begin
         ProgressWindow.Update(1, PurchaseHeader.TableCaption);
         ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Purchase Documents");
@@ -780,6 +789,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                               ConvertGenProdPostGrp(VATRateChangeSetup."Update Purchase Documents"));
 
                                             PurchaseLine.Find();
+                                            IsModified := false;
                                             if PurchaseHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
                                                (PurchaseLine."VAT %" <> PurchaseLineOld."VAT %") and
                                                UpdateUnitPriceInclVAT(PurchaseLine.Type)
@@ -791,8 +801,14 @@ codeunit 550 "VAT Rate Change Conversion"
                                                   Round(
                                                     PurchaseLineOld."Direct Unit Cost" * (100 + PurchaseLine."VAT %") / (100 + PurchaseLineOld."VAT %"),
                                                     RoundingPrecision));
-                                                PurchaseLine.Modify(true);
+                                                IsModified := true;
                                             end;
+                                            if PurchaseLine."Prepayment %" <> 0 then begin
+                                                PurchaseLine.UpdatePrepmtSetupFields();
+                                                IsModified := true;
+                                            end;
+                                            if IsModified then
+                                                PurchaseLine.Modify(true);
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (PurchaseLine."Outstanding Quantity" <> 0) then begin
                                                 NewVATProdPotingGroup := PurchaseLine."VAT Prod. Posting Group";

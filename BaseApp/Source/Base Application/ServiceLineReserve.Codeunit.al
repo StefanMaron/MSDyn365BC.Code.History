@@ -483,6 +483,45 @@ codeunit 99000842 "Service Line-Reserve"
         CreateBindingReservation(ServiceLine, ReqLine.Description, ReqLine."Due Date", ReservQty, ReservQtyBase);
     end;
 
+    procedure BindToTransfer(ServiceLine: Record "Service Line"; TransLine: Record "Transfer Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SetBinding(ReservationEntry.Binding::"Order-to-Order");
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Transfer Line", 1, TransLine."Document No.", '', 0, TransLine."Line No.",
+          TransLine."Variant Code", TransLine."Transfer-to Code", TransLine."Qty. per Unit of Measure");
+        CreateReservationSetFrom(TrackingSpecification);
+        CreateBindingReservation(ServiceLine, TransLine.Description, TransLine."Receipt Date", ReservQty, ReservQtyBase);
+    end;
+
+    procedure BindToProdOrder(ServiceLine: Record "Service Line"; ProdOrderLine: Record "Prod. Order Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SetBinding(ReservationEntry.Binding::"Order-to-Order");
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+          ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
+        CreateReservationSetFrom(TrackingSpecification);
+        CreateBindingReservation(ServiceLine, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
+    end;
+
+    procedure BindToAssembly(ServiceLine: Record "Service Line"; AsmHeader: Record "Assembly Header"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SetBinding(ReservationEntry.Binding::"Order-to-Order");
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+          AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
+        CreateReservationSetFrom(TrackingSpecification);
+        CreateBindingReservation(ServiceLine, AsmHeader.Description, AsmHeader."Due Date", ReservQty, ReservQtyBase);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewServiceLine: Record "Service Line"; OldServiceLine: Record "Service Line"; var HasError: Boolean; var ShowError: Boolean)
     begin
