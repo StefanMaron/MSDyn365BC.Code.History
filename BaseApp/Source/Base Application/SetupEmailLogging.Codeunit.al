@@ -71,6 +71,7 @@ codeunit 1641 "Setup Email Logging"
         TenantIdExtractedTxt: Label 'Tenant ID %1 has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
+        EmailLoggingUsingGraphApiFeatureIdTok: Label 'EmailLoggingUsingGraphApi', Locked = true;
 
     [TryFunction]
     [Obsolete('Will be removed', '17.0')]
@@ -631,6 +632,15 @@ codeunit 1641 "Setup Email Logging"
     end;
 
     [Scope('OnPrem')]
+    procedure IsEmailLoggingUsingGraphApiFeatureEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        if FeatureKey.Get(EmailLoggingUsingGraphApiFeatureIdTok) then
+            FeatureEnabled := FeatureKey.Enabled = FeatureKey.Enabled::"All Users";
+    end;
+
+    [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
@@ -640,6 +650,12 @@ codeunit 1641 "Setup Email Logging"
         VideoCategory: Enum "Video Category";
         CurrentGlobalLanguage: Integer;
     begin
+        if IsEmailLoggingUsingGraphApiFeatureEnabled() then begin
+            if AssistedSetup.Exists(Page::"Setup Email Logging") then
+                AssistedSetup.Remove(Page::"Setup Email Logging");
+            exit;
+        end;
+
         if AssistedSetup.Exists(Page::"Setup Email Logging") then
             exit;
 
