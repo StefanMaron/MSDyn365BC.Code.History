@@ -1,19 +1,34 @@
 {
   "folders": [
     {
-      "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+      "path": "./System Application/Test/System Application Test Library"
+    },
+    {
+      "path": "./System Application/Test/System Application Test/DisabledTests"
+    },
+    {
+      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
+    },
+    {
+      "path": "./System Application/Source/System Application/Email/src/Test Email"
     },
     {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
-      "path": "./sustainability/test/Sustainability Tests"
-    },
-    {
-      "path": "./recommendedapps/test/Recommended Apps Tests"
+      "path": "./SimplifiedBankStatementImport/Test/Simplified Bank Statement Import Test"
     },
     {
       "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
+    },
+    {
+      "path": "./FieldServiceIntegration/Test Library/Field Service Integration Test Library"
+    },
+    {
+      "path": "./FieldServiceIntegration/Test/Field Service Integration Test"
+    },
+    {
+      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests"
     },
     {
       "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
@@ -34,25 +49,13 @@
       "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
-      "path": "./servicedeclaration/test/Service Declaration Tests"
-    },
-    {
-      "path": "./system application/test/System Application Test Library"
-    },
-    {
-      "path": "./system application/test/System Application Test/DisabledTests"
-    },
-    {
-      "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./system application/source/System Application/Email/src/Test Email"
-    },
-    {
       "path": "./EDocument/Test/E-Document Core Tests"
     },
     {
-      "path": "./testframework/TestLibraries"
+      "path": "./Shopify/test/Shopify Connector Test"
+    },
+    {
+      "path": "./testframework/testlibraries"
     },
     {
       "path": "./testframework/teststabilitytools"
@@ -70,19 +73,19 @@
       "path": "./DataSearch/test/Data Search Tests"
     },
     {
-      "path": "./vatgroupmanagement/test/VAT Group Management Tests"
+      "path": "./VATGroupManagement/Test/VAT Group Management Tests"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
+    },
+    {
       "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
-      "path": "./saleslinessuggestions/test/Sales Lines Suggestions Tests"
-    },
-    {
-      "path": "./ReportLayouts/test/Report Layouts Tests"
+      "path": "./ReportLayouts/Test/Report Layouts Tests"
     },
     {
       "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests"
@@ -100,13 +103,13 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
-      "path": "./paymentpractices/test/Payment Practices Tests"
+      "path": "./SAF-T/Test/SAF-T Tests"
+    },
+    {
+      "path": "./ServiceDeclaration/Test/Service Declaration Tests"
     },
     {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
-    },
-    {
-      "path": "./shopify/test/Shopify Connector Test"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
@@ -208,19 +211,10 @@
       "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
     },
     {
-      "path": "./onprem permissions/test/OnPrem Permissions Tests"
-    },
-    {
-      "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
-    },
-    {
       "path": "./MasterDataManagement/Test Library/_Exclude_Master_Data_Management_Test_Library"
     },
     {
       "path": "./MasterDataManagement/Test/_Exclude_Master_Data_Management_Tests"
-    },
-    {
-      "path": "./simplifiedbankstatementimport/test/Simplified Bank Statement Import Test"
     },
     {
       "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
@@ -232,7 +226,10 @@
       "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
     },
     {
-      "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
+      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
@@ -244,13 +241,22 @@
       "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
-      "path": "./saf-t/test/SAF-T Tests"
+      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
-      "path": "./statisticalaccounts/test/Statistical Accounts Tests"
+      "path": "./StatisticalAccounts/Test/Statistical Accounts Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
+    },
+    {
+      "path": "./RecommendedApps/Test/Recommended Apps Tests"
+    },
+    {
+      "path": "./PaymentPractices/Test/Payment Practices Tests"
+    },
+    {
+      "path": "./Sustainability/Test/Sustainability Tests"
     },
     {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"

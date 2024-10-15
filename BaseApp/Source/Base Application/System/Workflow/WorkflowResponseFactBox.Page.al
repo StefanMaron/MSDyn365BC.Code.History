@@ -21,6 +21,7 @@ page 1525 "Workflow Response FactBox"
                     ApplicationArea = Suite;
                     ShowCaption = false;
                     ToolTip = 'Specifies the workflow response.';
+                    StyleExpr = ResponseStyle;
                 }
             }
         }
@@ -51,9 +52,23 @@ page 1525 "Workflow Response FactBox"
         exit(Rec.Find(Which));
     end;
 
+    trigger OnAfterGetRecord()
+    var
+        WorkflowStep: Record "Workflow Step";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+    begin
+        if WorkflowStep.Get(WorkflowCode, Rec."Response Step ID") then
+            if WorkflowStep.Type = WorkflowStep.Type::Response then
+                if not WorkflowResponseHandling.HasRequiredArguments(WorkflowStep) then
+                    ResponseStyle := 'Unfavorable'
+                else
+                    ResponseStyle := 'Standard'
+    end;
+
     var
         ParentEventStepID: Integer;
         WorkflowCode: Code[20];
+        ResponseStyle: Text;
 
     procedure UpdateData()
     begin

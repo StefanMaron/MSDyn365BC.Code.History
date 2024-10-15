@@ -103,7 +103,9 @@ page 1309 "O365 Getting Started"
                         SessionSet.Init();
                         SessionSet.ProfileId := CurrAllProfile."Profile ID";
                         SessionSet.ProfileAppId := CurrAllProfile."App ID";
+#pragma warning disable AL0667
                         SessionSet.ProfileSystemScope := CurrAllProfile.Scope = CurrAllProfile.Scope::System;
+#pragma warning restore AL0667
                         SessionSet.LanguageId := UserPersonalization."Language ID";
                         SessionSet.LocaleId := UserPersonalization."Locale ID";
                         SessionSet.Timezone := UserPersonalization."Time Zone";

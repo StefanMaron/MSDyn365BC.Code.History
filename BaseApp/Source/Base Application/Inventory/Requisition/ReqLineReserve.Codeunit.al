@@ -62,7 +62,7 @@ codeunit 99000833 "Req. Line-Reserve"
             CreateReservEntry.SetPlanningFlexibility(ReqLine."Planning Flexibility");
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(ReqLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(ReqLine, Quantity, QuantityBase, ForReservEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
             Database::"Requisition Line", 0,
@@ -466,8 +466,11 @@ codeunit 99000833 "Req. Line-Reserve"
         ProdOrderComponent: Record "Prod. Order Component";
         ReservationEntry: Record "Reservation Entry";
         QtyTracked: Decimal;
+        ShouldExitForBlocked: Boolean;
     begin
-        if Blocked then
+        ShouldExitForBlocked := Blocked;
+        OnDeleteLineOnAfterCalcShouldExitForBlocked(RequisitionLine, ShouldExitForBlocked);
+        if ShouldExitForBlocked then
             exit;
 
         ReservationManagement.SetReservSource(RequisitionLine);
@@ -803,7 +806,7 @@ codeunit 99000833 "Req. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ReqLine: Record "Requisition Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ReqLine: Record "Requisition Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 
@@ -819,6 +822,11 @@ codeunit 99000833 "Req. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferPlanningLineToPOLineOnBeforeCheckFields(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteLineOnAfterCalcShouldExitForBlocked(var RequisitionLine: Record "Requisition Line"; var ShouldExitForBlocked: Boolean)
     begin
     end;
 }

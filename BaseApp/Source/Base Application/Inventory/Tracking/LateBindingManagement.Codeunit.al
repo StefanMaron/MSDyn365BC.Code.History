@@ -120,6 +120,7 @@ codeunit 6502 "Late Binding Management"
         TempTrackingSpecification.Reset();
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetLoadFields("Item No.", "Variant Code", "Location Code", "Qty. per Unit of Measure", Description, "Remaining Quantity", "Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
@@ -372,6 +373,7 @@ codeunit 6502 "Late Binding Management"
         if ReservEntry.IsEmpty() then;
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetLoadFields("Item No.", "Variant Code", "Location Code", "Qty. per Unit of Measure", Description, "Remaining Quantity", "Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");

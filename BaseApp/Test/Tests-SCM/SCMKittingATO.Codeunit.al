@@ -78,6 +78,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
         DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
         FieldMustBeEmptyErr: Label '%1 must be empty', Comment = '%1 - Field Caption';
+        ATOLinkShouldNotBeFoundErr: Label 'Assemble-to-Order Link should not be found.';
 
     local procedure Initialize()
     var
@@ -5439,6 +5440,68 @@ codeunit 137096 "SCM Kitting - ATO"
         VerifyAssembleToOrderLinesPageOpened(ToSalesHeader, OrderQty);
     end;
 
+    [Test]
+    [HandlerFunctions('MsgHandlerPostedAOs')]
+    [Scope('OnPrem')]
+    procedure AssembleToOrderLinkIsDeletedWhenQtyToAssembleToOrderIsSetToZeroInSOAfterPartialShipment()
+    var
+        Item, Item2, Item3 : Record Item;
+        Customer: Record Customer;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BOMComponent, BOMComponent2 : Record "BOM Component";
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
+    begin
+        // [SCENARIO 537255] Assemble-to-Order Link is deleted when Qty. to Assemble to Order is set to 0 in Sales Order after partial shipment.
+        Initialize();
+
+        // [GIVEN] Create Item and Validate Replenishment System and Assembly Policy.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Item 3.
+        LibraryInventory.CreateItem(Item3);
+
+        // [GIVEN] Create BOM Component.
+        LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", LibraryRandom.RandInt(0), Item."Base Unit of Measure");
+
+        // [GIVEN] Create BOM Component 2.
+        LibraryManufacturing.CreateBOMComponent(BOMComponent2, Item."No.", BOMComponent2.Type::Item, Item3."No.", LibraryRandom.RandIntInRange(2, 2), Item."Base Unit of Measure");
+
+        // [GIVEN] Create and Post Item Journal Line.
+        CreateAndPostItemJournalLine(ItemJournalLine, Item2, Item3);
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Line and Validate Qty. to Assemble to Order and Qty. to Ship.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
+        SalesLine.Validate("Qty. to Assemble to Order", LibraryRandom.RandIntInRange(2, 2));
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandInt(0));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Shipment.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Validate Qty. to Assemble to Order in Sales Line.
+        SalesLine.Validate("Qty. to Assemble to Order", 0);
+
+        // [WHEN] Find Assemble-to-Order Link.
+        AssembleToOrderLink.SetRange("Document No.", SalesHeader."No.");
+
+        // [THEN] Assemble-to-Order Link is deleted.
+        Assert.IsTrue(AssembleToOrderLink.IsEmpty(), ATOLinkShouldNotBeFoundErr);
+    end;
+
     local procedure VerifyAssembleToOrderLinesPageOpened(SalesHeader: Record "Sales Header"; QtyAssembleToOrder: Decimal)
     var
         SalesQuote: TestPage "Sales Quote";
@@ -5477,6 +5540,27 @@ codeunit 137096 "SCM Kitting - ATO"
         CopySalesDoc.SetSalesHeader(NewSalesHeader);
         CopySalesDoc.UseRequestPage(UseRequestPage);
         CopySalesDoc.RunModal();
+    end;
+
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; var Item2: Record Item)
+    begin
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine,
+            ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Purchase,
+            Item."No.",
+            LibraryRandom.RandIntInRange(100, 100));
+
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine,
+            ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Purchase,
+            Item2."No.",
+            LibraryRandom.RandIntInRange(100, 100));
+
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     [ModalPageHandler]
