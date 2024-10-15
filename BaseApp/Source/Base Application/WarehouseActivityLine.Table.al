@@ -268,10 +268,6 @@
                    ("Action Type" <> "Action Type"::Place) and ("Lot No." <> '') and (CurrFieldNo <> 0)
                 then
                     CheckReservedItemTrkg(ItemTrackingType::"Lot No.", "Lot No.");
-
-                if ("Qty. to Handle" = 0) and RegisteredWhseActLineIsEmpty then
-                    if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                        UpdateReservation(Rec, false);
             end;
         }
         field(27; "Qty. to Handle (Base)"; Decimal)
@@ -2584,6 +2580,19 @@
 
         WhsePickCard.SetTableView(WhseActivHeader);
         WhsePickCard.RunModal;
+    end;
+
+    procedure Lock()
+    begin
+        LockTable();
+        if FindLast() then;
+    end;
+
+    procedure ResetQtyToHandleOnReservation()
+    begin
+        if ("Qty. to Handle" = 0) and TrackingExists() and RegisteredWhseActLineIsEmpty() then
+            if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
+                UpdateReservation(Rec, false);
     end;
 
     [IntegrationEvent(false, false)]
