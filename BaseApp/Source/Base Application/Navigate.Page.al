@@ -831,25 +831,15 @@
 
         SetSource(0D, '', '', 0, '');
         if DocExists then begin
-            if (NoOfRecords(DATABASE::"Cust. Ledger Entry") + NoOfRecords(DATABASE::"Vendor Ledger Entry") <= 1) and
-               (GetDocumentCount <= 1)
-            then begin
-                SetSourceForService();
-                SetSourceForSales();
-                SetSourceForPurchase();
-                SetSourceForServiceDoc();
+            SetSourceForService();
+            SetSourceForSales();
+            SetSourceForPurchase();
+            SetSourceForServiceDoc();
 
-                IsSourceUpdated := false;
-                OnFindRecordsOnAfterSetSource(Rec, PostingDate, DocType2, DocNo2, SourceType2, SourceNo2, DocNoFilter, PostingDateFilter, IsSourceUpdated);
-                if IsSourceUpdated then
-                    SetSource(PostingDate, DocType2, DocNo2, SourceType2, SourceNo2);
-            end else begin
-                if DocNoFilter <> '' then
-                    if PostingDateFilter = '' then
-                        Message(Text011)
-                    else
-                        Message(Text012);
-            end;
+            IsSourceUpdated := false;
+            OnFindRecordsOnAfterSetSource(Rec, PostingDate, DocType2, DocNo2, SourceType2, SourceNo2, DocNoFilter, PostingDateFilter, IsSourceUpdated);
+            if IsSourceUpdated then
+                SetSource(PostingDate, DocType2, DocNo2, SourceType2, SourceNo2);
         end else
             if PostingDateFilter = '' then
                 Message(Text013)
@@ -1532,6 +1522,7 @@
 
     protected procedure NoOfRecords(TableID: Integer): Integer
     begin
+        OnBeforeOnNoOfRecords(Rec, TableID);
         Rec.SetRange("Table ID", TableID);
         if not Rec.FindFirst() then
             Rec.Init();
@@ -2236,22 +2227,6 @@
         Window.Close();
     end;
 
-    local procedure GetDocumentCount() DocCount: Integer
-    begin
-        DocCount :=
-          NoOfRecords(DATABASE::"Sales Invoice Header") + NoOfRecords(DATABASE::"Sales Cr.Memo Header") +
-          NoOfRecords(DATABASE::"Sales Shipment Header") + NoOfRecords(DATABASE::"Issued Reminder Header") +
-          NoOfRecords(DATABASE::"Issued Fin. Charge Memo Header") + NoOfRecords(DATABASE::"Purch. Inv. Header") +
-          NoOfRecords(DATABASE::"Return Shipment Header") + NoOfRecords(DATABASE::"Return Receipt Header") +
-          NoOfRecords(DATABASE::"Purch. Cr. Memo Hdr.") + NoOfRecords(DATABASE::"Purch. Rcpt. Header") +
-          NoOfRecords(DATABASE::"Service Invoice Header") + NoOfRecords(DATABASE::"Service Cr.Memo Header") +
-          NoOfRecords(DATABASE::"Service Shipment Header") +
-          NoOfRecords(DATABASE::"Transfer Shipment Header") + NoOfRecords(DATABASE::"Transfer Receipt Header") +
-          NoOfRecords(DATABASE::"Posted Deposit Header") + NoOfRecords(DATABASE::"Posted Deposit Header");
-
-        OnAfterGetDocumentCount(DocCount);
-    end;
-
     [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
     begin
@@ -2520,10 +2495,13 @@
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('No. of documents is not checked anymore', '21.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
     begin
     end;
+#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)
@@ -2562,6 +2540,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindRecords(var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnNoOfRecords(var DocumentEntry: Record "Document Entry"; var TableID: Integer)
     begin
     end;
 

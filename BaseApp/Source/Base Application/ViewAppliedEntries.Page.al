@@ -584,7 +584,13 @@ page 522 "View Applied Entries"
     local procedure BlockItem(ItemNo: Code[20])
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBlockItem(ItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.Get(ItemNo);
         if Item."Application Wksh. User ID" <> UpperCase(UserId) then
             Item.CheckBlockedByApplWorksheet;
@@ -628,6 +634,11 @@ page 522 "View Applied Entries"
             exit(Text001);
 
         exit(Text002);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlockItem(ItemNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

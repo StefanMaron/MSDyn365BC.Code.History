@@ -399,7 +399,7 @@ page 2310 "BC O365 Sales Invoice"
                         if TaxArea.Get("Tax Area Code") then;
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                             O365SalesInvoiceMgmt.RecallTaxNotificationIfTaxSetup("Tax Area Code");
                             CurrPage.Update();
                         end;
@@ -678,7 +678,7 @@ page 2310 "BC O365 Sales Invoice"
     trigger OnAfterGetCurrRecord()
     begin
         // Tasks shared with estimates (PAG2341)
-        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecord(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
+        O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
         GetTotalTaxRate;
         O365SalesInvoiceMgmt.NotifyTaxSetupNeeded(Rec);
         CurrPageEditable := CurrPage.Editable;
@@ -800,7 +800,7 @@ page 2310 "BC O365 Sales Invoice"
         InvoiceDiscountAmount: Decimal;
         SubTotalAmount: Decimal;
         DiscountTxt: Text;
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         DocumentDatePastMsg: Label 'Invoice date is in the past.';
         ViewContactDetailsLbl: Label 'Open customer details';
         TotalTaxRate: Text;
@@ -861,4 +861,3 @@ page 2310 "BC O365 Sales Invoice"
         exit(DraftInvTypeTxt);
     end;
 }
-

@@ -1,6 +1,8 @@
 table 1383 "Vendor Templ."
 {
     Caption = 'Vendor Template';
+    LookupPageID = "Vendor Templ. List";
+    DrillDownPageID = "Vendor Templ. List";
 
     fields
     {

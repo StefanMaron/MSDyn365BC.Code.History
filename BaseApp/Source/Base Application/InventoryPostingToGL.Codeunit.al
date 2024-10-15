@@ -896,7 +896,7 @@ codeunit 5802 "Inventory Posting To G/L"
                     VarMfgOvhdCostAmt += Amount;
             end;
 
-        OnAfteUpdateReportAmounts(GlobalInvtPostBuf, InvtAmt, InvtAdjmtAmt);
+        OnAfteUpdateReportAmounts(GlobalInvtPostBuf, InvtAmt, InvtAdjmtAmt, VarMfgDirCostAmt);
     end;
 
     local procedure ErrorNonValidCombination(ValueEntry: Record "Value Entry")
@@ -1474,7 +1474,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal)
+    local procedure OnAfteUpdateReportAmounts(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var InvtAmt: Decimal; var InvtAdjmtAmt: Decimal; var VarMfgDirCostAmt: Decimal)
     begin
     end;
 

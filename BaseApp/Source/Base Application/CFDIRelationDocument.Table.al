@@ -1,4 +1,4 @@
-table 27006 "CFDI Relation Document"
+﻿table 27006 "CFDI Relation Document"
 {
 
     fields
@@ -39,6 +39,10 @@ table 27006 "CFDI Relation Document"
                 CheckRelatedDocumentNo;
                 UpdateFiscalInvoiceNumber;
             end;
+        }
+        field(11; "SAT Relation Type"; Code[10])
+        {
+            TableRelation = "SAT Relationship Type";
         }
         field(21; "Fiscal Invoice Number PAC"; Text[50])
         {

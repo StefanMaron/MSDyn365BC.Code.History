@@ -1810,6 +1810,45 @@ codeunit 141050 "Bank Recon. with Matching"
         Assert.AreEqual(BankAccount."No.", PostedBankRecList.FILTER.GetFilter("Bank Account No."), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeStatementNoInvisible()
+    var
+        BankAccReconciliationList: TestPage "Bank Acc. Reconciliation List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 437832] Action "Change Statement No." is invisible on "Bank Account Reconciliation List" page if GLSetup."Bank Recon. With Auto-match" = No
+        Initialize();
+
+        // [GIVEN] GLSetup."Bank Recon. With Auto-match" = No
+        ActivateLocalPages();
+
+        // [WHEN] Open "Bank Account Reconciliation List" page
+        BankAccReconciliationList.OpenEdit();
+
+        // [THEN] Aciton "Change Statement No." is invisible
+        Assert.IsFalse(BankAccReconciliationList.ChangeStatementNo.Visible(), 'Action must be invisible');
+    end;
+
+    [Test]
+    procedure ChangeStatementNoVisible()
+    var
+        BankAccReconciliationList: TestPage "Bank Acc. Reconciliation List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 437832] Action "Change Statement No." is visible on "Bank Account Reconciliation List" page if GLSetup."Bank Recon. With Auto-match" = Yes
+        Initialize();
+
+        // [GIVEN] GLSetup."Bank Recon. With Auto-match" = Yes
+        ActivateAutoMatchPages();
+
+        // [WHEN] Open "Bank Account Reconciliation List" page
+        BankAccReconciliationList.OpenEdit();
+
+        // [THEN] Aciton "Change Statement No." is invisible
+        Assert.IsTrue(BankAccReconciliationList.ChangeStatementNo.Visible(), 'Action must be visible');
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

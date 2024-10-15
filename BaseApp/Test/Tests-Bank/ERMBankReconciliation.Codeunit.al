@@ -1672,9 +1672,6 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [THEN] EndingGLBalance has value 200
         LibraryReportDataset.AssertElementWithValueExists('Ending_GL_Balance', -GenJournalLine.Amount);
-
-        // [THEN] Difference has value 0
-        LibraryReportDataset.AssertElementWithValueExists('Difference', 0);
     end;
 
     [Test]

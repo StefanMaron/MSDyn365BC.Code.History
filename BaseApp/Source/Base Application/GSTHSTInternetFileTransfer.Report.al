@@ -111,8 +111,10 @@ report 10500 "GST/HST Internet File Transfer"
     var
         ToFile: Text[1024];
     begin
+        FeatureTelemetry.LogUptake('1000HN1', CanGSTTok, Enum::"Feature Uptake Status"::"Used");
         ToFile := 'GSTHST.tax';
         Download(FileName, Text002, '', Text001, ToFile);
+        FeatureTelemetry.LogUsage('1000HN2', CanGSTTok, 'Canada GST/HST Report Generated');
     end;
 
     trigger OnPreReport()
@@ -129,9 +131,16 @@ report 10500 "GST/HST Internet File Transfer"
         FileName := RBMgt.ServerTempFileName('tax');
     end;
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HN0', CanGSTTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     var
         CompanyInfo: Record "Company Information";
         AccountIdentifier: Record "Account Identifier";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CanGSTTok: Label 'Canada GST/HST Report', Locked = true;
         VATFile: File;
         StartDate: Date;
         EndDate: Date;

@@ -578,8 +578,11 @@ codeunit 99000810 "Calculate Planning Route Line"
         TmpPlanRtngLine: Record "Planning Routing Line" temporary;
         ResourceIsConstrained: Boolean;
         ParentIsConstrained: Boolean;
+        ShouldCalcNextOperation: Boolean;
         SendAheadLotSize: Decimal;
     begin
+        OnBeforeCalcRoutingLineBack(PlanningRoutingLine, CalcStartEndDate);
+
         CalendarEntry.SetRange(Date, 0D, PlanningRoutingLine."Ending Date");
 
         ProdEndingTime := PlanningRoutingLine."Ending Time";
@@ -589,9 +592,10 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         FirstEntry := true;
 
-        if (PlanningRoutingLine."Next Operation No." <> '') and
-           CalcStartEndDate
-        then begin
+        ShouldCalcNextOperation := (PlanningRoutingLine."Next Operation No." <> '') and CalcStartEndDate;
+        OnCalcRoutingLineBackOnAfterCalcShouldCalcNextOperation(PlanningRoutingLine, MaxLotSize, TotalLotSize, SendAheadLotSize, ShouldCalcNextOperation);
+
+        if ShouldCalcNextOperation then begin
             Clear(PlanningRoutingLine3);
 
             TmpPlanRtngLine.Reset();
@@ -647,10 +651,8 @@ codeunit 99000810 "Calculate Planning Route Line"
                 WorkCenter."Unit of Measure Code" := TempWorkCenter."Unit of Measure Code";
                 WorkCenter."Calendar Rounding Precision" := TempWorkCenter."Calendar Rounding Precision";
             end;
-        end else begin
-            TotalLotSize := MaxLotSize;
-            SendAheadLotSize := MaxLotSize;
-        end;
+        end else
+            SetLotSizesToMax(SendAheadLotSize, TotalLotSize);
 
         UpdateDates := true;
 
@@ -704,6 +706,21 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         PlanningRoutingLine.UpdateDatetime();
         PlanningRoutingLine.Modify();
+
+        OnAfterCalcRoutingLineBack(PlanningRoutingLine, PlanningResiliency);
+    end;
+
+    local procedure SetLotSizesToMax(var SendAheadLotSize: Decimal; var TotalLotSize: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetLotSizesToMax(SendAheadLotSize, TotalLotSize, MaxLotSize, PlanningRoutingLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TotalLotSize := MaxLotSize;
+        SendAheadLotSize := MaxLotSize;
     end;
 
     local procedure GetConstrainedCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var ConstrainedCapacity: Record "Capacity Constrained Resource") Result: Boolean
@@ -877,6 +894,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         SendAheadLotSize: Decimal;
         InputQtyDiffTime: Decimal;
     begin
+        OnBeforeCalcRoutingLineForward(PlanningRoutingLine, WorkCenter, SendAheadLotSize, MaxLotSize, TotalLotSize, RemainNeedQty, UpdateDates, FirstEntry, TmpPlanRtngLine);
+
         ProdStartingTime := PlanningRoutingLine."Starting Time";
         ProdStartingDate := PlanningRoutingLine."Starting Date";
         ProdEndingTime := PlanningRoutingLine."Starting Time";
@@ -938,10 +957,9 @@ codeunit 99000810 "Calculate Planning Route Line"
                 PlanningRoutingLine3.UpdateDatetime;
                 PlanningRoutingLine3.Modify();
             end;
-        end else begin
-            TotalLotSize := MaxLotSize;
-            SendAheadLotSize := MaxLotSize;
-        end;
+        end else
+            SetLotSizesToMax(SendAheadLotSize, TotalLotSize);
+
         RemainNeedQty :=
           Round(
             WorkCenter."Queue Time" *
@@ -1019,7 +1037,10 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         PlanningRoutingLine.UpdateDatetime();
         PlanningRoutingLine.Modify();
+
+        OnAfterCalcRoutingLineForward(PlanningRoutingLine, PlanningResiliency);
     end;
+
 
     procedure CalculateRouteLine(var PlanningRoutingLine2: Record "Planning Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean; ReqLine2: Record "Requisition Line")
     var
@@ -1568,6 +1589,16 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRoutingLineBack(PlanningRoutingLine: Record "Planning Routing Line"; PlanningResiliency: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRoutingLineForward(PlanningRoutingLine: Record "Planning Routing Line"; PlanningResiliency: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePlanningCapNeed(
         var NextCapNeedLineNo: Integer; var PlanningRoutingLine: Record "Planning Routing Line"; var ReqLine: Record "Requisition Line"; NeedDate: Date;
         StartingTime: Time; EndingTime: Time; TimeType: option "Setup Time","Run Time"; NeedQty: Decimal; ConCurrCap: Decimal;
@@ -1577,6 +1608,16 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcMoveTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; var WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRoutingLineBack(var PlanningRoutingLine: Record "Planning Routing Line"; CalcStartEndDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRoutingLineForward(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; SendAheadLotSize: Decimal; MaxLotSize: Decimal; var TotalLotSize: Decimal; var RemainNeedQty: Decimal; var UpdateDates: Boolean; var FirstEntry: Boolean; var TempPlanningRoutingLine: Record "Planning Routing Line")
     begin
     end;
 
@@ -1592,6 +1633,11 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLotSizesToMax(var SendAheadLotSize: Decimal; var TotalLotSize: Decimal; MaxLotSize: Decimal; PlanningRoutingLine: Record "Planning Routing Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1612,6 +1658,11 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine: Record "Planning Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineBackOnAfterCalcShouldCalcNextOperation(PlanningRoutingLine: Record "Planning Routing Line"; MaxLotSize: Decimal; var TotalLotSize: Decimal; var SendAheadLotSize: Decimal; var ShouldCalcNextOperation: Boolean)
     begin
     end;
 

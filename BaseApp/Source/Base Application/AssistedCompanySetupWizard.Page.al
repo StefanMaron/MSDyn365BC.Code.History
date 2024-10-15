@@ -534,6 +534,7 @@ page 1803 "Assisted Company Setup Wizard"
                     AssistedCompanySetup: Codeunit "Assisted Company Setup";
                     ErrorText: Text;
                 begin
+                    StartConfigPackageImport();
                     AssistedCompanySetup.WaitForPackageImportToComplete;
                     BankAccount.TransferFields(TempBankAccount, true);
                     AssistedCompanySetup.ApplyUserInput(Rec, BankAccount, AccountingPeriodStartDate, TypeEvaluation);
@@ -737,10 +738,6 @@ page 1803 "Assisted Company Setup Wizard"
     local procedure ShowCompanyDetailsStep()
     begin
         CompanyDetailsVisible := true;
-        if TypeSelectionEnabled then begin
-            StartConfigPackageImport;
-            BackEnabled := false;
-        end;
     end;
 
     local procedure ShowCommunicationDetailsStep()
@@ -758,10 +755,6 @@ page 1803 "Assisted Company Setup Wizard"
         DoneVisible := true;
         NextEnabled := false;
         FinishEnabled := true;
-        if TypeEvaluation then begin
-            StartConfigPackageImport;
-            BackEnabled := false;
-        end;
     end;
 
     local procedure ResetWizardControls()
@@ -1062,4 +1055,3 @@ page 1803 "Assisted Company Setup Wizard"
         end;
     end;
 }
-

@@ -518,6 +518,7 @@
         GenJournalBatch: Record "Gen. Journal Batch";
         "Filter": Text;
     begin
+        FeatureTelemetry.LogUptake('1000HS2', MXElecPaymentTok, Enum::"Feature Uptake Status"::"Set up");
         CompanyInformation.Get();
         Filter := "Gen. Journal Line".GetFilter("Journal Template Name");
         if Filter = '' then begin
@@ -550,6 +551,17 @@
             Clear(CompanyAddress);
     end;
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HS1', MXElecPaymentTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HS3', MXElecPaymentTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HS4', MXElecPaymentTok, 'MX Electronic Payment Exported');
+    end;
+
     var
         CompanyInformation: Record "Company Information";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -561,6 +573,7 @@
         VendBankAccount: Record "Vendor Bank Account";
         VendLedgEntry: Record "Vendor Ledger Entry";
         FormatAddress: Codeunit "Format Address";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ExportAmount: Decimal;
         BankAccountIs: Option Acnt,BalAcnt;
         NoCopies: Integer;
@@ -574,6 +587,7 @@
         DiscountTaken: Decimal;
         AmountPaid: Decimal;
         TotalAmountPaid: Decimal;
+        MXElecPaymentTok: Label 'MX Export Electronic Payment', Locked = true;
         AccountTypeErr: Label 'For Electronic Payments, the %1 must be %2 or %3.', Comment = '%1=Balance account type,%2=Customer table caption,%3=Vendor table caption';
         CopyLoopLbl: Label 'COPY', Comment = 'This is the word ''copy'' in all capital letters. It is used for extra copies of a report and indicates that the specific version is not the original, and is a copy.';
         CannotVoidQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No in the Journal Template.  Do you want to continue anyway?';

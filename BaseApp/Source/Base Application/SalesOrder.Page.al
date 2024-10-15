@@ -2349,8 +2349,9 @@
         if CallNotificationCheck then begin
             SalesHeader := Rec;
             SalesHeader.CalcFields("Amount Including VAT");
+            OnOnAfterGetCurrRecordOnBeforeSalesHeaderCheck(SalesHeader);
             CustCheckCrLimit.SalesHeaderCheck(SalesHeader);
-            CheckItemAvailabilityInLines;
+            CheckItemAvailabilityInLines();
             CallNotificationCheck := false;
         end;
         StatusStyleTxt := GetStatusStyleText();
@@ -2778,6 +2779,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnAfterGetCurrRecordOnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header")
     begin
     end;
 

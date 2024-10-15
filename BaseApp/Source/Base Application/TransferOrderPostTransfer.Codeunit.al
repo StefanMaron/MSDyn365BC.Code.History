@@ -144,6 +144,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
           ItemJnlLine, ItemJnlLine."Quantity (Base)", "Transfer Direction"::Outbound, true);
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+
+        OnAfterPostItemJnlLine(TransLine3, DirectTransHeader2, DirectTransLine2, ItemJnlLine, ItemJnlPostLine);
     end;
 
     local procedure CreateItemJnlLine(TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
@@ -426,6 +428,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertShptEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; var DirectTransLine: Record "Direct Trans. Line"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(var TransferLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line"; ItemJournalLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 
