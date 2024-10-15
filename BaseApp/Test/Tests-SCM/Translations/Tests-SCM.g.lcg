@@ -12938,6 +12938,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Document Type]D;]A;(LookupHint=Codeunit SCM Purchases & Payables - NamedType PostDocConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 1897169794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The number of orders that will be posted is %1. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - selected count]D;]A;(LookupHint=Codeunit SCM Purchases & Payables - NamedType ReadyToPostQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2922115478 - NamedType 1433715481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to post the receipt?]]></Val>
