@@ -22,7 +22,14 @@ report 193 "Issue Finance Charge Memos"
             DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
+            var
+                InvoiceRoundingAmount: Decimal;
             begin
+                InvoiceRoundingAmount := GetInvoiceRoundingAmount();
+                if InvoiceRoundingAmount <> 0 then
+                    if not ConfirmManagement.GetResponse(ProceedOnIssuingWithInvRoundingQst, false) then
+                        CurrReport.Break();
+
                 RecordNo := RecordNo + 1;
                 Clear(FinChrgMemoIssue);
                 FinChrgMemoIssue.Set("Finance Charge Memo Header", ReplacePostingDate, PostingDateReq);
@@ -147,6 +154,7 @@ report 193 "Issue Finance Charge Memos"
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         TempIssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header" temporary;
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
+        ConfirmManagement: Codeunit "Confirm Management";	
         PEPPOLValidation: Codeunit "PEPPOL Validation";
         Window: Dialog;
         NoOfRecords: Integer;
@@ -159,6 +167,7 @@ report 193 "Issue Finance Charge Memos"
         ReplacePostingDate: Boolean;
         PrintDoc: Option " ",Print,Email;
         HideDialog: Boolean;
+        ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var IsHandled: Boolean)

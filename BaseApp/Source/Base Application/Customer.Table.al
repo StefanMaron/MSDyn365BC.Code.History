@@ -2765,6 +2765,7 @@ table 18 Customer
         ResultRecordRef: RecordRef;
         ApplicableCountryCode: Code[10];
         IsHandled: Boolean;
+        LogNotVerified: Boolean;
     begin
         IsHandled := false;
         OnBeforeVATRegistrationValidation(Rec, IsHandled);
@@ -2773,17 +2774,22 @@ table 18 Customer
 
         if not VATRegistrationNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Customer) then
             exit;
-        VATRegistrationLogMgt.LogCustomer(Rec);
-        if ("Country/Region Code" = '') and (VATRegistrationNoFormat."Country/Region Code" = '') then
-            exit;
-        ApplicableCountryCode := "Country/Region Code";
-        if ApplicableCountryCode = '' then
-            ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.",
-              VATRegistrationLog."Account Type"::Customer, ApplicableCountryCode);
-            ResultRecordRef.SetTable(Rec);
+
+        LogNotVerified := true;
+        if ("Country/Region Code" <> '') or (VATRegistrationNoFormat."Country/Region Code" <> '') then begin
+            ApplicableCountryCode := "Country/Region Code";
+            if ApplicableCountryCode = '' then
+                ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                LogNotVerified := false;
+                VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                    ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer, ApplicableCountryCode);
+                ResultRecordRef.SetTable(Rec);
+            end;
         end;
+
+        if LogNotVerified then
+            VATRegistrationLogMgt.LogCustomer(Rec);
     end;
 
     procedure SetAddress(CustomerAddress: Text[100]; CustomerAddress2: Text[50]; CustomerPostCode: Code[20]; CustomerCity: Text[30]; CustomerCounty: Text[30]; CustomerCountryCode: Code[10]; CustomerContact: Text[100])

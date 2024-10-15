@@ -284,8 +284,8 @@ codeunit 1620 "PEPPOL Validation"
 
         CountryRegion.Get(CountryRegionCode);
         CountryRegion.TestField("ISO Code");
-        if StrLen(CountryRegion.Code) <> MaxCountryCodeLength then
-            CountryRegion.FieldError(Code, StrSubstNo(WrongLengthErr, MaxCountryCodeLength));
+        if StrLen(CountryRegion."ISO Code") <> MaxCountryCodeLength then
+            CountryRegion.FieldError("ISO Code", StrSubstNo(WrongLengthErr, MaxCountryCodeLength));
     end;
 }
 

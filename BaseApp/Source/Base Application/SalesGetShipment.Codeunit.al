@@ -248,7 +248,7 @@ codeunit 64 "Sales-Get Shipment"
         then begin
             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
             Fraction := SalesShptLine."Qty. Shipped Not Invoiced" / SalesOrderLine.Quantity;
-            FractionAmount := Fraction * (SalesOrderLine."Prepmt Amt to Deduct" + SalesOrderLine."Prepmt Amt Deducted");
+            FractionAmount := Fraction * SalesOrderLine."Prepmt. Amt. Inv.";
             RoundingAmount += SalesLine."Prepmt Amt to Deduct" - FractionAmount;
         end;
     end;
