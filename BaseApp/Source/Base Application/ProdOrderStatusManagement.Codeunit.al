@@ -625,6 +625,7 @@
                   ItemJnlLine, ProdOrderRtngLine, OutputQtyBase,
                   GetOutputQtyForProdOrderRoutingLine(ProdOrderLine, ProdOrderRtngLine, IsLastOperation, OutputQty),
                   PutawayQtyBaseToCalc);
+                ItemJnlLine."Concurrent Capacity" := ProdOrderRtngLine."Concurrent Capacities";
                 ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
                 if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
                     DimMgt.UpdateGlobalDimFromDimSetID(

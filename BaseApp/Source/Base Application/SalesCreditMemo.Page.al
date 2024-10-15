@@ -748,6 +748,7 @@ page 44 "Sales Credit Memo"
                                 PAGE.RunModal(PAGE::"Sales Statistics", Rec)
                             else
                                 PAGE.RunModal(PAGE::"Sales Order Stats.", Rec);
+                            CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         end
                     end;
                 }

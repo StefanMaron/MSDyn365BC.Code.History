@@ -653,6 +653,12 @@ End Function
         <Field Name="RequestedReceiptDate">
           <DataField>RequestedReceiptDate</DataField>
         </Field>
+        <Field Name="PurchLine_VATPct">
+          <DataField>PurchLine_VATPct</DataField>
+        </Field>
+        <Field Name="PurchLine_VATPctFormat">
+          <DataField>PurchLine_VATPctFormat</DataField>
+        </Field>
         <Field Name="VATAmountText">
           <DataField>VATAmountText</DataField>
         </Field>

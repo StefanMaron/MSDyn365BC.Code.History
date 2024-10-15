@@ -2552,6 +2552,10 @@
                 if GLSetup."LCY Code" <> AnotherCompGLSetup."LCY Code" then
                     CurrencyCode := GLSetup."LCY Code";
             end;
+            if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"File Location" then begin
+                GetGLSetup();
+                CurrencyCode := GLSetup.GetCurrencyCode('');
+            end;
         end;
     end;
 
