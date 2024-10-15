@@ -144,7 +144,7 @@ page 6052 "Service Contract Subform"
                 field("Contract Expiration Date"; "Contract Expiration Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date when an item should be removed from the contract.';
+                    ToolTip = 'Specifies the date when a service item must be removed from the service contract. The default value is copied from the Expiration Date field in the header section. You can change it to a value that is earlier than the value in the Expiration Date field and later than the value in the Starting Date field in the header section of the service contract.';
                 }
                 field("Credit Memo Date"; "Credit Memo Date")
                 {
