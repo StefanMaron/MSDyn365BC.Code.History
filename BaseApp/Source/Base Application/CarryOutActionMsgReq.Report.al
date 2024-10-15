@@ -83,7 +83,7 @@ report 493 "Carry Out Action Msg. - Req."
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport();
+        OnBeforePostReport(ReqWkshMakeOrders);
     end;
 
     var
@@ -183,7 +183,7 @@ report 493 "Carry Out Action Msg. - Req."
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforePostReport()
+    local procedure OnBeforePostReport(var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order")
     begin
     end;
 }

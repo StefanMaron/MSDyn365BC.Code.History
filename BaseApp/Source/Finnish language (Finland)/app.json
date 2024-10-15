@@ -2,14 +2,9 @@
     "id":  "f8555f70-8cfe-46a2-b961-444c8af4cf4f",
     "name":  "Finnish language (Finland)",
     "publisher":  "Microsoft",
-    "version":  "16.1.12629.12805",
+    "version":  "16.2.13509.13779",
     "dependencies":  [
-                         {
-                             "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
-                             "name":  "Base Application",
-                             "publisher":  "Microsoft",
-                             "version":  "16.1.0.0"
-                         }
+
                      ],
     "target":  "Cloud",
     "showMyCode":  true,
@@ -19,5 +14,6 @@
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
-    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us"
+    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
+    "application":  "16.2.0.0"
 }

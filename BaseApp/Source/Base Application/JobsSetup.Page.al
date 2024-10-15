@@ -70,6 +70,11 @@ page 463 "Jobs Setup"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to job WIP documents. To see the number series that have been set up in the No. Series table, click the drop-down arrow in the field.';
                 }
+                field("Price List Nos."; "Price List Nos.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to job price lists.';
+                }
             }
         }
         area(factboxes)

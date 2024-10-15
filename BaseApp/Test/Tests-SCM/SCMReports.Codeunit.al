@@ -836,7 +836,8 @@ codeunit 137309 "SCM Reports"
         ProductionBOMVersion: Record "Production BOM Version";
         ProductionBOMHeaderNo: Code[20];
     begin
-        // Verify Detailed Calculation Test Report values when Production Bom created with Type Item and Certified version.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Production Bom created with Type Item and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
         Initialize;
@@ -875,7 +876,8 @@ codeunit 137309 "SCM Reports"
         ProductionBOMVersion: Record "Production BOM Version";
         ProductionBOMHeaderNo: Code[20];
     begin
-        // Verify Detailed Calculation Test Report values when Production Bom created with Type Production Bom and Certified version.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Production Bom created with Type Production Bom and Certified version.
 
         // Setup: Create Item with New BOM with certified Production BOM Version.
         Initialize;
@@ -913,7 +915,8 @@ codeunit 137309 "SCM Reports"
         RoutingVersion: Record "Routing Version";
         StartingDate: Date;
     begin
-        // Verify Detailed Calculation Test Report values when Routing created with certified version and report run for greater than Routing Version Starting Date.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with certified version and report run for greater than Routing Version Starting Date.
 
         // Setup: Create Item with Routing Version and delete one routing line from Routing version after copy Routing version.
         Initialize;
@@ -949,7 +952,8 @@ codeunit 137309 "SCM Reports"
     var
         RoutingVersion: Record "Routing Version";
     begin
-        // Verify Detailed Calculation Test Report values when Routing created with certified version and report run for less than Routing Version Starting Date.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with certified version and report run for less than Routing Version Starting Date.
         Initialize;
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Certified, -LibraryRandom.RandInt(5));
     end;
@@ -961,7 +965,8 @@ codeunit 137309 "SCM Reports"
     var
         RoutingVersion: Record "Routing Version";
     begin
-        // Verify Detailed Calculation Test Report values when Routing created with closed version and report run for greater than Routing Version Starting Date.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for greater than Routing Version Starting Date.
         Initialize;
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, LibraryRandom.RandInt(5));
     end;
@@ -973,9 +978,70 @@ codeunit 137309 "SCM Reports"
     var
         RoutingVersion: Record "Routing Version";
     begin
-        // Verify Detailed Calculation Test Report values when Routing created with closed version and report run for less than Routing Version Starting Date.
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for less than Routing Version Starting Date.
         Initialize;
         DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, -LibraryRandom.RandInt(5));
+    end;
+
+    [Test]
+    [HandlerFunctions('DetailedCalculationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DetailedCalculationWithProdBOMBelowItemLines()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        BOMItem: Record Item;
+        BOMChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMLineChild: Record "Production BOM Line";
+        ChildBOMQty: Integer;
+    begin
+        // [FEATURE] [Detailed Calculation]
+        // [SCENARIO 351249] Run Detailed Calculation Report Production BOM with Prod. BOM Line below the Item line
+        Initialize;
+
+        // [GIVEN] Child Production BOM "ChildBOM" having item "BOMChildItem" of Unit Cost = 7, Qty = 5
+        CreateItemsWithIndirectCost(BOMItem, BOMChildItem);
+        ProductionBOMLineChild.SetRange("No.", BOMChildItem."No.");
+        ProductionBOMLineChild.FindFirst;
+
+        // [GIVEN] Item "ParentItem" with Production BOM "ParentBOM" having Item "ChildItem" of Unit Cost = 10, Qty = 3
+        CreateItemsWithIndirectCost(Item, ChildItem);
+
+        // [GIVEN] "ChildBOM" is added to "ParentBOM" with Qty = 2
+        ProductionBOMLine.SetRange("No.", ChildItem."No.");
+        ProductionBOMLine.FindFirst;
+        ProductionBOMHeader.Get(ProductionBOMLine."Production BOM No.");
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
+        ProductionBOMHeader.Modify(true);
+        ChildBOMQty := LibraryRandom.RandIntInRange(5, 10);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '',
+          ProductionBOMLine.Type::"Production BOM", ProductionBOMLineChild."Production BOM No.", ChildBOMQty);
+
+        LibraryVariableStorage.Enqueue(WorkDate);
+
+        // [WHEN] Run Detailed Calculation Report for the "ParentItem"
+        Commit;
+        Item.SetRecFilter;
+        REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
+
+        ProductionBOMLine.FindFirst;
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+
+        // [THEN] Line for "ChildItem" is exported with 'CostTotal' = 30 (10 * 3)
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('CostTotal', ChildItem."Unit Cost" * ProductionBOMLine.Quantity);
+        // [THEN] Line for "ChildBOM" is exported with 'CostTotal' = 0
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('CostTotal', 0);
+        // [THEN] Line for "BOMChildItem" is exported with 'CostTotal' = 70 (7 * 5 * 2)
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'CostTotal', BOMChildItem."Unit Cost" * ProductionBOMLineChild.Quantity * ChildBOMQty);
     end;
 
     [Test]

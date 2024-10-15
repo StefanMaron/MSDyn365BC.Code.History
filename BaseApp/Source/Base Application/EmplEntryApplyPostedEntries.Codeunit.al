@@ -39,6 +39,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
 
     procedure Apply(EmplLedgEntry: Record "Employee Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
     begin
+        OnBeforeApply(EmplLedgEntry, DocumentNo, ApplicationDate);
         with EmplLedgEntry do begin
             Get("Entry No.");
 
@@ -240,6 +241,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DtldEmplLedgEntry.LockTable();
         EmplLedgEntry.LockTable();
         EmplLedgEntry.Get(DtldEmplLedgEntry2."Employee Ledger Entry No.");
+        OnPostUnApplyEmployeeOnAfterGetEmplLedgEntry(DtldEmplLedgEntry2, EmplLedgEntry);
         CheckPostingDate(PostingDate, MaxPostingDate);
         if PostingDate < DtldEmplLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
@@ -273,6 +275,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             until DtldEmplLedgEntry.Next = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
+        OnPostUnApplyEmployeeOnAfterCheckMaxDateCompressed(DtldEmplLedgEntry2);
 
         with DtldEmplLedgEntry2 do begin
             SourceCodeSetup.Get();
@@ -436,7 +439,22 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeApply(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnEmplPostApplyEmplLedgEntryOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyEmployeeOnAfterCheckMaxDateCompressed(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyEmployeeOnAfterGetEmplLedgEntry(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 }

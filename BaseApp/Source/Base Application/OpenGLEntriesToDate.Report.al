@@ -11,7 +11,7 @@ report 11781 "Open G/L Entries To Date"
         dataitem("G/L Entry"; "G/L Entry")
         {
             RequestFilterFields = "G/L Account No.";
-            column(SkipEntiesDetail; SkipEntiesDetail)
+            column(SkipEntriesDetail; SkipEntriesDetail)
             {
             }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
@@ -127,8 +127,6 @@ report 11781 "Open G/L Entries To Date"
                     TotalCreditAmount := 0;
                     PreviousAccountNo := "G/L Entry"."G/L Account No.";
                 end;
-                if Closed and ("Closed at Date" <= BalanceToDate) then
-                    CurrReport.Skip();
                 AppliedAmount := 0;
                 DebitAmount := 0;
                 CreditAmount := 0;
@@ -139,7 +137,8 @@ report 11781 "Open G/L Entries To Date"
                 GLEntry.SetFilter("Date Filter", '..%1', BalanceToDate);
                 GLEntry.CalcFields("Applied Amount");
                 AppliedAmount := GLEntry."Applied Amount";
-
+                IF (Amount - AppliedAmount) = 0 THEN
+                    CurrReport.Skip();
                 if "Debit Amount" <> 0 then
                     DebitAmount := (Amount - AppliedAmount)
                 else
@@ -177,7 +176,7 @@ report 11781 "Open G/L Entries To Date"
                         Caption = 'Balance to Date';
                         ToolTip = 'Specifies the last date in the period for open general ledger entries.';
                     }
-                    field(SkipEntiesDetail; SkipEntiesDetail)
+                    field(SkipEntriesDetail; SkipEntriesDetail)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Skip Entry Details';
@@ -204,7 +203,7 @@ report 11781 "Open G/L Entries To Date"
     var
         GLAccount: Record "G/L Account";
         BalanceToDate: Date;
-        SkipEntiesDetail: Boolean;
+        SkipEntriesDetail: Boolean;
         DebitAmount: Decimal;
         CreditAmount: Decimal;
         AppliedAmount: Decimal;

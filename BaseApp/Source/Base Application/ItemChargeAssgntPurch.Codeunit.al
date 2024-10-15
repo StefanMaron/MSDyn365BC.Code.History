@@ -367,6 +367,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             exit;
 
         SelectionTxt := SelectStr(Selection, SuggestItemChargeMenuTxt);
+        OnSuggestAssgntOnBeforeAssignItemCharges(PurchLine, ItemChargeAssgntPurch);
         AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, SelectionTxt);
     end;
 
@@ -984,6 +985,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssgntOnBeforeAssignItemCharges(var PurchaseLine: Record "Purchase Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 

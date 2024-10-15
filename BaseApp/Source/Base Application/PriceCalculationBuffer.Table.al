@@ -6,6 +6,14 @@ table 7007 "Price Calculation Buffer"
         {
             DataClassification = SystemMetadata;
         }
+        field(2; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(3; "Cost Calculation Method"; Enum "Price Calculation Method")
+        {
+            DataClassification = CustomerContent;
+        }
         field(4; "Asset Type"; enum "Price Asset Type")
         {
             DataClassification = CustomerContent;

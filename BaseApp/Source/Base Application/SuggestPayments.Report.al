@@ -215,8 +215,6 @@ report 11700 "Suggest Payments"
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Pay-to Vendor No.") then
                         CurrReport.Skip();
-                if "Amount on Payment Order (LCY)" >= "Amount Including VAT" then
-                    CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Pay-to Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
                     CurrReport.Skip();
@@ -274,7 +272,7 @@ report 11700 "Suggest Payments"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if ("Amount To Link" - Abs("Amount on Payment Order (LCY)")) > 0 then
+                    if "Amount To Link" > 0 then
                         AddPurchaseLetterLine(PurchAdvLetterLinePerLine);
 
                     if StopPayments then
@@ -292,8 +290,6 @@ report 11700 "Suggest Payments"
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Pay-to Vendor No.") then
                         CurrReport.Skip();
-                if "Amount on Payment Order (LCY)" >= "Amount Including VAT" then
-                    CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Pay-to Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
                     CurrReport.Skip();

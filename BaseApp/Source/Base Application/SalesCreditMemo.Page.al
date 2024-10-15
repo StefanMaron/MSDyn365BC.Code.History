@@ -271,7 +271,8 @@ page 44 "Sales Credit Memo"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
@@ -1371,6 +1372,7 @@ page 44 "Sales Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         SetControlAppearance;
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1443,6 +1445,8 @@ page 44 "Sales Credit Memo"
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         [InDataSet]
         JobQueueVisible: Boolean;
         [InDataSet]

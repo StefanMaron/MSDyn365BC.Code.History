@@ -921,6 +921,10 @@ table 5110 "Purchase Line Archive"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(11780; "External VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;

@@ -276,7 +276,7 @@ codeunit 5700 "User Setup Management"
         AllowPostingTo: Date;
         IsHandled: Boolean;
     begin
-        OnBeforeIsPostingDateValidWithSetup(PostingDate, Result, IsHandled);
+        OnBeforeIsPostingDateValidWithSetup(PostingDate, Result, IsHandled, SetupRecordID);
         if IsHandled then
             exit(Result);
 
@@ -330,7 +330,7 @@ codeunit 5700 "User Setup Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsPostingDateValidWithSetup(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeIsPostingDateValidWithSetup(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean; var SetupRecordID: RecordID)
     begin
     end;
 }

@@ -66,7 +66,7 @@ page 474 "VAT Statement Preview"
                             VATPeriodEndDate := 0D;
                         end;
                         // NAVCZ
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(DateRowFilter; DateRowFilter)

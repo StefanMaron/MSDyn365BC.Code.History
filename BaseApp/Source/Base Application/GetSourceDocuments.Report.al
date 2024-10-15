@@ -27,8 +27,8 @@ report 5753 "Get Source Documents"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        VerifyItemNotBlocked("No.");
-                        if "Location Code" = "Warehouse Request"."Location Code" then
+                        VerifySalesItemNotBlocked("Sales Header", "Sales Line");
+                        if not SkipWarehouseRequest("Sales Line", "Warehouse Request") then
                             case RequestType of
                                 RequestType::Receive:
                                     if WhseActivityCreate.CheckIfSalesLine2ReceiptLine("Sales Line") then begin
@@ -38,7 +38,7 @@ report 5753 "Get Source Documents"
                                             // NAVCZ
                                             // CreateReceiptHeader;
                                             CreateReceiptHeader("Sales Header"."No. Series");
-                                            OnSalesLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Sales Header");
+                                            OnSalesLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Sales Header", "Sales Line");
                                         end;
                                         // NAVCZ
                                         if not WhseActivityCreate.SalesLine2ReceiptLine(WhseReceiptHeader, "Sales Line") then
@@ -60,10 +60,10 @@ report 5753 "Get Source Documents"
                                             // NAVCZ
                                             // CreateShptHeader;
                                             CreateShptHeader("Sales Header"."No. Series");
-                                            OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header");
+                                            OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header", "Sales Line");
                                         end;
                                         // NAVCZ
-                                        if not WhseActivityCreate.FromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
+                                        if not CreateActivityFromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
                                     end;
@@ -155,7 +155,7 @@ report 5753 "Get Source Documents"
                                             // NAVCZ
                                             // CreateReceiptHeader;
                                             CreateReceiptHeader("Purchase Header"."No. Series");
-                                            OnPurchaseLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Purchase Header");
+                                            OnPurchaseLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Purchase Header", "Purchase Line");
                                         end;
                                         // NAVCZ
                                         if not WhseActivityCreate.PurchLine2ReceiptLine(WhseReceiptHeader, "Purchase Line") then
@@ -170,7 +170,7 @@ report 5753 "Get Source Documents"
                                             // NAVCZ
                                             // CreateShptHeader;
                                             CreateShptHeader("Purchase Header"."No. Series");
-                                            OnPurchaseLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Purchase Header");
+                                            OnPurchaseLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Purchase Header", "Purchase Line");
                                         end;
                                         // NAVCZ
                                         if not WhseActivityCreate.FromPurchLine2ShptLine(WhseShptHeader, "Purchase Line") then
@@ -257,7 +257,7 @@ report 5753 "Get Source Documents"
                                         // NAVCZ
                                         // CreateReceiptHeader;
                                         CreateReceiptHeader("Transfer Header"."No. Series");
-                                        OnTransferLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Transfer Header");
+                                        OnTransferLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Transfer Header", "Transfer Line");
                                     end;
                                     // NAVCZ
                                     if not WhseActivityCreate.TransLine2ReceiptLine(WhseReceiptHeader, "Transfer Line") then
@@ -272,7 +272,7 @@ report 5753 "Get Source Documents"
                                         // NAVCZ
                                         // CreateShptHeader;
                                         CreateShptHeader("Transfer Header"."No. Series");
-                                        OnTransferLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Transfer Header");
+                                        OnTransferLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Transfer Header", "Transfer Line");
                                     end;
                                     // NAVCZ
                                     if not WhseActivityCreate.FromTransLine2ShptLine(WhseShptHeader, "Transfer Line") then
@@ -586,6 +586,17 @@ report 5753 "Get Source Documents"
         exit(Completed);
     end;
 
+    local procedure CreateActivityFromSalesLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"): Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCreateActivityFromSalesLine2ShptLine(WhseShptHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        exit(WhseActivityCreate.FromSalesLine2ShptLine(WhseShptHeader, SalesLine));
+    end;
+
     local procedure CreateShptHeader(NoSeries: Code[20])
     var
         [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
@@ -670,6 +681,21 @@ report 5753 "Get Source Documents"
     procedure SetSkipBlockedItem(Skip: Boolean)
     begin
         SkipBlockedItem := Skip;
+    end;
+
+    local procedure SkipWarehouseRequest(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request") SkipLine: Boolean;
+    begin
+        SkipLine := SalesLine."Location Code" <> WarehouseRequest."Location Code";
+        OnAfterSkipWarehouseRequest(SalesLine, WarehouseRequest, SkipLine);
+    end;
+
+    local procedure VerifySalesItemNotBlocked(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled);
+        if not IsHandled then
+            VerifyItemNotBlocked(SalesLine."No.")
     end;
 
     local procedure VerifyItemNotBlocked(ItemNo: Code[20])
@@ -796,6 +822,11 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSkipWarehouseRequest(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request"; var SkipLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPurchaseLineOnPreDataItem(var PurchaseLine: Record "Purchase Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
@@ -812,6 +843,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFillQtyToHandle(var DoNotFillQtytoHandle: Boolean; var RequestType: Option);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateActivityFromSalesLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -851,6 +887,11 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifySalesItemNotBlocked(SalesHeaer: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWarehouseRequestOnAfterGetRecord(var WarehouseRequest: Record "Warehouse Request"; var WhseHeaderCreated: Boolean; var SkipRecord: Boolean; var BreakReport: Boolean; RequestType: Option Receive,Ship; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseShptHeader: Record "Warehouse Shipment Header"; OneHeaderCreated: Boolean)
     begin
     end;
@@ -866,22 +907,22 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchaseLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header");
+    local procedure OnPurchaseLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchaseLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header");
+    local procedure OnPurchaseLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header");
+    local procedure OnSalesLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header");
+    local procedure OnSalesLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line");
     begin
     end;
 
@@ -906,12 +947,12 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header");
+    local procedure OnTransferLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header");
+    local procedure OnTransferLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line");
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 5704 "TransferOrder-Post Shipment"
+﻿codeunit 5704 "TransferOrder-Post Shipment"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -158,7 +158,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             FinalizePosting(TransHeader, TransLine);
 
-            OnRunOnBeforeCommit(TransHeader, TransShptHeader);
+            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader);
             if not (InvtPickPutaway or "Direct Transfer" or SuppressCommit) then begin
                 Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
@@ -449,14 +449,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptHeader.Init();
         TransShptHeader.CopyFromTransferHeader(TransHeader);
         TransShptHeader."No. Series" := NoSeries;
-        TransShptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
         // NAVCZ
         TransShptHeader."Gen. Bus. Post. Group Ship" := TransHeader."Gen. Bus. Post. Group Ship";
         TransShptHeader."Gen. Bus. Post. Group Receive" := TransHeader."Gen. Bus. Post. Group Receive";
         // NAVCZ
         OnBeforeGenNextNo(TransShptHeader, TransHeader);
         if TransShptHeader."No." = '' then
-            TransShptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
+            TransShptHeader."No." := NoSeriesMgt.GetNextNo(TransShptHeader."No. Series", TransHeader."Posting Date", true);
         OnBeforeInsertTransShptHeader(TransShptHeader, TransHeader, SuppressCommit);
         TransShptHeader.Insert();
         OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
@@ -843,7 +842,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; TransferShipmentHeader: Record "Transfer Shipment Header")
+    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
     end;
 }

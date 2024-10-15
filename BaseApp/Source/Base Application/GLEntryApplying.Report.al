@@ -118,6 +118,9 @@ report 11767 "G/L Entry Applying"
                             end;
                         AppliedAmount := 0;
 
+                        TApplyEntry.Reset();
+                        TApplyEntry.DeleteAll();
+                        Clear(TApplyEntry);
                         TDetailedGLEntry.Reset();
                         TDetailedGLEntry.DeleteAll();
                         Clear(TDetailedGLEntry);

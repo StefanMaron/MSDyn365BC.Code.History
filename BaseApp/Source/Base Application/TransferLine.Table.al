@@ -1553,6 +1553,8 @@ table 5741 "Transfer Line"
                     TestField("Reserved Qty. Inbnd. (Base)", 0);
                     TestField("Reserved Qty. Outbnd. (Base)", 0);
 
+                    OnDeleteRelatedTransferLinesOnBeforeDeleteRelatedData(TransLine);
+
                     ReserveTransferLine.DeleteLine(TransLine2);
                     WhseValidateSourceLine.TransLineDelete(TransLine2);
 
@@ -1734,6 +1736,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelatedTransferLinesOnBeforeDeleteRelatedData(var TransferLine: Record "Transfer Line")
     begin
     end;
 

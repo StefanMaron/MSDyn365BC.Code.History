@@ -1154,6 +1154,8 @@ table 5612 "FA Depreciation Book"
         FALedgEntry: Record "FA Ledger Entry";
     begin
         // NAVCZ
+        if "FA No." = '' then
+            exit(false);
         FALedgEntry.SetRange("FA No.", "FA No.");
         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
         exit(not FALedgEntry.IsEmpty);

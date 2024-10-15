@@ -818,6 +818,10 @@ table 5107 "Sales Header Archive"
             Caption = 'Last Return Receipt No.';
             TableRelation = "Return Receipt Header";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';

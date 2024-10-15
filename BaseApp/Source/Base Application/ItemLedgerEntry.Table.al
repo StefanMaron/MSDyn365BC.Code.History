@@ -835,6 +835,11 @@ table 32 "Item Ledger Entry"
     end;
 
     procedure VerifyOnInventory()
+    begin
+        VerifyOnInventory(StrSubstNo(IsNotOnInventoryErr, "Item No."));
+    end;
+
+    procedure VerifyOnInventory(ErrorMessageText: Text)
     var
         Item: Record Item;
         IsHandled: Boolean;
@@ -850,11 +855,11 @@ table 32 "Item Ledger Entry"
             exit;
         case "Entry Type" of
             "Entry Type"::Consumption, "Entry Type"::"Assembly Consumption", "Entry Type"::Transfer:
-                Error(IsNotOnInventoryErr, "Item No.");
+                Error(ErrorMessageText);
             else begin
                     Item.Get("Item No.");
                     if Item.PreventNegativeInventory then
-                        Error(IsNotOnInventoryErr, "Item No.");
+                        Error(ErrorMessageText);
                 end;
         end;
     end;

@@ -60,7 +60,7 @@
     begin
         OnBeforeCode(WhseActivLine, SuppressCommit);
 
-        PostingReference := WhseSetup.GetNextReference;
+        GetPostingReference();
 
         with WhseActivHeader do begin
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
@@ -206,6 +206,18 @@
         end;
     end;
 
+    local procedure GetPostingReference()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetPostingReference(PostingReference, IsHandled);
+        if IsHandled then
+            exit;
+
+        PostingReference := WhseSetup.GetNextReference();
+    end;
+
     local procedure InitSourceDocument()
     var
         SalesLine: Record "Sales Line";
@@ -229,7 +241,7 @@
                                 else
                                     PurchLine.Validate("Return Qty. to Ship", 0);
                                 PurchLine.Validate("Qty. to Invoice", 0);
-                                PurchLine.Modify();
+                                ModifyPurchaseLine(PurchLine);
                                 OnAfterPurchLineModify(PurchLine);
                             until PurchLine.Next = 0;
 
@@ -252,8 +264,7 @@
                                 PurchHeader."Vendor Cr. Memo No." := "External Document No.2";
                             ModifyHeader := true;
                         end;
-                        if ModifyHeader then
-                            PurchHeader.Modify();
+                        ModifyPurchaseHeader(PurchHeader, WhseActivHeader, ModifyHeader);
                     end;
                 DATABASE::"Sales Line":
                     begin
@@ -269,7 +280,7 @@
                                 else
                                     SalesLine.Validate("Return Qty. to Receive", 0);
                                 SalesLine.Validate("Qty. to Invoice", 0);
-                                SalesLine.Modify();
+                                ModifySalesLine(SalesLine);
                                 OnAfterSalesLineModify(SalesLine);
                             until SalesLine.Next = 0;
 
@@ -285,8 +296,7 @@
                             SalesHeader."External Document No." := "External Document No.";
                             ModifyHeader := true;
                         end;
-                        if ModifyHeader then
-                            SalesHeader.Modify();
+                        ModifySalesHeader(SalesHeader, WhseActivHeader, ModifyHeader);
                     end;
                 DATABASE::"Transfer Line":
                     begin
@@ -298,7 +308,7 @@
                             repeat
                                 TransLine.Validate("Qty. to Ship", 0);
                                 TransLine.Validate("Qty. to Receive", 0);
-                                TransLine.Modify();
+                                ModifyTransferLine(TransLine);
                                 OnAfterTransLineModify(TransLine);
                             until TransLine.Next = 0;
 
@@ -311,12 +321,50 @@
                             TransHeader."External Document No." := "External Document No.";
                             ModifyHeader := true;
                         end;
-                        if ModifyHeader then
-                            TransHeader.Modify();
+                        ModifyTransferHeader(TransHeader, WhseActivHeader, ModifyHeader);
                     end;
             end;
 
         OnAfterInitSourceDocument(WhseActivHeader);
+    end;
+
+    local procedure ModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ModifyHeader: Boolean)
+    begin
+        OnBeforeModifyPurchaseHeader(PurchaseHeader, WarehouseActivityHeader, ModifyHeader);
+        if ModifyHeader then
+            PurchaseHeader.Modify();
+    end;
+
+    local procedure ModifyPurchaseLine(var PurchaseLine: Record "Purchase Line")
+    begin
+        OnBeforeModifyPurchaseLine(PurchaseLine);
+        PurchaseLine.Modify();
+    end;
+
+    local procedure ModifySalesHeader(var SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ModifyHeader: Boolean)
+    begin
+        OnBeforeModifySalesHeader(SalesHeader, WarehouseActivityHeader, ModifyHeader);
+        if ModifyHeader then
+            SalesHeader.Modify();
+    end;
+
+    local procedure ModifySalesLine(var SalesLine: Record "Sales Line")
+    begin
+        OnBeforeModifySalesLine(SalesLine);
+        SalesLine.Modify();
+    end;
+
+    local procedure ModifyTransferHeader(var TransferHeader: Record "Transfer Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ModifyHeader: Boolean)
+    begin
+        OnBeforeModifyTransferHeader(TransferHeader, WarehouseActivityHeader, ModifyHeader);
+        if ModifyHeader then
+            TransferHeader.Modify();
+    end;
+
+    local procedure ModifyTransferLine(var TransferLine: Record "Transfer Line")
+    begin
+        OnBeforeModifyTransferLine(TransferLine);
+        TransferLine.Modify();
     end;
 
     local procedure UpdateSourceDocument()
@@ -441,6 +489,7 @@
                             PurchHeader.Ship := true;
                         PurchHeader.Invoice := InvoiceSourceDoc;
                         PurchHeader."Posting from Whse. Ref." := PostingReference;
+                        OnPostSourceDocumentOnBeforePurchPostRun(WhseActivHeader, PurchHeader);
                         PurchPost.Run(PurchHeader);
                         if "Source Document" = "Source Document"::"Purchase Order" then begin
                             PostedSourceType := DATABASE::"Purch. Rcpt. Header";
@@ -463,6 +512,7 @@
                         SalesHeader.Invoice := InvoiceSourceDoc;
                         SalesHeader."Posting from Whse. Ref." := PostingReference;
                         SalesPost.SetWhseJnlRegisterCU(WhseJnlRegisterLine);
+                        OnPostSourceDocumentOnBeforeSalesPostRun(WhseActivHeader, SalesHeader);
                         SalesPost.Run(SalesHeader);
                         if "Source Document" = "Source Document"::"Sales Order" then begin
                             PostedSourceType := DATABASE::"Sales Shipment Header";
@@ -968,7 +1018,7 @@
                 repeat
                     TrackingSpecification.CheckItemTrackingQuantity(
                       "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                      "Qty. to Handle", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                      "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
                 until Next() = 0;
         end;
     end;
@@ -1059,6 +1109,41 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPostingReference(var PostReference: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyPurchaseLine(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifySalesHeader(var SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifySalesLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTransferLine(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostedInvtPickHeaderInsert(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -1125,6 +1210,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePurchPostRun(WarehouseActivityHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforeSalesPostRun(WarehouseActivityHeader: Record "Warehouse Activity Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

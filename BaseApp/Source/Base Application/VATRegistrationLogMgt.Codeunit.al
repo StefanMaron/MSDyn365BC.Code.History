@@ -65,7 +65,7 @@ codeunit 249 "VAT Registration Log Mgt."
           Contact."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Contact, Contact."No.");
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure LogRegistrationCountryRegion(RegistrationCountryRegion: Record "Registration Country/Region")
     var
         CountryCode: Code[10];
@@ -224,7 +224,25 @@ codeunit 249 "VAT Registration Log Mgt."
             LogUnloggedVATRegistrationNumbers("Account Type"::Customer, Customer."No."); // NAVCZ
             SetRange("Account Type", "Account Type"::Customer);
             SetRange("Account No.", Customer."No.");
+            
+            CheckIfCountryCodeIsSet(Customer);
             PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
+        end;
+    end;
+
+    procedure CheckIfCountryCodeIsSet(Customer: Record Customer)
+    var
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        CountryRegion: Record "Country/Region";
+        EmptyCountryCodeErr: Label 'You must specify the country that issued the VAT registration number. Choose the country in the Country/Region Code field.';
+        EmptyEUCountryCodeErr: Label 'You must specify the EU Country/Region Code for the country that issued the VAT registration number. You can specify that on the Country/Regions page.';
+    begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
+            if Customer."Country/Region Code" = '' then
+                Error(EmptyCountryCodeErr);
+
+            if not CountryRegion.IsEUCountry(Customer."Country/Region Code") then
+                Error(EmptyEUCountryCodeErr);
         end;
     end;
 
@@ -252,7 +270,7 @@ codeunit 249 "VAT Registration Log Mgt."
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure AssistEditRegCountryRegionVATReg(RegistrationCountryRegion: Record "Registration Country/Region")
     var
         VATRegistrationLog: Record "VAT Registration Log";

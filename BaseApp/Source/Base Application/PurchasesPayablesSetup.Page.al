@@ -303,6 +303,11 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to credit memo.';
                 }
+                field("Price List Nos."; "Price List Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase price lists.';
+                }
             }
             group("Background Posting")
             {

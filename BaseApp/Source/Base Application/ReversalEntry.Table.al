@@ -465,6 +465,7 @@ table 179 "Reversal Entry"
     var
         Employee: Record Employee;
     begin
+        OnBeforeCheckEmpl(EmployeeLedgerEntry);
         Employee.Get(EmployeeLedgerEntry."Employee No.");
         CheckPostingDate(
           EmployeeLedgerEntry."Posting Date", EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No.");
@@ -1114,6 +1115,7 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
                 GLEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
             if GLEntry.FindSet then
                 repeat
+                    OnInsertFromGLEntryOnBeforeClearTempReversalEntry(GLEntry);
                     Clear(TempReversalEntry);
                     if RevType = RevType::Register then
                         TempReversalEntry."G/L Register No." := Number;
@@ -1525,6 +1527,11 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmpl(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckGLAcc(var GLEntry: Record "G/L Entry")
     begin
@@ -1542,6 +1549,11 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFromCustLedgEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromGLEntryOnBeforeClearTempReversalEntry(GLEntry: Record "G/L Entry");
     begin
     end;
 

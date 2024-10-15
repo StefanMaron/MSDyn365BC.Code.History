@@ -1,4 +1,4 @@
-page 6630 "Sales Return Order"
+﻿page 6630 "Sales Return Order"
 {
     Caption = 'Sales Return Order';
     PageType = Document;
@@ -251,6 +251,7 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
@@ -1492,6 +1493,7 @@ page 6630 "Sales Return Order"
     begin
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1561,6 +1563,8 @@ page 6630 "Sales Return Order"
         JobQueueVisible: Boolean;
         [InDataSet]
         JobQueueUsed: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         DocNoVisible: Boolean;
         OpenApprovalEntriesExistForCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;

@@ -253,6 +253,31 @@ table 5079 "Marketing Setup"
             ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '15.3';
         }
+        field(78; "Exchange Tenant Id Key"; Guid)
+        {
+            Caption = 'Exchange Tenant Id Key';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(79; "Exchange Client Id"; Text[250])
+        {
+            Caption = 'Exchange Client Id';
+            DataClassification = EndUserIdentifiableInformation;
+        }
+        field(80; "Exchange Client Secret Key"; Guid)
+        {
+            Caption = 'Exchange Client Secret Key';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(81; "Email Logging Enabled"; Boolean)
+        {
+            Caption = 'Email Logging Enabled';
+            DataClassification = CustomerContent;
+        }
+        field(82; "Exchange Redirect URL"; Text[2048])
+        {
+            Caption = 'Exchange Redirect URL';
+            DataClassification = EndUserIdentifiableInformation;
+        }
     }
 
     keys
@@ -448,6 +473,71 @@ table 5079 "Marketing Setup"
             ContactType::Person:
                 exit(MarketingSetup."Cust. Template Person Code");
         end
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure SetExchangeTenantId(TenantId: Text)
+    begin
+        if IsNullGuid("Exchange Tenant Id Key") then begin
+            "Exchange Tenant Id Key" := CreateGuid();
+            Modify();
+        end;
+
+        IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
+    end;
+
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetExchangeTenantId(): Text
+    var
+        TenantId: Text;
+    begin
+        if IsNullGuid("Exchange Tenant Id Key") or
+           not IsolatedStorage.Contains("Exchange Tenant Id Key", DATASCOPE::Company)
+        then begin
+            SendTraceTag('0000CF8', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            Error(ExchangeAccountNotConfiguredErr);
+        end;
+
+        IsolatedStorageManagement.Get("Exchange Tenant Id Key", DATASCOPE::Company, TenantId);
+        exit(TenantId);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure SetExchangeClientSecret(ClientSecret: Text)
+    begin
+        if ClientSecret = '' then
+            if not IsNullGuid("Exchange Client Secret Key") then begin
+                IsolatedStorageManagement.Delete("Exchange Client Secret Key", DATASCOPE::Company);
+                exit;
+            end;
+
+        if IsNullGuid("Exchange Client Secret Key") then begin
+            "Exchange Client Secret Key" := CreateGuid();
+            Modify();
+        end;
+
+        IsolatedStorageManagement.Set("Exchange Client Secret Key", ClientSecret, DATASCOPE::Company);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetExchangeClientSecret(): Text
+    var
+        ClientSecret: Text;
+    begin
+        if IsNullGuid("Exchange Client Secret Key") or
+           not IsolatedStorage.Contains("Exchange Client Secret Key", DATASCOPE::Company)
+        then begin
+            SendTraceTag('0000CF9', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            Error(ExchangeAccountNotConfiguredErr);
+        end;
+
+        IsolatedStorageManagement.Get("Exchange Client Secret Key", DATASCOPE::Company, ClientSecret);
+        exit(ClientSecret);
     end;
 }
 

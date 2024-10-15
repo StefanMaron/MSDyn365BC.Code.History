@@ -324,6 +324,7 @@ codeunit 131305 "Library - ERM Country Data"
         UserSetup."User ID" := UserId;
         UserSetup."Allow Item Unapply" := true;
         UserSetup."Time Sheet Admin." := true;
+        UserSetup."Allow Complete Job" := true;
         if not UserSetup.Insert(true) then
             UserSetup.Modify(true);
     end;

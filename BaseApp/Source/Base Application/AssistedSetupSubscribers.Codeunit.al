@@ -183,7 +183,7 @@ codeunit 1814 "Assisted Setup Subscribers"
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() and EnvironmentInfo.IsSaaS() then begin
             AssistedSetup.Add(GetAppId(), PAGE::"CDS Connection Setup Wizard", CDSConnectionSetupTxt, AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt, CDSConnectionSetupDescriptionTxt);
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
             AssistedSetup.AddTranslation(PAGE::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);

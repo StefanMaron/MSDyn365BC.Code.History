@@ -551,7 +551,9 @@ codeunit 99000813 "Carry Out Action"
             ProdOrder."No. Series" := ProdOrder.GetNoSeriesCode;
             if ProdOrder."No. Series" = ReqLine."No. Series" then
                 ProdOrder."No." := ReqLine."Ref. Order No.";
+            OnInsertProdOrderOnBeforeProdOrderInsert(ProdOrder, ReqLine);
             ProdOrder.Insert(true);
+            OnInsertProdOrderOnAfterProdOrderInsert(ProdOrder, ReqLine);
             ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
             ProdOrder."Source No." := ReqLine."No.";
             ProdOrder.Validate(Description, ReqLine.Description);
@@ -642,6 +644,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine."Dimension Set ID" := ReqLine."Dimension Set ID";
         OnInsertProdOrderLineWithReqLine(ProdOrderLine, ReqLine);
         ProdOrderLine.Insert();
+        OnInsertProdOrderLineOnAfterProdOrderLineInsert(ProdOrderLine, ReqLine);
         CalculateProdOrder.CalculateProdOrderDates(ProdOrderLine, false);
 
         ReqLineReserve.TransferPlanningLineToPOLine(ReqLine, ProdOrderLine, ReqLine."Net Quantity (Base)", false);
@@ -677,7 +680,9 @@ codeunit 99000813 "Carry Out Action"
         Item.Get(ReqLine."No.");
         AsmHeader.Init();
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
+        OnInsertAsmHeaderOnBeforeAsmHeaderInsert(AsmHeader, ReqLine);
         AsmHeader.Insert(true);
+        OnInsertAsmHeaderOnAfterAsmHeaderInsert(AsmHeader, ReqLine);
         AsmHeader.SetWarningsOff;
         AsmHeader.Validate("Item No.", ReqLine."No.");
         AsmHeader.Validate("Unit of Measure Code", ReqLine."Unit of Measure Code");
@@ -796,7 +801,9 @@ codeunit 99000813 "Carry Out Action"
             TransHeader.Init();
             TransHeader."No." := '';
             TransHeader."Posting Date" := WorkDate;
+            OnInsertTransHeaderOnBeforeTransHeaderInsert(TransHeader, ReqLine);
             TransHeader.Insert(true);
+            OnInsertTransHeaderOnAfterTransHeaderInsert(TransHeader, ReqLine);
             TransHeader.Validate("Transfer-from Code", "Transfer-from Code");
             TransHeader.Validate("Transfer-to Code", "Location Code");
             TransHeader."Receipt Date" := "Due Date";
@@ -805,6 +812,7 @@ codeunit 99000813 "Carry Out Action"
             TransHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             TransHeader."Dimension Set ID" := "Dimension Set ID";
             OnBeforeTransHeaderInsert(TransHeader, ReqLine);
+            OnInsertTransHeaderOnBeforeTransHeaderModify(TransHeader, ReqLine);
             TransHeader.Modify();
             TempDocumentEntry.Init();
             TempDocumentEntry."Table ID" := DATABASE::"Transfer Header";
@@ -1408,6 +1416,7 @@ codeunit 99000813 "Carry Out Action"
     begin
     end;
 
+    [Obsolete('Replaced by event OnInsertTransHeaderOnBeforeTransHeaderModify', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransHeaderInsert(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
     begin
@@ -1449,7 +1458,22 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnAfterProdOrderLineInsert(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record "Production Order"; var HeaderExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnAfterProdOrderInsert(var ProdOrder: Record "Production Order"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnBeforeProdOrderInsert(var ProdOrder: Record "Production Order"; ReqLine: Record "Requisition Line")
     begin
     end;
 
@@ -1485,6 +1509,31 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnProdOrderChgAndResheduleOnBeforeProdOrderModify(var ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransHeaderOnBeforeTransHeaderInsert(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransHeaderOnAfterTransHeaderInsert(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransHeaderOnBeforeTransHeaderModify(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAsmHeaderOnBeforeAsmHeaderInsert(var AsmHeader: Record "Assembly Header"; ReqLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAsmHeaderOnAfterAsmHeaderInsert(var AsmHeader: Record "Assembly Header"; ReqLine: Record "Requisition Line");
     begin
     end;
 }

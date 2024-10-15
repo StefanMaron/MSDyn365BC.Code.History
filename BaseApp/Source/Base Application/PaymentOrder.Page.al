@@ -329,15 +329,11 @@ page 11716 "Payment Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Uncertainty VAT Payment Check';
                     Image = ElectronicPayment;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Checks uncertaintie vat of the vendor';
 
                     trigger OnAction()
-                    var
-                        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
                     begin
-                        UncPayerMgt.ImportUncPayerStatusForPaymentOrder(Rec);
+                        ImportUncPayerStatus();
                     end;
                 }
             }
