@@ -11,8 +11,12 @@ codeunit 5923 "Service-Quote to Order"
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         DocType: Enum "Sales Document Type";
         SkipDelete: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeRun(Rec);
+        IsHandled := false;
+        OnBeforeRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         ServOrderHeader := Rec;
 
@@ -92,7 +96,13 @@ codeunit 5923 "Service-Quote to Order"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         RecordLinkManagement: Codeunit "Record Link Management";
         SkipDelete: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeOrder(ServiceHeader, ServOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ServOrderHeader."No." := '';
         ServOrderHeader."No. Printed" := 0;
         ServOrderHeader.Validate(Status, ServOrderHeader.Status::Pending);
@@ -239,7 +249,7 @@ codeunit 5923 "Service-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeRun(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -265,6 +275,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServHeader(var ServiceHeaderOrder: Record "Service Header"; ServiceHeaderQuote: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeOrder(var ServiceHeader: Record "Service Header"; var ServOrderHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

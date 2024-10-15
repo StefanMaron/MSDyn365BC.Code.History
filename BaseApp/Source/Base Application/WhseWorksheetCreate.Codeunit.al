@@ -1,4 +1,4 @@
-codeunit 7311 "Whse. Worksheet-Create"
+﻿codeunit 7311 "Whse. Worksheet-Create"
 {
 
     trigger OnRun()
@@ -433,7 +433,13 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         Item: Record Item;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateWhseWkshLine(WhseWkshLine, Created, IsHandled);
+        if IsHandled then
+            exit(Created);
+
         with WhseWkshLine do begin
             if "Shelf No." = '' then begin
                 Item."No." := "Item No.";
@@ -498,6 +504,11 @@ codeunit 7311 "Whse. Worksheet-Create"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFromWhseShptLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; var Created: Boolean; var IsHandled: Boolean)
     begin
     end;
 

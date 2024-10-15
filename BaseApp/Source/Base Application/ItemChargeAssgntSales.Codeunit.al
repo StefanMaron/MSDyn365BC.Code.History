@@ -35,7 +35,14 @@
     end;
 
     procedure InsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Enum "Sales Applies-to Document Type"; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntSales, ItemChargeAssgntSales, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription, NextLineNo, QtyToAssign, AmountToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         NextLineNo := NextLineNo + 10000;
 
         ItemChargeAssgntSales."Document No." := FromItemChargeAssgntSales."Document No.";
@@ -539,6 +546,8 @@
                         DecimalArray[3] := SalesShptLine."Unit Volume";
                     end;
             end;
+
+        OnAfterGetItemValues(TempItemChargeAssgntSales, DecimalArray);
     end;
 
     procedure SuggestAssignmentFromLine(var FromItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
@@ -659,6 +668,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemValues(TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; TotalGrossWeight: Decimal; Currency: Record Currency)
     begin
     end;
@@ -680,6 +694,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertItemChargeAssgntWithAssignValues(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemChargeAssignmentWithValuesTo(var FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var ItemChargeAssgntSales: record "Item Charge Assignment (Sales)"; var ApplToDocType: Enum "Sales Applies-to Document Type"; var FromApplToDocNo: Code[20]; var FromApplToDocLineNo: Integer; var FromItemNo: Code[20]; var FromDescription: Text[100]; var NextLineNo: Integer; var qtytoAssign: decimal; var AmounttoAssign: Decimal; var IsHandled: Boolean)
     begin
     end;
 

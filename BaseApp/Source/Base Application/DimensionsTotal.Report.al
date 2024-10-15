@@ -830,6 +830,7 @@ report 27 "Dimensions - Total"
                     DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
                 else
                     DimVal.SetRange(Code);
+                OnPreReportOnAfterDimValSetFilters(DimVal);
                 if DimVal.FindSet() then
                     repeat
                         TempDimVal.Init();
@@ -1249,6 +1250,7 @@ report 27 "Dimensions - Total"
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         if TempSelectedDim.FindFirst() then
             GLAcc.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
+        OnFillTempGLAccountOnBeforeGLAccFind(GLAcc);
         if GLAcc.FindSet() then begin
             GLAccRange := GLAcc."No.";
             repeat
@@ -1415,6 +1417,16 @@ report 27 "Dimensions - Total"
         if ColumnLayoutName = '' then
             if ColumnLayoutNameRec.FindFirst() then
                 ColumnLayoutName := ColumnLayoutNameRec.Name;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillTempGLAccountOnBeforeGLAccFind(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterDimValSetFilters(var DimensionValue: Record "Dimension Value")
+    begin
     end;
 }
 

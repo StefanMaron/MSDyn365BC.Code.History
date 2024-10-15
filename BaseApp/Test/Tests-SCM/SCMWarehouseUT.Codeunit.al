@@ -1545,6 +1545,99 @@ codeunit 137831 "SCM - Warehouse UT"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM - Warehouse UT");
     end;
 
+    [Test]
+    procedure BinCodeEditableOnPlaceLineForProdConsumption()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePick: TestPage "Warehouse Pick";
+    begin
+        // [FEATURE] [Consumption] [UI]
+        // [SCENARIO 437738] Bin Code is editable on warehouse pick line for placing production component.
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        MockWarehouseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code);
+
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, WarehouseActivityLine.FieldNo("Line No."));
+        WarehouseActivityLine."Source Document" := WarehouseActivityLine."Source Document"::"Prod. Consumption";
+        WarehouseActivityLine."Location Code" := Location.Code;
+        WarehouseActivityLine."Action Type" := WarehouseActivityLine."Action Type"::Place;
+        WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Production;
+        WarehouseActivityLine.Insert();
+
+        WarehousePick.OpenEdit();
+        WarehousePick.FILTER.SetFilter("No.", WarehouseActivityHeader."No.");
+        Assert.IsTrue(WarehousePick.WhseActivityLines."Bin Code".Editable(), '');
+    end;
+
+    [Test]
+    procedure BinCodeEditableOnPlaceLineForAssemblyConsumption()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePick: TestPage "Warehouse Pick";
+    begin
+        // [FEATURE] [Consumption] [UI]
+        // [SCENARIO 437738] Bin Code is editable on warehouse pick line for placing assembly component.
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        MockWarehouseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code);
+
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, WarehouseActivityLine.FieldNo("Line No."));
+        WarehouseActivityLine."Source Document" := WarehouseActivityLine."Source Document"::"Assembly Consumption";
+        WarehouseActivityLine."Location Code" := Location.Code;
+        WarehouseActivityLine."Action Type" := WarehouseActivityLine."Action Type"::Place;
+        WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Assembly;
+        WarehouseActivityLine.Insert();
+
+        WarehousePick.OpenEdit();
+        WarehousePick.FILTER.SetFilter("No.", WarehouseActivityHeader."No.");
+        Assert.IsTrue(WarehousePick.WhseActivityLines."Bin Code".Editable(), '');
+    end;
+
+    [Test]
+    procedure BinCodeEditableOnPlaceLineForJobUsage()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePick: TestPage "Warehouse Pick";
+    begin
+        // [FEATURE] [Consumption] [UI]
+        // [SCENARIO 437738] Bin Code is editable on warehouse pick line for placing assembly component.
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        MockWarehouseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code);
+
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, WarehouseActivityLine.FieldNo("Line No."));
+        WarehouseActivityLine."Source Document" := WarehouseActivityLine."Source Document"::"Job Usage";
+        WarehouseActivityLine."Location Code" := Location.Code;
+        WarehouseActivityLine."Action Type" := WarehouseActivityLine."Action Type"::Place;
+        WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Job;
+        WarehouseActivityLine.Insert();
+
+        WarehousePick.OpenEdit();
+        WarehousePick.FILTER.SetFilter("No.", WarehouseActivityHeader."No.");
+        Assert.IsTrue(WarehousePick.WhseActivityLines."Bin Code".Editable(), '');
+    end;
+
     local procedure CreateItemWithSNWhseTracking(): Code[20]
     var
         Item: Record Item;
@@ -1981,6 +2074,15 @@ codeunit 137831 "SCM - Warehouse UT"
             "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
             Insert;
         end;
+    end;
+
+    local procedure MockWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
+    begin
+        WarehouseActivityHeader.Init();
+        WarehouseActivityHeader.Type := ActivityType;
+        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityHeader."Location Code" := LocationCode;
+        WarehouseActivityHeader.Insert();
     end;
 
     local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])

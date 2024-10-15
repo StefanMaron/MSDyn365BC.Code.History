@@ -64,10 +64,14 @@ page 5330 "CRM Connection Setup"
                     ToolTip = 'Specifies if the connection to Dynamics 365 Sales is enabled. When you check this checkbox, you will be prompted to sign-in to Dataverse with an administrator user account. The account will be used one time to give consent to, install and configure applications and components that the integration requires.';
 
                     trigger OnValidate()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
                     begin
                         CurrPage.Update(true);
-                        if "Is Enabled" then
+                        if "Is Enabled" then begin
+                            FeatureTelemetry.LogUptake('0000H7A', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        end;
                     end;
                 }
                 field(ScheduledSynchJobsActive; ScheduledSynchJobsRunning)
@@ -676,7 +680,10 @@ page 5330 "CRM Connection Setup"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000H7B', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000H7C', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
         EnsureCDSConnectionIsEnabled();
 
         if not Get then begin

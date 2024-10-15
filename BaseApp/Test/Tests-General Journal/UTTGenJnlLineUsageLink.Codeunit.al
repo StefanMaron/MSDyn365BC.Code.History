@@ -19,7 +19,10 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
         Text001: Label 'Rolling back changes.';
+        JobCurrencyFactorErr: Label 'Job Currency Factor should be: %1.', Comment = '%1 -Expected Job Currency Factor';
+        TotalCostLCYErr: Label 'Total Cost (LCY) should be: %1.', Comment = '%1 -Expected Total Cost (LCY)';
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -185,6 +188,99 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
           'Remaining Qty. is not updated correctly');
 
         TearDown;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFieldJobCurrencyCode()
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+        CurrencyCode: Code[10];
+        ExchRate: Decimal;
+    begin
+        // [SCENARIO 434995] To check if Job Currency Factor gets updated every time when Job Currency Code is updated on Journal Line, also to ensure that if Job Currency Code is set to blank from a non blank value then Job currency factor is also 0.
+        // [GIVEN] A Gen. Journal Line with a Job No., Task No., Job Line Type as billable and also with Job Currency Code.
+        Initialize();
+        SetUp();
+
+        GenJournalLine.Validate("Job Line Type", GenJournalLine."Job Line Type"::Billable);
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDecInRange(1, 1000, 2));
+
+        // [GIVEN] Clear Gen. Posting Type, Gen. Bus. Posting Group , Gen. Prod. Posting group, VAT Bus. Posting Group, VAT Prod. Posting Group
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::" ");
+        GenJournalLine.Validate("Gen. Bus. Posting Group", '');
+        GenJournalLine.Validate("Gen. Prod. Posting Group", '');
+        GenJournalLine.Validate("VAT Bus. Posting Group", '');
+        GenJournalLine.Validate("VAT Prod. Posting Group", '');
+
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        LibraryERM.FindExchRate(CurrExchRate, CurrencyCode, WorkDate());
+        ExchRate := CurrExchRate."Exchange Rate Amount";
+
+        // [WHEN] When the Job currency code is updated on Gen. Journal Line
+        GenJournalLine.Validate("Job Currency Code", CurrencyCode);
+
+        // [THEN] Job Currency factor should be equal to the exchange rate Amount
+        Assert.AreEqual(ExchRate, GenJournalLine."Job Currency Factor", StrSubstNo(JobCurrencyFactorErr, ExchRate));
+
+        // [WHEN] When the Job currency code is set to blank
+        GenJournalLine.Validate("Job Currency Code", '');
+
+        // [THEN] Job Currency factor should be 0
+        Assert.AreEqual(0, GenJournalLine."Job Currency Factor", StrSubstNo(JobCurrencyFactorErr, 0));
+
+        TearDown();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestTotalCostLCYOnJobLedgEntry()
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+        JobLedgEntry: Record "Job Ledger Entry";
+        SourceCodeSetup: Record "Source Code Setup";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ExchRate: Decimal;
+        ExpectedAmount: Decimal;
+        CurrencyCode: Code[10];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 434995] Validate if Job ledger Entry is updated with correct Total Cost LCY if Job Currency Code on Journal Line is update to blank after a non blank Value
+        // [GIVEN] A Gen. Journal Line with a Job No., Task No., Job Line Type as billable and also with Job Currency Code and a job currency Factor
+        Initialize();
+        SetUp();
+        SourceCodeSetup.Get();
+
+        GenJournalLine.Validate("Source Code", SourceCodeSetup."General Journal");
+        DocumentNo := LibraryRandom.RandText(20);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+
+        // [GIVEN] Clear Gen. Posting Type, Gen. Bus. Posting Group , Gen. Prod. Posting group, VAT Bus. Posting Group, VAT Prod. Posting Group
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::" ");
+        GenJournalLine.Validate("Gen. Bus. Posting Group", '');
+        GenJournalLine.Validate("Gen. Prod. Posting Group", '');
+        GenJournalLine.Validate("VAT Bus. Posting Group", '');
+        GenJournalLine.Validate("VAT Prod. Posting Group", '');
+
+        GenJournalLine.Validate("Job Line Type", GenJournalLine."Job Line Type"::Billable);
+        GenJournalLine.Validate("Job Quantity", 1);
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDecInRange(1, 1000, 2));
+        ExpectedAmount := GenJournalLine."Job Total Cost (LCY)";
+
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        LibraryERM.FindExchRate(CurrExchRate, CurrencyCode, WorkDate());
+        ExchRate := CurrExchRate."Exchange Rate Amount";
+        GenJournalLine.Validate("Job Currency Code", CurrencyCode);
+
+        // [WHEN] When the Job currency code is set to blank and Journal Line is Posted
+        GenJournalLine.Validate("Job Currency Code", '');
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+
+        // [THEN] Total Cost (LCY) on Job Ledger Entry should be same as Amount of Journal Line
+        JobLedgEntry.FindLast();
+        Assert.AreEqual(ExpectedAmount, JobLedgEntry."Total Cost (LCY)", StrSubstNo(TotalCostLCYErr, ExpectedAmount));
+
+        TearDown();
     end;
 }
 
