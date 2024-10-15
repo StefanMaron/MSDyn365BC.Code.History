@@ -33,7 +33,8 @@ codeunit 9090 "Postcode Service Manager"
         IsSuccessful := true;
         if not TryGetAddressList(GetActiveService, TempEnteredAutocompleteAddress, TempAddressListNameValueBuffer, IsSuccessful, ErrorMsg) then begin
             IsSuccessful := false;
-            ErrorMsg := TechnicalErr;
+            if ErrorMsg = '' then
+                ErrorMsg := TechnicalErr;
         end;
 
         HandleErrorsIfNeccessary(IsSuccessful, ErrorMsg);

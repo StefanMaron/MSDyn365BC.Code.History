@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[Payment Registration]D;]A;(LookupHint=Codeunit O365 Company Information - NamedType XPmtRegTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3138999407 - NamedType 3177045942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The TestPage is not open.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Customer Prices - NamedType TheTestPageIsNotOpenErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1347737634 - NamedType 2432455849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Drilldown on the document type yielded no records.]]></Val>

@@ -730,7 +730,7 @@ codeunit 8616 "Config. Management"
         InsertTempInt(TempInt, DATABASE::"Default Dimension Priority", IncludeLicensedTablesOnly);
     end;
 
-    procedure IsDefaultDimTable(TableID: Integer): Boolean
+    procedure IsDefaultDimTable(TableID: Integer) Result: Boolean
     begin
         case TableID of
             DATABASE::"G/L Account",
@@ -752,9 +752,9 @@ codeunit 8616 "Config. Management"
           DATABASE::"Cash Flow Manual Expense",
           DATABASE::"Cash Flow Manual Revenue":
                 exit(true);
-            else
-                exit(false);
         end;
+
+        OnAfterIsDefaultDimTable(TableID, Result);
     end;
 
     procedure IsDimSetIDTable(TableID: Integer): Boolean
@@ -891,6 +891,11 @@ codeunit 8616 "Config. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindPage(TableID: Integer; var PageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDefaultDimTable(TableID: Integer; var Result: Boolean)
     begin
     end;
 }

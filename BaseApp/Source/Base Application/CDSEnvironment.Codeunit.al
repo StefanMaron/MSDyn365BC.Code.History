@@ -55,7 +55,7 @@ codeunit 7203 "CDS Environment"
             exit(true);
         end;
 
-
+        Commit();
         if PAGE.RunModal(PAGE::"CDS Environments", TempCDSEnvironment) = ACTION::LookupOK then begin
             SendTraceTag('0000AVC', CategoryTok, VERBOSITY::Normal, StrSubstNo(SelectedEnvironmentTxt, TempCDSEnvironment.Url), DataClassification::OrganizationIdentifiableInformation);
             CDSConnectionSetup."Server Address" := TempCDSEnvironment.Url;

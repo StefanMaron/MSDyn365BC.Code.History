@@ -395,6 +395,9 @@ table 5222 "Employee Ledger Entry"
         "Bal. Account Type" := GenJnlLine."Bal. Account Type";
         "Bal. Account No." := GenJnlLine."Bal. Account No.";
         "No. Series" := GenJnlLine."Posting No. Series";
+        "Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type";
+        "Applies-to Doc. No." := GenJnlLine."Applies-to Doc. No.";
+        "Applies-to ID" := GenJnlLine."Applies-to ID";
 
         OnAfterCopyEmployeeLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

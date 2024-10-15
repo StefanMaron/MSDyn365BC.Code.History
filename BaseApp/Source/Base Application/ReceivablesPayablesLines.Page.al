@@ -97,13 +97,15 @@ page 355 "Receivables-Payables Lines"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        GLSetup: Record "General Ledger Setup";
 
     procedure Set(var NewGLSetup: Record "General Ledger Setup"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

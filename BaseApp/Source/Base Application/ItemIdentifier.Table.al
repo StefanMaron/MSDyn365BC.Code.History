@@ -95,11 +95,22 @@ table 7704 "Item Identifier"
     local procedure VerifyItem(): Boolean
     var
         ItemIdent: Record "Item Identifier";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyItem(Rec, IsHandled);
+        if IsHandled then
+            exit(true);
+
         ItemIdent.SetRange("Item No.", "Item No.");
         ItemIdent.SetRange("Variant Code", "Variant Code");
         ItemIdent.SetRange("Unit of Measure Code", "Unit of Measure Code");
         exit(ItemIdent.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyItem(ItemIdentifier: Record "Item Identifier"; var IsHandled: Boolean)
+    begin
     end;
 }
 

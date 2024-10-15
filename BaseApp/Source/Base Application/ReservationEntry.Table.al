@@ -873,7 +873,13 @@ table 337 "Reservation Entry"
         NewReservEntry: Record "Reservation Entry";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservStatus: Enum "Reservation Status";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferReservations(OldReservEntry, ItemNo, VariantCode, LocationCode, TransferAll, TransferQty, QtyPerUOM, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransferAll then begin
             OldReservEntry.FindSet;
             OldReservEntry.TestField("Qty. per Unit of Measure", QtyPerUOM);
@@ -1102,6 +1108,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestItemFields(ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferReservations(var OldReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

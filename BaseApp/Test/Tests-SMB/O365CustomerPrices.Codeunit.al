@@ -18,6 +18,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        TheTestPageIsNotOpenErr: Label 'The TestPage is not open.';
         isInitialized: Boolean;
 
     local procedure Initialize()
@@ -2058,18 +2059,24 @@ codeunit 138020 "O365 Customer Prices"
     var
         SalesPrices: TestPage "Sales Prices";
         SalesCode: Code[20];
-        DiscountCode: Code[20];
+        ItemNo: Code[20];
     begin
         SalesCode := LibraryVariableStorage.DequeueText();
-        DiscountCode := LibraryVariableStorage.DequeueText();
+        ItemNo := LibraryVariableStorage.DequeueText();
 
-        SalesPrLineDisc.FILTER.SetFilter(Code, DiscountCode);
-        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled, '');
+        SalesPrLineDisc.FILTER.SetFilter(Code, ItemNo);
+        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled, 'Set Special Prices.Enabled');
 
         SalesPrLineDisc.Filter.SetFilter("Sales Type", 'All Customers');
         SalesPrLineDisc.FILTER.SetFilter("Sales Code", SalesCode);
 
-        Assert.IsFalse(SalesPrLineDisc."Set Special Prices".Enabled, '');
+        Assert.IsFalse(SalesPrLineDisc.First(), 'should be no filtered lines in the list');
+        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled, 'Set Special Prices.Enabled on empty list');
+
+        SalesPrices.Trap();
+        SalesPrLineDisc."Set Special Prices".Invoke();
+        asserterror SalesPrices.OK().Invoke();
+        Assert.ExpectedError(TheTestPageIsNotOpenErr);
 
         SalesPrLineDisc.OK().Invoke();
     end;

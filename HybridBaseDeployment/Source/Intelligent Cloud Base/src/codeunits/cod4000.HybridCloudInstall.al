@@ -58,7 +58,7 @@ codeunit 4000 "Hybrid Cloud Install"
             until HybridReplicationDetail.Next() = 0;
     end;
 
-    [Obsolete('Assisted Setup is no longer added during Install', 'Obsolete in 16.0')]
+    [Obsolete('Assisted Setup is no longer added during Install', '16.0')]
     procedure AddIntelligentCloudToAssistedSetup(IsIntelligentCloudSetup: Boolean);
     var
         AssistedSetup: Codeunit "Assisted Setup";
@@ -74,7 +74,7 @@ codeunit 4000 "Hybrid Cloud Install"
     end;
 
     // This upgrade logic is to address the rebranding of "Intelligent Cloud" to "Cloud Migration"
-    [Obsolete('No longer needed', 'Obsolete in 16.0')]
+    [Obsolete('No longer needed', '16.0')]
     procedure UpdateHybridReplicationAssistedSetupRecord()
     var
         AssistedSetup: Codeunit "Assisted Setup";

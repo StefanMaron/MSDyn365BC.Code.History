@@ -92,6 +92,7 @@ codeunit 483 "Change Global Dimensions"
         SequentialStartTraceTagMsg: Label 'Change Global Dimensions is started, parallel processing is off.';
         FinishTraceTagMsg: Label 'Change Global Dimensions is finished.';
         SessionListActionTxt: Label 'Session List';
+        SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
 
     procedure ResetIfAllCompleted()
     begin
@@ -713,6 +714,8 @@ codeunit 483 "Change Global Dimensions"
         if IsWindowOpen then begin
             Window.Close;
             IsWindowOpen := false;
+
+            Message(SessionUpdateRequiredMsg);
         end;
     end;
 

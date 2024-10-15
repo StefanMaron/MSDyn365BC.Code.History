@@ -2,18 +2,18 @@
     "id":  "c81764a5-be79-4d50-ba3e-4ade02073780",
     "name":  "Tests-Fixed Asset",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "16.0.0.0"
+                             "version":  "16.1.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.0.0.0",
+    "application":  "16.1.0.0",
     "brief":  "Tests-Fixed Asset (W1)"
 }

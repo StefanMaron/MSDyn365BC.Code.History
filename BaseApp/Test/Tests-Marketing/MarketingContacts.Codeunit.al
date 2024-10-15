@@ -4312,6 +4312,61 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.TestField("No.", Customer."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ContactListLookupModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UI_ContactCard_CompanyName_Lookup()
+    var
+        ContactCompany: Record Contact;
+        ContactPerson: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 345031] Stan can select Contact with type "Company" via lookup of "Company Name" field. "Company No." is validated after selection.
+        Initialize;
+
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibraryMarketing.CreatePersonContact(ContactPerson);
+
+        ContactCompany.TestField(Name);
+        ContactPerson.TestField("Company No.", '');
+        ContactPerson.TestField("Company Name", '');
+
+        LibraryVariableStorage.Enqueue(ContactCompany."No.");
+
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", ContactPerson."No.");
+        ContactCard."Company No.".AssertEquals('');
+        ContactCard."Company Name".AssertEquals('');
+        ContactCard."Company Name".Lookup();
+        ContactCard.Close();
+
+        ContactPerson.Find();
+        ContactPerson.TestField("Company No.", ContactCompany."No.");
+        ContactPerson.TestField("Company Name", ContactCompany.Name);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_Contact_CompanyName_Relation()
+    var
+        Contact: Record Contact;
+        TableRelationsMetadata: Record "Table Relations Metadata";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 345031] Contact."Company Name" field's relation is Contact.Name
+        Initialize;
+
+        TableRelationsMetadata.SetRange("Table ID", DATABASE::Contact);
+        TableRelationsMetadata.SetRange("Field No.", Contact.FieldNo("Company Name"));
+        TableRelationsMetadata.FindFirst();
+        TableRelationsMetadata.TestField("Related Table ID", DATABASE::Contact);
+        TableRelationsMetadata.TestField("Related Field No.", Contact.FieldNo(Name));
+        TableRelationsMetadata.TestField("Condition Type", TableRelationsMetadata."Condition Type"::CONST);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -4340,6 +4395,14 @@ codeunit 136201 "Marketing Contacts"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Contacts");
+    end;
+
+    local procedure BindActiveDirectoryMockEvents()
+    begin
+        if ActiveDirectoryMockEvents.Enabled() then
+            exit;
+        BindSubscription(ActiveDirectoryMockEvents);
+        ActiveDirectoryMockEvents.Enable();
     end;
 
     local procedure ChangeBusinessRelationCodeForCustomers(BusRelCodeForCustomers: Code[10])
@@ -4751,6 +4814,16 @@ codeunit 136201 "Marketing Contacts"
         ContactCard.GotoRecord(Contact);
     end;
 
+    [HandlerFunctions('MyNotificationsModalPageHandler')]
+    local procedure OpenMyNotificationsFromSettings()
+    var
+        MySettings: TestPage "My Settings";
+    begin
+        MySettings.OpenEdit();
+        MySettings.MyNotificationsLbl.DrillDown();
+        MySettings.Close();
+    end;
+
     local procedure PrintSalesQuoteReport(SalesHeader: Record "Sales Header")
     var
         SalesQuote: TestPage "Sales Quote";
@@ -4812,6 +4885,15 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.");
     end;
 
+    local procedure SetAddress(var Contact: Record Contact)
+    begin
+        Contact.Address := CopyStr(CreateGuid, 2, 30);
+        Contact."Address 2" := CopyStr(CreateGuid, 2, 30);
+        Contact.City := CopyStr(CreateGuid, 2, 30);
+        Contact.County := CopyStr(CreateGuid, 2, 30);
+        Contact."Post Code" := CopyStr(CreateGuid, 2, 20);
+    end;
+
     local procedure UpdateContactCompanyDetails(var Contact: Record Contact; ContactPostCode: Code[20]; ContactCountryRegionCode: Code[10]; ContactPhoneNumber: Text[30])
     begin
         Contact.Validate("Country/Region Code", ContactCountryRegionCode);
@@ -4841,6 +4923,15 @@ codeunit 136201 "Marketing Contacts"
         ContactCard.FILTER.SetFilter("No.", No);
         ContactCard.Name.SetValue(Name);
         ContactCard.OK.Invoke;
+    end;
+
+    local procedure VerifySameAddress(ExpectedContact: Record Contact; ActualContact: Record Contact)
+    begin
+        Assert.AreEqual(ExpectedContact.Address, ActualContact.Address, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact."Address 2", ActualContact."Address 2", 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact.City, ActualContact.City, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact.County, ActualContact.County, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact."Post Code", ActualContact."Post Code", 'Field value didn''t get updated.');
     end;
 
     local procedure VerifyContactCompanyDetails(var Contact: Record Contact; ContactPostCode: Code[20]; ContactCountryRegionCode: Code[10]; ContactPhoneNumber: Text[30])
@@ -5269,24 +5360,6 @@ codeunit 136201 "Marketing Contacts"
         CoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-    local procedure SetAddress(var Contact: Record Contact)
-    begin
-        Contact.Address := CopyStr(CreateGuid, 2, 30);
-        Contact."Address 2" := CopyStr(CreateGuid, 2, 30);
-        Contact.City := CopyStr(CreateGuid, 2, 30);
-        Contact.County := CopyStr(CreateGuid, 2, 30);
-        Contact."Post Code" := CopyStr(CreateGuid, 2, 20);
-    end;
-
-    local procedure VerifySameAddress(ExpectedContact: Record Contact; ActualContact: Record Contact)
-    begin
-        Assert.AreEqual(ExpectedContact.Address, ActualContact.Address, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact."Address 2", ActualContact."Address 2", 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact.City, ActualContact.City, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact.County, ActualContact.County, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact."Post Code", ActualContact."Post Code", 'Field value didn''t get updated.');
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTemplateListPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
@@ -5295,14 +5368,6 @@ codeunit 136201 "Marketing Contacts"
         Assert.AreEqual(LibraryVariableStorage.DequeueText, CustomerTemplateList.Code.Value, CustTemplateListErr);
         Assert.IsFalse(CustomerTemplateList.Next, CustTemplateListErr);
         CustomerTemplateList.OK.Invoke;
-    end;
-
-    local procedure BindActiveDirectoryMockEvents()
-    begin
-        if ActiveDirectoryMockEvents.Enabled then
-            exit;
-        BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
     end;
 
     [SendNotificationHandler]
@@ -5322,14 +5387,12 @@ codeunit 136201 "Marketing Contacts"
         MyNotifications.Enabled.SetValue(LibraryVariableStorage.DequeueBoolean);
     end;
 
-    [HandlerFunctions('MyNotificationsModalPageHandler')]
-    local procedure OpenMyNotificationsFromSettings()
-    var
-        MySettings: TestPage "My Settings";
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListLookupModalPageHandler(var ContactList: TestPage "Contact List")
     begin
-        MySettings.OpenEdit;
-        MySettings.MyNotificationsLbl.DrillDown;
-        MySettings.Close;
+        ContactList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ContactList.OK.Invoke();
     end;
 
     [SendNotificationHandler]
