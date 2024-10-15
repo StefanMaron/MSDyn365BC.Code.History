@@ -453,8 +453,8 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         AdvancedIntrastatChecklist.Validate("Object Id", ReportId);
         AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
         AdvancedIntrastatChecklist.Validate(
-          "Filter Expression",
-          CopyStr(FilterExpression, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
+            "Filter Expression",
+            CopyStr(FilterExpression, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
         AdvancedIntrastatChecklist.Validate("Reversed Filter Expression", Reverse);
         AdvancedIntrastatChecklist.Insert();
     end;
