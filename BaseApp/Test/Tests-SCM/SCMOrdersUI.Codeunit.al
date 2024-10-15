@@ -1274,6 +1274,41 @@ codeunit 137929 "SCM Orders UI"
         SalesLine.TestField("Bin Code", DefaultBin.Code);
     end;
 
+    [Test]
+    procedure ReceiptDateEditableOnShippedTransferOrder()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO 413185] Receipt Date is editable on shipped transfer order with status = Open.
+        Initialize();
+
+        TransferHeader.Init();
+        TransferHeader."No." := LibraryUtility.GenerateGUID();
+        TransferHeader.Insert();
+
+        TransferLine.Init();
+        TransferLine."Document No." := TransferHeader."No.";
+        TransferLine."Line No." := LibraryUtility.GetNewRecNo(TransferLine, TransferLine.FieldNo("Line No."));
+        TransferLine."Quantity Shipped" := LibraryRandom.RandInt(10);
+        TransferLine.Insert();
+
+        TransferOrder.OpenEdit();
+        TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
+        Assert.IsTrue(TransferOrder."Receipt Date".Editable(), '');
+        TransferOrder.Close();
+
+        TransferHeader.Status := TransferHeader.Status::Released;
+        TransferHeader.Modify();
+
+        TransferOrder.OpenEdit();
+        TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
+        Assert.IsFalse(TransferOrder."Receipt Date".Editable(), '');
+        TransferOrder.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders UI");
