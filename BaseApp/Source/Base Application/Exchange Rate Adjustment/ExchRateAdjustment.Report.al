@@ -416,6 +416,7 @@
             ExchRateAdjmtParameters2."Journal Template Name" := GenJnlBatch."Journal Template Name";
             ExchRateAdjmtParameters2."Journal Batch Name" := GenJnlBatch.Name;
         end;
+        OnAfterCopyParameters(ExchRateAdjmtParameters2);
     end;
 
     procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
@@ -462,6 +463,11 @@
             ValuationPeriodEndDate := 0D;
             DueDateTo := 0D;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyParameters(var ExchRateAdjmtParameters2: Record "Exch. Rate Adjmt. Parameters" temporary)
+    begin
     end;
 
     [IntegrationEvent(TRUE, false)]

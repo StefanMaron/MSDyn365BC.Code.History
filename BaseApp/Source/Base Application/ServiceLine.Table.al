@@ -1,4 +1,4 @@
-table 5902 "Service Line"
+﻿table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -161,7 +161,7 @@ table 5902 "Service Line"
                        not ReplaceServItemAction
                     then
                         Validate(Quantity, xRec.Quantity);
-                    UpdateUnitPriceByField(FieldNo("No."), true);
+                    UpdateUnitPriceByField(FieldNo("No."), false);
                     UpdateAmounts();
                 end;
                 UpdateReservation(FieldNo("No."));
@@ -296,6 +296,7 @@ table 5902 "Service Line"
                 end else
                     Validate("Line Discount %");
 
+                OnValidateQuantityOnBeforeResetAmounts(Rec, xRec);
                 if (xRec.Quantity <> Quantity) and (Quantity = 0) and
                    ((Amount <> 0) or
                     ("Amount Including VAT" <> 0) or
@@ -553,6 +554,7 @@ table 5902 "Service Line"
                               Round(Amount * (1 - ServHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
+                            OnValidateAmountOnAfterCalculateNormalVAT(Rec, ServHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         if Amount <> 0 then
@@ -600,6 +602,7 @@ table 5902 "Service Line"
                                 Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
                               Round(Amount * (1 - ServHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            OnValidateAmountIncludingVATOnAfterCalculateNormalVAT(Rec, ServHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -1674,8 +1677,7 @@ table 5902 "Service Line"
             trigger OnValidate()
             begin
                 TestField("Qty. per Unit of Measure");
-                CalcFields("Reserved Quantity");
-                Planned := "Reserved Quantity" = "Outstanding Quantity";
+                UpdatePlanned();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -2693,7 +2695,7 @@ table 5902 "Service Line"
             UpdateReservation(0);
         end;
 
-        UpdateServiceLedgerEntry;
+        UpdateServiceLedgerEntry();
         IsCustCrLimitChecked := false;
     end;
 
@@ -3315,9 +3317,9 @@ table 5902 "Service Line"
 
         if "Line Amount" <> xRec."Line Amount" then
             "VAT Difference" := 0;
-        ExpectedLineAmount := Round(
-                     CalcChargeableQty() * "Unit Price",
-                     Currency."Amount Rounding Precision") - "Line Discount Amount";
+        ExpectedLineAmount :=
+            Round(CalcChargeableQty() * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount";
+        OnUpdateAmountsOnAfterCalcExpectedLineAmount(Rec, xRec, ExpectedLineAmount);
         if "Line Amount" <> ExpectedLineAmount then begin
             "Line Amount" := ExpectedLineAmount;
             "VAT Difference" := 0;
@@ -3629,6 +3631,7 @@ table 5902 "Service Line"
                     Find();
                 end;
             end;
+            UpdatePlanned();
         end;
     end;
 
@@ -4519,7 +4522,13 @@ table 5902 "Service Line"
         QtyFactor: Decimal;
         TotalVATAmount: Decimal;
         RoundingLineInserted: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnUpdateCalcVATAmountLines(ServHeader, ServiceLine, VATAmountLine, QtyType, isShip);
+        if IsHandled then
+            exit;
+
         Currency.Initialize(ServHeader."Currency Code");
 
         VATAmountLine.DeleteAll();
@@ -4623,9 +4632,12 @@ table 5902 "Service Line"
             SetRange(Quantity);
         end;
 
-        VATAmountLine.UpdateLines(
-          TotalVATAmount, Currency, ServHeader."Currency Factor", ServHeader."Prices Including VAT", ServHeader."VAT Base Discount %",
-          ServHeader."Tax Area Code", ServHeader."Tax Liable", ServHeader."Posting Date");
+        IsHandled := false;
+        OnCalcVATAmountLinesOnBeforeUpdateLines(TotalVATAmount, Currency, ServHeader, VATAmountLine, IsHandled);
+        If not IsHandled then
+            VATAmountLine.UpdateLines(
+                TotalVATAmount, Currency, ServHeader."Currency Factor", ServHeader."Prices Including VAT", ServHeader."VAT Base Discount %",
+                ServHeader."Tax Area Code", ServHeader."Tax Liable", ServHeader."Posting Date");
 
         if RoundingLineInserted and (TotalVATAmount <> 0) then
             if VATAmountLine.Get(ServiceLine."VAT Identifier", ServiceLine."VAT Calculation Type",
@@ -4661,7 +4673,13 @@ table 5902 "Service Line"
         VATDifference: Decimal;
         InvDiscAmount: Decimal;
         LineAmountToInvoice: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateVATOnLines(Rec, xRec, ServHeader, VATAmountLine, QtyType, IsHandled);
+        if IsHandled then
+            exit;
+
         if QtyType = QtyType::Shipping then
             exit;
 
@@ -5132,6 +5150,15 @@ table 5902 "Service Line"
                 DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No."));
     end;
 
+    procedure UpdatePlanned(): Boolean
+    begin
+        CalcFields("Reserved Quantity");
+        if Planned = ("Reserved Quantity" = "Outstanding Quantity") then
+            exit(false);
+        Planned := not Planned;
+        exit(true);
+    end;
+
     procedure UpdateReservation(CalledByFieldNo: Integer)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
@@ -5150,6 +5177,7 @@ table 5902 "Service Line"
                 ServiceLineReserve.VerifyQuantity(Rec, xRec);
         end;
         ServiceLineReserve.VerifyChange(Rec, xRec);
+        UpdatePlanned();
     end;
 
     procedure ShowTracking()
@@ -6466,6 +6494,41 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateReturnReasonCodeOnBeforeValidateLocationCode(var ServiceLine: Record "Service Line"; ReturnReason: Record "Return Reason"; var ShouldValidateLocationCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountOnAfterCalculateNormalVAT(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeUpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; ServiceHeader: Record "Service Header"; var VATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountIncludingVATOnAfterCalculateNormalVAT(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCalcVATAmountLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping,Consuming; isShip: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeResetAmounts(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVATOnLines(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; var VATAmountLine: Record "VAT Amount Line" temporary; QtyType: Option General,Invoicing,Shipping; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAmountsOnAfterCalcExpectedLineAmount(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var ExpectedLineAmount: Decimal)
     begin
     end;
 }

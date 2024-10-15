@@ -1119,7 +1119,14 @@ table 5108 "Sales Line Archive"
     end;
 
     procedure ShowDeferrals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralUtilities.OpenLineScheduleArchive(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(),
             "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
@@ -1147,6 +1154,11 @@ table 5108 "Sales Line Archive"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(var SalesLineArchive: Record "Sales Line Archive"; SalesHeaderArchive: Record "Sales Header Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(var SalesLineArchive: Record "Sales Line Archive"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -288,7 +288,7 @@ report 1320 "Notification Email"
                     Field2Value := Format(FieldRef.Value);
                 end;
             else
-                OnSetReportFieldPlaceholders(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value, DetailsLabel, DetailsValue);
+                OnSetReportFieldPlaceholders(RecRef, Field1Label, Field1Value, Field2Label, Field2Value, Field3Label, Field3Value, DetailsLabel, DetailsValue, "Notification Entry");
         end;
 
         case "Notification Entry".Type of
@@ -493,7 +493,7 @@ report 1320 "Notification Email"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetReportFieldPlaceholders(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var DetailsLabel: Text; var DetailsValue: Text)
+    local procedure OnSetReportFieldPlaceholders(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var DetailsLabel: Text; var DetailsValue: Text; NotificationEntry: Record "Notification Entry")
     begin
     end;
 

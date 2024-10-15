@@ -76,6 +76,7 @@
                 TempItem: Record Item temporary;
                 UnitOfMeasure: Record "Unit of Measure";
                 IsHandled: Boolean;
+                ValidateBaseUnitOfMeasure: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateBaseUnitOfMeasure(Rec, xRec, CurrFieldNo, IsHandled);
@@ -88,7 +89,12 @@
 
                 UpdateUnitOfMeasureId();
 
-                if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
+                OnValidateBaseUnitOfMeasure(ValidateBaseUnitOfMeasure);
+
+                if not ValidateBaseUnitOfMeasure then
+                    ValidateBaseUnitOfMeasure := "Base Unit of Measure" <> xRec."Base Unit of Measure";
+
+                if ValidateBaseUnitOfMeasure then begin
                     TestNoOpenEntriesExist(FieldCaption("Base Unit of Measure"));
 
                     if "Base Unit of Measure" <> '' then begin
@@ -1629,6 +1635,8 @@
                 if not IsTemporary then
                     ItemAttributeManagement.InheritAttributesFromItemCategory(Rec, "Item Category Code", xRec."Item Category Code");
                 UpdateItemCategoryId();
+
+                OnAfterValidateItemCategoryCode(Rec, xRec);
             end;
         }
         field(5703; "Created From Nonstock Item"; Boolean)
@@ -2171,22 +2179,27 @@
                 MfgSetup: Record "Manufacturing Setup";
                 ProdBOMHeader: Record "Production BOM Header";
                 ItemUnitOfMeasure: Record "Item Unit of Measure";
+                IsHandled: Boolean;
             begin
-                if "Production BOM No." <> '' then
-                    TestField(Type, Type::Inventory);
+                IsHandled := false;
+                OnBeforeValidateProductionBOMNo(Rec, xRec, IsHandled);
+                If not IsHandled then begin
+                    if "Production BOM No." <> '' then
+                        TestField(Type, Type::Inventory);
 
-                PlanningAssignment.BomReplace(Rec, xRec."Production BOM No.");
+                    PlanningAssignment.BomReplace(Rec, xRec."Production BOM No.");
 
-                if "Production BOM No." <> xRec."Production BOM No." then
-                    ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Production BOM No."));
+                    if "Production BOM No." <> xRec."Production BOM No." then
+                        ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Production BOM No."));
 
-                if ("Production BOM No." <> '') and ("Production BOM No." <> xRec."Production BOM No.") then begin
-                    ProdBOMHeader.Get("Production BOM No.");
-                    ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
-                    if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
-                        MfgSetup.Get();
-                        if MfgSetup."Dynamic Low-Level Code" then
-                            CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
+                    if ("Production BOM No." <> '') and ("Production BOM No." <> xRec."Production BOM No.") then begin
+                        ProdBOMHeader.Get("Production BOM No.");
+                        ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
+                        if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
+                            MfgSetup.Get();
+                            if MfgSetup."Dynamic Low-Level Code" then
+                                CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
+                        end;
                     end;
                 end;
             end;
@@ -2941,6 +2954,7 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
+        OnBeforeTestNoOpenEntriesExist(Rec, ItemLedgEntry, CurrentFieldName);
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         ItemLedgEntry.SetRange("Item No.", "No.");
         ItemLedgEntry.SetRange(Open, true);
@@ -3659,14 +3673,14 @@
         FilterGroup(CurrentFilterGroup);
     end;
 
-    procedure UpdateReplenishmentSystem(): Boolean
+    procedure UpdateReplenishmentSystem() Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateReplenishmentSystem(Rec, IsHandled);
+        OnBeforeUpdateReplenishmentSystem(Rec, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         CalcFields("Assembly BOM");
 
@@ -3976,6 +3990,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoOpenEntriesExist(Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoPurchLinesExist(Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
@@ -4025,6 +4044,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBaseUnitOfMeasure(var ValidateBaseUnitOfMeasure: Boolean)
+    begin
+    end;
+
     procedure ExistsItemLedgerEntry(): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -4053,7 +4077,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateReplenishmentSystem(var Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateReplenishmentSystem(var Item: Record Item; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -4069,6 +4093,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTryGetItemNoOpenCardWithViewOnBeforeShowCreateItemOption(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateProductionBOMNo(var Item: Record Item; xItem: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemCategoryCode(var Item: Record Item; xItem: Record Item)
     begin
     end;
 }

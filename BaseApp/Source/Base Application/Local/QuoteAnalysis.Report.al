@@ -408,7 +408,7 @@ report 3010801 "Quote Analysis"
         TotalReportCaptionLbl: Label 'Total Report';
 
     [Scope('OnPrem')]
-    procedure CalcHeaderAmount(_TableType: Integer): Decimal
+    procedure CalcHeaderAmount(_TableType: Integer) Result: Decimal
     var
         TmpSalesHeader: Record "Sales Header" temporary;
         TmpSalesLine: Record "Sales Line" temporary;
@@ -418,7 +418,13 @@ report 3010801 "Quote Analysis"
         SalesLine2: Record "Sales Line";
         ArchSalesLine2: Record "Sales Line Archive";
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcHeaderAmount(SalesHead, _TableType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case _TableType of
             DATABASE::"Sales Header":
                 begin
@@ -489,6 +495,11 @@ report 3010801 "Quote Analysis"
     procedure CalcLCYAmount(_FCAmount: Decimal; _Factor: Decimal): Decimal
     begin
         exit(Round(_FCAmount / _Factor, Currency."Amount Rounding Precision"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcHeaderAmount(SalesHeader: Record "Sales Header"; _TableType: Integer; var Result: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

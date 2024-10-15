@@ -212,7 +212,13 @@ table 780 "Certificate of Supply"
         SalesShipmentHeader: Record "Sales Shipment Header";
         ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitRecord(Rec, DocumentType, DocumentNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case DocumentType of
             "Document Type"::"Sales Shipment":
                 begin
@@ -244,6 +250,11 @@ table 780 "Certificate of Supply"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromService(var CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecord(var CertificateOfSupply: Record "Certificate of Supply"; DocumentType: Option; DocumentNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

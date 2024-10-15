@@ -10,50 +10,52 @@ codeunit 11503 CHMgt
         Text004: Label 'The reference number must have 27 characters. Please check the ESR setup.';
         CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
-    procedure PrepareEsr(_Head: Record "Sales Invoice Header"; var _EsrBank: Record "ESR Setup"; var _EsrType: Option Default,ESR,"ESR+"; var _Adr: array[8] of Text[100]; var _AmtTxt: Text[30]; var _CurrencyCode: Code[10]; var _DocType: Text[10]; var _RefNo: Text[35]; var _CodingLine: Text[100])
+    procedure PrepareEsr(SalesInvHeader: Record "Sales Invoice Header"; var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var Adr: array[8] of Text[100]; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100])
     var
         Amt: Decimal;
     begin
-        // *** A D D R E S S
-        _Adr[1] := _Head."Bill-to Name";
-        _Adr[2] := _Head."Bill-to Contact";
-        _Adr[3] := _Head."Bill-to Address";
-        _Adr[4] := _Head."Bill-to Address 2";
-        _Adr[5] := _Head."Bill-to Post Code" + ' ' + _Head."Bill-to City";
-        CompressArray(_Adr);
+        Adr[1] := SalesInvHeader."Bill-to Name";
+        Adr[2] := SalesInvHeader."Bill-to Contact";
+        Adr[3] := SalesInvHeader."Bill-to Address";
+        Adr[4] := SalesInvHeader."Bill-to Address 2";
+        Adr[5] := SalesInvHeader."Bill-to Post Code" + ' ' + SalesInvHeader."Bill-to City";
+        CompressArray(Adr);
 
-        // *** P R E P A R E   A M O U N T  - i.e. 25.82
-        _Head.CalcFields("Amount Including VAT");
-        Amt := _Head."Amount Including VAT";
-        OnPrepareEsrOnAfterCalcAmt(_Head, Amt);
+        SalesInvHeader.CalcFields("Amount Including VAT");
+        Amt := SalesInvHeader."Amount Including VAT";
+        OnPrepareEsrOnAfterCalcAmt(SalesInvHeader, Amt);
 
-        PrepareEsrConsolidate(_EsrBank, _EsrType, _AmtTxt, _CurrencyCode, _DocType, _RefNo, _CodingLine, _Head."Currency Code",
-          _Head."Payment Method Code", _Head."No.", Amt);
+        OnPrepareEsrOnBeforeCompressArray(SalesInvHeader, Adr);
+
+        PrepareEsrConsolidate(
+            ESRSetup, EsrType, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine, SalesInvHeader."Currency Code",
+            SalesInvHeader."Payment Method Code", SalesInvHeader."No.", Amt);
     end;
 
-    procedure PrepareEsrService(_Head: Record "Service Invoice Header"; var _EsrBank: Record "ESR Setup"; var _EsrType: Option Default,ESR,"ESR+"; var _Adr: array[8] of Text[100]; var _AmtTxt: Text[30]; var _CurrencyCode: Code[10]; var _DocType: Text[10]; var _RefNo: Text[35]; var _CodingLine: Text[100])
+    procedure PrepareEsrService(ServiceInvHeader: Record "Service Invoice Header"; var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var Adr: array[8] of Text[100]; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100])
     var
         ServiceInvoiceLine: Record "Service Invoice Line";
         Amt: Decimal;
     begin
-        // *** A D D R E S S
-        _Adr[1] := _Head."Bill-to Name";
-        _Adr[2] := _Head."Bill-to Contact";
-        _Adr[3] := _Head."Bill-to Address";
-        _Adr[4] := _Head."Bill-to Address 2";
-        _Adr[5] := _Head."Bill-to Post Code" + ' ' + _Head."Bill-to City";
-        CompressArray(_Adr);
+        Adr[1] := ServiceInvHeader."Bill-to Name";
+        Adr[2] := ServiceInvHeader."Bill-to Contact";
+        Adr[3] := ServiceInvHeader."Bill-to Address";
+        Adr[4] := ServiceInvHeader."Bill-to Address 2";
+        Adr[5] := ServiceInvHeader."Bill-to Post Code" + ' ' + ServiceInvHeader."Bill-to City";
+        CompressArray(Adr);
 
-        // *** P R E P A R E   A M O U N T  - i.e. 25.82
-        ServiceInvoiceLine.SetRange("Document No.", _Head."No.");
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvHeader."No.");
         ServiceInvoiceLine.CalcSums("Amount Including VAT");
         Amt := ServiceInvoiceLine."Amount Including VAT";
 
-        PrepareEsrConsolidate(_EsrBank, _EsrType, _AmtTxt, _CurrencyCode, _DocType, _RefNo, _CodingLine, _Head."Currency Code",
-          _Head."Payment Method Code", _Head."No.", Amt);
+        OnPrepareEsrServiceOnBeforeCompressArray(ServiceInvHeader, Adr);
+
+        PrepareEsrConsolidate(
+            ESRSetup, EsrType, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine, ServiceInvHeader."Currency Code",
+            ServiceInvHeader."Payment Method Code", ServiceInvHeader."No.", Amt);
     end;
 
-    local procedure PrepareEsrConsolidate(var _EsrBank: Record "ESR Setup"; var _EsrType: Option Default,ESR,"ESR+"; var _AmtTxt: Text[30]; var _CurrencyCode: Code[10]; var _DocType: Text[10]; var _RefNo: Text[35]; var _CodingLine: Text[100]; _CurrencyCode2: Code[10]; _PaymentMethodCode: Code[10]; _No: Code[20]; Amt: Decimal)
+    local procedure PrepareEsrConsolidate(var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100]; CurrencyCode2: Code[10]; PaymentMethodCode: Code[10]; _No: Code[20]; Amt: Decimal)
     var
         GlSetup: Record "General Ledger Setup";
         BankMgt: Codeunit BankMgt;
@@ -70,75 +72,70 @@ codeunit 11503 CHMgt
         OcrTypeEsrPlus: Text[3];
         ReqESRBankCode: Code[20];
     begin
-        _RefNo := '';
-        _AmtTxt := '';
-        _CodingLine := '';
+        RefNo := '';
+        AmtTxt := '';
+        CodingLine := '';
 
         GlSetup.Get();
 
-        if _EsrBank."Bank Code" <> '' then
-            ReqESRBankCode := _EsrBank."Bank Code";
-        Clear(_EsrBank);
+        if ESRSetup."Bank Code" <> '' then
+            ReqESRBankCode := ESRSetup."Bank Code";
+        Clear(ESRSetup);
 
-        // *** D E F I N E   C U R R E N C Y
-        _CurrencyCode := '';
-        case _CurrencyCode2 of
+        CurrencyCode := '';
+        case CurrencyCode2 of
             '', GlSetup."LCY Code":
                 begin
-                    _CurrencyCode := 'CHF';
-                    _DocType := '609';
+                    CurrencyCode := 'CHF';
+                    DocType := '609';
                     OcrTypeESR := '01';
                     OcrTypeEsrPlus := '042';
                 end;
 
             'EUR':
                 begin
-                    _CurrencyCode := 'EUR';
-                    _DocType := '701';
+                    CurrencyCode := 'EUR';
+                    DocType := '701';
                     OcrTypeESR := '21';
                     OcrTypeEsrPlus := '319';
                 end;
         end;
 
-        // Exit if not CHF or EUR
-        if _CurrencyCode = '' then
+        if CurrencyCode = '' then
             exit;
 
-        // *** G E T   E S R   B A N K  - 1. requestform, 2. pmt type of head, 3. main bank
-        if not _EsrBank.Get(ReqESRBankCode) then
-            if _PaymentMethodCode <> '' then begin
-                _EsrBank.SetRange("ESR Payment Method Code", _PaymentMethodCode);
-                if not _EsrBank.FindFirst() then;
+        if not ESRSetup.Get(ReqESRBankCode) then
+            if PaymentMethodCode <> '' then begin
+                ESRSetup.SetRange("ESR Payment Method Code", PaymentMethodCode);
+                if not ESRSetup.FindFirst() then;
             end;
 
-
-        if _EsrBank."Bank Code" = '' then begin
-            _EsrBank.Reset();
-            _EsrBank.SetRange("ESR Main Bank", true);
-            if not _EsrBank.FindFirst() then
-                Error(Text000);  // ESR Bank not found
+        if ESRSetup."Bank Code" = '' then begin
+            ESRSetup.Reset();
+            ESRSetup.SetRange("ESR Main Bank", true);
+            if not ESRSetup.FindFirst() then
+                Error(Text000);
         end;
 
-        // ESR Type according to bank
-        if _EsrType = _EsrType::Default then
-            _EsrType := _EsrBank."ESR System" + 1;
+        if EsrType = EsrType::Default then
+            EsrType := ESRSetup."ESR System" + 1;
 
         // *** P R E P A R E   R E F   N O
         // 27 digits: 11 x BESR ID + 0000000 + 8 x InvNo + checkdigit
         InvoiceNo := CopyStr('00000000', 1, 8 - StrLen(_No)) + _No;
-        _RefNo := _EsrBank."BESR Customer ID" + '0000000' + InvoiceNo;
-        if StrLen(_RefNo) <> 26 then
+        RefNo := ESRSetup."BESR Customer ID" + '0000000' + InvoiceNo;
+        if StrLen(RefNo) <> 26 then
             Error(Text004);
 
-        CheckDigit := BankMgt.CalcCheckDigit(_RefNo);
-        _RefNo := _RefNo + CheckDigit;
-        OcrRefNo := _RefNo;
+        CheckDigit := BankMgt.CalcCheckDigit(RefNo);
+        RefNo := RefNo + CheckDigit;
+        OcrRefNo := RefNo;
 
         // 5er blocks refno
-        _RefNo := CopyStr(_RefNo, 1, 2) + ' ' + CopyStr(_RefNo, 3, 5) + ' ' + CopyStr(_RefNo, 8, 5) + ' ' +
-          CopyStr(_RefNo, 13, 5) + ' ' + CopyStr(_RefNo, 18, 5) + ' ' + CopyStr(_RefNo, 23, 5);
+        RefNo := CopyStr(RefNo, 1, 2) + ' ' + CopyStr(RefNo, 3, 5) + ' ' + CopyStr(RefNo, 8, 5) + ' ' +
+          CopyStr(RefNo, 13, 5) + ' ' + CopyStr(RefNo, 18, 5) + ' ' + CopyStr(RefNo, 23, 5);
 
-        if _CurrencyCode = 'CHF' then
+        if CurrencyCode = 'CHF' then
             Amt := Round(Amt, 0.05)
         else
             Amt := Round(Amt, 0.01);
@@ -148,7 +145,7 @@ codeunit 11503 CHMgt
         AmtDecimals := (Amt - AmtUnits) * 100;
         AmtUnitsTxt := Format(AmtUnits, 8, '<Integer>');
         AmtDecimalsTxt := ConvertStr(Format(AmtDecimals, 2, 2), ' ', '0');  // Trailing 0
-        _AmtTxt := AmtUnitsTxt + AmtDecimalsTxt;
+        AmtTxt := AmtUnitsTxt + AmtDecimalsTxt;
 
         // Prepare OCR amt 12 digits + checkdigit: 0100000025803
         OcrAmt := OcrTypeESR + ConvertStr(AmtUnitsTxt, ' ', '0') + AmtDecimalsTxt;
@@ -156,16 +153,16 @@ codeunit 11503 CHMgt
         OcrAmt := OcrAmt + CheckDigit;
 
         // *** E S R   A C C O U N T   N O  - Expand and remove dashes
-        OcrAccNo := BankMgt.CheckPostAccountNo(_EsrBank."ESR Account No.");
+        OcrAccNo := BankMgt.CheckPostAccountNo(ESRSetup."ESR Account No.");
         OcrAccNo := DelChr(OcrAccNo, '=', '-');
 
         // *** C O D I N G   L I N E - for ESR/ESR+
-        if _EsrType = _EsrType::ESR then
-            _CodingLine := OcrAmt + '>' + OcrRefNo + '+ ' + OcrAccNo + '>';
+        if EsrType = EsrType::ESR then
+            CodingLine := OcrAmt + '>' + OcrRefNo + '+ ' + OcrAccNo + '>';
 
-        if _EsrType = _EsrType::"ESR+" then begin
-            _CodingLine := '          ' + OcrTypeEsrPlus + '>' + OcrRefNo + '+ ' + OcrAccNo + '>';
-            _AmtTxt := '';
+        if EsrType = EsrType::"ESR+" then begin
+            CodingLine := '          ' + OcrTypeEsrPlus + '>' + OcrRefNo + '+ ' + OcrAccNo + '>';
+            AmtTxt := '';
         end;
     end;
 
@@ -428,5 +425,14 @@ codeunit 11503 CHMgt
     local procedure OnPrepareEsrOnAfterCalcAmt(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Amt: Decimal)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareEsrOnBeforeCompressArray(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Adr: array[8] of Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record "Service Invoice Header"; var Adr: array[8] of Text[100])
+    begin
+    end;
+}

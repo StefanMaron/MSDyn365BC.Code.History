@@ -390,7 +390,7 @@ page 29 "Vendor Ledger Entries"
                 field("Remit-to Code"; Rec."Remit-to Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the remit-to code address.';
+                    ToolTip = 'Specifies the address for the remit-to code.';
                     Visible = true;
                     TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
                 }

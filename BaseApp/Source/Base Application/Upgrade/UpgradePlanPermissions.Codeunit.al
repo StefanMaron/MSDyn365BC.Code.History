@@ -42,7 +42,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
         TeamsUsersTok: Label 'TEAMS USERS', Locked = true;
-        TeamsUsersDescriptionTxt: Label 'Teams Users', Locked = true, MaxLength = 30;
+        TeamsUsersDescriptionTxt: Label 'Microsoft Teams internal users', Locked = true, MaxLength = 30;
         EmployeeTok: Label 'EMPLOYEE', Locked = true;
         LoginTok: Label 'LOGIN', Locked = true;
         CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Locked = true;

@@ -50,6 +50,7 @@ codeunit 7324 "Whse.-Activity-Post"
         PrintDoc: Boolean;
         SuppressCommit: Boolean;
         PostingDateErr: Label 'is before the posting date';
+        InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
 
     local procedure "Code"()
     var
@@ -109,6 +110,8 @@ codeunit 7324 "Whse.-Activity-Post"
                     CheckWarehouseActivityLine(WhseActivLine, WhseActivHeader, Location);
 
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
+                    if ItemTrackingRequired then
+                        CheckAvailability(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next() = 0;
                 CheckWhseItemTrackingAgainstSource();
@@ -494,6 +497,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     end;
                 DATABASE::"Transfer Line":
                     begin
+                        TransHeader.Get("Source No.");
                         TransLine.Get("Source No.", "Source Line No.");
                         if "Activity Type" = "Activity Type"::"Invt. Put-away" then begin
                             TransLine."Transfer-To Bin Code" := "Bin Code";
@@ -503,6 +507,10 @@ codeunit 7324 "Whse.-Activity-Post"
                             TransLine."Transfer-from Bin Code" := "Bin Code";
                             TransLine.Validate("Qty. to Ship", "Qty. to Handle");
                             TransLine."Qty. to Ship (Base)" := "Qty. to Handle (Base)";
+                            if TransHeader."Direct Transfer" then begin
+                                TransLine.Validate("Qty. to Receive", "Qty. to Handle");
+                                TransLine."Qty. to Receive (Base)" := "Qty. to Handle (Base)";
+                            end;
                         end;
                         TransLine.Modify();
                         OnUpdateSourceDocumentOnAfterTransLineModify(TransLine, TempWhseActivLine);
@@ -533,10 +541,12 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure PostSourceDocument(WhseActivHeader: Record "Warehouse Activity Header")
     var
+        InventorySetup: Record "Inventory Setup";
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
         TransferPostShip: Codeunit "TransferOrder-Post Shipment";
+        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
         OnBeforePostSourceDocument(WhseActivHeader, PostedSourceType, PostedSourceNo, PostedSourceSubType, HideDialog, SuppressCommit);
 
@@ -603,10 +613,19 @@ codeunit 7324 "Whse.-Activity-Post"
                             if HideDialog then
                                 TransferPostShip.SetHideValidationDialog(HideDialog);
                             TransHeader."Posting from Whse. Ref." := PostingReference;
-                            TransferPostShip.Run(TransHeader);
-                            PostedSourceType := DATABASE::"Transfer Shipment Header";
-                            PostedSourceNo := TransHeader."Last Shipment No.";
+                            if not TransHeader."Direct Transfer" then begin
+                                TransferPostShip.Run(TransHeader);
+                                PostedSourceType := DATABASE::"Transfer Shipment Header";
+                                PostedSourceNo := TransHeader."Last Shipment No.";
+                            end else begin
+                                InventorySetup.Get();
+                                InventorySetup.TestField("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
+                                TransferPostTransfer.Run(TransHeader);
+                                PostedSourceType := DATABASE::"Direct Trans. Header";
+                                PostedSourceNo := TransHeader."Last Shipment No.";
+                            end;
                         end;
+
                         OnPostSourceDocumentOnBeforeUpdateUnhandledTransLine(TransHeader, WhseActivHeader, PostingReference, HideDialog);
                         UpdateUnhandledTransLine(TransHeader."No.");
                         PostedSourceSubType := 0;
@@ -616,10 +635,11 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterPostSourceDocument(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, PostingReference, HideDialog);
     end;
 
-    local procedure PostJobUsage()
+    local procedure PostJobUsage(PostingDate: Date)
     var
         JobPlanningLine: Record "Job Planning Line";
         JobJnlLine: Record "Job Journal Line";
+        JobJnlLineReservationEntry: Record "Reservation Entry";
         JobTransferLine: Codeunit "Job Transfer Line";
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -634,12 +654,17 @@ codeunit 7324 "Whse.-Activity-Post"
                 if JobPlanningLine.FindFirst() then begin
                     JobPlanningLine.Validate("Qty. to Transfer to Journal", TempWhseActivLine."Qty. to Handle");
 
-                    JobTransferLine.FromWarehouseActivityLineToJnlLine(TempWhseActivLine, WorkDate(), '', '', JobJnlLine);
+                    JobTransferLine.FromWarehouseActivityLineToJnlLine(TempWhseActivLine, PostingDate, '', '', JobJnlLine);
                 end;
 
                 JobJnlPostLine.SetCalledFromInvtPutawayPick(true);
                 JobJnlPostLine.RunWithCheck(JobJnlLine);
-                JobJnlLine.Delete(); //Delete the temporary job journal line after posting.
+
+                //Delete the temporary job journal line and the linked item tracking after posting.
+                JobJnlLineReservationEntry.SetSourceFilter(Database::"Job Journal Line", JobJnlLine."Entry Type".AsInteger(), JobJnlLine."Journal Template Name", JobJnlLine."Line No.", true);
+                JobJnlLineReservationEntry.SetRange("Source Batch Name", JobJnlLine."Journal Batch Name");
+                JobJnlLineReservationEntry.DeleteAll();
+                JobJnlLine.Delete();
             until TempWhseActivLine.Next() = 0;
 
             PostedSourceType := TempWhseActivLine."Source Type";
@@ -675,7 +700,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         WhseOutputProdRelease.Release(ProdOrder);
                     end else
                         if (Type = Type::"Invt. Pick") and ("Source Document" = "Source Document"::"Job Usage") then
-                            PostJobUsage()
+                            PostJobUsage(WhseActivHeader."Posting Date")
                         else
                             PostSourceDoc();
 
@@ -1119,21 +1144,57 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure CheckWhseItemTrackingAgainstSource()
     var
         TrackingSpecification: Record "Tracking Specification";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         with TempWhseActivLine do begin
             Reset();
             if FindSet() then
                 repeat
-                    if "Source Type" in [Database::"Prod. Order Component", Database::Job] then
-                        TrackingSpecification.CheckItemTrackingQuantity(
-                          "Source Type", "Source Subtype", "Source No.", "Source Subline No.", "Source Line No.",
-                          "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc)
-                    else
-                        TrackingSpecification.CheckItemTrackingQuantity(
-                          "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                          "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                    case "Source Type" of
+                        Database::"Prod. Order Component":
+                            TrackingSpecification.CheckItemTrackingQuantity("Source Type", "Source Subtype", "Source No.", "Source Subline No.", "Source Line No.", "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                        Database::Job:
+                            begin
+                                // Checking tracking specification for Job by mapping Temporary warehouse activity line to Job planning line item tracking.
+                                JobPlanningLine.SetLoadFields(Status);
+                                JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+                                JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
+                                JobPlanningLine.FindFirst();
+
+                                TrackingSpecification.CheckItemTrackingQuantity(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), "Source No.", "Source Line No.", "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                            end;
+                        else
+                            TrackingSpecification.CheckItemTrackingQuantity("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                    end;
                 until Next() = 0;
         end;
+    end;
+
+    local procedure CheckAvailability(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine."Activity Type" <> WhseActivLine."Activity Type"::"Invt. Pick" then
+            exit;
+
+        if WhseActivLine."Assemble to Order" and not WhseActivLine."ATO Component" then
+            exit;
+
+        if not WhseActivLine.CheckItemTrackingAvailability() then
+            AvailabilityError(WhseActivLine);
+    end;
+
+    local procedure AvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine."Serial No." <> '' then
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.");
+        if WhseActivLine."Lot No." <> '' then
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.");
+
+        OnAfterAvailabilityError(WhseActivLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

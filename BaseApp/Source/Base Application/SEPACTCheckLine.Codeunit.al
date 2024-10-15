@@ -27,9 +27,9 @@ codeunit 1223 "SEPA CT-Check Line"
         IBANTypeErr: Label 'The IBAN type on the recipient bank account must match the payment reference type.';
         QRIBANErr: Label 'The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
         QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
-        IBANTypeHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/swiss-electronic-payments#iban-qr', Locked = true;
-        QRIBANHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/ui-extensions-qr-bill-management#get-started', Locked = true;
-        QRRefHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/ui-extensions-qr-bill-management#formats', Locked = true;
+        IBANTypeHelpLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2210475', Locked = true;
+        QRIBANHelpLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2210564', Locked = true;
+        QRRefHelpLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2210811', Locked = true;
 
     local procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var

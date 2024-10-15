@@ -2067,7 +2067,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeltaUpdateTotals(Rec, IsHandled);
+        OnBeforeDeltaUpdateTotals(Rec, IsHandled, xRec, SuppressTotals);
         if IsHandled then
             exit;
 
@@ -2228,7 +2228,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
@@ -2301,8 +2301,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
     begin
     end;
 

@@ -432,6 +432,7 @@
                                     Abs(SalesShptLine."Item Charge Base Amount"));
                         end;
                 end;
+                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentSales, TempItemChargeAssgntSales, SalesHeader, TotalQtyToAssign, TotalAmtToAssign);
                 if TempItemChargeAssgntSales."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntSales.Insert()
                 else begin
@@ -746,6 +747,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentSale: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
     begin
     end;
 
