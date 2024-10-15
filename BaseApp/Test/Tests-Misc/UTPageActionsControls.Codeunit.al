@@ -4170,8 +4170,8 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] DrillDown to ColumnValue
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.Drilldown();
 
-        // [THEN] Page "VAT Entries" was opened with filter to "Posting Date" = Date
-        Assert.AreEqual(VATEntries.FILTER.GetFilter("Posting Date"), Format(WorkDate()), '');
+        // [THEN] Page "VAT Entries" was opened with filter to "VAT Reporting Date" = Date
+        Assert.AreEqual(VATEntries.FILTER.GetFilter("VAT Reporting Date"), Format(WorkDate()), '');
         VATEntries.Close();
         VATStatement.Close();
         VATStatementPreview.Close();

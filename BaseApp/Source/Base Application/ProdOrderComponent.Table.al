@@ -1999,7 +1999,7 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBaseQty(ProdOrderComponent: Record "Prod. Order Component"; CurrentFieldNo: integer; Qty: Decimal; FromFieldName: Text; ToFieldName: Text; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcBaseQty(var ProdOrderComponent: Record "Prod. Order Component"; CurrentFieldNo: integer; Qty: Decimal; FromFieldName: Text; ToFieldName: Text; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

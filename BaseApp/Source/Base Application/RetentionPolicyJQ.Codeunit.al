@@ -10,6 +10,10 @@ codeunit 3997 "Retention Policy JQ"
         EndApplyRetentionPolicyFromJobQueueLbl: Label 'The job queue entry that applies retention policies finished.';
         RescheduleOnLimitExceededLbl: Label 'The maximum number of records that you are allowed to delete at the same time has been reached. The job queue entry was scheduled to run again.';
         SkipRescheduleOnLimitExceededLbl: Label 'Wrong session ID for job queue. Did not reschedule the job queue entry. Session ID: %1, Expected Session ID %2.', Comment = '%1, %2 = integer';
+        JQNotRecheduledBecauseHandledLbl: Label 'The event was handled by another subscriber. Did not reschedule the job queue entry.';
+        JQNotRecheduledBecauseUserInvokedRunLbl: Label 'The user invoked the retention policy run. Did not reschedule the job queue entry.';
+        JQNotRecheduledBecauseNotAllPoliciesRunLbl: Label 'A single retention policy was run. Did not reschedule the job queue entry.';
+        JQNotRecheduledBecauseOutsideTimeWindowLbl: Label 'Event occurs outside allowed time window. Did not reschedule the job queue entry.';
 
     trigger OnRun()
     var
@@ -32,17 +36,25 @@ codeunit 3997 "Retention Policy JQ"
         RetentionPolicyLog: Codeunit "Retention Policy Log";
         BlankRecordId: RecordId;
     begin
-        if Handled then
+        if Handled then begin
+            RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JQNotRecheduledBecauseHandledLbl);
             exit;
+        end;
 
-        if UserInvokedRun then
+        if UserInvokedRun then begin
+            RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JQNotRecheduledBecauseUserInvokedRunLbl);
             exit;
+        end;
 
-        if not ApplyAllRetentionPolicies then
+        if not ApplyAllRetentionPolicies then begin
+            RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JQNotRecheduledBecauseNotAllPoliciesRunLbl);
             exit;
+        end;
 
-        if (Time() >= 080000T) and (Time() <= 200000T) then
+        if (Time() >= 080000T) and (Time() <= 200000T) then begin
+            RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JQNotRecheduledBecauseOutsideTimeWindowLbl);
             exit;
+        end;
 
         if Database.SessionId() <> CurrSessionId then begin
             RetentionPolicyLog.LogWarning(RetentionPolicyLogCategory::"Retention Policy - Schedule", StrSubstNo(SkipRescheduleOnLimitExceededLbl, Database.SessionId(), CurrSessionId));

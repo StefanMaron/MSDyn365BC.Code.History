@@ -216,10 +216,15 @@
         {
             Caption = 'Return Period No.';
         }
+#if not CLEAN22
         field(20; "Date Type"; Enum "VAT Date Type")
         {
             Caption = 'Date Type';
+            ObsoleteReason = 'Selected VAT Date type no longer supported';
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
         }
+#endif
         field(30; "Additional Information"; Code[50])
         {
             Caption = 'Additional Information';
@@ -351,7 +356,6 @@
             Validate("Period Year", Date2DMY(date, 3));
             Validate("Period Type", "Period Type"::Month);
             Validate("Period No.", Date2DMY(date, 2));
-            Validate("Date Type", Enum::"VAT Date Type"::"VAT Reporting Date");
         end else begin
             "Start Date" := WorkDate();
             "End Date" := WorkDate();

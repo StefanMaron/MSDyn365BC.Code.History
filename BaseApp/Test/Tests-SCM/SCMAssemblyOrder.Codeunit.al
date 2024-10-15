@@ -20,6 +20,8 @@ codeunit 137908 "SCM Assembly Order"
         LibraryAssembly: Codeunit "Library - Assembly";
         CnfmRefreshLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         MSGAssertLineCount: Label 'Bad Line count of Order: %1 expected %2, got %3';
+        UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        NotMatchingDimensionsMsg: Label 'Dimensions are not matching on header and line.';
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
@@ -27,6 +29,8 @@ codeunit 137908 "SCM Assembly Order"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
         WorkDate2: Date;
         Initialized: Boolean;
         TXTQtyPerNoChange: Label 'You cannot change Quantity per when Type is '' ''.';
@@ -358,6 +362,13 @@ codeunit 137908 "SCM Assembly Order"
     procedure ConfirmRefreshLines(Question: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(StrPos(Question, CnfmRefreshLines) > 0, Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmUpdateDimensionOnLines(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(Question, UpdateDimensionOnLine) > 0, Question);
         Reply := true;
     end;
 
@@ -1658,6 +1669,160 @@ codeunit 137908 "SCM Assembly Order"
         Assert.AreEqual(AssemblyLine.Quantity, 1, 'Expected quantity to be 1.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmUpdateDimensionOnLines')]
+    procedure VerifyDimensionsAreUpdatedOnAssemblyLinesOnChangeDimensionOnHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLineItem: Record "Assembly Line";
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        AssemblyOrder: TestPage "Assembly Order";
+        GlobalDim1Value: Code[20];
+    begin
+        // [SCENARIO 454705] Verify Dimensions are update on assembly lines when we change dimension on assembly header
+        // [GIVEN]
+        Initialize();
+
+        // [GIVEN] Create Assembly and Component Item
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+
+        // [GIVEN] New Dimension Value for Global Dimension 1
+        CreateGlobalDimValues(GlobalDim1Value);
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
+        CreateAssemblyOrderLine(
+          AssemblyHeader, AssemblyLineItem, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [WHEN] Open create Assembly Order and Update Dimension
+        OpenAssemblyOrderAndUpdateDimension(AssemblyOrder, AssemblyHeader, GlobalDim1Value);
+
+        // [THEN] Verify dimension is updated on Line
+        VerifyDimensionOnLine(AssemblyHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmLocationChange,AvailabilityWindowHandler')]
+    procedure VerifyDimensionsAreNotReInitializedIfDefaultDimensionDoesntExist()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLineItem: Record "Assembly Line";
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        // [SCENARIO 455039] Verify dimensions are not re-initialized on validate field if default dimensions does not exist
+        // [GIVEN]
+        Initialize();
+
+        // [GIVEN] Create Assembly and Component Item        
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+
+        // [GIVEN] Add Default Dimension on Assembly Item
+        AddDefaultDimensionToAssemblyItem(AsmItem, DimensionValue);
+
+        // [GIVEN] Create Location without Default Dimension
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
+        CreateAssemblyOrderLine(
+          AssemblyHeader, AssemblyLineItem, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Update global dimension 1 on Assembly Line
+        UpdateGlobalDimensionOnAssemblyLine(AssemblyLineItem, DimensionValue2);
+
+        // [WHEN] Change Location on Assembly Line
+        // [HANDLERS] ConfirmLocationChange, AvailabilityWindowHandler
+        UpdateLocationOnAssemblyOrderLine(AssemblyOrder, AssemblyHeader, Location.Code);
+
+        // [THEN] Verify dimension is not changed on Line
+        VerifyDimensionIsNotReInitializedOnLine(AssemblyLineItem, DimensionValue2);
+    end;
+
+    local procedure VerifyDimensionIsNotReInitializedOnLine(var AssemblyLine: Record "Assembly Line"; var DimensionValue: Record "Dimension Value")
+    begin
+        AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");
+        Assert.IsTrue(AssemblyLine."Shortcut Dimension 1 Code" = DimensionValue.Code, NotMatchingDimensionsMsg);
+    end;
+
+    local procedure AddDefaultDimensionToAssemblyItem(var AsmItem: Record Item; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionItem(
+          DefaultDimension, AsmItem."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure UpdateGlobalDimensionOnAssemblyLine(var AssemblyLineItem: Record "Assembly Line"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        AssemblyLineItem.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        AssemblyLineItem.Modify(true);
+    end;
+
+    local procedure UpdateLocationOnAssemblyOrderLine(var AssemblyOrder: TestPage "Assembly Order"; var AssemblyHeader: Record "Assembly Header"; LocationCode: Code[10])
+    begin
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.GoToRecord(AssemblyHeader);
+        AssemblyOrder."Location Code".SetValue(LocationCode);
+        AssemblyOrder.Close();
+    end;
+
+    local procedure VerifyDimensionOnLine(var AssemblyHeader: Record "Assembly Header")
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+        Assert.IsTrue(AssemblyLine."Shortcut Dimension 1 Code" = AssemblyHeader."Shortcut Dimension 1 Code", NotMatchingDimensionsMsg);
+    end;
+
+    local procedure CreateGlobalDimValues(var GlobalDim1Value: Code[20])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionValue: Record "Dimension Value";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
+        GlobalDim1Value := DimensionValue.Code;
+    end;
+
+    local procedure OpenAssemblyOrderAndUpdateDimension(var AssemblyOrder: TestPage "Assembly Order"; var AssemblyHeader: Record "Assembly Header"; GlobalDim1Value: Code[20])
+    begin
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.GoToRecord(AssemblyHeader);
+        AssemblyOrder."Shortcut Dimension 1 Code".SetValue(GlobalDim1Value);
+        AssemblyOrder.Close();
+    end;
+
+    local procedure CreateAssemblyOrderLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        if No <> '' then begin
+            LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, Type, No, UoM, Quantity, 1, '');
+            exit;
+        end;
+        Clear(AssemblyLine);
+        AssemblyLine."Document Type" := AssemblyHeader."Document Type";
+        AssemblyLine."Document No." := AssemblyHeader."No.";
+        RecRef.GetTable(AssemblyLine);
+        AssemblyLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AssemblyLine.FieldNo("Line No.")));
+        AssemblyLine.Insert(true);
+        AssemblyLine.Validate(Type, Type);
+        AssemblyLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
@@ -1756,6 +1921,13 @@ codeunit 137908 "SCM Assembly Order"
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmItemChange(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmLocationChange(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
     end;

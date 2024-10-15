@@ -2491,6 +2491,51 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ExportImportConfigPackageWithDecimalRounding()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        BaseUnitOfMeasure: Record "Unit of Measure";
+        OtherUnitOfMeasure: Record "Unit of Measure";
+        FilePath: Text;
+    begin
+        // [SCENARIO 453468] Export and import of Config. Package with Qty. per Unit of Measure require rounding to 5 decimals
+        Initialize();
+
+        // [GIVEN] Create Item with 2 units of measure and Qty. per Unit of Measure with more than 5 decimals
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", BaseUnitOfMeasure.Code, 1);
+        LibraryInventory.CreateUnitOfMeasureCode(OtherUnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", OtherUnitOfMeasure.Code, 1.23456789);
+
+        // [GIVEN] Create Package with Item Unit Of Measure table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Item Unit of Measure");
+
+        // [GIVEN] Config. Package is exported to XML
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [GIVEN] Delete created other unit of measure
+        ItemUnitOfMeasure.Delete();
+
+        // [WHEN] Package is imported from XML
+        // [THEN] No error message appears 
+        ImportPackageXML(ConfigPackage.Code, FilePath);
+        Erase(FilePath);
+
+        // [WHEN] Apply the package 
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The package is applied without errors
+        // [THEN] and Qty. per Unit of Measure" rounded to 5 decimals
+        ItemUnitOfMeasure.Get(Item."No.", OtherUnitOfMeasure.Code);
+        Assert.AreEqual(ItemUnitOfMeasure."Qty. per Unit of Measure", 1.23457, 'value should be rounded to 5 decimals.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ImportPackageWithDuplicatedXMLFields()
     var
         DuplicatedXMLFields: Record DuplicatedXMLFields;

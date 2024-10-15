@@ -803,7 +803,13 @@ table 5994 "Service Cr.Memo Header"
         DummyReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         DocumentTypeTxt: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendRecords(Rec, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
           DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
@@ -908,6 +914,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 }

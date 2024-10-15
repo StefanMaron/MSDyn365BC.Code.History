@@ -73,7 +73,7 @@ codeunit 132498 PerformanceTest1001
         startDate := DMY2Date(1, 1, 2005);
         endDate := DMY2Date(31, 12, 2005);
         postingDate := DMY2Date(22, 7, 2005);
-        CalcAndPostVATSettlement.InitializeRequest(startDate, endDate, Enum::"VAT Date Type"::"Posting Date", postingDate, 'S-IN000000001', '2320', true, false);
+        CalcAndPostVATSettlement.InitializeRequest(startDate, endDate, postingDate, 'S-IN000000001', '2320', true, false);
         CalcAndPostVATSettlement.Run();
     end;
 

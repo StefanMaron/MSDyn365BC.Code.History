@@ -23,8 +23,10 @@ codeunit 134381 "ERM Dimension Priority"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        SystemActionTriggers: Codeunit "System Action Triggers";
         isInitialized: Boolean;
         WrongDimValueCodeErr: Label 'Wrong dimension value code.';
+        DefaultDimPrioritiesNotificationIdTxt: Label '69CE42D9-0580-4907-8BC9-0EEB59DA96C9', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -676,6 +678,58 @@ codeunit 134381 "ERM Dimension Priority"
 
         // [THEN] Verify Dimension Value in Purchase Line
         VerifyDimValueInPurchLine(Vendor, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    [Test]
+    procedure VerifyDefaultDimensionPrioritiesLinesAreInitialized()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DefaultDimPriorities: TestPage "Default Dimension Priorities";
+    begin
+        // [SCENARION: 455113] Verify Default Dim. Priorities lines are initialized
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Return Source Code Setup
+        SourceCodeSetup.Get();
+
+        // [GIVEN] Clear Default Dim. Priorities for Sales Source Code
+        DeleteSalesSourceCodeRecords(SourceCodeSetup);
+
+        // [GIVEN] Open Default Dimension Priorities for Sales Source Code
+        OpenDefaultDimPriorities(DefaultDimPriorities, SourceCodeSetup);
+
+        // [WHEN] Initialize Default Dim. Priorities for Sales Source Code
+        DefaultDimPriorities.Initialize.Invoke();
+
+        // [THEN] Verify records are created with priority
+        VerifyDefaultDimensionPriority(SourceCodeSetup);
+    end;
+
+    [Test]
+    procedure VerifyMissingDefaultDimensionPrioritiesNotificationIsEnabled()
+    var
+        MyNotifications: Record "My Notifications";
+        Enabled: Boolean;
+    begin
+        // [SCENARION: 455113] When GetNotificationStatus business event in System Action Triggers is raised
+        // for an enabled notification, the enabled status is returned
+
+        // [GIVEN] Enabled notification
+        MyNotifications.DeleteAll();
+        MyNotifications.InsertDefault(DefaultDimPrioritiesNotificationIdTxt, '', '', true);
+
+        // [THEN] Verify Notification Exist
+        VerifyNotificationExists;
+
+        // [THEN] Verify Notification is Enabled
+        VerifyNotificationIsEnabled;
+
+        // [WHEN] Raised GetNotificationStatus Event
+        SystemActionTriggers.GetNotificationStatus(DefaultDimPrioritiesNotificationIdTxt, Enabled);
+
+        // [THEN] The notification is enabled
+        Assert.IsTrue(Enabled, 'Notification status must be true for enabled notification');
     end;
 
     local procedure Initialize()
@@ -1439,6 +1493,45 @@ codeunit 134381 "ERM Dimension Priority"
         SKU.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         SKU.Validate("Reordering Policy", SKU."Reordering Policy"::"Lot-for-Lot");
         SKU.Modify(true);
+    end;
+
+    local procedure VerifyNotificationExists()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        Assert.IsTrue(MyNotifications.Get(UserId, DefaultDimPrioritiesNotificationIdTxt), 'Notification should be present in My Notifications');
+    end;
+
+    local procedure VerifyNotificationIsEnabled()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        Assert.IsTrue(MyNotifications.IsEnabled(DefaultDimPrioritiesNotificationIdTxt), 'Notification should be enabled');
+    end;
+
+    local procedure VerifyDefaultDimensionPriority(var SourceCodeSetup: Record "Source Code Setup")
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        // Verify default dimension priority 1 for Customer and 2 for Item.
+        FindDefaultDimensionPriority(DefaultDimensionPriority, SourceCodeSetup.Sales, DATABASE::Customer);
+        DefaultDimensionPriority.TestField(Priority, 1);
+        FindDefaultDimensionPriority(DefaultDimensionPriority, SourceCodeSetup.Sales, DATABASE::"Item");
+        DefaultDimensionPriority.TestField(Priority, 2);
+    end;
+
+    local procedure DeleteSalesSourceCodeRecords(var SourceCodeSetup: Record "Source Code Setup")
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimPriority.SetRange("Source Code", SourceCodeSetup.Sales);
+        DefaultDimPriority.DeleteAll();
+    end;
+
+    local procedure OpenDefaultDimPriorities(var DefaultDimPriorities: TestPage "Default Dimension Priorities"; var SourceCodeSetup: Record "Source Code Setup")
+    begin
+        DefaultDimPriorities.OpenEdit();
+        DefaultDimPriorities.CurrentSourceCode.SetValue(SourceCodeSetup.Sales);
     end;
 
     [ConfirmHandler]

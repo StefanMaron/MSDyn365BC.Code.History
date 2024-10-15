@@ -31,6 +31,18 @@ table 1295 "Posted Payment Recon. Hdr"
         {
             Caption = 'Bank Statement';
         }
+        field(10; "Is Reconciled"; Boolean)
+        {
+            Caption = 'Is Reconciled';
+            FieldClass = FlowField;
+            CalcFormula = exist("Posted Payment Recon. Line" where("Bank Account No." = field("Bank Account No."),
+                                                                    "Statement No." = field("Statement No."),
+                                                                    Reconciled = const(true)));
+        }
+        field(11; "Is Reversed"; Boolean)
+        {
+            Caption = 'Is Reversed';
+        }
     }
 
     keys
@@ -45,10 +57,19 @@ table 1295 "Posted Payment Recon. Hdr"
     {
     }
 
+    var
+        IgnoreConfirmOnDelete: Boolean;
+    
+    procedure SetIgnoreConfirmOnDelete(Value: Boolean)
+    begin
+        IgnoreConfirmOnDelete := Value;
+    end;
+
     trigger OnDelete()
     begin
-        if not Confirm(HasBankEntriesQst, false, "Bank Account No.", "Statement No.") then
-            Error('');
+        if not IgnoreConfirmOnDelete then
+            if not Confirm(HasBankEntriesQst, false, "Bank Account No.", "Statement No.") then
+                Error('');
         CODEUNIT.Run(CODEUNIT::"BankPaymentApplLines-Delete", Rec);
     end;
 
