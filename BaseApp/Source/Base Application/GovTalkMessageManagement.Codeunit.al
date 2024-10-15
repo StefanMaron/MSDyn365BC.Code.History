@@ -8,7 +8,6 @@ codeunit 10520 GovTalkMessageManagement
     var
         GovTalkSetup: Record "GovTalk Setup";
         CompanyInformation: Record "Company Information";
-        HMRCSubmissionHelpers: Codeunit HMRCSubmissionHelpers;
         GovTalkNameSpaceTxt: Label 'http://www.govtalk.gov.uk/CM/envelope', Locked = true;
         VATDeclarationMessageClassTxt: Label 'HMRC-VAT-DEC', Locked = true;
         XMLDOMManagement: Codeunit "XML DOM Management";
@@ -99,9 +98,8 @@ codeunit 10520 GovTalkMessageManagement
                 AddElement(SenderDetailsXMLNode, 'IDAuthentication', '', GovTalkNameSpaceTxt, IDAuthenticationXMLNode);
                 AddElement(IDAuthenticationXMLNode, 'SenderID', GovTalkSetup.Username, GovTalkNameSpaceTxt, DummyXMLNode);
                 AddElement(IDAuthenticationXMLNode, 'Authentication', '', GovTalkNameSpaceTxt, AuthenticationXMLNode);
-                AddElement(AuthenticationXMLNode, 'Method', 'MD5', GovTalkNameSpaceTxt, DummyXMLNode);
-                AddElement(AuthenticationXMLNode, 'Value',
-                  HMRCSubmissionHelpers.HashPassword(GovTalkSetup.GetPassword), GovTalkNameSpaceTxt, DummyXMLNode);
+                AddElement(AuthenticationXMLNode, 'Method', 'clear', GovTalkNameSpaceTxt, DummyXMLNode);
+                AddElement(AuthenticationXMLNode, 'Value', GovTalkSetup.GetPassword(), GovTalkNameSpaceTxt, DummyXMLNode);
             end;
 
             AddElement(GovTalkDetailsXMLNode, 'Keys', '', GovTalkNameSpaceTxt, KeysXMLNode);

@@ -384,6 +384,72 @@ codeunit 137931 "SCM - Movement"
         InternalMovementHeader.TestField("Location Code", Location.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandlerMultipleEntries,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure MovementWithTrackingFromSeveralBins()
+    var
+        Item: Record Item;
+        FromBin: array[2] of Record Bin;
+        ToBin: Record Bin;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LocationCode: Code[10];
+        LotNo: array[2] of Code[50];
+        QtyLot: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Worksheet] [Item Tracking] [Bin]
+        // [SCENARIO 352396] Creating movement from movement worksheet lines with various source bins.
+        Initialize();
+        QtyLot := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Directed put-away and pick location.
+        LocationCode := CreateFullWMSLocation(3, false);
+
+        // [GIVEN] Item with "Lot Warehouse Tracking" enabled.
+        Item.Get(CreateItemWithItemTrackingCode(true, true, false));
+
+        LibraryWarehouse.FindBin(ToBin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 1);
+        LibraryWarehouse.FindBin(FromBin[1], LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 2);
+        LibraryWarehouse.FindBin(FromBin[2], LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 3);
+
+        // [GIVEN] Place "Lot-1" for 10 pcs of the item to bin "B1", and "Lot-2" for 10 pcs to bin "B2".
+        for i := 1 to ArrayLen(LotNo) do begin
+            LotNo[i] := LibraryUtility.GenerateGUID();
+            LibraryVariableStorage.Enqueue(1);
+            LibraryVariableStorage.Enqueue(LotNo[i]);
+            LibraryVariableStorage.Enqueue(QtyLot);
+            LibraryWarehouse.UpdateWarehouseStockOnBin(FromBin[i], Item."No.", QtyLot, true);
+        end;
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+
+        // [GIVEN] Open movement worksheet and create two lines, one per bin, assign "Lot-1" and "Lot-2" respectively.
+        for i := 1 to ArrayLen(LotNo) do begin
+            LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, FromBin[i], ToBin, Item."No.", '', QtyLot);
+            LibraryVariableStorage.Enqueue(1);
+            LibraryVariableStorage.Enqueue(LotNo[i]);
+            LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
+            WhseWorksheetLine.OpenItemTrackingLines();
+        end;
+
+        // [WHEN] Create movement from the movement worksheet.
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+
+        // [THEN] A new warehouse movement from bins "B1" and "B2" has been created.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        for i := 1 to ArrayLen(LotNo) do begin
+            WarehouseActivityLine.SetRange("Lot No.", LotNo[i]);
+            WarehouseActivityLine.FindFirst();
+            WarehouseActivityLine.TestField("Bin Code", FromBin[i].Code);
+            WarehouseActivityLine.TestField("Qty. (Base)", QtyLot);
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
