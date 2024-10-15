@@ -26,7 +26,7 @@ page 780 "Certificates of Supply"
                     Editable = false;
                     ToolTip = 'Specifies the document number of the posted shipment document associated with the certificate of supply.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status for documents where you must receive a signed certificate of supply from the customer.';
@@ -124,7 +124,8 @@ page 780 "Certificates of Supply"
         if GetFilters = '' then
             SetFilter(Status, '<>%1', Status::"Not Applicable")
         else
-            InitRecord("Document Type", "Document No.")
+            if "Document No." <> '' then
+                InitRecord("Document Type", "Document No.")
     end;
 }
 

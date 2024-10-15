@@ -2068,6 +2068,9 @@
         if "Ref. Order No." <> '' then
             GetDimFromRefOrderLine(true);
 
+        if ("Demand Type" = Database::"Job Planning Line") then
+            UpdateJobTaskDimensions();
+
         OnAfterCreateDim(Rec, xRec);
     end;
 
@@ -3767,6 +3770,21 @@
             exit('');
 
         exit(UserSetup."Salespers./Purch. Code");
+    end;
+
+    local procedure UpdateJobTaskDimensions()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        DimSetIDArr: array[10] of Integer;
+    begin
+        DimSetIDArr[1] := "Dimension Set ID";
+
+        JobPlanningLine.SetRange("Job No.", "Demand Order No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", "Demand Line No.");
+        if JobPlanningLine.FindFirst() then
+            DimSetIDArr[2] := DimMgt.CreateDimSetFromJobTaskDim(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
 #if not CLEAN20

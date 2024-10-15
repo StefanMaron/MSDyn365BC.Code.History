@@ -252,7 +252,7 @@
 
                 if HasTypeToFillMandatoryFields() then begin
                     PlanPriceCalcByField(FieldNo("No."));
-                    if not (Type in [Type::"Charge (Item)", Type::"Fixed Asset"]) then
+                    if (not (Type in [Type::"Charge (Item)", Type::"Fixed Asset"])) or (Quantity <> 0) then
                         ValidateUnitOfMeasureCodeFromNo();
                     if Quantity <> 0 then begin
                         OnValidateNoOnBeforeInitOutstanding(Rec, xRec);

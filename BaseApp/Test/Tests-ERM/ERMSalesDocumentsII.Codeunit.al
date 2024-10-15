@@ -1754,6 +1754,15 @@ codeunit 134386 "ERM Sales Documents II"
 
         LibraryInventory.CreateItemCharge(ItemCharge2);
         MockSalesLine(SalesLine2, LibrarySales.CreateCustomerNo, SalesLine2.Type::"Charge (Item)", ItemCharge2."No.");
+
+        // [WHEN] Addition 464851 - Validate Quantity to 1 and change Item Charge
+        SalesLine2.Validate(Quantity, 1);
+        SalesLine2.Modify();
+        SalesLine2.Validate("No.", ItemCharge."No.");
+        SalesLine2.Modify();
+
+        // [THEN] Addition 464851 - Verify that Quantity (Base) remains 1
+        SalesLine2.TestField("Quantity (Base)", 1);
     end;
 
     [Test]
@@ -4251,7 +4260,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsTrue(SalesQuote.SalesLines.Editable, SalesQuoteLineNotEditableErr);
     end;
 
-        [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure VerifyShipToCountryRegionCodeOnILE()
     var

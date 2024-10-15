@@ -21,6 +21,7 @@
         Assert: Codeunit Assert;
         IncorrectCreditMemoQtyAssignmentErr: Label 'Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'The amount of lines must be greater than 0.';
+        QuantityIsNotAsExpectedErr: Label 'Quantity is not as expected.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         IsInitialized: Boolean;
 
@@ -326,6 +327,46 @@
         PurchInvHeader.Get(PostedDocNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,ConfirmHandlerYes,GetReceiptLinesHandler')]
+    procedure VerifyQtyOnItemChargeAssignmentLinesForPurchInvoiceLinesFromPurchRcptsFromPurchOrder()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchHeaderInvoice: Record "Purchase Header";
+        PostedPurchRcptNo, PostedPurchRcptNo2 : Code[20];
+    begin
+        // [SCENARIO 464057] Verify Qty. on Item Charge Assignment Lines for Purch. Invoice Lines created from Purchase Receipts created from Purchase Order
+        Initialize();
+
+        // [GIVEN] Create new Item
+        LibraryInventory.CreateItemWithoutVAT(Item);
+
+        // [GIVEN] Create Item Charge
+        LibraryInventory.CreateItemChargeWithoutVAT(ItemCharge);
+
+        // [GIVEN] Create Purchase Order with Item Charge
+        CreatePurchOrderWithItemCharge(PurchaseHeader, ItemCharge."No.", Item."No.", 11);
+
+        // [GIVEN] Set Purchase Order Lines Qty. to Receive
+        SetPurchLinesQtyToReceive(PurchaseHeader, 5);
+
+        // [GIVEN] Update Qty. to Assign on Item Charge Assignment
+        LibraryVariableStorage.Enqueue(11);
+        UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader);
+
+        // [GIVEN] Post receive for Item and Charge (Item) line two time
+        PostedPurchRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PostedPurchRcptNo2 := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Create Purchase Invoice for Posted Receipt Lines from Purchase Order        
+        CreatePurchaseInvoice(PurchHeaderInvoice, PurchaseHeader."Buy-from Vendor No.", PostedPurchRcptNo, PostedPurchRcptNo2);
+
+        // [THEN] Verify results
+        VerifyItemChargeAssignmentLines(PurchHeaderInvoice, ItemCharge."No.", 5, 6);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -528,6 +569,96 @@
         end;
     end;
 
+    local procedure VerifyItemChargeAssignmentLines(var PurchHeader: Record "Purchase Header"; ItemChargeNo: Code[20]; Quantity: Decimal; Quantity2: Decimal)
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        FirstLine: Boolean;
+    begin
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchHeader."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchHeader."No.");
+        ItemChargeAssignmentPurch.SetRange("Item Charge No.", ItemChargeNo);
+        ItemChargeAssignmentPurch.FindSet();
+        FirstLine := true;
+        repeat
+            if FirstLine then begin
+                Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Assign", Quantity, QuantityIsNotAsExpectedErr);
+                Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Handle", Quantity, QuantityIsNotAsExpectedErr);
+                FirstLine := false;
+            end else begin
+                Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Assign", Quantity2, QuantityIsNotAsExpectedErr);
+                Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Handle", Quantity2, QuantityIsNotAsExpectedErr);
+            end;
+        until ItemChargeAssignmentPurch.Next() = 0;
+    end;
+
+    local procedure CreatePurchaseInvoice(var PurchHeaderInvoice: Record "Purchase Header"; VendorNo: Code[20]; PostedPurchReceiptNo: Code[20]; PostedPurchReceiptNo2: Code[20])
+    var
+        PurchLineInvoice: Record "Purchase Line";
+        i, LineNo : Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeaderInvoice, PurchHeaderInvoice."Document Type"::Invoice, VendorNo);
+        PurchHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchHeaderInvoice.Modify();
+        PurchLineInvoice.Validate("Document Type", PurchHeaderInvoice."Document Type");
+        PurchLineInvoice.Validate("Document No.", PurchHeaderInvoice."No.");
+        LineNo := 10000;
+        for i := 1 to 2 do begin
+            LibraryVariableStorage.Enqueue(PostedPurchReceiptNo);
+            LibraryVariableStorage.Enqueue(LineNo);
+            LibraryPurchase.GetPurchaseReceiptLine(PurchLineInvoice);
+
+            LibraryVariableStorage.Enqueue(PostedPurchReceiptNo2);
+            LibraryVariableStorage.Enqueue(LineNo);
+            LibraryPurchase.GetPurchaseReceiptLine(PurchLineInvoice);
+            LineNo += 10000;
+        end;
+    end;
+
+    local procedure UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        PurchaseLine.ShowItemChargeAssgnt();
+    end;
+
+    local procedure SetPurchLinesQtyToReceive(var PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", Quantity);
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
+    end;
+
+    local procedure CreatePurchOrderWithItemCharge(var PurchaseHeader: Record "Purchase Header"; ItemChargeNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        PurchLineItemCharge: Record "Purchase Line";
+        PurchLineItem: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeader.Modify();
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLineItem, PurchaseHeader, PurchLineItem.Type::Item, ItemNo, Quantity);
+        PurchLineItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchLineItem.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLineItemCharge, PurchaseHeader, PurchLineItemCharge.Type::"Charge (Item)", ItemChargeNo, Quantity);
+        PurchLineItemCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchLineItemCharge.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
@@ -561,6 +692,34 @@
     begin
         // Pick assignment by amount
         Choice := 2;
+    end;
+
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure GetReceiptLinesHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        DocumentNo: Code[20];
+        LineNo: Integer;
+    begin
+        DocumentNo := LibraryVariableStorage.DequeueText();
+        LineNo := LibraryVariableStorage.DequeueInteger();
+        PurchRcptLine.Get(DocumentNo, LineNo);
+        GetReceiptLines.GoToKey(PurchRcptLine."Document No.", PurchRcptLine."Line No.");
+        GetReceiptLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentPurch.OK.Invoke;
     end;
 }
 
