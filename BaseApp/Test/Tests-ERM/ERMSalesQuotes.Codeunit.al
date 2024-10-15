@@ -1123,6 +1123,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] TEMP_PERSON is not available to choose
         Assert.ExpectedError(RowDoesNotExistErr);
     end;
+
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,CustomerTemplateListModalPageHandlerGetRecord')]
     [Scope('OnPrem')]
@@ -1624,6 +1625,33 @@ codeunit 134379 "ERM Sales Quotes"
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderFromSalesQuoteDeleteComments()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 416939] Sales quote comments deleted on Sales Order from Sales Quote action
+        Initialize();
+
+        // [GIVEN] Created Sales Quote
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
+        // [GIVEN] Created comment for quote
+        CreateSalesQuoteComments(SalesHeader);
+        SalesCommentLine.SetRange("Document Type", "Sales Comment Document Type"::Quote);
+        SalesCommentLine.SetRange("No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesCommentLine);
+
+        // [WHEN] Create Sales Order from Sales Quote.
+        Codeunit.Run(Codeunit::"Sales-Quote to Order", SalesHeader);
+
+        // [THEN] Sales quote comments deleted
+        Assert.RecordIsEmpty(SalesCommentLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1670,6 +1698,16 @@ codeunit 134379 "ERM Sales Quotes"
         // Using Random for Quantity, value not important for Quantity.
         for Counter := 1 to NoOfLines do
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateSalesQuoteComments(SalesHeader: Record "Sales Header")
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesCommentLine."Document Type" := "Sales Comment Document Type"::Quote;
+        SalesCommentLine."No." := SalesHeader."No.";
+        SalesCommentLine."Line No." := 10000;
+        SalesCommentLine.Insert();
     end;
 
     local procedure CreateSalesQuoteWithUnitPrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; UnitPrice: Decimal; VATProdPostingGroupCode: Code[20])

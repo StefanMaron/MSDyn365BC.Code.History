@@ -467,6 +467,33 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.ExpectedError(BlockedResourceErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchOrderFromPurchQuoteDeleteComments()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 416939] Purch quote comments deleted on Purch Order from Purch Quote action
+        Initialize();
+
+        // [GIVEN] Created Purch Quote
+        CreatePurchaseQuote(PurchHeader, PurchLine, CreateVendor());
+        // [GIVEN] Created comment for quote
+        CreatePurchQuoteComments(PurchHeader);
+        PurchCommentLine.SetRange("Document Type", "Purchase Comment Document Type"::Quote);
+        PurchCommentLine.SetRange("No.", PurchHeader."No.");
+        Assert.RecordIsNotEmpty(PurchCommentLine);
+
+        // [WHEN] Create Purch Order from Purch Quote.
+        Codeunit.Run(Codeunit::"Purch.-Quote to Order", PurchHeader);
+
+        // [THEN] Purch quote comments deleted
+        Assert.RecordIsEmpty(PurchCommentLine);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -525,6 +552,16 @@ codeunit 134325 "ERM Purchase Quote"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", 100 * LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchQuoteComments(PurchHeader: Record "Purchase Header")
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        PurchCommentLine."Document Type" := "Purchase Comment Document Type"::Quote;
+        PurchCommentLine."No." := PurchHeader."No.";
+        PurchCommentLine."Line No." := 10000;
+        PurchCommentLine.Insert();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; QuoteNo: Code[20])

@@ -693,6 +693,7 @@
                 Item.CheckBlockedByApplWorksheet;
             end;
 
+            OnPostItemOnBeforeCheckInventoryPostingGroup(ItemJnlLine, CalledFromAdjustment);
             if ("Inventory Posting Group" = '') and (Item.Type = Item.Type::Inventory) then begin
                 Item.TestField("Inventory Posting Group");
                 "Inventory Posting Group" := Item."Inventory Posting Group";
@@ -2863,6 +2864,7 @@
                     CostAmtACY := 0;
                     ValueEntry."Cost per Unit" := 0;
                     ValueEntry."Cost per Unit (ACY)" := 0;
+                    OnInitValueEntryOnAfterNotAdjustmentCheckClearCostAmount(ValueEntry, ItemJnlLine);
                 end;
 
             case true of
@@ -3170,6 +3172,7 @@
         ValueEntry."Cost Amount (Expected)" := 0;
         ValueEntry."Cost Amount (Expected) (ACY)" := 0;
         ValueEntry."Variance Type" := ValueEntry."Variance Type"::Purchase;
+        OnInsertVarValueEntryOnAfterInitValueEntryFields(ValueEntry);
 
         if GLSetup."Additional Reporting Currency" <> '' then begin
             if Round(VarianceAmount, GLSetup."Amount Rounding Precision") =
@@ -3993,6 +3996,7 @@
                     if GlobalItemTrackingCode."Man. Warranty Date Entry Reqd." then
                         TempTrackingSpecification.TestField("Warranty Date");
 
+                    OnSetupSplitJnlLineOnBeforeCheckUseExpirationDates(ItemJnlLine2, TempTrackingSpecification, Item, CalcExpirationDate);
                     if GlobalItemTrackingCode."Use Expiration Dates" then
                         CheckExpirationDate(ItemJnlLine2, SignFactor, CalcExpirationDate, ExpirationDateChecked);
 
@@ -4202,7 +4206,8 @@
                     if ItemJnlLine2."Phys. Inventory" and (ExistingExpirationDate <> 0D) then
                         TempTrackingSpecification."Expiration Date" := ExistingExpirationDate;
                     if not TempTrackingSpecification.Correction then
-                        TempTrackingSpecification.TestField("Expiration Date");
+                        if TempTrackingSpecification."Appl.-from Item Entry" = 0 then
+                            TempTrackingSpecification.TestField("Expiration Date");
                 end;
 
             if CalcExpirationDate <> 0D then
@@ -4323,6 +4328,7 @@
 
         ItemJnlLine."Item No." := OldItemLedgEntry."Item No.";
 
+        OnUndoQuantityPostingOnBeforeInitCorrItemLedgEntry(ItemJnlLine, OldItemLedgEntry);
         InitCorrItemLedgEntry(OldItemLedgEntry, NewItemLedgEntry);
 
         if Item.IsNonInventoriableType then begin
@@ -4427,6 +4433,8 @@
         ItemLedgEntryNo := ItemLedgEntryNo + 1;
         NewItemLedgEntry := OldItemLedgEntry;
         ItemTrackingMgt.RetrieveAppliedExpirationDate(NewItemLedgEntry);
+        OnInitCorrItemLedgEntryOnAfterRetrieveAppliedExpirationDate(NewItemLedgEntry);
+
         NewItemLedgEntry."Entry No." := ItemLedgEntryNo;
         NewItemLedgEntry.Quantity := -OldItemLedgEntry.Quantity;
         NewItemLedgEntry."Remaining Quantity" := -OldItemLedgEntry.Quantity;
@@ -5554,6 +5562,7 @@
             "New Item Expiration Date" := TempTrackingSpecification."New Expiration Date";
 
             PostItemJnlLine := not HasSameNewTracking() or ("Item Expiration Date" <> "New Item Expiration Date");
+            OnSetupTempSplitItemJnlLineOnAfterCalcPostItemJnlLine(TempSplitItemJnlLine, TempTrackingSpecification, PostItemJnlLine);
 
             "Warranty Date" := TempTrackingSpecification."Warranty Date";
 
@@ -5785,7 +5794,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; var ValueEntryNo: Integer; ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure OnAfterInitValueEntry(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line"; var ValueEntryNo: Integer; var ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -5921,6 +5930,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetupSplitJnlLineOnBeforeSplitTempLines(var TempSplitItemJournalLine: Record "Item Journal Line" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetupSplitJnlLineOnBeforeCheckUseExpirationDates(var ItemJnlLine2: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; Item: Record Item; var CalcExpirationDate: Date)
     begin
     end;
 
@@ -6240,6 +6254,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitValueEntryOnAfterNotAdjustmentCheckClearCostAmount(var ValueEntry: Record "Value Entry"; var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitValueEntryOnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
@@ -6371,6 +6390,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemOnAfterGetSKU(var ItemJnlLine: Record "Item Journal Line"; var SKUExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnBeforeCheckInventoryPostingGroup(var ItemJnlLine: Record "Item Journal Line"; var CalledFromAdjustment: Boolean)
     begin
     end;
 
@@ -6899,6 +6923,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertVarValueEntryOnAfterInitValueEntryFields(var ValueEntry: record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -6935,6 +6964,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransferEntryOnBeforeInitTransValueEntry(var TempItemEntryRelation: Record "Item Entry Relation"; var NewItemLedgEntry: Record "Item Ledger Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitCorrItemLedgEntryOnAfterRetrieveAppliedExpirationDate(var NewItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -6989,6 +7023,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnBeforeInitCorrItemLedgEntry(var ItemJnlLine: Record "Item Journal Line"; var OldItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUndoQuantityPostingOnAfterUpdateItemApplnEntry(var ItemJnlLine: Record "Item Journal Line"; OldItemLedgEntry: Record "Item Ledger Entry"; NewItemLedgEntry: Record "Item Ledger Entry"; NewValueEntry: Record "Value Entry"; InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
     begin
     end;
@@ -7035,6 +7074,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostConsumptionOnRemQtyToPostOnBeforeInsertConsumpEntry(var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetupTempSplitItemJnlLineOnAfterCalcPostItemJnlLine(var TempSplitItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var PostItemJnlLine: Boolean)
     begin
     end;
 
