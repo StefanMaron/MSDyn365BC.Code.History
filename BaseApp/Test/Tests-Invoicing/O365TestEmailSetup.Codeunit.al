@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138900 "O365 Test Email Setup"
 {
     Subtype = Test;
@@ -25,13 +26,13 @@ codeunit 138900 "O365 Test Email Setup"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Email Setup");
         LibraryWorkflow.SetUpEmailAccount();
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
         O365C2GraphEventSettings.Modify();
 
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         EventSubscriberInvoicingApp.SetClientType(CLIENTTYPE::Phone);
 
         if IsInitialized then
@@ -232,4 +233,4 @@ codeunit 138900 "O365 Test Email Setup"
           StrSubstNo('Unexpected notification was thrown: %1', TheNotification.Message));
     end;
 }
-
+#endif

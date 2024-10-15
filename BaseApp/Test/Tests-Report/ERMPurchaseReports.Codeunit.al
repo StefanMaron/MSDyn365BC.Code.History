@@ -68,7 +68,7 @@ codeunit 134983 "ERM Purchase Reports"
               'VATAmountLine__Line_Amount_', VATAmountLine."Line Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmountLine__Inv__Disc__Base_Amount_', VATAmountLine."Inv. Disc. Base Amount");
-        until VATAmountLine.Next = 0;
+        until VATAmountLine.Next() = 0;
     end;
 
     [Test]
@@ -236,7 +236,7 @@ codeunit 134983 "ERM Purchase Reports"
               'VATAmtLineLineAmt', VATAmountLine."Line Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmtLineInvDiscBaseAmt', VATAmountLine."Inv. Disc. Base Amount");
-        until VATAmountLine.Next = 0;
+        until VATAmountLine.Next() = 0;
     end;
 
     [Test]
@@ -364,7 +364,7 @@ codeunit 134983 "ERM Purchase Reports"
               'VATAmtLineLineAmt', VATAmountLine."Line Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmtLineInvDiscBaseAmt', VATAmountLine."Inv. Disc. Base Amount");
-        until VATAmountLine.Next = 0;
+        until VATAmountLine.Next() = 0;
     end;
 
     [Test]
@@ -630,7 +630,7 @@ codeunit 134983 "ERM Purchase Reports"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyCode);
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, 0);
-        TotalAmount := LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate);
+        TotalAmount := LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate());
         VATAmount := TotalAmount * PurchaseLine."VAT %" / 100;
 
         // Exercise: Run VAT Exceptions Report with Additional Currency.
@@ -956,7 +956,7 @@ codeunit 134983 "ERM Purchase Reports"
         DocumentNo := CreateAndPostReturnShipment(CreateItem);
         GetReturnShipmentLine(ReturnShipmentLine, DocumentNo);
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
-        ReturnShipmentLine.Next;
+        ReturnShipmentLine.Next();
 
         // Exercise: Save Purchase Return Shipment Report with Show Correction Lines option.
         SavePurchaseReturnShipment(DocumentNo, false, true, false);
@@ -1386,7 +1386,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(85, 25, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
+        LibraryReportValidation.VerifyCellValue(85, 27, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
     end;
 
     [Test]
@@ -1495,7 +1495,7 @@ codeunit 134983 "ERM Purchase Reports"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", ItemNo, '');
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -1517,7 +1517,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader.Modify(true);
 
         CreatePurchaseLine(PurchaseHeader, CreateItem);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -1598,7 +1598,7 @@ codeunit 134983 "ERM Purchase Reports"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CurrencyCode);
         LineAmount := FindPurchaseLineAmount(PurchaseHeader."No.");
         Currency.Get(PurchaseHeader."Currency Code");
-        Amount := LibraryERM.ConvertCurrency(Round(LineAmount, Currency."Invoice Rounding Precision"), Currency.Code, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Round(LineAmount, Currency."Invoice Rounding Precision"), Currency.Code, '', WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -1722,7 +1722,7 @@ codeunit 134983 "ERM Purchase Reports"
 
     local procedure RunVATExceptionsReport(VATProdPostingGroup: Text[20]; DocumentNo: Code[20]; AddCurrency: Boolean)
     begin
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(VATProdPostingGroup);
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(AddCurrency);
@@ -1787,12 +1787,12 @@ codeunit 134983 "ERM Purchase Reports"
 
         // Verify: Verify Saved Report with Different Fields data.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('Vendor_Ledger_Entry__Posting_Date_', Format(WorkDate));
+        LibraryReportDataset.SetRange('Vendor_Ledger_Entry__Posting_Date_', Format(WorkDate()));
 
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Vendor_Ledger_Entry__Posting_Date_', WorkDate));
+            Error(StrSubstNo(RowNotFoundErr, 'Vendor_Ledger_Entry__Posting_Date_', WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('VendAmountLCY', -ExpectedValue);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry__Due_Date_', Format(WorkDate));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Ledger_Entry__Due_Date_', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('VendCreditAmountLCY_Control64', ExpectedValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Register__No__', GLRegisterNo);
     end;
@@ -1958,7 +1958,7 @@ codeunit 134983 "ERM Purchase Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line__Description', PurchaseLine.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line__Quantity', PurchaseLine.Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line___Line_Amount_', PurchaseLine.Amount);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyPostedCreditMemo(DocumentNo: Code[20])

@@ -215,7 +215,7 @@ table 910 "Posted Assembly Header"
         AssemblyCommentLine: Record "Assembly Comment Line";
         PostedAssemblyLinesDelete: Codeunit "PostedAssemblyLines-Delete";
     begin
-        CheckIsNotAsmToOrder;
+        CheckIsNotAsmToOrder();
 
         PostedAssemblyLinesDelete.DeleteLines(Rec);
 
@@ -232,7 +232,7 @@ table 910 "Posted Assembly Header"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure ShowStatistics()

@@ -118,7 +118,7 @@ table 82 "Item Journal Template"
             begin
                 ItemJnlLine.SetRange("Journal Template Name", Name);
                 ItemJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -139,7 +139,7 @@ table 82 "Item Journal Template"
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -147,7 +147,7 @@ table 82 "Item Journal Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -155,7 +155,7 @@ table 82 "Item Journal Template"
         }
         field(17; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -198,7 +198,7 @@ table 82 "Item Journal Template"
         field(22; "Whse. Register Report Caption"; Text[250])
         {
             AccessByPermission = TableData "Bin Content" = R;
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Whse. Register Report ID")));
             Caption = 'Whse. Register Report Caption';
             Editable = false;
@@ -246,12 +246,13 @@ table 82 "Item Journal Template"
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateType(ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")

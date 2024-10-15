@@ -46,7 +46,7 @@ page 6726 "OData EDM Definition Card"
 
     trigger OnAfterGetRecord()
     begin
-        ODataEDMXMLTxt := GetEDMXML;
+        ODataEDMXMLTxt := GetEDMXML();
     end;
 
     var
@@ -58,7 +58,7 @@ page 6726 "OData EDM Definition Card"
         EDMText: Text;
     begin
         CalcFields("Edm Xml");
-        if not "Edm Xml".HasValue then
+        if not "Edm Xml".HasValue() then
             exit('');
 
         "Edm Xml".CreateInStream(EDMDefinitionInStream, TEXTENCODING::UTF8);

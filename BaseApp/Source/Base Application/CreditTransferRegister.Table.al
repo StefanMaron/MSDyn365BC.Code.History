@@ -84,24 +84,24 @@ table 1205 "Credit Transfer Register"
 
     procedure CreateNew(NewIdentifier: Code[20]; NewBankAccountNo: Code[20])
     begin
-        Reset;
+        Reset();
         LockTable();
         if FindLast() then;
-        Init;
+        Init();
         "No." += 1;
         Identifier := NewIdentifier;
         "Created Date-Time" := CurrentDateTime;
         "Created by User" := UserId;
         "From Bank Account No." := NewBankAccountNo;
-        Insert;
+        Insert();
     end;
 
     procedure SetStatus(NewStatus: Option)
     begin
         LockTable();
-        Find;
+        Find();
         Status := NewStatus;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -113,7 +113,7 @@ table 1205 "Credit Transfer Register"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Exported File"));
 
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             Error(PaymentsFileNotFoundErr);
 
         CreditTransReExportHistory.Init();
@@ -122,17 +122,17 @@ table 1205 "Credit Transfer Register"
 
         if FileMgt.BLOBExport(TempBlob, StrSubstNo('%1.XML', Identifier), not ExportToServerFile) <> '' then begin
             Status := Status::"File Re-exported";
-            Modify;
+            Modify();
         end;
     end;
 
     procedure SetFileContent(var DataExch: Record "Data Exch.")
     begin
         LockTable();
-        Find;
+        Find();
         DataExch.CalcFields("File Content");
         "Exported File" := DataExch."File Content";
-        Modify;
+        Modify();
     end;
 
     procedure EnableExportToServerFile()

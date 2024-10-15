@@ -72,7 +72,7 @@ codeunit 141001 "Electronic Invoices - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            Reset;
+            Reset();
             SetRange('ElectronicInvoicing', IsOn);
             Assert.IsTrue(GetNextRow, '');
         end;

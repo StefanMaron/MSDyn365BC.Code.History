@@ -15,7 +15,7 @@ page 1104 "Cost Registers"
             repeater(Control9)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
@@ -32,48 +32,48 @@ page 1104 "Cost Registers"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies by which level the cost allocation posting is done. For example, this makes sure that costs are allocated at level 1 from the ADM cost center to the WORKSHOP and PROD cost centers, before they are allocated at level 2 from the PROD cost center to the FURNITURE, CHAIRS, and PAINT cost objects.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("From Cost Entry No."; "From Cost Entry No.")
+                field("From Cost Entry No."; Rec."From Cost Entry No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the first cost entry number in the cost register.';
                 }
-                field("To Cost Entry No."; "To Cost Entry No.")
+                field("To Cost Entry No."; Rec."To Cost Entry No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the number of the start of the range that applies to the cost registered.';
                 }
-                field("No. of Entries"; "No. of Entries")
+                field("No. of Entries"; Rec."No. of Entries")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the number of entries in the cost register.';
                 }
-                field("From G/L Entry No."; "From G/L Entry No.")
+                field("From G/L Entry No."; Rec."From G/L Entry No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the first general ledger entry number when the cost posting is transferred from the general ledger.';
                 }
-                field("To G/L Entry No."; "To G/L Entry No.")
+                field("To G/L Entry No."; Rec."To G/L Entry No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the number of the end of the range that applies to the cost registered.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
@@ -83,12 +83,12 @@ page 1104 "Cost Registers"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether or not the cost has been closed.';
                 }
-                field("Processed Date"; "Processed Date")
+                field("Processed Date"; Rec."Processed Date")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies when the cost register was last updated.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -100,7 +100,7 @@ page 1104 "Cost Registers"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
@@ -122,9 +122,6 @@ page 1104 "Cost Registers"
                     ApplicationArea = CostAccounting;
                     Caption = '&Cost Entries';
                     Image = CostEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunPageOnRec = true;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View cost entries, which can come from sources such as automatic transfer of general ledger entries to cost entries, manual posting for pure cost entries, internal charges, and manual allocations, and automatic allocation postings for actual costs.';
@@ -142,8 +139,6 @@ page 1104 "Cost Registers"
                     ApplicationArea = CostAccounting;
                     Caption = '&Allocated Cost Entries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Cost Entries";
                     RunPageLink = "Allocated with Journal No." = FIELD("No.");
                     RunPageView = SORTING("Allocated with Journal No.");
@@ -173,6 +168,20 @@ page 1104 "Cost Registers"
                     Image = Delete;
                     RunObject = Report "Delete Old Cost Entries";
                     ToolTip = 'Delete all cost entries up to and including the date that you enter in the report.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Cost Entries_Promoted"; "&Cost Entries")
+                {
+                }
+                actionref("&Allocated Cost Entries_Promoted"; "&Allocated Cost Entries")
+                {
                 }
             }
         }

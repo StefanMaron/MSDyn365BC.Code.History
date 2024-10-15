@@ -81,7 +81,7 @@ codeunit 134815 "Item Blocked Test"
         // [THEN] Line is created, Item is blocked for sale
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("No.", Item."No.");
-        Item.Find;
+        Item.Find();
         Item.TestField("Sales Blocked");
         // [THEN] Credit Memo can be posted
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -116,7 +116,7 @@ codeunit 134815 "Item Blocked Test"
         // [THEN] Line is created, Item is blocked for sale
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("No.", Item."No.");
-        Item.Find;
+        Item.Find();
         Item.TestField("Sales Blocked");
         // [THEN] Return order can be posted
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -291,7 +291,7 @@ codeunit 134815 "Item Blocked Test"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] Line is created
-        ItemJournalLine.Find;
+        ItemJournalLine.Find();
         ItemJournalLine.TestField("Item No.", Item."No.");
     end;
 
@@ -351,7 +351,7 @@ codeunit 134815 "Item Blocked Test"
         // [THEN] Line is created, Item is blocked for purchasing
         PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
         PurchaseLine.TestField("No.", Item."No.");
-        Item.Find;
+        Item.Find();
         Item.TestField("Purchasing Blocked");
         // [THEN] Credit Memo can be posted
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -386,7 +386,7 @@ codeunit 134815 "Item Blocked Test"
         // [THEN] Line is created, Item is blocked for purchasing
         PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
         PurchaseLine.TestField("No.", Item."No.");
-        Item.Find;
+        Item.Find();
         Item.TestField("Purchasing Blocked");
         // [THEN] Return Order can be posted
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -561,7 +561,7 @@ codeunit 134815 "Item Blocked Test"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] Line is created
-        ItemJournalLine.Find;
+        ItemJournalLine.Find();
         ItemJournalLine.TestField("Item No.", Item."No.");
     end;
 

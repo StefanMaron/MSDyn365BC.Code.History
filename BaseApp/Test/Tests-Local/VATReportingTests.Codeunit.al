@@ -55,7 +55,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            SalesHeader.SetRecFilter;
+            SalesHeader.SetRecFilter();
             REPORT.Run(REPORT::"Blanket Sales Order", true, false, SalesHeader);
 
             // Verify
@@ -80,7 +80,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            SalesHeader.SetRecFilter;
+            SalesHeader.SetRecFilter();
             REPORT.Run(REPORT::"Blanket Sales Order", true, false, SalesHeader);
 
             // Verify
@@ -105,7 +105,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchHeader.SetRecFilter;
+            PurchHeader.SetRecFilter();
             REPORT.Run(REPORT::Order, true, false, PurchHeader);
 
             // Verify
@@ -130,7 +130,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchInvHeader.SetRecFilter;
+            PurchInvHeader.SetRecFilter();
             REPORT.Run(REPORT::"Purchase - Invoice", true, false, PurchInvHeader);
 
             // Verify
@@ -155,7 +155,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchCrMemoHdr.SetRecFilter;
+            PurchCrMemoHdr.SetRecFilter();
             REPORT.Run(REPORT::"Purchase - Credit Memo", true, false, PurchCrMemoHdr);
 
             // Verify
@@ -180,7 +180,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchHeader.SetRecFilter;
+            PurchHeader.SetRecFilter();
             REPORT.Run(REPORT::Order, true, false, PurchHeader);
 
             // Verify
@@ -205,7 +205,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchInvHeader.SetRecFilter;
+            PurchInvHeader.SetRecFilter();
             REPORT.Run(REPORT::"Purchase - Invoice", true, false, PurchInvHeader);
 
             // Verify
@@ -230,7 +230,7 @@ codeunit 141002 "VAT Reporting - Tests"
         for AlwaysShowVATSum := false to true do begin
             // Exercise
             LibraryVariableStorage.Enqueue(AlwaysShowVATSum);
-            PurchCrMemoHdr.SetRecFilter;
+            PurchCrMemoHdr.SetRecFilter();
             REPORT.Run(REPORT::"Purchase - Credit Memo", true, false, PurchCrMemoHdr);
 
             // Verify
@@ -250,7 +250,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         Initialize();
 
-        WD := WorkDate;
+        WD := WorkDate();
 
         for Month := 1 to 12 do begin
             WorkDate := DMY2Date(1, Month);
@@ -262,7 +262,7 @@ codeunit 141002 "VAT Reporting - Tests"
             CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
             GetSalesInvoiceHeaderVATAmt(TempVATAmtLine, SalesInvoiceHeader);
 
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
             REPORT.Run(REPORT::"VAT Reconciliation A", true, false);
 
             VerifyVATReconciliation(TempVATAmtLine, true);
@@ -283,7 +283,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         Initialize();
 
-        WD := WorkDate;
+        WD := WorkDate();
 
         for Month := 1 to 12 do begin
             WorkDate := DMY2Date(1, Month);
@@ -295,7 +295,7 @@ codeunit 141002 "VAT Reporting - Tests"
             CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
             GetPurchInvoiceHeaderVATAmt(TempVATAmtLine, PurchInvHeader);
 
-            PurchInvHeader.SetRecFilter;
+            PurchInvHeader.SetRecFilter();
             REPORT.Run(REPORT::"VAT Reconciliation A", true, false);
 
             VerifyVATReconciliation(TempVATAmtLine, false);
@@ -316,7 +316,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         Initialize();
 
-        WD := WorkDate;
+        WD := WorkDate();
 
         for Month := 1 to 12 do begin
             WorkDate := DMY2Date(1, Month);
@@ -328,7 +328,7 @@ codeunit 141002 "VAT Reporting - Tests"
             CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
             GetSalesInvoiceHeaderVATAmt(TempVATAmtLine, SalesInvoiceHeader);
 
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
             REPORT.Run(REPORT::"VAT Balancing Report", true, false);
 
             VerifyVATBalancingReport(TempVATAmtLine, true);
@@ -349,7 +349,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         Initialize();
 
-        WD := WorkDate;
+        WD := WorkDate();
 
         for Month := 1 to 12 do begin
             WorkDate := DMY2Date(1, Month);
@@ -361,7 +361,7 @@ codeunit 141002 "VAT Reporting - Tests"
             CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
             GetPurchInvoiceHeaderVATAmt(TempVATAmtLine, PurchInvHeader);
 
-            PurchInvHeader.SetRecFilter;
+            PurchInvHeader.SetRecFilter();
             REPORT.Run(REPORT::"VAT Balancing Report", true, false);
 
             VerifyVATBalancingReport(TempVATAmtLine, false);
@@ -374,12 +374,12 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            Reset;
+            Reset();
             VATAmtLine.FindFirst();
             repeat
                 SetRange(VATId, VATAmtLine."VAT Identifier");
                 Assert.AreEqual(AlwaysShowVATSum, GetNextRow, '');
-            until VATAmtLine.Next = 0;
+            until VATAmtLine.Next() = 0;
         end;
     end;
 
@@ -389,7 +389,7 @@ codeunit 141002 "VAT Reporting - Tests"
             LoadDataSetFile;
             VATAmtLine.FindFirst();
             repeat
-                Reset;
+                Reset();
                 SetRange('VATProdPostingGrp_VATPostingSetup', VATAmtLine."VAT Identifier");
                 Assert.IsTrue(GetNextRow, '');
                 if IsSale then begin
@@ -399,7 +399,7 @@ codeunit 141002 "VAT Reporting - Tests"
                     AssertCurrentRowValueEquals('VATPayable', VATAmtLine."VAT Amount");
                     AssertCurrentRowValueEquals('TurnoverPayable', VATAmtLine."VAT Base");
                 end;
-            until VATAmtLine.Next = 0;
+            until VATAmtLine.Next() = 0;
         end;
     end;
 
@@ -409,7 +409,7 @@ codeunit 141002 "VAT Reporting - Tests"
             LoadDataSetFile;
             VATAmtLine.FindFirst();
             repeat
-                Reset;
+                Reset();
                 SetRange('VATProdPostingGroup_VATPostingSetup', VATAmtLine."VAT Identifier");
                 Assert.IsTrue(GetNextRow, '');
                 if IsSale then begin
@@ -419,7 +419,7 @@ codeunit 141002 "VAT Reporting - Tests"
                     AssertCurrentRowValueEquals('VatPayableVariance', VATAmtLine."VAT Amount");
                     AssertCurrentRowValueEquals('TurnoverIn', VATAmtLine."VAT Base");
                 end;
-            until VATAmtLine.Next = 0;
+            until VATAmtLine.Next() = 0;
         end;
     end;
 
@@ -604,7 +604,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if SalesInvoiceLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := SalesInvoiceLine."VAT Identifier";
                     "VAT Calculation Type" := SalesInvoiceLine."VAT Calculation Type";
                     "Tax Group Code" := SalesInvoiceLine."Tax Group Code";
@@ -616,7 +616,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure GetSalesCrMemoHeaderVATAmt(var VATAmtLine: Record "VAT Amount Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -627,7 +627,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if SalesCrMemoLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := SalesCrMemoLine."VAT Identifier";
                     "VAT Calculation Type" := SalesCrMemoLine."VAT Calculation Type";
                     "Tax Group Code" := SalesCrMemoLine."Tax Group Code";
@@ -640,7 +640,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure GetSalesHeaderVATAmt(var VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header")
@@ -652,7 +652,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if SalesLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := SalesLine."VAT Identifier";
                     "VAT Calculation Type" := SalesLine."VAT Calculation Type";
                     "Tax Group Code" := SalesLine."Tax Group Code";
@@ -664,7 +664,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure GetPurchInvoiceHeaderVATAmt(var VATAmtLine: Record "VAT Amount Line"; PurchInvHeader: Record "Purch. Inv. Header")
@@ -675,7 +675,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if PurchInvLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := PurchInvLine."VAT Identifier";
                     "VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
                     "Tax Group Code" := PurchInvLine."Tax Group Code";
@@ -688,7 +688,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure GetPurchCrMemoHeaderVATAmt(var VATAmtLine: Record "VAT Amount Line"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -699,7 +699,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if PurchCrMemoLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := PurchCrMemoLine."VAT Identifier";
                     "VAT Calculation Type" := PurchCrMemoLine."VAT Calculation Type";
                     "Tax Group Code" := PurchCrMemoLine."Tax Group Code";
@@ -711,7 +711,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure GetPurchHeaderVATAmt(var VATAmtLine: Record "VAT Amount Line"; PurchHeader: Record "Purchase Header")
@@ -723,7 +723,7 @@ codeunit 141002 "VAT Reporting - Tests"
         if PurchLine.FindSet() then
             repeat
                 with VATAmtLine do begin
-                    Init;
+                    Init();
                     "VAT Identifier" := PurchLine."VAT Identifier";
                     "VAT Calculation Type" := PurchLine."VAT Calculation Type";
                     "Tax Group Code" := PurchLine."Tax Group Code";
@@ -735,7 +735,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
                     InsertLine;
                 end;
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 
     [RequestPageHandler]
@@ -788,7 +788,7 @@ codeunit 141002 "VAT Reporting - Tests"
     var
         VATPeriod: Option Custom,"January-February","March-April","May-June","July-August","September-October","November-December";
     begin
-        VATReconciliationA.Year.SetValue := Date2DMY(WorkDate, 3);
+        VATReconciliationA.Year.SetValue := Date2DMY(WorkDate(), 3);
         VATPeriod := GetVATReportPeriod;
         VATReconciliationA.Period.SetValue := Format(VATPeriod);
         VATReconciliationA.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -800,7 +800,7 @@ codeunit 141002 "VAT Reporting - Tests"
     var
         VATPeriod: Option Custom,"January-February","March-April","May-June","July-August","September-October","November-December";
     begin
-        VATBalancingReport.Year.SetValue := Date2DMY(WorkDate, 3);
+        VATBalancingReport.Year.SetValue := Date2DMY(WorkDate(), 3);
         VATPeriod := GetVATReportPeriod;
         VATBalancingReport.Period.SetValue := Format(VATPeriod);
         VATBalancingReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -817,7 +817,7 @@ codeunit 141002 "VAT Reporting - Tests"
     var
         PeriodInt: Integer;
     begin
-        PeriodInt := Date2DMY(WorkDate, 2);
+        PeriodInt := Date2DMY(WorkDate(), 2);
         if PeriodInt in [2, 4, 6, 8, 10, 12] then
             PeriodInt := PeriodInt / 2
         else

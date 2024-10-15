@@ -6,7 +6,6 @@ page 5233 "Human Resources Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Employee,Documents';
     SourceTable = "Human Resources Setup";
     UsageCategory = Administration;
 
@@ -17,17 +16,17 @@ page 5233 "Human Resources Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("Employee Nos."; "Employee Nos.")
+                field("Employee Nos."; Rec."Employee Nos.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number series code to use when assigning numbers to employees.';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the base unit of measure, such as hour or day.';
                 }
-                field("Automatically Create Resource"; "Automatically Create Resource")
+                field("Automatically Create Resource"; Rec."Automatically Create Resource")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if a resource card is automatically created for an employee that is added to a job, service, or assembly activity.';
@@ -58,9 +57,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Human Res. Units of Measure';
                 Image = UnitOfMeasure;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Human Res. Units of Measure";
                 ToolTip = 'Set up the units of measure, such as DAY or HOUR, that you can select from in the Human Resources Setup window to define how employment time is recorded.';
             }
@@ -69,9 +65,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Causes of Absence';
                 Image = AbsenceCategory;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Causes of Absence";
                 ToolTip = 'Set up reasons why an employee can be absent.';
             }
@@ -80,9 +73,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Causes of Inactivity';
                 Image = InactivityDescription;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Causes of Inactivity";
                 ToolTip = 'Set up reasons why an employee can be inactive.';
             }
@@ -91,9 +81,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Grounds for Termination';
                 Image = TerminationDescription;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Grounds for Termination";
                 ToolTip = 'Set up reasons why an employment can be terminated.';
             }
@@ -102,9 +89,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Unions';
                 Image = Union;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page Unions;
                 ToolTip = 'Set up different worker unions that employees may be members of, so that you can select it on the employee card.';
             }
@@ -113,9 +97,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Employment Contracts';
                 Image = EmployeeAgreement;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
                 RunObject = Page "Employment Contracts";
                 ToolTip = 'Set up the different types of contracts that employees can be employed under, such as Administration or Production.';
             }
@@ -124,9 +105,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Relatives';
                 Image = Relatives;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page Relatives;
                 ToolTip = 'Set up the types of relatives that you can select from on employee cards.';
             }
@@ -135,9 +113,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Misc. Articles';
                 Image = Archive;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
                 RunObject = Page "Misc. Articles";
                 ToolTip = 'Set up types of company assets that employees use, such as CAR or COMPUTER, that you can select from on employee cards.';
             }
@@ -146,9 +121,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Confidential';
                 Image = ConfidentialOverview;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
                 RunObject = Page Confidential;
                 ToolTip = 'Set up types of confidential information, such as SALARY or INSURANCE, that you can select from on employee cards.';
             }
@@ -157,9 +129,6 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Qualifications';
                 Image = QualificationOverview;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page Qualifications;
                 ToolTip = 'Set up types of qualifications, such as DESIGN or ACCOUNTANT, that you can select from on employee cards.';
             }
@@ -168,21 +137,73 @@ page 5233 "Human Resources Setup"
                 ApplicationArea = BasicHR;
                 Caption = 'Employee Statistics Groups';
                 Image = StatisticsGroup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Employee Statistics Groups";
                 ToolTip = 'Set up salary types, such as HOURLY or MONTHLY, that you use for statistical purposes.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Human Res. Units of Measure_Promoted"; "Human Res. Units of Measure")
+                {
+                }
+                actionref("Causes of Absence_Promoted"; "Causes of Absence")
+                {
+                }
+                actionref("Causes of Inactivity_Promoted"; "Causes of Inactivity")
+                {
+                }
+                actionref("Grounds for Termination_Promoted"; "Grounds for Termination")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Employee', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Unions_Promoted; Unions)
+                {
+                }
+                actionref(Relatives_Promoted; Relatives)
+                {
+                }
+                actionref(Qualifications_Promoted; Qualifications)
+                {
+                }
+                actionref("Employee Statistics Groups_Promoted"; "Employee Statistics Groups")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Documents', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Employment Contracts_Promoted"; "Employment Contracts")
+                {
+                }
+                actionref("Misc. Articles_Promoted"; "Misc. Articles")
+                {
+                }
+                actionref(Confidential_Promoted; Confidential)
+                {
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

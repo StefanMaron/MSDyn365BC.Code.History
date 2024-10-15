@@ -1,5 +1,6 @@
 table 130150 "Generate Test Data Line"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -83,7 +84,7 @@ table 130150 "Generate Test Data Line"
         RecRef.Open("Table ID");
         "Table Name" := RecRef.Name;
         "Total Records" := RecRef.Count();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     [Scope('OnPrem')]
@@ -101,7 +102,7 @@ table 130150 "Generate Test Data Line"
             Status := Status::" "
         else
             Status := Status::Scheduled;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]

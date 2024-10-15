@@ -1,7 +1,7 @@
 pageextension 9206 "User Personalization" extends "User Personalization"
-{    
+{
     actions
-    {   
+    {
         addFirst(navigation)
         {
             action(PersonalizedPages)
@@ -45,9 +45,6 @@ pageextension 9206 "User Personalization" extends "User Personalization"
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&lear Personalized Pages';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Delete all personalizations made by the specified user across display targets.';
 
                     trigger OnAction()
@@ -58,6 +55,12 @@ pageextension 9206 "User Personalization" extends "User Personalization"
                         ConfPersonalizationMgt.ClearUserPersonalization(UserPersonalization);
                     end;
                 }
+            }
+        }
+        addlast(Category_Process)
+        {
+            actionref("C&lear Personalized Pages_Promoted"; "C&lear Personalized Pages")
+            {
             }
         }
     }

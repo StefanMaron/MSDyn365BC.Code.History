@@ -2,7 +2,7 @@ page 99000795 "Prod. Order BOM Cmt. Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;
@@ -41,7 +41,7 @@ page 99000795 "Prod. Order BOM Cmt. Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

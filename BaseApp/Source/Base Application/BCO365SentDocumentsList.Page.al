@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2358 "BC O365 Sent Documents List"
 {
     Caption = 'Documents not sent';
@@ -6,11 +7,13 @@ page 2358 "BC O365 Sent Documents List"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sell-to Customer Name");
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,36 +22,36 @@ page 2358 "BC O365 Sent Documents List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Recipient';
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice No.';
                     ToolTip = 'Specifies the number of the invoice, according to the specified number series.';
                 }
-                field("Total Invoiced Amount"; "Total Invoiced Amount")
+                field("Total Invoiced Amount"; Rec."Total Invoiced Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the total invoiced amount.';
                 }
-                field("Last Email Sent Time"; "Last Email Sent Time")
+                field("Last Email Sent Time"; Rec."Last Email Sent Time")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email failed time';
                 }
-                field("Outstanding Status"; "Outstanding Status")
+                field("Outstanding Status"; Rec."Outstanding Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Status';
                     ToolTip = 'Specifies the outstanding amount, meaning the amount not paid.';
                 }
@@ -62,7 +65,7 @@ page 2358 "BC O365 Sent Documents List"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
@@ -74,18 +77,14 @@ page 2358 "BC O365 Sent Documents List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument;
+                    OpenDocument();
                 end;
             }
             action(Clear)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Clear line';
                 Image = CompleteLine;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Removes the notification. We will not notify you about this failure again.';
 
@@ -99,13 +98,9 @@ page 2358 "BC O365 Sent Documents List"
             }
             action(ClearAll)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Clear all';
                 Image = Completed;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Page;
                 ToolTip = 'Empties the list of notifications. We will not notify you about these failures again.';
 
@@ -113,9 +108,27 @@ page 2358 "BC O365 Sent Documents List"
                 var
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
-                    O365DocumentSendMgt.ClearNotificationsForAllDocuments;
+                    O365DocumentSendMgt.ClearNotificationsForAllDocuments();
                     CurrPage.Update(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Clear_Promoted; Clear)
+                {
+                }
+                actionref(ClearAll_Promoted; ClearAll)
+                {
+                }
             }
         }
     }
@@ -127,7 +140,7 @@ page 2358 "BC O365 Sent Documents List"
 
     trigger OnInit()
     begin
-        SetSortByDocDate;
+        SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -135,4 +148,4 @@ page 2358 "BC O365 Sent Documents List"
         exit(OnNext(Steps));
     end;
 }
-
+#endif

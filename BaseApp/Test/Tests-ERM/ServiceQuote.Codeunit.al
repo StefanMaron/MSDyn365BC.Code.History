@@ -279,7 +279,7 @@ codeunit 136115 "Service Quote"
         LibraryService.CreateOrderFromQuote(ServiceHeader);
 
         // [THEN] "Posting Date" of Service Order is "10.01"
-        VerifyServiceLinePostingDate(ServiceHeader."No.", WorkDate);
+        VerifyServiceLinePostingDate(ServiceHeader."No.", WorkDate());
     end;
 
     [Test]
@@ -306,10 +306,10 @@ codeunit 136115 "Service Quote"
         ServiceQuote.OpenEdit;
         ServiceQuote.GotoRecord(ServiceHeaderQuote);
         ServiceQuote."Location Code".SetValue(Location.Code);
-        ServiceQuote.Close;
+        ServiceQuote.Close();
 
         // [WHEN] Create service order from the service quote.
-        ServiceHeaderQuote.Find;
+        ServiceHeaderQuote.Find();
         LibraryService.CreateOrderFromQuote(ServiceHeaderQuote);
 
         // [THEN] Location Code = "L" on the new service order.
@@ -387,7 +387,7 @@ codeunit 136115 "Service Quote"
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, Item."No.");
-        Item.Next;
+        Item.Next();
         exit(Item."No.");
     end;
 

@@ -17,13 +17,13 @@ page 9833 "User Groups User SubPage"
                     Caption = 'Code';
                     ToolTip = 'Specifies a user group.';
                 }
-                field("User Group Name"; "User Group Name")
+                field("User Group Name"; Rec."User Group Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the user.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company.';

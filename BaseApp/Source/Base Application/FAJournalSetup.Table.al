@@ -93,8 +93,9 @@ table 5605 "FA Journal Setup"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
         DeprBook: Record "Depreciation Book";
+
+        Text000: Label 'You must specify %1.';
 
     procedure GenJnlName(var DeprBook: Record "Depreciation Book"; var GenJnlLine: Record "Gen. Journal Line"; var NextLineNo: Integer)
     var
@@ -163,7 +164,12 @@ table 5605 "FA Journal Setup"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
+        IsHandled: Boolean;
     begin
+        OnBeforeSetGenJnlTrailCodes(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             GenJnlTemplate.Get("Journal Template Name");
             GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -256,7 +262,12 @@ table 5605 "FA Journal Setup"
     var
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
+        IsHandled: Boolean;
     begin
+        OnBeforeSetFAJnlTrailCodes(FAJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with FAJnlLine do begin
             FAJnlTemplate.Get("Journal Template Name");
             FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -321,6 +332,16 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetGenJnlTrailCodes(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFAJnlTrailCodes(var FAJnlLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

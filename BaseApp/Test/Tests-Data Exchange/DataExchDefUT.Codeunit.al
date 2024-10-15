@@ -247,7 +247,7 @@ codeunit 132543 "Data Exch. Def UT"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"Imp / Exp Data Exch Def & Map", OutStream, DataExchDef);
-        ExportFile.Close;
+        ExportFile.Close();
 
         // Remove Header and Line Records just saved.
         RemoveDataExch(DataExchCode);
@@ -270,7 +270,7 @@ codeunit 132543 "Data Exch. Def UT"
                 end;
 
                 LineTypeCount := LineTypeCount + 1;
-            until DataExchLineDef1.Next = 0;
+            until DataExchLineDef1.Next() = 0;
         end
     end;
 
@@ -305,7 +305,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchLineDef.Modify(true);
 
         // [GIVEN] Export Data Exch Def with 2 lines via XMLPort "Imp / Exp Data Exch Def & Map" to file
-        DataExchDef.SetRecFilter;
+        DataExchDef.SetRecFilter();
         ServerFileName := FileManagement.ServerTempFileName('.xml');
 
         ExportViaXMLPort(DataExchDef);
@@ -343,7 +343,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Modify(true);
 
         // [THEN] The record is modified and "File Type" as "Fixed Text" is saved
-        DataExchDef.Find;
+        DataExchDef.Find();
         DataExchDef.TestField("File Type", DataExchDef."File Type"::"Fixed Text");
     end;
 
@@ -369,7 +369,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Modify(true);
 
         // [THEN] The record is modified and "File Type" as "Variable Text" is saved
-        DataExchDef.Find;
+        DataExchDef.Find();
         DataExchDef.TestField("File Type", DataExchDef."File Type"::"Variable Text");
     end;
 
@@ -586,7 +586,7 @@ codeunit 132543 "Data Exch. Def UT"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"Imp / Exp Data Exch Def & Map", OutStream, DataExchDef);
-        ExportFile.Close;
+        ExportFile.Close();
     end;
 
     local procedure ImportViaXMLPort(var DataExchDef: Record "Data Exch. Def")
@@ -653,7 +653,7 @@ codeunit 132543 "Data Exch. Def UT"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"Imp / Exp Data Exch Def & Map", OutStream, DataExchDef);
-        ExportFile.Close;
+        ExportFile.Close();
 
         // Verify that element in XML file with <LineType> tag of Header.
         LibraryXMLRead.Initialize(FileManagement.DownloadTempFile(ServerFileName));

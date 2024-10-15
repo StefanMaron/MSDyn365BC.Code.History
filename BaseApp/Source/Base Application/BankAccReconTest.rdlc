@@ -1183,7 +1183,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY.Value</Value>
+                                  <Value>=Fields!Bank_Acc__Reconciliation___TotalBalOnGLAccountLCY.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccountLCYFormat.Value</Format>
@@ -1437,7 +1437,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccount.Value</Value>
+                                  <Value>=Fields!Bank_Acc__Reconciliation___TotalBalOnGLAccount.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccountFormat.Value</Format>
@@ -1646,14 +1646,14 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox4">
+                        <Textbox Name="G_L_BalanceCaption2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!Bank_Acc_BalanceCaption.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1665,7 +1665,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox4</rd:DefaultName>
+                          <rd:DefaultName>G_L_BalanceCaption</rd:DefaultName>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
@@ -1681,27 +1681,25 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox14">
+                        <Textbox Name="Bank_Acc__Reconciliation___TotalBalOnBankAccount2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccount.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!Bank_Acc__Reconciliation___TotalBalOnBankAccountFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox14</rd:DefaultName>
+                          <rd:DefaultName>Bank_Acc__Reconciliation___TotalBalOnBankAccount</rd:DefaultName>
                           <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
@@ -1904,13 +1902,14 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Difference_Caption2">
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Difference_Caption.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1922,8 +1921,7 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Difference_Caption</rd:DefaultName>
-                          <ZIndex>96</ZIndex>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -1942,24 +1940,23 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Difference2">
+                        <Textbox Name="Textbox16">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Sum_Of_Differences.Value</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Sum_Of_DifferencesFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Sum_Of_Differences</rd:DefaultName>
-                          <ZIndex>94</ZIndex>
+                          <rd:DefaultName>Textbox16</rd:DefaultName>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
@@ -2157,14 +2154,13 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox73">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="Difference_Caption3">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!Difference_Caption.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2176,8 +2172,12 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox73</rd:DefaultName>
+                          <rd:DefaultName>Difference_Caption</rd:DefaultName>
+                          <ZIndex>96</ZIndex>
                           <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
@@ -2192,23 +2192,24 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox85">
-                          <CanGrow>true</CanGrow>
+                        <Textbox Name="Difference3">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!Sum_Of_Differences.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!Sum_Of_DifferencesFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox85</rd:DefaultName>
+                          <rd:DefaultName>Sum_Of_Differences</rd:DefaultName>
+                          <ZIndex>94</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
@@ -2435,7 +2436,6 @@
                           </Style>
                         </Textbox>
                         <ColSpan>3</ColSpan>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />
@@ -2994,6 +2994,169 @@
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox116</rd:DefaultName>
+                          <ZIndex>63</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.423cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox34b">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!Warning.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>67</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox103b">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!HeaderError3.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox103b</rd:DefaultName>
+                          <ActionInfo>
+                            <Actions>
+                              <Action>
+                                <Hyperlink>=Fields!DirectPostingURLLink.Value</Hyperlink>
+                              </Action>
+                            </Actions>
+                          </ActionInfo>
+                          <ZIndex>66</ZIndex>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>8</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox114b">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox114b</rd:DefaultName>
+                          <ZIndex>65</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox115b">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox115b</rd:DefaultName>
+                          <ZIndex>64</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox116b">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox116b</rd:DefaultName>
                           <ZIndex>63</ZIndex>
                           <Style>
                             <VerticalAlign>Middle</VerticalAlign>
@@ -8830,6 +8993,13 @@
                       <KeepTogether>true</KeepTogether>
                     </TablixMember>
                     <TablixMember>
+                      <Visibility>
+                        <Hidden>= IIF (Fields!HeaderError3.Value = "",True,False)</Hidden>
+                      </Visibility>
+                      <KeepWithGroup>After</KeepWithGroup>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
                       <Group Name="Table1_Group2">
                         <GroupExpressions>
                           <GroupExpression>=Fields!ErrorLabel.Value</GroupExpression>
@@ -8846,11 +9016,7 @@
                             <DataElementName>Detail</DataElementName>
                           </Group>
                           <TablixMembers>
-                            <TablixMember>
-                              <Visibility>
-                                <Hidden>= IIF(Fields!Bank_Acc__Reconciliation_Line_Type.Value = "",True,False)</Hidden>
-                              </Visibility>
-                            </TablixMember>
+                            <TablixMember></TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>= IIF (Fields!ErrorText_Number__Control97.Value = "", True,False)</Hidden>
@@ -8967,7 +9133,7 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Top>0.423cm</Top>
-            <Height>13.75992cm</Height>
+            <Height>14.75992cm</Height>
             <Width>18.23783cm</Width>
             <Style />
           </Tablix>
@@ -9245,6 +9411,17 @@
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="Warning">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Warning</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Warning</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -9352,6 +9529,18 @@ End Function
         <Field Name="Bank_Acc__Reconciliation___TotalBalOnBankAccountLCYFormat">
           <DataField>Bank_Acc__Reconciliation___TotalBalOnBankAccountLCYFormat</DataField>
         </Field>
+        <Field Name="Bank_Acc__Reconciliation___TotalBalOnGLAccount">
+          <DataField>Bank_Acc__Reconciliation___TotalBalOnGLAccount</DataField>
+        </Field>
+        <Field Name="Bank_Acc__Reconciliation___TotalBalOnGLAccountFormat">
+          <DataField>Bank_Acc__Reconciliation___TotalBalOnGLAccountFormat</DataField>
+        </Field>
+        <Field Name="Bank_Acc__Reconciliation___TotalBalOnGLAccountLCY">
+          <DataField>Bank_Acc__Reconciliation___TotalBalOnGLAccountLCY</DataField>
+        </Field>
+        <Field Name="Bank_Acc__Reconciliation___TotalBalOnGLAccountLCYFormat">
+          <DataField>Bank_Acc__Reconciliation___TotalBalOnGLAccountLCYFormat</DataField>
+        </Field>
         <Field Name="Bank_Acc__Reconciliation___TotalOutstdBankTransactions">
           <DataField>Bank_Acc__Reconciliation___TotalOutstdBankTransactions</DataField>
         </Field>
@@ -9373,6 +9562,12 @@ End Function
         <Field Name="HeaderError2">
           <DataField>HeaderError2</DataField>
         </Field>
+        <Field Name="HeaderError3">
+          <DataField>HeaderError3</DataField>
+        </Field>
+        <Field Name="DirectPostingURLLink">
+          <DataField>DirectPostingURLLink</DataField>
+        </Field>
         <Field Name="Bank_Account_Statement___TestCaption">
           <DataField>Bank_Account_Statement___TestCaption</DataField>
         </Field>
@@ -9393,6 +9588,9 @@ End Function
         </Field>
         <Field Name="G_L_Balance_LCYCaption">
           <DataField>G_L_Balance_LCYCaption</DataField>
+        </Field>
+        <Field Name="Bank_Acc_BalanceCaption">
+          <DataField>Bank_Acc_BalanceCaption</DataField>
         </Field>
         <Field Name="Ending_G_L_BalanceCaption">
           <DataField>Ending_G_L_BalanceCaption</DataField>

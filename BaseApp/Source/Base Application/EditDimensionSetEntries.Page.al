@@ -13,13 +13,13 @@ page 480 "Edit Dimension Set Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = "Dimension Value Code" = '';
                     ToolTip = 'Specifies the dimension.';
                 }
-                field("Dimension Name"; "Dimension Name")
+                field("Dimension Name"; Rec."Dimension Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
@@ -30,7 +30,7 @@ page 480 "Edit Dimension Set Entries"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';
                 }
-                field("Dimension Value Name"; "Dimension Value Name")
+                field("Dimension Value Name"; Rec."Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Value Code field.';

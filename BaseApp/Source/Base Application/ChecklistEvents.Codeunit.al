@@ -52,7 +52,9 @@ codeunit 1997 "Checklist Events"
 
         Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 1000, TempAllProfileBusinessManagerEval, true);
         Checklist.Insert(Page::"Customer List", SpotlightTourType::"Open in Excel", 2000, TempAllProfileBusinessManagerEval, true);
+
         Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
+
         Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfileBusinessManagerEval, true);
         if not TenantLicenseState.IsPaidMode() then
             Checklist.Insert(enum::"Guided Experience Type"::Learn, ReadyToGoLinkTxt, 9000, TempAllProfileBusinessManagerEval, true);

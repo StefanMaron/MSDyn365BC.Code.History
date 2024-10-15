@@ -17,9 +17,10 @@ codeunit 134313 "Workflow Designer Page Tests"
         NextStepTxt: Label '<(Optional) Select Next Step>';
         DueDateFormulaErr: Label 'Due Date Formula must be a positive value.';
         LibraryRandom: Codeunit "Library - Random";
+        ResponseDeletedLbl: Label 'Response are Deleted.';
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandler')]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventInNewWorkflow()
     var
@@ -73,7 +74,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandler')]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventInExistingWorkflowAtTheEnd()
     var
@@ -107,7 +108,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowPage.WorkflowSubpage.Last;
         WorkflowPage.WorkflowSubpage."Event Description".Lookup;
         // Lookup handlerselects WorkflowEvent.Description
-        WorkflowPage.Close;
+        WorkflowPage.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -144,7 +145,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Exercise
         CreateAnyEvent(WorkflowEvent);
         WorkflowPage.WorkflowSubpage."Event Description".SetValue(WorkflowEvent.Description);
-        WorkflowPage.Close;
+        WorkflowPage.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -153,7 +154,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandlerLookupValidation')]
+    [HandlerFunctions('WhenModalPageHandlerLookupValidation,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventByTypingPartOfValue()
     var
@@ -187,7 +188,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
         WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
-        WorkflowPage.Close;
+        WorkflowPage.Close();
     end;
 
     [Test]
@@ -234,7 +235,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandlerCombinationValidationPartialValue')]
+    [HandlerFunctions('WhenModalPageHandlerCombinationValidationPartialValue,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEventEventSupportedCombinationOnTypingPartOfValue()
     var
@@ -273,7 +274,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowPage.WorkflowSubpage."Event Description".SetValue(CopyStr(RootWorkflowEvent.Description, 8, 8));
 
         LibraryVariableStorage.Enqueue(WorkflowEvent1.Description);
-        WorkflowPage.WorkflowSubpage.Next;
+        WorkflowPage.WorkflowSubpage.Next();
         WorkflowPage.WorkflowSubpage."Event Description".SetValue(CopyStr(WorkflowEvent1.Description, 8, 8));
 
         LibraryVariableStorage.Enqueue(WorkflowEvent2.Description);
@@ -350,7 +351,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Event Handler will set values
 
         // Verify
-        WorkflowStep.Find;
+        WorkflowStep.Find();
         WorkflowPage.WorkflowSubpage.Condition.AssertEquals(WorkflowStep.GetConditionAsDisplayText);
     end;
 
@@ -389,7 +390,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStepResponses.ResponseDescriptionCardControl.AssertEquals(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
     end;
 
     [Test]
@@ -422,7 +423,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Exercise
         WorkflowStepResponses.ResponseDescriptionCardControl.SetValue('');
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -460,7 +461,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Exercise
         CreateAnyResponse(WorkflowResponse);
         WorkflowStepResponses.ResponseDescriptionCardControl.SetValue(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -498,7 +499,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         CreateAnyResponse(WorkflowResponse);
         WorkflowStepResponses.ResponseDescriptionCardControl.SetValue(WorkflowResponse.Description);
         WorkflowStepResponses.ResponseDescriptionCardControl.SetValue(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -545,7 +546,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
         WorkflowStepResponses.ResponseDescriptionCardControl.AssertEquals(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
     end;
 
     [Test]
@@ -577,7 +578,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Exercise
         CreateAnyResponse(WorkflowResponse);
         WorkflowStepResponses.ResponseDescriptionTableControl.SetValue(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -623,7 +624,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
         WorkflowStepResponses.ResponseDescriptionTableControl.AssertEquals(WorkflowResponse.Description);
-        WorkflowStepResponses.Close;
+        WorkflowStepResponses.Close();
     end;
 
     [Test]
@@ -661,7 +662,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Verify
         WorkflowStepResponses.First;
         WorkflowStepResponses.NextStepDescription.AssertEquals('');
-        WorkflowStepResponses.Next;
+        WorkflowStepResponses.Next();
         WorkflowStepResponses.NextStepDescription.AssertEquals(NextStepTxt);
     end;
 
@@ -685,7 +686,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         Initialize();
 
         // Setup.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
         WorkflowStep.FindFirst();
@@ -752,6 +753,103 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowStepResponses.ResponseDescriptionCardControl.Lookup;
 
         // Verify: in handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestResponseIsDeletedWhenDescriptionChanged()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEvent: Record "Workflow Event";
+        WorkflowPage: TestPage Workflow;
+    begin
+        // [SCENARIO 431848] When Event is changed and response of old When event has been deleted
+
+        Initialize();
+        SetApplicationArea;
+
+        // [GIVEN] Create Workflow
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        WorkflowPage.OpenEdit;
+        WorkflowPage.GotoKey(Workflow.Code);
+
+        // [THEN] Create event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+
+        // [VERIFY] Event created
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.FindFirst();
+
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowStep.TestField("Previous Workflow Step ID", 0);
+        WorkflowStep.TestField("Entry Point", false);
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+
+        // [THEN] Change event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+
+        WorkflowPage.WorkflowSubpage.First;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Event changed, Response Deleted
+        WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Response Description".AssertEquals(SelectResponseTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure TestResponseIsNotDeletedWhenDescriptionNotChanged()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEvent: Record "Workflow Event";
+        WorkflowPage: TestPage Workflow;
+        ResponseTxtBefore: Text;
+        ResponseTxtAfter: Text;
+    begin
+        // [SCENARIO 431818] When Event is not change and Response will not be deleted
+        Initialize();
+        SetApplicationArea;
+
+        // [GIEVN] Create Workflow
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        WorkflowPage.OpenEdit;
+        WorkflowPage.GotoKey(Workflow.Code);
+
+        // [THEN] Create event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Event created
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.FindFirst();
+
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowStep.TestField("Previous Workflow Step ID", 0);
+        WorkflowStep.TestField("Entry Point", false);
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+        ResponseTxtBefore := WorkflowPage.WorkflowSubpage."Response Description".Value;
+
+        // [THEN ] Try to Change event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage.First;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Verify Event Not changed
+        WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
+        ResponseTxtAfter := WorkflowPage.WorkflowSubpage."Response Description".Value;
+        Assert.AreEqual(ResponseTxtBefore, ResponseTxtAfter, ResponseDeletedLbl);
     end;
 
     local procedure Initialize()
@@ -884,6 +982,20 @@ codeunit 134313 "Workflow Designer Page Tests"
     procedure ThenModalPageHandlerOK(var WorkflowStepResponses: TestPage "Workflow Step Responses")
     begin
         WorkflowStepResponses.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UIConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UIConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     local procedure CreateAnyEventWorkflowStep(var WorkflowStep: Record "Workflow Step"; Workflow: Record Workflow; PreviousStepID: Integer)

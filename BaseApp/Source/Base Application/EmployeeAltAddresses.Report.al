@@ -15,7 +15,7 @@ report 5213 "Employee - Alt. Addresses"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_TABLECAPTION__________EmployeeFilter; TableCaption + ': ' + EmployeeFilter)
@@ -27,7 +27,7 @@ report 5213 "Employee - Alt. Addresses"
             column(Employee__No__; "No.")
             {
             }
-            column(FullName; FullName)
+            column(FullName; FullName())
             {
             }
             column(AlternativeAddr_Address; AlternativeAddr.Address)
@@ -90,7 +90,7 @@ report 5213 "Employee - Alt. Addresses"
 
     trigger OnPreReport()
     begin
-        EmployeeFilter := Employee.GetFilters;
+        EmployeeFilter := Employee.GetFilters();
     end;
 
     var

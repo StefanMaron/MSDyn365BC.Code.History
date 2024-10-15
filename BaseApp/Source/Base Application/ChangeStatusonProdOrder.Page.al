@@ -82,7 +82,7 @@ page 99000882 "Change Status on Prod. Order"
         else
             ProdOrderStatus.Status := ProdOrderStatus.Status::"Firm Planned";
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         OnAfterSet(ProdOrder, PostingDate, ReqUpdUnitCost);
     end;

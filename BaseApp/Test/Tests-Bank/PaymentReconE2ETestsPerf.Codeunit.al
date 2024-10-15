@@ -36,6 +36,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     var
         GlobalCustLedgEntry: Record "Cust. Ledger Entry";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
@@ -45,6 +46,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GlobalPmtReconJnl: TestPage "Payment Reconciliation Journal";
         Initialized: Boolean;
+        OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
 
     [Test]
     [HandlerFunctions('MsgHandler,ConfirmHandler,PmtApplnToCustHandler,PostAndReconcilePageHandler')]
@@ -61,7 +63,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         ToManuallyApply: array[4] of Integer;
         ToPost: array[4] of Integer;
     begin
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         CustLedgEntry.ModifyAll(Open, false);
         VendLedgEntry.ModifyAll(Open, false);
@@ -207,7 +209,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
             GlobalPmtReconJnl := PmtReconJnl;
             GlobalPmtReconJnl.ApplyEntries.Invoke;
             PmtReconJnl := GlobalPmtReconJnl;
-            PmtReconJnl.Next;
+            PmtReconJnl.Next();
         end;
     end;
 
@@ -283,13 +285,13 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         repeat
             PmtReconJnl."Statement Amount".AssertEquals(PmtReconJnl."Applied Amount".AsDEcimal);
             PmtReconJnl.Difference.AssertEquals(0);
-        until not PmtReconJnl.Next;
+        until not PmtReconJnl.Next();
 
         BankAccReconLine.LinesExist(BankAccRecon);
         repeat
             AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
             Assert.AreEqual(AppliedPmtEntry.Count, BankAccReconLine."Applied Entries", 'Checkiing the Applied Entries field on Tab273');
-        until BankAccReconLine.Next = 0;
+        until BankAccReconLine.Next() = 0;
     end;
 
     local procedure VerifyCustLedgEntry(CustNo: Code[20])
@@ -310,7 +312,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
-        until BankAccLedgEntry.Next = 0;
+        until BankAccLedgEntry.Next() = 0;
 
         Assert.AreEqual(ExpAmt, TotalAmt, '')
     end;
@@ -371,7 +373,10 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Reply := true;
+        if (Question.Contains(OpenBankStatementPageQst)) then
+            Reply := false
+        else
+            Reply := true;
     end;
 
     [ModalPageHandler]

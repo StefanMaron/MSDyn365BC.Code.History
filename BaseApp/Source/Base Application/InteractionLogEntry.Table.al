@@ -307,7 +307,7 @@ table 5065 "Interaction Log Entry"
         InteractionCommentLine.DeleteAll();
 
         CampaignMgt.DeleteContfromTargetGr(Rec);
-        if UniqueAttachment then
+        if UniqueAttachment() then
             if Attachment.Get("Attachment No.") then
                 Attachment.RemoveAttachment(false);
     end;
@@ -336,13 +336,13 @@ table 5065 "Interaction Log Entry"
         TestField("Opportunity No.", '');
         if "Contact No." <> '' then
             if Contact.Get("Contact No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         Opportunity.CreateFromInteractionLogEntry(Rec);
         "Opportunity No." := Opportunity."No.";
-        Modify;
+        Modify();
     end;
 
     procedure CanCreateOpportunity(): Boolean
@@ -397,10 +397,10 @@ table 5065 "Interaction Log Entry"
     begin
         if "Contact No." <> '' then
             if Contact.Get("Contact No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         TempSegLine.CreateInteractionFromInteractLogEntry(Rec);
     end;
 
@@ -411,10 +411,10 @@ table 5065 "Interaction Log Entry"
     begin
         if "Contact No." <> '' then
             if Contact.Get("Contact No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         TempTask.CreateTaskFromInteractLogEntry(Rec)
     end;
 
@@ -453,7 +453,7 @@ table 5065 "Interaction Log Entry"
             Attachment.ShowAttachment(SegLine, Format("Entry No.") + ' ' + Description);
         end else begin
             Attachment.CalcFields("Email Message Url");
-            if Attachment."Email Message Url".HasValue then begin
+            if Attachment."Email Message Url".HasValue() then begin
                 Attachment."Email Message Url".CreateInStream(IStream);
                 IStream.Read(EmailMessageUrl);
                 if WebRequestHelper.IsHttpUrl(EmailMessageUrl) then begin
@@ -462,7 +462,7 @@ table 5065 "Interaction Log Entry"
                     exit;
                 end;
             end;
-            Attachment.DisplayInOutlook;
+            Attachment.DisplayInOutlook();
         end;
 
         OnAfterOpenAttachment(Rec, Attachment, SegLine);
@@ -475,18 +475,17 @@ table 5065 "Interaction Log Entry"
         MasterCanceledCheckmark: Boolean;
         RemoveUniqueAttachment: Boolean;
     begin
-        if Find('-') then begin
+        if Find('-') then
             if ConfirmToggleCanceledCheckmark(Count, ErrorTxt) then begin
                 MasterCanceledCheckmark := not Canceled;
-                if FindUniqueAttachment and MasterCanceledCheckmark then
+                if FindUniqueAttachment() and MasterCanceledCheckmark then
                     RemoveUniqueAttachment := Confirm(ErrorTxt, false);
                 SetCurrentKey("Entry No.");
                 if Find('-') then
                     repeat
                         SetCanceledCheckmark(MasterCanceledCheckmark, RemoveUniqueAttachment);
-                    until Next() = 0
+                    until Next() = 0;
             end;
-        end
     end;
 
     [Scope('OnPrem')]
@@ -513,14 +512,14 @@ table 5065 "Interaction Log Entry"
         end;
 
         if not Canceled and CanceledCheckmark then
-            if UniqueAttachment and RemoveUniqueAttachment then begin
+            if UniqueAttachment() and RemoveUniqueAttachment then begin
                 if Attachment.Get("Attachment No.") then
                     Attachment.RemoveAttachment(false);
                 "Attachment No." := 0;
             end;
 
         Canceled := CanceledCheckmark;
-        Modify;
+        Modify();
     end;
 
     local procedure ConfirmToggleCanceledCheckmark(NumberOfSelectedLines: Integer; var ErrorTxt: Text[80]): Boolean
@@ -530,10 +529,10 @@ table 5065 "Interaction Log Entry"
             if Canceled then
                 exit(Confirm(
                     Text000 +
-                    Text001, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+                    Text001, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
 
             exit(Confirm(
-                Text002, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+                Text002, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
         end;
         ErrorTxt := Text010;
         if Canceled then
@@ -541,7 +540,7 @@ table 5065 "Interaction Log Entry"
                 Text005, true, TableCaption));
 
         exit(Confirm(
-            Text006, true, TableCaption, FieldCaption(Canceled)));
+            Text006, true, TableCaption(), FieldCaption(Canceled)));
     end;
 
     procedure UniqueAttachment() IsUnique: Boolean
@@ -560,7 +559,7 @@ table 5065 "Interaction Log Entry"
     begin
         if Find('-') then
             repeat
-                IsUnique := UniqueAttachment;
+                IsUnique := UniqueAttachment();
             until (Next() = 0) or IsUnique
     end;
 
@@ -780,7 +779,7 @@ table 5065 "Interaction Log Entry"
         TempSegLine: Record "Segment Line" temporary;
     begin
         TempSegLine.CopyFromInteractLogEntry(Rec);
-        TempSegLine.Validate(Date, WorkDate);
+        TempSegLine.Validate(Date, WorkDate());
 
         if TempSegLine."To-do No." <> '' then
             TempSegLine.SetRange("To-do No.", TempSegLine."To-do No.");
@@ -801,7 +800,7 @@ table 5065 "Interaction Log Entry"
             TempSegLine.SetRange("Opportunity No.", TempSegLine."Opportunity No.");
 
         OnResumeInteractionOnBeforeStartWizard(Rec, TempSegLine);
-        TempSegLine.StartWizard;
+        TempSegLine.StartWizard();
     end;
 
     procedure GetEntryTitle() EntryTitle: Text

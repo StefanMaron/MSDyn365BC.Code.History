@@ -1,4 +1,4 @@
-﻿codeunit 5600 "FA Insert Ledger Entry"
+codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
                   TableData "FA Depreciation Book" = rim,
@@ -11,9 +11,6 @@
     end;
 
     var
-        Text000: Label '%2 = %3 does not exist for %1.';
-        Text001: Label '%2 = %3 does not match the journal line for %1.';
-        Text002: Label '%1 is a %2. %3 must be %4 in %5.';
         FASetup: Record "FA Setup";
         FAPostingTypeSetup: Record "FA Posting Type Setup";
         DeprBook: Record "Depreciation Book";
@@ -23,9 +20,9 @@
         FA2: Record "Fixed Asset";
         FALedgEntry: Record "FA Ledger Entry";
         FALedgEntry2: Record "FA Ledger Entry";
-        TmpFALedgEntry: Record "FA Ledger Entry" temporary;
+        TempFALedgEntry: Record "FA Ledger Entry" temporary;
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
-        TmpMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
+        TempMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
         FAReg: Record "FA Register";
         FAJnlLine: Record "FA Journal Line";
 #if not CLEAN20
@@ -37,14 +34,18 @@
         ErrorEntryNo: Integer;
         NextEntryNo: Integer;
         NextMaintenanceEntryNo: Integer;
+        RegisterInserted: Boolean;
+        LastEntryNo: Integer;
+        GLRegisterNo: Integer;
+
+        Text000: Label '%2 = %3 does not exist for %1.';
+        Text001: Label '%2 = %3 does not match the journal line for %1.';
+        Text002: Label '%1 is a %2. %3 must be %4 in %5.';
         Text003: Label '%1 must not be %2 in %3 %4.';
         Text004: Label 'Reversal found a %1 without a matching %2.';
-        RegisterInserted: Boolean;
         Text005: Label 'You cannot reverse the transaction, because it has already been reversed.';
         Text006: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
-        LastEntryNo: Integer;
         Text007: Label '%1 = %2 already exists for %5 (%3 = %4).';
-        GLRegisterNo: Integer;
 
     procedure InsertFA(var FALedgEntry3: Record "FA Ledger Entry")
     var
@@ -67,7 +68,7 @@
         DeprBook.Get(FALedgEntry."Depreciation Book Code");
         FA.Get(FALedgEntry."FA No.");
         DeprBookCode := FALedgEntry."Depreciation Book Code";
-        CheckMainAsset;
+        CheckMainAsset();
         ErrorEntryNo := FALedgEntry."Entry No.";
         FALedgEntry."Entry No." := NextEntryNo;
         SetFAPostingType(FALedgEntry);
@@ -88,7 +89,6 @@
             CheckFADocNo(FALedgEntry);
         FALedgEntry.Insert(true);
         FeatureTelemetry.LogUsage('0000H4F', 'Fixed Asset', 'Insert FA Ledger Entry');
-
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
                 Error(
@@ -147,7 +147,7 @@
             DeprBook.Get("Depreciation Book Code");
             OnInsertMaintenanceOnAfterDeprBookGet(DeprBook);
             FA.Get("FA No.");
-            CheckMainAsset;
+            CheckMainAsset();
             "Entry No." := NextMaintenanceEntryNo;
             if "Automatic Entry" then
                 FAAutomaticEntry.AdjustMaintenanceLedgEntry(MaintenanceLedgEntry);
@@ -184,51 +184,45 @@
         end;
     end;
 
-    local procedure SetFAPostingType(var FALedgEntry: Record "FA Ledger Entry")
+    local procedure SetFAPostingType(var FALedgerEntry: Record "FA Ledger Entry")
     begin
-        with FALedgEntry do begin
-            UpdateDebitCredit(FALedgEntry);
-            "Part of Book Value" := false;
-            "Part of Depreciable Basis" := false;
-            if "FA Posting Category" <> "FA Posting Category"::" " then
-                exit;
-            case "FA Posting Type" of
-                "FA Posting Type"::"Write-Down":
-                    FAPostingTypeSetup.Get(
-                      DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Write-Down");
-                "FA Posting Type"::Appreciation:
-                    FAPostingTypeSetup.Get(
-                      DeprBookCode, FAPostingTypeSetup."FA Posting Type"::Appreciation);
-                "FA Posting Type"::"Custom 1":
-                    FAPostingTypeSetup.Get(
-                      DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 1");
-                "FA Posting Type"::"Custom 2":
-                    FAPostingTypeSetup.Get(
-                      DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 2");
+        UpdateDebitCredit(FALedgEntry);
+        FALedgerEntry."Part of Book Value" := false;
+        FALedgerEntry."Part of Depreciable Basis" := false;
+        if FALedgerEntry."FA Posting Category" = FALedgerEntry."FA Posting Category"::" " then begin
+            case FALedgerEntry."FA Posting Type" of
+                "FA Ledger Entry FA Posting Type"::"Write-Down":
+                    FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Write-Down");
+                "FA Ledger Entry FA Posting Type"::Appreciation:
+                    FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::Appreciation);
+                "FA Ledger Entry FA Posting Type"::"Custom 1":
+                    FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 1");
+                "FA Ledger Entry FA Posting Type"::"Custom 2":
+                    FAPostingTypeSetup.Get(DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 2");
             end;
-            case "FA Posting Type" of
-                "FA Posting Type"::"Acquisition Cost",
-              "FA Posting Type"::"Salvage Value":
-                    "Part of Depreciable Basis" := true;
-                "FA Posting Type"::"Write-Down",
-              "FA Posting Type"::Appreciation,
-              "FA Posting Type"::"Custom 1",
-              "FA Posting Type"::"Custom 2":
-                    "Part of Depreciable Basis" := FAPostingTypeSetup."Part of Depreciable Basis";
+            case FALedgerEntry."FA Posting Type" of
+                "FA Ledger Entry FA Posting Type"::"Acquisition Cost",
+                "FA Ledger Entry FA Posting Type"::"Salvage Value":
+                    FALedgerEntry."Part of Depreciable Basis" := true;
+                "FA Ledger Entry FA Posting Type"::"Write-Down",
+                "FA Ledger Entry FA Posting Type"::Appreciation,
+                "FA Ledger Entry FA Posting Type"::"Custom 1",
+                "FA Ledger Entry FA Posting Type"::"Custom 2":
+                    FALedgerEntry."Part of Depreciable Basis" := FAPostingTypeSetup."Part of Depreciable Basis";
             end;
-            case "FA Posting Type" of
-                "FA Posting Type"::"Acquisition Cost",
-              "FA Posting Type"::Depreciation:
-                    "Part of Book Value" := true;
-                "FA Posting Type"::"Write-Down",
-              "FA Posting Type"::Appreciation,
-              "FA Posting Type"::"Custom 1",
-              "FA Posting Type"::"Custom 2":
-                    "Part of Book Value" := FAPostingTypeSetup."Part of Book Value";
+            case FALedgerEntry."FA Posting Type" of
+                "FA Ledger Entry FA Posting Type"::"Acquisition Cost",
+                "FA Ledger Entry FA Posting Type"::Depreciation:
+                    FALedgerEntry."Part of Book Value" := true;
+                "FA Ledger Entry FA Posting Type"::"Write-Down",
+                "FA Ledger Entry FA Posting Type"::Appreciation,
+                "FA Ledger Entry FA Posting Type"::"Custom 1",
+                "FA Ledger Entry FA Posting Type"::"Custom 2":
+                    FALedgerEntry."Part of Book Value" := FAPostingTypeSetup."Part of Book Value";
             end;
         end;
 
-        OnAfterSetFAPostingType(FALedgEntry, FAPostingTypeSetup);
+        OnAfterSetFAPostingType(FALedgerEntry, FAPostingTypeSetup);
     end;
 
     local procedure GetExchangeRate(ExchangeRate: Decimal): Decimal
@@ -280,7 +274,7 @@
 
     procedure DeleteAllGLAcc()
     begin
-        FAInsertGLAcc.DeleteAllGLAcc;
+        FAInsertGLAcc.DeleteAllGLAcc();
     end;
 
     local procedure CheckMainAsset()
@@ -289,7 +283,7 @@
             FADeprBook2.Get(FA."Component of Main Asset", DeprBook.Code);
 
         with FASetup do begin
-            Get;
+            Get();
             if "Allow Posting to Main Assets" then
                 exit;
             FA2."Main Asset/Component" := FA2."Main Asset/Component"::"Main Asset";
@@ -314,7 +308,7 @@
                 exit;
             "No." := GetLastEntryNo() + 1;
 
-            Init;
+            Init();
             if GLEntryNo = 0 then
                 "Journal Type" := "Journal Type"::"Fixed Asset";
             "Creation Date" := Today;
@@ -387,7 +381,7 @@
 
     procedure CorrectEntries()
     begin
-        FAInsertGLAcc.CorrectEntries;
+        FAInsertGLAcc.CorrectEntries();
     end;
 
     procedure InsertReverseEntry(NewGLEntryNo: Integer; FAEntryType: Option " ","Fixed Asset",Maintenance; FAEntryNo: Integer; var NewFAEntryNo: Integer; TransactionNo: Integer)
@@ -408,17 +402,17 @@
                   Text003,
                   FALedgEntry3.FieldCaption("FA Posting Type"),
                   FALedgEntry3."FA Posting Type",
-                  FALedgEntry.TableCaption, FALedgEntry3."Entry No.");
+                  FALedgEntry.TableCaption(), FALedgEntry3."Entry No.");
             if FALedgEntry3."FA Posting Type" <> FALedgEntry3."FA Posting Type"::"Salvage Value" then begin
                 if not DimMgt.CheckDimIDComb(FALedgEntry3."Dimension Set ID") then
-                    Error(Text006, FALedgEntry3.TableCaption, FALedgEntry3."Entry No.", DimMgt.GetDimCombErr);
+                    Error(Text006, FALedgEntry3.TableCaption(), FALedgEntry3."Entry No.", DimMgt.GetDimCombErr());
                 Clear(TableID);
                 Clear(AccNo);
                 TableID[1] := DATABASE::"Fixed Asset";
                 AccNo[1] := FALedgEntry3."FA No.";
                 OnInsertReverseEntryOnNonSalvageValueFAPostingTypeOnBeforeCheckDimValuePosting(TableID, AccNo, FALedgEntry3);
                 if not DimMgt.CheckDimValuePosting(TableID, AccNo, FALedgEntry3."Dimension Set ID") then
-                    Error(DimMgt.GetDimValuePostingErr);
+                    Error(DimMgt.GetDimValuePostingErr());
                 if NextEntryNo = 0 then begin
                     FALedgEntry.LockTable();
                     NextEntryNo := FALedgEntry.GetLastEntryNo();
@@ -428,8 +422,8 @@
                 end;
                 NextEntryNo := NextEntryNo + 1;
                 NewFAEntryNo := NextEntryNo;
-                TmpFALedgEntry := FALedgEntry3;
-                TmpFALedgEntry.Insert();
+                TempFALedgEntry := FALedgEntry3;
+                TempFALedgEntry.Insert();
                 SetFAReversalMark(FALedgEntry3, NextEntryNo);
                 FALedgEntry3."Entry No." := NextEntryNo;
                 FALedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -466,16 +460,16 @@
             MaintenanceLedgEntry3.Get(FAEntryNo);
 
             if not DimMgt.CheckDimIDComb(MaintenanceLedgEntry3."Dimension Set ID") then
-                Error(Text006, MaintenanceLedgEntry3.TableCaption, MaintenanceLedgEntry3."Entry No.", DimMgt.GetDimCombErr);
+                Error(Text006, MaintenanceLedgEntry3.TableCaption(), MaintenanceLedgEntry3."Entry No.", DimMgt.GetDimCombErr());
             Clear(TableID);
             Clear(AccNo);
             TableID[1] := DATABASE::"Fixed Asset";
             AccNo[1] := MaintenanceLedgEntry3."FA No.";
             if not DimMgt.CheckDimValuePosting(TableID, AccNo, MaintenanceLedgEntry3."Dimension Set ID") then
-                Error(DimMgt.GetDimValuePostingErr);
+                Error(DimMgt.GetDimValuePostingErr());
 
-            TmpMaintenanceLedgEntry := MaintenanceLedgEntry3;
-            TmpMaintenanceLedgEntry.Insert();
+            TempMaintenanceLedgEntry := MaintenanceLedgEntry3;
+            TempMaintenanceLedgEntry.Insert();
             SetMaintReversalMark(MaintenanceLedgEntry3, NextMaintenanceEntryNo);
             MaintenanceLedgEntry3."Entry No." := NextMaintenanceEntryNo;
             MaintenanceLedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -501,30 +495,29 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        TmpFALedgEntry := FALedgEntry3;
-        if FALedgEntry3."FA Posting Type" <> FALedgEntry3."FA Posting Type"::"Salvage Value" then begin
-            if not TmpFALedgEntry.Delete then
-                Error(Text004, FALedgEntry.TableCaption, GLEntry.TableCaption);
-        end;
+        TempFALedgEntry := FALedgEntry3;
+        if FALedgEntry3."FA Posting Type" <> FALedgEntry3."FA Posting Type"::"Salvage Value" then
+            if not TempFALedgEntry.Delete() then
+                Error(Text004, FALedgEntry.TableCaption(), GLEntry.TableCaption());
     end;
 
     procedure CheckMaintReverseEntry(MaintenanceLedgEntry3: Record "Maintenance Ledger Entry")
     var
         GLEntry: Record "G/L Entry";
     begin
-        TmpMaintenanceLedgEntry := MaintenanceLedgEntry3;
-        if not TmpMaintenanceLedgEntry.Delete then
-            Error(Text004, MaintenanceLedgEntry.TableCaption, GLEntry.TableCaption);
+        TempMaintenanceLedgEntry := MaintenanceLedgEntry3;
+        if not TempMaintenanceLedgEntry.Delete() then
+            Error(Text004, MaintenanceLedgEntry.TableCaption(), GLEntry.TableCaption());
     end;
 
     procedure FinishFAReverseEntry(GLReg: Record "G/L Register")
     var
         GLEntry: Record "G/L Entry";
     begin
-        if TmpFALedgEntry.FindFirst() then
-            Error(Text004, FALedgEntry.TableCaption, GLEntry.TableCaption);
-        if TmpMaintenanceLedgEntry.FindFirst() then
-            Error(Text004, MaintenanceLedgEntry.TableCaption, GLEntry.TableCaption);
+        if TempFALedgEntry.FindFirst() then
+            Error(Text004, FALedgEntry.TableCaption(), GLEntry.TableCaption());
+        if TempMaintenanceLedgEntry.FindFirst() then
+            Error(Text004, MaintenanceLedgEntry.TableCaption(), GLEntry.TableCaption());
         if RegisterInserted then begin
             FAReg."G/L Register No." := GLReg."No.";
             FAReg.Modify();

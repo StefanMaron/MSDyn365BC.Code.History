@@ -265,11 +265,11 @@ codeunit 137027 "UT Cancellation"
     local procedure MockCancelledDocument(var CancelledDocument: Record "Cancelled Document"; SourceID: Integer; CancelledDocNo: Code[20]; CancelledByDocNo: Code[20])
     begin
         with CancelledDocument do begin
-            Init;
+            Init();
             "Source ID" := SourceID;
             "Cancelled Doc. No." := CancelledDocNo;
             "Cancelled By Doc. No." := CancelledByDocNo;
-            Insert;
+            Insert();
         end;
     end;
 

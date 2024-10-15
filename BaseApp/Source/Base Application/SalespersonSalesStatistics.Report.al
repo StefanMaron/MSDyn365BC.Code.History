@@ -16,7 +16,7 @@ report 114 "Salesperson - Sales Statistics"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Salesperson_Purchaser__TABLECAPTION__________SalespersonFilter; TableCaption + ': ' + SalespersonFilter)
@@ -83,7 +83,7 @@ report 114 "Salesperson - Sales Statistics"
                             AdjProfit += CustLedgEntry."Profit (LCY)"
                     until CustLedgEntry.Next() = 0
                 else
-                    CurrReport.Skip
+                    CurrReport.Skip();
             end;
         }
         dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
@@ -125,8 +125,8 @@ report 114 "Salesperson - Sales Statistics"
     trigger OnPreReport()
     begin
         "Cust. Ledger Entry".SecurityFiltering(SecurityFilter::Filtered);
-        SalespersonFilter := "Salesperson/Purchaser".GetFilters;
-        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters;
+        SalespersonFilter := "Salesperson/Purchaser".GetFilters();
+        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters();
         PeriodText := "Cust. Ledger Entry".GetFilter("Posting Date");
     end;
 

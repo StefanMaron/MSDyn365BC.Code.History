@@ -55,9 +55,9 @@ table 44 "Sales Comment Line"
         SalesCommentLine.SetRange("Document Type", "Document Type");
         SalesCommentLine.SetRange("No.", "No.");
         SalesCommentLine.SetRange("Document Line No.", "Document Line No.");
-        SalesCommentLine.SetRange(Date, WorkDate);
+        SalesCommentLine.SetRange(Date, WorkDate());
         if not SalesCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, SalesCommentLine);
     end;

@@ -50,7 +50,7 @@ codeunit 137050 "SCM Sales Order Management"
 
         // Verification: Verify Shipment Date, Planned Shipment Date, Planned Delivery Date.
         CalculatePlannedDate(PlannedShipmentDate, ExpectedDeliveryDate, SalesLine);
-        VerifySalesLine(SalesLine, WorkDate, PlannedShipmentDate, ExpectedDeliveryDate);
+        VerifySalesLine(SalesLine, WorkDate(), PlannedShipmentDate, ExpectedDeliveryDate);
     end;
 
     [Test]
@@ -404,10 +404,10 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine.Validate("Planned Delivery Date", WorkDate + 2);
 
         // [THEN] Planned Shipment Date = 15-01-2020
-        SalesLine.TestField("Planned Shipment Date", WorkDate);
+        SalesLine.TestField("Planned Shipment Date", WorkDate());
 
         // [THEN] Shipment Date = 15-01-2020
-        SalesLine.TestField("Shipment Date", WorkDate);
+        SalesLine.TestField("Shipment Date", WorkDate());
     end;
 
     [Test]
@@ -657,7 +657,7 @@ codeunit 137050 "SCM Sales Order Management"
     begin
         Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         Evaluate(OutboundWhseHandlingTime, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Validate("Outbound Whse. Handling Time", OutboundWhseHandlingTime);
@@ -678,7 +678,7 @@ codeunit 137050 "SCM Sales Order Management"
         RecRef: RecordRef;
     begin
         with SalesLine do begin
-            Init;
+            Init();
             Validate("Document Type", SalesHeader."Document Type");
             Validate("Document No.", SalesHeader."No.");
             RecRef.GetTable(SalesLine);
@@ -701,7 +701,7 @@ codeunit 137050 "SCM Sales Order Management"
         Evaluate(ShippingTime, '<0D>');
         OutboundHandlingDays := LibraryRandom.RandIntInRange(1, 3);
         Evaluate(OutboundWhseHandlingTime, '<' + Format(OutboundHandlingDays) + 'D>');
-        RequestedDeliveryDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(30, 50)) + 'D>', WorkDate);
+        RequestedDeliveryDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(30, 50)) + 'D>', WorkDate());
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
             Validate("Location Code", LocationCode);

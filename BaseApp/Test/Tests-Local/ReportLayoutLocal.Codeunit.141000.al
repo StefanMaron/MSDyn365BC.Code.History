@@ -27,7 +27,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHVATBalancingReport(var VATBalancingReport: TestRequestPage "VAT Balancing Report")
     begin
-        VATBalancingReport.Year.SetValue((Date2DWY(WorkDate, 3) - 1));
+        VATBalancingReport.Year.SetValue((Date2DWY(WorkDate(), 3) - 1));
         VATBalancingReport.SaveAsPdf(FormatFileName(VATBalancingReport.Caption));
     end;
 
@@ -38,7 +38,7 @@ codeunit 141000 "Report Layout - Local"
         Period1: Option Custom,"January-February","March-April","May-June","July-August","September-October","November-December";
     begin
         VATBalancing.Period.SetValue(Period1::"January-February");
-        VATBalancing.Year.SetValue((Date2DWY(WorkDate, 3) - 1));
+        VATBalancing.Year.SetValue((Date2DWY(WorkDate(), 3) - 1));
         VATBalancing.SaveAsPdf(FormatFileName(VATBalancing.Caption));
     end;
 

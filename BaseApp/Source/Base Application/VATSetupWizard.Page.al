@@ -183,7 +183,7 @@ page 1877 "VAT Setup Wizard"
         {
             action(ActionBack)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Back';
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
@@ -196,7 +196,7 @@ page 1877 "VAT Setup Wizard"
             }
             action(ActionNext)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next';
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
@@ -209,7 +209,7 @@ page 1877 "VAT Setup Wizard"
             }
             action(ActionFinish)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Finish';
                 Enabled = FinishActionEnabled;
                 Image = Approve;
@@ -218,9 +218,9 @@ page 1877 "VAT Setup Wizard"
                 trigger OnAction()
                 begin
                     if AutoVATSetupIsAllowed then
-                        FinishAction
+                        FinishAction()
                     else
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
         }
@@ -228,17 +228,17 @@ page 1877 "VAT Setup Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
-        AutoVATSetupIsAllowed := WizardIsAllowed;
+        AutoVATSetupIsAllowed := WizardIsAllowed();
         if not AutoVATSetupIsAllowed then
             Step := Step::Finish;
 
-        WizardNotification.Id := Format(CreateGuid);
-        EnableControls;
+        WizardNotification.Id := Format(CreateGuid());
+        EnableControls();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -246,7 +246,7 @@ page 1877 "VAT Setup Wizard"
         GuidedExperience: Codeunit "Guided Experience";
     begin
         if CloseAction = ACTION::OK then
-            if WizardIsAllowed and GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"VAT Setup Wizard") then
+            if WizardIsAllowed() and GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"VAT Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;
@@ -284,30 +284,30 @@ page 1877 "VAT Setup Wizard"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::VATBusPostingGroup:
-                ShowVATBusPostingGroup;
+                ShowVATBusPostingGroup();
             Step::VATProdPostingRates:
-                ShowProdRatesGroup;
+                ShowProdRatesGroup();
             Step::VATProdPostingAccounts:
-                ShowProdAccountGroup;
+                ShowProdAccountGroup();
             Step::VATProdPostingClauses:
-                ShowProdClausesGroup;
+                ShowProdClausesGroup();
             Step::CustomerTemplates:
-                ShowCustomerTemplatesStep;
+                ShowCustomerTemplatesStep();
             Step::VendorTemplates:
-                ShowVendorTemplatesStep;
+                ShowVendorTemplatesStep();
             Step::ItemTemplates:
-                ShowItemTemplatesStep;
+                ShowItemTemplatesStep();
             Step::Finish:
                 if AutoVATSetupIsAllowed then
-                    ShowFinishStep
+                    ShowFinishStep()
                 else
-                    ShowManualStep;
+                    ShowManualStep();
         end;
     end;
 
@@ -319,9 +319,9 @@ page 1877 "VAT Setup Wizard"
     begin
         if not AutoVATSetupIsAllowed then
             exit;
-        ClearVATProdPostingGrp;
-        ClearVATBusPostingGrp;
-        ClearVATSetup;
+        ClearVATProdPostingGrp();
+        ClearVATBusPostingGrp();
+        ClearVATSetup();
 
         VATAssistedSetupBusGrp.SetRange(Selected, true);
         VATAssistedSetupBusGrp.SetRange(Default, false);
@@ -340,28 +340,28 @@ page 1877 "VAT Setup Wizard"
                 until VATSetupPostingGroups.Next() = 0;
         until VATAssistedSetupBusGrp.Next() = 0;
 
-        CreatVATSetupWithoutBusPostingGrp;
+        CreatVATSetupWithoutBusPostingGrp();
 
-        UpdateTemplates;
+        UpdateTemplates();
 
-        ClearGenBusPostingGrpInvalidDefaults;
-        ClearGenProdPostingGrpInvalidDefaults;
+        ClearGenBusPostingGrpInvalidDefaults();
+        ClearGenProdPostingGrpInvalidDefaults();
 
         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"VAT Setup Wizard");
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
     begin
-        HideNotification;
+        HideNotification();
 
         if Backwards then
             Step := Step - 1
         else
-            if StepValidation then
+            if StepValidation() then
                 Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowManualStep()
@@ -388,28 +388,28 @@ page 1877 "VAT Setup Wizard"
     begin
         VATProdPostGrpPartStepVisible := true;
         VATProdClausesStepVisible := true;
-        CurrPage.VATProdPostGrpPart.PAGE.ShowVATClauses;
+        CurrPage.VATProdPostGrpPart.PAGE.ShowVATClauses();
     end;
 
     local procedure ShowProdRatesGroup()
     begin
         VATProdPostGrpPartStepVisible := true;
         VATProdRatesStepVisible := true;
-        CurrPage.VATProdPostGrpPart.PAGE.ShowVATRates;
+        CurrPage.VATProdPostGrpPart.PAGE.ShowVATRates();
     end;
 
     local procedure ShowProdAccountGroup()
     begin
         VATProdPostGrpPartStepVisible := true;
         VATProdAccountStepVisible := true;
-        CurrPage.VATProdPostGrpPart.PAGE.ShowVATAccounts;
+        CurrPage.VATProdPostGrpPart.PAGE.ShowVATAccounts();
     end;
 
     local procedure ShowCustomerTemplatesStep()
     begin
         CustomerTemplateStepVisible := true;
         TemplateStepVisible := true;
-        CurrPage.VATAssistedSetupTemplate.PAGE.ShowCustomerTemplate;
+        CurrPage.VATAssistedSetupTemplate.PAGE.ShowCustomerTemplate();
         NextActionEnabled := true;
     end;
 
@@ -417,7 +417,7 @@ page 1877 "VAT Setup Wizard"
     begin
         VendorTemplateStepVisible := true;
         TemplateStepVisible := true;
-        CurrPage.VATAssistedSetupTemplate.PAGE.ShowVendorTemplate;
+        CurrPage.VATAssistedSetupTemplate.PAGE.ShowVendorTemplate();
         NextActionEnabled := true;
     end;
 
@@ -425,7 +425,7 @@ page 1877 "VAT Setup Wizard"
     begin
         ItemTemplateStepVisible := true;
         TemplateStepVisible := true;
-        CurrPage.VATAssistedSetupTemplate.PAGE.ShowItemTemplate;
+        CurrPage.VATAssistedSetupTemplate.PAGE.ShowItemTemplate();
         NextActionEnabled := true;
     end;
 
@@ -457,8 +457,8 @@ page 1877 "VAT Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             TopBannerVisible := MediaRepositoryDone.Image.HasValue;
     end;
@@ -553,7 +553,7 @@ page 1877 "VAT Setup Wizard"
         Customer.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         Vendor.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         Item.SetFilter("VAT Prod. Posting Group", '<>%1', '');
-        exit(VATEntry.IsEmpty and Customer.IsEmpty and Vendor.IsEmpty and Item.IsEmpty);
+        exit(VATEntry.IsEmpty() and Customer.IsEmpty() and Vendor.IsEmpty() and Item.IsEmpty);
     end;
 
     local procedure StepValidation(): Boolean
@@ -566,10 +566,10 @@ page 1877 "VAT Setup Wizard"
     begin
         case Step of
             Step::VATBusPostingGroup:
-                if not VATAssistedSetupBusGrp.ValidateVATBusGrp then
+                if not VATAssistedSetupBusGrp.ValidateVATBusGrp() then
                     ErrorMessage := VATAssistedBusPostingGrpMsg;
             Step::VATProdPostingRates:
-                if not VATSetupPostingGroups.ValidateVATRates then
+                if not VATSetupPostingGroups.ValidateVATRates() then
                     ErrorMessage := VATAssistedRatesMsg;
             Step::VATProdPostingAccounts:
                 if not EmptyGLAccountsWarning then begin
@@ -639,9 +639,9 @@ page 1877 "VAT Setup Wizard"
 
     local procedure TrigerNotification(NotificationMsg: Text)
     begin
-        WizardNotification.Recall;
+        WizardNotification.Recall();
         WizardNotification.Message(NotificationMsg);
-        WizardNotification.Send;
+        WizardNotification.Send();
     end;
 
     local procedure CreatVATSetupWithoutBusPostingGrp()
@@ -663,10 +663,10 @@ page 1877 "VAT Setup Wizard"
 
     local procedure HideNotification()
     begin
-        CurrPage.VATProdPostGrpPart.PAGE.HideNotification;
-        CurrPage."VAT Bus. Post. Grp Part".PAGE.HideNotification;
+        CurrPage.VATProdPostGrpPart.PAGE.HideNotification();
+        CurrPage."VAT Bus. Post. Grp Part".PAGE.HideNotification();
         WizardNotification.Message := '';
-        WizardNotification.Recall;
+        WizardNotification.Recall();
 
         if Step::VATProdPostingAccounts <> Step then
             EmptyGLAccountsWarning := false;
@@ -684,7 +684,7 @@ page 1877 "VAT Setup Wizard"
         repeat
             Item.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
             ServiceLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-            if (not Item.FindFirst) and (not ServiceLine.FindFirst) then
+            if (not Item.FindFirst()) and (not ServiceLine.FindFirst()) then
                 VATProductPostingGroup.Delete();
         until VATProductPostingGroup.Next() = 0;
     end;
@@ -701,7 +701,7 @@ page 1877 "VAT Setup Wizard"
         repeat
             Customer.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
             Vendor.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
-            if (not Vendor.FindFirst) and (not Customer.FindFirst) then
+            if (not Vendor.FindFirst()) and (not Customer.FindFirst()) then
                 VATBusinessPostingGroup.Delete();
         until VATBusinessPostingGroup.Next() = 0;
     end;

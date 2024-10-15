@@ -51,7 +51,7 @@ codeunit 132592 "Stream Management Tests"
         StreamManagement.MtomStreamToXmlStream(MtomInStream, XmlInStream, 'Multipart/Related; boundary="----=_Part_170043_1574782596.1513784534431"; type="application/xop+xml"; start-info="application/soap+xml"');
 
         // [THEN] The XML document is returned
-        XmlDocumentResponse := XmlDocumentResponse.XmlDocument;
+        XmlDocumentResponse := XmlDocumentResponse.XmlDocument();
         XmlDocumentResponse.PreserveWhitespace := true;
         XmlInStream.ReadText(StreamContent);
         XmlDocumentResponse.LoadXml(StreamContent);

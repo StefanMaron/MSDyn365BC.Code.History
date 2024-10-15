@@ -82,23 +82,23 @@ codeunit 9178 "Application Area Mgmt."
 
     local procedure SaveApplicationArea(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary; ApplicationAreaSetup: Record "Application Area Setup"; NoApplicationAreasExist: Boolean)
     var
-        ExistingTempApplicationAreaBuffer: Record "Application Area Buffer" temporary;
+        TempExistingApplicationAreaBuffer: Record "Application Area Buffer" temporary;
         UserPreference: Record "User Preference";
         RecRef: RecordRef;
         FieldRef: FieldRef;
         ApplicationAreasChanged: Boolean;
     begin
-        GetApplicationAreaBuffer(ExistingTempApplicationAreaBuffer);
+        GetApplicationAreaBuffer(TempExistingApplicationAreaBuffer);
         RecRef.GetTable(ApplicationAreaSetup);
 
         TempApplicationAreaBuffer.FindSet();
-        ExistingTempApplicationAreaBuffer.FindSet();
+        TempExistingApplicationAreaBuffer.FindSet();
         repeat
             FieldRef := RecRef.Field(TempApplicationAreaBuffer."Field No.");
             FieldRef.Value := TempApplicationAreaBuffer.Selected;
-            if TempApplicationAreaBuffer.Selected <> ExistingTempApplicationAreaBuffer.Selected then
+            if TempApplicationAreaBuffer.Selected <> TempExistingApplicationAreaBuffer.Selected then
                 ApplicationAreasChanged := true;
-        until (TempApplicationAreaBuffer.Next() = 0) and (ExistingTempApplicationAreaBuffer.Next() = 0);
+        until (TempApplicationAreaBuffer.Next() = 0) and (TempExistingApplicationAreaBuffer.Next() = 0);
 
         if NoApplicationAreasExist then begin
             if ApplicationAreasChanged then

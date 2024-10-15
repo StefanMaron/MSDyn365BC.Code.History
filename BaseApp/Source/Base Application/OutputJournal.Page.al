@@ -6,7 +6,6 @@ page 99000823 "Output Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Prod. Order,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -391,8 +390,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -407,9 +404,7 @@ page 99000823 "Output Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -422,8 +417,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -441,8 +434,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Released Production Order";
                     RunPageLink = "No." = FIELD("Order No.");
                     ShortCutKey = 'Shift+F7';
@@ -457,8 +448,6 @@ page 99000823 "Output Journal"
                         ApplicationArea = Manufacturing;
                         Caption = 'Item Ledger E&ntries';
                         Image = ItemLedger;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
@@ -471,8 +460,6 @@ page 99000823 "Output Journal"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         RunObject = Page "Capacity Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
@@ -484,8 +471,6 @@ page 99000823 "Output Journal"
                         ApplicationArea = Manufacturing;
                         Caption = 'Value Entries';
                         Image = ValueLedger;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         RunObject = Page "Value Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
@@ -506,8 +491,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Explode &Routing';
                     Image = ExplodeRouting;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Output Jnl.-Expl. Route";
                     ToolTip = 'Insert prefilled journal lines according to the production order routing.';
                 }
@@ -534,9 +517,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -552,9 +532,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -572,8 +549,6 @@ page 99000823 "Output Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -596,8 +571,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -612,8 +585,6 @@ page 99000823 "Output Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -623,6 +594,90 @@ page 99000823 "Output Journal"
                         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("Explode &Routing_Promoted"; "Explode &Routing")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Item Tracking Lines_Promoted"; "Item Tracking Lines")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prod. Order', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Item Ledger E&ntries_Promoted"; "Item Ledger E&ntries")
+                {
+                }
+                actionref("Capacity Ledger Entries_Promoted"; "Capacity Ledger Entries")
+                {
+                }
+                actionref("Value Entries_Promoted"; "Value Entries")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -660,7 +715,7 @@ page 99000823 "Output Journal"
     begin
         SetDimensionsVisibility();
 
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -679,11 +734,11 @@ page 99000823 "Output Journal"
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ProdOrderDescription: Text[100];
         OperationName: Text[100];
-        CurrentJnlBatchName: Code[10];
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
 
     protected var
+        CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

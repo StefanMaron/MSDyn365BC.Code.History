@@ -5,16 +5,11 @@ codeunit 233 "Gen. Jnl.-B.Post"
     trigger OnRun()
     begin
         GenJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(GenJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to post the journals?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
-        JournalsScheduledMsg: Label 'Journals have been scheduled for posting.';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -24,6 +19,12 @@ codeunit 233 "Gen. Jnl.-B.Post"
         GenJnlManagement: Codeunit GenJnlManagement;
         GenJnlsScheduled: Boolean;
         JnlWithErrors: Boolean;
+
+        JournalsScheduledMsg: Label 'Journals have been scheduled for posting.';
+        Text000: Label 'Do you want to post the journals?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -85,7 +86,7 @@ codeunit 233 "Gen. Jnl.-B.Post"
                 end;
 
             if not Find('=><') or GeneralLedgerSetup."Post with Job Queue" then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup(0);

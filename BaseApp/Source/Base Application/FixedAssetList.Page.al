@@ -16,7 +16,7 @@ page 5601 "Fixed Asset List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,45 +26,45 @@ page 5601 "Fixed Asset List"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the vendor from which you purchased this fixed asset.';
                     Visible = false;
                 }
-                field("Maintenance Vendor No."; "Maintenance Vendor No.")
+                field("Maintenance Vendor No."; Rec."Maintenance Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the vendor who performs repairs and maintenance on the fixed asset.';
                     Visible = false;
                 }
-                field("Responsible Employee"; "Responsible Employee")
+                field("Responsible Employee"; Rec."Responsible Employee")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies which employee is responsible for the fixed asset.';
                 }
-                field("FA Class Code"; "FA Class Code")
+                field("FA Class Code"; Rec."FA Class Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the class that the fixed asset belongs to.';
                 }
-                field("FA Subclass Code"; "FA Subclass Code")
+                field("FA Subclass Code"; Rec."FA Subclass Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the subclass of the class that the fixed asset belongs to.';
                 }
-                field("FA Location Code"; "FA Location Code")
+                field("FA Location Code"; Rec."FA Location Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the location, such as a building, where the fixed asset is located.';
                 }
-                field("Budgeted Asset"; "Budgeted Asset")
+                field("Budgeted Asset"; Rec."Budgeted Asset")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the asset is for budgeting purposes.';
                     Visible = false;
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies a search description for the fixed asset.';
@@ -112,8 +112,6 @@ page 5601 "Fixed Asset List"
                     ApplicationArea = FixedAssets;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Fixed Asset Statistics";
                     RunPageLink = "FA No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -128,8 +126,6 @@ page 5601 "Fixed Asset List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(5600),
                                       "No." = FIELD("No.");
@@ -142,8 +138,6 @@ page 5601 "Fixed Asset List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -181,8 +175,6 @@ page 5601 "Fixed Asset List"
                     ApplicationArea = FixedAssets;
                     Caption = 'FA Posting Types Overview';
                     Image = ShowMatrix;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "FA Posting Types Overview";
                     ToolTip = 'View accumulated amounts for each field, such as book value, acquisition cost, and depreciation, and for each fixed asset. For every fixed asset, a separate line is shown for each depreciation book linked to the asset.';
                 }
@@ -277,9 +269,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Fixed Asset G/L Journal';
                 Image = Journal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Fixed Asset G/L Journal";
                 ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger for financial reporting. Both fixed asset ledger entries and general ledger entries are created. ';
             }
@@ -305,9 +294,6 @@ page 5601 "Fixed Asset List"
                 Caption = 'Calculate Depreciation';
                 Ellipsis = true;
                 Image = CalculateDepreciation;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Calculate depreciation according to conditions that you specify. If the related depreciation book is set up to integrate with the general ledger, then the calculated entries are transferred to the fixed asset general ledger journal. Otherwise, the calculated entries are transferred to the fixed asset journal. You can then review the entries and post the journal.';
 
                 trigger OnAction()
@@ -339,8 +325,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Fixed Assets List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - List";
                 ToolTip = 'View the list of fixed assets that exist in the system .';
             }
@@ -349,8 +333,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Acquisition List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Acquisition List";
                 ToolTip = 'View the related acquisitions.';
             }
@@ -359,8 +341,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Details';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Details";
                 ToolTip = 'View detailed information about the fixed asset ledger entries that have been posted to a specified depreciation book for each fixed asset.';
             }
@@ -385,8 +365,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Analysis";
                 ToolTip = 'View an analysis of your fixed assets with various types of data for both individual assets and groups of fixed assets.';
             }
@@ -395,8 +373,6 @@ page 5601 "Fixed Asset List"
                 ApplicationArea = FixedAssets;
                 Caption = 'Projected Value';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Fixed Asset - Projected Value";
                 ToolTip = 'View the calculated future depreciation and book value. You can print the report for one depreciation book at a time.';
             }
@@ -415,6 +391,81 @@ page 5601 "Fixed Asset List"
                 Image = Confirm;
                 RunObject = Report "Fixed Asset Register";
                 ToolTip = 'View registers containing all the fixed asset entries that are created. Each register shows the first and last entry number of its entries.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CalculateDepreciation_Promoted; CalculateDepreciation)
+                {
+                }
+#if not CLEAN21
+                actionref("Fixed Asset G/L Journal_Promoted"; "Fixed Asset G/L Journal")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("C&opy Fixed Asset_Promoted"; "C&opy Fixed Asset")
+                {
+                }
+#if not CLEAN21
+                actionref("FA Posting Types Overview_Promoted"; "FA Posting Types Overview")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group("Category_Fixed Asset")
+            {
+                Caption = 'Fixed Asset';
+
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref("Dimensions-&Multiple_Promoted"; "Dimensions-&Multiple")
+                    {
+                    }
+                    actionref("Dimensions-Single_Promoted"; "Dimensions-Single")
+                    {
+                    }
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(Analysis_Promoted; Analysis)
+                {
+                }
+                actionref("Projected Value_Promoted"; "Projected Value")
+                {
+                }
+                actionref("Fixed Assets List_Promoted"; "Fixed Assets List")
+                {
+                }
+                actionref("Acquisition List_Promoted"; "Acquisition List")
+                {
+                }
+                actionref(Details_Promoted; Details)
+                {
+                }
             }
         }
     }

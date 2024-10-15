@@ -60,7 +60,7 @@ page 6250 "Data Sync Status"
         DataMigrationStatus: Record "Data Migration Status";
     begin
         DataMigrationStatus.Reset();
-        if DataMigrationStatus.FindFirst() then begin
+        if not DataMigrationStatus.IsEmpty() then begin
             PostingErrors(GPBatchTxt);
             PostingErrors(VendorBatchTxt);
             PostingErrors(CustomerBatchTxt);

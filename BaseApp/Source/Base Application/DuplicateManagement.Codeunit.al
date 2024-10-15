@@ -6,8 +6,9 @@ codeunit 5060 DuplicateManagement
     end;
 
     var
-        Text000: Label 'Duplicate Contacts were found. Would you like to process these?';
         RMSetup: Record "Marketing Setup";
+
+        Text000: Label 'Duplicate Contacts were found. Would you like to process these?';
         DuplicateContactExistMsg: Label 'There are duplicate contacts.';
         OpenContactDuplicatesPageLbl: Label 'Show';
 
@@ -36,7 +37,7 @@ codeunit 5060 DuplicateManagement
     procedure RemoveContIndex(Cont: Record Contact; KeepAccepted: Boolean)
     var
         DuplContSearchString: Record "Cont. Duplicate Search String";
-        DuplCont: Record "Contact Duplicate";
+        ContactDuplicate: Record "Contact Duplicate";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -48,18 +49,18 @@ codeunit 5060 DuplicateManagement
         if DuplContSearchString.FindFirst() then
             DuplContSearchString.DeleteAll();
 
-        DuplCont.FilterGroup(-1);
-        DuplCont.SetRange("Contact No.", Cont."No.");
-        DuplCont.SetRange("Duplicate Contact No.", Cont."No.");
-        DuplCont.FilterGroup(0);
+        ContactDuplicate.FilterGroup(-1);
+        ContactDuplicate.SetRange("Contact No.", Cont."No.");
+        ContactDuplicate.SetRange("Duplicate Contact No.", Cont."No.");
+        ContactDuplicate.FilterGroup(0);
         if KeepAccepted then
-            DuplCont.SetRange("Separate Contacts", false);
-        DuplCont.DeleteAll(true);
+            ContactDuplicate.SetRange("Separate Contacts", false);
+        ContactDuplicate.DeleteAll(true);
     end;
 
     procedure DuplicateExist(Cont: Record Contact) Result: Boolean
     var
-        DuplCont: Record "Contact Duplicate";
+        ContactDuplicate: Record "Contact Duplicate";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -70,21 +71,21 @@ codeunit 5060 DuplicateManagement
         RMSetup.Get();
         if not RMSetup."Autosearch for Duplicates" then
             exit(false);
-        DuplCont.FilterGroup(-1);
-        DuplCont.SetRange("Contact No.", Cont."No.");
-        DuplCont.SetRange("Duplicate Contact No.", Cont."No.");
-        DuplCont.FilterGroup(0);
-        DuplCont.SetRange("Separate Contacts", false);
-        exit(DuplCont.Find('=<>'));
+        ContactDuplicate.FilterGroup(-1);
+        ContactDuplicate.SetRange("Contact No.", Cont."No.");
+        ContactDuplicate.SetRange("Duplicate Contact No.", Cont."No.");
+        ContactDuplicate.FilterGroup(0);
+        ContactDuplicate.SetRange("Separate Contacts", false);
+        exit(ContactDuplicate.Find('=<>'));
     end;
 
     procedure LaunchDuplicateForm(Cont: Record Contact)
     var
-        DuplCont: Record "Contact Duplicate";
+        ContactDuplicate: Record "Contact Duplicate";
     begin
         if Confirm(Text000, true) then begin
-            DuplCont.SetRange("Contact No.", Cont."No.");
-            PAGE.RunModal(PAGE::"Contact Duplicates", DuplCont);
+            ContactDuplicate.SetRange("Contact No.", Cont."No.");
+            PAGE.RunModal(PAGE::"Contact Duplicates", ContactDuplicate);
         end
     end;
 
@@ -113,7 +114,7 @@ codeunit 5060 DuplicateManagement
     var
         DuplContSearchString: Record "Cont. Duplicate Search String";
         DuplContSearchString2: Record "Cont. Duplicate Search String";
-        DuplCont: Record "Contact Duplicate" temporary;
+        TempContactDuplicate: Record "Contact Duplicate" temporary;
         DuplCont2: Record "Contact Duplicate";
         DuplSearchStringSetup: Record "Duplicate Search String Setup";
     begin
@@ -128,32 +129,32 @@ codeunit 5060 DuplicateManagement
                 OnInsDuplContOnAfterDuplContSearchString2SetFilters(DuplContSearchString, DuplContSearchString2);
                 if DuplContSearchString2.Find('-') then
                     repeat
-                        if DuplCont.Get(DuplContSearchString."Contact Company No.", DuplContSearchString2."Contact Company No.") then begin
-                            if not DuplCont."Separate Contacts" then begin
-                                DuplCont."No. of Matching Strings" := DuplCont."No. of Matching Strings" + 1;
-                                DuplCont.Modify();
+                        if TempContactDuplicate.Get(DuplContSearchString."Contact Company No.", DuplContSearchString2."Contact Company No.") then begin
+                            if not TempContactDuplicate."Separate Contacts" then begin
+                                TempContactDuplicate."No. of Matching Strings" := TempContactDuplicate."No. of Matching Strings" + 1;
+                                TempContactDuplicate.Modify();
                             end;
                         end else begin
-                            DuplCont."Contact No." := DuplContSearchString."Contact Company No.";
-                            DuplCont."Duplicate Contact No." := DuplContSearchString2."Contact Company No.";
-                            DuplCont."Separate Contacts" := false;
-                            DuplCont."No. of Matching Strings" := 1;
-                            DuplCont.Insert();
+                            TempContactDuplicate."Contact No." := DuplContSearchString."Contact Company No.";
+                            TempContactDuplicate."Duplicate Contact No." := DuplContSearchString2."Contact Company No.";
+                            TempContactDuplicate."Separate Contacts" := false;
+                            TempContactDuplicate."No. of Matching Strings" := 1;
+                            TempContactDuplicate.Insert();
                         end;
                     until DuplContSearchString2.Next() = 0;
             until DuplContSearchString.Next() = 0;
 
-        DuplCont.SetFilter("No. of Matching Strings", '>=%1', Round(DuplSearchStringSetup.Count * HitRatio / 100, 1, '>'));
-        OnInsDuplContOnAfterDuplContSetFilters(DuplCont, DuplContSearchString, DuplSearchStringSetup);
-        if DuplCont.Find('-') then begin
+        TempContactDuplicate.SetFilter("No. of Matching Strings", '>=%1', Round(DuplSearchStringSetup.Count * HitRatio / 100, 1, '>'));
+        OnInsDuplContOnAfterDuplContSetFilters(TempContactDuplicate, DuplContSearchString, DuplSearchStringSetup);
+        if TempContactDuplicate.Find('-') then begin
             repeat
-                DuplCont2 := DuplCont;
-                if not DuplCont2.Get(DuplCont."Contact No.", DuplCont."Duplicate Contact No.") and
-                   not DuplCont2.Get(DuplCont."Duplicate Contact No.", DuplCont."Contact No.")
+                DuplCont2 := TempContactDuplicate;
+                if not DuplCont2.Get(TempContactDuplicate."Contact No.", TempContactDuplicate."Duplicate Contact No.") and
+                   not DuplCont2.Get(TempContactDuplicate."Duplicate Contact No.", TempContactDuplicate."Contact No.")
                 then
                     DuplCont2.Insert(true);
-            until DuplCont.Next() = 0;
-            DuplCont.DeleteAll();
+            until TempContactDuplicate.Next() = 0;
+            TempContactDuplicate.DeleteAll();
         end;
     end;
 

@@ -1,4 +1,4 @@
-codeunit 104010 "UPG Set Country App Areas"
+codeunit 104010 "Upg Set Country App Areas"
 {
     Subtype = Upgrade;
 
@@ -25,7 +25,7 @@ codeunit 104010 "UPG Set Country App Areas"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) THEN
             EXIT;
 
-        IF ApplicationAreaSetup.GET AND ApplicationAreaSetup.Basic THEN BEGIN
+        IF ApplicationAreaSetup.GET() AND ApplicationAreaSetup.Basic THEN BEGIN
             ApplicationAreaSetup.VAT := TRUE;
             ApplicationAreaSetup."Basic IS" := TRUE;
             ApplicationAreaSetup.Modify();

@@ -168,10 +168,10 @@ codeunit 141003 "IRS - Tests"
                 IRS_GLAcc.CalcFields("Balance at Date");
                 AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
 
-                IRS_GLAcc.Next;
+                IRS_GLAcc.Next();
             end;
 
-            Assert.IsTrue(IRS_GLAcc.Next = 0, '');
+            Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
         end;
     end;
 
@@ -188,10 +188,10 @@ codeunit 141003 "IRS - Tests"
                 IRS_GLAcc.CalcFields("Balance at Date");
                 AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
 
-                IRS_GLAcc.Next;
+                IRS_GLAcc.Next();
             end;
 
-            Assert.IsTrue(IRS_GLAcc.Next = 0, '');
+            Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
         end;
     end;
 
@@ -308,7 +308,7 @@ codeunit 141003 "IRS - Tests"
                     IRS_GLAcc := GLAcc;
                     IRS_GLAcc.Insert();
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure GetPurchInvoiceHeaderIRS_VATAmt(var IRS_GLAcc: Record "G/L Account"; PurchInvHeader: Record "Purch. Inv. Header")
@@ -326,7 +326,7 @@ codeunit 141003 "IRS - Tests"
                     IRS_GLAcc := GLAcc;
                     IRS_GLAcc.Insert();
                 end;
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure GetGLAccFilter(var GLAcc: Record "G/L Account"; var FilterField: Code[20]) FilterText: Text
@@ -338,7 +338,7 @@ codeunit 141003 "IRS - Tests"
                     FilterText := FilterField
                 else
                     FilterText := StrSubstNo('%1|%2', FilterText, FilterField);
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     [RequestPageHandler]

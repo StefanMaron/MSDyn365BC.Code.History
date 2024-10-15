@@ -17,7 +17,7 @@ table 2160 "Calendar Event"
 
             trigger OnValidate()
             begin
-                CheckIfArchived;
+                CheckIfArchived();
             end;
         }
         field(3; Archived; Boolean)
@@ -30,7 +30,7 @@ table 2160 "Calendar Event"
 
             trigger OnValidate()
             begin
-                CheckIfArchived;
+                CheckIfArchived();
             end;
         }
         field(5; "Object ID to Run"; Integer)
@@ -39,7 +39,7 @@ table 2160 "Calendar Event"
 
             trigger OnValidate()
             begin
-                CheckIfArchived;
+                CheckIfArchived();
             end;
         }
         field(6; "Record ID to Process"; RecordID)
@@ -49,7 +49,7 @@ table 2160 "Calendar Event"
 
             trigger OnValidate()
             begin
-                CheckIfArchived;
+                CheckIfArchived();
             end;
         }
         field(7; State; Option)
@@ -69,7 +69,7 @@ table 2160 "Calendar Event"
 
             trigger OnValidate()
             begin
-                CheckIfArchived;
+                CheckIfArchived();
             end;
         }
         field(10; Type; Option)
@@ -102,22 +102,22 @@ table 2160 "Calendar Event"
     var
         CalendarEventMangement: Codeunit "Calendar Event Mangement";
     begin
-        CheckIfArchived;
+        CheckIfArchived();
 
         Archived := true;
-        Modify;
+        Modify();
 
         CalendarEventMangement.DescheduleCalendarEvent(Rec);
     end;
 
     trigger OnInsert()
     begin
-        Schedule;
+        Schedule();
     end;
 
     trigger OnModify()
     begin
-        Schedule;
+        Schedule();
     end;
 
     var

@@ -16,7 +16,7 @@ report 99000755 "Single-level Cost Shares"
             column(TodayFormatted; Format(Today))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TableCaptionItemFilt_Item; TableCaption + ': ' + ItemFilter)
@@ -99,7 +99,7 @@ report 99000755 "Single-level Cost Shares"
 
             trigger OnPreDataItem()
             begin
-                ItemFilter := GetFilters;
+                ItemFilter := GetFilters();
             end;
         }
     }

@@ -23,7 +23,7 @@ page 5634 "Recurring Fixed Asset Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     FAJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -31,44 +31,44 @@ page 5634 "Recurring Fixed Asset Journal"
                 trigger OnValidate()
                 begin
                     FAJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Recurring Method"; "Recurring Method")
+                field("Recurring Method"; Rec."Recurring Method")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a recurring method, if you have indicated that the journal is recurring.';
                 }
-                field("Recurring Frequency"; "Recurring Frequency")
+                field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a recurring frequency if you indicated that the journal is a recurring.';
                 }
-                field("FA Posting Date"; "FA Posting Date")
+                field("FA Posting Date"; Rec."FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the same date as the FA Posting Date field when the line is posted.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the appropriate document type for the amount you want to post.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
                 }
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
@@ -78,12 +78,12 @@ page 5634 "Recurring Fixed Asset Journal"
                         FAJnlManagement.GetFA("FA No.", FADescription);
                     end;
                 }
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
@@ -98,84 +98,84 @@ page 5634 "Recurring Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total amount the journal line consists of.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Depr. until FA Posting Date"; "Depr. until FA Posting Date")
+                field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
                     Visible = false;
                 }
-                field("Maintenance Code"; "Maintenance Code")
+                field("Maintenance Code"; Rec."Maintenance Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies an insurance code if you have selected the Acquisition Cost option in the FA Posting Type field.';
                     Visible = false;
                 }
-                field("Budgeted FA No."; "Budgeted FA No.")
+                field("Budgeted FA No."; Rec."Budgeted FA No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of a fixed asset with the Budgeted Asset check box selected. When you post the journal or document line, an additional entry is created for the budgeted fixed asset where the amount has the opposite sign.';
                     Visible = false;
                 }
-                field("Duplicate in Depreciation Book"; "Duplicate in Depreciation Book")
+                field("Duplicate in Depreciation Book"; Rec."Duplicate in Depreciation Book")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a depreciation book code if you want the journal line to be posted to that depreciation book, as well as to the depreciation book in the Depreciation Book Code field.';
                     Visible = false;
                 }
-                field("Use Duplication List"; "Use Duplication List")
+                field("Use Duplication List"; Rec."Use Duplication List")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether the line is to be posted to all depreciation books, using different journal batches and with a check mark in the Part of Duplication List field.';
                     Visible = false;
                 }
-                field("FA Reclassification Entry"; "FA Reclassification Entry")
+                field("FA Reclassification Entry"; Rec."FA Reclassification Entry")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the entry was generated from a fixed asset reclassification journal.';
                     Visible = false;
                 }
-                field("Index Entry"; "Index Entry")
+                field("Index Entry"; Rec."Index Entry")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether to post an indexation.';
                     Visible = false;
                 }
-                field("FA Error Entry No."; "FA Error Entry No.")
+                field("FA Error Entry No."; Rec."FA Error Entry No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of a posted FA ledger entry to mark as an error entry.';
                     Visible = false;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the last date on which the recurring journal will be posted.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -339,7 +339,7 @@ page 5634 "Recurring Fixed Asset Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -362,7 +362,6 @@ page 5634 "Recurring Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Ledger E&ntries';
                     Image = FixedAssetLedger;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Codeunit "FA Jnl.-Show Entries";
@@ -395,9 +394,6 @@ page 5634 "Recurring Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -428,9 +424,6 @@ page 5634 "Recurring Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -440,6 +433,20 @@ page 5634 "Recurring Fixed Asset Journal"
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
                 }
             }
         }
@@ -465,9 +472,9 @@ page 5634 "Recurring Fixed Asset Journal"
     var
         JnlSelected: Boolean;
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             FAJnlManagement.OpenJournal(CurrentJnlBatchName, Rec);
             exit;
@@ -497,7 +504,7 @@ page 5634 "Recurring Fixed Asset Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         FAJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

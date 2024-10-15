@@ -146,7 +146,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Planning Lines Report with Local Currency.
         Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
-        JobPlanningLinesReportWithCurrency('', GetLCYCode);  // Use blank for Currency.
+        JobPlanningLinesReportWithCurrency('', GetLCYCode());  // Use blank for Currency.
     end;
 
     [Test]
@@ -177,8 +177,8 @@ codeunit 136311 "Job Reports II"
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         PrepareJobPlanningLinesReportWithCurrency('', JobPlanningLine, ContractPrice, ContractCost);
         with JobPlanningLine do begin
-            Validate("Planning Date", CalcDate('<+1M>', WorkDate));
-            Modify;
+            Validate("Planning Date", CalcDate('<+1M>', WorkDate()));
+            Modify();
         end;
 
         // Exercise.
@@ -250,7 +250,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Schedule Price, Schedule Cost and Schedule Profit in Local Currency.
         Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
-        JobAnalysisReportForSchedule('', GetLCYCode);  // Use blank for Currency.
+        JobAnalysisReportForSchedule('', GetLCYCode());  // Use blank for Currency.
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Contract Price, Contract Cost and Contract Profit in Local Currency.
         Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
-        JobAnalysisReportForContract('', GetLCYCode);  // Use blank for Currency.
+        JobAnalysisReportForContract('', GetLCYCode());  // Use blank for Currency.
     end;
 
     [Test]
@@ -339,7 +339,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Usage Price, Usage Cost and Usage Profit in Local Currency.
         Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
-        JobAnalysisReportForUsage('', GetLCYCode);  // Use blank for Currency.
+        JobAnalysisReportForUsage('', GetLCYCode());  // Use blank for Currency.
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Invoiced Price, Invoiced Cost and Invoiced Profit in Local Currency.
         Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
-        JobAnalysisReportForInvoice('', GetLCYCode);  // Use blank for Currency.
+        JobAnalysisReportForInvoice('', GetLCYCode());  // Use blank for Currency.
     end;
 
     [Test]
@@ -618,7 +618,7 @@ codeunit 136311 "Job Reports II"
 
         // 2. Exercise: Run Job Journal Test Report.
         Job.Get(JobNo);
-        Job.SetRecFilter;
+        Job.SetRecFilter();
         RunJobTransactionDetail(Job);
 
         // 3. Verify: Verify Job Transaction Detail Report.
@@ -733,9 +733,9 @@ codeunit 136311 "Job Reports II"
         // [THEN] Verify Document Entries Report with Job Ledger, Res. Ledger and Unit Cost.
         JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
         LibraryReportDataset.LoadDataSetFile();
-        VerifyDocumentEntries(JobLedgerEntry.TableCaption, JobLedgerEntry.Count);
+        VerifyDocumentEntries(JobLedgerEntry.TableCaption(), JobLedgerEntry.Count);
         ResLedgerEntry.SetRange("Job No.", JobTask."Job No.");
-        VerifyDocumentEntries(ResLedgerEntry.TableCaption, ResLedgerEntry.Count);
+        VerifyDocumentEntries(ResLedgerEntry.TableCaption(), ResLedgerEntry.Count);
         FindJobLedgerEntry(JobLedgerEntry, JobTask."Job No.");
         LibraryReportDataset.SetRange(PostingDateTxt, Format(JobLedgerEntry."Posting Date"));
         LibraryReportDataset.GetNextRow();
@@ -814,12 +814,12 @@ codeunit 136311 "Job Reports II"
         ResLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
         ResLedgerEntry.SetFilter("Document No.", JobLedgerEntry."Document No.");
         ResLedgerEntry.SetRange("Posting Date", JobLedgerEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Res. Ledger Entry", ResLedgerEntry.TableCaption, ResLedgerEntry.Count);
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Res. Ledger Entry", ResLedgerEntry.TableCaption(), ResLedgerEntry.Count);
         JobLedgerEntry.Reset();
         JobLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
         JobLedgerEntry.SetFilter("Document No.", JobLedgerEntry."Document No.");
         JobLedgerEntry.SetRange("Posting Date", JobLedgerEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Job Ledger Entry", JobLedgerEntry.TableCaption, JobLedgerEntry.Count);
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Job Ledger Entry", JobLedgerEntry.TableCaption(), JobLedgerEntry.Count);
     end;
 
     local procedure CreateAndPostJobJournalLine(LineType: Enum "Job Line Type"; CurrencyCode: Code[10]): Code[20]
@@ -980,7 +980,7 @@ codeunit 136311 "Job Reports II"
     begin
         Job.SetRange("No.", No);
         JobActualToBudget.SetTableView(Job);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobActualToBudget.InitializeRequest(CurrencyField);
         JobActualToBudget.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
@@ -995,7 +995,7 @@ codeunit 136311 "Job Reports II"
         Job.SetRange("No.", No);
         JobAnalysis.SetTableView(Job);
         JobAnalysis.InitializeRequest(NewAmountField, NewCurrencyField, NewExcludeJobTask);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1009,7 +1009,7 @@ codeunit 136311 "Job Reports II"
         JobJournalBatch.SetRange("Journal Template Name", JobJournalLine."Journal Template Name");
         JobJournalBatch.SetRange(Name, JobJournalLine."Journal Batch Name");
         JobJournalTest.SetTableView(JobJournalBatch);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobJournalTest.InitializeRequest(NewShowDim);
         JobJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
@@ -1023,7 +1023,7 @@ codeunit 136311 "Job Reports II"
         Customer.SetRange("No.", No);
         Clear(JobsPerCustomer);
         JobsPerCustomer.SetTableView(Customer);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobsPerCustomer.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1036,7 +1036,7 @@ codeunit 136311 "Job Reports II"
         Job.SetRange("No.", No);
         Clear(ItemsPerJob);
         ItemsPerJob.SetTableView(Job);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         ItemsPerJob.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1046,7 +1046,7 @@ codeunit 136311 "Job Reports II"
         JobsPerItem: Report "Jobs per Item";
     begin
         Clear(JobsPerItem);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobsPerItem.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1070,8 +1070,8 @@ codeunit 136311 "Job Reports II"
         Clear(JobPlanningLines);
         JobTask.SetRange("Job No.", JobPlanningLine."Job No.");
         JobTask.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        JobTask.SetFilter("Planning Date Filter", Format(WorkDate));
-        JobTask.SetFilter("Posting Date Filter", Format(WorkDate));
+        JobTask.SetFilter("Planning Date Filter", Format(WorkDate()));
+        JobTask.SetFilter("Posting Date Filter", Format(WorkDate()));
         RunJobPlanningLinesReportWithJobTask(JobTask);
     end;
 
@@ -1081,7 +1081,7 @@ codeunit 136311 "Job Reports II"
     begin
         JobPlanningLines.SetTableView(JobTask);
         JobPlanningLines.InitializeRequest(CurrencyField);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobPlanningLines.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1091,7 +1091,7 @@ codeunit 136311 "Job Reports II"
         JobRegisterReport: Report "Job Register";
     begin
         Clear(JobRegisterReport);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobRegisterReport.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -1104,7 +1104,7 @@ codeunit 136311 "Job Reports II"
         Clear(JobSuggestedBilling);
         Job.SetRange("No.", No);
         JobSuggestedBilling.SetTableView(Job);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobSuggestedBilling.InitializeRequest(CurrencyField);
         JobSuggestedBilling.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
@@ -1115,7 +1115,7 @@ codeunit 136311 "Job Reports II"
         JobTransactionDetail: Report "Job - Transaction Detail";
     begin
         JobTransactionDetail.SetTableView(Job);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobTransactionDetail.InitializeRequest(CurrencyField);
         JobTransactionDetail.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
@@ -1215,7 +1215,7 @@ codeunit 136311 "Job Reports II"
         Amount: Decimal;
     begin
         LibraryReportValidation.SetColumn(ColumnCaption);
-        Evaluate(Amount, LibraryReportValidation.GetValue);
+        Evaluate(Amount, LibraryReportValidation.GetValue());
         Assert.AreNearlyEqual(LineAmount, Amount, Delta, AmountErr);
     end;
 
@@ -1281,7 +1281,7 @@ codeunit 136311 "Job Reports II"
             JobPlanningLine.TestField(Quantity, QuantityInteger);
 
             LibraryReportValidation.SetColumn(JobPlanningLine.FieldCaption("Unit of Measure Code"));
-            JobPlanningLine.TestField("Unit of Measure Code", LibraryReportValidation.GetValue);
+            JobPlanningLine.TestField("Unit of Measure Code", LibraryReportValidation.GetValue());
 
             LibraryReportValidation.SetColumn(StrSubstNo(TotalCostTxt, CurrencyCode));
             Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Total Cost"), ValueNotFoundErr);
@@ -1291,7 +1291,7 @@ codeunit 136311 "Job Reports II"
 
             LibraryReportValidation.SetColumn(StrSubstNo(LineAmountTxt, CurrencyCode));
             Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Line Amount"), ValueNotFoundErr);
-        until JobPlanningLine.Next = 0;
+        until JobPlanningLine.Next() = 0;
     end;
 
     local procedure VerifyJobPlanningLinesReportWorkdate(SchedulePrice: Decimal; ScheduleCost: Decimal; ContractPrice: Decimal; ContractCost: Decimal)
@@ -1308,7 +1308,7 @@ codeunit 136311 "Job Reports II"
         LibraryReportValidation.OpenFile;
         with Job do
             Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1 %2 %3 %4', TableCaption, FieldCaption("No."), "No.", Description)),
+              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1 %2 %3 %4', TableCaption(), FieldCaption("No."), "No.", Description)),
               ValueNotFoundErr);
     end;
 

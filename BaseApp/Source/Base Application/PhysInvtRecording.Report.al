@@ -24,7 +24,7 @@ report 5878 "Phys. Invt. Recording"
                 column(USERID; UserId)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))

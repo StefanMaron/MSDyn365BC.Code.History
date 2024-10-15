@@ -22,7 +22,7 @@ page 171 "Standard Sales Code Subform"
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -42,17 +42,17 @@ page 171 "Standard Sales Code Subform"
                             Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateTypeText();
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
 
                     trigger OnValidate()
                     begin
-                        if not ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                        if not ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                             exit;
 
                         if "No." = xRec."No." then
@@ -61,7 +61,7 @@ page 171 "Standard Sales Code Subform"
                         UpdateTypeText();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -87,25 +87,25 @@ page 171 "Standard Sales Code Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of units of the item on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Amount Excl. VAT"; "Amount Excl. VAT")
+                field("Amount Excl. VAT"; Rec."Amount Excl. VAT")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the net amount for the standard sales line. This field only applies to lines of type G/L Account and Charge (Item).';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -240,15 +240,15 @@ page 171 "Standard Sales Code Subform"
     trigger OnInit()
     begin
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if ApplicationAreaMgmtFacade.IsAdvancedEnabled then
+        if ApplicationAreaMgmtFacade.IsAdvancedEnabled() then
             Type := xRec.Type;
 
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
             Type := Type::Item;
         UpdateTypeText();
 
@@ -257,7 +257,7 @@ page 171 "Standard Sales Code Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var

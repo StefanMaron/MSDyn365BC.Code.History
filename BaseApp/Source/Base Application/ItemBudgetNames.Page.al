@@ -26,17 +26,17 @@ page 7132 "Item Budget Names"
                     ApplicationArea = ItemBudget;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
                 }
-                field("Budget Dimension 1 Code"; "Budget Dimension 1 Code")
+                field("Budget Dimension 1 Code"; Rec."Budget Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a dimension code for Item Budget Dimension 1.';
                 }
-                field("Budget Dimension 2 Code"; "Budget Dimension 2 Code")
+                field("Budget Dimension 2 Code"; Rec."Budget Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a dimension code for Item Budget Dimension 2.';
                 }
-                field("Budget Dimension 3 Code"; "Budget Dimension 3 Code")
+                field("Budget Dimension 3 Code"; Rec."Budget Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a dimension code for Item Budget Dimension 3.';

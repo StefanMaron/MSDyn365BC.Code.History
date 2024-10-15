@@ -79,7 +79,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         Assert.AreNearlyEqual(
           CreditAmountLCY, DetailedVendorLedgEntry."Credit Amount (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption("Credit Amount (LCY)"), CreditAmountLCY,
-            DetailedVendorLedgEntry.TableCaption, DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
+            DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         Assert.AreNearlyEqual(
           DebitAmountLCY, DetailedVendorLedgEntry."Debit Amount (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption("Debit Amount (LCY)"), DebitAmountLCY,
-            DetailedVendorLedgEntry.TableCaption, DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
+            DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
     local procedure Initialize()
@@ -147,7 +147,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
     begin
         // Setup: Create General Journal Line as per the Document Types, new Currency and Post it.
         CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse posted Transaction.

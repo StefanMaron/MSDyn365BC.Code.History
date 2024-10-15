@@ -26,6 +26,9 @@
     end;
 
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        CancellingOnly: Boolean;
+
         PostedInvoiceIsPaidCorrectErr: Label 'You cannot correct this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
         PostedInvoiceIsPaidCancelErr: Label 'You cannot cancel this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
         AlreadyCorrectedErr: Label 'You cannot correct this posted sales invoice because it has been canceled.';
@@ -53,8 +56,6 @@
         PostingNotAllowedCancelErr: Label 'You cannot cancel this posted sales invoice because it was posted in a posting period that is closed.';
         LineTypeNotAllowedCorrectErr: Label 'You cannot correct this posted sales invoice because the sales invoice line for %1 %2 is of type %3, which is not allowed on a simplified sales invoice.', Comment = '%1 = Item no. %2 = Item description %3 = Item type.';
         LineTypeNotAllowedCancelErr: Label 'You cannot cancel this posted sales invoice because the sales invoice line for %1 %2 is of type %3, which is not allowed on a simplified sales invoice.', Comment = '%1 = Item no. %2 = Item description %3 = Item type.';
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        CancellingOnly: Boolean;
         InvalidDimCodeCorrectErr: Label 'You cannot correct this posted sales invoice because the dimension rule setup for account ''%1'' %2 prevents %3 %4 from being canceled.', Comment = '%1 = Table caption %2 = Account number %3 = Item no. %4 = Item description.';
         InvalidDimCodeCancelErr: Label 'You cannot cancel this posted sales invoice because the dimension rule setup for account ''%1'' %2 prevents %3 %4 from being canceled.', Comment = '%1 = Table caption %2 = Account number %3 = Item no. %4 = Item description.';
         InvalidDimCombinationCorrectErr: Label 'You cannot correct this posted sales invoice because the dimension combination for item %1 %2 is not allowed.', Comment = '%1 = Item no. %2 = Item description.';
@@ -142,7 +143,7 @@
         OnBeforeCreateCreditMemoCopyDocument(SalesInvoiceHeader);
         TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader);
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
-        if not SalesInvoiceHeader.IsFullyOpen then begin
+        if not SalesInvoiceHeader.IsFullyOpen() then begin
             ShowInvoiceAppliedNotification(SalesInvoiceHeader);
             exit(false);
         end;
@@ -156,7 +157,7 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(InvoiceNotification.GetData(SalesInvoiceHeader.FieldName("No.")));
-        InvoiceNotification.Recall;
+        InvoiceNotification.Recall();
 
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
         PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
@@ -174,7 +175,7 @@
 
     procedure SkipCorrectiveCreditMemo(var InvoiceNotification: Notification)
     begin
-        InvoiceNotification.Recall;
+        InvoiceNotification.Recall();
     end;
 
     local procedure CreateAndProcessJobPlanningLines(SalesHeader: Record "Sales Header")
@@ -206,7 +207,7 @@
         JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
         JobPlanningLineInvoice.Insert();
 
-        ToJobPlanningLine.UpdateQtyToTransfer;
+        ToJobPlanningLine.UpdateQtyToTransfer();
         ToJobPlanningLine.Insert();
 
         exit(ToJobPlanningLine."Job Contract Entry No.");
@@ -265,7 +266,7 @@
         InvoiceNotification: Notification;
         NotificationText: Text;
     begin
-        InvoiceNotification.Id := CreateGuid;
+        InvoiceNotification.Id := CreateGuid();
         InvoiceNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         InvoiceNotification.SetData(SalesInvoiceHeader.FieldName("No."), SalesInvoiceHeader."No.");
         SalesInvoiceHeader.CalcFields(Closed);
@@ -333,7 +334,7 @@
         TableID[1] := DATABASE::Customer;
         No[1] := Customer."No.";
         if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceHeader."Dimension Set ID") then
-            ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, Customer.TableCaption, Customer."No.", Customer."No.", Customer.Name);
+            ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, Customer."No.", Customer.TableCaption(), Customer."No.", Customer.Name);
     end;
 
     local procedure TestSalesLines(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -371,7 +372,7 @@
                         TableID[1] := DATABASE::Item;
                         No[1] := SalesInvoiceLine."No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceLine."Dimension Set ID") then
-                            ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
+                            ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
 
                         if Item.Type = Item.Type::Inventory then
                             TestInventoryPostingSetup(SalesInvoiceLine);
@@ -398,14 +399,14 @@
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount("Correct Sales Inv. Error Type"::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
+            ErrorHelperAccount("Correct Sales Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
             Item.Get(SalesInvoiceLine."No.");
             if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceLine."Dimension Set ID") then
-                ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+                ErrorHelperAccount("Correct Sales Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption(), Item."No.", Item.Description);
         end;
     end;
 
@@ -419,14 +420,14 @@
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount("Correct Sales Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+            ErrorHelperAccount("Correct Sales Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceHeader."Dimension Set ID") then
             ErrorHelperAccount(
-                "Correct Sales Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption,
-                SalesInvoiceHeader."Customer Posting Group", CustomerPostingGroup.TableCaption);
+                "Correct Sales Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption(),
+                SalesInvoiceHeader."Customer Posting Group", CustomerPostingGroup.TableCaption());
     end;
 
     local procedure TestIfInvoiceIsPaid(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -483,7 +484,7 @@
         if IsHandled then
             exit;
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         SalesReceivablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Credit Memo Nos.", PostingDate) = '' then
@@ -512,7 +513,7 @@
         if SalesInvoiceLine.FindSet() then
             repeat
                 Job.Get(SalesInvoiceLine."Job No.");
-                Job.TestBlocked;
+                Job.TestBlocked();
             until SalesInvoiceLine.Next() = 0;
     end;
 
@@ -534,12 +535,12 @@
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetFilter(Quantity, '<>%1', 0);
         SalesInvoiceLine.SetFilter(Type, '%1|%2', SalesInvoiceLine.Type::Item, SalesInvoiceLine.Type::"Charge (Item)");
-        DocumentHasLineWithRestrictedType := not SalesInvoiceLine.IsEmpty;
+        DocumentHasLineWithRestrictedType := not SalesInvoiceLine.IsEmpty();
 
         if DocumentHasLineWithRestrictedType then begin
             InventoryPeriod.SetRange(Closed, true);
             InventoryPeriod.SetFilter("Ending Date", '>=%1', SalesInvoiceHeader."Posting Date");
-            if InventoryPeriod.FindFirst() then
+            if not InventoryPeriod.IsEmpty() then
                 ErrorHelperHeader("Correct Sales Inv. Error Type"::InventoryPostClosed, SalesInvoiceHeader);
         end;
     end;
@@ -581,8 +582,8 @@
                     TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
                 Item.Get(SalesInvoiceLine."No.");
-                if Item.IsInventoriableType then
-                    TestGLAccount(GetCOGSAccount, SalesInvoiceLine);
+                if Item.IsInventoriableType() then
+                    TestGLAccount(GetCOGSAccount(), SalesInvoiceLine);
             end;
         end;
     end;
@@ -683,7 +684,7 @@
             repeat
                 ItemJnlPostLine.UnApply(TempItemApplicationEntry);
             until TempItemApplicationEntry.Next() = 0;
-            ItemJnlPostLine.RedoApplications;
+            ItemJnlPostLine.RedoApplications();
         end;
     end;
 
@@ -712,11 +713,11 @@
                 if ItemApplicationEntry.AppliedInbndEntryExists(ItemLedgEntry."Entry No.", true) then
                     repeat
                         TempItemApplicationEntry := ItemApplicationEntry;
-                        if not TempItemApplicationEntry.Find then
+                        if not TempItemApplicationEntry.Find() then
                             TempItemApplicationEntry.Insert();
                     until ItemApplicationEntry.Next() = 0;
             until ItemLedgEntry.Next() = 0;
-        exit(TempItemApplicationEntry.FindSet);
+        exit(TempItemApplicationEntry.FindSet());
     end;
 
     local procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Sales Inv. Error Type"; SalesInvoiceHeader: Record "Sales Invoice Header")

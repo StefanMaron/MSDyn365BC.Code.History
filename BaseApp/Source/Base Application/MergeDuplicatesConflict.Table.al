@@ -59,7 +59,7 @@ table 66 "Merge Duplicates Conflict"
     begin
         MergeDuplicate.SetConflict(Rec);
         MergeDuplicate.RunModal();
-        exit(MergeDuplicate.IsConflictResolved);
+        exit(MergeDuplicate.IsConflictResolved());
     end;
 }
 

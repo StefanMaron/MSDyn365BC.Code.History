@@ -1,4 +1,4 @@
-﻿page 7507 "Filter Items - AssistEdit"
+page 7507 "Filter Items - AssistEdit"
 {
     Caption = 'Specify Filter Value';
     PageType = StandardDialog;
@@ -42,7 +42,7 @@
 
                         trigger OnValidate()
                         begin
-                            UpdateGroupVisiblity;
+                            UpdateGroupVisiblity();
                         end;
                     }
                     field(NumericValue; NumericValue)
@@ -83,7 +83,7 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateGroupVisiblity;
+        UpdateGroupVisiblity();
     end;
 
     var
@@ -131,7 +131,7 @@
         // SelectItemAttributeValue.LOOKUPMODE(TRUE);
         SelectItemAttributeValue.Editable(false);
 
-        if not (SelectItemAttributeValue.RunModal in [ACTION::OK, ACTION::LookupOK]) then
+        if not (SelectItemAttributeValue.RunModal() in [ACTION::OK, ACTION::LookupOK]) then
             exit(PreviousValue);
 
         OptionFilter := '';

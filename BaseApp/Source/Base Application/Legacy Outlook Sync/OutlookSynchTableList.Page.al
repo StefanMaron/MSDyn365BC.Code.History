@@ -20,13 +20,13 @@ page 5308 "Outlook Synch. Table List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Object ID';
                     ToolTip = 'Specifies the ID of the table.';
                 }
-                field("Object Caption"; "Object Caption")
+                field("Object Caption"; Rec."Object Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Object Caption';

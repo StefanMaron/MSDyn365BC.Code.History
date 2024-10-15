@@ -74,7 +74,10 @@ codeunit 8933 "View If All Related Records" implements "Email View Policy"
         if UserSecurityId = UserSecurityId() then // Owner always has access
             exit(true);
 
+        // Intentionally disregard relations to the Users table as every user has access to it
+        EmailRelatedRecord.SetFilter("Table Id", '<>%1', Database::User);
         EmailRelatedRecord.SetFilter("Email Message Id", MessageId);
+
         if EmailRelatedRecord.FindSet() then begin
             repeat
                 RecordRef.Open(EmailRelatedRecord."Table Id");

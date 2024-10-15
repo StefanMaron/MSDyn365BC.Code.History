@@ -14,13 +14,13 @@ page 5650 "Total Value Insured Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                     Visible = false;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the insurance policy that the entry is linked to.';
@@ -30,7 +30,7 @@ page 5650 "Total Value Insured Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description of the insurance policy.';
                 }
-                field("Total Value Insured"; "Total Value Insured")
+                field("Total Value Insured"; Rec."Total Value Insured")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amounts you posted to each insurance policy for the fixed asset.';

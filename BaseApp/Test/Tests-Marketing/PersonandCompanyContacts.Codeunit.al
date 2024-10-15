@@ -790,7 +790,7 @@ codeunit 134626 "Person and Company Contacts"
     var
         Customer: Record Customer;
     begin
-        Assert.ExpectedMessage(StrSubstNo(RelatedRecordIsCreatedMsg, Customer.TableCaption), Message);
+        Assert.ExpectedMessage(StrSubstNo(RelatedRecordIsCreatedMsg, Customer.TableCaption()), Message);
     end;
 
     local procedure AssertContactBusinessRelationExists(var ContactBusinessRelation: Record "Contact Business Relation"; ContactNo: Code[20])

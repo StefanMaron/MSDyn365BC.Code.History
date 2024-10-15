@@ -316,7 +316,7 @@ table 5600 "Fixed Asset"
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
         if not FADeprBook.IsEmpty() then
-            Error(Text001, TableCaption, "No.");
+            Error(Text001, TableCaption(), "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");
         MainAssetComp.SetRange("FA No.", "No.");
@@ -379,8 +379,6 @@ table 5600 "Fixed Asset"
     end;
 
     var
-        Text000: Label 'A main asset cannot be deleted.';
-        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
         CommentLine: Record "Comment Line";
         FA: Record "Fixed Asset";
         FASetup: Record "FA Setup";
@@ -390,6 +388,9 @@ table 5600 "Fixed Asset"
         FAMoveEntries: Codeunit "FA MoveEntries";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
+
+        Text000: Label 'A main asset cannot be deleted.';
+        Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
         UnexpctedSubclassErr: Label 'This fixed asset subclass belongs to a different fixed asset class.';
         DontAskAgainActionTxt: Label 'Don''t ask again';
         NotificationNameTxt: Label 'Fixed Asset Acquisition Wizard';
@@ -459,15 +460,15 @@ table 5600 "Fixed Asset"
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         FAAcquireWizardNotification: Notification;
     begin
-        if IsNotificationEnabledForCurrentUser then begin
-            FAAcquireWizardNotification.Id(GetNotificationID);
+        if IsNotificationEnabledForCurrentUser() then begin
+            FAAcquireWizardNotification.Id(GetNotificationID());
             FAAcquireWizardNotification.Message(ReadyToAcquireMsg);
             FAAcquireWizardNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
             FAAcquireWizardNotification.AddAction(
               AcquireActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'RunAcquisitionWizardFromNotification');
             FAAcquireWizardNotification.AddAction(
               DontAskAgainActionTxt, CODEUNIT::"Fixed Asset Acquisition Wizard", 'HideNotificationForCurrentUser');
-            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID, "No.");
+            FAAcquireWizardNotification.SetData(FixedAssetAcquisitionWizard.GetNotificationFANoDataItemID(), "No.");
             NotificationLifecycleMgt.SendNotification(FAAcquireWizardNotification, RecordId);
         end
     end;
@@ -481,22 +482,22 @@ table 5600 "Fixed Asset"
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, true);
+        MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, true);
     end;
 
     local procedure IsNotificationEnabledForCurrentUser(): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetNotificationID));
+        exit(MyNotifications.IsEnabled(GetNotificationID()));
     end;
 
     procedure DontNotifyCurrentUserAgain()
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetNotificationID) then
-            MyNotifications.InsertDefault(GetNotificationID, NotificationNameTxt, NotificationDescriptionTxt, false);
+        if not MyNotifications.Disable(GetNotificationID()) then
+            MyNotifications.InsertDefault(GetNotificationID(), NotificationNameTxt, NotificationDescriptionTxt, false);
     end;
 
     procedure RecallNotificationForCurrentUser()

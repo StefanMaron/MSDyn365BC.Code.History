@@ -30,6 +30,7 @@ permissionset 66 "System Tables - Basic"
                   tabledata "Code Coverage" = Rimd,
                   tabledata "Configuration Package File" = RIMD,
                   tabledata "Document Service" = R,
+                  tabledata "Document Service Scenario" = R,
                   tabledata Drive = Rimd,
                   tabledata "Event Subscription" = Rimd,
                   tabledata Field = Rimd,

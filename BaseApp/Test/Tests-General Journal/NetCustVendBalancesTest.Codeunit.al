@@ -1106,7 +1106,7 @@ codeunit 134933 "Net Cust/Vend Balances Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Net Cust/Vend Balances Test");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Net Cust/Vend Balances Test");

@@ -1,4 +1,4 @@
-﻿codeunit 7017 "Price List Management"
+codeunit 7017 "Price List Management"
 {
     var
         PriceIsFound: Boolean;
@@ -76,7 +76,7 @@
             PriceListLine.Insert(true);
     end;
 
-    local procedure AdjustAmount(var Price: Decimal; PriceLineFilters: Record "Price Line Filters")
+    procedure AdjustAmount(var Price: Decimal; PriceLineFilters: Record "Price Line Filters")
     var
         NewPrice: Decimal;
     begin

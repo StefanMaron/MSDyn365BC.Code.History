@@ -288,7 +288,7 @@ table 9178 "Application Area Setup"
     {
     }
 
-    [Obsolete('Use ApplicationAreaMgmtFacade.IsFoundationEnabled instead', '18.0')]
+    [Obsolete('Use ApplicationAreaMgmtFacade.IsFoundationEnabled() instead', '18.0')]
     procedure IsFoundationEnabled(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
@@ -304,7 +304,7 @@ table 9178 "Application Area Setup"
         exit(ApplicationAreaMgmtFacade.IsAdvancedEnabled())
     end;
 
-    [Obsolete('Use ApplicationAreaMgmtFacade.IsSuiteEnabled instead', '18.0')]
+    [Obsolete('Use ApplicationAreaMgmtFacade.IsSuiteEnabled() instead', '18.0')]
     procedure IsSuiteEnabled(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";

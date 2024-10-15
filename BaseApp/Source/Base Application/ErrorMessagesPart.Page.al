@@ -18,18 +18,18 @@ page 701 "Error Messages Part"
         {
             repeater(Group)
             {
-                field("Message Type"; "Message Type")
+                field("Message Type"; Rec."Message Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the message is an error, a warning, or information.';
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies error messages that occur during data processing.';
                     Visible = false;
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field where the error occurred.';
@@ -87,12 +87,12 @@ page 701 "Error Messages Part"
 
     trigger OnAfterGetCurrRecord()
     begin
-        EnableActions;
+        EnableActions();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     var
@@ -105,7 +105,7 @@ page 701 "Error Messages Part"
 
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)
     begin
-        Reset;
+        Reset();
         DeleteAll();
 
         TempErrorMessage.Reset();

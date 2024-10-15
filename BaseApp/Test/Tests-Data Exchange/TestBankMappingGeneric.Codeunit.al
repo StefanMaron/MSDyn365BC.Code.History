@@ -235,7 +235,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('Instance1Line1 Instance2Line1', RecRef.Field(2).Value, 'The values were not concatenated as expected');
-        RecRef.Next;
+        RecRef.Next();
         Assert.AreEqual('Instance1Line2', RecRef.Field(2).Value, 'The values were not concatenated as expected');
     end;
 
@@ -285,7 +285,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual('L1C1Inst1 L1C1Inst2', RecRef.Field(2).Value, 'The values were not trimmed as expected');
-        RecRef.Next;
+        RecRef.Next();
         Assert.AreEqual('L2C1Inst2', RecRef.Field(2).Value, 'The value was not trimmed as expected.');
     end;
 
@@ -396,9 +396,9 @@ codeunit 132541 "Test Bank Mapping Generic"
         TestDataExchDestTable.FindFirst();
         RecRef.GetTable(TestDataExchDestTable);
         Assert.AreEqual(-123, RecRef.Field(4).Value, '');
-        RecRef.Next;
+        RecRef.Next();
         Assert.AreEqual(456.7, RecRef.Field(4).Value, '');
-        RecRef.Next;
+        RecRef.Next();
         Assert.AreEqual(0, RecRef.Field(4).Value, '');
     end;
 
@@ -520,7 +520,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         ErrorMsg :=
           StrSubstNo(IncorrectFormatOrTypeErr, '%1', '%2', '%3', 1, 1, 'Date', DataExchColumnDef.FieldCaption("Data Format"),
-            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption, 'This is not a date 010101');
+            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption(), 'This is not a date 010101');
 
         VerifyFieldMappingError(1, DataExchColumnDef."Data Type"::Date, 'yyyy-MM-dd', 'en-US', 'This is not a date 010101', 3, 0, ErrorMsg);
     end;
@@ -534,7 +534,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         ErrorMsg :=
           StrSubstNo(IncorrectFormatOrTypeErr, '%1', '%2', '%3', 1, 1, 'Date', DataExchColumnDef.FieldCaption("Data Format"),
-            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption, '010102');
+            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption(), '010102');
 
         VerifyFieldMappingError(1, DataExchColumnDef."Data Type"::Date, 'ddMMyyyy', 'en-US', '010102', 3, 0, ErrorMsg);
     end;
@@ -577,7 +577,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         ErrorMsg :=
           StrSubstNo(IncorrectFormatOrTypeErr, '%1', '%2', '%3', 1, 1, 'Decimal', DataExchColumnDef.FieldCaption("Data Format"),
-            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption, 'This is not a decimal 123');
+            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption(), 'This is not a decimal 123');
 
         VerifyFieldMappingError(1, DataExchColumnDef."Data Type"::Decimal, '', 'da-DK', 'This is not a decimal 123', 4, 1, ErrorMsg);
     end;
@@ -591,7 +591,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         ErrorMsg :=
           StrSubstNo(IncorrectFormatOrTypeErr, '%1', '%2', '%3', 1, 1, 'Decimal', DataExchColumnDef.FieldCaption("Data Format"),
-            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption, '12,345,670');
+            DataExchColumnDef.FieldCaption("Data Formatting Culture"), DataExchColumnDef.TableCaption(), '12,345,670');
 
         VerifyFieldMappingError(1, DataExchColumnDef."Data Type"::Decimal, '', 'da-DK', '12,345,670', 4, 1, ErrorMsg);
     end;
@@ -846,7 +846,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedTestDataExchDestTable, ActualTestDataExchDestTable, StrSubstNo(TableErrorMsg, Msg, LineNo));
-        until (ExpectedTestDataExchDestTable.Next = 0) or (ActualTestDataExchDestTable.Next = 0);
+        until (ExpectedTestDataExchDestTable.Next() = 0) or (ActualTestDataExchDestTable.Next() = 0);
         Assert.AreEqual(ExpectedTestDataExchDestTable.Count, ActualTestDataExchDestTable.Count, 'Row count does not match');
     end;
 

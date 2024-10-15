@@ -136,7 +136,7 @@ report 6698 "Move Negative Purchase Lines"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         Commit();
-        if ToPurchHeader.Find then
+        if ToPurchHeader.Find() then
             if ConfirmManagement.GetResponse(
                  StrSubstNo(Text001, ToPurchHeader."Document Type", ToPurchHeader."No."), true)
             then

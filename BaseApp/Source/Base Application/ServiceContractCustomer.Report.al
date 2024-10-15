@@ -16,7 +16,7 @@ report 5977 "Service Contract - Customer"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServContractHdrCaption; TableCaption + ': ' + ServContractFilter)
@@ -105,9 +105,9 @@ report 5977 "Service Contract - Customer"
                 if ServContractLine.Find('-') then
                     repeat
                         if (("Expiration Date" <> 0D) and
-                            ("Expiration Date" <= WorkDate)) or
+                            ("Expiration Date" <= WorkDate())) or
                            ((ServContractLine."Contract Expiration Date" <> 0D) and
-                            (ServContractLine."Contract Expiration Date" <= WorkDate))
+                            (ServContractLine."Contract Expiration Date" <= WorkDate()))
                         then
                             AmountOnExpiredLines := AmountOnExpiredLines + ServContractLine."Line Amount";
                     until ServContractLine.Next() = 0;
@@ -138,14 +138,15 @@ report 5977 "Service Contract - Customer"
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
     end;
 
     var
-        Text000: Label 'Total for ';
         ServContractLine: Record "Service Contract Line";
         ServContractFilter: Text;
         AmountOnExpiredLines: Decimal;
+
+        Text000: Label 'Total for ';
         ServContractsCustCaptionLbl: Label 'Service Contracts - Customer';
         CurrReportPageNoCaptionLbl: Label 'Page';
         StatusCaptionLbl: Label 'Status';

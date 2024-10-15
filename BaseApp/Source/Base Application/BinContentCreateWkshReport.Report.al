@@ -13,7 +13,7 @@ report 7312 "Bin Content Create Wksh Report"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(LocCode_BinCreateWkshLine; "Location Code")

@@ -74,10 +74,6 @@ page 1252 "Payment Application Rules"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Restore Default Rules';
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Delete the application rules and replace them with the default rules, which control whether payments are automatically applied to open ledger entries.';
 
                 trigger OnAction()
@@ -86,7 +82,7 @@ page 1252 "Payment Application Rules"
                         exit;
 
                     DeleteAll();
-                    InsertDefaultMatchingRules;
+                    InsertDefaultMatchingRules();
                 end;
             }
 
@@ -95,13 +91,23 @@ page 1252 "Payment Application Rules"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Advanced Settings';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Opens advanced settings for configuring payment application matching.';
                 RunObject = page "Payment Application Settings";
                 RunPageOnRec = false;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RestoreDefaultRules_Promoted; RestoreDefaultRules)
+                {
+                }
+                actionref(AdvancedSettings_Promoted; AdvancedSettings)
+                {
+                }
             }
         }
     }

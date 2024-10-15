@@ -1,4 +1,4 @@
-﻿table 5998 "Standard Service Item Gr. Code"
+table 5998 "Standard Service Item Gr. Code"
 {
     Caption = 'Standard Service Item Gr. Code';
     DataCaptionFields = "Service Item Group Code";
@@ -48,8 +48,9 @@
     end;
 
     var
-        Text001: Label '%1 of the standard service code must be equal to %2 on the %3.';
         StdServCode: Record "Standard Service Code";
+
+        Text001: Label '%1 of the standard service code must be equal to %2 on the %3.';
 
     procedure InsertServiceLines(ServItemLine: Record "Service Item Line")
     var
@@ -77,7 +78,7 @@
         StdServItemGrCodesForm.SetTableView(StdServItemGrCode);
         StdServItemGrCodesForm.LookupMode := true;
 
-        if not (StdServItemGrCodesForm.RunModal = ACTION::LookupOK) then
+        if not (StdServItemGrCodesForm.RunModal() = ACTION::LookupOK) then
             exit;
         StdServItemGrCodesForm.GetRecord(StdServItemGrCode);
         StdServItemGrCode.TestField(Code);
@@ -89,7 +90,7 @@
             Error(
               Text001,
               StdServCode.FieldCaption("Currency Code"),
-              ServHeader.FieldCaption("Currency Code"), ServHeader.TableCaption);
+              ServHeader.FieldCaption("Currency Code"), ServHeader.TableCaption());
         StdServLine.SetRange("Standard Service Code", StdServCode.Code);
         Currency.Initialize(StdServCode."Currency Code");
         ServLine."Document Type" := ServItemLine."Document Type";
@@ -113,7 +114,7 @@
                     ServLine.Validate("No.", StdServLine."No.");
                     ServLine.Description := StdServLine.Description
                 end else
-                    if not StdServLine.EmptyLine then begin
+                    if not StdServLine.EmptyLine() then begin
                         StdServLine.TestField("No.");
                         ServLine.Validate("No.", StdServLine."No.");
                         if StdServLine."Variant Code" <> '' then
@@ -135,7 +136,7 @@
 
                 CombineDimensions(ServLine, StdServLine);
 
-                if StdServLine.InsertLine then begin
+                if StdServLine.InsertLine() then begin
                     ServLine."Line No." := ServLine.GetLineNo();
                     OnBeforeInsertServLine(ServLine);
                     ServLine.Insert(true);

@@ -6,7 +6,7 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
     begin
         OnBeforeOnRun(Rec);
         PhysInvtOrderHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PhysInvtOrderHeader;
 
         OnAfterOnRun(Rec);
@@ -28,7 +28,7 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
 
             Window.Open(
               '#1#################################\\' + ReopeningLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "No."));
 
             LockTable();
             PhysInvtOrderLine.LockTable();
@@ -38,7 +38,7 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.Find('-') then
                 repeat
-                    if not PhysInvtOrderLine.EmptyLine then begin
+                    if not PhysInvtOrderLine.EmptyLine() then begin
                         LineCount := LineCount + 1;
                         Window.Update(2, LineCount);
 
@@ -58,7 +58,7 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
                 until PhysInvtOrderLine.Next() = 0;
 
             Status := Status::Open;
-            Modify;
+            Modify();
         end;
     end;
 

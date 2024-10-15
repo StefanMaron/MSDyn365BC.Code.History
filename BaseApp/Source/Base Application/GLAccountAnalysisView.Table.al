@@ -25,11 +25,9 @@ table 376 "G/L Account (Analysis View)"
         {
             Caption = 'Account Type';
         }
-        field(5; "Account Source"; Option)
+        field(5; "Account Source"; Enum "Analysis Account Source")
         {
             Caption = 'Account Source';
-            OptionCaption = 'G/L Account,Cash Flow Account';
-            OptionMembers = "G/L Account","Cash Flow Account";
         }
         field(6; "Global Dimension 1 Code"; Code[20])
         {
@@ -515,11 +513,12 @@ table 376 "G/L Account (Analysis View)"
     }
 
     var
+        AnalysisView: Record "Analysis View";
+
         Text000: Label '1,6,,Dimension 1 Filter';
         Text001: Label '1,6,,Dimension 2 Filter';
         Text002: Label '1,6,,Dimension 3 Filter';
         Text003: Label '1,6,,Dimension 4 Filter';
-        AnalysisView: Record "Analysis View";
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     var

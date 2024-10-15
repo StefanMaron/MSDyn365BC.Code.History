@@ -617,6 +617,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Invoicing - NamedType WrongSalesInvoiceDimensionsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2734264983 - Method 2334650297 - NamedType 504539050" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warehouse Entry for the warehouse pick should have %1 entries for %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = 10, %2 = Bine Code]D;]A;(LookupHint=Codeunit Job Item Tracking - Method VerifyWhseEntryForRegisteredPickWithSN - NamedType WarehouseEntryTotalErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3697367274 - NamedType 3312755539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Enabled must be equal to 'All Users'  in Feature Key: ID=DocumentJournalBackgroundCheck]]></Val>
@@ -1965,15 +1974,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType FieldMustNotBeChangedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3594567583 - NamedType 1794134907" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Nothing to handle]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType NothingToHandleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3594567583 - NamedType 129610050" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

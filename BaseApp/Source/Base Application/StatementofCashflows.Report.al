@@ -33,7 +33,7 @@ report 155 "Statement of Cashflows"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
+        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt");
     end;
 }
 

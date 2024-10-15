@@ -64,7 +64,7 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
                 {
                     Caption = ' ';
                     InstructionalText = 'Choose who is authorized to approve or reject the payment journal lines.';
-                    field("Approver ID"; "Approver ID")
+                    field("Approver ID"; Rec."Approver ID")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Approver';
@@ -72,7 +72,7 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
 
                         trigger OnValidate()
                         begin
-                            CanEnableNext;
+                            CanEnableNext();
                         end;
                     }
                 }
@@ -184,7 +184,7 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
                     ApprovalWorkflowSetupMgt.ApplyPaymantJrnlWizardUserInput(Rec);
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Pmt. App. Workflow Setup Wzrd.");
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -192,17 +192,17 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
 
     trigger OnInit()
     begin
-        if not Get then begin
-            Init;
-            Insert;
+        if not Get() then begin
+            Init();
+            Insert();
         end;
-        LoadTopBanners;
+        LoadTopBanners();
         CurrentBatchIsLabel := StrSubstNo(CurrentBatchTxt, "Journal Batch Name");
     end;
 
     trigger OnOpenPage()
     begin
-        ShowIntroStep;
+        ShowIntroStep();
         if "For All Batches" then
             BatchSelection := BatchSelection::"All Batches"
         else
@@ -254,39 +254,39 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
             Step := Step - 1
         else begin
             if ApproverSelectionVisible then
-                ValidateApprover;
+                ValidateApprover();
             if BatchSelectionVisible then
-                ValidateBatchSelection;
+                ValidateBatchSelection();
             Step := Step + 1;
         end;
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::"Approver Selection":
-                ShowApprovalUserSelectionStep;
+                ShowApprovalUserSelectionStep();
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
         end;
         CurrPage.Update(true);
     end;
 
     local procedure ShowIntroStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         IntroVisible := true;
         BackEnabled := false;
     end;
 
     local procedure ShowApprovalUserSelectionStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         ApproverSelectionVisible := true;
     end;
 
     local procedure ShowDoneStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         DoneVisible := true;
         NextEnabled := false;
         FinishEnabled := true;
@@ -333,8 +333,8 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

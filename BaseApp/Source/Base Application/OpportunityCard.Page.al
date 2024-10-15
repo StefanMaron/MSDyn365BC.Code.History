@@ -2,7 +2,6 @@ page 5124 "Opportunity Card"
 {
     Caption = 'Opportunity Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Opportunity';
     RefreshOnActivate = true;
     SourceTable = Opportunity;
 
@@ -13,7 +12,7 @@ page 5124 "Opportunity Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -24,7 +23,7 @@ page 5124 "Opportunity Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the opportunity.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = ContactNoEditable;
@@ -36,11 +35,11 @@ page 5124 "Opportunity Card"
                     begin
                         if "Contact No." <> '' then
                             if Contact.Get("Contact No.") then
-                                Contact.CheckIfPrivacyBlockedGeneric;
+                                Contact.CheckIfPrivacyBlockedGeneric();
                         ContactNoOnAfterValidate();
                     end;
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -74,7 +73,7 @@ page 5124 "Opportunity Card"
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the contact to which this opportunity is linked.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -82,13 +81,13 @@ page 5124 "Opportunity Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the name of the company of the contact person to which this opportunity is linked. The program automatically fills in this field when you have entered a number in the Contact Company No. field.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     Editable = SalespersonCodeEditable;
                     ToolTip = 'Specifies the code of the salesperson that is responsible for the opportunity.';
                 }
-                field("Sales Document Type"; "Sales Document Type")
+                field("Sales Document Type"; Rec."Sales Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesDocumentTypeEditable;
@@ -96,14 +95,14 @@ page 5124 "Opportunity Card"
                     ToolTip = 'Specifies the type of the sales document (Quote, Order, Posted Invoice). The combination of Sales Document No. and Sales Document Type specifies which sales document is assigned to the opportunity.';
                     ValuesAllowed = " ", Quote, Order;
                 }
-                field("Sales Document No."; "Sales Document No.")
+                field("Sales Document No."; Rec."Sales Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesDocumentNoEditable;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the sales document that has been created for this opportunity.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = CampaignNoEditable;
@@ -117,7 +116,7 @@ page 5124 "Opportunity Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the priority of the opportunity. There are three options:';
                 }
-                field("Sales Cycle Code"; "Sales Cycle Code")
+                field("Sales Cycle Code"; Rec."Sales Cycle Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = SalesCycleCodeEditable;
@@ -134,20 +133,20 @@ page 5124 "Opportunity Card"
                     Importance = Additional;
                     ToolTip = 'Specifies that the opportunity is closed.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the date that the opportunity was created.';
                 }
-                field("Date Closed"; "Date Closed")
+                field("Date Closed"; Rec."Date Closed")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Importance = Additional;
                     ToolTip = 'Specifies the date the opportunity was closed.';
                 }
-                field("Segment No."; "Segment No.")
+                field("Segment No."; Rec."Segment No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Importance = Additional;
@@ -194,8 +193,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Opportunity Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -206,8 +203,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Interaction Log E&ntries';
                     Image = InteractionLog;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Interaction Log Entries";
                     RunPageLink = "Opportunity No." = FIELD("No.");
                     RunPageView = SORTING("Opportunity No.", Date);
@@ -219,9 +214,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Postponed &Interactions';
                     Image = PostponedInteractions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Postponed Interactions";
                     RunPageLink = "Opportunity No." = FIELD("No.");
                     RunPageView = SORTING("Opportunity No.", Date);
@@ -232,8 +224,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'T&asks';
                     Image = TaskList;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Task List";
                     RunPageLink = "Opportunity No." = FIELD("No."),
                                   "System To-do Type" = FILTER(Organizer);
@@ -245,8 +235,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Rlshp. Mgt. Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Opportunity),
                                   "No." = FIELD("No.");
@@ -257,8 +245,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Show Sales Quote';
                     Image = Quote;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show the assigned sales quote.';
 
                     trigger OnAction()
@@ -310,7 +296,7 @@ page 5124 "Opportunity Card"
                         OpportunityRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Opportunity);
-                        Opportunity.Next;
+                        Opportunity.Next();
 
                         if Opportunity.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Opportunity.RecordId)
@@ -384,15 +370,12 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Activate First Stage';
                     Image = "Action";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Specify if the opportunity is to be activated. The status is set to In Progress.';
                     Visible = NOT Started;
 
                     trigger OnAction()
                     begin
-                        StartActivateFirstStage;
+                        StartActivateFirstStage();
                     end;
                 }
                 action(Update)
@@ -400,14 +383,12 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Update';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update all the actions that are related to your opportunity.';
                     Visible = Started;
 
                     trigger OnAction()
                     begin
-                        UpdateOpportunity;
+                        UpdateOpportunity();
                     end;
                 }
                 action(CloseOpportunity)
@@ -415,14 +396,12 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Close';
                     Image = Close;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Close all the actions that are related to your opportunity.';
                     Visible = Started;
 
                     trigger OnAction()
                     begin
-                        CloseOpportunity;
+                        CloseOpportunity();
                     end;
                 }
                 action(CreateSalesQuote)
@@ -431,14 +410,11 @@ page 5124 "Opportunity Card"
                     Caption = 'Create Sales &Quote';
                     Enabled = OppInProgress;
                     Image = Allocate;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new sales quote with the opportunity inserted as the customer.';
 
                     trigger OnAction()
                     begin
-                        CreateQuote;
+                        CreateQuote();
                     end;
                 }
                 action("Print Details")
@@ -453,7 +429,7 @@ page 5124 "Opportunity Card"
                         Opp: Record Opportunity;
                     begin
                         Opp := Rec;
-                        Opp.SetRecFilter;
+                        Opp.SetRecFilter();
                         REPORT.Run(REPORT::"Opportunity - Details", true, false, Opp);
                     end;
                 }
@@ -462,8 +438,6 @@ page 5124 "Opportunity Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create &Interaction';
                     Image = CreateInteraction;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create an interaction with a specified opportunity.';
 
                     trigger OnAction()
@@ -475,6 +449,83 @@ page 5124 "Opportunity Card"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Activate the First Stage_Promoted"; "Activate the First Stage")
+                {
+                }
+                actionref(Update_Promoted; Update)
+                {
+                }
+                actionref(CreateSalesQuote_Promoted; CreateSalesQuote)
+                {
+                }
+                actionref(CloseOpportunity_Promoted; CloseOpportunity)
+                {
+                }
+                actionref("Show Sales Quote_Promoted"; "Show Sales Quote")
+                {
+                }
+                actionref("Create &Interaction_Promoted"; "Create &Interaction")
+                {
+                }
+                actionref("Postponed &Interactions_Promoted"; "Postponed &Interactions")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Opportunity', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Interaction Log E&ntries_Promoted"; "Interaction Log E&ntries")
+                {
+                }
+                actionref("T&asks_Promoted"; "T&asks")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(CRMGotoOpportunity_Promoted; CRMGotoOpportunity)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -483,11 +534,11 @@ page 5124 "Opportunity Card"
     begin
         if "Contact No." <> '' then
             if Contact.Get("Contact No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
+                Contact.CheckIfPrivacyBlockedGeneric();
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
-                Contact.CheckIfPrivacyBlockedGeneric;
-        UpdateEditable;
+                Contact.CheckIfPrivacyBlockedGeneric();
+        UpdateEditable();
         OppInProgress := Status = Status::"In Progress";
         OppNo := "No.";
     end;
@@ -516,14 +567,14 @@ page 5124 "Opportunity Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
         if "Segment No." = '' then
-            SetSegmentFromFilter;
+            SetSegmentFromFilter();
         if "Contact No." = '' then
-            SetContactFromFilter;
+            SetContactFromFilter();
         if "Campaign No." = '' then
-            SetCampaignFromFilter;
-        SetDefaultSalesCycle;
+            SetCampaignFromFilter();
+        SetDefaultSalesCycle();
     end;
 
     trigger OnOpenPage()
@@ -531,14 +582,14 @@ page 5124 "Opportunity Card"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         OppNo := "No.";
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if Get("No.") then
             if ("No." <> OppNo) and (Status = Status::"Not Started") then
-                StartActivateFirstStage;
+                StartActivateFirstStage();
     end;
 
     var

@@ -54,23 +54,23 @@ page 2852 "Native - Tax Group Entity"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        PropagateDelete;
+        PropagateDelete();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        PropagateInsert;
+        PropagateInsert();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        PropagateModify;
+        PropagateModify();
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        LoadRecords;
+        LoadRecords();
     end;
 
     var

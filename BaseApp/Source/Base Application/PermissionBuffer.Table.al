@@ -106,7 +106,7 @@ table 9852 "Permission Buffer"
         Scope: Integer;
         ZeroGuid: Guid;
     begin
-        Scope := GetScope;
+        Scope := GetScope();
         if Type <> Type::Extension then
             exit(ZeroGuid);
 
@@ -118,9 +118,9 @@ table 9852 "Permission Buffer"
 
     procedure OpenPermissionsPage(RunAsModal: Boolean)
     var
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        PermissionSetRelation: Codeunit "Permission Set Relation";
     begin
-        PermissionPagesMgt.ShowPermissions(GetScope, GetAppID, "Permission Set", RunAsModal)
+        PermissionSetRelation.OpenPermissionSetPage("Permission Set", "Permission Set", GetAppID(), GetScope());
     end;
 }
 

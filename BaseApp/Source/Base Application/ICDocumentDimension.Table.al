@@ -38,7 +38,7 @@ table 442 "IC Document Dimension"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckICDim("Dimension Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
                 "Dimension Value Code" := '';
             end;
         }
@@ -51,7 +51,7 @@ table 442 "IC Document Dimension"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckICDimValue("Dimension Code", "Dimension Value Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
             end;
         }
     }

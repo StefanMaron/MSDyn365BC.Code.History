@@ -45,12 +45,11 @@ page 568 "Dimension Selection"
         GLAcc: Record "G/L Account";
         BusinessUnit: Record "Business Unit";
     begin
-        if NewDescription = '' then begin
+        if NewDescription = '' then
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
-        end;
 
-        Init;
+        Init();
         Selected := NewSelected;
         Code := NewCode;
         Description := NewDescription;
@@ -60,7 +59,7 @@ page 568 "Dimension Selection"
             BusinessUnit.TableCaption:
                 "Filter Lookup Table No." := DATABASE::"Business Unit";
         end;
-        Insert;
+        Insert();
     end;
 }
 

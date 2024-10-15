@@ -258,7 +258,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
 
         // [THEN] New General Journal Line has been created with "Posting Date" = "D2", "Currency Code" = "C", "Currency Factor" = 200.
-        GenJournalLine.Next;
+        GenJournalLine.Next();
         Assert.AreEqual(NewPostingDate, GenJournalLine."Posting Date", GenJournalLine.FieldCaption("Posting Date"));
         Assert.AreEqual(CurrencyCode, GenJournalLine."Currency Code", GenJournalLine.FieldCaption("Currency Code"));
         Assert.AreEqual(CurrencyFactor[2], GenJournalLine."Currency Factor", GenJournalLine.FieldCaption("Currency Factor"));
@@ -536,7 +536,7 @@ codeunit 134921 "ERM Standard Journal"
         CurrencyFactor[2] := CurrencyFactor[1] + LibraryRandom.RandDecInRange(100, 200, 2);
         NewPostingDate := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 20));
         CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, CurrencyFactor[1], CurrencyFactor[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), CurrencyFactor[1], CurrencyFactor[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, CurrencyFactor[2], CurrencyFactor[2]);
     end;
 
@@ -586,7 +586,7 @@ codeunit 134921 "ERM Standard Journal"
             GenJournalLine2.Init();
             GenJournalLine2 := GenJournalLine;
             GenJournalLine2.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure UpdateStandardJournalLine(JournalTemplateName: Code[10]; StandardJournalCode: Code[10]): Code[20]
@@ -625,7 +625,7 @@ codeunit 134921 "ERM Standard Journal"
             CustLedgerEntry.FindFirst();
             CustLedgerEntry.CalcFields(Amount);
             CustLedgerEntry.TestField(Amount, GenJournalLine.Amount);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyGeneralJournalLines(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10])
@@ -637,8 +637,8 @@ codeunit 134921 "ERM Standard Journal"
         FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         repeat
             StandardGeneralJournalLine.TestField(Amount, GenJournalLine.Amount);
-            StandardGeneralJournalLine.Next;
-        until GenJournalLine.Next = 0;
+            StandardGeneralJournalLine.Next();
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyGeneralJournalLinesWithDocNo(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10]; DocumentNo: Code[20])
@@ -652,8 +652,8 @@ codeunit 134921 "ERM Standard Journal"
         repeat
             StandardGeneralJournalLine.TestField(Amount, GenJournalLine.Amount);
             GenJournalLine.TestField("Document No.", DocumentNo);
-            StandardGeneralJournalLine.Next;
-        until GenJournalLine.Next = 0;
+            StandardGeneralJournalLine.Next();
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyStandardJournalLines(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10])
@@ -665,8 +665,8 @@ codeunit 134921 "ERM Standard Journal"
         FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         repeat
             GenJournalLine.TestField(Amount, StandardGeneralJournalLine.Amount);
-            GenJournalLine.Next;
-        until StandardGeneralJournalLine.Next = 0;
+            GenJournalLine.Next();
+        until StandardGeneralJournalLine.Next() = 0;
     end;
 
     local procedure VerifySameDocumentNumberForCreatedGenJnlLines(GenJournalBatch: Record "Gen. Journal Batch")

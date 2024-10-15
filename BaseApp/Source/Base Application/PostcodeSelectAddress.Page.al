@@ -17,7 +17,7 @@ page 9140 "Postcode Select Address"
             {
                 field(Value; Value)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the postal code.';
                 }
@@ -34,7 +34,7 @@ page 9140 "Postcode Select Address"
         if TempAddressListNameValueBuffer.FindSet() then
             repeat
                 Rec := TempAddressListNameValueBuffer;
-                Insert;
+                Insert();
             until TempAddressListNameValueBuffer.Next() = 0;
 
         FindFirst(); // Move selection to the first one

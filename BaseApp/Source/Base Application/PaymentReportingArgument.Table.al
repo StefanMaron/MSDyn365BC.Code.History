@@ -2,6 +2,14 @@ table 1062 "Payment Reporting Argument"
 {
     Caption = 'Payment Reporting Argument';
     Permissions = TableData "Payment Reporting Argument" = rimd;
+    ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -62,7 +70,7 @@ table 1062 "Payment Reporting Argument"
         InStream: InStream;
     begin
         CalcFields("Target URL");
-        if "Target URL".HasValue then begin
+        if "Target URL".HasValue() then begin
             "Target URL".CreateInStream(InStream);
             InStream.Read(TargetURL);
         end;
@@ -78,7 +86,7 @@ table 1062 "Payment Reporting Argument"
 
         "Target URL".CreateOutStream(OutStream);
         OutStream.Write(ServiceURL);
-        Modify;
+        Modify();
     end;
 
     [TryFunction]

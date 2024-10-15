@@ -18,7 +18,7 @@ page 1827 "Business Units Setup Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the business unit is include on the subform.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

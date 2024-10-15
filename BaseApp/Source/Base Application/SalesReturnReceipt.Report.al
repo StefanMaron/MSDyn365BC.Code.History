@@ -396,14 +396,14 @@ report 6646 "Sales - Return Receipt"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Return Receipt - Printed", "Return Receipt Header");
                 end;
 
@@ -488,7 +488,7 @@ report 6646 "Sales - Return Receipt"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -503,12 +503,12 @@ report 6646 "Sales - Return Receipt"
         SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Return Receipt Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(20, "Return Receipt Header"."No.", 0, 0, DATABASE::Customer,
@@ -520,12 +520,10 @@ report 6646 "Sales - Return Receipt"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text002: Label 'Sales - Return Receipt %1', Comment = '%1 = Document No.';
-        Text003: Label 'Page %1';
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
@@ -560,6 +558,9 @@ report 6646 "Sales - Return Receipt"
         TypeInt: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        Text002: Label 'Sales - Return Receipt %1', Comment = '%1 = Document No.';
+        Text003: Label 'Page %1';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegNoCptnLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
@@ -589,7 +590,7 @@ report 6646 "Sales - Return Receipt"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(ReturnReceiptHeader: Record "Return Receipt Header")

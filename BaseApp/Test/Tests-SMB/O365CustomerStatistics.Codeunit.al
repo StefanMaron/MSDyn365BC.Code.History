@@ -123,7 +123,7 @@ codeunit 138009 "O365 Customer Statistics"
                 Open := false;
 
                 "Closed at Date" := WorkDate + Day1;
-                Modify;
+                Modify();
             end;
 
         ValidateAvgDaysToPay(Day1, Customer);
@@ -167,16 +167,16 @@ codeunit 138009 "O365 Customer Statistics"
     local procedure CreateBasicCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             if FindLast() then
                 "Entry No." += 1
             else
                 "Entry No." := 1;
 
             "Customer No." := CustNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -188,7 +188,7 @@ codeunit 138009 "O365 Customer Statistics"
             CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
             "Document Type" := "Document Type"::Invoice;
             Open := false;
-            Modify;
+            Modify();
         end;
 
         CreateBasicCustLedgerEntry(CustLedgEntry, CustNo);
@@ -197,7 +197,7 @@ codeunit 138009 "O365 Customer Statistics"
             CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
             "Document Type" := "Document Type"::Payment;
             Open := false;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -217,7 +217,7 @@ codeunit 138009 "O365 Customer Statistics"
             "Document Type" := "Document Type"::Invoice;
             Open := false;
 
-            Modify;
+            Modify();
         end;
 
         with CustLedgEntryPmnt do begin
@@ -227,7 +227,7 @@ codeunit 138009 "O365 Customer Statistics"
 
             "Posting Date" += PaiInDays;
             "Closed by Entry No." := CustLedgEntryInv."Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -242,7 +242,7 @@ codeunit 138009 "O365 Customer Statistics"
             Open := false;
 
             "Posting Date" += PaiInDays;
-            Modify;
+            Modify();
         end;
 
         with CustLedgEntryInv do begin
@@ -251,7 +251,7 @@ codeunit 138009 "O365 Customer Statistics"
             Open := false;
 
             "Closed by Entry No." := CustLedgEntryPmnt."Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -264,7 +264,7 @@ codeunit 138009 "O365 Customer Statistics"
             CreateBasicCustLedgerEntry(CustLedgEntryInv, Customer."No.");
             "Document Type" := "Document Type"::Invoice;
 
-            Modify;
+            Modify();
         end;
 
         with CustLedgEntryPmnt do begin
@@ -273,7 +273,7 @@ codeunit 138009 "O365 Customer Statistics"
             Open := false;
 
             "Closed by Entry No." := CustLedgEntryInv."Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -285,7 +285,7 @@ codeunit 138009 "O365 Customer Statistics"
             CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
             "Document Type" := "Document Type"::Invoice;
             "Sales (LCY)" := InvAmount;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -298,7 +298,7 @@ codeunit 138009 "O365 Customer Statistics"
             CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
             "Document Type" := "Document Type"::"Credit Memo";
             "Sales (LCY)" := InvAmount;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -336,7 +336,7 @@ codeunit 138009 "O365 Customer Statistics"
     begin
         Initialize();
 
-        DateFilterCalc.CreateFiscalYearFilter(DateFilterExpected, CustDateName, WorkDate, 0);
+        DateFilterCalc.CreateFiscalYearFilter(DateFilterExpected, CustDateName, WorkDate(), 0);
         DateFilterActual := CustomerMgt.GetCurrentYearFilter;
         Assert.AreEqual(DateFilterExpected, DateFilterActual, 'Wrong fiscal year calculation.')
     end;
@@ -517,10 +517,10 @@ codeunit 138009 "O365 Customer Statistics"
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
-                if not SalesQuotes.Next then
+                if not SalesQuotes.Next() then
                     Error(ExpectedAnotherErr);
 
-            SalesQuotes.Close;
+            SalesQuotes.Close();
         end;
     end;
 
@@ -552,10 +552,10 @@ codeunit 138009 "O365 Customer Statistics"
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
-                if not SalesOrderList.Next then
+                if not SalesOrderList.Next() then
                     Error(ExpectedAnotherErr);
 
-            SalesOrderList.Close;
+            SalesOrderList.Close();
         end;
     end;
 
@@ -587,10 +587,10 @@ codeunit 138009 "O365 Customer Statistics"
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
-                if not SalesInvoiceList.Next then
+                if not SalesInvoiceList.Next() then
                     Error(ExpectedAnotherErr);
 
-            SalesInvoiceList.Close;
+            SalesInvoiceList.Close();
         end;
     end;
 
@@ -622,10 +622,10 @@ codeunit 138009 "O365 Customer Statistics"
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
-                if not SalesCreditMemos.Next then
+                if not SalesCreditMemos.Next() then
                     Error(ExpectedAnotherErr);
 
-            SalesCreditMemos.Close;
+            SalesCreditMemos.Close();
         end;
     end;
 
@@ -660,9 +660,9 @@ codeunit 138009 "O365 Customer Statistics"
         repeat
             if not (SalesList."No.".Value in [InvoiceSalesHeader."No.", CreditMemoSalesHeader."No."]) then
                 Error(ExpectedAnotherErr);
-        until SalesList.Next;
+        until SalesList.Next();
 
-        SalesList.Close;
+        SalesList.Close();
     end;
 
     local procedure ValidateAmountOnPostedInvoices(CustNo: Code[20]; ExpectedAmount: Decimal; ExpectedCount: Integer)

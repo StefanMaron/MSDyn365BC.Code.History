@@ -52,7 +52,7 @@ report 902 "Assembly Order"
             column(SalesDocNo; SalesDocNo)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             dataitem("Assembly Line"; "Assembly Line")

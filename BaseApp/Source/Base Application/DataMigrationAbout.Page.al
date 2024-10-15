@@ -72,8 +72,9 @@ page 1798 "Data Migration About"
     }
 
     var
+        DataMigrationFacade: Codeunit "Data Migration Facade";
+
         GeneralHelpTopicUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=859445', Locked = true;
         LearnMoreLbl: Label 'Learn more';
-        DataMigrationFacade: Codeunit "Data Migration Facade";
 }
 
