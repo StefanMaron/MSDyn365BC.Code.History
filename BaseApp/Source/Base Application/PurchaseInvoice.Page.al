@@ -1594,6 +1594,11 @@ page 51 "Purchase Invoice"
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostDocument(Rec, xRec, PostingCodeunitID, IsHandled);
+        if IsHandled then
+            exit;
+
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
@@ -1778,6 +1783,11 @@ page 51 "Purchase Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePostDocument(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; PostingCodeunitID: Integer; var IsHandled: Boolean)
     begin
     end;
 

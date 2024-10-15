@@ -1095,7 +1095,9 @@ codeunit 1173 "Document Attachment Mgmt"
                 ToNo := ToFieldRef.Value;
                 ToDocumentAttachment.Validate("No.", ToNo);
                 Clear(ToDocumentAttachment."Document Type");
+                OnCopyAttachmentsForPostedDocsOnBeforeToDocumentAttachmentInsert(FromDocumentAttachment, ToDocumentAttachment);
                 ToDocumentAttachment.Insert(true);
+                OnCopyAttachmentsForPostedDocsOnAfterToDocumentAttachmentInsert(FromDocumentAttachment, ToDocumentAttachment);
 
             until FromDocumentAttachment.Next() = 0;
         end;
@@ -1288,6 +1290,16 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDocAttachForPostedSalesDocs(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyAttachmentsForPostedDocsOnBeforeToDocumentAttachmentInsert(var FromDocumentAttachment: Record "Document Attachment"; var ToDocumentAttachment: Record "Document Attachment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyAttachmentsForPostedDocsOnAfterToDocumentAttachmentInsert(var FromDocumentAttachment: Record "Document Attachment"; var ToDocumentAttachment: Record "Document Attachment")
     begin
     end;
 }

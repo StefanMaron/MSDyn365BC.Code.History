@@ -21,7 +21,13 @@ codeunit 5053 TAPIManagement
         Contact: Record Contact;
         Task: Record "To-do";
         TempSegmentLine: Record "Segment Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDialContCustVendBank(TableNo, No, PhoneNo, ContAltAddrCode, IsHandled);
+        if IsHandled then
+            exit;
+
         case TableNo of
             DATABASE::Contact:
                 Contact.Get(No);
@@ -141,6 +147,11 @@ codeunit 5053 TAPIManagement
                 end;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDialContCustVendBank(TableNo: Integer; No: Code[20]; PhoneNo: Text[30]; ContAltAddrCode: Code[10]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

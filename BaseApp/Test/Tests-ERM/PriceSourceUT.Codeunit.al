@@ -2072,7 +2072,7 @@ codeunit 134120 "Price Source UT"
         PriceListLine.Insert();
 
         // [WHEN] Run upgrade for seeting Price Source group
-        PriceSourceGroupUpgrade(true);
+        PriceSourceGroupUpgrade();
 
         // [THEN] Price Line, where Status is Active, "Source Group" is Customer
         PriceListLine.Find();
@@ -2105,12 +2105,12 @@ codeunit 134120 "Price Source UT"
         PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
         PriceListLine."Source Type" := PriceListLine."Source Type"::"All Jobs";
         PriceListLine."Source Group" := PriceListLine."Source Group"::All;
-        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Status := "Price Status"::Draft;
         PriceListLine.Insert();
 
-        // [WHEN] Run upgrade for setting Price Source group (with uncontrolled status change)
-        PriceSourceGroupUpgrade(false);
-        // [THEN] Price Line, where Status is Draft (!), "Source Group" is Job
+        // [WHEN] Run upgrade for setting Price Source group 
+        PriceSourceGroupUpgrade();
+        // [THEN] Price Line, where Status is Draft, "Source Group" is Job
         PriceListLine.Find();
         PriceListLine.TestField(Status, "Price Status"::Draft);
         PriceListLine.TestField("Source Group", PriceListLine."Source Group"::Job);
@@ -2303,7 +2303,7 @@ codeunit 134120 "Price Source UT"
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Any);
     end;
 
-    local procedure PriceSourceGroupUpgrade(New: Boolean)
+    local procedure PriceSourceGroupUpgrade()
     var
         PriceListLine: Record "Price List Line";
     begin
@@ -2324,16 +2324,7 @@ codeunit 134120 "Price Source UT"
                             PriceListLine."Source Group" := "Price Source Group"::Customer;
                     end;
                 if PriceListLine."Source Group" <> "Price Source Group"::All then
-                    if New then begin
-                        if PriceListLine.Status = "Price Status"::Active then begin
-                            PriceListLine.Status := "Price Status"::Draft;
-                            PriceListLine.Modify();
-                            PriceListLine.Status := "Price Status"::Active;
-                            PriceListLine.Modify();
-                        end else
-                            PriceListLine.Modify();
-                    end else
-                        PriceListLine.Modify();
+                    PriceListLine.Modify();
             until PriceListLine.Next() = 0;
     end;
 
