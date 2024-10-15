@@ -31,14 +31,15 @@ codeunit 1368 "Monitored Field Notification"
     begin
         SendToList.Add(GetRecipient());
         if UseNewEmailFeature then begin
-            EmailMessage.Create(SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."), GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry."Old Value", ChangeLogEntry."New Value"), true);
+            EmailMessage.Create(SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."), GetEmailBody(RecRef, ChangeLogEntry."Field No.",
+            ChangeLogEntry.GetLocalOldValue(), ChangeLogEntry.GetLocalNewValue()), true);
 
             Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
             ChangeLogEntry."Notification Message Id" := EmailMessage.GetId();
             exit(true);
         end else
             if SMTPMail.CreateMessage(FromMsg, MailManagement.GetSenderEmailAddress(), SendToList, GetEmailSubject(RecRef, ChangeLogEntry."Field No."),
-                GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry."Old Value", ChangeLogEntry."New Value"), true) then
+                GetEmailBody(RecRef, ChangeLogEntry."Field No.", ChangeLogEntry.GetLocalOldValue(), ChangeLogEntry.GetLocalNewValue()), true) then
                 exit(SMTPMail.Send());
     end;
 

@@ -95,7 +95,6 @@ table 7330 "Bin Content Buffer"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
-            CaptionClass = '6,1';
             DataClassification = SystemMetadata;
         }
         field(14900; "CD No."; Code[50])
@@ -107,7 +106,9 @@ table 7330 "Bin Content Buffer"
 
     keys
     {
+#pragma warning disable AS0009
         key(Key1; "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Clustered = true;
         }
@@ -119,7 +120,10 @@ table 7330 "Bin Content Buffer"
 
     procedure UpdateBuffer(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
     begin
-        if Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, WhseItemTrackingSetup."Lot No.", WhseItemTrackingSetup."Serial No.") then begin
+        if Get(
+            LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode,
+            WhseItemTrackingSetup."Lot No.", WhseItemTrackingSetup."Serial No.", WhseItemTrackingSetup."Package No.")
+        then begin
             "Qty. to Handle (Base)" += QtyBase;
             Modify();
         end else begin

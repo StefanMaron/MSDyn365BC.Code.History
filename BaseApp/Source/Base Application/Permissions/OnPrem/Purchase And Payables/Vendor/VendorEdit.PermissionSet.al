@@ -64,6 +64,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Price List Header" = Rid,
                   tabledata "Price List Line" = Rid,
                   tabledata "Price Source" = Rid,
+                  tabledata "Price Worksheet Line" = Rid,
                   tabledata "Purch. Cr. Memo Hdr." = rm,
                   tabledata "Purch. Cr. Memo Line" = rm,
                   tabledata "Purch. Inv. Header" = rm,

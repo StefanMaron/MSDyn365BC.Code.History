@@ -122,6 +122,7 @@
         ItemLedgEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
         ItemLedgEntry.SetRange(Positive, true);
         ItemLedgEntry.SetRange(Open, true);
+        OnPrepareTempDataSetOnAfterItemLedgEntrySetFilters(ItemLedgEntry, TempTrackingSpecification);
 
         if ItemLedgEntry.FindSet then
             repeat
@@ -675,6 +676,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnReserveItemTrackingLineOnBeforeAutoReserveOneLine(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareTempDataSetOnAfterItemLedgEntrySetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }

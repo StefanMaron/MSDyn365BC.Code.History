@@ -21,8 +21,8 @@ codeunit 139058 "Office OCR Test"
         SendToOCRActionNotVisibleMsg: Label 'SendToOCR Action is not visible when OCR set up is Disabled';
         SendToOCRActionOfficeMobileVisibleMsg: Label 'SendToOCR Action is not visible when in Outlook Moblie App Add-in';
         SendToOCRActionVisibleMsg: Label 'SendToOCR Action is visible when OCR set up is Enabled';
-        SendToOCRActionEnabledMsg: Label 'SendToOCR Action is enabled when attachements exist';
-        SendToOCRActionDisabledMsg: Label 'SendToOCR Action is disabled when attachements do not exist';
+        SendToOCRActionEnabledMsg: Label 'SendToOCR Action is enabled when attachments exist';
+        SendToOCRActionDisabledMsg: Label 'SendToOCR Action is disabled when attachments do not exist';
         SendToOCRMsg: Label 'The attachment was not successfully send to OCR';
         SendAttachmentToIncomingDocumentMsg: Label 'The attachment was not successfully sent to Incoming Documents';
         SendIncomingDocApprovalRequestMsg: Label 'The Incoming Document Approval request for attachment was not successfully send';

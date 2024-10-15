@@ -657,7 +657,7 @@
             else
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
             LastOperation := (not NextOperationExist(ProdOrderRtngLine));
-            OnPostOutputOnBeforeProdOrderRtngLineModify(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine);
+            OnPostOutputOnBeforeProdOrderRtngLineModify(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine, LastOperation);
             ProdOrderRtngLine.Modify();
         end;
     end;
@@ -670,11 +670,13 @@
 
         with ItemJnlLine do begin
             SKUExists := SKU.Get("Location Code", "Item No.", "Variant Code");
-            OnPostItemOnAfterGetSKU(ItemJnlLine, SKUExists);
-            if "Item Shpt. Entry No." <> 0 then begin
-                "Location Code" := '';
-                "Variant Code" := '';
-            end;
+            IsHandled := false;
+            OnPostItemOnAfterGetSKU(ItemJnlLine, SKUExists, IsHandled);
+            if not IsHandled then
+                if "Item Shpt. Entry No." <> 0 then begin
+                    "Location Code" := '';
+                    "Variant Code" := '';
+                end;
 
             if GetItem("Item No.", false) then begin
                 if not CalledFromAdjustment then
@@ -687,6 +689,7 @@
                 "Inventory Posting Group" := Item."Inventory Posting Group";
             end;
 
+            OnPostItemOnBeforeSetAverageTransfer(ItemJnlLine);
             if ("Entry Type" = "Entry Type"::Transfer) and
                (Item."Costing Method" = Item."Costing Method"::Average) and
                ("Applies-to Entry" = 0)
@@ -1492,7 +1495,13 @@
         CostItemLedgEntry: Record "Item Ledger Entry";
         InventoryPeriod: Record "Inventory Period";
         Valuationdate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUnApply(ItemApplnEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not InventoryPeriod.IsValidDate(ItemApplnEntry."Posting Date") then
             InventoryPeriod.ShowError(ItemApplnEntry."Posting Date");
 
@@ -1916,6 +1925,7 @@
                 if ItemLedgEntry."Remaining Quantity" + ItemLedgEntry."Reserved Quantity" = 0 then
                     exit;
             end;
+            OnApplyItemLedgEntryOnApplicationLoop(ItemLedgEntry);
         until false;
 
         OnAfterApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
@@ -2230,8 +2240,10 @@
 
         with ItemJnlLine do begin
             if ItemLedgEntry.Open then begin
-                OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine, ItemLedgEntry);
-                ItemLedgEntry.VerifyOnInventory();
+                IsHandled := false;
+                OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine, ItemLedgEntry, IsHandled);
+                if not IsHandled then
+                    ItemLedgEntry.VerifyOnInventory();
 
                 IsHandled := false;
                 OnInsertItemLedgEntryOnCheckItemTracking(ItemJnlLine, ItemLedgEntry, GlobalItemTrackingCode, IsHandled);
@@ -3159,10 +3171,7 @@
                 then begin
                     if ValueEntry."Invoiced Quantity" <> 0 then begin
                         "Invoiced Quantity" := "Invoiced Quantity" + ValueEntry."Invoiced Quantity";
-                        if Abs("Invoiced Quantity") > Abs(Quantity) then
-                            Error(Text030, "Entry No.");
-                        VerifyInvoicedQty(ItemLedgEntry, ValueEntry);
-                        ModifyEntry := true;
+                        CheckInvoicedQuantity(ItemLedgEntry, ValueEntry, ModifyEntry);
                     end;
 
                     if ("Entry Type" <> "Entry Type"::Output) and
@@ -3851,6 +3860,8 @@
         PostItemJnlLine: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeSetupSplitJnlLineProcedure(ItemJnlLine2, TrackingSpecExists, CalledFromAdjustment);
+
         ItemJnlLineOrigin := ItemJnlLine2;
         TempSplitItemJnlLine.Reset();
         TempSplitItemJnlLine.DeleteAll();
@@ -4103,6 +4114,7 @@
 
     local procedure CheckExpirationDate(var ItemJnlLine2: Record "Item Journal Line"; SignFactor: Integer; CalcExpirationDate: Date; var ExpirationDateChecked: Boolean)
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ExistingExpirationDate: Date;
         EntriesExist: Boolean;
         SumOfEntries: Decimal;
@@ -4116,13 +4128,7 @@
             exit;
 
         ExistingExpirationDate :=
-          ItemTrackingMgt.ExistingExpirationDate(
-            TempTrackingSpecification."Item No.",
-            TempTrackingSpecification."Variant Code",
-            TempTrackingSpecification."Lot No.",
-            TempTrackingSpecification."Serial No.",
-            true,
-            EntriesExist);
+          ItemTrackingMgt.ExistingExpirationDate(TempTrackingSpecification, true, EntriesExist);
 
         if not (EntriesExist or ExpirationDateChecked) then begin
             ItemTrackingMgt.TestExpDateOnTrackingSpec(TempTrackingSpecification);
@@ -4160,13 +4166,11 @@
                 TempTrackingSpecification.TestField("Expiration Date", ExistingExpirationDate);
         end else   // Demand
             if ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer then begin
+                ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
                 ExistingExpirationDate :=
                   ItemTrackingMgt.ExistingExpirationDateAndQty(
-                    TempTrackingSpecification."Item No.",
-                    TempTrackingSpecification."Variant Code",
-                    TempTrackingSpecification."New Lot No.",
-                    TempTrackingSpecification."New Serial No.",
-                    SumOfEntries);
+                    TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code",
+                    ItemTrackingSetup, SumOfEntries);
 
                 if (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) and
                    (ItemJnlLine2."Order No." <> '')
@@ -4391,13 +4395,7 @@
         OnAfterInsertCorrItemLedgEntry(NewItemLedgEntry, ItemJnlLine, OldItemLedgEntry);
 
         if NewItemLedgEntry."Item Tracking" <> NewItemLedgEntry."Item Tracking"::None then
-            ItemTrackingMgt.ExistingExpirationDate(
-              NewItemLedgEntry."Item No.",
-              NewItemLedgEntry."Variant Code",
-              NewItemLedgEntry."Lot No.",
-              NewItemLedgEntry."Serial No.",
-              true,
-              EntriesExist);
+            ItemTrackingMgt.ExistingExpirationDate(NewItemLedgEntry, true, EntriesExist);
     end;
 
     local procedure UpdateOldItemLedgEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; LastInvoiceDate: Date)
@@ -4490,6 +4488,7 @@
                     ItemLedgEntry."Applied Entry to Adjust" := true;
                     ItemLedgEntry.Modify();
                 end;
+                OnUpdateOrigAppliedFromEntryOnItemApplEntryLoop(ItemLedgEntry, ItemApplEntry);
             until ItemApplEntry.Next() = 0;
     end;
 
@@ -4999,7 +4998,7 @@
                 end else
                     exit(false); // no applications found that could be undone
                 if not Enough and FixedApplication then
-                    Error(Text027);
+                    ShowFixedApplicationError();
                 exit(Enough);
             end;
             exit(true);
@@ -5123,7 +5122,13 @@
     var
         ValueEntry: Record "Value Entry";
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTouchItemEntryCost(ItemLedgerEntry, ItemJnlLine, IsAdjustment, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemLedgerEntry do begin
             "Applied Entry to Adjust" := true;
             SetAdjmtProperties(
@@ -6123,7 +6128,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnBeforeProdOrderRtngLineModify(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnPostOutputOnBeforeProdOrderRtngLineModify(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJournalLine: Record "Item Journal Line"; var LastOperation: Boolean)
     begin
     end;
 
@@ -6543,7 +6548,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemOnAfterGetSKU(var ItemJnlLine: Record "Item Journal Line"; var SKUExists: Boolean)
+    local procedure OnPostItemOnAfterGetSKU(var ItemJnlLine: Record "Item Journal Line"; var SKUExists: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6932,6 +6937,33 @@
         SkipSerialNoQtyValidation := NewSkipSerialNoQtyValidation;
     end;
 
+    local procedure CheckInvoicedQuantity(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; var ModifyEntry: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInvoicedQuantity(ItemLedgEntry, ValueEntry, ModifyEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Abs(ItemLedgEntry."Invoiced Quantity") > Abs(ItemLedgEntry.Quantity) then
+            Error(Text030, ItemLedgEntry."Entry No.");
+        VerifyInvoicedQty(ItemLedgEntry, ValueEntry);
+        ModifyEntry := true;
+    end;
+
+    local procedure ShowFixedApplicationError()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowFixedApplicationError(IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text027);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnVerifyInvoicedQtyOnAfterGetSalesShipmentHeader(ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -7008,7 +7040,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7129,6 +7161,46 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCheckItemTracking(var ItemJnlLine: Record "Item Journal Line"; DisableItemTracking: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvoicedQuantity(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; var ModifyEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOrigAppliedFromEntryOnItemApplEntryLoop(var ItemLedgEntry: Record "Item Ledger Entry"; ItemApplEntry: Record "Item Application Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnApplicationLoop(var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnBeforeSetAverageTransfer(var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTouchItemEntryCost(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line"; IsAdjustment: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnApply(var ItemApplnEntry: Record "Item Application Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupSplitJnlLineProcedure(var ItemJnlLine2: Record "Item Journal Line"; TrackingSpecExists: Boolean; CalledFromAdjustment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowFixedApplicationError(var IsHandled: Boolean)
     begin
     end;
 }

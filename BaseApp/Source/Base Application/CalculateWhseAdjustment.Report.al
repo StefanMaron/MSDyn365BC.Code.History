@@ -388,7 +388,7 @@ report 7315 "Calculate Whse. Adjustment"
         TempBinContentBuffer.FindSet();
         repeat
             WarehouseEntry.SetCurrentKey(
-              "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.", "Entry Type");
+              "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
             WarehouseEntry.SetRange("Item No.", TempBinContentBuffer."Item No.");
             WarehouseEntry.SetRange("Bin Code", TempBinContentBuffer."Bin Code");
             WarehouseEntry.SetRange("Location Code", TempBinContentBuffer."Location Code");

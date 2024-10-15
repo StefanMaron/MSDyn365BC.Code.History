@@ -2,7 +2,7 @@ permissionset 8689 "Fixed Assets - View"
 {
     Access = Public;
     Assignable = false;
-    Caption = 'Fixed asset periodic activities';
+    Caption = 'FA periodic activities';
 
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Date Compr. Register" = RimD,

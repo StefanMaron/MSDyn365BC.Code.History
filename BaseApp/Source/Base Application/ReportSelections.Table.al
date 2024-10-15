@@ -1,4 +1,4 @@
-table 77 "Report Selections"
+﻿table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -1657,6 +1657,7 @@ table 77 "Report Selections"
         if Evaluate(SequenceInteger, SequenceText) then begin
             CustomReportSelection.SetRange(Usage, ReportUsage);
             CustomReportSelection.SetRange(Sequence, SequenceInteger);
+            OnGetNextEmailAddressFromCustomReportSelectionOnAfterCustomReportSelectionSetFilters(CustomReportSelection);
             if CustomReportSelection.FindFirst then
                 if CustomReportSelection.GetSendToEmail(true) <> '' then
                     exit(CustomReportSelection."Send To Email");
@@ -2029,6 +2030,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSaveReportAsHTMLOnBeforeSetTempLayoutSelected(RecordVariant: Variant; ReportUsage: Enum "Report Selection Usage"; var ReportID: Integer; var LayoutCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNextEmailAddressFromCustomReportSelectionOnAfterCustomReportSelectionSetFilters(var CustomReportSelection: Record "Custom Report Selection")
     begin
     end;
 }

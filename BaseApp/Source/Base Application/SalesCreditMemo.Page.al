@@ -671,24 +671,28 @@ page 44 "Sales Credit Memo"
             part(Control1903720907; "Sales Hist. Sell-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1907234507; "Sales Hist. Bill-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1906127307; "Sales Line FactBox")
             {
@@ -1384,11 +1388,7 @@ page 44 "Sales Credit Memo"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        SetFilterByResponsibilityCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1399,6 +1399,22 @@ page 44 "Sales Credit Memo"
         SetControlAppearance;
         if ("No." <> '') and ("Sell-to Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
+    end;
+
+    local procedure SetFilterByResponsibilityCenter()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetFilterByResponsibilityCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserMgt.GetSalesFilter <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserMgt.GetSalesFilter());
+            FilterGroup(0);
+        end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1588,6 +1604,11 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFilterByResponsibilityCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

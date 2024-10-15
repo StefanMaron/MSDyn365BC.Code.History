@@ -38,6 +38,7 @@ permissionset 4936 "Inventory - Periodic"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Responsibility Center" = R,
                   tabledata "Rounding Method" = R,

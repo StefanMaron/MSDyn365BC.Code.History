@@ -1383,6 +1383,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
         // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied vendor entries
+        // [SCENARIO 390972] clears "Applies-to ID" in vendor ledger entries
         Init();
 
         // [GIVEN] Journal line with applied vendor invoice
@@ -1399,6 +1400,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = False
         VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+
+        // [THEN] "Vendor Ledger Entry"."Applies-to ID" = ''
+        VendorLedgerEntry.TestField("Applies-to ID", '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1413,7 +1417,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
-        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied customer entries
+        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied customer entries        
+        // [SCENARIO 390972] clears "Applies-to ID" in customer ledger entries
         Init();
 
         // [GIVEN] Journal line with applied customer invoice
@@ -1430,6 +1435,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] Journal and customer ledger entry have "Exported to Payment File" = False
         VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+
+        // [THEN] "Cust Ledger Entry"."Applies-to ID" = ''
+        CustLedgerEntry.TestField("Applies-to ID", '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1630,6 +1638,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         VendorLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
         VendorLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
 
         UpdateGenJournalLine(GenJournalLine, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
@@ -1644,6 +1654,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
         CustLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        CustLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
 
         UpdateGenJournalLine(GenJournalLine, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");

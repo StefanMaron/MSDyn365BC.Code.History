@@ -1263,36 +1263,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [THEN] Item is not created, error message thrown by system
         Assert.ExpectedError('VAT Posting Setup does not exist');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplCreateCustomerWithAdditionalFields()
-    var
-        Customer: Record Customer;
-        CustomerTempl: Record "Customer Templ.";
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
-    begin
-        // [SCENARIO 353440] Create new customer with additional fields ("Customer Discount Group", "Customer Price Group" and others)
-        Initialize();
-        CustomerTempl.DeleteAll();
-        BindSubscription(CustVendItemEmplTemplates);
-        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
-
-        // [GIVEN] Template "T" with additional data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
-        UpdateCustomerTemplateAdditionalFields(CustomerTempl);
-
-        // [WHEN] Create new customer
-        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
-
-        // [THEN] Customer inserted with data from "T"
-        VerifyCustomer(Customer, CustomerTempl);
-        // [THEN] Customer dimensions inserted from "T" dimensions
-        VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl.Code);
-        // [THEN] Customer contains data from "T" additional fields
-        VerifyCustomerAdditionalFields(Customer, CustomerTempl);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2003,6 +1973,71 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCreateCustomerWithAdditionalFields()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new customer with additional fields ("Customer Discount Group", "Customer Price Group" and others)
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T" with additional data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        UpdateCustomerTemplateAdditionalFields(CustomerTempl);
+
+        // [WHEN] Create new customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer inserted with data from "T"
+        VerifyCustomer(Customer, CustomerTempl);
+        // [THEN] Customer dimensions inserted from "T" dimensions
+        VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl.Code);
+        // [THEN] Customer contains data from "T" additional fields
+        VerifyCustomerAdditionalFields(Customer, CustomerTempl);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplCreateVendorOneTemplateDocSendingProfileUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 389638] Create new Vendor with one template and filled in "Document Sending Profile"
+        Initialize();
+        VendorTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T" with data and dimensions
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        UpdateVendorTemplDocSendingProfile(DocumentSendingProfile, VendorTempl);
+
+        // [WHEN] Create new Vendor
+        VendorTemplMgt.InsertVendorFromTemplate(Vendor);
+
+        // [THEN] Vendor inserted with data from "T"
+        VerifyVendor(Vendor, VendorTempl);
+        // [THEN] Vendor dimensions inserted from "T" dimensions
+        VerifyDimensions(Database::Vendor, Vendor."No.", Database::"Vendor Templ.", VendorTempl.Code);
+        // [THEN] "Document Sending Profile" filled in Vendor
+        Assert.AreEqual(DocumentSendingProfile.Code, Vendor."Document Sending Profile", 'Wrong document sending profile');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -2099,6 +2134,16 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         CustomerTempl."Document Sending Profile" := DocumentSendingProfile.Code;
         CustomerTempl.Modify(true);
+    end;
+
+    local procedure UpdateVendorTemplDocSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile"; var VendorTempl: Record "Vendor Templ.")
+    begin
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile.Validate(Code, LibraryUtility.GenerateRandomCode(DocumentSendingProfile.FieldNo(Code), Database::"Document Sending Profile"));
+        DocumentSendingProfile.Insert();
+
+        VendorTempl."Document Sending Profile" := DocumentSendingProfile.Code;
+        VendorTempl.Modify(true);
     end;
 
     local procedure CreateNonstockItem(var NonstockItem: Record "Nonstock Item"; ItemTemplCode: Code[20])

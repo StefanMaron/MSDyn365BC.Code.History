@@ -814,6 +814,8 @@ table 336 "Tracking Specification"
             Error(Text003, FieldCaption("Qty. to Handle (Base)"), FieldCaption("Serial No."));
         if not ("Qty. to Invoice (Base)" in [-1, 0, 1]) then
             Error(Text003, FieldCaption("Qty. to Invoice (Base)"), FieldCaption("Serial No."));
+
+        OnAfterCheckSerialNoQty(Rec);
     end;
 
     procedure CalcQty(BaseQty: Decimal): Decimal
@@ -891,6 +893,7 @@ table 336 "Tracking Specification"
     procedure InitExpirationDate()
     var
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         EntriesExist: Boolean;
@@ -911,7 +914,7 @@ table 336 "Tracking Specification"
         if not ItemTrackingCode."Use Expiration Dates" then
             "Buffer Status2" := "Buffer Status2"::"ExpDate blocked"
         else begin
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
             if EntriesExist then begin
                 "Expiration Date" := ExpDate;
                 "Buffer Status2" := "Buffer Status2"::"ExpDate blocked";
@@ -921,7 +924,8 @@ table 336 "Tracking Specification"
 
         if IsReclass() then begin
             "New Expiration Date" := "Expiration Date";
-            "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", "Lot No.", "Serial No.", EntriesExist);
+            ItemTrackingSetup.CopyTrackingFromTrackingSpec(Rec);
+            "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", ItemTrackingSetup, EntriesExist);
         end;
 
         OnAfterInitExpirationDate(Rec);
@@ -1305,6 +1309,8 @@ table 336 "Tracking Specification"
         CheckItemTrackingByType(ReservationEntry, QtyToHandleBase, QtyToInvoiceBase, false, Handle, Invoice);
         ReservationEntry.SetRange("Item Tracking", ReservationEntry."Item Tracking"::"Lot No.");
         CheckItemTrackingByType(ReservationEntry, QtyToHandleBase, QtyToInvoiceBase, true, Handle, Invoice);
+
+        OnAfterCheckItemTrackingQuantity(Rec, ReservationEntry, TableNo, DocumentType, DocumentNo, LineNo);
     end;
 
     procedure CheckItemTrackingByType(var ReservationEntry: Record "Reservation Entry"; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; OnlyLot: Boolean; Handle: Boolean; Invoice: Boolean)
@@ -1761,6 +1767,16 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsReclass(TrackingSpecification: Record "Tracking Specification"; var Reclass: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemTrackingQuantity(var TrackingSpecification: Record "Tracking Specification"; var ReservationEntry: Record "Reservation Entry"; TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSerialNoQty(var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }

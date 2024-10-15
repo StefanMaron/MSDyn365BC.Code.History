@@ -107,6 +107,8 @@
                                 Validate("Applies-to Entry No.", BankAccLedgEntry."Entry No.");
                         end;
                 end;
+
+                OnAfterLookupAppliesToEntryNo(Rec);
             end;
 
             trigger OnValidate()
@@ -222,6 +224,7 @@
     end;
 
     var
+        CurrencyExchRate: Record "Currency Exchange Rate";
         CurrencyMismatchErr: Label 'Currency codes on bank account %1 and ledger entry %2 do not match.';
         AmtCannotExceedErr: Label 'The Amount to Apply cannot exceed %1. This is because the Remaining Amount on the entry is %2 and the amount assigned to other statement lines is %3.';
         CannotApplyStmtLineErr: Label 'You cannot apply to %1 %2 because the statement line already contains an application to %3 %4.', Comment = '%1 = Account Type, %2 = Account No., %3 = Account Type, %4 = Account No.';
@@ -334,6 +337,8 @@
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
         end;
+
+        OnAfterCheckCurrencyCombination(Rec);
     end;
 
     local procedure CurrencyMatches(BankAccNo: Code[20]; LedgEntryCurrCode: Code[10]; LCYCode: Code[10]): Boolean
@@ -447,7 +452,7 @@
             RemPmtDiscPossible := VendLedgEntry."Remaining Pmt. Disc. Possible";
     end;
 
-    procedure GetRemAmt(): Decimal
+    procedure GetRemAmt() Result: Decimal
     begin
         if "Account No." = '' then
             exit(0);
@@ -462,6 +467,8 @@
             "Account Type"::"Bank Account":
                 exit(GetBankAccLedgEntryRemAmt);
         end;
+
+        OnAfterGetRemAmt(Rec, Result);
     end;
 
     local procedure GetAcceptedPmtTolerance(): Decimal
@@ -479,11 +486,15 @@
     local procedure GetCustLedgEntryRemAmt(): Decimal
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         CustLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then begin
-            CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
-            exit(CustLedgEntry."Remaining Amt. (LCY)");
+            BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
+            CustLedgEntry.CalcFields("Remaining Amount");
+            exit(
+                CurrencyExchRate.ExchangeAmount(
+                    CustLedgEntry."Remaining Amount", CustLedgEntry."Currency Code", '', BankAccReconLine."Transaction Date"));
         end;
         CustLedgEntry.CalcFields("Remaining Amount");
         exit(CustLedgEntry."Remaining Amount");
@@ -492,11 +503,15 @@
     local procedure GetVendLedgEntryRemAmt(): Decimal
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         VendLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then begin
-            VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-            exit(VendLedgEntry."Remaining Amt. (LCY)");
+            BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
+            VendLedgEntry.CalcFields("Remaining Amount");
+            exit(
+                CurrencyExchRate.ExchangeAmount(
+                    VendLedgEntry."Remaining Amount", VendLedgEntry."Currency Code", '', BankAccReconLine."Transaction Date"));
         end;
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(VendLedgEntry."Remaining Amount");
@@ -651,6 +666,8 @@
             "Account Type"::"Bank Account":
                 GetBankAccLedgEntryInfo();
         end;
+
+        OnAfterGetLedgEntryInfo(Rec);
     end;
 
     local procedure GetCustLedgEntryInfo()
@@ -928,7 +945,13 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         RemainingAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAmountToApply(Rec, PostingDate, AmountToApply, IsHandled);
+        if IsHandled then
+            exit(AmountToApply);
+
         BankAccount.Get("Bank Account No.");
         if BankAccount.IsInLocalCurrency then begin
             AmountToApply :=
@@ -952,5 +975,30 @@
         end else
             exit("Applied Amount");
         exit(AmountToApply);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckCurrencyCombination(var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupAppliesToEntryNo(var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLedgEntryInfo(var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRemAmt(AppliedPaymentEntry: Record "Applied Payment Entry"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAmountToApply(var AppliedPaymentEntry: Record "Applied Payment Entry"; PostingDate: Date; var AmountToApply: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }

@@ -962,6 +962,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Printer Selection" = RM,
                   tabledata "Production Forecast Entry" = RM,
                   tabledata "Production Forecast Name" = RM,

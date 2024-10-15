@@ -167,7 +167,7 @@ report 5881 "Make Phys. Invt. Recording"
             OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
             Insert;
             OnAfterPhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
-            NextLineNo := NextLineNo + 10000;
+            NextLineNo := "Line No." + 10000;
         end;
     end;
 

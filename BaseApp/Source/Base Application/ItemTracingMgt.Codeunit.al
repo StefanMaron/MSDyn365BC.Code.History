@@ -14,18 +14,33 @@ codeunit 6520 "Item Tracing Mgt."
         NextLineNo: Integer;
         CurrentHistoryEntryNo: Integer;
 
-    procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    var
+        PackageNoFilter: Text;
     begin
         DeleteTempTables(TempTrackEntry, TempTrackEntry2);
-        InitSearchCriteria(SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter);
-        FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
+        InitSearchCriteria(SerialNoFilter, LotNoFilter, ItemNoFilter);
+        FirstLevel(
+            TempTrackEntry, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
         if TempLineNo > 0 then
             InitTempTable(TempTrackEntry, TempTrackEntry2);
         TempTrackEntry.Reset();
-        UpdateHistory(SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
+        UpdateHistory(
+            SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
     end;
 
-    local procedure FirstLevel(var TempTrackEntry: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
+    begin
+        DeleteTempTables(TempTrackEntry, TempTrackEntry2);
+        InitSearchCriteria(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter);
+        FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
+        if TempLineNo > 0 then
+            InitTempTable(TempTrackEntry, TempTrackEntry2);
+        TempTrackEntry.Reset();
+        UpdateHistory(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
+    end;
+
+    local procedure FirstLevel(var TempTrackEntry: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemLedgEntry2: Record "Item Ledger Entry";
@@ -60,7 +75,7 @@ codeunit 6520 "Item Tracing Mgt."
 
         ItemLedgEntry.SetFilter("Lot No.", LotNoFilter);
         ItemLedgEntry.SetFilter("Serial No.", SerialNoFilter);
-        ItemLedgEntry.SetFilter("Package No.", CDNoFilter);
+        ItemLedgEntry.SetFilter("Package No.", PackageNoFilter);
         ItemLedgEntry.SetFilter("Item No.", ItemNoFilter);
         ItemLedgEntry.SetFilter("Variant Code", VariantFilter);
         if Direction = Direction::Forward then
@@ -453,9 +468,27 @@ codeunit 6520 "Item Tracing Mgt."
         OnAfterTransferData(ItemLedgEntry, TempTrackEntry);
     end;
 
-    procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text)
+    procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text)
     begin
-        if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (CDNoFilter = '') then
+        if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') then
+            SearchCriteria := SearchCriteria::None
+        else
+            if LotNoFilter <> '' then begin
+                if SerialNoFilter = '' then
+                    SearchCriteria := SearchCriteria::Lot
+                else
+                    SearchCriteria := SearchCriteria::Both;
+            end else
+                if SerialNoFilter <> '' then
+                    SearchCriteria := SearchCriteria::Serial
+                else
+                    if ItemNoFilter <> '' then
+                        SearchCriteria := SearchCriteria::Item;
+    end;
+
+    procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text)
+    begin
+        if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (PackageNoFilter = '') then
             SearchCriteria := SearchCriteria::None
         else
             if LotNoFilter <> '' then begin
@@ -470,11 +503,29 @@ codeunit 6520 "Item Tracing Mgt."
                     if ItemNoFilter <> '' then
                         SearchCriteria := SearchCriteria::Item
                     else
-                        if CDNoFilter <> '' then
+                        if PackageNoFilter <> '' then
                             SearchCriteria := SearchCriteria::Package;
     end;
 
-    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
+    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
+    var
+        ItemTrackingEntry: Record "Item Tracing Buffer";
+    begin
+        with Rec do begin
+            ItemTrackingEntry.SetRange("Serial No.", "Serial No.");
+            ItemTrackingEntry.SetRange("Lot No.", "Lot No.");
+            ItemTrackingEntry.SetRange("Item No.", "Item No.");
+            ItemTrackingEntry.SetRange("Variant Code", "Variant Code");
+            SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
+            LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
+            ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
+            VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
+        end;
+
+        OnAfterInitSearchParam(Rec, ItemTrackingEntry);
+    end;
+
+    procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
     var
         ItemTrackingEntry: Record "Item Tracing Buffer";
     begin
@@ -486,7 +537,7 @@ codeunit 6520 "Item Tracing Mgt."
             ItemTrackingEntry.SetRange("Variant Code", "Variant Code");
             SerialNoFilter := ItemTrackingEntry.GetFilter("Serial No.");
             LotNoFilter := ItemTrackingEntry.GetFilter("Lot No.");
-            CDNoFilter := ItemTrackingEntry.GetFilter("Package No.");
+            PackageNoFilter := ItemTrackingEntry.GetFilter("Package No.");
             ItemNoFilter := ItemTrackingEntry.GetFilter("Item No.");
             VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
         end;
@@ -808,35 +859,41 @@ codeunit 6520 "Item Tracing Mgt."
 
     procedure SpecificTracking(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[50]; LocationCode: Code[20]): Boolean
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup."Serial No." := SerialNo;
+        ItemTrackingSetup."Lot No." := LotNo;
+        ItemTrackingSetup."Package No." := CDNo;
+        exit(IsSpecificTracking(ItemNo, ItemTrackingSetup));
+    end;
+
+    procedure IsSpecificTracking(ItemNo: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup") IsSpecific: Boolean
+    var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         GetItemTrackingCode(ItemTrackingCode, ItemNo);
-        if ((SerialNo <> '') and ItemTrackingCode."SN Specific Tracking") or
-           ((LotNo <> '') and ItemTrackingCode."Lot Specific Tracking") or
-           ((CDNo <> '') and ItemTrackingCode."Package Specific Tracking")
-        then
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
+        exit(ItemTrackingSetup.SpecificTracking(ItemNo));
+    end;
+
+    local procedure ExitLevel(TempItemTracingBuffer: Record "Item Tracing Buffer" temporary): Boolean
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup.CopyTrackingFromItemTracingBuffer(TempItemTracingBuffer);
+        if not ItemTrackingSetup.TrackingExists() then
+            exit(true);
+        if CurrentLevel > 50 then
+            exit(true);
+        if not IsSpecificTracking(TempItemTracingBuffer."Item No.", ItemTrackingSetup) then
+            exit(true);
+        if TempItemTracingBuffer."Already Traced" then
             exit(true);
 
         exit(false);
     end;
 
-    local procedure ExitLevel(TempTrackEntry: Record "Item Tracing Buffer"): Boolean
-    begin
-        with TempTrackEntry do begin
-            if ("Serial No." = '') and ("Lot No." = '') and ("Package No." = '') then
-                exit(true);
-            if CurrentLevel > 50 then
-                exit(true);
-            if not SpecificTracking("Item No.", "Serial No.", "Lot No.", "Package No.", "Location Code") then
-                exit(true);
-            if "Already Traced" then
-                exit(true);
-        end;
-
-        exit(false);
-    end;
-
-    local procedure UpdateHistory(SerialNoFilter: Text; LotNoFilter: Text; CDNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; TraceMethod: Option "Origin->Usage","Usage->Origin"; ShowComponents: Option No,"Item-tracked only",All) OK: Boolean
+    local procedure UpdateHistory(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; TraceMethod: Option "Origin->Usage","Usage->Origin"; ShowComponents: Option No,"Item-tracked only",All) OK: Boolean
     var
         LevelCount: Integer;
         ExtFilterExists: Boolean;
@@ -869,25 +926,44 @@ codeunit 6520 "Item Tracing Mgt."
                 LevelCount += 1;
                 SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 LotNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                CDNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
+                PackageNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
                 ItemNoFilter := DelStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
                 VariantFilter := DelStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
             until (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (VariantFilter = '') and
-                  (CDNoFilter = '') and not ExtFilterExists;
+                  (PackageNoFilter = '') and not ExtFilterExists;
             CurrentHistoryEntryNo := "Entry No.";
         end;
         OK := true;
     end;
 
-    procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    var
+        PackageNoFilter: Text;
     begin
         if not RetrieveHistoryData(CurrentHistoryEntryNo + Steps,
-             SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents)
+             SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents)
         then
             exit(false);
         DeleteTempTables(TempTrackEntry, TempTrackEntry2);
-        InitSearchCriteria(SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter);
-        FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, CDNoFilter, ItemNoFilter,
+        InitSearchCriteria(SerialNoFilter, LotNoFilter, ItemNoFilter);
+        FirstLevel(
+            TempTrackEntry, SerialNoFilter, LotNoFilter, '', ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
+        if TempLineNo > 0 then
+            InitTempTable(TempTrackEntry, TempTrackEntry2);
+        TempTrackEntry.Reset();
+        CurrentHistoryEntryNo := CurrentHistoryEntryNo + Steps;
+        exit(true);
+    end;
+
+    procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    begin
+        if not RetrieveHistoryData(CurrentHistoryEntryNo + Steps,
+             SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents)
+        then
+            exit(false);
+        DeleteTempTables(TempTrackEntry, TempTrackEntry2);
+        InitSearchCriteria(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter);
+        FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter,
           VariantFilter, TraceMethod, ShowComponents);
         if TempLineNo > 0 then
             InitTempTable(TempTrackEntry, TempTrackEntry2);
@@ -896,7 +972,7 @@ codeunit 6520 "Item Tracing Mgt."
         exit(true);
     end;
 
-    local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var CDNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
+    local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin
         with TempTraceHistory do begin
             Reset;
@@ -908,7 +984,7 @@ codeunit 6520 "Item Tracing Mgt."
                 if Level = 0 then begin
                     SerialNoFilter := "Serial No. Filter";
                     LotNoFilter := "Lot No. Filter";
-                    CDNoFilter := "Package No. Filter";
+                    PackageNoFilter := "Package No. Filter";
                     ItemNoFilter := "Item No. Filter";
                     VariantFilter := "Variant Filter";
                     TraceMethod := "Trace Method";
@@ -916,7 +992,7 @@ codeunit 6520 "Item Tracing Mgt."
                 end else begin
                     SerialNoFilter := SerialNoFilter + "Serial No. Filter";
                     LotNoFilter := LotNoFilter + "Lot No. Filter";
-                    CDNoFilter := CDNoFilter + "Package No. Filter";
+                    PackageNoFilter := PackageNoFilter + "Package No. Filter";
                     ItemNoFilter := ItemNoFilter + "Item No. Filter";
                     VariantFilter := VariantFilter + "Variant Filter";
                 end;

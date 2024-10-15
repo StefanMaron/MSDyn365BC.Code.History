@@ -349,6 +349,7 @@ table 6550 "Whse. Item Tracking Line"
     procedure InitExpirationDate()
     var
         Location: Record Location;
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         WarDate: Date;
@@ -359,7 +360,7 @@ table 6550 "Whse. Item Tracking Line"
         if IsHandled then
             exit;
 
-        if ("Serial No." = xRec."Serial No.") and ("Lot No." = xRec."Lot No.") then
+        if xRec.HasSameTracking(Rec) then
             exit;
 
         "Expiration Date" := 0D;
@@ -369,14 +370,16 @@ table 6550 "Whse. Item Tracking Line"
         if "Location Code" <> '' then
             Location.Get("Location Code");
 
-        if ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location, "Lot No.", "Serial No.", ExpDate) then begin
+        ItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(Rec);
+
+        if ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location, ItemTrackingSetup, ExpDate) then begin
             "Expiration Date" := ExpDate;
             "Buffer Status2" := "Buffer Status2"::"ExpDate blocked";
         end;
 
         if IsReclass("Source Type", "Source Batch Name") then begin
             "New Expiration Date" := "Expiration Date";
-            if ItemTrackingMgt.GetWhseWarrantyDate("Item No.", "Variant Code", Location, "Lot No.", "Serial No.", WarDate) then
+            if ItemTrackingMgt.GetWhseWarrantyDate("Item No.", "Variant Code", Location, ItemTrackingSetup, WarDate) then
                 "Warranty Date" := WarDate;
         end;
     end;
@@ -480,6 +483,8 @@ table 6550 "Whse. Item Tracking Line"
             SetRange("Serial No.", ItemTrackingSetup."Serial No.");
         if ItemTrackingSetup."Lot No." <> '' then
             SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, ItemTrackingSetup);
     end;
 
     procedure ClearTrackingFilter()
@@ -673,15 +678,26 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterSetTrackingFilterFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
+    procedure HasSameTracking(WhseItemTrackingLine: Record "Whse. Item Tracking Line") IsSameTracking: Boolean
+    begin
+        IsSameTracking :=
+            ("Lot No." = WhseItemTrackingLine."Lot No.") and ("Serial No." = WhseItemTrackingLine."Serial No.");
+
+        OnAfterHasSameTracking(Rec, WhseItemTrackingLine, IsSameTracking);
+    end;
+
     procedure HasSameNewTracking() IsSameTracking: Boolean
     begin
         IsSameTracking := ("New Lot No." = "Lot No.") and ("New Serial No." = "Serial No.");
+
         OnAfterHasSameNewTracking(Rec, IsSameTracking);
     end;
 
     procedure HasSameTrackingWithItemEntryRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation") IsSameTracking: Boolean
     begin
-        IsSameTracking := (WhseItemEntryRelation."Lot No." = "Lot No.") and (WhseItemEntryRelation."Serial No." = "Serial No.");
+        IsSameTracking :=
+            (WhseItemEntryRelation."Lot No." = "Lot No.") and (WhseItemEntryRelation."Serial No." = "Serial No.");
+
         OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
     end;
 
@@ -747,6 +763,11 @@ table 6550 "Whse. Item Tracking Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTracking(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemTrackingLine2: Record "Whse. Item Tracking Line"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasSameNewTracking(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsSameTracking: Boolean)
     begin
     end;
@@ -768,6 +789,11 @@ table 6550 "Whse. Item Tracking Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromBinContent(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

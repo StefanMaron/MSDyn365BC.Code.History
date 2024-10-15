@@ -653,6 +653,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType UnknownErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3113797739 - NamedType 2119306127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The correspondence type for this interaction is Email, which requires an interaction template with an attachment. To continue, you can change contact’s correspondence type, select an interaction template with a different correspondence type, or select a template that ignores the contact correspondence type.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interactions UI - NamedType CorrTypeNoAtachmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1197206240 - NamedType 1459972951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Campaign No. must not be %1 in Opportunity No.='%2']]></Val>

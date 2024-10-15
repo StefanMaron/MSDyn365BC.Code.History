@@ -45,6 +45,7 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = RimD,
                   tabledata "Purch. Cr. Memo Line" = Rimd,
                   tabledata "Purch. Inv. Header" = RimD,

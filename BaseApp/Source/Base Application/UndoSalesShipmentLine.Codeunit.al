@@ -14,7 +14,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
         IsHandled := false;
         SkipTypeCheck := false;
-        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck);
+        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, HideDialog);
         if IsHandled then
             exit;
 
@@ -270,7 +270,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
                 TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
 
-            if GetUnvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
+            if GetInvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
                 RemQtyBase := -("Quantity (Base)" - "Qty. Invoiced (Base)");
                 repeat
                     ItemJnlLine."Applies-to Entry" := ItemLedgEntryNotInvoiced."Entry No.";
@@ -468,16 +468,15 @@ codeunit 5815 "Undo Sales Shipment Line"
         ATOWindow.Update(2, PostedAsmHeader."No.");
     end;
 
-    local procedure GetUnvoicedShptEntries(SalesShptLine: Record "Sales Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure GetInvoicedShptEntries(SalesShptLine: Record "Sales Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
         ItemLedgEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Sales Shipment");
         ItemLedgEntry.SetRange("Document No.", SalesShptLine."Document No.");
         ItemLedgEntry.SetRange("Document Line No.", SalesShptLine."Line No.");
-        ItemLedgEntry.SetRange("Serial No.", '');
-        ItemLedgEntry.SetRange("Lot No.", '');
+        ItemLedgEntry.SetTrackingFilterBlank();
         ItemLedgEntry.SetRange("Completely Invoiced", false);
-        exit(ItemLedgEntry.FindSet)
+        exit(ItemLedgEntry.FindSet());
     end;
 
     local procedure HasInvoicedNotReturnedQuantity(SalesShipmentLine: Record "Sales Shipment Line"): Boolean
@@ -599,7 +598,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean)
+    local procedure OnBeforeOnRun(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean; var HideDialog: Boolean)
     begin
     end;
 
@@ -609,7 +608,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJnlLine(var SalesShipmentLine: Record "Sales Shipment Line"; DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforePostItemJnlLine(var SalesShipmentLine: Record "Sales Shipment Line"; var DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

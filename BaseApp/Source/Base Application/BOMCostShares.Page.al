@@ -347,9 +347,13 @@ page 5872 "BOM Cost Shares"
         HasWarning: Boolean;
 
     procedure InitItem(var NewItem: Record Item)
+    var
+        ConstantTxt: Label '''%1''', Locked = true;
     begin
         Item.Copy(NewItem);
-        ItemFilter := Item."No.";
+        ItemFilter := '';
+        if Item."No." <> '' then
+            ItemFilter := StrSubstNo(ConstantTxt, Item."No.");
         ShowBy := ShowBy::Item;
     end;
 
@@ -402,7 +406,7 @@ page 5872 "BOM Cost Shares"
         TestField(Type, Type::Item);
 
         Item.Get("No.");
-        Item.SetFilter("No.", "No.");
+        Item.SetRange("No.", "No.");
         Item.SetFilter("Variant Filter", "Variant Code");
         if ShowBy <> ShowBy::Item then
             Item.SetFilter("Location Filter", "Location Code");

@@ -15,6 +15,7 @@ table 1366 "Field Monitoring Setup"
         }
         field(4; "Notification Count"; Integer)
         {
+            // Contains the count of change entries since the last time the user opened the entries page.
             Caption = 'Notification Count';
             DataClassification = SystemMetadata;
         }

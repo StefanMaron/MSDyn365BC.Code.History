@@ -540,6 +540,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Price List Header" = Rim,
                   tabledata "Price List Line" = Rim,
                   tabledata "Price Source" = Rim,
+                  tabledata "Price Worksheet Line" = Rim,
                   tabledata "Printer Selection" = RIMD,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Comment Line Archive" = RIMD,

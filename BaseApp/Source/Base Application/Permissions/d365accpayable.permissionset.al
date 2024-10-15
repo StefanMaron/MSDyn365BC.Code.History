@@ -81,6 +81,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = RimD,
                   tabledata "Purch. Cr. Memo Line" = Rimd,
                   tabledata "Purch. Inv. Header" = RimD,

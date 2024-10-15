@@ -24,21 +24,21 @@ report 7391 "Whse. Get Bin Content"
 
                 case DestinationType2 of
                     DestinationType2::MovementWorksheet:
-                        InsertWWL;
+                        InsertWhseWorksheetLine("Bin Content");
                     DestinationType2::WhseInternalPutawayHeader:
-                        InsertWIPL;
+                        InsertWhseInternalPutawayLine("Bin Content");
                     DestinationType2::ItemJournalLine:
-                        InsertItemJournalLine;
+                        InsertItemJournalLine("Bin Content");
                     DestinationType2::TransferHeader:
                         begin
                             TransferHeader.TestField("Transfer-from Code", "Location Code");
-                            InsertTransferLine;
+                            InsertTransferLine("Bin Content");
                         end;
                     DestinationType2::InternalMovementHeader:
-                        InsertIntMovementLine;
+                        InsertIntMovementLine("Bin Content");
                 end;
 
-                GetSerialNoAndLotNo;
+                GetItemTracking("Bin Content");
             end;
 
             trigger OnPreDataItem()
@@ -110,8 +110,8 @@ report 7391 "Whse. Get Bin Content"
     }
 
     var
-        WWLine: Record "Whse. Worksheet Line";
-        WIPLine: Record "Whse. Internal Put-away Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
         ItemJournalLine: Record "Item Journal Line";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
@@ -131,24 +131,24 @@ report 7391 "Whse. Get Bin Content"
         [InDataSet]
         DocNoEditable: Boolean;
 
-    procedure InitializeReport(WWL: Record "Whse. Worksheet Line"; WIPH: Record "Whse. Internal Put-away Header"; DestinationType: Option)
+    procedure InitializeReport(WhseWorksheetLine2: Record "Whse. Worksheet Line"; WhseInternalPutawayHeader2: Record "Whse. Internal Put-away Header"; DestinationType: Option)
     begin
         DestinationType2 := DestinationType;
         case DestinationType2 of
             DestinationType2::MovementWorksheet:
                 begin
-                    WWLine := WWL;
-                    WWLine.SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Line No.");
-                    WWLine.SetRange("Worksheet Template Name", WWLine."Worksheet Template Name");
-                    WWLine.SetRange(Name, WWLine.Name);
-                    WWLine.SetRange("Location Code", WWLine."Location Code");
-                    if WWLine.FindLast then;
+                    WhseWorksheetLine := WhseWorksheetLine2;
+                    WhseWorksheetLine.SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Line No.");
+                    WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetLine."Worksheet Template Name");
+                    WhseWorksheetLine.SetRange(Name, WhseWorksheetLine.Name);
+                    WhseWorksheetLine.SetRange("Location Code", WhseWorksheetLine."Location Code");
+                    if WhseWorksheetLine.FindLast() then;
                 end;
             DestinationType2::WhseInternalPutawayHeader:
                 begin
-                    WIPLine."No." := WIPH."No.";
-                    WIPLine.SetRange("No.", WIPLine."No.");
-                    if WIPLine.FindLast then;
+                    WhseInternalPutawayLine."No." := WhseInternalPutawayHeader2."No.";
+                    WhseInternalPutawayLine.SetRange("No.", WhseInternalPutawayLine."No.");
+                    if WhseInternalPutawayLine.FindLast() then;
                 end;
         end;
         ReportInitialized := true;
@@ -199,16 +199,21 @@ report 7391 "Whse. Get Bin Content"
 
     procedure InsertWWL()
     begin
-        with WWLine do begin
-            Init;
+        InsertWhseWorksheetLine("Bin Content");
+    end;
+
+    local procedure InsertWhseWorksheetLine(BinContent: Record "Bin Content")
+    begin
+        with WhseWorksheetLine do begin
+            Init();
             "Line No." := "Line No." + 10000;
-            Validate("Location Code", "Bin Content"."Location Code");
-            Validate("Item No.", "Bin Content"."Item No.");
-            Validate("Variant Code", "Bin Content"."Variant Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            Validate("From Bin Code", "Bin Content"."Bin Code");
-            "From Zone Code" := "Bin Content"."Zone Code";
-            Validate("From Unit of Measure Code", "Bin Content"."Unit of Measure Code");
+            Validate("Location Code", BinContent."Location Code");
+            Validate("Item No.", BinContent."Item No.");
+            Validate("Variant Code", BinContent."Variant Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+            Validate("From Bin Code", BinContent."Bin Code");
+            "From Zone Code" := BinContent."Zone Code";
+            Validate("From Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per From Unit of Measure"));
             if QtyToEmptyBase <> (Quantity * "Qty. per From Unit of Measure") then begin
                 "Qty. (Base)" := QtyToEmptyBase;
@@ -218,98 +223,123 @@ report 7391 "Whse. Get Bin Content"
             "Whse. Document Type" := "Whse. Document Type"::"Whse. Mov.-Worksheet";
             "Whse. Document No." := Name;
             "Whse. Document Line No." := "Line No.";
-            OnBeforeInsertWWLine(WWLine, "Bin Content");
-            Insert;
+            OnBeforeInsertWWLine(WhseWorksheetLine, BinContent);
+            Insert();
         end;
     end;
 
     procedure InsertWIPL()
     begin
-        with WIPLine do begin
-            Init;
+        InsertWhseInternalPutawayLine("Bin Content");
+    end;
+
+    local procedure InsertWhseInternalPutawayLine(BinContent: Record "Bin Content")
+    begin
+        with WhseInternalPutawayLine do begin
+            Init();
             "Line No." := "Line No." + 10000;
-            Validate("Location Code", "Bin Content"."Location Code");
-            Validate("Item No.", "Bin Content"."Item No.");
-            Validate("Variant Code", "Bin Content"."Variant Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            Validate("From Bin Code", "Bin Content"."Bin Code");
-            "From Zone Code" := "Bin Content"."Zone Code";
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
+            Validate("Location Code", BinContent."Location Code");
+            Validate("Item No.", BinContent."Item No.");
+            Validate("Variant Code", BinContent."Variant Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+            Validate("From Bin Code", BinContent."Bin Code");
+            "From Zone Code" := BinContent."Zone Code";
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
             if QtyToEmptyBase <> (Quantity * "Qty. per Unit of Measure") then begin
                 "Qty. (Base)" := QtyToEmptyBase;
                 "Qty. Outstanding (Base)" := QtyToEmptyBase;
             end;
-            OnBeforeInsertWIPLine(WIPLine, "Bin Content");
-            Insert;
+            OnBeforeInsertWIPLine(WhseInternalPutawayLine, BinContent);
+            Insert();
         end;
     end;
 
     procedure InsertItemJournalLine()
+    begin
+        InsertItemJournalLine("Bin Content");
+    end;
+
+    local procedure InsertItemJournalLine(BinContent: Record "Bin Content")
     var
         ItemJournalTempl: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         with ItemJournalLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Validate("Entry Type", "Entry Type"::Transfer);
-            Validate("Item No.", "Bin Content"."Item No.");
+            Validate("Item No.", BinContent."Item No.");
             Validate("Posting Date", PostingDate);
             Validate("Document No.", DocNo);
-            Validate("Location Code", "Bin Content"."Location Code");
-            Validate("New Location Code", "Bin Content"."Location Code");
-            Validate("Variant Code", "Bin Content"."Variant Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            Validate("Bin Code", "Bin Content"."Bin Code");
+            Validate("Location Code", BinContent."Location Code");
+            Validate("New Location Code", BinContent."Location Code");
+            Validate("Variant Code", BinContent."Variant Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+            Validate("Bin Code", BinContent."Bin Code");
             Validate("New Bin Code", '');
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
             ItemJournalTempl.Get("Journal Template Name");
             ItemJournalBatch.Get("Journal Template Name", "Journal Batch Name");
             "Source Code" := ItemJournalTempl."Source Code";
             "Posting No. Series" := ItemJournalBatch."Posting No. Series";
-            OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine, "Bin Content");
-            Insert;
-            OnAfterInsertItemJnlLine(ItemJournalLine, "Bin Content");
+            OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine, BinContent);
+            Insert();
+            OnAfterInsertItemJnlLine(ItemJournalLine, BinContent);
         end;
     end;
 
     procedure InsertTransferLine()
     begin
+        InsertTransferLine("Bin Content");
+    end;
+
+    local procedure InsertTransferLine(BinContent: Record "Bin Content")
+    begin
         with TransferLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
-            Validate("Item No.", "Bin Content"."Item No.");
-            Validate("Variant Code", "Bin Content"."Variant Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            Validate("Transfer-from Bin Code", "Bin Content"."Bin Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
+            Validate("Item No.", BinContent."Item No.");
+            Validate("Variant Code", BinContent."Variant Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+            Validate("Transfer-from Bin Code", BinContent."Bin Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
-            OnBeforeInsertTransferLine(TransferLine, "Bin Content");
-            Insert;
+            OnBeforeInsertTransferLine(TransferLine, BinContent);
+            Insert();
         end;
     end;
 
     procedure InsertIntMovementLine()
     begin
+        InsertIntMovementLine("Bin Content");
+    end;
+
+    local procedure InsertIntMovementLine(BinContent: Record "Bin Content")
+    begin
         with InternalMovementLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
-            Validate("Location Code", "Bin Content"."Location Code");
-            Validate("Item No.", "Bin Content"."Item No.");
-            Validate("Variant Code", "Bin Content"."Variant Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            Validate("From Bin Code", "Bin Content"."Bin Code");
+            Validate("Location Code", BinContent."Location Code");
+            Validate("Item No.", BinContent."Item No.");
+            Validate("Variant Code", BinContent."Variant Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+            Validate("From Bin Code", BinContent."Bin Code");
             Validate("To Bin Code", InternalMovementHeader."To Bin Code");
-            Validate("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
+            Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
-            OnBeforeInsertInternalMovementLine(InternalMovementLine, "Bin Content");
-            Insert;
+            OnBeforeInsertInternalMovementLine(InternalMovementLine, BinContent);
+            Insert();
         end;
     end;
 
     procedure GetSerialNoAndLotNo()
+    begin
+        GetItemTracking("Bin Content");
+    end;
+
+    local procedure GetItemTracking(BinContent: Record "Bin Content")
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseEntry: Record "Warehouse Entry";
@@ -322,19 +352,20 @@ report 7391 "Whse. Get Bin Content"
         TotalTrackedQtyBase: Decimal;
     begin
         Clear(ItemTrackingMgt);
-        if not ItemTrackingMgt.GetWhseItemTrkgSetup("Bin Content"."Item No.") then
+        if not ItemTrackingMgt.GetWhseItemTrkgSetup(BinContent."Item No.") then
             exit;
 
         with WarehouseEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey(
-              "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
-            SetRange("Item No.", "Bin Content"."Item No.");
-            SetRange("Bin Code", "Bin Content"."Bin Code");
-            SetRange("Location Code", "Bin Content"."Location Code");
-            SetRange("Variant Code", "Bin Content"."Variant Code");
-            SetRange("Unit of Measure Code", "Bin Content"."Unit of Measure Code");
-            if FindSet then
+              "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
+              "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.");
+            SetRange("Item No.", BinContent."Item No.");
+            SetRange("Bin Code", BinContent."Bin Code");
+            SetRange("Location Code", BinContent."Location Code");
+            SetRange("Variant Code", BinContent."Variant Code");
+            SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+            if FindSet() then
                 repeat
                     if TrackingExists() then begin
                         ItemTrackingSetup.CopyTrackingFromWhseEntry(WarehouseEntry);
@@ -349,9 +380,9 @@ report 7391 "Whse. Get Bin Content"
 
                             case DestinationType2 of
                                 DestinationType2::MovementWorksheet:
-                                    WWLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
+                                    WhseWorksheetLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
                                 DestinationType2::WhseInternalPutawayHeader:
-                                    WIPLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
+                                    WhseInternalPutawayLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
                                 DestinationType2::ItemJournalLine:
                                     TempTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
                                 DestinationType2::TransferHeader:
@@ -365,7 +396,7 @@ report 7391 "Whse. Get Bin Content"
                         ClearTrackingFilter();
                     end;
                     if DestinationType2 in [DestinationType2::ItemJournalLine, DestinationType2::TransferHeader] then
-                        InsertTempTrackingSpec(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
+                        InsertTempTrackingSpecification(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
                 until Next() = 0;
 
             if TotalTrackedQtyBase > QtyToEmptyBase then
@@ -392,6 +423,11 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     procedure InsertTempTrackingSpec(WarehouseEntry: Record "Warehouse Entry"; QtyOnBin: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+        InsertTempTrackingSpecification(WarehouseEntry, QtyOnBin, TempTrackingSpecification);
+    end;
+
+    local procedure InsertTempTrackingSpecification(WarehouseEntry: Record "Warehouse Entry"; QtyOnBin: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
         with WarehouseEntry do begin
             TempTrackingSpecification.Init();

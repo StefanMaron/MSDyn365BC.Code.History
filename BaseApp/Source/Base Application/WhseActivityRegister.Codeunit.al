@@ -73,8 +73,8 @@
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
             WhseActivLine.SetRange("No.", WhseActivLine."No.");
             WhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
-            if WhseActivLine.IsEmpty() then
-                Error(Text003);
+
+            CheckWhseActivLineIsEmpty(WhseActivLine);
             CheckWhseItemTrkgLine(WhseActivLine);
 
             Get(WhseActivLine."Activity Type", WhseActivLine."No.");
@@ -151,13 +151,11 @@
             end else begin
                 "Last Registering No." := "Registering No.";
                 "Registering No." := '';
-                Modify;
-                if not HideDialog then
-                    WhseActivLine.AutofillQtyToHandle(WhseActivLine);
-                OnAfterAutofillQtyToHandle(WhseActivLine);
+                Modify();
+                AutofillQtyToHandle(WhseActivLine);
             end;
             if not HideDialog then
-                Window.Close;
+                Window.Close();
 
             OnCodeOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine);
             if not SuppressCommit then begin
@@ -451,6 +449,8 @@
             if "Activity Type" = "Activity Type"::"Invt. Movement" then
                 UpdateSourceDocForInvtMovement(WhseActivLine);
         end;
+
+        OnAfterUpdateWhseSourceDocLine(WhseActivLine, WhseDocType2);
     end;
 
     procedure UpdateWhseDocHeader(WhseActivLine: Record "Warehouse Activity Line")
@@ -800,10 +800,7 @@
         BinContent: Record "Bin Content";
         Bin: Record Bin;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        UOMMgt: Codeunit "Unit of Measure Management";
         BreakBulkQtyBaseToPlace: Decimal;
-        AbsQtyToHandle: Decimal;
-        AbsQtyToHandleBase: Decimal;
     begin
         with TempBinContentBuffer do begin
             SetFilter("Qty. to Handle (Base)", '<>0');
@@ -818,22 +815,41 @@
 
                         BreakBulkQtyBaseToPlace := CalcBreakBulkQtyToPlace(TempBinContentBuffer);
                         GetItem("Item No.");
-                        AbsQtyToHandleBase := Abs("Qty. to Handle (Base)");
-                        AbsQtyToHandle :=
-                          Round(AbsQtyToHandleBase / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision);
-                        if BreakBulkQtyBaseToPlace > 0 then
-                            BinContent.CheckDecreaseBinContent(AbsQtyToHandle, AbsQtyToHandleBase, BreakBulkQtyBaseToPlace - "Qty. to Handle (Base)")
-                        else
-                            BinContent.CheckDecreaseBinContent(AbsQtyToHandle, AbsQtyToHandleBase, Abs("Qty. Outstanding (Base)"));
-                        if AbsQtyToHandleBase <> Abs("Qty. to Handle (Base)") then begin
-                            "Qty. to Handle (Base)" := AbsQtyToHandleBase * "Qty. to Handle (Base)" / Abs("Qty. to Handle (Base)");
-                            Modify;
-                        end;
+
+                        CheckBinContentQtyToHandle(TempBinContentBuffer, BinContent, BreakBulkQtyBaseToPlace);
                     end else begin
                         Bin.Get("Location Code", "Bin Code");
                         Bin.CheckWhseClass("Item No.", false);
                     end;
+                    OnCheckBinContentOnAfterTempBinContentBufferLoop(TempBinContentBuffer, Bin);
                 until Next() = 0;
+        end;
+    end;
+
+    local procedure CheckBinContentQtyToHandle(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var BinContent: Record "Bin Content"; BreakBulkQtyBaseToPlace: Decimal)
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        AbsQtyToHandle: Decimal;
+        AbsQtyToHandleBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBinContentQtyToHandle(TempBinContentBuffer, BinContent, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        with TempBinContentBuffer do begin
+            AbsQtyToHandleBase := Abs("Qty. to Handle (Base)");
+            AbsQtyToHandle :=
+                Round(AbsQtyToHandleBase / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision);
+            if BreakBulkQtyBaseToPlace > 0 then
+                BinContent.CheckDecreaseBinContent(AbsQtyToHandle, AbsQtyToHandleBase, BreakBulkQtyBaseToPlace - "Qty. to Handle (Base)")
+            else
+                BinContent.CheckDecreaseBinContent(AbsQtyToHandle, AbsQtyToHandleBase, Abs("Qty. Outstanding (Base)"));
+            if AbsQtyToHandleBase <> Abs("Qty. to Handle (Base)") then begin
+                "Qty. to Handle (Base)" := AbsQtyToHandleBase * "Qty. to Handle (Base)" / Abs("Qty. to Handle (Base)");
+                Modify();
+            end;
         end;
     end;
 
@@ -863,6 +879,17 @@
         exit(QtyBase);
     end;
 
+    local procedure CheckWhseActivLineIsEmpty(var WhseActivLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseActivLineIsEmpty(WhseActivLine, IsHandled);
+        if not IsHandled then
+            if WhseActivLine.IsEmpty() then
+                Error(Text003);
+    end;
+
     local procedure CheckWhseItemTrkgLine(var WhseActivLine: Record "Warehouse Activity Line")
     var
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
@@ -870,6 +897,7 @@
         QtyAvailToRegisterBase: Decimal;
         QtyAvailToInsertBase: Decimal;
         QtyToRegisterBase: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeCheckWhseItemTrkgLine(WhseActivLine);
 
@@ -889,16 +917,20 @@
         TempWhseActivLine.SetCurrentKey("Item No.");
         if TempWhseActivLine.Find('-') then
             repeat
-                TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
-                if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
-                    repeat
-                        TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
-                    until TempWhseActivLine.Next() = 0
-                else begin
-                    TempWhseActivLine.Find('+');
-                    TempWhseActivLine.DeleteAll();
+                IsHandled := false;
+                OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineFind(TempWhseActivLine, IsHandled);
+                if not IsHandled then begin
+                    TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
+                    if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
+                        repeat
+                            TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
+                        until TempWhseActivLine.Next() = 0
+                    else begin
+                        TempWhseActivLine.Find('+');
+                        TempWhseActivLine.DeleteAll();
+                    end;
+                    TempWhseActivLine.SetRange("Item No.");
                 end;
-                TempWhseActivLine.SetRange("Item No.");
             until TempWhseActivLine.Next() = 0;
 
         TempWhseActivLine.Reset();
@@ -917,6 +949,7 @@
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
                     QtyAvailToInsertBase := CalcQtyAvailToInsertBase(TempWhseActivLine);
                     TempWhseActivLine.SetTrackingFilterFromWhseActivityLine(TempWhseActivLine);
+                    OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(TempWhseActivLine, WhseActivLine);
                     QtyToRegisterBase := 0;
                     repeat
                         QtyToRegisterBase := QtyToRegisterBase + TempWhseActivLine."Qty. to Handle (Base)";
@@ -940,6 +973,7 @@
                     // Clear filters, Lot/SN
                     TempWhseActivLine.ClearTrackingFilter;
                     TempWhseActivLine.SetRange("Item No.");
+                    OnCheckWhseItemTrkgLineOnAfterClearFilters(TempWhseActivLine, WhseActivLine);
                 until TempWhseActivLine.Next() = 0; // Per Lot/SN
                                                     // Clear filters, document
                 TempWhseActivLine.ClearSourceFilter;
@@ -1424,6 +1458,7 @@
                 ItemLedgEntry.SetRange("Location Code", "Location Code");
                 SetTrackingFilterToItemLedgEntryIfRequired(ItemLedgEntry, WhseItemTrackingSetup);
                 ItemLedgEntry.CalcSums("Remaining Quantity");
+                OnCalcTotalAvailQtyToPickOnAfterItemLedgEntryCalcSums(WhseActivLine);
                 QtyInWhseBase := ItemLedgEntry."Remaining Quantity";
 
                 QtyPickedNotShipped := CalcQtyPickedNotShipped(WhseActivLine, WhseItemTrackingSetup);
@@ -1446,12 +1481,16 @@
     local procedure IsQtyAvailToPickNonSpecificReservation(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyToRegister: Decimal): Boolean
     var
         QtyAvailToPick: Decimal;
+        IsHandled: Boolean;
     begin
-        QtyAvailToPick := CalcTotalAvailQtyToPick(WhseActivLine, WhseItemTrackingSetup);
-        if QtyAvailToPick < QtyToRegister then
-            if ReleaseNonSpecificReservations(WhseActivLine, WhseItemTrackingSetup, QtyToRegister - QtyAvailToPick) then
-                QtyAvailToPick := CalcTotalAvailQtyToPick(WhseActivLine, WhseItemTrackingSetup);
-
+        IsHandled := false;
+        OnBeforeIsQtyAvailToPickNonSpecificReservation(WhseActivLine, QtyAvailToPick, QtyToRegister, IsHandled);
+        if not IsHandled then begin
+            QtyAvailToPick := CalcTotalAvailQtyToPick(WhseActivLine, WhseItemTrackingSetup);
+            if QtyAvailToPick < QtyToRegister then
+                if ReleaseNonSpecificReservations(WhseActivLine, WhseItemTrackingSetup, QtyToRegister - QtyAvailToPick) then
+                    QtyAvailToPick := CalcTotalAvailQtyToPick(WhseActivLine, WhseItemTrackingSetup);
+        end;
         exit(QtyAvailToPick >= QtyToRegister);
     end;
 
@@ -1629,8 +1668,8 @@
             NoOfRecords := LineCount;
 
             if Location."Bin Mandatory" then begin
-                CheckBinContent;
-                CheckBin;
+                CheckBinContent();
+                CheckBin();
             end;
 
             if "Registering No." = '' then begin
@@ -1858,6 +1897,19 @@
         exit(xReservedQty > Item."Reserved Qty. on Inventory");
     end;
 
+    local procedure AutofillQtyToHandle(var WhseActivLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAutofillQtyToHandle(WhseActivLine, IsHandled);
+        if not IsHandled then
+            if not HideDialog then
+                WhseActivLine.AutofillQtyToHandle(WhseActivLine);
+
+        OnAfterAutofillQtyToHandle(WhseActivLine);
+    end;
+
     local procedure AvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
     begin
         if WhseActivLine."Serial No." <> '' then
@@ -1874,6 +1926,7 @@
           (WhseActivityLine."Activity Type" = WhseActivityLine."Activity Type"::Pick) and
           (WhseActivityLine."Action Type" in [WhseActivityLine."Action Type"::Place, WhseActivityLine."Action Type"::" "]) and
           (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Sales Order") and
+          (WhseActivityLine."Breakbulk No." = 0) and
           WhseActivityLine.TrackingExists);
     end;
 
@@ -1930,6 +1983,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2129,6 +2187,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsQtyAvailToPickNonSpecificReservation(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyAvailToPick: Decimal; var QtyToRegister: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisterWhseJnlLine(WarehouseActivityLine: Record "Warehouse Activity Line"; RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var IsHandled: Boolean)
     begin
     end;
@@ -2189,6 +2252,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalAvailQtyToPickOnAfterItemLedgEntryCalcSums(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheckLines(var WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -2230,6 +2298,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivLine: Record "Registered Whse. Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseActivLineIsEmpty(var WhseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinContentQtyToHandle(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var BinContent: Record "Bin Content"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWhseSourceDocLine(var WhseActivityLine: Record "Warehouse Activity Line"; WhseDocType2: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinContentOnAfterTempBinContentBufferLoop(var TempBinContentBuffer: Record "Bin Content Buffer"; var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnAfterClearFilters(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineFind(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

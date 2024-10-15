@@ -668,6 +668,7 @@
                 LastEntryNo := 0;
 
             ReservEntry1.Validate("Quantity (Base)", ReservEntry1."Quantity (Base)" - QtyToAdd);
+            OnModifyItemTrackingOnTempRecOnBeforeModifyReservEntry(ReservEntry1);
             ReservEntry1.Modify();
             TempReservEntry := ReservEntry1;
             if not CalledRecursively then begin
@@ -1398,6 +1399,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelReservationOnAfterDoCancel(ReservEntry: Record "Reservation Entry"; SurplusReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyItemTrackingOnTempRecOnBeforeModifyReservEntry(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

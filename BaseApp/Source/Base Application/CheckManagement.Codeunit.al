@@ -35,16 +35,6 @@ codeunit 367 CheckManagement
     var
         CheckLedgEntry2: Record "Check Ledger Entry";
     begin
-        if NextCheckEntryNo = 0 then begin
-            CheckLedgEntry2.LockTable();
-            CheckLedgEntry2.Reset();
-            if CheckLedgEntry2.FindLast then
-                NextCheckEntryNo := CheckLedgEntry2."Entry No." + 1
-            else
-                NextCheckEntryNo := 1;
-        end;
-
-        CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
         CheckLedgEntry2.SetRange("Bank Account No.", CheckLedgEntry."Bank Account No.");
         CheckLedgEntry2.SetFilter(
@@ -55,6 +45,15 @@ codeunit 367 CheckManagement
         CheckLedgEntry2.SetRange("Check No.", CheckLedgEntry."Document No.");
         if CheckLedgEntry2.FindFirst then
             Error(CheckAlreadyExistsErr, CheckLedgEntry."Document No.", BankAcc.TableCaption);
+
+        if NextCheckEntryNo = 0 then begin
+            CheckLedgEntry2.LockTable();
+            CheckLedgEntry2.Reset();
+            if CheckLedgEntry2.FindLast then
+                NextCheckEntryNo := CheckLedgEntry2."Entry No." + 1
+            else
+                NextCheckEntryNo := 1;
+        end;
 
         CheckLedgEntry.Open := CheckLedgEntry.Amount <> 0;
         CheckLedgEntry."User ID" := UserId;
@@ -710,8 +709,46 @@ codeunit 367 CheckManagement
                 CheckLedgEntry3.Modify();
             until CheckLedgEntry2.Next() = 0;
 
-        if WhichProcess = WhichProcess::Void then
+        if WhichProcess = WhichProcess::Void then begin
             RemoveCreditTransfers(GenJournalLine);
+            ClearApplnLedgerEntries(GenJournalLine);
+        end;
+    end;
+
+    local procedure ClearApplnLedgerEntries(GenJournalLine: Record "Gen. Journal Line")
+    begin
+        case GenJournalLine."Account Type" of
+            "Gen. Journal Account Type"::Customer:
+                ClearApplnCustLedgerEntries(GenJournalLine);
+            "Gen. Journal Account Type"::Vendor:
+                ClearApplnVendorLedgerEntries(GenJournalLine);
+        end
+    end;
+
+    local procedure ClearApplnCustLedgerEntries(GenJournalLine: Record "Gen. Journal Line")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntrySetApplID: Codeunit "Cust. Entry-SetAppl.ID";
+    begin
+        CustLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
+        if CustLedgerEntry.FindSet() then
+            repeat
+                CustEntrySetApplID.SetApplId(CustLedgerEntry, ApplyingCustLedgerEntry, '');
+            until CustLedgerEntry.Next() = 0;
+    end;
+
+    local procedure ClearApplnVendorLedgerEntries(GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendEntrySetApplID: Codeunit "Vend. Entry-SetAppl.ID";
+    begin
+        VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                VendEntrySetApplID.SetApplId(VendorLedgerEntry, ApplyingVendorLedgerEntry, '');
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure RemoveCreditTransfers(var GenJournalLine: Record "Gen. Journal Line")

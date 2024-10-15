@@ -117,7 +117,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                 JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
         end;
 
-        OnAfterRunCode(JobJnlLine2, JobLedgEntryNo, JobReg);
+        OnAfterRunCode(JobJnlLine2, JobLedgEntryNo, JobReg, NextEntryNo);
 
         exit(JobLedgEntryNo);
     end;
@@ -416,9 +416,21 @@ codeunit 1012 "Job Jnl.-Post Line"
             CopyFromJobJnlLine(JobJnlLine2);
             ResLedgEntry.LockTable();
             ResJnlPostLine.RunWithCheck(ResJnlLine);
-            JobJnlLine2."Resource Group No." := "Resource Group No.";
+            UpdateJobJnlLineResourceGroupNo(JobJnlLine2, ResJnlLine);
             exit(CreateJobLedgEntry(JobJnlLine2));
         end;
+    end;
+
+    local procedure UpdateJobJnlLineResourceGroupNo(var JobJnlLine2: Record "Job Journal Line"; ResJnlLine: Record "Res. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateJobJnlLineResourceGroupNo(JobJnlLine2, ResJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        JobJnlLine2."Resource Group No." := ResJnlLine."Resource Group No.";
     end;
 
     local procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -619,7 +631,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; var JobLedgEntryNo: Integer; var JobRegister: Record "Job Register")
+    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; var JobLedgEntryNo: Integer; var JobRegister: Record "Job Register"; var NextEntryNo: Integer)
     begin
     end;
 
@@ -685,6 +697,11 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateJobJnlLineAmount(var JobJnlLineToUpdate: Record "Job Journal Line"; var RemainingAmount: Decimal; var RemainingAmountLCY: Decimal; var RemainingQtyToTrack: Decimal; AmtRoundingPrecision: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobJnlLineResourceGroupNo(var JobJnlLine2: Record "Job Journal Line"; ResJnlLine: Record "Res. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

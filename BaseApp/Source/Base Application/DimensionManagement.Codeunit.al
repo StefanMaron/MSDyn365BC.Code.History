@@ -2754,7 +2754,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim: Record "Default Dimension" temporary; DimSetEntry: Record "Dimension Set Entry"; var LastErrorMessage: Record "Error Message"; var ErrorMessageMgt: Codeunit "Error Message Management"; var isHandled: Boolean)
+    local procedure OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim: Record "Default Dimension" temporary; var DimSetEntry: Record "Dimension Set Entry"; var LastErrorMessage: Record "Error Message"; var ErrorMessageMgt: Codeunit "Error Message Management"; var isHandled: Boolean)
     begin
     end;
 

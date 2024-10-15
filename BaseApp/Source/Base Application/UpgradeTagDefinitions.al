@@ -80,6 +80,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetNewPurchaseOrderEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultWordTemplateAllowedTablesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesCreditMemoReasonCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPriceSourceGroupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPriceSourceGroupFixedUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSyncPriceListLineStatusUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -250,6 +255,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetContactBusinessRelationUpgradeTag(): Code[250]
     begin
         exit('MS-383899-ContactBusinessRelation-20210119');
+    end;
+
+    procedure GetContactBusinessRelationEnumUpgradeTag(): Code[250]
+    begin
+        exit('MS-395036-ContactBusinessRelation-20210324');
     end;
 
     [Obsolete('Function will be removed', '16.0')]
@@ -682,6 +692,40 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetUserCalloutsUpgradeTag(): Code[250]
     begin
         exit('MS-77747-UserCallouts-20210209');
+    end;
+
+    procedure GetUpgradeMonitorNotificationUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-391008-MonitorFields-20210318');
+    end;
+
+    procedure GetPriceSourceGroupUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-388025-PriceSourceGroup-20210331');
+    end;
+
+    procedure GetPriceSourceGroupFixedUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-400024-PriceSourceGroup-20210519');
+    end;
+
+    procedure GetSyncPriceListLineStatusUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-400024-PriceLineStatusSync-20210519');
+    end;
+
+    procedure GetSalesCreditMemoReasonCodeUpgradeTag(): Code[250]
+    begin
+        exit('MS-395664-SalesCrMemoAPIReasonCode-20210406');
+    end;
+
+    procedure GetClearTemporaryTablesUpgradeTag(): Code[250]
+    begin
+        exit('MS-396184-CleanTemporaryTables-20210427');
     end;
 }
 

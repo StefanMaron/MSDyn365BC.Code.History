@@ -190,6 +190,23 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a new package number that replaces the package number, when you post the warehouse item reclassification journal.';
                     Visible = PackageTrackingVisible;
+
+                    trigger OnAssistEdit()
+                    var
+                        MaxQuantity: Decimal;
+                    begin
+                        if ColorOfQuantityArray[1] = 0 then
+                            MaxQuantity := UndefinedQtyArray[1];
+
+                        Rec.LookUpTrackingSummary(Rec, "Item Tracking Type"::"Package No.", MaxQuantity, -1, true);
+                        CurrPage.Update();
+                        CalculateSums();
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        PackageNoOnAfterValidate();
+                    end;
                 }
                 field("New Package No."; Rec."New Package No.")
                 {
@@ -932,6 +949,12 @@ page 6550 "Whse. Item Tracking Lines"
     end;
 
     protected procedure LotNoOnAfterValidate()
+    begin
+        UpdateExpDateEditable();
+        CurrPage.Update();
+    end;
+
+    protected procedure PackageNoOnAfterValidate()
     begin
         UpdateExpDateEditable();
         CurrPage.Update();

@@ -1011,6 +1011,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Price Line Filters" = RIMD,
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Printer Selection" = RIMD,
                   tabledata "Prod. Order Capacity Need" = RIMD,

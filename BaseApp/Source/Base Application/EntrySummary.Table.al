@@ -203,6 +203,8 @@ table 338 "Entry Summary"
           "Total Requested Quantity" -
           "Current Pending Quantity" +
           "Double-entry Adjustment";
+
+        OnAfterUpdateAvailable(Rec);
     end;
 
     procedure HasQuantity(): Boolean
@@ -379,6 +381,11 @@ table 338 "Entry Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromSpec(var ToEntrySummary: Record "Entry Summary"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAvailable(var EntrySummary: Record "Entry Summary")
     begin
     end;
 }

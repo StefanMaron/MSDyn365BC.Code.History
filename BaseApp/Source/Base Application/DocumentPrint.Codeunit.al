@@ -271,8 +271,14 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
+        IsPrinted := false;
+        OnBeforePrintCheckProcedure(NewGenJnlLine, GenJnlLine, IsPrinted);
+        if IsPrinted then
+            exit;
+
         GenJnlLine.Copy(NewGenJnlLine);
         GenJnlLine.OnCheckGenJournalLinePrintCheckRestrictions;
+        IsPrinted := false;
         OnBeforePrintCheck(GenJnlLine, IsPrinted);
         if IsPrinted then
             exit;
@@ -1012,6 +1018,11 @@ codeunit 229 "Document-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintCheck(var GenJournalLine: Record "Gen. Journal Line"; var IsPrinted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintCheckProcedure(var NewGenJnlLine: Record "Gen. Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var IsPrinted: Boolean)
     begin
     end;
 
