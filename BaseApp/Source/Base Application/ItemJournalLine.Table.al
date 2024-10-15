@@ -2193,7 +2193,7 @@ table 83 "Item Journal Line"
         Text031: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         Text032: Label 'When posting, the entry %1 will be opened first.';
         Text033: Label 'If the item carries serial or lot numbers, then you must use the %1 field in the %2 window.';
-        RevaluationPerEntryNotAllowedErr: Label 'This item ledger entry has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
+        RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
