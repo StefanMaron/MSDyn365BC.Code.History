@@ -334,7 +334,12 @@ codeunit 249 "VAT Registration Log Mgt."
         CountryRegion: Record "Country/Region";
         VatRegNoFieldRef: FieldRef;
         VATRegNo: Text[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckVIESForVATNoField(RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType, VATNoFieldName, IsHandled);
+        if IsHandled then
+            exit;
         RecordRef.GetTable(RecordVariant);
         if not CountryRegion.IsEUCountry(CountryCode) then
             exit; // VAT Reg. check Srv. is only available for EU countries.
@@ -465,6 +470,11 @@ codeunit 249 "VAT Registration Log Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditVendorVATRegOnBeforeRunPageVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVIESForVATNoField(var RecordRef: RecordRef; var VATRegistrationLog: Record "VAT Registration Log"; RecordVariant: Variant; EntryNo: Code[20]; CountryCode: Code[10]; AccountType: Option; var VATNoFieldName: Text; var IsHandled: Boolean)
     begin
     end;
 }

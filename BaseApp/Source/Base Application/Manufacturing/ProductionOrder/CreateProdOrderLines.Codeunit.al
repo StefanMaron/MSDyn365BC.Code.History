@@ -157,7 +157,7 @@ codeunit 99000787 "Create Prod. Order Lines"
 
                 ProdOrderLine."Due Date" := SalesLine."Shipment Date";
                 ProdOrderLine."Ending Date" :=
-                  LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", ProdOrderLine."Location Code", '', ProdOrderLine."Due Date", '', 2);
+                  LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", ProdOrderLine."Due Date", '', 2);
                 ProdOrderLine.Validate("Ending Date");
 
                 OnBeforeProdOrderLineInsert(ProdOrderLine, ProdOrder, true, SalesLine);

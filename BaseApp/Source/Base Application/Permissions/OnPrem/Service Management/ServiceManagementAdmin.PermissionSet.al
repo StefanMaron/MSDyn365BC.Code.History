@@ -9,6 +9,9 @@ permissionset 3600 "Service Management - Admin"
                   tabledata Customer = R,
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN20
+                  tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,

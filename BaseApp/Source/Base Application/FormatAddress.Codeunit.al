@@ -39,7 +39,8 @@
             if not Country.Get(CountryCode) then begin
                 Country.Init();
                 Country.Name := CountryCode;
-            end;
+            end else
+                Country.TranslateName(LanguageCode);
         IsHandled := false;
         OnFormatAddrOnAfterGetCountry(
             AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode, IsHandled, Country);
@@ -425,7 +426,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             if CountryRegion.Get("Sell-to Country/Region Code") then
-                SellToCountry := CountryRegion.Name;
+                SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
             CreateBarCode(
               DATABASE::"Sales Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1840,7 +1841,7 @@
             if "Sell-to Customer No." <> "Bill-to Customer No." then
                 exit(true);
             if CountryRegion.Get("Sell-to Country/Region Code") then
-                SellToCountry := CountryRegion.Name;
+                SellToCountry := CountryRegion.GetTranslatedName(LanguageCode);
             for i := 1 to ArrayLen(AddrArray) do
                 if (AddrArray[i] <> CustAddr[i]) and (AddrArray[i] <> '') and (AddrArray[i] <> SellToCountry) then
                     exit(true);
@@ -2002,7 +2003,13 @@
     var
         CountryRegion: Record "Country/Region";
         CustomAddressFormat: Record "Custom Address Format";
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        OnBeforeUseCounty(CountryCode, IsHandled, ReturnValue);
+        if IsHandled then
+            exit(ReturnValue);
+
         if CountryCode = '' then begin
             GetGLSetup();
             case true of
@@ -2526,6 +2533,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUseCounty(var CountryCode: Code[10]; var IsHandled: Boolean; var ReturnValue: Boolean)
     begin
     end;
 }

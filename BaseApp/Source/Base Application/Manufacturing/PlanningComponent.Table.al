@@ -1151,7 +1151,13 @@ table 99000829 "Planning Component"
     var
         PlanningRoutingLine: Record "Planning Routing Line";
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRefOrderTypeBin(Rec, ReqLine, Location, BinCode, IsHandled);
+        if IsHandled then
+            exit;
+
         case ReqLine."Ref. Order Type" of
             ReqLine."Ref. Order Type"::"Prod. Order":
                 begin
@@ -1390,6 +1396,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromRequisitionLine(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRefOrderTypeBin(PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; Location: Record Location; var BinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

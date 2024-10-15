@@ -8,7 +8,13 @@ codeunit 5400 "Available Management"
     procedure ExpectedQtyOnHand(var Item: Record Item; CalcAvailable: Boolean; ExtraNetNeed: Decimal; var Available: Decimal; PlannedOrderReceiptDate: Date) ExpectedQty: Decimal
     var
         CopyOfItem: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcExpectedQtyOnHand(Item, CalcAvailable, ExtraNetNeed, Available, PlannedOrderReceiptDate, ExpectedQty, IsHandled);
+        if IsHandled then
+            exit(ExpectedQty);
+
         CopyOfItem.Copy(Item);
 
         Available := 0;
@@ -27,7 +33,13 @@ codeunit 5400 "Available Management"
     var
         CopyOfItem: Record Item;
         JobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailableQty(Item, CalcAvailable, PlannedOrderReceiptDate, AvailableQty, IsHandled);
+        if IsHandled then
+            exit(AvailableQty);
+
         CopyOfItem.Copy(Item);
         with CopyOfItem do begin
             SetRange("Date Filter", 0D, GetRangeMax("Date Filter"));
@@ -171,6 +183,16 @@ codeunit 5400 "Available Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcExpectedQty(var Item: Record Item; CalcAvailable: Boolean; ExtraNetNeed: Decimal; var Available: Decimal; PlannedOrderReceiptDate: Date; var ExpectedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCalcExpectedQtyOnHand(var Item: Record Item; CalcAvailable: Boolean; ExtraNetNeed: Decimal; var Available: Decimal; PlannedOrderReceiptDate: Date; var ExpectedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCalcAvailableQty(var Item: Record Item; CalcAvailable: Boolean; PlannedOrderReceiptDate: Date; var AvailableQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

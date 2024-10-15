@@ -938,7 +938,15 @@ codeunit 1294 "OCR Service Mgt."
         AttachmentName: Text[250];
         ContentType: Text[50];
         TrackId: Text;
+        IsHandled: Boolean;
+        Result: Integer;
     begin
+        IsHandled := false;
+        Result := 0;
+        OnBeforeDownloadDocument(ExternalBatchId, DocId, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not RsoGetRequest(StrSubstNo('documents/rest/%1', DocId), ResponseStr) then begin
             Session.LogMessage('00008KP', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DocumentNotDownloadedTxt, DocId, ''), '');
@@ -1310,6 +1318,11 @@ codeunit 1294 "OCR Service Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetOriginalOCRXMLRootNode(IncomingDocument: Record "Incoming Document"; var OriginalXMLRootNode: DotNet XmlNode; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadDocument(ExternalBatchId: Text[50]; DocId: Text[50]; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 }

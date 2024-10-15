@@ -123,18 +123,23 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
                 TransLine.SetFilter(Quantity, '<>0');
                 TransLine.SetFilter("Qty. to Ship", '<>0');
+                OnAfterSetFilterTransferLine(TransLine);
                 if TransLine.Find('-') then begin
                     NextLineNo := AssignLineNo(TransLine."Document No.");
                     repeat
-                        CopyTransLine(TransLine2, TransLine, NextLineNo, TransHeader);
-                        TransferTracking(TransLine, TransLine2, TransLine."Qty. to Ship (Base)");
-                        TransLine.Validate("Quantity Shipped", TransLine."Quantity Shipped" + TransLine."Qty. to Ship");
-                        SetDerivedNoOnTransShptLine(TransLine, TransLine2);
+                        IsHandled := false;
+                        OnBeforeTransLineModify(TransLine, IsHandled);
+                        if not IsHandled then begin
+                            CopyTransLine(TransLine2, TransLine, NextLineNo, TransHeader);
+                            TransferTracking(TransLine, TransLine2, TransLine."Qty. to Ship (Base)");
+                            TransLine.Validate("Quantity Shipped", TransLine."Quantity Shipped" + TransLine."Qty. to Ship");
+                            SetDerivedNoOnTransShptLine(TransLine, TransLine2);
 
-                        OnBeforeUpdateWithWarehouseShipReceive(TransLine);
-                        TransLine.UpdateWithWarehouseShipReceive();
-                        TransLine.Modify();
-                        OnAfterTransLineModify(TransLine);
+                            OnBeforeUpdateWithWarehouseShipReceive(TransLine);
+                            TransLine.UpdateWithWarehouseShipReceive();
+                            TransLine.Modify();
+                        end;
+                        OnAfterTransLineModify(TransLine, TransHeader);
                     until TransLine.Next() = 0;
                 end;
 
@@ -542,6 +547,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TempHandlingSpecification.DeleteAll();
         end;
 
+        OnTransferTrackingOnBeforeReserveTransferToTransfer(FromTransLine, ToTransLine, TransferQty);
+
         if TransferQty > 0 then
             ReserveTransLine.TransferTransferToTransfer(
               FromTransLine, ToTransLine, TransferQty, "Transfer Direction"::Inbound, DummySpecification);
@@ -833,7 +840,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransLineModify(var TransferLine: Record "Transfer Line")
+    local procedure OnAfterTransLineModify(var TransferLine: Record "Transfer Line"; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1009,6 +1016,22 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckHeaderShippingAdvice(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterTransferLine(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransLineModify(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferTrackingOnBeforeReserveTransferToTransfer(var FromTransferLine: Record "Transfer Line"; var ToTransferLine: Record "Transfer Line"; TransferQty: Decimal)
     begin
     end;
 }

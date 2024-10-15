@@ -165,7 +165,13 @@ codeunit 99000889 AvailabilityManagement
         OldCTPQty: Decimal;
         FeasibleDate: Date;
         LastValidLine: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCapableToPromise(OrderPromisingLine, CompanyInfo, OrderPromisingID, LastValidLine, IsHandled);
+        if IsHandled then
+            exit;
+
         LastValidLine := 1;
         with OrderPromisingLine do begin
             if Find('-') then
@@ -656,6 +662,11 @@ codeunit 99000889 AvailabilityManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationsAfterSecondCASE(var OrderPromisingLine: Record "Order Promising Line"; var ReqLine: Record "Requisition Line"; var ReservQty: Decimal; var ReservQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCapableToPromise(var OrderPromisingLine: Record "Order Promising Line"; var CompanyInformation: Record "Company Information"; var OrderPromisingID: Code[20]; var LastValidLine: Integer; var IsHandled: Boolean)
     begin
     end;
 }

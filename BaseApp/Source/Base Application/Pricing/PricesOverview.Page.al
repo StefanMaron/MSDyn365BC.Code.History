@@ -594,6 +594,8 @@ page 7024 "Prices Overview"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOpenPage(PriceSource);
+
         UseCustomLookup := Rec.UseCustomizedLookup();
         GetRecFilters();
         SetRecFilters();
@@ -922,6 +924,8 @@ page 7024 "Prices Overview"
         else
             Rec.SetRange("Ending Date");
         Rec.FilterGroup(0);
+
+        OnAfterSetFilters(Rec);
     end;
 
     local procedure SetVisibleFields()
@@ -958,6 +962,17 @@ page 7024 "Prices Overview"
         SourceNoFilter := Rec.GetFilter("Source No.");
         AssetNoFilter := Rec.GetFilter("Asset No.");
         CurrencyCodeFilter := Rec.GetFilter("Currency Code");
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var PriceListLine: record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPage(var PriceSource: record "Price Source")
+    begin
     end;
 }
 

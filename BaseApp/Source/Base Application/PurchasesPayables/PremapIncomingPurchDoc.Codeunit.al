@@ -741,7 +741,13 @@
     local procedure ProcessLine(EntryNo: Integer; HeaderRecordNo: Integer; RecordNo: Integer; VendorNo: Code[20])
     var
         ImportedUnitCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo, IsHandled);
+        if IsHandled then
+            exit;
+
         // Lines with 0 quantity are "empty/description only" lines
         if IsDescriptionOnlyLine(EntryNo, HeaderRecordNo, RecordNo) then begin
             CleanDescriptionOnlyLine(EntryNo, HeaderRecordNo, RecordNo);
@@ -751,9 +757,9 @@
         // Lookup Item Ref, then GTIN/Bar Code, else G/L Account
         if ResolveUnitOfMeasureFromDataImport(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
             if not FindItemReferenceForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
-                if not FindItemForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
-                    if not FindGLAccountForLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
-                        LogErrorIfItemNotFound(EntryNo, HeaderRecordNo, RecordNo, VendorNo);
+            if not FindItemForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
+                if not FindGLAccountForLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
+                    LogErrorIfItemNotFound(EntryNo, HeaderRecordNo, RecordNo, VendorNo);
 
         ValidateLineDiscount(EntryNo, HeaderRecordNo, RecordNo);
     end;
@@ -978,6 +984,7 @@
         LineDescription: Text[250];
         LineDirectUnitCostTxt: Text;
         LineDirectUnitCost: Decimal;
+        IsHandled: Boolean;
     begin
         with IntermediateDataImport do begin
             LineDescription := GetEntryValue(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo(Description), HeaderRecordNo, RecordNo);
@@ -985,7 +992,11 @@
               GetEntryValue(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Direct Unit Cost"), HeaderRecordNo, RecordNo);
             if LineDirectUnitCostTxt <> '' then
                 Evaluate(LineDirectUnitCost, LineDirectUnitCostTxt, 9);
-            GLAccountNo := FindAppropriateGLAccount(EntryNo, HeaderRecordNo, LineDescription, LineDirectUnitCost, VendorNo);
+
+            IsHandled := false;
+            OnFindGLAccountForLineOnBeforeFindAppropriateGLAccount(IntermediateDataImport, GLAccountNo, EntryNo, HeaderRecordNo, RecordNo, VendorNo, IsHandled);
+            if not IsHandled then
+                GLAccountNo := FindAppropriateGLAccount(EntryNo, HeaderRecordNo, LineDescription, LineDirectUnitCost, VendorNo);
 
             if GLAccountNo <> '' then begin
                 InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."),
@@ -1430,6 +1441,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertLineForTotalDocumentAmount(EntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindGLAccountForLineOnBeforeFindAppropriateGLAccount(IntermediateDataImport: Record "Intermediate Data Import"; var GLAccountNo: Code[20]; EntryNo: Integer; HeaderRecordNo: Integer; RecordNo: Integer; VendorNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessLine(EntryNo: Integer; HeaderRecordNo: Integer; RecordNo: Integer; VendorNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -34,8 +34,12 @@ codeunit 99000831 "Reservation Engine Mgt."
     var
         ReservEntry3: Record "Reservation Entry";
         DoCancel: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCancelReservation(ReservEntry);
+        IsHandled := false;
+        OnBeforeCancelReservation(ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.TestField("Disallow Cancellation", false);
@@ -580,7 +584,14 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     local procedure ModifyItemTrkgByReservStatus(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; ReservStatus: Enum "Reservation Status"; var QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyItemTrkgByReservStatus(TempReservEntry, TrackingSpecification, ReservStatus, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if QtyToAdd = 0 then
             exit;
 
@@ -1358,7 +1369,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCancelReservation(var ReservEntry: Record "Reservation Entry")
+    local procedure OnBeforeCancelReservation(var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1449,6 +1460,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyReservEntryOnCheckNewQuantity(var ReservEntry: Record "Reservation Entry"; var NewQuantity: Decimal; NewDescription: Text[100]; var ModifyReserved: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyItemTrkgByReservStatus(var TempReservationEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; ReservStatus: Enum "Reservation Status"; var QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
     end;
 }

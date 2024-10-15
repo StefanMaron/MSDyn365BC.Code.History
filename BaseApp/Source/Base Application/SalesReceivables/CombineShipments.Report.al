@@ -1,4 +1,4 @@
-report 295 "Combine Shipments"
+﻿report 295 "Combine Shipments"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Combine Shipments';
@@ -247,7 +247,13 @@ report 295 "Combine Shipments"
         trigger OnOpenPage()
         var
             VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+            IsHandled: Boolean;
         begin
+            IsHandled := false;
+            OnBeforeOnOpenPage(IsHandled);
+            if IsHandled then
+                exit;
+
             if PostingDateReq = 0D then
                 PostingDateReq := WorkDate();
             if DocDateReq = 0D then
@@ -556,6 +562,11 @@ report 295 "Combine Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesShipmentHeaderOnAfterFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header"; var NoOfSalesInvErrors: Integer; PostInvoice: Boolean; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var IsHandled: Boolean)
     begin
     end;
 }

@@ -148,7 +148,14 @@ codeunit 5510 "Production Journal Mgt"
     procedure RoutingLinkValid(ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"): Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRoutingLinkValid(ProdOrderComp, ProdOrderLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ProdOrderComp."Routing Link Code" = '' then
             exit(false);
 
@@ -341,6 +348,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Validate("Setup Time", 0);
             ItemJnlLine.Validate("Run Time", 0);
+            OnInsertOutputItemJnlLineOnAfterAssignTimes(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, QtyToPost);
             if ("Location Code" <> '') and IsLastOperation(ProdOrderRtngLine) then
                 ItemJnlLine.CheckWhse("Location Code", QtyToPost);
             OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
@@ -710,6 +718,16 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertComponentsOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoutingLinkValid(ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOutputItemJnlLineOnAfterAssignTimes(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var QtyToPost: Decimal)
     begin
     end;
 }
