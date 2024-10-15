@@ -20,6 +20,7 @@ codeunit 10520 GovTalkMessageManagement
         InvalidGovTalkMessagePartIDErr: Label 'The XML part id is invalid.';
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure CreateBlankGovTalkXmlMessage(var GovTalkMessageXMLNode: DotNet XmlNode; var BodyXMLNode: DotNet XmlNode; VATReportHeader: Record "VAT Report Header"; Qualifier: Text; Fn: Text; IncludeSenderDetails: Boolean): Boolean
     var
         GovTalkMessage: Record GovTalkMessage;
@@ -133,6 +134,7 @@ codeunit 10520 GovTalkMessageManagement
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure CreateGovTalkDeleteMessage(var GovTalkMessageXMLNode: DotNet XmlNode; VATReportHeader: Record "VAT Report Header")
     var
         DummyXMLNode: DotNet XmlNode;
@@ -367,6 +369,7 @@ codeunit 10520 GovTalkMessageManagement
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SubmitGovTalkDeleteRequest(var VATReportHeader: Record "VAT Report Header"; LogMessage: Boolean): Boolean
     var
         GovTalkMessage: Record GovTalkMessage;

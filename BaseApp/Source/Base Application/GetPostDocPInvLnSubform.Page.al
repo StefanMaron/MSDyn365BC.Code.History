@@ -267,7 +267,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -294,24 +294,32 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        if not Visible then
+        if not IsVisible then
             exit(false);
 
-        if Find(Which) then begin
+        IsHandled := false;
+        OnFindRecordOnBeforeFind(Rec, Which, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Rec.Find(Which) then begin
             PurchInvLine := Rec;
             while true do begin
                 ShowRec := IsShowRec(Rec);
                 if ShowRec then
                     exit(true);
-                if Next(1) = 0 then begin
+                if Rec.Next(1) = 0 then begin
                     Rec := PurchInvLine;
-                    if Find(Which) then
+                    if Rec.Find(Which) then
                         while true do begin
                             ShowRec := IsShowRec(Rec);
                             if ShowRec then
                                 exit(true);
-                            if Next(-1) = 0 then
+                            if Rec.Next(-1) = 0 then
                                 exit(false);
                         end;
                 end;
@@ -330,7 +338,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 
         PurchInvLine := Rec;
         repeat
-            NextSteps := Next(Steps / Abs(Steps));
+            NextSteps := Rec.Next(Steps / Abs(Steps));
             ShowRec := IsShowRec(Rec);
             if ShowRec then begin
                 RealSteps := RealSteps + NextSteps;
@@ -338,7 +346,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := PurchInvLine;
-        Find();
+        Rec.Find();
         exit(RealSteps);
     end;
 
@@ -357,7 +365,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         LineAmount: Decimal;
         RevQtyFilter: Boolean;
         FillExactCostReverse: Boolean;
-        Visible: Boolean;
+        IsVisible: Boolean;
         ShowRec: Boolean;
 
     protected var
@@ -373,13 +381,13 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
     begin
         TempPurchInvLine.Reset();
         TempPurchInvLine.CopyFilters(Rec);
-        TempPurchInvLine.SetRange("Document No.", "Document No.");
+        TempPurchInvLine.SetRange("Document No.", Rec."Document No.");
         if not TempPurchInvLine.FindFirst() then begin
             PurchInvHeader2 := PurchInvHeader;
             RemainingQty2 := RemainingQty;
             RevUnitCostLCY2 := RevUnitCostLCY;
             PurchInvLine2.CopyFilters(Rec);
-            PurchInvLine2.SetRange("Document No.", "Document No.");
+            PurchInvLine2.SetRange("Document No.", Rec."Document No.");
             if not PurchInvLine2.FindSet() then
                 exit(false);
             repeat
@@ -394,13 +402,13 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
             RevUnitCostLCY := RevUnitCostLCY2;
         end;
 
-        if "Document No." <> PurchInvHeader."No." then
-            PurchInvHeader.Get("Document No.");
+        if Rec."Document No." <> PurchInvHeader."No." then
+            PurchInvHeader.Get(Rec."Document No.");
 
-        DirectUnitCost := "Direct Unit Cost";
-        LineAmount := "Line Amount";
+        DirectUnitCost := Rec."Direct Unit Cost";
+        LineAmount := Rec."Line Amount";
 
-        exit("Line No." = TempPurchInvLine."Line No.");
+        exit(Rec."Line No." = TempPurchInvLine."Line No.");
     end;
 
     local procedure IsShowRec(PurchInvLine2: Record "Purch. Inv. Line"): Boolean
@@ -441,9 +449,9 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         ToPurchHeader := NewToPurchHeader;
         RevQtyFilter := NewRevQtyFilter;
         FillExactCostReverse := NewFillExactCostReverse;
-        Visible := NewVisible;
+        IsVisible := NewVisible;
 
-        if Visible then begin
+        if IsVisible then begin
             TempPurchInvLine.Reset();
             TempPurchInvLine.DeleteAll();
         end;
@@ -451,8 +459,8 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 
     local procedure GetAppliedQty(): Decimal
     begin
-        if (Type = Type::Item) and (Quantity - RemainingQty > 0) then
-            exit(Quantity - RemainingQty);
+        if (Rec.Type = Type::Item) and (Rec.Quantity - RemainingQty > 0) then
+            exit(Rec.Quantity - RemainingQty);
         exit(0);
     end;
 
@@ -485,6 +493,11 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsShowRec(var PurchInvLine: Record "Purch. Inv. Line"; var PurchInvLine2: Record "Purch. Inv. Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordOnBeforeFind(var PurchInvLine: Record "Purch. Inv. Line"; var Which: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -551,16 +551,15 @@ table 302 "Finance Charge Memo Header"
         OnAfterTestNoSeries(Rec);
     end;
 
-    procedure GetNoSeriesCode(): Code[20]
+    procedure GetNoSeriesCode() NoSeriesCode: Code[20]
     var
-        NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
         SalesSetup.Get();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         NoSeriesCode := SalesSetup."Fin. Chrg. Memo Nos.";
 
@@ -765,30 +764,30 @@ table 302 "Finance Charge Memo Header"
               FinChrgMemoHeader2."Remaining Amount" + FinChrgMemoHeader2."Interest Amount" +
               FinChrgMemoHeader2."Additional Fee" + FinChrgMemoHeader2."VAT Amount";
 
-                                          repeat
-                                              NextLineNo := NextLineNo + LineSpacing;
-                                              FinChrgMemoLine.Init();
-                                              FinChrgMemoLine."Line No." := NextLineNo;
-                                              FinChrgMemoLine.Description :=
-                                                CopyStr(
-                                                  StrSubstNo(
-                                                    FinChrgText.Text,
-                                                    FinChrgMemoHeader2."Document Date",
-                                                    FinChrgMemoHeader2."Due Date",
-                                                    FinChrgTerms."Interest Rate",
-                                                    FinChrgMemoHeader2."Remaining Amount",
-                                                    FinChrgMemoHeader2."Interest Amount",
-                                                    FinChrgMemoHeader2."Additional Fee",
-                                                    Format(FinChrgMemoTotal, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, FinChrgMemoHeader."Currency Code")),
-                                                    FinChrgMemoHeader2."Currency Code",
-                                                    FinChrgMemoHeader2."Posting Date"),
-                                                  1, MaxStrLen(FinChrgMemoLine.Description));
-                                              if FinChrgText.Position = FinChrgText.Position::Beginning then
-                                                  FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Beginning Text"
-                                              else
-                                                  FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
-                                              FinChrgMemoLine.Insert();
-                                          until FinChrgText.Next() = 0;
+            repeat
+                NextLineNo := NextLineNo + LineSpacing;
+                FinChrgMemoLine.Init();
+                FinChrgMemoLine."Line No." := NextLineNo;
+                FinChrgMemoLine.Description :=
+                  CopyStr(
+                    StrSubstNo(
+                      FinChrgText.Text,
+                      FinChrgMemoHeader2."Document Date",
+                      FinChrgMemoHeader2."Due Date",
+                      FinChrgTerms."Interest Rate",
+                      FinChrgMemoHeader2."Remaining Amount",
+                      FinChrgMemoHeader2."Interest Amount",
+                      FinChrgMemoHeader2."Additional Fee",
+                      Format(FinChrgMemoTotal, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, FinChrgMemoHeader."Currency Code")),
+                      FinChrgMemoHeader2."Currency Code",
+                      FinChrgMemoHeader2."Posting Date"),
+                    1, MaxStrLen(FinChrgMemoLine.Description));
+                if FinChrgText.Position = FinChrgText.Position::Beginning then
+                    FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Beginning Text"
+                else
+                    FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
+                FinChrgMemoLine.Insert();
+            until FinChrgText.Next() = 0;
             if FinChrgText.Position = FinChrgText.Position::Beginning then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Beginning Text");
         end;

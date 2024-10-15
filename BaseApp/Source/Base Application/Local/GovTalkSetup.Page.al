@@ -99,6 +99,7 @@ page 10523 "GovTalk Setup"
 
     var
         NoCompanyVatNoSetupMsg: Label 'GovTalk needs to know which company the documents are for. Before you can submit documents, you must enter your company''s VAT registration number on the Company Information page.';
+        [NonDebuggable]
         ClearTextPassword: Text[250];
         PasswordField: Text[250];
         PasswordMaskTok: Label '********', Locked = true;

@@ -48,32 +48,41 @@ table 10523 "GovTalk Setup"
         AzureKeyVaultGovTalkVendorIdTok: Label 'govtalk-vendorid', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(PasswordValue: Text[250])
     begin
         Password := SaveEncryptedValue(Password, PasswordValue);
     end;
 
+    [NonDebuggable]
     procedure GetPassword(): Text
     begin
         exit(GetEncryptedValue(Password));
     end;
 
+    [NonDebuggable]
     procedure SaveVendorID(NewVendorId: Text[250])
     begin
         "Vendor ID" := SaveEncryptedValue("Vendor ID", NewVendorId);
     end;
 
+    [NonDebuggable]
     procedure GetVendorID(): Text
     var
+        AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInfo: Codeunit "Environment Information";
+        Value: Text;
     begin
-        if EnvironmentInfo.IsSaaS() then
-            exit(GetAzureSecret(AzureKeyVaultGovTalkVendorIdTok));
-
+        if EnvironmentInfo.IsSaaS() then begin
+            if not AzureKeyVault.GetAzureKeyVaultSecret(AzureKeyVaultGovTalkVendorIdTok, Value) then
+                Error(AzureKeyVaultErr, GetLastErrorText);
+            exit(Value);
+        end;
         exit(GetEncryptedValue("Vendor ID"));
     end;
 
+    [NonDebuggable]
     local procedure GetEncryptedValue(Value: Guid): Text
     var
         RetrievedValue: Text;
@@ -82,6 +91,7 @@ table 10523 "GovTalk Setup"
         exit(RetrievedValue);
     end;
 
+    [NonDebuggable]
     local procedure SaveEncryptedValue(PasswordGuid: Guid; Value: Text[250]): Guid
     begin
         if not IsNullGuid(PasswordGuid) and (Value = '') then
@@ -94,17 +104,7 @@ table 10523 "GovTalk Setup"
         exit(PasswordGuid);
     end;
 
-    local procedure GetAzureSecret("Key": Text): Text
-    var
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        Value: Text;
-    begin
-        if not AzureKeyVault.GetAzureKeyVaultSecret(Key, Value) then
-            Error(AzureKeyVaultErr, GetLastErrorText);
-
-        exit(Value);
-    end;
-
+    [NonDebuggable]
     procedure IsConfigured(): Boolean
     begin
         Get();

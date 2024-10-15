@@ -2440,7 +2440,8 @@ page 50 "Purchase Order"
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(Rec.RecordId(), CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         ShouldSearchForVendByName := Rec.ShouldSearchForVendorByName(Rec."Buy-from Vendor No.");
         PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
-        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+        if not IsPurchaseLinesEditable then
+            IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
         OnAfterSetControlAppearance();
     end;
@@ -2486,19 +2487,14 @@ page 50 "Purchase Order"
             ShipToOptions::"Default (Company Address)",
             ShipToOptions::"Custom Address":
                 begin
-                    Rec.Validate("Sell-to Customer No.", '');
-                    Rec.Validate("Location Code", '');
+                    if xRec."Sell-to Customer No." <> '' then
+                        Rec.Validate("Sell-to Customer No.", '');
+                    if xRec."Location Code" <> '' then
+                        Rec.Validate("Location Code", '');
                 end;
             ShipToOptions::Location:
-                begin
+                if xRec."Sell-to Customer No." <> '' then
                     Rec.Validate("Sell-to Customer No.", '');
-                    Rec.Validate("Location Code");
-                end;
-            ShipToOptions::"Customer Address":
-                begin
-                    Rec.Validate("Sell-to Customer No.");
-                    Rec.Validate("Location Code", '');
-                end;
         end;
     end;
 
