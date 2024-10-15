@@ -32,7 +32,7 @@ page 959 "Time Sheet Archive"
 
                     trigger OnValidate()
                     begin
-                        TimeSheetHeaderArchive.Reset;
+                        TimeSheetHeaderArchive.Reset();
                         TimeSheetMgt.FilterTimeSheetsArchive(TimeSheetHeaderArchive, TimeSheetHeaderArchive.FieldNo("Owner User ID"));
                         TimeSheetMgt.CheckTimeSheetArchiveNo(TimeSheetHeaderArchive, CurrTimeSheetNo);
                         CurrPage.SaveRecord;

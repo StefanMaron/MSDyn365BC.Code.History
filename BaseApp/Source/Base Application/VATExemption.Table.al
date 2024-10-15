@@ -75,7 +75,7 @@ table 12186 "VAT Exemption"
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
                 if "VAT Exempt. Int. Registry No." <> xRec."VAT Exempt. Int. Registry No." then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     NoSeriesMgt.TestManual(SalesSetup."VAT Exemption Nos.");
                     "No. Series" := '';
                 end;
@@ -151,14 +151,14 @@ table 12186 "VAT Exemption"
             case Type of
                 Type::Customer:
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."VAT Exemption Nos." <> '' then
                             NoSeriesMgt.InitSeries(
                               SalesSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");
                     end;
                 Type::Vendor:
                     begin
-                        PurchSetup.Get;
+                        PurchSetup.Get();
                         PurchSetup.TestField("VAT Exemption Nos.");
                         NoSeriesMgt.InitSeries(
                           PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");

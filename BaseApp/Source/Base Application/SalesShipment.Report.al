@@ -243,10 +243,10 @@ report 208 "Sales - Shipment"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -270,7 +270,7 @@ report 208 "Sales - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Shipment Line"; "Sales Shipment Line")
@@ -337,10 +337,10 @@ report 208 "Sales - Shipment"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -364,7 +364,7 @@ report 208 "Sales - Shipment"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem(AsmLoop; "Integer")
@@ -403,9 +403,9 @@ report 208 "Sales - Shipment"
                             trigger OnPreDataItem()
                             begin
                                 if not DisplayAssemblyInformation then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 if not AsmHeaderExists then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
                                 SetRange(Number, 1, PostedAsmLine.Count);
@@ -415,7 +415,7 @@ report 208 "Sales - Shipment"
                         trigger OnAfterGetRecord()
                         begin
                             if not ShowCorrectionLines and Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                             if DisplayAssemblyInformation then
@@ -439,7 +439,7 @@ report 208 "Sales - Shipment"
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -487,7 +487,7 @@ report 208 "Sales - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowCustAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(ItemTrackingLine; "Integer")
@@ -545,7 +545,7 @@ report 208 "Sales - Shipment"
                                 TrackingSpecBuffer.Next;
 
                             if not ShowCorrectionLines and TrackingSpecBuffer.Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if TrackingSpecBuffer.Correction then
                                 TrackingSpecBuffer."Quantity (Base)" := -TrackingSpecBuffer."Quantity (Base)";
 
@@ -568,7 +568,7 @@ report 208 "Sales - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if TrackingSpecCount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, TrackingSpecCount);
                             TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                               "Source Prod. Order Line", "Source Ref. No.");
@@ -711,8 +711,8 @@ report 208 "Sales - Shipment"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         OnAfterInitReport;

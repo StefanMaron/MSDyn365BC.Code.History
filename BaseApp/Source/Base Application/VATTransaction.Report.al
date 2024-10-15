@@ -15,9 +15,6 @@ report 12191 "VAT Transaction"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -88,9 +85,6 @@ report 12191 "VAT Transaction"
             column(USERID_Control1130086; UserId)
             {
             }
-            column(CurrReport_PAGENO_Control1130087; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4__Control1130089; Format(Today, 0, 4))
             {
             }
@@ -136,9 +130,6 @@ report 12191 "VAT Transaction"
             column(VATRegNo_Entry_No_; "Entry No.")
             {
             }
-            column(CurrReport_PAGENO_Control1130087Caption; CurrReport_PAGENO_Control1130087CaptionLbl)
-            {
-            }
             column(VAT_Transaction_ReportCaption_Control1130091; VAT_Transaction_ReportCaption_Control1130091Lbl)
             {
             }
@@ -176,9 +167,6 @@ report 12191 "VAT Transaction"
         {
             DataItemTableView = SORTING("Fiscal Code", "Operation Occurred Date") ORDER(Ascending) WHERE("Include in VAT Transac. Rep." = CONST(true), Resident = CONST("Non-Resident"), Type = FILTER(Purchase | Sale), "Individual Person" = CONST(true));
             column(USERID_Control1130092; UserId)
-            {
-            }
-            column(CurrReport_PAGENO_Control1130093; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4__Control1130095; Format(Today, 0, 4))
@@ -233,9 +221,6 @@ report 12191 "VAT Transaction"
             {
             }
             column(NonResident_Entry_No_; "Entry No.")
-            {
-            }
-            column(CurrReport_PAGENO_Control1130093Caption; CurrReport_PAGENO_Control1130093CaptionLbl)
             {
             }
             column(VAT_Transaction_ReportCaption_Control1130097; VAT_Transaction_ReportCaption_Control1130097Lbl)
@@ -424,7 +409,6 @@ report 12191 "VAT Transaction"
         GetVATTransactionType__VAT_Bus__Posting_Group___VAT_Prod__Posting_Group__CaptionLbl: Label 'VAT Transaction Type';
         OperationTypeLbl: Label 'Operation Type';
         TotalCaptionLbl: Label 'Total';
-        CurrReport_PAGENO_Control1130087CaptionLbl: Label 'Page';
         VAT_Transaction_ReportCaption_Control1130091Lbl: Label 'VAT Transaction Report';
         VAT_Registration_No_CaptionLbl: Label 'VAT Registration No.';
         VATRegNo__Operation_Occurred_Date_CaptionLbl: Label 'Operation Occurred Date';
@@ -432,7 +416,6 @@ report 12191 "VAT Transaction"
         GetVATTransactionType__VAT_Bus__Posting_Group___VAT_Prod__Posting_Group___Control1130022CaptionLbl: Label 'VAT Transaction Type';
         SetOperationType_Type__EU_Service__CaptionLbl: Label 'Operation Type';
         TotalCaption_Control1130034Lbl: Label 'Total';
-        CurrReport_PAGENO_Control1130093CaptionLbl: Label 'Page';
         VAT_Transaction_ReportCaption_Control1130097Lbl: Label 'VAT Transaction Report';
         IndividualCaptionLbl: Label 'Individual';
         NonResident__Date_of_Birth_CaptionLbl: Label 'Date of Birth';

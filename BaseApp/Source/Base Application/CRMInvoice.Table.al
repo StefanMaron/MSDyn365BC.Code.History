@@ -199,6 +199,9 @@ table 5355 "CRM Invoice"
             OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
             OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
             OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 97 ShippingMethodCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(24; PaymentTermsCode; Option)
         {
@@ -210,6 +213,9 @@ table 5355 "CRM Invoice"
             OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
             OptionOrdinalValues = -1, 1, 2, 3, 4;
             OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 96 PaymentTermsCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(25; CreatedOn; DateTime)
         {
@@ -777,6 +783,30 @@ table 5355 "CRM Invoice"
             Description = 'For internal use only.';
             ExternalName = 'traversedpath';
             ExternalType = 'String';
+        }
+        field(95; CompanyId; Guid)
+        {
+            Caption = 'Company Id';
+            Description = 'Unique identifier of the company that owns the invoice.';
+            ExternalName = 'bcbi_companyid';
+            ExternalType = 'Lookup';
+            TableRelation = "CDS Company".CompanyId;
+        }
+        field(96; PaymentTermsCodeEnum; Enum "CDS Payment Terms Code")
+        {
+            Caption = 'Payment Terms';
+            Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
+            ExternalName = 'paymenttermscode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
+        }
+        field(97; ShippingMethodCodeEnum; Enum "CDS Shipping Agent Code")
+        {
+            Caption = 'Shipping Method';
+            Description = 'Select a shipping method for deliveries sent to this address.';
+            ExternalName = 'shippingmethodcode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
         }
     }
 

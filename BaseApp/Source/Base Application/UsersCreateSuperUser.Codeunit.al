@@ -51,7 +51,7 @@ codeunit 9000 "Users - Create Super User"
 
     local procedure CreateUser(var User: Record User; UserName: Code[50]; WindowsSecurityID: Text[119])
     begin
-        User.Init;
+        User.Init();
         User."User Security ID" := CreateGuid;
         User."User Name" := UserName;
         User."Windows Security ID" := WindowsSecurityID;

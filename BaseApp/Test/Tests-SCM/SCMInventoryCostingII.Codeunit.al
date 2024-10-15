@@ -183,7 +183,6 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise: Create and post a Purchase Invoice and create Charge Item Assignment for all the Shipment lines.
-        Commit;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Error message doesn't appear while posting Purchase Invoice with Qty. to Assign more than Purchase Invoice Quantity.
@@ -230,7 +229,6 @@ codeunit 137287 "SCM Inventory Costing II"
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order);
 
         // Exercise.
-        Commit;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Invoice.
@@ -252,7 +250,6 @@ codeunit 137287 "SCM Inventory Costing II"
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::Order);
 
         // Exercise.
-        Commit;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Credit Memo.
@@ -408,7 +405,6 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise.
-        Commit;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Error message doesn't appear while posting Purchase Invoice with Qty. to Assign more than Purchase Invoice Quantity.
@@ -429,7 +425,6 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Create Purchase Invoice with negative Direct Unit Cost using Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Return Order");
-        Commit;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Invoice.
@@ -451,7 +446,6 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Create Purchase Credit Memo with Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order");
-        Commit;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error message while posting Purchase Credit Memo.
@@ -845,7 +839,6 @@ codeunit 137287 "SCM Inventory Costing II"
         UpdatePurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Invoice for the invalidated item charge assignment
-        Commit;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Post failed
@@ -911,7 +904,6 @@ codeunit 137287 "SCM Inventory Costing II"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Post Invoice for the invalidated item charge assignment
-        Commit;
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Post failed
@@ -1608,7 +1600,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Initialize;
 
         // [GIVEN] Unit-Amount Rounded Precision is changed to "P" decimal digits (i.e. "P" = 3, precision = 0.001).
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Unit-Amount Rounding Precision", 0.001);
         GLSetup.Modify(true);
 
@@ -1770,7 +1762,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1839,12 +1831,12 @@ codeunit 137287 "SCM Inventory Costing II"
         Quantity := LibraryRandom.RandDec(10, 2);  // Using Random value for Quantity.
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Customer."No.", Item."Unit Price", Quantity);
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        Commit;
+        Commit();
 
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         LibraryVariableStorage.Enqueue(PostedSalesDocType::"Posted Invoice"); // Used in Copy Sales Document handler
         LibraryVariableStorage.Enqueue(PostedDocNo); // Used in Copy Sales Document handler
-        Commit;
+        Commit();
 
         // [WHEN] Copy posted sales invoice line to newly created Sales Credit Memo.
         CopySalesDocument.SetSalesHeader(SalesHeader2);
@@ -1879,7 +1871,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
         LibraryVariableStorage.Enqueue(PostedPurchaseDocType::"Posted Invoice"); // Used in Copy Purchase Document handler
         LibraryVariableStorage.Enqueue(PostedDocNo); // Used in Copy Purhcase Document handler
-        Commit;
+        Commit();
 
         // [GIVEN] Copy posted purchase invoice line to newly created Purchase Credit Memo.
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
@@ -2397,10 +2389,10 @@ codeunit 137287 "SCM Inventory Costing II"
         StandardCostWorksheet: Record "Standard Cost Worksheet";
         StandardCostWorksheetPage: TestPage "Standard Cost Worksheet";
     begin
-        StandardCostWorksheet.DeleteAll;
+        StandardCostWorksheet.DeleteAll();
         StandardCostWorksheetPage.OpenEdit;
         CreateStandardCostWorksheet(StandardCostWorksheetPage, Item."No.", Item."Standard Cost", NewStandardCost);
-        Commit;  // Commit Required due to Run Modal.
+        Commit();  // Commit Required due to Run Modal.
         StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke;
     end;
 
@@ -2410,7 +2402,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         StandardCostWorksheetPage.OpenEdit;
         LibraryVariableStorage.Enqueue(DuplicateJournalQst); // Enqueue message for Confirm Handler
-        Commit; // Commit Required due to Run Modal
+        Commit(); // Commit Required due to Run Modal
         StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke; // Click Implement Standard Cost Changes button
     end;
 
@@ -2536,14 +2528,14 @@ codeunit 137287 "SCM Inventory Costing II"
 
     local procedure RunPurchaseReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount: Decimal)
     begin
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Purchase Document - Test");
         AssignItemChargeWithoutSuggest(ExpdAssignableAmount);
     end;
 
     local procedure RunSalesReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount: Decimal)
     begin
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales Document - Test");
         AssignItemChargeWithoutSuggest(ExpdAssignableAmount);
     end;
@@ -2621,7 +2613,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.FindFirst;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(ProfitLCY, CustLedgerEntry."Profit (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)", UnexpMsg);
     end;
 
@@ -2634,7 +2626,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CustomerStatistics.OpenView;
         CustomerStatistics.FILTER.SetFilter("No.", No);
         Evaluate(AdjustedProfit, CustomerStatistics.ThisPeriodAdjustedProfitLCY.Value);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(ExpAdjustedProfit, AdjustedProfit, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", UnexpMsg);
         CustomerStatistics.OK.Invoke;
     end;
@@ -2665,7 +2657,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesInvoiceStatistics.OpenView;
         SalesInvoiceStatistics.FILTER.SetFilter("No.", No);
         Evaluate(AdjustedProfit, SalesInvoiceStatistics.AdjustedProfitLCY.Value);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(ExpAdjustedProfit, AdjustedProfit, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", UnexpMsg);
         SalesInvoiceStatistics.OK.Invoke;
     end;

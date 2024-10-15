@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
@@ -88,7 +88,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
     var
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
-        ToDirectDebitCollectionEntry.Reset;
+        ToDirectDebitCollectionEntry.Reset();
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
 
         case DirectDebitCollection."Source Table ID" of

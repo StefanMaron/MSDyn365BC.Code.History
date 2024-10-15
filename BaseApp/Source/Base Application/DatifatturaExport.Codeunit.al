@@ -12,8 +12,8 @@ codeunit 12182 "Datifattura Export"
         ErrorMessage.SetContext(Rec);
         ErrorMessage.ClearLog;
 
-        CompanyInfo.Get;
-        VATReportSetup.Get;
+        CompanyInfo.Get();
+        VATReportSetup.Get();
 
         case "VAT Report Type" of
             "VAT Report Type"::Standard:

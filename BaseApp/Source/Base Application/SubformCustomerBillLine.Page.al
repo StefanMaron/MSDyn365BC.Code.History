@@ -102,7 +102,7 @@ page 12176 "Subform Customer Bill Line"
 
                     trigger OnAction()
                     begin
-                        SelectBillToRecall;
+                        RecallBill;
                     end;
                 }
             }
@@ -113,7 +113,7 @@ page 12176 "Subform Customer Bill Line"
         Text1130000: Label 'You can run this function only when field %1 in table %2 is %3.';
 
     [Scope('OnPrem')]
-    procedure SelectBillToRecall()
+    procedure RecallBill()
     var
         PaymentMethod: Record "Payment Method";
         CustBillHeader: Record "Customer Bill Header";

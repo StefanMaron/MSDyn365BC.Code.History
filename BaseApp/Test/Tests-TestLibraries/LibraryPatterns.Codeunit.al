@@ -49,7 +49,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
           PurchRcptLine."Document No.", PurchRcptLine."Line No.",
           PurchRcptLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert;
+        ItemChargeAssignmentPurch.Insert();
     end;
 
     procedure ASSIGNPurchChargeToPurchInvoiceLine(PurchaseHeader: Record "Purchase Header"; PurchInvLine: Record "Purch. Inv. Line"; Qty: Decimal; DirectUnitCost: Decimal)
@@ -66,7 +66,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentPurch."Applies-to Doc. Type"::Invoice,
           PurchInvLine."Document No.", PurchInvLine."Line No.",
           PurchInvLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert;
+        ItemChargeAssignmentPurch.Insert();
     end;
 
     procedure ASSIGNPurchChargeToPurchaseLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
@@ -83,7 +83,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
           PurchaseLine."Document No.", PurchaseLine."Line No.",
           PurchaseLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert;
+        ItemChargeAssignmentPurch.Insert();
     end;
 
     procedure ASSIGNPurchChargeToPurchReturnLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Qty: Decimal; DirectUnitCost: Decimal)
@@ -100,7 +100,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Return Order",
           PurchaseLine."Document No.", PurchaseLine."Line No.",
           PurchaseLine."No.", Qty, DirectUnitCost);
-        ItemChargeAssignmentPurch.Insert;
+        ItemChargeAssignmentPurch.Insert();
     end;
 
     procedure ASSIGNSalesChargeToSalesShptLine(SalesHeader: Record "Sales Header"; SalesShptLine: Record "Sales Shipment Line"; Qty: Decimal; UnitCost: Decimal)
@@ -117,7 +117,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
           SalesShptLine."Document No.", SalesShptLine."Line No.",
           SalesShptLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert;
+        ItemChargeAssignmentSales.Insert();
     end;
 
     procedure ASSIGNSalesChargeToSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
@@ -134,7 +134,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
           SalesLine."Document No.", SalesLine."Line No.",
           SalesLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert;
+        ItemChargeAssignmentSales.Insert();
     end;
 
     procedure ASSIGNSalesChargeToSalesReturnLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
@@ -151,7 +151,7 @@ codeunit 132212 "Library - Patterns"
           ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
           SalesLine."Document No.", SalesLine."Line No.",
           SalesLine."No.", Qty, UnitCost);
-        ItemChargeAssignmentSales.Insert;
+        ItemChargeAssignmentSales.Insert();
     end;
 
     procedure MAKEConsumptionJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; PostingDate: Date; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; UnitCost: Decimal)
@@ -187,7 +187,7 @@ codeunit 132212 "Library - Patterns"
         Item."Indirect Cost %" := IndirectCostPercent;
         Item."Item Tracking Code" := ItemTrackingCode;
         Item.Description := Item."No.";
-        Item.Modify;
+        Item.Modify();
     end;
 
     procedure MAKEItemSimple(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal)
@@ -203,15 +203,15 @@ codeunit 132212 "Library - Patterns"
         // Create Item.
         MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
         Item.Validate("Automatic Ext. Texts", true);
-        Item.Modify;
+        Item.Modify();
 
         // Create Extended Text Header and Line.
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("All Language Codes", true);
-        ExtendedTextHeader.Modify;
+        ExtendedTextHeader.Modify();
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, CopyStr(ExtText, 1, MaxStrLen(ExtendedTextLine.Text)));
-        ExtendedTextLine.Modify;
+        ExtendedTextLine.Modify();
     end;
 
     procedure MAKEAdditionalItemUOM(var NewItemUOM: Record "Item Unit of Measure"; ItemNo: Code[20]; QtyPer: Decimal)
@@ -242,7 +242,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine."Location Code" := LocationCode;
         ItemJournalLine."Variant Code" := VariantCode;
         ItemJournalLine.Validate("Unit Amount", UnitAmount);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     procedure MAKEItemJournalLineWithApplication(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Option; Qty: Decimal; UnitAmount: Decimal; AppltoEntryNo: Integer)
@@ -252,7 +252,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine."Variant Code" := VariantCode;
         ItemJournalLine.Validate("Unit Amount", UnitAmount);
         ItemJournalLine.Validate("Applies-to Entry", AppltoEntryNo);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     procedure MAKEItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; NewLocationCode: Code[10]; BinCode: Code[20]; NewBinCode: Code[20]; PostingDate: Date; Quantity: Decimal)
@@ -264,7 +264,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine."New Location Code" := NewLocationCode;
         ItemJournalLine."Bin Code" := BinCode;
         ItemJournalLine."New Bin Code" := NewBinCode;
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     procedure MAKEOutputJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; PostingDate: Date; Qty: Decimal; UnitCost: Decimal)
@@ -288,7 +288,7 @@ codeunit 132212 "Library - Patterns"
             ItemJournalLine.Validate("Operation No.", RoutingLine."Operation No.");
         ItemJournalLine.Validate("Output Quantity", Qty);
         ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     procedure MAKEProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ParentItem: Record Item; ChildItem: Record Item; ChildItemQtyPer: Decimal; RoutingLinkCode: Code[10])
@@ -299,13 +299,13 @@ codeunit 132212 "Library - Patterns"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", ChildItemQtyPer);
         ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
-        ProductionBOMLine.Modify;
+        ProductionBOMLine.Modify();
 
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify;
+        ProductionBOMHeader.Modify();
 
         ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ParentItem.Modify;
+        ParentItem.Modify();
     end;
 
     procedure MAKEProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
@@ -316,27 +316,27 @@ codeunit 132212 "Library - Patterns"
         ProdNoSeries: Code[20];
     begin
         ProdNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         case ProdOrderStatus of
             ProductionOrder.Status::Simulated:
                 if ManufacturingSetup."Simulated Order Nos." <> ProdNoSeries then begin
                     ManufacturingSetup."Simulated Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify;
+                    ManufacturingSetup.Modify();
                 end;
             ProductionOrder.Status::Planned:
                 if ManufacturingSetup."Planned Order Nos." <> ProdNoSeries then begin
                     ManufacturingSetup."Planned Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify;
+                    ManufacturingSetup.Modify();
                 end;
             ProductionOrder.Status::"Firm Planned":
                 if ManufacturingSetup."Firm Planned Order Nos." <> ProdNoSeries then begin
                     ManufacturingSetup."Firm Planned Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify;
+                    ManufacturingSetup.Modify();
                 end;
             ProductionOrder.Status::Released:
                 if ManufacturingSetup."Released Order Nos." <> ProdNoSeries then begin
                     ManufacturingSetup."Released Order Nos." := ProdNoSeries;
-                    ManufacturingSetup.Modify;
+                    ManufacturingSetup.Modify();
                 end;
         end;
 
@@ -356,11 +356,10 @@ codeunit 132212 "Library - Patterns"
     end;
 
     procedure MAKEPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
-    var
-        Vendor: Record Vendor;
     begin
-        MakeVendor(Vendor);
-        MakePurchaseHeader(PurchaseHeader, DocType, PostingDate, Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, '');
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
         PurchaseLine."Location Code" := LocationCode;
         PurchaseLine."Variant Code" := VariantCode;
@@ -428,18 +427,18 @@ codeunit 132212 "Library - Patterns"
 
         WorkCenter.FindFirst;
         WorkCenter.Validate("Direct Unit Cost", DirectUnitCost);
-        WorkCenter.Modify;
+        WorkCenter.Modify();
 
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenter."No.");
         RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
         RoutingLine.Validate("Run Time", 1);
-        RoutingLine.Modify;
+        RoutingLine.Modify();
 
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify;
+        RoutingHeader.Modify();
 
         Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify;
+        Item.Modify();
     end;
 
     procedure MAKERoutingforWorkCenter(var RoutingHeader: Record "Routing Header"; var Item: Record Item; WorkCenterNo: Code[20])
@@ -450,13 +449,13 @@ codeunit 132212 "Library - Patterns"
 
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Work Center", WorkCenterNo);
         RoutingLine.Validate("Run Time", 1);
-        RoutingLine.Modify;
+        RoutingLine.Modify();
 
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify;
+        RoutingHeader.Modify();
 
         Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify;
+        Item.Modify();
     end;
 
     procedure MAKESalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
@@ -498,7 +497,7 @@ codeunit 132212 "Library - Patterns"
         MAKESalesDoc(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
         SalesLine.Validate("Unit Cost (LCY)", UnitCost);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     procedure MAKESalesCreditMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; UnitPrice: Decimal)
@@ -506,7 +505,7 @@ codeunit 132212 "Library - Patterns"
         MAKESalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", Item,
           LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
         SalesLine.Validate("Unit Cost (LCY)", UnitCost);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     procedure MAKEStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
@@ -520,7 +519,7 @@ codeunit 132212 "Library - Patterns"
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", ItemVariant.Code);
         StockkeepingUnit."Unit Cost" := Item."Unit Cost";
         StockkeepingUnit."Standard Cost" := Item."Standard Cost";
-        StockkeepingUnit.Modify;
+        StockkeepingUnit.Modify();
     end;
 
     procedure MAKETransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; Item: Record Item; FromLocation: Record Location; ToLocation: Record Location; InTransitLocation: Record Location; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; ShipmentDate: Date)
@@ -528,11 +527,11 @@ codeunit 132212 "Library - Patterns"
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
         TransferHeader.Validate("Posting Date", PostingDate);
         TransferHeader.Validate("Shipment Date", ShipmentDate);
-        TransferHeader.Modify;
+        TransferHeader.Modify();
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
         TransferLine.Validate("Shipment Date", ShipmentDate);
         TransferLine.Validate("Variant Code", VariantCode);
-        TransferLine.Modify;
+        TransferLine.Modify();
     end;
 
     procedure POSTConsumption(ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
@@ -551,7 +550,7 @@ codeunit 132212 "Library - Patterns"
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, TemplateType);
         MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate, EntryType, Qty, UnitAmount);
         ItemJournalLine."Bin Code" := BinCode;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
@@ -606,7 +605,7 @@ codeunit 132212 "Library - Patterns"
         MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
           ItemJournalLine."Entry Type"::"Negative Adjmt.", Qty, 0);
         ItemJournalLine.Validate(Amount, Amount);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
@@ -633,7 +632,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Run Time", RunTime);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -664,7 +663,7 @@ codeunit 132212 "Library - Patterns"
         MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, 0);
         ItemJournalLine.Validate(Amount, Amount);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
@@ -711,7 +710,7 @@ codeunit 132212 "Library - Patterns"
         MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
         PurchaseLine.Validate("Qty. to Receive", Qty);
         PurchaseLine.Validate("Qty. to Invoice", Qty);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, SerialNo, LotNo, Qty);
         if Invoice then
             SetVendorDocNo(PurchaseHeader);
@@ -725,7 +724,7 @@ codeunit 132212 "Library - Patterns"
         MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, DirectUnitCost);
         PurchaseLine.Validate("Qty. to Receive", ReceiveQty);
         PurchaseLine.Validate("Qty. to Invoice", InvoiceQty);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         if Invoice then
             SetVendorDocNo(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
@@ -770,7 +769,7 @@ codeunit 132212 "Library - Patterns"
         MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost);
         SalesLine.Validate("Qty. to Ship", ShipQty);
         SalesLine.Validate("Qty. to Invoice", InvoiceQty);
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
     end;
 
@@ -787,13 +786,13 @@ codeunit 132212 "Library - Patterns"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
         InventorySetup."Expected Cost Posting to G/L" := false;
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Validate("Average Cost Calc. Type", AvgCostCalcType);
         InventorySetup.Validate("Average Cost Period", AvgCostPeriod);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SETNoSeries()
@@ -806,64 +805,64 @@ codeunit 132212 "Library - Patterns"
     begin
         NoSeries := LibraryUtility.GetGlobalNoSeriesCode;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         if InventorySetup."Item Nos." <> NoSeries then begin
             InventorySetup.Validate("Item Nos.", NoSeries);
-            InventorySetup.Modify;
+            InventorySetup.Modify();
         end;
         if InventorySetup."Transfer Order Nos." <> NoSeries then begin
             InventorySetup.Validate("Transfer Order Nos.", NoSeries);
-            InventorySetup.Modify;
+            InventorySetup.Modify();
         end;
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if ManufacturingSetup."Simulated Order Nos." <> NoSeries then begin
             ManufacturingSetup."Simulated Order Nos." := NoSeries;
-            ManufacturingSetup.Modify;
+            ManufacturingSetup.Modify();
         end;
         if ManufacturingSetup."Planned Order Nos." <> NoSeries then begin
             ManufacturingSetup."Planned Order Nos." := NoSeries;
-            ManufacturingSetup.Modify;
+            ManufacturingSetup.Modify();
         end;
         if ManufacturingSetup."Firm Planned Order Nos." <> NoSeries then begin
             ManufacturingSetup."Firm Planned Order Nos." := NoSeries;
-            ManufacturingSetup.Modify;
+            ManufacturingSetup.Modify();
         end;
         if ManufacturingSetup."Released Order Nos." <> NoSeries then begin
             ManufacturingSetup."Released Order Nos." := NoSeries;
-            ManufacturingSetup.Modify;
+            ManufacturingSetup.Modify();
         end;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Quote Nos." <> NoSeries then begin
             SalesReceivablesSetup."Quote Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
         if SalesReceivablesSetup."Order Nos." <> NoSeries then begin
             SalesReceivablesSetup."Order Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
         if SalesReceivablesSetup."Invoice Nos." <> NoSeries then begin
             SalesReceivablesSetup."Invoice Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
         if SalesReceivablesSetup."Credit Memo Nos." <> NoSeries then begin
             SalesReceivablesSetup."Credit Memo Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
         if SalesReceivablesSetup."Return Order Nos." <> NoSeries then begin
             SalesReceivablesSetup."Return Order Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
         if SalesReceivablesSetup."Customer Nos." <> NoSeries then begin
             SalesReceivablesSetup."Customer Nos." := NoSeries;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." <> NoSeries then begin
             MarketingSetup."Contact Nos." := NoSeries;
-            MarketingSetup.Modify;
+            MarketingSetup.Modify();
         end;
     end;
 
@@ -883,12 +882,12 @@ codeunit 132212 "Library - Patterns"
 
         POSTPurchaseOrder(
           PurchaseHeader1, Item, LocationCode, VariantCode,
-          LibraryRandom.RandIntInRange(OutboundQty, OutboundQty + LibraryRandom.RandInt(10)), Day1,
+          LibraryRandom.RandIntInRange(OutboundQty, OutboundQty + LibraryRandom.RandInt(10)), Day1 + 1,
           LibraryRandom.RandDec(100, 2), true, InvoicePurchase);
         InsertTempILEFromLast(TempItemLedgerEntry);
 
         MAKEPurchaseOrder(
-          PurchaseHeader2, PurchaseLine, Item, LocationCode, VariantCode, LibraryRandom.RandInt(10), Day1,
+          PurchaseHeader2, PurchaseLine, Item, LocationCode, VariantCode, LibraryRandom.RandInt(10), Day1 + 2,
           LibraryRandom.RandDec(100, 2));
     end;
 
@@ -915,9 +914,9 @@ codeunit 132212 "Library - Patterns"
         // Receive partially the Purchase Line, with or without invoicing.
         InboundQty := LibraryRandom.RandIntInRange(10, 20);
         MAKEPurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1, LibraryRandom.RandDec(100, 2));
+          PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, InboundQty, Day1 + 2, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(PurchaseLine."Outstanding Quantity" - 5));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         if InvoicePurchase then
             SetVendorDocNo(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, InvoicePurchase);
@@ -927,7 +926,7 @@ codeunit 132212 "Library - Patterns"
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(PurchaseLine."Outstanding Quantity" - 1));
         PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         if InvoicePurchase then
             SetVendorDocNo(PurchaseHeader);
@@ -936,7 +935,7 @@ codeunit 132212 "Library - Patterns"
 
         // Create Purchase Return Header and Line with 0 quantity. Actual qty to be added in calling test.
         MAKEPurchaseReturnOrder(
-          PurchaseHeader1, PurchaseLine1, Item, LocationCode, VariantCode, 0, Day1, LibraryRandom.RandDec(100, 5));
+          PurchaseHeader1, PurchaseLine1, Item, LocationCode, VariantCode, 0, Day1 + 2, LibraryRandom.RandDec(100, 5));
     end;
 
     procedure GRPHPurchItemTracked(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var PurchaseLine: Record "Purchase Line"; var ReservEntry: Record "Reservation Entry"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Invoice: Boolean)
@@ -1103,7 +1102,7 @@ codeunit 132212 "Library - Patterns"
     begin
         QtyIn := RandDec(10, 20, 2);
         MAKEInbound(Item, QtyIn, WorkDate, TempItemJournalLine);
-        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate);
+        SHIPSales(SalesLine, Item, RandDec(0, QtyIn, 2), WorkDate + 1);
     end;
 
     procedure GRPHSalesReturnOnly(var Item: Record Item; var ReturnReceiptLine: Record "Return Receipt Line")
@@ -1113,7 +1112,7 @@ codeunit 132212 "Library - Patterns"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", RandDec(10, 20, 2));
-        Commit;
+        Commit();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1137,7 +1136,7 @@ codeunit 132212 "Library - Patterns"
     begin
         ItemLedgerEntry.FindLast;
         TempItemLedgerEntry := ItemLedgerEntry;
-        TempItemLedgerEntry.Insert;
+        TempItemLedgerEntry.Insert();
     end;
 
     procedure CHECKValueEntry(var RefValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry")
@@ -1306,18 +1305,18 @@ codeunit 132212 "Library - Patterns"
                 ByVariant := true;
 
             TempLocation.Code := '';
-            TempLocation.Insert;
+            TempLocation.Insert();
             TempItemVariant.Code := '';
-            TempItemVariant.Insert;
+            TempItemVariant.Insert();
 
             if ItemLedgerEntry.FindSet then
                 repeat
                     TempItemLedgerEntry := ItemLedgerEntry;
-                    TempItemLedgerEntry.Insert;
+                    TempItemLedgerEntry.Insert();
                     TempLocation.Code := ItemLedgerEntry."Location Code";
-                    if not TempLocation.Insert then;
+                    if not TempLocation.Insert() then;
                     TempItemVariant.Code := ItemLedgerEntry."Variant Code";
-                    if not TempItemVariant.Insert then;
+                    if not TempItemVariant.Insert() then;
                 until ItemLedgerEntry.Next = 0;
 
             if ByLocation then begin
@@ -1347,7 +1346,7 @@ codeunit 132212 "Library - Patterns"
             if ItemLedgerEntry.FindSet then
                 repeat
                     TempItemLedgerEntry := ItemLedgerEntry;
-                    TempItemLedgerEntry.Insert;
+                    TempItemLedgerEntry.Insert();
                 until ItemLedgerEntry.Next = 0;
             CreateRefJournalLinePerILE(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate);
         end;
@@ -1388,7 +1387,7 @@ codeunit 132212 "Library - Patterns"
             TempRefItemJnlLine."Variant Code" := TempItemLedgerEntry."Variant Code";
         TempRefItemJnlLine.Quantity := RefQuantity;
         TempRefItemJnlLine."Inventory Value (Calculated)" := Round(RefCostAmount, LibraryERM.GetAmountRoundingPrecision);
-        TempRefItemJnlLine.Insert;
+        TempRefItemJnlLine.Insert();
     end;
 
     local procedure CreateRefJournalLinePerILE(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempRefItemJnlLine: Record "Item Journal Line" temporary; PostingDate: Date)
@@ -1414,7 +1413,7 @@ codeunit 132212 "Library - Patterns"
                         CalculateCostAtDate(TempItemLedgerEntry."Entry No.", PostingDate) /
                         TempItemLedgerEntry.Quantity * ItemApplicationEntry.Quantity, LibraryERM.GetAmountRoundingPrecision);
                     TempRefItemJnlLine."Applies-to Entry" := TempItemLedgerEntry."Entry No.";
-                    TempRefItemJnlLine.Insert;
+                    TempRefItemJnlLine.Insert();
                 end;
             until TempItemLedgerEntry.Next = 0;
     end;
@@ -1445,7 +1444,7 @@ codeunit 132212 "Library - Patterns"
         EntryNo := TempItemLedgerEntry."Entry No.";
         ItemJnlLine.Validate("Applies-to Entry", EntryNo);
         ItemJnlLine.Validate("Inventory Value (Revalued)", ItemJnlLine."Inventory Value (Revalued)" * Factor);
-        ItemJnlLine.Insert;
+        ItemJnlLine.Insert();
 
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -1485,7 +1484,7 @@ codeunit 132212 "Library - Patterns"
             repeat
                 ItemJnlLine.Validate("Inventory Value (Revalued)",
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
-                ItemJnlLine.Modify;
+                ItemJnlLine.Modify();
             until ItemJnlLine.Next = 0;
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
@@ -1501,7 +1500,7 @@ codeunit 132212 "Library - Patterns"
                 ItemJnlLine.Validate("Inventory Value (Revalued)",
                   Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
                 ItemJnlLine.Validate("Applies-to Entry", AppliesToEntry);
-                ItemJnlLine.Modify;
+                ItemJnlLine.Modify();
             until ItemJnlLine.Next = 0;
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
@@ -1520,7 +1519,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine.Modify(true);
 
         TempItemJournalLine := ItemJournalLine;
-        TempItemJournalLine.Insert;
+        TempItemJournalLine.Insert();
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -1563,13 +1562,13 @@ codeunit 132212 "Library - Patterns"
         ItemJnlMgt: Codeunit ItemJnlManagement;
         JnlSelected: Boolean;
     begin
-        Commit;
+        Commit();
         CalculateInventoryValue.InitializeRequest(NewPostingDate, NewDocNo, true, NewCalculatePer, NewByLocation, NewByVariant,
           NewUpdStdCost, NewCalcBase, true);
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
 
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJnlMgt.TemplateSelection(PAGE::"Revaluation Journal", 3, false, ItemJournalLine, JnlSelected); // 3 = FormTemplate::Revaluation
         ItemJnlMgt.OpenJnl(ItemJournalBatch.Name, ItemJournalLine);
 
@@ -1593,139 +1592,7 @@ codeunit 132212 "Library - Patterns"
     begin
         PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
         PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader.Modify;
-    end;
-
-    [Scope('OnPrem')]
-    procedure MakePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Option; PostingDate: Date; Vendor: Record Vendor)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        PurchaseNoSeries: Code[20];
-    begin
-        PurchaseNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup.Get;
-        case DocType of
-            PurchaseHeader."Document Type"::Quote:
-                if PurchasesPayablesSetup."Quote Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Quote Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify;
-                end;
-            PurchaseHeader."Document Type"::Order:
-                if PurchasesPayablesSetup."Order Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Order Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify;
-                end;
-            PurchaseHeader."Document Type"::Invoice:
-                if PurchasesPayablesSetup."Invoice Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Invoice Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify;
-                end;
-            PurchaseHeader."Document Type"::"Credit Memo":
-                if PurchasesPayablesSetup."Credit Memo Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Credit Memo Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify;
-                end;
-            PurchaseHeader."Document Type"::"Return Order":
-                if PurchasesPayablesSetup."Return Order Nos." <> PurchaseNoSeries then begin
-                    PurchasesPayablesSetup."Return Order Nos." := PurchaseNoSeries;
-                    PurchasesPayablesSetup.Modify;
-                end;
-        end;
-
-        Clear(PurchaseHeader);
-        PurchaseHeader."No." := NoSeriesManagement.GetNextNo(PurchaseNoSeries, PostingDate, true);
-        PurchaseHeader."Document Type" := DocType;
-        PurchaseHeader.InitRecord;
-        PurchaseHeader.Validate("Posting Date", PostingDate);
-        PurchaseHeader.Validate("Order Date", PurchaseHeader."Posting Date");
-        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
-        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Return Order",
-                                              PurchaseHeader."Document Type"::"Credit Memo"]
-        then begin
-            PurchaseHeader.Validate("Reason Code", GetReasonCode);
-            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
-        end else
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Insert;
-    end;
-
-    [Scope('OnPrem')]
-    procedure MakeVendor(var Vendor: Record Vendor)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PaymentMethod: Record "Payment Method";
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-        NoSeriesLineSales: Record "No. Series Line Sales";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        LibraryERM: Codeunit "Library - ERM";
-        VendorNoSeries: Code[20];
-    begin
-        VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup.Get;
-        if PurchasesPayablesSetup."Vendor Nos." <> VendorNoSeries then begin
-            PurchasesPayablesSetup.Validate("Vendor Nos.", VendorNoSeries);
-            PurchasesPayablesSetup.Modify;
-        end;
-        LibraryERM.FindPaymentMethod(PaymentMethod);
-
-        Clear(Vendor);
-        Vendor."No." := NoSeriesManagement.GetNextNo(VendorNoSeries, 0D, true);
-        Vendor.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for ES
-        Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);  // Mandatory for ES
-        Vendor.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        VATBusPostingGroup.Get(Vendor."VAT Bus. Posting Group");
-        NoSeriesLineSales.SetCurrentKey("Series Code", "Starting Date");
-        NoSeriesLineSales.SetRange("Series Code", VATBusPostingGroup."Default Sales Operation Type");
-        NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate);
-        NoSeriesLineSales.FindLast;
-        NoSeriesLineSales.Validate("Last Date Used", WorkDate);
-        NoSeriesLineSales.Modify;
-        NoSeriesLinePurchase.SetCurrentKey("Series Code", "Starting Date");
-        NoSeriesLinePurchase.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
-        NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate);
-        NoSeriesLinePurchase.FindLast;
-        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate);
-        NoSeriesLinePurchase.Modify;
-        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
-        Vendor.Insert;
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetReasonCode(): Code[10]
-    var
-        ReasonCode: Record "Reason Code";
-    begin
-        if ReasonCode.FindFirst then;
-        exit(ReasonCode.Code);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetGenBusPostingGroup(): Code[20]
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        FindGenPostingSetup(GeneralPostingSetup);
-        exit(GeneralPostingSetup."Gen. Bus. Posting Group");
-    end;
-
-    local procedure FindGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
-    begin
-        // Find a General Posting Setup with all key accounts filled up
-        GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("COGS Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Inventory Adjmt. Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Sales Credit Memo Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Purch. Credit Memo Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Direct Cost Applied Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Overhead Applied Account", '<>%1', '');
-        GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
-        GeneralPostingSetup.FindLast;
+        PurchaseHeader.Modify();
     end;
 }
 

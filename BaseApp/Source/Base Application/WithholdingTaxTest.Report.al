@@ -14,9 +14,6 @@ report 12183 "Withholding Tax - Test"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -115,11 +112,11 @@ report 12183 "Withholding Tax - Test"
                 DispError: Boolean;
             begin
                 ClearErrors;
-                WithholdingTax.Reset;
+                WithholdingTax.Reset();
                 WithholdingTax.SetRange("Vendor No.", "No.");
                 WithholdingTax.SetRange("Posting Date", StartDate, EndDate);
                 if not WithholdingTax.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if "Individual Person" then begin
                     if "Fiscal Code" = '' then
                         AddError(
@@ -160,8 +157,8 @@ report 12183 "Withholding Tax - Test"
                           StrSubstNo(
                             Text001, FieldCaption("VAT Registration No.")))
                     else begin
-                        GLSetup.Get;
-                        CompanyInfo.Get;
+                        GLSetup.Get();
+                        CompanyInfo.Get();
                         VATRegNoFormat.SkipErrorMsg(true);
                         VATRegNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Vendor);
                         VATRegNoFormat.GetErrorStatus(DispError);

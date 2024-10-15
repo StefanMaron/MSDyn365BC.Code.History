@@ -20,7 +20,7 @@ report 6655 "Batch Post Sales Return Orders"
                 SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -85,7 +85,7 @@ report 6655 "Batch Post Sales Return Orders"
                         var
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
-                            SalesReceivablesSetup.Get;
+                            SalesReceivablesSetup.Get();
                             SalesReceivablesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -101,7 +101,7 @@ report 6655 "Batch Post Sales Return Orders"
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
                             if PrintDoc then begin
-                                SalesReceivablesSetup.Get;
+                                SalesReceivablesSetup.Get();
                                 if SalesReceivablesSetup."Post with Job Queue" then
                                     SalesReceivablesSetup.TestField("Post & Print with Job Queue");
                             end;
@@ -119,7 +119,7 @@ report 6655 "Batch Post Sales Return Orders"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
         begin
-            SalesReceivablesSetup.Get;
+            SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;

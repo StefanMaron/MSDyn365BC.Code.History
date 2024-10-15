@@ -68,7 +68,7 @@ codeunit 8 AccSchedManagement
         CheckTemplateAndSetFilter(CurrentSchedName, AccSchedLine);
         if AccSchedLine.IsEmpty then
             exit;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if CurrentSchedName in
            [GeneralLedgerSetup."Acc. Sched. for Balance Sheet", GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt",
             GeneralLedgerSetup."Acc. Sched. for Income Stmt.", GeneralLedgerSetup."Acc. Sched. for Retained Earn."]
@@ -95,11 +95,11 @@ codeunit 8 AccSchedManagement
     begin
         if not AccSchedName.Get(CurrentSchedName) then begin
             if not AccSchedName.FindFirst then begin
-                AccSchedName.Init;
+                AccSchedName.Init();
                 AccSchedName.Name := Text000;
                 AccSchedName.Description := Text001;
-                AccSchedName.Insert;
-                Commit;
+                AccSchedName.Insert();
+                Commit();
             end;
             CurrentSchedName := AccSchedName.Name;
         end;
@@ -146,11 +146,11 @@ codeunit 8 AccSchedManagement
     begin
         if not ColumnLayoutName.Get(CurrentColumnName) then begin
             if not ColumnLayoutName.FindFirst then begin
-                ColumnLayoutName.Init;
+                ColumnLayoutName.Init();
                 ColumnLayoutName.Name := Text000;
                 ColumnLayoutName.Description := Text002;
-                ColumnLayoutName.Insert;
-                Commit;
+                ColumnLayoutName.Insert();
+                Commit();
             end;
             CurrentColumnName := ColumnLayoutName.Name;
         end;
@@ -165,7 +165,7 @@ codeunit 8 AccSchedManagement
 
     procedure SetColumnName(CurrentColumnName: Code[10]; var ColumnLayout: Record "Column Layout")
     begin
-        ColumnLayout.Reset;
+        ColumnLayout.Reset();
         ColumnLayout.FilterGroup(2);
         ColumnLayout.SetRange("Column Layout Name", CurrentColumnName);
         ColumnLayout.FilterGroup(0);
@@ -175,12 +175,12 @@ codeunit 8 AccSchedManagement
     var
         ColumnLayout: Record "Column Layout";
     begin
-        TempColumnLayout.DeleteAll;
+        TempColumnLayout.DeleteAll();
         ColumnLayout.SetRange("Column Layout Name", NewColumnName);
         if ColumnLayout.Find('-') then
             repeat
                 TempColumnLayout := ColumnLayout;
-                TempColumnLayout.Insert;
+                TempColumnLayout.Insert();
             until ColumnLayout.Next = 0;
         if TempColumnLayout.Find('-') then;
     end;
@@ -215,7 +215,7 @@ codeunit 8 AccSchedManagement
                 end;
             if AccSchedName."Analysis View Name" = '' then begin
                 GetGLSetup;
-                AnalysisView.Init;
+                AnalysisView.Init();
                 AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end else
@@ -317,7 +317,7 @@ codeunit 8 AccSchedManagement
     local procedure GetGLSetup() Result: Boolean
     begin
         if not GLSetupRead then
-            Result := GLSetup.Get;
+            Result := GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -346,8 +346,8 @@ codeunit 8 AccSchedManagement
            (OldCalcAddCurr <> CalcAddCurr) or
            Recalculate
         then begin
-            AccSchedCellValue.Reset;
-            AccSchedCellValue.DeleteAll;
+            AccSchedCellValue.Reset();
+            AccSchedCellValue.DeleteAll();
             Clear(BasePercentLine);
             OldAccSchedLineFilters := AccSchedLine.GetFilters;
             OldColumnLayoutFilters := ColumnLayout.GetFilters;
@@ -482,7 +482,7 @@ codeunit 8 AccSchedManagement
             AccSchedCellValue.Value := Result;
             AccSchedCellValue."Has Error" := DivisionError;
             AccSchedCellValue."Period Error" := PeriodError;
-            AccSchedCellValue.Insert;
+            AccSchedCellValue.Insert();
         end;
 
         OnCalcCellValueOnBeforeExit(AccSchedLine, ColumnLayout, CalcAddCurr, StartDate, EndDate, Result);
@@ -1323,17 +1323,23 @@ codeunit 8 AccSchedManagement
         GLAccList: Page "G/L Account List";
         AccCounter: Integer;
         AccSchedLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertGLAccounts(AccSchedLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAccList.LookupMode(true);
         if GLAccList.RunModal = ACTION::LookupOK then begin
             GLAccList.SetSelection(GLAcc);
-            AccCounter := GLAcc.Count;
+            AccCounter := GLAcc.Count();
             if AccCounter > 0 then begin
                 AccSchedLineNo := AccSchedLine."Line No.";
                 MoveAccSchedLines(AccSchedLine, AccCounter);
                 if GLAcc.FindSet then
                     repeat
-                        AccSchedLine.Init;
+                        AccSchedLine.Init();
                         AccSchedLineNo := AccSchedLineNo + 10000;
                         AccSchedLine."Line No." := AccSchedLineNo;
                         AccSchedLine.Description := GLAcc.Name;
@@ -1356,6 +1362,8 @@ codeunit 8 AccSchedManagement
                     until GLAcc.Next = 0;
             end;
         end;
+
+        OnAfterInsertGLAccounts(AccSchedLine);
     end;
 
     procedure InsertCFAccounts(var AccSchedLine: Record "Acc. Schedule Line")
@@ -1368,13 +1376,13 @@ codeunit 8 AccSchedManagement
         CashFlowAccList.LookupMode(true);
         if CashFlowAccList.RunModal = ACTION::LookupOK then begin
             CashFlowAccList.SetSelection(CashFlowAcc);
-            AccCounter := CashFlowAcc.Count;
+            AccCounter := CashFlowAcc.Count();
             if AccCounter > 0 then begin
                 AccSchedLineNo := AccSchedLine."Line No.";
                 MoveAccSchedLines(AccSchedLine, AccCounter);
                 if CashFlowAcc.FindSet then
                     repeat
-                        AccSchedLine.Init;
+                        AccSchedLine.Init();
                         AccSchedLineNo := AccSchedLineNo + 10000;
                         AccSchedLine."Line No." := AccSchedLineNo;
                         AccSchedLine.Description := CashFlowAcc.Name;
@@ -1390,7 +1398,7 @@ codeunit 8 AccSchedManagement
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cash Flow Total Accounts"
                         else
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts";
-                        AccSchedLine.Insert;
+                        AccSchedLine.Insert();
                     until CashFlowAcc.Next = 0;
             end;
         end;
@@ -1406,13 +1414,13 @@ codeunit 8 AccSchedManagement
         CostTypeList.LookupMode(true);
         if CostTypeList.RunModal = ACTION::LookupOK then begin
             CostTypeList.SetSelection(CostType);
-            AccCounter := CostType.Count;
+            AccCounter := CostType.Count();
             if AccCounter > 0 then begin
                 AccSchedLineNo := AccSchedLine."Line No.";
                 MoveAccSchedLines(AccSchedLine, AccCounter);
                 if CostType.FindSet then
                     repeat
-                        AccSchedLine.Init;
+                        AccSchedLine.Init();
                         AccSchedLineNo := AccSchedLineNo + 10000;
                         AccSchedLine."Line No." := AccSchedLineNo;
                         AccSchedLine.Description := CostType.Name;
@@ -1428,7 +1436,7 @@ codeunit 8 AccSchedManagement
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cost Type Total"
                         else
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cost Type";
-                        AccSchedLine.Insert;
+                        AccSchedLine.Insert();
                     until CostType.Next = 0;
             end;
         end;
@@ -1853,9 +1861,9 @@ codeunit 8 AccSchedManagement
             repeat
                 I := AccSchedLine."Line No.";
                 if I > AccSchedLineNo then begin
-                    AccSchedLine.Delete;
+                    AccSchedLine.Delete();
                     AccSchedLine."Line No." := I + 10000 * Place;
-                    AccSchedLine.Insert;
+                    AccSchedLine.Insert();
                     OnAfterAccSchedLineInsert(AccSchedLine);
                 end;
             until (I <= AccSchedLineNo) or (AccSchedLine.Next(-1) = 0);
@@ -2125,6 +2133,11 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertGLAccounts(var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetGLAccRowFilters(var GLAccount: Record "G/L Account"; var AccScheduleLine: Record "Acc. Schedule Line")
     begin
     end;
@@ -2226,6 +2239,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownOnGLAccount(var TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertGLAccounts(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
 

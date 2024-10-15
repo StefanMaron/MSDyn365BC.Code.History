@@ -59,7 +59,6 @@ page 9053 "WMS Ship & Receive Activities"
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'New Subcontr. Transfer Order';
-                        Image = NewTransferOrder;
                         RunObject = Page "Transfer Order";
                         RunPageMode = Create;
                         RunPageView = WHERE("Subcontracting Order" = CONST(true));

@@ -1,4 +1,4 @@
-﻿page 232 "Apply Customer Entries"
+page 232 "Apply Customer Entries"
 {
     Caption = 'Apply Customer Entries';
     DataCaptionFields = "Customer No.";
@@ -28,7 +28,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
                     ToolTip = 'Specifies the document type of the entry to be applied.';
                 }
                 field("ApplyingCustLedgEntry.""Document No."""; ApplyingCustLedgEntry."Document No.")
@@ -622,12 +621,12 @@
             FindApplyingEntry;
         end;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         CustNameVisible := SalesSetup."Copy Customer Name to Entries";
 
         AppliesToIDVisible := ApplnType <> ApplnType::"Applies-to Doc. No.";
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if ApplnType = ApplnType::"Applies-to Doc. No." then
             CalcApplnAmount;
@@ -826,9 +825,9 @@
                     ApplyingCustLedgEntry."Entry No." := 1;
                     ApplyingCustLedgEntry."Posting Date" := SalesHeader."Posting Date";
                     if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
-                        ApplyingCustLedgEntry."Document Type" := SalesHeader."Document Type"::"Credit Memo"
+                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingCustLedgEntry."Document Type" := SalesHeader."Document Type";
+                        ApplyingCustLedgEntry."Document Type" := SalesHeader."Document Type".AsInteger();
                     ApplyingCustLedgEntry."Document No." := SalesHeader."No.";
                     ApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
                     ApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
@@ -846,7 +845,7 @@
                 begin
                     ApplyingCustLedgEntry."Entry No." := 1;
                     ApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
-                    ApplyingCustLedgEntry."Document Type" := ServHeader."Document Type";
+                    ApplyingCustLedgEntry."Document Type" := ServHeader."Document Type".AsInteger();
                     ApplyingCustLedgEntry."Document No." := ServHeader."No.";
                     ApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
                     ApplyingCustLedgEntry.Description := ServHeader."Posting Description";
@@ -1111,7 +1110,7 @@
     local procedure FindAmountRounding()
     begin
         if ApplnCurrencyCode = '' then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision;
         end else
@@ -1197,7 +1196,7 @@
 
         repeat
             TempAppliedCustLedgEntry := AppliedCustLedgEntry;
-            TempAppliedCustLedgEntry.Insert;
+            TempAppliedCustLedgEntry.Insert();
         until AppliedCustLedgEntry.Next = 0;
 
         FromZeroGenJnl := (CurrentAmount = 0) and (Type = Type::GenJnlLine);
@@ -1277,7 +1276,7 @@
             if not DifferentCurrenciesInAppln then
                 DifferentCurrenciesInAppln := ApplnCurrencyCode <> TempAppliedCustLedgEntry."Currency Code";
 
-            TempAppliedCustLedgEntry.Delete;
+            TempAppliedCustLedgEntry.Delete();
             TempAppliedCustLedgEntry.SetRange(Positive);
 
         until not TempAppliedCustLedgEntry.FindFirst;

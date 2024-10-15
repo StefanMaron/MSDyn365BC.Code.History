@@ -114,8 +114,8 @@ report 5067 "Questionnaire - Test"
 
     local procedure TestQuestion()
     begin
-        ProfileQuestnLine.Reset;
-        ProfileQuestnLine2.Reset;
+        ProfileQuestnLine.Reset();
+        ProfileQuestnLine2.Reset();
         with "Profile Questionnaire Line" do begin
             if "Auto Contact Classification" then begin
                 if ("Customer Class. Field" = "Customer Class. Field"::" ") and
@@ -161,8 +161,8 @@ report 5067 "Questionnaire - Test"
 
     local procedure TestAnswer()
     begin
-        ProfileQuestnLine.Reset;
-        ProfileQuestnLine2.Reset;
+        ProfileQuestnLine.Reset();
+        ProfileQuestnLine2.Reset();
         with "Profile Questionnaire Line" do begin
             ProfileQuestnLine := "Profile Questionnaire Line";
             ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");

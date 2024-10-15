@@ -20,7 +20,7 @@ report 198 "Date Compress Customer Ledger"
             trigger OnAfterGetRecord()
             begin
                 if not CompressDetails("Cust. Ledger Entry") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 ReminderEntry.SetCurrentKey("Customer Entry No.");
                 CustLedgEntry2 := "Cust. Ledger Entry";
                 with CustLedgEntry2 do begin
@@ -91,9 +91,10 @@ report 198 "Date Compress Customer Ledger"
             var
                 GLSetup: Record "General Ledger Setup";
                 ConfirmManagement: Codeunit "Confirm Management";
+                LastTransactionNo: Integer;
             begin
                 if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -105,12 +106,12 @@ report 198 "Date Compress Customer Ledger"
                   Text007 +
                   Text008);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Cust. Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Customer Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[4] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Customer Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -118,18 +119,16 @@ report 198 "Date Compress Customer Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Customer Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                GLEntry.LockTable;
-                ReminderEntry.LockTable;
-                NewDtldCustLedgEntry.LockTable;
-                NewCustLedgEntry.LockTable;
-                GLReg.LockTable;
-                DateComprReg.LockTable;
+                GLEntry.LockTable();
+                ReminderEntry.LockTable();
+                NewDtldCustLedgEntry.LockTable();
+                NewCustLedgEntry.LockTable();
+                GLReg.LockTable();
+                DateComprReg.LockTable();
 
-                if GLEntry.FindLast then;
-                LastEntryNo := GLEntry."Entry No.";
-                NextTransactionNo := GLEntry."Transaction No." + 1;
-                if NewDtldCustLedgEntry.FindLast then;
-                LastDtldEntryNo := NewDtldCustLedgEntry."Entry No.";
+                GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
+                NextTransactionNo := LastTransactionNo + 1;
+                LastDtldEntryNo := NewDtldCustLedgEntry.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -282,10 +281,8 @@ report 198 "Date Compress Customer Ledger"
     var
         NextRegNo: Integer;
     begin
-        if GLReg.Find('+') then;
-        GLReg.Initialize(GLReg."No." + 1, LastEntryNo + 1, 0, SourceCodeSetup."Compress Cust. Ledger", '', '');
-        if DateComprReg.FindLast then
-            NextRegNo := DateComprReg."No." + 1;
+        GLReg.Initialize(GLReg.GetLastEntryNo() + 1, LastEntryNo + 1, 0, SourceCodeSetup."Compress Cust. Ledger", '', '');
+        NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
         DateComprReg.InitRegister(
           DATABASE::"Cust. Ledger Entry", NextRegNo,
@@ -304,8 +301,12 @@ report 198 "Date Compress Customer Ledger"
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        FoundLastEntryNo: Integer;
+        FoundLastLedgEntryNo: Integer;
+        LastTransactionNo: Integer;
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         LastEntryNo := LastEntryNo + 1;
         GLEntry."Entry No." := LastEntryNo;
         GLEntry."Posting Date" := Today;
@@ -314,38 +315,37 @@ report 198 "Date Compress Customer Ledger"
         GLEntry."System-Created Entry" := true;
         GLEntry."User ID" := UserId;
         GLEntry."Transaction No." := NextTransactionNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
         GLEntry.Consistent(GLEntry.Amount = 0);
-        GLReg."To Entry No." := GLEntry."Entry No.";
+        GLReg."To Entry No." := LastEntryNo;
 
         if GLRegExists then begin
-            GLReg.Modify;
-            DateComprReg.Modify;
+            GLReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            GLReg.Insert;
-            DateComprReg.Insert;
+            GLReg.Insert();
+            DateComprReg.Insert();
             GLRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        GLEntry.LockTable;
-        ReminderEntry.LockTable;
-        NewDtldCustLedgEntry.LockTable;
-        NewCustLedgEntry.LockTable;
-        GLReg.LockTable;
-        DateComprReg.LockTable;
+        GLEntry.LockTable();
+        ReminderEntry.LockTable();
+        NewDtldCustLedgEntry.LockTable();
+        NewCustLedgEntry.LockTable();
+        GLReg.LockTable();
+        DateComprReg.LockTable();
 
-        if GLEntry.FindLast then;
-        if NewCustLedgEntry.Find('+') then;
-        if (LastEntryNo <> GLEntry."Entry No.") or
-           (LastEntryNo <> NewCustLedgEntry."Entry No." + 1)
+        GLEntry.GetLastEntry(FoundLastEntryNo, LastTransactionNo);
+        FoundLastLedgEntryNo := NewCustLedgEntry.GetLastEntryNo();
+        if (LastEntryNo <> FoundLastEntryNo) or
+           (LastEntryNo <> FoundLastLedgEntryNo + 1)
         then begin
-            LastEntryNo := GLEntry."Entry No.";
-            NextTransactionNo := GLEntry."Transaction No." + 1;
+            LastEntryNo := FoundLastEntryNo;
+            NextTransactionNo := LastTransactionNo + 1;
             InitRegisters;
         end;
-        if NewDtldCustLedgEntry.FindLast then;
-        LastDtldEntryNo := NewDtldCustLedgEntry."Entry No.";
+        LastDtldEntryNo := NewDtldCustLedgEntry.GetLastEntryNo();
     end;
 
     local procedure InsertField(Number: Integer; Name: Text[100])
@@ -388,11 +388,11 @@ report 198 "Date Compress Customer Ledger"
                 repeat
                     SummarizeDtldEntry(DtldCustLedgEntry, NewCustLedgEntry);
                 until DtldCustLedgEntry.Next = 0;
-                DtldCustLedgEntry.DeleteAll;
+                DtldCustLedgEntry.DeleteAll();
             end;
 
             ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
-            ReminderEntry.DeleteAll;
+            ReminderEntry.DeleteAll();
             Delete;
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
@@ -430,7 +430,7 @@ report 198 "Date Compress Customer Ledger"
         LastEntryNo := LastEntryNo + 1;
 
         with CustLedgEntry2 do begin
-            NewCustLedgEntry.Init;
+            NewCustLedgEntry.Init();
             NewCustLedgEntry."Entry No." := LastEntryNo;
             NewCustLedgEntry."Customer No." := "Customer No.";
             NewCustLedgEntry."Posting Date" := GetRangeMin("Posting Date");
@@ -465,11 +465,11 @@ report 198 "Date Compress Customer Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewCustLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewCustLedgEntry.Insert;
+        NewCustLedgEntry.Insert();
         InsertDtldEntries;
     end;
 
@@ -493,7 +493,7 @@ report 198 "Date Compress Customer Ledger"
                 '%1..',
                 CalcDate('<+1D>', EntrdDateComprReg."Ending Date")));
 
-        exit(not DtldCustLedgEntry.FindLast);
+        exit(DtldCustLedgEntry.IsEmpty());
     end;
 
     local procedure SummarizeDtldEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var NewCustLedgEntry: Record "Cust. Ledger Entry")
@@ -517,7 +517,7 @@ report 198 "Date Compress Customer Ledger"
             DtldCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Cust. Ledger Entry"."Global Dimension 2 Code");
 
         if not DtldCustLedgEntryBuffer.Find('-') then begin
-            DtldCustLedgEntryBuffer.Reset;
+            DtldCustLedgEntryBuffer.Reset();
             Clear(DtldCustLedgEntryBuffer);
 
             LastTmpDtldEntryNo := LastTmpDtldEntryNo + 1;
@@ -558,12 +558,12 @@ report 198 "Date Compress Customer Ledger"
         if NewEntry then
             DtldCustLedgEntryBuffer.Insert
         else
-            DtldCustLedgEntryBuffer.Modify;
+            DtldCustLedgEntryBuffer.Modify();
     end;
 
     local procedure InsertDtldEntries()
     begin
-        DtldCustLedgEntryBuffer.Reset;
+        DtldCustLedgEntryBuffer.Reset();
         if DtldCustLedgEntryBuffer.Find('-') then
             repeat
                 if ((DtldCustLedgEntryBuffer.Amount <> 0) or
@@ -580,7 +580,7 @@ report 198 "Date Compress Customer Ledger"
                     NewDtldCustLedgEntry.Insert(true);
                 end;
             until DtldCustLedgEntryBuffer.Next = 0;
-        DtldCustLedgEntryBuffer.DeleteAll;
+        DtldCustLedgEntryBuffer.DeleteAll();
     end;
 
     local procedure InitializeParameter()

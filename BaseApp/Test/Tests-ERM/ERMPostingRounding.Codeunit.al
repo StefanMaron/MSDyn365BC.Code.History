@@ -93,7 +93,7 @@ codeunit 134157 "ERM Posting Rounding"
         TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
         VerifyInvoicePostBufferZeroAmounts(TempInvoicePostBuffer);
 
-        TempInvoicePostBuffer2.Delete;
+        TempInvoicePostBuffer2.Delete();
         MockTempInvoicePostBuffer(TempInvoicePostBuffer2, 0, 1, 0, 1, 0, 1);
         TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
         VerifyInvoicePostBufferZeroAmounts(TempInvoicePostBuffer);
@@ -112,7 +112,7 @@ codeunit 134157 "ERM Posting Rounding"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Posting Rounding");
     end;
@@ -234,7 +234,6 @@ codeunit 134157 "ERM Posting Rounding"
             "VAT Amount (ACY)" := NewVATAmountACY;
             "VAT Base Amount" := NewVATBaseAmount;
             "VAT Base Amount (ACY)" := NewVATBaseAmountACY;
-            FillInvPostingBufferPrimaryKey;
             Insert;
         end;
     end;

@@ -293,7 +293,7 @@ codeunit 132572 "Payment Export FX Tables UT"
         // check validation passed
         if DataExch.FindLast then;
         DataExch."Entry No." += 1;
-        DataExch.Insert;
+        DataExch.Insert();
 
         if PaymentExportData.FindLast then;
         PaymentExportData."Entry No." += 1;

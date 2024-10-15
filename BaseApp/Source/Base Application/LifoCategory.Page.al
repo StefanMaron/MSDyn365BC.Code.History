@@ -33,12 +33,10 @@ page 12128 "Lifo Category"
             group("LIFO Band")
             {
                 Caption = 'LIFO Band';
-                Image = LIFO;
                 action("LIFO Band List")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'LIFO Band List';
-                    Image = LIFO;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View details related to year-end inventory LIFO valuations.';
 

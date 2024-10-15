@@ -35,7 +35,7 @@ codeunit 12153 SubcontractingPricesMgt
         if InSubcPrices."Start Date" = 0D then
             InSubcPrices."Start Date" := WorkDate;
 
-        SubcontractorPrices.Reset;
+        SubcontractorPrices.Reset();
         SubcontractorPrices.SetRange("Vendor No.", InSubcPrices."Vendor No.");
         SubcontractorPrices.SetFilter("Work Center No.", '%1|%2', InSubcPrices."Work Center No.", '');
         SubcontractorPrices.SetRange("Standard Task Code", InSubcPrices."Standard Task Code");
@@ -55,7 +55,7 @@ codeunit 12153 SubcontractingPricesMgt
                 ConvertPriceToUOM(InSubcPrices."Unit of Measure Code", ProdQtyPerUom);
                 if SubcontractorPrices."Currency Code" <> '' then
                     ConvertPriceFromCurrency(SubcontractorPrices."Currency Code", InSubcPrices."Start Date");
-                GLSetup.Get;
+                GLSetup.Get();
                 DirectCost := Round(DirectCost, GLSetup."Unit-Amount Rounding Precision");
                 DirUnitCost := DirectCost;
                 UnitCost := (DirUnitCost * (1 + IndirCostPct / 100) + OvhdRate);
@@ -174,7 +174,7 @@ codeunit 12153 SubcontractingPricesMgt
                     then
                         ConvertPriceToCurrency("Currency Code")
                     else begin
-                        GLSetup.Get;
+                        GLSetup.Get();
                         DirectCost := Round(DirectCost, GLSetup."Unit-Amount Rounding Precision");
                     end;
                 end;

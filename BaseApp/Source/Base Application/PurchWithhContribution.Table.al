@@ -588,7 +588,7 @@ table 12137 "Purch. Withh. Contribution"
         DeleteRecByPurchHeader(PurchaseHeader);
 
         if Vend."Withholding Tax Code" <> '' then begin
-            PurchWithhContribution.Init;
+            PurchWithhContribution.Init();
             PurchWithhContribution.Validate("Document Type", PurchaseHeader."Document Type");
             PurchWithhContribution.Validate("No.", PurchaseHeader."No.");
             PurchWithhContribution.Validate("Date Related", PurchaseHeader."Document Date");

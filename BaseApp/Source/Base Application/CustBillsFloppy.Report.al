@@ -133,7 +133,7 @@ report 12172 "Cust Bills Floppy"
             if not Confirm(Text1130021, false, FileName) then
                 Error(Text1130022, FileName);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("SIA Code");
         CompanyInfo.TestField("Signature on Bill");
 
@@ -156,6 +156,7 @@ report 12172 "Cust Bills Floppy"
         CustBankAcc: Record "Customer Bank Account";
         OldLines: Record "Customer Bill Line";
         RBMgt: Codeunit "File Management";
+        LocalAppMgt: Codeunit LocalApplicationManagement;
         Window: Dialog;
         OutFile: File;
         FileName: Text[1024];
@@ -369,7 +370,7 @@ report 12172 "Cust Bills Floppy"
     begin
         with Lines do begin
             OutText := ' 51' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-            OutText := OutText + ConvertStr(Format("Temporary Cust. Bill No.", 10), ' ', '0');
+            OutText := OutText + LocalAppMgt.ConvertToNumeric("Temporary Cust. Bill No.", 10);
             OutText := OutText + Format(CompanyInfo."Signature on Bill", 20) +
               Format(CompanyInfo."Authority County", 15) +
               Format(Format(CompanyInfo."Autoriz. No."), 10) +

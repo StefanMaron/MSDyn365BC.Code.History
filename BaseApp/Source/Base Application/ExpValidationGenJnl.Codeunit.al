@@ -16,7 +16,7 @@ codeunit 1272 "Exp. Validation Gen. Jnl."
             until GenJnlLine.Next = 0;
 
         if GenJnlLine.HasPaymentFileErrorsInBatch then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
     end;

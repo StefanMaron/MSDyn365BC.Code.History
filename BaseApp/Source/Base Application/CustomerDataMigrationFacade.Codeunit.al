@@ -51,7 +51,7 @@ codeunit 6112 "Customer Data Migration Facade"
             exit;
         end;
 
-        Customer.Init;
+        Customer.Init();
 
         Customer.Validate("No.", CustomerNoToSet);
         Customer.Validate(Name, CustomerNameToSet);
@@ -68,7 +68,7 @@ codeunit 6112 "Customer Data Migration Facade"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         if not CustomerPostingGroup.Get(CustomerPostingGroupCode) then begin
-            CustomerPostingGroup.Init;
+            CustomerPostingGroup.Init();
             CustomerPostingGroup.Validate(Code, CustomerPostingGroupCode);
             CustomerPostingGroup.Validate(Description, CustomerPostingGroupDescription);
             CustomerPostingGroup.Validate("Receivables Account", ReceivablesAccount);
@@ -432,7 +432,7 @@ codeunit 6112 "Customer Data Migration Facade"
         if CustomerDiscountGroup.Get(CodeToSet) then
             exit(CodeToSet);
 
-        CustomerDiscountGroup.Init;
+        CustomerDiscountGroup.Init();
         CustomerDiscountGroup.Validate(Code, CodeToSet);
         CustomerDiscountGroup.Validate(Description, DescriptionToSet);
         CustomerDiscountGroup.Insert(true);

@@ -311,7 +311,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Acc. Periods: Posting");
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
@@ -428,7 +428,6 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesHeader.SetHideValidationDialog(true);
-        UpdateNoSeriesLines(SalesHeader."Posting No. Series", PostingDate);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", AccountNo, 1);
@@ -442,7 +441,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.SetHideValidationDialog(true);
-        UpdateNoSeriesLines(PurchaseHeader."Posting No. Series", PostingDate);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
@@ -476,16 +474,6 @@ codeunit 134361 "No Acc. Periods: Posting"
             FindFirst;
             TestField("Cost Is Adjusted", true);
         end;
-    end;
-
-    local procedure UpdateNoSeriesLines(NoSeriesCode: Code[20]; PostingDate: Date)
-    var
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
-    begin
-        NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLinePurchase.SetRange(Open, true);
-        NoSeriesLinePurchase.SetFilter("Last Date Used", '<>0D');
-        NoSeriesLinePurchase.ModifyAll("Last Date Used", PostingDate);
     end;
 
     local procedure VerifyDeferralPosting(DeferralTemplateCode: Code[10]; FirstEntryPostingDate: Date; AmountToDefer: Decimal; AdditionalRecord: Integer)

@@ -20,7 +20,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         SetTrackInfoForCancellation(Rec);
         if RedoApplications then
             ItemJnlPostLine.RedoApplications;
-        Commit;
+        UpdatePurchaseOrderLinesFromCancelledInvoice("No.");
+        Commit();
     end;
 
     var
@@ -173,7 +174,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
         if CreateCreditMemo(PurchInvHeader) then begin
             CreateCopyDocument(PurchInvHeader, PurchaseHeader, PurchaseHeader."Document Type"::Invoice, true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -376,7 +377,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PostingDate: Date;
     begin
         PostingDate := WorkDate;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumCM, PurchInvHeader);
@@ -392,7 +393,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if (PurchInvHeader."Vendor Invoice No." = '') and PurchasesPayablesSetup."Ext. Doc. No. Mandatory" then
             ErrorHelperHeader(ErrorType::ExtDocErr, PurchInvHeader);
     end;
@@ -531,15 +532,15 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        TempItemApplicationEntry.Reset;
-        TempItemApplicationEntry.DeleteAll;
+        TempItemApplicationEntry.Reset();
+        TempItemApplicationEntry.DeleteAll();
         if ItemLedgEntry.FindSet then
             repeat
                 if ItemApplicationEntry.AppliedOutbndEntryExists(ItemLedgEntry."Entry No.", true, false) then
                     repeat
                         TempItemApplicationEntry := ItemApplicationEntry;
                         if not TempItemApplicationEntry.Find then
-                            TempItemApplicationEntry.Insert;
+                            TempItemApplicationEntry.Insert();
                     until ItemApplicationEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
         exit(TempItemApplicationEntry.FindSet);
@@ -677,6 +678,38 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             end;
     end;
 
+    local procedure UpdatePurchaseOrderLinesFromCancelledInvoice(PurchInvHeaderNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+    begin
+        PurchInvLine.SetRange("Document No.", PurchInvHeaderNo);
+        if PurchInvLine.FindSet() then
+            repeat
+                if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then
+                    UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
+            until PurchInvLine.Next() = 0;
+    end;
+
+    local procedure UpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, CancelledQuantity, CancelledQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseLine."Quantity Invoiced" -= CancelledQuantity;
+        PurchaseLine."Qty. Invoiced (Base)" -= CancelledQtyBase;
+        PurchaseLine."Quantity Received" -= CancelledQuantity;
+        PurchaseLine."Qty. Received (Base)" -= CancelledQtyBase;
+        PurchaseLine.InitOutstanding();
+        PurchaseLine.InitQtyToReceive();
+        PurchaseLine.InitQtyToInvoice();
+        PurchaseLine.Modify();
+    end;
+
     [Scope('OnPrem')]
     procedure UpdateCheckTotal(var PurchaseHeader: Record "Purchase Header")
     var
@@ -688,11 +721,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PurchaseHeader."Check Total" := PurchaseHeader."Amount Including VAT";
         if PurchasesPayablesSetup.Get then
             if PurchasesPayablesSetup."Invoice Rounding" then begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 PurchaseHeader."Check Total" :=
                   Round(PurchaseHeader."Check Total", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
             end;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     [IntegrationEvent(false, false)]
@@ -707,6 +740,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -90,7 +90,7 @@ table 1877 "VAT Setup Posting Groups"
     var
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
     begin
-        VATSetupPostingGroups.Reset;
+        VATSetupPostingGroups.Reset();
         VATSetupPostingGroups.SetRange(Selected, true);
         VATSetupPostingGroups.SetRange(Default, false);
         exit(not VATSetupPostingGroups.IsEmpty);
@@ -101,7 +101,7 @@ table 1877 "VAT Setup Posting Groups"
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
     begin
         SetRange(Default, false);
-        DeleteAll;
+        DeleteAll();
 
         SetRange(Default, true);
         if not FindSet then begin
@@ -112,7 +112,7 @@ table 1877 "VAT Setup Posting Groups"
         repeat
             VATSetupPostingGroups.TransferFields(Rec);
             VATSetupPostingGroups.Default := false;
-            VATSetupPostingGroups.Insert;
+            VATSetupPostingGroups.Insert();
         until Next = 0;
     end;
 

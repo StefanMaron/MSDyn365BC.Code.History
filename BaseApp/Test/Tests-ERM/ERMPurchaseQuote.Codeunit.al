@@ -17,6 +17,7 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
@@ -26,7 +27,7 @@ codeunit 134325 "ERM Purchase Quote"
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         MakeOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderTxt: Label 'The quote has been converted to order', Comment = '%1 - No. of new purchase order.';
-        DocumentDateError: Label '%1 cannot be greater than %2';
+        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
 
     [Test]
     [Scope('OnPrem')]
@@ -68,7 +69,7 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseLine.CalcVATAmountLines(QtyType::Invoicing, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // Verify: Verify VAT Amount on Purchase Quote.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
@@ -119,7 +120,7 @@ codeunit 134325 "ERM Purchase Quote"
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Quote);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        LineCount := PurchaseLine.Count;
+        LineCount := PurchaseLine.Count();
 
         // Exercise: Create Purchase Order form Purchase Quote.
         CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
@@ -207,7 +208,7 @@ codeunit 134325 "ERM Purchase Quote"
         CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
 
         // Verify: Verify Invoice Discount Amount on Create Purchase Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         Assert.AreNearlyEqual(
           InvDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -254,10 +255,10 @@ codeunit 134325 "ERM Purchase Quote"
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
         // Exercise: Create Purchase Order from Purchase Quote.
-        asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
+        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
 
-        // Verify: Verify that it is not possible to create Purchase Order from Purchase Quote with Posting Date blank.
-        Assert.ExpectedError(StrSubstNo(DocumentDateError, PurchaseHeader.FieldCaption("Document Date"), PurchaseHeader.FieldCaption("Posting Date")));
+        // Verify: Verify that New Purchase Order created from Purchase Quote with Posting Date blank.
+        VerifyPostingDateOnOrder(PurchaseHeader);
 
         // Tear Down.
         UpdatePurchasePayablesSetup(OldDefaultPostingDate, OldDefaultPostingDate);
@@ -370,10 +371,26 @@ codeunit 134325 "ERM Purchase Quote"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseQuoteChangePricesInclVATRefreshesPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuotePage: TestPage "Purchase Quote";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        // This Country doesn't have this field on the page.
+        Initialize;
+
+        // [GIVEN] Page with Prices including VAT disabled was open
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '');
+        PurchaseQuotePage.OpenEdit;
+        PurchaseQuotePage.GotoRecord(PurchaseHeader);
+
+        // [WHEN] User checks Prices including VAT
+        PurchaseQuotePage."Prices Including VAT".SetValue(true);
+
+        // [THEN] Caption for PurchaseQuotePage.PurchLines."Direct Unit Cost" field is updated
+        Assert.AreEqual('Direct Unit Cost Incl. VAT',
+          PurchaseQuotePage.PurchLines."Direct Unit Cost".Caption,
+          'The caption for PurchaseQuotePage.PurchLines."Direct Unit Cost" is incorrect');
     end;
 
     [Test]
@@ -422,6 +439,34 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.AreEqual('Purchase Quote', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderFromQuoteWithBlockedResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Create purchase order from quote with blocked resource
+        Initialize();
+
+        // [GIVEN] Purchase quote with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Blocked resource
+        Resource.Get(PurchaseLine."No.");
+        Resource.Validate(Blocked, true);
+        Resource.Modify(true);
+
+        // [WHEN] Create purchase order
+        asserterror Codeunit.Run(Codeunit::"Purch.-Quote to Order", PurchaseHeader);
+
+        // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
+        Assert.ExpectedError(BlockedResourceErr);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -439,7 +484,7 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
     end;
 
@@ -497,10 +542,18 @@ codeunit 134325 "ERM Purchase Quote"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldDefaultPostingDate := PurchasesPayablesSetup."Default Posting Date";
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure VerifyPostingDateOnOrder(PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.SetRange("Quote No.", PurchaseHeader."No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.FindFirst;
+        PurchaseHeader.TestField("Posting Date", 0D);
     end;
 
     [ConfirmHandler]

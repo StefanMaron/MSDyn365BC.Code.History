@@ -235,7 +235,7 @@ table 5715 "Item Substitution"
                      "Variant Code")
                 then begin
                     ItemSubstitution.Interchangeable := false;
-                    ItemSubstitution.Modify;
+                    ItemSubstitution.Modify();
                 end;
 
         if Condition then begin
@@ -245,7 +245,7 @@ table 5715 "Item Substitution"
             SubCondition.SetRange("Substitute Type", "Substitute Type");
             SubCondition.SetRange("Substitute No.", "Substitute No.");
             SubCondition.SetRange("Substitute Variant Code", "Substitute Variant Code");
-            SubCondition.DeleteAll;
+            SubCondition.DeleteAll();
         end;
     end;
 
@@ -292,7 +292,7 @@ table 5715 "Item Substitution"
         if ItemSubstitution.Find then
             ItemSubstitution.Modify
         else
-            ItemSubstitution.Insert;
+            ItemSubstitution.Insert();
     end;
 
     local procedure DeleteInterchangeableItem(XType: Integer; XNo: Code[20]; XVariantCode: Code[10]; XSubstType: Integer; XSubstNo: Code[20]; XSubstVariantCode: Code[10])
@@ -314,9 +314,9 @@ table 5715 "Item Substitution"
                 SubCondition.SetRange("Substitute Type", XSubstType);
                 SubCondition.SetRange("Substitute No.", XSubstNo);
                 SubCondition.SetRange("Substitute Variant Code", XSubstVariantCode);
-                SubCondition.DeleteAll;
+                SubCondition.DeleteAll();
             end;
-            ItemSubstitution.Delete;
+            ItemSubstitution.Delete();
             Interchangeable := false;
         end;
     end;

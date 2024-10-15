@@ -81,7 +81,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryLowerPermissions.SetO365Setup;
         LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '001', '999');
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Direct Debit Mandate Nos.", NoSeries.Code);
         SalesReceivablesSetup.Modify(true);
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
@@ -321,15 +321,15 @@ codeunit 139450 "O365 Setup Permissions Test"
     begin
         LibraryLowerPermissions.SetO365Full;
 
-        TimeSheetHeaderArchive.Init;
+        TimeSheetHeaderArchive.Init();
         TimeSheetHeaderArchive."No." :=
           LibraryUtility.GenerateRandomCode(TimeSheetHeaderArchive.FieldNo("No."), DATABASE::"Time Sheet Header Archive");
-        TimeSheetHeaderArchive.Insert;
+        TimeSheetHeaderArchive.Insert();
 
-        TimeSheetLineArchive.Init;
+        TimeSheetLineArchive.Init();
         TimeSheetLineArchive."Time Sheet No." := TimeSheetHeaderArchive."No.";
         TimeSheetLineArchive."Line No." := 10000;
-        TimeSheetLineArchive.Insert;
+        TimeSheetLineArchive.Insert();
     end;
 
     [Test]
@@ -339,15 +339,15 @@ codeunit 139450 "O365 Setup Permissions Test"
         TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
         TimeSheetLineArchive: Record "Time Sheet Line Archive";
     begin
-        TimeSheetHeaderArchive.Init;
+        TimeSheetHeaderArchive.Init();
         TimeSheetHeaderArchive."No." :=
           LibraryUtility.GenerateRandomCode(TimeSheetHeaderArchive.FieldNo("No."), DATABASE::"Time Sheet Header Archive");
-        TimeSheetHeaderArchive.Insert;
+        TimeSheetHeaderArchive.Insert();
 
-        TimeSheetLineArchive.Init;
+        TimeSheetLineArchive.Init();
         TimeSheetLineArchive."Time Sheet No." := TimeSheetHeaderArchive."No.";
         TimeSheetLineArchive."Line No." := 10000;
-        TimeSheetLineArchive.Insert;
+        TimeSheetLineArchive.Insert();
 
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddO365Basic;

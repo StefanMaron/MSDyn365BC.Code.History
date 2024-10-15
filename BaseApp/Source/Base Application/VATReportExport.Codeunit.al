@@ -49,7 +49,7 @@ codeunit 743 "VAT Report Export"
 
         VATReportHeaderLocal.Copy(VATReportHeader);
         VATReportHeaderLocal.SetRange("No.", VATReportHeader."No.");
-        Commit;
+        Commit();
         if VATReportHeaderLocal.isDatifattura then
             CODEUNIT.Run(CODEUNIT::"Datifattura Export", VATReportHeaderLocal)
         else

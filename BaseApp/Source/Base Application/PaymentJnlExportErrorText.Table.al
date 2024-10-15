@@ -82,13 +82,13 @@ table 1228 "Payment Jnl. Export Error Text"
     procedure DeleteJnlLineErrors(GenJnlLine: Record "Gen. Journal Line")
     begin
         if JnlLineHasErrors(GenJnlLine) then
-            DeleteAll;
+            DeleteAll();
     end;
 
     procedure DeleteJnlBatchErrors(GenJnlLine: Record "Gen. Journal Line")
     begin
         if JnlBatchHasErrors(GenJnlLine) then
-            DeleteAll;
+            DeleteAll();
     end;
 
     local procedure SetBatchFilters(GenJnlLine: Record "Gen. Journal Line")

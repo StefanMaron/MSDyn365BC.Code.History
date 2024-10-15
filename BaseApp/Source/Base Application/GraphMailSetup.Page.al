@@ -42,7 +42,7 @@ page 411 "Graph Mail Setup"
                         Recipient: Text;
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
 
                         SMTPUserSpecifiedAddress.SetEmailAddress("Sender Email");
                         if SMTPUserSpecifiedAddress.RunModal = ACTION::OK then begin
@@ -88,7 +88,7 @@ page 411 "Graph Mail Setup"
                             ClearRefreshCode;
                             if LookupMode then
                                 if GraphMailSetup.Get then
-                                    GraphMailSetup.Delete;
+                                    GraphMailSetup.Delete();
 
                             CurrPage.Close;
                         end;
@@ -149,7 +149,7 @@ page 411 "Graph Mail Setup"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         if not GraphMailSetup.Get then
-            GraphMailSetup.Insert;
+            GraphMailSetup.Insert();
 
         if GraphMailSetup.IsEnabled then begin
             GraphMailSetup.RenewRefreshToken; // validates values
@@ -168,7 +168,7 @@ page 411 "Graph Mail Setup"
     begin
         if (not CurrPage.LookupMode) or (CloseAction = ACTION::LookupOK) then begin
             if not GraphMailSetup.Get then
-                GraphMailSetup.Insert;
+                GraphMailSetup.Insert();
 
             GraphMailSetup.TransferFields(Rec);
             GraphMailSetup.Validate(Enabled, true);

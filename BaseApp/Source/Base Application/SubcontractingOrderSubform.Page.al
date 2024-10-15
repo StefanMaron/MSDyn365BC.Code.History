@@ -537,6 +537,7 @@ page 12153 "Subcontracting Order Subform"
 
                     trigger OnAction()
                     begin
+                        Find;
                         ShowReservation;
                     end;
                 }
@@ -753,13 +754,6 @@ page 12153 "Subcontracting Order Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure ShowReservation()
-    begin
-        Find;
-        ShowReservation;
-    end;
-
-    [Scope('OnPrem')]
     procedure ShowTracking()
     var
         TrackingForm: Page "Order Tracking";
@@ -769,21 +763,9 @@ page 12153 "Subcontracting Order Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        ShowDimensions;
-    end;
-
-    [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
         ShowItemChargeAssgnt;
-    end;
-
-    [Scope('OnPrem')]
-    procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines;
     end;
 
     [Scope('OnPrem')]

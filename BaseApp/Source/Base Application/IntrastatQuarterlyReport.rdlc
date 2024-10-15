@@ -6318,9 +6318,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Intrastat_Jnl__Line__Intrastat_Jnl__Line___Type">
           <DataField>Intrastat_Jnl__Line__Intrastat_Jnl__Line___Type</DataField>
         </Field>

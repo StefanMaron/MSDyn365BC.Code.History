@@ -378,7 +378,7 @@ page 130401 "CAL Test Tool"
                 CurrentSuiteName := CALTestSuite.Name
             else begin
                 CreateTestSuite(CurrentSuiteName);
-                Commit;
+                Commit();
             end;
 
         FilterGroup(2);

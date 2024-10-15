@@ -20,7 +20,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
                 PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -85,7 +85,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         var
                             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
                         begin
-                            PurchasesPayablesSetup.Get;
+                            PurchasesPayablesSetup.Get();
                             PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -101,7 +101,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
                             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
                         begin
                             if PrintDoc then begin
-                                PurchasesPayablesSetup.Get;
+                                PurchasesPayablesSetup.Get();
                                 if PurchasesPayablesSetup."Post with Job Queue" then
                                     PurchasesPayablesSetup.TestField("Post & Print with Job Queue");
                             end;
@@ -119,7 +119,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         begin
-            PurchasesPayablesSetup.Get;
+            PurchasesPayablesSetup.Get();
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";

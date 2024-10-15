@@ -15,7 +15,7 @@ table 5628 Insurance
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     NoSeriesMgt.TestManual(FASetup."Insurance Nos.");
                     "No. Series" := '';
                 end;
@@ -177,7 +177,7 @@ table 5628 Insurance
         FAMoveEntries.MoveInsuranceEntries(Rec);
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Insurance);
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::Insurance, "No.");
     end;
@@ -185,7 +185,7 @@ table 5628 Insurance
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Insurance Nos.");
             NoSeriesMgt.InitSeries(FASetup."Insurance Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -218,7 +218,7 @@ table 5628 Insurance
     begin
         with Insurance do begin
             Insurance := Rec;
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Insurance Nos.");
             if NoSeriesMgt.SelectSeries(FASetup."Insurance Nos.", OldInsurance."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

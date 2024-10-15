@@ -48,7 +48,7 @@ table 12173 "Deferring Due Dates"
 
     trigger OnInsert()
     begin
-        DefDueDates.Reset;
+        DefDueDates.Reset();
         DefDueDates.SetRange("No.", "No.");
 
         if DefDueDates.FindSet then

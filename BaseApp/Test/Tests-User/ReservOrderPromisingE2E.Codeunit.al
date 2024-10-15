@@ -223,7 +223,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
@@ -250,12 +249,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreateAndPostPurchaseInvoice(VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
@@ -268,7 +264,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
 
     local procedure CreatePurchaseInvoice(VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer) PurchaseInvoiceNo: Code[20]
     var
-        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
@@ -281,9 +276,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
         PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
         PurchaseInvoice.OK.Invoke;
-
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
     end;
 
     local procedure PostPurchaseInvoice(PurchaseInvoiceNo: Code[20])
@@ -299,7 +291,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     [Normal]
     local procedure CreatePurchaseOrder(VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer; OrderDate: Date) PurchaseOrderNo: Code[20]
     var
-        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
@@ -313,9 +304,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
         PurchaseOrderNo := PurchaseOrder."No.".Value;
         PurchaseOrder.OK.Invoke;
-
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
     end;
 
     local procedure PostPurchaseOrder(PurchaseOrderNo: Code[20])
@@ -337,7 +325,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -353,7 +341,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -369,7 +357,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [Normal]

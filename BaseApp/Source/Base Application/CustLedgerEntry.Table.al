@@ -19,11 +19,9 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(6; "Document No."; Code[20])
         {
@@ -159,11 +157,9 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'On Hold';
         }
-        field(34; "Applies-to Doc. Type"; Option)
+        field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(35; "Applies-to Doc. No."; Code[20])
         {
@@ -200,7 +196,7 @@ table 21 "Cust. Ledger Entry"
                   "Document Occurrence" * 10000)
                 then begin
                     PostedPaymentLines."Due Date" := "Due Date";
-                    PostedPaymentLines.Modify;
+                    PostedPaymentLines.Modify();
                 end;
             end;
         }
@@ -262,11 +258,9 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(51; "Bal. Account Type"; Option)
+        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(52; "Bal. Account No."; Code[20])
         {
@@ -506,6 +500,10 @@ table 21 "Cust. Ledger Entry"
         field(90; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+        }
+        field(171; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
         }
         field(172; "Payment Method Code"; Code[10])
         {
@@ -771,6 +769,13 @@ table 21 "Cust. Ledger Entry"
         Text000: Label 'must have the same sign as %1';
         Text001: Label 'must not be larger than %1';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure ShowDoc(): Boolean
     var
         SalesInvoiceHdr: Record "Sales Invoice Header";
@@ -864,7 +869,7 @@ table 21 "Cust. Ledger Entry"
         CustLedgEntry: Record "Cust. Ledger Entry";
         DrillDownPageID: Integer;
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         DtldCustLedgEntry.CopyFilter("Customer No.", CustLedgEntry."Customer No.");
         DtldCustLedgEntry.CopyFilter("Currency Code", CustLedgEntry."Currency Code");
         DtldCustLedgEntry.CopyFilter("Initial Entry Global Dim. 1", CustLedgEntry."Global Dimension 1 Code");
@@ -881,7 +886,7 @@ table 21 "Cust. Ledger Entry"
         CustLedgEntry: Record "Cust. Ledger Entry";
         DrillDownPageID: Integer;
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         DtldCustLedgEntry.CopyFilter("Customer No.", CustLedgEntry."Customer No.");
         DtldCustLedgEntry.CopyFilter("Currency Code", CustLedgEntry."Currency Code");
         DtldCustLedgEntry.CopyFilter("Initial Entry Global Dim. 1", CustLedgEntry."Global Dimension 1 Code");

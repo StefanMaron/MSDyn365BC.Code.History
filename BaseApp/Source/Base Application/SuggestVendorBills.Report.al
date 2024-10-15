@@ -16,7 +16,7 @@ report 12177 "Suggest Vendor Bills"
             begin
                 Vendor.Get("Vendor No.");
                 if Vendor.Blocked <> Vendor.Blocked::" " then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 CalcFields(Amount, "Remaining Amount");
                 if UseSameABICode then begin
                     if "Recipient Bank Account" <> '' then begin
@@ -39,8 +39,8 @@ report 12177 "Suggest Vendor Bills"
                 SetRange("On Hold", '');
                 BankAccount.Get(VendorBillHeader."Bank Account No.");
 
-                VendorBillLine.LockTable;
-                VendorBillLine.Reset;
+                VendorBillLine.LockTable();
+                VendorBillLine.Reset();
                 VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
                 if not VendorBillLine.FindLast then
                     NextLineNo := 10000
@@ -101,17 +101,17 @@ report 12177 "Suggest Vendor Bills"
         No: array[10] of Code[20];
         TableID: array[10] of Integer;
     begin
-        VendBillLine2.Reset;
+        VendBillLine2.Reset();
         VendBillLine2.SetRange("Vendor Entry No.", "Vendor Ledger Entry"."Entry No.");
 
         if not VendBillLine2.FindFirst then begin
-            VendBillLine2.Reset;
+            VendBillLine2.Reset();
             VendBillLine2.SetRange("Vendor No.", "Vendor Ledger Entry"."Vendor No.");
             VendBillLine2.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
             VendBillLine2.SetRange("Document Occurrence", "Vendor Ledger Entry"."Document Occurrence");
             VendBillLine2.SetRange("Document Date", "Vendor Ledger Entry"."Document Date");
             if not VendBillLine2.FindFirst then begin
-                VendorBillLine.Init;
+                VendorBillLine.Init();
                 VendorBillLine."Vendor Bill List No." := VendorBillHeader."No.";
                 VendorBillLine."Line No." := NextLineNo;
                 VendorBillLine."Vendor No." := "Vendor Ledger Entry"."Vendor No.";

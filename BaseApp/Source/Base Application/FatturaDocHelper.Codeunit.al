@@ -54,7 +54,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineRecRef: RecordRef;
         PricesIncludingVAT: Boolean;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if not CollectDocHeaderInformation(TempFatturaHeader, LineRecRef, HeaderRecRef, PricesIncludingVAT) then
             exit;
 
@@ -70,7 +70,7 @@ codeunit 12184 "Fattura Doc. Helper"
         Initialize;
         Customer.Get(HeaderRecRef.Field(CustomerNoFieldNo).Value);
 
-        TempFatturaHeader.Init;
+        TempFatturaHeader.Init();
         TempFatturaHeader."Customer No" := Customer."No.";
         TempFatturaHeader."Document No." := Format(HeaderRecRef.Field(DocNoFieldNo).Value);
         TempFatturaHeader."Payment Method Code" := HeaderRecRef.Field(PaymentMethodCodeFieldNo).Value;
@@ -86,7 +86,7 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaHeader."Customer Purchase Order No." := HeaderRecRef.Field(CustomerPurchaseOrderFieldNo).Value;
         end;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempFatturaHeader."Currency Code" := Format(HeaderRecRef.Field(CurrencyCodeFieldNo));
         TempFatturaHeader."Currency Factor" := HeaderRecRef.Field(CurrencyFactorFieldNo).Value;
 
@@ -100,7 +100,7 @@ codeunit 12184 "Fattura Doc. Helper"
         UpdateFatturaHeaderWithDiscountInformation(TempFatturaHeader, LineRecRef, HeaderRecRef);
         UpdateFattureHeaderWithApplicationInformation(TempFatturaHeader);
         UpdateFatturaHeaderWithTaxRepresentativeInformation(TempFatturaHeader);
-        TempFatturaHeader.Insert;
+        TempFatturaHeader.Insert();
         PricesIncludingVAT := HeaderRecRef.Field(PricesIncludingVATFieldNo).Value;
         exit(true);
     end;
@@ -123,7 +123,7 @@ codeunit 12184 "Fattura Doc. Helper"
         until LineRecRef.Next = 0;
 
         CollectVATOnLines(TempVATEntry, TempVATPostingSetup, TempFatturaHeader);
-        TempVATEntry.Reset;
+        TempVATEntry.Reset();
         if TempVATEntry.FindSet then begin
             IsSplitPayment := HasSplitPayment(LineRecRef);
             Clear(TempFatturaLine);
@@ -154,14 +154,14 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."Due Date" := CustLedgerEntry."Due Date";
             CustLedgerEntry.CalcFields("Amount (LCY)");
             TempFatturaLine.Amount := CustLedgerEntry."Amount (LCY)";
-            TempFatturaLine.Insert;
+            TempFatturaLine.Insert();
         until CustLedgerEntry.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure CollectSelfBillingDocInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; var TempVATEntry: Record "VAT Entry" temporary)
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CheckCompanyInformationFields(ErrorMessage);
         CheckFatturaPANos(ErrorMessage);
         if HasErrors then
@@ -169,7 +169,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         Initialize;
 
-        TempFatturaHeader.Init;
+        TempFatturaHeader.Init();
         TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Sales;
         TempFatturaHeader."Document Type" := TempVATEntry."Document Type"::Invoice;
         TempFatturaHeader."Posting Date" := TempVATEntry."Posting Date";
@@ -179,7 +179,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Fattura Document Type" := GetDefaultFatturaDocType;
         TempVATEntry.CalcSums(Amount, Base);
         TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
-        TempFatturaHeader.Insert;
+        TempFatturaHeader.Insert();
         CollectSelfBillingDocLinesInformation(TempFatturaLine, TempVATEntry);
     end;
 
@@ -190,7 +190,7 @@ codeunit 12184 "Fattura Doc. Helper"
               "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
               "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
             FindSet;
-            TempFatturaLine.Init;
+            TempFatturaLine.Init();
             TempFatturaLine.Quantity := 1;
             repeat
                 SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
@@ -203,13 +203,13 @@ codeunit 12184 "Fattura Doc. Helper"
                 TempFatturaLine."Unit Price" := -Base;
                 TempFatturaLine.Amount := TempFatturaLine."Unit Price";
                 TempFatturaLine."VAT %" := "VAT %";
-                TempFatturaLine.Insert;
+                TempFatturaLine.Insert();
 
                 TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;
                 TempFatturaLine."VAT Base" := TempFatturaLine.Amount;
                 TempFatturaLine."VAT Amount" := -Amount;
                 TempFatturaLine.Description := BasicVATTypeLbl;
-                TempFatturaLine.Insert;
+                TempFatturaLine.Insert();
 
                 FindLast;
                 SetRange("VAT Bus. Posting Group");
@@ -220,7 +220,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure Initialize()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if IsInitialized then
             exit;
 
@@ -431,7 +431,7 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaPANoSeries: Record "No. Series";
         FatturaNoSeriesLine: Record "No. Series Line";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ErrorMessage.LogIfEmpty(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         if FatturaPANoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.") then;
@@ -500,7 +500,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Total Amount" := ExchangeToLCYAmount(TempFatturaHeader, GetTotalDocAmount(LineRecRef));
         if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
             FieldRef := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo);
-            if Format(FieldRef.Class) = 'FlowField' then
+            if FieldRef.Class = FieldClass::FlowField then
                 FieldRef.CalcField;
             TempFatturaHeader."Total Inv. Discount" := FieldRef.Value;
         end else
@@ -556,7 +556,7 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaSetup.VerifyAndSetData;
         with TempVATEntry do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
 
             VATEntry.SetCurrentKey("Document No.", "Posting Date", "Unrealized VAT Entry No.");
             VATEntry.SetRange("VAT Bus. Posting Group", FatturaSetup."Self-Billing VAT Bus. Group");
@@ -606,7 +606,7 @@ codeunit 12184 "Fattura Doc. Helper"
         BaseString: Text;
     begin
         // - country code + the transmitter's unique identity code + unique progressive number of the file
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BaseString := CopyStr(DelChr(ProgressiveNo, '=', ',?;.:/-_ '), 1, 10);
         ZeroNo := PadStr('', 10 - StrLen(BaseString), '0');
         exit(CompanyInformation."Country/Region Code" +
@@ -681,7 +681,7 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaPANoSeries: Record "No. Series";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if FatturaPANoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.") then
             exit(NoSeriesManagement.GetNextNo(FatturaPANoSeries.Code, Today, true));
     end;
@@ -863,10 +863,10 @@ codeunit 12184 "Fattura Doc. Helper"
                     InsertShipmentBuffer(TempSalesShipmentBuffer, i, ShptNo, ShipmentDate, IsSplitPaymentLine(LineRecRef));
                 end;
                 if TempFatturaHeader."Order No." <> '' then begin
-                    TempLineNumberBuffer.Init;
+                    TempLineNumberBuffer.Init();
                     Evaluate(TempLineNumberBuffer."Old Line Number", Format(LineRecRef.Field(LineNoFieldNo).Value));
                     TempLineNumberBuffer."New Line Number" := i;
-                    TempLineNumberBuffer.Insert;
+                    TempLineNumberBuffer.Insert();
                 end;
             until LineRecRef.Next = 0;
         if TempFatturaHeader."Order No." <> '' then
@@ -911,13 +911,13 @@ codeunit 12184 "Fattura Doc. Helper"
                     if TempVATEntry.FindFirst then begin
                         TempVATEntry.Base += VATEntry.Base + VATEntry."Unrealized Base";
                         TempVATEntry.Amount += VATEntry.Amount + VATEntry."Unrealized Amount";
-                        TempVATEntry.Modify;
+                        TempVATEntry.Modify();
                     end else begin
-                        TempVATEntry.Init;
+                        TempVATEntry.Init();
                         TempVATEntry := VATEntry;
                         TempVATEntry.Base += TempVATEntry."Unrealized Base";
                         TempVATEntry.Amount += TempVATEntry."Unrealized Amount";
-                        TempVATEntry.Insert;
+                        TempVATEntry.Insert();
                     end;
                 end;
             until VATEntry.Next = 0;
@@ -932,7 +932,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
         TempVATPostingSetup := VATPostingSetup;
-        TempVATPostingSetup.Insert;
+        TempVATPostingSetup.Insert();
     end;
 
     local procedure BuildOrderDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
@@ -940,7 +940,7 @@ codeunit 12184 "Fattura Doc. Helper"
         MultipleOrders: Boolean;
         Finished: Boolean;
     begin
-        TempSalesShipmentBuffer.Reset;
+        TempSalesShipmentBuffer.Reset();
         TempSalesShipmentBuffer.SetRange("Entry No.", 0); // only non-split lines affected
         if not TempSalesShipmentBuffer.FindSet then
             exit;
@@ -962,7 +962,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
                 Finished := TempSalesShipmentBuffer.Next = 0;
                 TempFatturaLine."Line No." += 1;
-                TempFatturaLine.Insert;
+                TempFatturaLine.Insert();
             until Finished or (TempFatturaLine."Document No." <> TempSalesShipmentBuffer."Document No.");
         until Finished;
     end;
@@ -971,7 +971,7 @@ codeunit 12184 "Fattura Doc. Helper"
     var
         MultipleOrders: Boolean;
     begin
-        TempSalesShipmentBuffer.Reset;
+        TempSalesShipmentBuffer.Reset();
         if TempSalesShipmentBuffer.FindSet then begin
             MultipleOrders := TempSalesShipmentBuffer.Count > 1;
             Clear(TempFatturaLine);
@@ -982,7 +982,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 TempFatturaLine."Posting Date" := TempSalesShipmentBuffer."Posting Date";
                 if MultipleOrders then
                     TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
-                TempFatturaLine.Insert;
+                TempFatturaLine.Insert();
             until TempSalesShipmentBuffer.Next = 0;
         end;
     end;
@@ -998,7 +998,7 @@ codeunit 12184 "Fattura Doc. Helper"
         SourceNoNoValue: Text;
     begin
         OriginalFatturaLine := TempFatturaLine;
-        TempFatturaLine.Init;
+        TempFatturaLine.Init();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::"Extended Text");
         if TempFatturaLine.FindLast then
             TempFatturaLine."Line No." := TempFatturaLine."Line No.";
@@ -1042,13 +1042,13 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure InsertShipmentBuffer(var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; IsSplitLine: Boolean)
     begin
-        TempSalesShipmentBuffer.Init;
+        TempSalesShipmentBuffer.Init();
         TempSalesShipmentBuffer."Document No." := ShipmentNo;
         TempSalesShipmentBuffer."Line No." := LineNo;
         TempSalesShipmentBuffer."Posting Date" := ShipmentDate;
         if IsSplitLine then
             TempSalesShipmentBuffer."Entry No." := LineNo; // Mark split line with non-empty "Line No."
-        TempSalesShipmentBuffer.Insert;
+        TempSalesShipmentBuffer.Insert();
     end;
 
     local procedure InsertFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; var DocLineNo: Integer; TempFatturaHeader: Record "Fattura Header" temporary; LineRecRef: RecordRef; PricesIncludingVAT: Boolean)
@@ -1107,7 +1107,7 @@ codeunit 12184 "Fattura Doc. Helper"
             GetVATPostingSetup(VATPostingSetup, LineRecRef);
             TempFatturaLine."VAT Transaction Nature" := VATPostingSetup."VAT Transaction Nature";
         end;
-        TempFatturaLine.Insert;
+        TempFatturaLine.Insert();
 
         if TempFatturaLine.Type <> '' then
             BuildAttachedToLinesExtTextBuffer(TempFatturaLine, LineRecRef);
@@ -1122,7 +1122,7 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."Line No." += 1;
             TempFatturaLine."Ext. Text Source No" := CopyStr(NoValue, 1, 10);
             TempFatturaLine.Description := CopyStr(ExtendedTextValue, 1, MaxStrLen(TempFatturaLine.Description));
-            TempFatturaLine.Insert;
+            TempFatturaLine.Insert();
         end;
     end;
 
@@ -1133,7 +1133,7 @@ codeunit 12184 "Fattura Doc. Helper"
         VATNatureDescription: Text[100];
         VATExemptionDescription: Text[50];
     begin
-        TempFatturaLine.Init;
+        TempFatturaLine.Init();
         TempFatturaLine."Line No." += 1;
         TempFatturaLine."VAT %" := VATEntry."VAT %";
         if TempFatturaLine."VAT %" = 0 then begin
@@ -1154,7 +1154,7 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
         if TempFatturaLine."VAT %" <> 0 then
             TempFatturaLine.Description := GetVATType(VATEntry, IsSplitPayment);
-        TempFatturaLine.Insert;
+        TempFatturaLine.Insert();
     end;
 
     local procedure HasMultipleOrders(var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary) HasMultipleOrders: Boolean

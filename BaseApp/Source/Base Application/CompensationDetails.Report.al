@@ -650,7 +650,7 @@ report 12105 "Compensation Details"
                     SubjectType := Text1036;
 
                 if not Country.Get("Country/Region Code") then
-                    Country.Init;
+                    Country.Init();
             end;
         }
     }
@@ -793,14 +793,14 @@ report 12105 "Compensation Details"
         INAIL__Related_Date_CaptionLbl: Label 'Related Date';
         INAIL__Payment_Date_CaptionLbl: Label 'Payment Date';
         INAIL__Document_Date_CaptionLbl: Label 'Document Date';
-        INAILCaptionLbl: Label 'INAIL', Comment = '{Locked} ';
+        INAILCaptionLbl: Label 'INAIL', Locked = true;
 
     [Scope('OnPrem')]
     procedure SuggDate(DataStart: Date): Date
     var
         Date: Record Date;
     begin
-        Date.Reset;
+        Date.Reset();
 
         Date."Period Type" := Date."Period Type"::Month;
         Date."Period Start" := DataStart;

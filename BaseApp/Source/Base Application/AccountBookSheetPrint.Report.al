@@ -19,9 +19,6 @@ report 12109 "Account Book Sheet - Print"
             column(CompAddr_5_; CompAddr[5])
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CompAddr_3_; CompAddr[3])
             {
             }
@@ -396,19 +393,19 @@ report 12109 "Account Book Sheet - Print"
                     end;
                 Amnt := StartOnHand;
 
-                GLBookEntry.Reset;
+                GLBookEntry.Reset();
                 GLBookEntry.CalcFields(Amount);
                 GLBookEntry.SetRange("G/L Account No.", "No.");
                 GLBookEntry.SetFilter("Posting Date", Format("Date Filter"));
                 GLBookEntry.SetFilter(Amount, '<>0');
                 if (StartOnHand = 0) and GLBookEntry.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 NextRec := true;
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompAddr[1] := CompanyInfo.Name;
                 CompAddr[2] := CompanyInfo.Address;
                 CompAddr[3] := CompanyInfo."Post Code";
@@ -416,7 +413,7 @@ report 12109 "Account Book Sheet - Print"
                 CompAddr[5] := CompanyInfo."Fiscal Code";
                 CompressArray(CompAddr);
 
-                AccPeriod.Reset;
+                AccPeriod.Reset();
                 AccPeriod.SetRange("New Fiscal Year", true);
                 AccPeriod.SetFilter("Starting Date", '<=%1', GetRangeMin("Date Filter"));
                 AccPeriod.FindLast;
@@ -470,11 +467,11 @@ report 12109 "Account Book Sheet - Print"
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
 
         if GLDateFilter <> '' then begin
-          ITReportManagement.CheckSalesDocNoGaps("G/L Account".GetRangeMax("Date Filter"), false);
-          ITReportManagement.CheckPurchDocNoGaps("G/L Account".GetRangeMax("Date Filter"), false);
+            ITReportManagement.CheckSalesDocNoGaps("G/L Account".GetRangeMax("Date Filter"), false);
+            ITReportManagement.CheckPurchDocNoGaps("G/L Account".GetRangeMax("Date Filter"), false);
         end else begin
-          ITReportManagement.CheckSalesDocNoGaps(0D, false);
-          ITReportManagement.CheckPurchDocNoGaps(0D, false);
+            ITReportManagement.CheckSalesDocNoGaps(0D, false);
+            ITReportManagement.CheckPurchDocNoGaps(0D, false);
         end;
     end;
 

@@ -75,9 +75,9 @@ table 255 "VAT Statement Template"
     trigger OnDelete()
     begin
         VATStmtLine.SetRange("Statement Template Name", Name);
-        VATStmtLine.DeleteAll;
+        VATStmtLine.DeleteAll();
         VATStmtName.SetRange("Statement Template Name", Name);
-        VATStmtName.DeleteAll;
+        VATStmtName.DeleteAll();
     end;
 
     trigger OnInsert()

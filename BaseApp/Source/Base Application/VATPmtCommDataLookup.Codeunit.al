@@ -36,10 +36,10 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     [Scope('OnPrem')]
     procedure Init()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GeneralManagerFound := CompanyOfficials.Get(CompanyInformation."General Manager No.");
-        VATReportSetup.Get;
-        GeneralLedgerSetup.Get;
+        VATReportSetup.Get();
+        GeneralLedgerSetup.Get();
     end;
 
     [Scope('OnPrem')]
@@ -131,7 +131,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     procedure GetCommunicationID(): Text[5]
     begin
         VATReportSetup."Spesometro Communication ID" += 1;
-        VATReportSetup.Modify;
+        VATReportSetup.Modify();
         exit(FormatCommunicationId(VATReportSetup."Spesometro Communication ID"));
     end;
 

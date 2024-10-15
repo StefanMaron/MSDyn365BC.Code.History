@@ -19,7 +19,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         // Init
-        DocExchServiceSetup.Init;
+        DocExchServiceSetup.Init();
 
         // Execute
         DocExchServiceSetup.Validate("Service URL", '');
@@ -35,7 +35,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         // Init
-        DocExchServiceSetup.Init;
+        DocExchServiceSetup.Init();
 
         // Execute
         asserterror DocExchServiceSetup.Validate("Service URL", 'http://this is an invalid url');
@@ -51,7 +51,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         // Init
-        DocExchServiceSetup.Init;
+        DocExchServiceSetup.Init();
 
         // Execute
         DocExchServiceSetup.Validate("Service URL", 'https://microsoft.com');
@@ -79,7 +79,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetupCard.Close;
 
         // Validate
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         Assert.AreNotEqual('', DocExchServiceSetup."Service URL", '');
     end;
 
@@ -117,7 +117,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetupCard.Close;
 
         // Verify
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         Assert.IsTrue(DocExchServiceSetup.HasPassword(DocExchServiceSetup.Token), '');
         Assert.IsTrue(DocExchServiceSetup.HasPassword(DocExchServiceSetup."Token Secret"), '');
         Assert.IsTrue(DocExchServiceSetup.HasPassword(DocExchServiceSetup."Consumer Key"), '');
@@ -139,7 +139,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
     begin
         // Init
         if DocExchServiceSetup.Delete(true) then;
-        DocExchServiceSetup.Init;
+        DocExchServiceSetup.Init();
         DocExchServiceSetup.Insert(true);
 
         // Execute

@@ -14,7 +14,7 @@ table 5875 "Phys. Invt. Order Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -42,7 +42,7 @@ table 5875 "Phys. Invt. Order Header"
             trigger OnValidate()
             begin
                 if "Posting Date" <> xRec."Posting Date" then begin
-                    PhysInvtOrderLine.Reset;
+                    PhysInvtOrderLine.Reset();
                     PhysInvtOrderLine.SetRange("Document No.", "No.");
                     PhysInvtOrderLine.SetFilter("Item No.", '<>%1', '');
                     if PhysInvtOrderLine.Find('-') then begin
@@ -57,14 +57,14 @@ table 5875 "Phys. Invt. Order Header"
                             "Posting Date" := xRec."Posting Date";
                             exit;
                         end;
-                        PhysInvtOrderLine.LockTable;
-                        PhysInvtOrderLine.Reset;
+                        PhysInvtOrderLine.LockTable();
+                        PhysInvtOrderLine.Reset();
                         PhysInvtOrderLine.SetRange("Document No.", "No.");
                         if PhysInvtOrderLine.Find('-') then
                             repeat
                                 if PhysInvtOrderLine."Item No." <> '' then begin
                                     PhysInvtOrderLine.ResetQtyExpected;
-                                    PhysInvtOrderLine.Modify;
+                                    PhysInvtOrderLine.Modify();
                                 end;
                             until PhysInvtOrderLine.Next = 0;
                         Modify;
@@ -130,7 +130,7 @@ table 5875 "Phys. Invt. Order Header"
             begin
                 with PhysInvtOrderHeader do begin
                     PhysInvtOrderHeader := Rec;
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -141,7 +141,7 @@ table 5875 "Phys. Invt. Order Header"
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -237,17 +237,17 @@ table 5875 "Phys. Invt. Order Header"
 
         TestField("No. Finished Recordings", 0);
 
-        PhysInvtOrderLine.Reset;
+        PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
         PhysInvtOrderLine.DeleteAll(true);
 
-        PhysInvtCommentLine.Reset;
+        PhysInvtCommentLine.Reset();
         PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Order);
         PhysInvtCommentLine.SetRange("Order No.", "No.");
         PhysInvtCommentLine.SetRange("Recording No.", 0);
-        PhysInvtCommentLine.DeleteAll;
+        PhysInvtCommentLine.DeleteAll();
 
-        PhysInvtRecordHeader.Reset;
+        PhysInvtRecordHeader.Reset();
         PhysInvtRecordHeader.SetRange("Order No.", "No.");
         PhysInvtRecordHeader.DeleteAll(true);
     end;
@@ -256,7 +256,7 @@ table 5875 "Phys. Invt. Order Header"
     var
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
 
         if "No." = '' then begin
             TestNoSeries;
@@ -310,10 +310,10 @@ table 5875 "Phys. Invt. Order Header"
     begin
         with PhysInvtOrderHeader do begin
             PhysInvtOrderHeader := Rec;
-            InvtSetup.Get;
+            InvtSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldPhysInvtOrderHeader."No. Series", "No. Series") then begin
-                InvtSetup.Get;
+                InvtSetup.Get();
                 TestNoSeries;
                 NoSeriesMgt.SetSeries("No.");
                 Rec := PhysInvtOrderHeader;
@@ -364,7 +364,7 @@ table 5875 "Phys. Invt. Order Header"
     begin
         Clear(PhysInvtOrderLine2);
 
-        PhysInvtOrderLine2.Reset;
+        PhysInvtOrderLine2.Reset();
         PhysInvtOrderLine2.SetCurrentKey(
           "Document No.", "Item No.", "Variant Code", "Location Code", "Bin Code");
         PhysInvtOrderLine2.SetRange("Document No.", "No.");
@@ -373,7 +373,7 @@ table 5875 "Phys. Invt. Order Header"
         PhysInvtOrderLine2.SetRange("Location Code", LocationCode);
         PhysInvtOrderLine2.SetRange("Bin Code", BinCode);
         OnGetSamePhysInvtOrderLineOnAfterSetFilters(PhysInvtOrderLine2, Rec);
-        NoOfOrderLines := PhysInvtOrderLine2.Count;
+        NoOfOrderLines := PhysInvtOrderLine2.Count();
 
         case NoOfOrderLines of
             0:
@@ -408,7 +408,7 @@ table 5875 "Phys. Invt. Order Header"
 
     procedure PhysInvtOrderLinesExist(): Boolean
     begin
-        PhysInvtOrderLine.Reset;
+        PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
         exit(PhysInvtOrderLine.FindFirst);
     end;
@@ -422,9 +422,9 @@ table 5875 "Phys. Invt. Order Header"
         if not Confirm(UpdateDimQst) then
             exit;
 
-        PhysInvtOrderLine.Reset;
+        PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
-        PhysInvtOrderLine.LockTable;
+        PhysInvtOrderLine.LockTable();
         if PhysInvtOrderLine.FindSet then
             repeat
                 NewDimSetID := DimManagement.GetDeltaDimSetID(PhysInvtOrderLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -433,7 +433,7 @@ table 5875 "Phys. Invt. Order Header"
                     DimManagement.UpdateGlobalDimFromDimSetID(
                       PhysInvtOrderLine."Dimension Set ID", PhysInvtOrderLine."Shortcut Dimension 1 Code",
                       PhysInvtOrderLine."Shortcut Dimension 2 Code");
-                    PhysInvtOrderLine.Modify;
+                    PhysInvtOrderLine.Modify();
                 end;
             until PhysInvtOrderLine.Next = 0;
     end;

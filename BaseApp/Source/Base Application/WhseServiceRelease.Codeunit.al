@@ -65,11 +65,11 @@ codeunit 5770 "Whse.-Service Release"
         with ServiceHeader do begin
             WhseRqst.Type := WhseRqst.Type::Outbound;
             SetWhseRqstFiltersByStatus(ServiceHeader, WhseRqst, "Release Status"::"Released to Ship");
-            WhseRqst.LockTable;
+            WhseRqst.LockTable();
             if WhseRqst.FindSet then
                 repeat
                     WhseRqst."Document Status" := "Release Status"::Open;
-                    WhseRqst.Modify;
+                    WhseRqst.Modify();
                 until WhseRqst.Next = 0;
         end;
 
@@ -109,7 +109,7 @@ codeunit 5770 "Whse.-Service Release"
                 "Shipping Agent Code" := ServiceHeader."Shipping Agent Code";
                 "Completely Handled" := CalcCompletelyShipped(ServiceLine);
                 OnBeforeCreateWhseRequest(WhseRqst, ServiceHeader, ServiceLine);
-                if not Insert then
+                if not Insert() then
                     Modify;
             end;
         end;

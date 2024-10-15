@@ -58,7 +58,7 @@ codeunit 136900 "Service Reports"
         CreateSalesOrder(SalesHeader, SalesLine);
 
         // 2. Exercise: Generate the Order Confirmation report.
-        Commit;
+        Commit();
         Clear(OrderConfirmation);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
@@ -94,7 +94,7 @@ codeunit 136900 "Service Reports"
         CreateContractWithExpiredLine(ServiceContractHeader2, Customer."No.");
 
         // 2. Exercise: Generate the Service Contract - Customer report.
-        Commit;
+        Commit();
         Clear(ServiceContractCustomer);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.SetFilter(
@@ -130,7 +130,7 @@ codeunit 136900 "Service Reports"
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
 
         // 2. Exercise: Generate the Service Item Worksheet report.
-        Commit;
+        Commit();
         Clear(ServiceItemWorksheet);
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
@@ -167,7 +167,7 @@ codeunit 136900 "Service Reports"
         LibraryService.CreateCommentLineForServHeader(ServiceCommentLine2, ServiceItemLine, ServiceCommentLine2.Type::Resolution);
 
         // 2. Exercise: Generate the Service Item Worksheet report with Show Comments as TRUE.
-        Commit;
+        Commit();
         Clear(ServiceItemWorksheet);
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
@@ -178,11 +178,11 @@ codeunit 136900 "Service Reports"
         // 3. Verify: Check that the Service Item Worksheet is generated properly with Show Comments as TRUE.
         VerifyServiceItemWorksheet(ServiceItemLine, ServiceLine);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Comment_ServCommentLine', ServiceCommentLine1.Comment);
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the Fault');
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Comment1_ServCommentLine', ServiceCommentLine2.Comment);
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the Resolution');
     end;
@@ -207,7 +207,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate the Maintenance Visit - Planning report.
-        Commit;
+        Commit();
         Clear(MaintenanceVisitPlanning);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -241,7 +241,7 @@ codeunit 136900 "Service Reports"
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
 
         // 2. Exercise: Generate the Service Items Out of Warranty report.
-        Commit;
+        Commit();
         Clear(ServiceItemsOutOfWarranty);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemsOutOfWarranty.SetTableView(ServiceItem);
@@ -274,7 +274,7 @@ codeunit 136900 "Service Reports"
         ServiceItem.Get(ServiceItem."No.");
 
         // [WHEN] Run report "Service Item - Resource Usage".
-        Commit;
+        Commit();
         Clear(ServiceItemResourceUsage);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemResourceUsage.SetTableView(ServiceItem);
@@ -307,7 +307,7 @@ codeunit 136900 "Service Reports"
         ServiceItem.Get(ServiceItem."No.");
 
         // [WHEN] Run report "Service Item - Resource Usage" with "Show Details" = TRUE.
-        Commit;
+        Commit();
         Clear(ServiceItemResourceUsage);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItemResourceUsage.SetTableView(ServiceItem);
@@ -435,7 +435,7 @@ codeunit 136900 "Service Reports"
         LibraryResource.CreateResourceNew(Resource);
 
         // 2. Exercise: Generate Service Load Level Report with different options.
-        Commit;
+        Commit();
         Clear(ServiceLoadLevel);
         Resource.SetRange("No.", Resource."No.");
         ServiceLoadLevel.SetTableView(Resource);
@@ -512,7 +512,7 @@ codeunit 136900 "Service Reports"
         UpdateQuantityServiceLine(ServiceLine);
 
         // 2. Exercise: Generate the Service Document - Test report.
-        Commit;
+        Commit();
         Clear(ServiceDocumentTest);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
@@ -538,7 +538,7 @@ codeunit 136900 "Service Reports"
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
 
         // 2. Exercise: Generate the Service Items report.
-        Commit;
+        Commit();
         Clear(ServiceItems);
         ServiceItem.SetRange("No.", ServiceItem."No.");
         ServiceItems.SetTableView(ServiceItem);
@@ -573,7 +573,7 @@ codeunit 136900 "Service Reports"
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
 
         // 2. Exercise: Generate the Dispatch Board report.
-        Commit;
+        Commit();
         Clear(DispatchBoard);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
@@ -612,7 +612,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Sign Service Contract, Generate the Service Contract report.
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(ServiceContract);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -653,7 +653,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Sign Service Contract, Generate the Service Contract report.
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(ContrServOrdersTest);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -693,7 +693,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Generate the Service Items report.
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(ContractGainLossEntries);
         ContractGainLossEntry.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContractGainLossEntry.FindFirst;
@@ -731,7 +731,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Sign Service Contract, Generate the Service Contract report.
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(MaintenancePerformance);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -797,7 +797,7 @@ codeunit 136900 "Service Reports"
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
 
         // 2. Exercise: Generate Service Contract Detail Report.
-        Commit;
+        Commit();
         Clear(ServiceContractDetail);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceContractDetail.SetTableView(ServiceContractHeader);
@@ -926,7 +926,7 @@ codeunit 136900 "Service Reports"
         ServiceContractLine.FindFirst;
         ExpiredContractLinesTest.SetTableView(ServiceContractLine);
         ExpiredContractLinesTest.InitVariables(WorkDate, CreateReasonCode);
-        Commit;
+        Commit();
         ExpiredContractLinesTest.Run;
 
         // 3. Verify: Check that value of Contract Expiration Date in Expired Contract Lines Test matches the value of
@@ -981,7 +981,7 @@ codeunit 136900 "Service Reports"
         UpdateExpirationDateOnHeader(ServiceContractHeader);
 
         // 2. Exercise: Generate Expired Contract Lines Test report.
-        Commit;
+        Commit();
         Clear(ExpiredContractLinesTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -1018,7 +1018,7 @@ codeunit 136900 "Service Reports"
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         AmountsInServiceContractHeader(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
 
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ServiceContractHeader."Contract No.");
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -1039,7 +1039,7 @@ codeunit 136900 "Service Reports"
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceLedgerEntry.FindFirst;
 
-        Commit;
+        Commit();
         ServiceProfitContracts.Run;
 
         // 3. Verify: Check that value of Service Amount LCY in Service Profit Contracts matches the value of
@@ -1077,7 +1077,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate Contract Price Update Test Report.
-        Commit;
+        Commit();
         Clear(ContractPriceUpdateTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ContractPriceUpdateTest.SetTableView(ServiceContractHeader);
@@ -1118,7 +1118,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate Contract Price Update Test Report.
-        Commit;
+        Commit();
         Clear(ContractPriceUpdateTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ContractPriceUpdateTest.SetTableView(ServiceContractHeader);
@@ -1159,7 +1159,7 @@ codeunit 136900 "Service Reports"
         CreateAndPostServiceInvoice(ServiceContractHeader);
 
         // [WHEN] Run report "Prepaid Contr. Entries - Test".
-        Commit;
+        Commit();
         Clear(PrepaidContrEntriesTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
@@ -1269,7 +1269,7 @@ codeunit 136900 "Service Reports"
         CreateCreditMemoFromContract(ServiceContractHeader);
 
         // 2. [WHEN] Run report "Prepaid Contr. Entries - Test".
-        Commit;
+        Commit();
         Clear(PrepaidContrEntriesTest);
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
@@ -1433,7 +1433,7 @@ codeunit 136900 "Service Reports"
           ServiceHeader, ServiceItemLine, ServiceItem, LibrarySales.CreateCustomerNo, ServiceHeader."Document Type"::Order);
 
         // 2. Exercise: Generate the Service Tasks report.
-        Commit;
+        Commit();
         Clear(ServiceTasks);
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
@@ -1472,7 +1472,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Sign Service Contract, Generate the Serv. Contract - Salesperson.
         SignServContractDoc.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(ServContractSalesperson);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -1505,7 +1505,7 @@ codeunit 136900 "Service Reports"
         CreateContractGainLossEntries(ServiceContractHeader2, Customer."No.");
 
         // 2. Exercise: Generate the Contr. Gain/Loss - Resp. Ctr.
-        Commit;
+        Commit();
         Clear(ContrGainLossRespCtr);
         ContractGainLossEntry.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContractGainLossEntry.SetFilter(
@@ -1522,7 +1522,7 @@ codeunit 136900 "Service Reports"
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_ContGnLossEty', ServiceContractHeader."Annual Amount");
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('ContNo_ContGnLossEty', ServiceContractHeader2."Contract No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the contract no');
 
@@ -1848,7 +1848,7 @@ codeunit 136900 "Service Reports"
         CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
 
         // 2. Exercise : Run the Report.
-        Commit;
+        Commit();
         Clear(ServiceOrderReport);
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         ServiceOrderReport.SetTableView(ServiceHeader);
@@ -1895,7 +1895,7 @@ codeunit 136900 "Service Reports"
 
         // 2. Exercise: Generate the Service Items report.
         SignServContractDoc.SignContractQuote(ServiceContractHeader);
-        Commit;
+        Commit();
         Clear(ContractGainLossEntries);
         ContractGainLossEntry.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContractGainLossEntry.FindFirst;
@@ -1929,7 +1929,7 @@ codeunit 136900 "Service Reports"
         CreateAndSignServiceContract(ServiceContractHeader);
         CreateAndSignServiceContract(ServiceContractHeader2);
         // 2. Exercise: Generate Contract Price Update Test Report.
-        Commit;
+        Commit();
         Clear(ContractPriceUpdateTest);
         UpdatePercent := LibraryRandom.RandDecInRange(5, 10, 2);
         ContractPriceUpdateTest.InitVariables(
@@ -1964,7 +1964,7 @@ codeunit 136900 "Service Reports"
         CreateServiceLineWithAllowInvDisc(ServiceLine, ServiceHeader, ServiceItemLineNo, true);
         ExpectedInvDiscAmount :=
           Round(ServiceLine.Amount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision);
-        Commit;
+        Commit();
 
         // [WHEN] Print "Service Document - Test" report
         TestReportPrint.PrintServiceHeader(ServiceHeader);
@@ -1990,7 +1990,7 @@ codeunit 136900 "Service Reports"
         // [GIVEN] Service order with different Sell-to and Ship-to Addresses
         CreateServiceOrderWithSelltoAddress(ServiceHeader);
         FillServiceOrderShiptoAddressValuesAreNotSameSellto(ServiceHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Print "Service Document - Test" report
         TestReportPrint.PrintServiceHeader(ServiceHeader);
@@ -2014,7 +2014,7 @@ codeunit 136900 "Service Reports"
 
         // [GIVEN] Service Order with Dimensions that give long length string
         DimText := CreateServiceOrderWithDimensions(ServiceHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Print "Service Document - Test" report with 'Show Dimensions'
         ServiceHeader.SetRecFilter;
@@ -2045,7 +2045,7 @@ codeunit 136900 "Service Reports"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Reports");
     end;
 
@@ -2462,7 +2462,7 @@ codeunit 136900 "Service Reports"
         RepairStatus: Record "Repair Status";
     begin
         RepairStatus.SetRange("Quote Finished", false);
-        RepairStatus.Init;
+        RepairStatus.Init();
         RepairStatus.FindFirst;
         exit(RepairStatus.Code);
     end;
@@ -2532,7 +2532,7 @@ codeunit 136900 "Service Reports"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Use Contract Cancel Reason", true);
         ServiceMgtSetup.Modify(true);
     end;
@@ -2551,7 +2551,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractQuote: Report "Service Contract Quote";
     begin
-        Commit;
+        Commit();
         Clear(ServiceContractQuote);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Quote);
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
@@ -2565,7 +2565,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractQuoteDetail: Report "Service Contract Quote-Detail";
     begin
-        Commit;
+        Commit();
         Clear(ServiceContractQuoteDetail);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Quote);
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
@@ -2578,7 +2578,7 @@ codeunit 136900 "Service Reports"
     var
         ContractQuotesToBeSigned: Report "Contract Quotes to Be Signed";
     begin
-        Commit;
+        Commit();
         Clear(ContractQuotesToBeSigned);
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Quote);
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -2607,7 +2607,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader: Record "Service Header";
         ServiceQuote: Report "Service Quote";
     begin
-        Commit;
+        Commit();
         Clear(ServiceQuote);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Quote);
         ServiceHeader.SetRange("No.", No);
@@ -2619,7 +2619,7 @@ codeunit 136900 "Service Reports"
     var
         ContractInvoicing: Report "Contract Invoicing";
     begin
-        Commit;
+        Commit();
         Clear(ContractInvoicing);
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContractInvoicing.SetTableView(ServiceContractHeader);
@@ -2692,7 +2692,7 @@ codeunit 136900 "Service Reports"
         ServiceHeader: Record "Service Header";
         ServiceDocumentTest: Report "Service Document - Test";
     begin
-        Commit;
+        Commit();
         Clear(ServiceDocumentTest);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("No.", No);
@@ -2705,14 +2705,14 @@ codeunit 136900 "Service Reports"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
         SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure VerifyCommentOnReport(ServiceCommentLine: Record "Service Comment Line")
     begin
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Comment_ServCommentLine', ServiceCommentLine.Comment);
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the comment');
     end;
@@ -2757,7 +2757,7 @@ codeunit 136900 "Service Reports"
 
     local procedure VerifyServiceContractCustomer(ServiceContractHeader: Record "Service Contract Header")
     begin
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('ContractNo_ServContract', ServiceContractHeader."Contract No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the contract no');
 
@@ -2829,7 +2829,7 @@ codeunit 136900 "Service Reports"
     begin
         ServiceItem.CalcFields("Total Quantity", "Usage (Amount)");
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('No_ServiceItem', ServiceItem."No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the service item no');
 
@@ -2871,7 +2871,7 @@ codeunit 136900 "Service Reports"
     begin
         GetServiceLine(ServiceLine, DocumentType::Quote, DocumentNo);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Type_ServLine', Format(ServiceLine.Type));
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the service Line type');
 

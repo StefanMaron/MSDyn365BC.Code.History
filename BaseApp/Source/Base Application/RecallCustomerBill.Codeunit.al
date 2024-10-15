@@ -9,14 +9,14 @@ codeunit 12170 "Recall Customer Bill"
             exit;
 
         TestField("Payment Method Code");
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         PaymentMethod.Get("Payment Method Code");
         Bill.Get(PaymentMethod."Bill Code");
 
         Bill.TestField("Allow Issue", true);
 
-        CustomerBillLine.Reset;
+        CustomerBillLine.Reset();
         CustomerBillLine.SetRange("Customer Bill No.", "No.");
 
         if UserId <> '' then
@@ -37,7 +37,7 @@ codeunit 12170 "Recall Customer Bill"
             if CustLedgEntry2."Bank Receipt Temp. No." <> CustomerBillLine."Temporary Cust. Bill No." then
                 Error(Text1130013, CustomerBillLine."Temporary Cust. Bill No.");
 
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Customer No.",
               "Document No.",
               "Document Type",
@@ -65,18 +65,18 @@ codeunit 12170 "Recall Customer Bill"
             CustLedgEntry2."Allow Issue" := false;
             CustLedgEntry2."Bank Receipt Issued" := false;
             CustLedgEntry2."Bank Receipt Temp. No." := '';
-            CustLedgEntry2.Modify;
+            CustLedgEntry2.Modify();
 
             // Payment
             CustLedgEntry."Allow Issue" := false;
             CustLedgEntry."Bank Receipt Issued" := false;
             CustLedgEntry."Bank Receipt Temp. No." := GenJnlLine."Document No.";
-            CustLedgEntry.Modify;
+            CustLedgEntry.Modify();
 
             GenJnlPostLine.RunWithCheck(GenJnlLine);
 
             BankReceiptToIssue := BankReceiptToIssue + 1;
-            CustomerBillLine.Delete;
+            CustomerBillLine.Delete();
         until CustomerBillLine.Next = 0;
 
         Window.Close;
@@ -157,7 +157,7 @@ codeunit 12170 "Recall Customer Bill"
         BillPostingGroup: Record "Bill Posting Group";
         BalanceAccountNo: Code[20];
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         IssuedCustomerBillHeader.Get(IssuedCustomerBillLine."Customer Bill No.");
         GetBillCode(IssuedCustomerBillHeader."Payment Method Code");
 
@@ -199,7 +199,7 @@ codeunit 12170 "Recall Customer Bill"
                 if CustLedgEntry2."Customer Bill No." <> IssuedCustomerBillLine."Final Cust. Bill No." then
                     Error(Text1130025, IssuedCustomerBillLine."Final Cust. Bill No.");
 
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.SetFilter("Customer No.", CustLedgEntry2."Customer No.");
                 if CustLedgEntry2."Allow Issue" then
                     CustLedgEntry.SetRange("Document No.", CustLedgEntry2."Bank Receipt Temp. No.");
@@ -223,7 +223,7 @@ codeunit 12170 "Recall Customer Bill"
                 CustLedgEntry."Customer Bill No." := CustLedgEntry2."Customer Bill No.";
                 CustLedgEntry."Bank Receipts List No." := CustLedgEntry2."Bank Receipts List No.";
                 CustLedgEntry."Document Occurrence" := CustLedgEntry2."Document Occurrence";
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
 
                 InitGenJnlLine(BalanceAccountNo);
 
@@ -232,7 +232,7 @@ codeunit 12170 "Recall Customer Bill"
                 CustLedgEntry2."Bank Receipt Temp. No." := '';
                 CustLedgEntry2."Customer Bill No." := '';
                 CustLedgEntry2."Bank Receipts List No." := '';
-                CustLedgEntry2.Modify;
+                CustLedgEntry2.Modify();
 
                 Window.Update(3, GenJnlLine."Document No.");
 
@@ -240,7 +240,7 @@ codeunit 12170 "Recall Customer Bill"
 
                 BankReceiptToIssue := BankReceiptToIssue + 1;
                 IssuedCustomerBillLine."Recall Date" := WorkDate;
-                IssuedCustomerBillLine.Modify;
+                IssuedCustomerBillLine.Modify();
             until IssuedCustomerBillLine.Next = 0;
 
             Message(BillsRecalledMsg, BankReceiptToIssue);

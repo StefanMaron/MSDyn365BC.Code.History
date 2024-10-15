@@ -194,7 +194,7 @@ table 740 "VAT Report Header"
     begin
         TestField(Status, Status::Open);
         VATReportLine.SetRange("VAT Report No.", "No.");
-        VATReportLine.DeleteAll;
+        VATReportLine.DeleteAll();
         RemoveECSLLinesAndRelation;
     end;
 
@@ -231,7 +231,7 @@ table 740 "VAT Report Header"
 
     procedure GetNoSeriesCode(): Code[20]
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("No. Series");
         exit(VATReportSetup."No. Series");
     end;
@@ -282,7 +282,7 @@ table 740 "VAT Report Header"
         case VATReportHeader.Status of
             VATReportHeader.Status::Submitted:
                 begin
-                    VATReportSetup.Get;
+                    VATReportSetup.Get();
                     if not VATReportSetup."Modify Submitted Reports" then
                         Error(Text007, VATReportSetup.TableCaption);
                 end

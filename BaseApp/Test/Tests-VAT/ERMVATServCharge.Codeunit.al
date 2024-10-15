@@ -434,7 +434,6 @@ codeunit 134908 "ERM VAT Serv. Charge"
         CreatePurchaseOrderWithPrepaymentAndServiceCharge(PurchaseHeader, 100, LibraryRandom.RandDecInRange(10, 20, 2));
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, true, true, true);
 
         // [WHEN] Post Prepayment Invoice
         PurchInvHeader.Get(LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader));
@@ -461,7 +460,6 @@ codeunit 134908 "ERM VAT Serv. Charge"
           PurchaseHeader, LibraryRandom.RandDecInRange(50, 100, 2), LibraryRandom.RandDecInRange(10, 20, 2));
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, true, true, true);
 
         // [WHEN] Post Prepayment Invoice
         PurchInvHeader.Get(LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader));
@@ -489,7 +487,6 @@ codeunit 134908 "ERM VAT Serv. Charge"
         ServiceCharge := LibraryRandom.RandDecInRange(10, 20, 2);
         CreatePurchaseOrderWithPrepaymentAndServiceCharge(PurchaseHeader, 100, ServiceCharge);
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, true, true, true);
 
         // [GIVEN] Post Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -527,7 +524,6 @@ codeunit 134908 "ERM VAT Serv. Charge"
         CreatePurchaseOrderWithPrepaymentAndServiceCharge(PurchaseHeader, 100, ServiceCharge);
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, true, true, true);
 
         // [GIVEN] Service Charge = 50 with Min Amount = 1001
         CreateVendInvoiceDiscount(PurchaseHeader."Pay-to Vendor No.", ServiceCharge / 2, PurchaseHeader.Amount + 1);
@@ -563,10 +559,11 @@ codeunit 134908 "ERM VAT Serv. Charge"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Serv. Charge");
     end;
 
@@ -773,7 +770,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         SalesLine: Record "Sales Line";
         AmtIncVat: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindSet;
@@ -797,7 +794,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         PurchaseLine: Record "Purchase Line";
         AmtIncVat: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindSet;
@@ -821,7 +818,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GLEntry: Record "G/L Entry";
         GLVatAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLVatAmount :=
           FindGLEntry(GLEntry."Document Type"::Invoice, DocumentNo, -VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
         Assert.AreNearlyEqual(
@@ -836,7 +833,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GLEntry: Record "G/L Entry";
         GLVatAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
         PurchCrMemoHdr.FindFirst;
         GLVatAmount :=

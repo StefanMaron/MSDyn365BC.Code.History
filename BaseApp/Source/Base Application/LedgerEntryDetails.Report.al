@@ -16,9 +16,6 @@ report 12136 "Ledger Entry Details"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -258,9 +255,9 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if PrevProdOrderNo = "Order No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if DisplayEstimatedCosts("Order No.", "Order Line No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PrevProdOrderNo := "Order No.";
                 end;
 
@@ -382,9 +379,9 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if PrevProdOrderNo = "Order No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not DisplayEstimatedCosts("Order No.", "Order Line No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PrevProdOrderNo := "Order No.";
                 end;
 
@@ -522,7 +519,7 @@ report 12136 "Ledger Entry Details"
                             if "Direct Cost" <> 0 then
                                 RoutingAmt += "Direct Cost"
                             else begin
-                                PurchLine.Reset;
+                                PurchLine.Reset();
                                 PurchLine.SetRange("Prod. Order No.", "Order No.");
                                 PurchLine.SetRange("No.", "Item No.");
                                 if PurchLine.FindFirst then
@@ -530,7 +527,7 @@ report 12136 "Ledger Entry Details"
                             end;
                             RoutingAmt += "Overhead Cost";
                         end else begin
-                            ProdOrdRoutingLine.Reset;
+                            ProdOrdRoutingLine.Reset();
                             ProdOrdRoutingLine.SetRange(Status, ProdOrderLine.Status);
                             ProdOrdRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                             ProdOrdRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Line No.");
@@ -559,9 +556,9 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if PrevProdOrderNo = "Order No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if DisplayEstimatedCosts("Order No.", "Order Line No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PrevProdOrderNo := "Order No.";
                 end;
 
@@ -707,11 +704,11 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if PrevProdOrderNo = "Order No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not "Item Cost History"."Estimated WIP Consumption" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not DisplayEstimatedCosts("Order No.", "Order Line No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PrevProdOrderNo := "Order No.";
                 end;
 
@@ -778,7 +775,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty("Purchase Quantity" + "Production Quantity");
                     Amount := ("Purchase Amount" + "Production Amount") * CompetenceQty / ("Purchase Quantity" + "Production Quantity");
                     TotalLIFOAmt += Amount;
@@ -831,7 +828,7 @@ report 12136 "Ledger Entry Details"
                     CalcCostsRep: Report "Calculate End Year Costs";
                 begin
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty(Quantity);
                     CalcCostsRep.SetStartDateAndRefDate("Item Cost History"."Competence Year");
                     Amount := CalcCostsRep.GetProdAmt(LIFO, false) * CompetenceQty / Quantity;
@@ -842,7 +839,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnPreDataItem()
                 begin
                     if Item."Replenishment System" = Item."Replenishment System"::Purchase then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if StartDateLIFO <> 0D then
                         SetRange("Posting Date", StartDate, "Item Cost History"."Competence Year")
                     else
@@ -884,9 +881,9 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if Item."Replenishment System" <> Item."Replenishment System"::Purchase then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty(Quantity);
 
                     CalcFields("Purchase Amount (Actual)", "Purchase Amount (Expected)");
@@ -902,7 +899,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnPreDataItem()
                 begin
                     if Item."Replenishment System" <> Item."Replenishment System"::Purchase then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if StartDateLIFO <> 0D then
                         SetRange("Posting Date", StartDateLIFO, "Item Cost History"."Competence Year")
                     else
@@ -986,7 +983,7 @@ report 12136 "Ledger Entry Details"
                     CalcCostsRep: Report "Calculate End Year Costs";
                 begin
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty(Quantity);
                     CalcCostsRep.SetStartDateAndRefDate("Item Cost History"."Competence Year");
                     FIFOAmt := CalcCostsRep.GetProdAmt(FIFO, false) * CompetenceQty / Quantity;
@@ -997,7 +994,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnPreDataItem()
                 begin
                     if Item."Replenishment System" = Item."Replenishment System"::Purchase then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     SetRange("Posting Date", StartingDate, "Item Cost History"."Competence Year");
                     EndYearInv := "Item Cost History"."End Year Inventory";
                 end;
@@ -1034,7 +1031,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty(Quantity);
 
                     CalcFields("Purchase Amount (Actual)", "Purchase Amount (Expected)");
@@ -1050,7 +1047,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnPreDataItem()
                 begin
                     if Item."Replenishment System" <> Item."Replenishment System"::Purchase then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     SetCurrentKey("Item No.", "Posting Date");
                     SetRange("Posting Date", StartingDate, "Item Cost History"."Competence Year");
                     EndYearInv := "Item Cost History"."End Year Inventory";
@@ -1085,7 +1082,7 @@ report 12136 "Ledger Entry Details"
                 trigger OnAfterGetRecord()
                 begin
                     if EndYearInv <= 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     CompetenceQty := GetCompetenceQty("Purchase Quantity" + "Production Quantity");
                     FIFOAmt := ("Purchase Amount" + "Production Amount") * CompetenceQty / ("Purchase Quantity" + "Production Quantity");
                     TotalFIFOAmt += FIFOAmt;
@@ -1181,7 +1178,7 @@ report 12136 "Ledger Entry Details"
                     AccountingPeriod: Record "Accounting Period";
                     LastFiscalYearEndDate: Date;
                 begin
-                    AccountingPeriod.Reset;
+                    AccountingPeriod.Reset();
                     AccountingPeriod.SetRange("New Fiscal Year", true);
                     AccountingPeriod.SetFilter("Starting Date", '<=%1', "Item Cost History"."Competence Year");
                     if AccountingPeriod.FindLast then
@@ -1236,7 +1233,7 @@ report 12136 "Ledger Entry Details"
                 TotalExpFIFOAmt := 0;
                 StartingDate := DMY2Date(1, 1, Date2DMY("Competence Year", 3));
                 Item.Get("Item No.");
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.", "Posting Date");
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange("Posting Date", 0D, "Competence Year");
@@ -1359,7 +1356,7 @@ report 12136 "Ledger Entry Details"
     var
         ItemCostingSetup: Record "Item Costing Setup";
     begin
-        ItemCostingSetup.Get;
+        ItemCostingSetup.Get();
         if ItemCostingSetup."Estimated WIP Consumption" then begin
             if ProdOrderLineExist(ProdOrderNo, ProdOrdLineNo) then begin
                 if (ProdOrderLine.Status = ProdOrderLine.Status::Finished) or
@@ -1379,7 +1376,7 @@ report 12136 "Ledger Entry Details"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Entry Type", "Order Type", "Order No.", "Posting Date");
         ItemLedgEntry.SetRange("Posting Date", StartingDate, "Item Cost History"."Competence Year");
         ItemLedgEntry.SetRange("Order No.", ProdOrderNo);
@@ -1399,7 +1396,7 @@ report 12136 "Ledger Entry Details"
     [Scope('OnPrem')]
     procedure ProdOrderLineExist(ProdOrderNo: Code[20]; ProdOrderLineNo: Integer): Boolean
     begin
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetCurrentKey("Prod. Order No.", "Line No.");
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange("Line No.", ProdOrderLineNo);

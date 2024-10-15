@@ -237,7 +237,7 @@ page 12111 "Show Computed Withh. Contrib."
 
     local procedure OKOnPush()
     begin
-        GenJnlLine2.Reset;
+        GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlLine2.SetRange("Line No.", "Line No.");
@@ -251,21 +251,22 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine2.Validate(Amount, GenJnlLine2.Amount + "Withholding Tax Amount" - "Old Withholding Amount" +
                   "Free-Lance Amount" - "Old Free-Lance Amount" +
                   "INAIL Free-Lance Amount" - "Old INAIL Free-Lance Amount");
-            GenJnlLine2.Modify;
+            GenJnlLine2.Modify();
             GenJnlLine2.SetRange("Line No.");
             TmpGenJnlLine.Copy(GenJnlLine2);
 
-            if "Withholding Tax Code" <> ''
+            if ("Withholding Tax Code" <> '') and
+               ("Withholding Tax Amount" <> 0)
             then begin
                 if "Payment Line-Withholding" = 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Copy(GenJnlLine2);
                     if GenJnlLine2.FindLast then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
                 end else begin
-                    GenJnlLine.Reset;
+                    GenJnlLine.Reset();
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "Payment Line-Withholding");
@@ -282,18 +283,18 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine.Validate("Bal. Account No.", "Withholding Account");
 
                 if "Payment Line-Withholding" = 0 then begin
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     "Payment Line-Withholding" := GenJnlLine."Line No.";
                     Modify;
                 end else
-                    GenJnlLine.Modify;
+                    GenJnlLine.Modify();
             end;
 
             if ("Social Security Code" <> '') and
                ("Free-Lance Amount" <> 0)
             then begin
                 if "Payment Line-Soc. Sec." = 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
                     if GenJnlLine2.FindLast then
                         PurchSetup := GenJnlLine2."Line No.";
@@ -312,18 +313,18 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
                 GenJnlLine."Bal. Account No." := "Social Security Acc.";
                 if "Payment Line-Soc. Sec." = 0 then begin
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     "Payment Line-Soc. Sec." := GenJnlLine."Line No.";
                     Modify;
                 end else
-                    GenJnlLine.Modify;
+                    GenJnlLine.Modify();
             end;
 
             if ("Social Security Code" <> '') and
                ("Company Amount" <> 0)
             then begin
                 if "Payment Line-Company" = 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
                     if GenJnlLine2.FindLast then
                         PurchSetup := GenJnlLine2."Line No.";
@@ -347,11 +348,11 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine."Applies-to Doc. No." := '';
 
                 if "Payment Line-Company" = 0 then begin
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     "Payment Line-Company" := GenJnlLine."Line No.";
                     Modify;
                 end else
-                    GenJnlLine.Modify;
+                    GenJnlLine.Modify();
             end;
             "Old Withholding Amount" := "Withholding Tax Amount";
             "Old Free-Lance Amount" := "Free-Lance Amount";
@@ -361,7 +362,7 @@ page 12111 "Show Computed Withh. Contrib."
                ("INAIL Free-Lance Amount" <> 0)
             then begin
                 if "INAIL Payment Line" = 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
                     if GenJnlLine2.FindLast then
                         PurchSetup := GenJnlLine2."Line No.";
@@ -379,18 +380,18 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
                 GenJnlLine."Bal. Account No." := "INAIL Debit Account";
                 if "INAIL Payment Line" = 0 then begin
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     "INAIL Payment Line" := GenJnlLine."Line No.";
                     Modify;
                 end else
-                    GenJnlLine.Modify;
+                    GenJnlLine.Modify();
             end;
 
             if ("INAIL Code" <> '') and
                ("INAIL Company Amount" <> 0)
             then begin
                 if "INAIL Company Payment Line" = 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
                     if GenJnlLine2.FindLast then
                         PurchSetup := GenJnlLine2."Line No.";
@@ -414,11 +415,11 @@ page 12111 "Show Computed Withh. Contrib."
                 GenJnlLine."Applies-to Doc. No." := '';
 
                 if "INAIL Company Payment Line" = 0 then begin
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     "INAIL Company Payment Line" := GenJnlLine."Line No.";
                     Modify;
                 end else
-                    GenJnlLine.Modify;
+                    GenJnlLine.Modify();
             end;
             "Old Free-Lance Amount" := "INAIL Free-Lance Amount";
             Modify;

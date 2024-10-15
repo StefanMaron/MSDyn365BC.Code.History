@@ -29,9 +29,6 @@ report 12160 "Intrastat - Monthly Report"
                 column(STRSUBSTNO_Text002__Intrastat_Jnl__Batch___Statistics_Period__; StrSubstNo(Text002, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
                 {
                 }
@@ -415,7 +412,7 @@ report 12160 "Intrastat - Monthly Report"
                                ("Transport Method" = '') and
                                ("Total Weight" = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             TestField("VAT Registration No.");
                             TestField("Transaction Type");
@@ -439,7 +436,7 @@ report 12160 "Intrastat - Monthly Report"
                             else
                                 SupplUnits := "Intrastat Jnl. Line".Quantity;
 
-                            "Intra - form Buffer".Reset;
+                            "Intra - form Buffer".Reset();
                             if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.", "Intrastat Jnl. Line"."Transaction Type",
                                  "Intrastat Jnl. Line"."Tariff No.", "Intrastat Jnl. Line"."Group Code", "Intrastat Jnl. Line"."Transport Method",
                                  "Intrastat Jnl. Line"."Transaction Specification", CountryOriginCode, "Intrastat Jnl. Line".Area,
@@ -452,14 +449,14 @@ report 12160 "Intrastat - Monthly Report"
                                 "Intra - form Buffer"."Statistical Value" := Round("Intra - form Buffer"."Statistical Value", 1) +
                                   Round("Intrastat Jnl. Line"."Statistical Value", 1);
                                 "Intra - form Buffer".Quantity := "Intra - form Buffer".Quantity + SupplUnits;
-                                "Intra - form Buffer".Modify;
+                                "Intra - form Buffer".Modify();
                             end else begin
                                 "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
                                 "Intra - form Buffer"."Country/Region of Origin Code" := CountryOriginCode;
                                 "Intra - form Buffer".Quantity := SupplUnits;
                                 "Intra - form Buffer"."No." := 0;
                                 "Intra - form Buffer"."User ID" := UserId;
-                                "Intra - form Buffer".Insert;
+                                "Intra - form Buffer".Insert();
                             end;
                         end else begin          // Corrective Entry
                             if "Reference Period" >= "Intrastat Jnl. Batch"."Statistics Period" then
@@ -482,7 +479,7 @@ report 12160 "Intrastat - Monthly Report"
                             "Intra - form Buffer".Quantity := SupplUnits;
                             "Intra - form Buffer"."User ID" := UserId;
                             "Intra - form Buffer"."No." := LineNo;
-                            "Intra - form Buffer".Insert;
+                            "Intra - form Buffer".Insert();
                         end
                         ;
                 end;
@@ -496,8 +493,6 @@ report 12160 "Intrastat - Monthly Report"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
-
                 if "Corrective Entry" then
                     DocType := Text1130000
                 else
@@ -853,7 +848,7 @@ report 12160 "Intrastat - Monthly Report"
             trigger OnPreDataItem()
             begin
                 if "Intrastat Jnl. Batch"."EU Service" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 NoOfRecords := 0;
                 TotRoundAmount := 0;
@@ -883,20 +878,20 @@ report 12160 "Intrastat - Monthly Report"
 
     trigger OnPostReport()
     begin
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
     end;
 
     trigger OnPreReport()
     begin
         BatchNameFilter := "Intrastat Jnl. Line".GetFilter("Journal Batch Name");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
 
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
     end;
 
     var

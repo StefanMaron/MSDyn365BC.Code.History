@@ -42,11 +42,9 @@ table 12182 "Vendor Bill Line"
         {
             Caption = 'Vendor Bill No.';
         }
-        field(20; "Document Type"; Option)
+        field(20; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(21; "Document No."; Code[20])
         {
@@ -200,10 +198,10 @@ table 12182 "Vendor Bill Line"
                 VendLedgEntry."Vendor Bill List" := '';
                 VendLedgEntry."Vendor Bill No." := '';
             end;
-            VendLedgEntry.Modify;
+            VendLedgEntry.Modify();
         end;
         if GetVendBillWithhTax then
-            VendBillWithhTax.Delete;
+            VendBillWithhTax.Delete();
         DeletePaymentFileErrors;
     end;
 
@@ -289,7 +287,7 @@ table 12182 "Vendor Bill Line"
         if VendorBillHeader.Get("Vendor Bill List No.") then;
         if not GetVendBillWithhTax then begin
             if not "Manual Line" then begin
-                CompWithhTax.Reset;
+                CompWithhTax.Reset();
                 CompWithhTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
                 CompWithhTax.SetRange("Vendor No.", "Vendor No.");
                 CompWithhTax.SetRange("Document No.", "Document No.");
@@ -322,7 +320,7 @@ table 12182 "Vendor Bill Line"
                     VendBillWithhTax."Old Free-Lance Amount" := VendBillWithhTax."Free-Lance Amount";
                 end;
             if VendBillWithhTax."Withholding Tax Code" <> '' then
-                VendBillWithhTax.Insert;
+                VendBillWithhTax.Insert();
         end;
         "Withholding Tax Amount" := VendBillWithhTax."Withholding Tax Amount";
         "Social Security Amount" := VendBillWithhTax."Total Social Security Amount";
@@ -344,7 +342,7 @@ table 12182 "Vendor Bill Line"
     [Scope('OnPrem')]
     procedure InitValues()
     begin
-        VendBillWithhTax.Init;
+        VendBillWithhTax.Init();
         VendBillWithhTax."Vendor Bill List No." := "Vendor Bill List No.";
         VendBillWithhTax."Line No." := "Line No.";
         VendBillWithhTax."Document Date" := "Document Date";
@@ -386,8 +384,6 @@ table 12182 "Vendor Bill Line"
             VendorBillWithholdingTax."Total Amount" := ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount";
         VendorBillWithholdingTax."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
         VendorBillWithholdingTax.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
-        if ComputedWithholdingTax."WHT Amount Manual" <> 0 then
-            VendorBillWithholdingTax."Withholding Tax Amount" := ComputedWithholdingTax."WHT Amount Manual";
         VendorBillWithholdingTax."Old Withholding Amount" := VendorBillWithholdingTax."Withholding Tax Amount";
         VendorBillWithholdingTax."Old Free-Lance Amount" := VendorBillWithholdingTax."Free-Lance Amount";
 

@@ -101,7 +101,7 @@ page 5660 "Depreciation Table Lines"
     begin
         TotDepr := 0;
 
-        DeprTableLine.Reset;
+        DeprTableLine.Reset();
         DeprTableLine.SetRange("Depreciation Table Code", DeprCode);
         if DeprTableLine.Find('-') then
             repeat

@@ -163,7 +163,7 @@ page 12175 "Customer Bill Card"
 
                         "Test Report" := true;
                         Modify;
-                        Commit;
+                        Commit();
                         SetRecFilter;
                         REPORT.RunModal(REPORT::"List of Bank Receipts", true, false, Rec);
                         SetRange("No.");

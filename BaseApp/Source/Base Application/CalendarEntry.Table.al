@@ -6,11 +6,9 @@ table 99000757 "Calendar Entry"
 
     fields
     {
-        field(1; "Capacity Type"; Option)
+        field(1; "Capacity Type"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
 
             trigger OnValidate()
             begin
@@ -90,7 +88,7 @@ table 99000757 "Calendar Entry"
                 if ("Ending Time" = 0T) or
                    ("Ending Time" < "Starting Time")
                 then begin
-                    CalendarEntry.Reset;
+                    CalendarEntry.Reset();
                     CalendarEntry.SetRange("Capacity Type", "Capacity Type");
                     CalendarEntry.SetRange("No.", "No.");
                     CalendarEntry.SetRange(Date, Date);

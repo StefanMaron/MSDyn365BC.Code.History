@@ -51,7 +51,7 @@ report 12121 "G/L Book - Print"
             trigger OnAfterGetRecord()
             begin
                 if not PrintCompanyInformations then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -300,7 +300,7 @@ report 12121 "G/L Book - Print"
                 then begin
                     TempGLBookEntry."Entry No." := "Entry No.";
                     TempGLBookEntry."Progressive No." := LastNo;
-                    TempGLBookEntry.Insert;
+                    TempGLBookEntry.Insert();
                 end;
 
                 DebitPage := DebitPage + "Debit Amount";
@@ -314,14 +314,14 @@ report 12121 "G/L Book - Print"
                         repeat
                             GLBookEntry2.Get(TempGLBookEntry."Entry No.");
                             GLBookEntry2."Progressive No." := TempGLBookEntry."Progressive No.";
-                            GLBookEntry2.Modify;
+                            GLBookEntry2.Modify();
                         until TempGLBookEntry.Next = 0;
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                GLBookEntry.Reset;
+                GLBookEntry.Reset();
                 GLBookEntry.SetCurrentKey("Official Date");
                 GLBookEntry.SetFilter("Official Date", '<%1', StartDate);
                 GLBookEntry.SetFilter(Amount, '<>0');
@@ -344,7 +344,7 @@ report 12121 "G/L Book - Print"
                 if ReportType = ReportType::Reprint then begin
                     StartDebit := 0;
                     StartCredit := 0;
-                    GLBookEntry2.Reset;
+                    GLBookEntry2.Reset();
                     GLBookEntry2.SetCurrentKey("Official Date");
                     GLBookEntry2.SetFilter("Official Date", '>=%1&<%2', FiscalYearStartDate, StartDate);
                     if GLBookEntry2.FindSet then
@@ -379,7 +379,7 @@ report 12121 "G/L Book - Print"
                 end;
 
                 if (not CurrReport.Preview) and (ReportType = ReportType::"Final Print") then
-                    TempGLBookEntry.DeleteAll;
+                    TempGLBookEntry.DeleteAll();
             end;
         }
     }
@@ -526,7 +526,7 @@ report 12121 "G/L Book - Print"
         begin
             "From Progressive No.Editable" := ReportType = ReportType::Reprint;
             PrintCompanyInformations := true;
-            CompInfo.Get;
+            CompInfo.Get();
             CompanyInformation[1] := CompInfo.Name;
             CompanyInformation[2] := CompInfo.Address;
             CompanyInformation[3] := CompInfo."Post Code" + '  ' + CompInfo.City + '  ' + CompInfo.County;
@@ -543,7 +543,7 @@ report 12121 "G/L Book - Print"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         LastDate := GLSetup."Last Gen. Jour. Printing Date";
         LastNo := GLSetup."Last General Journal No.";
@@ -564,12 +564,12 @@ report 12121 "G/L Book - Print"
             ReprintInfo."End Date" := EndDate;
             ReprintInfo."Vat Register Code" := '';
             ReprintInfo."First Page Number" := GLSetup."Last Printed G/L Book Page" + 1;
-            ReprintInfo.Insert;
+            ReprintInfo.Insert();
             GLSetup."Last Gen. Jour. Printing Date" := EndDate;
             GLSetup."Last General Journal No." := LastNo;
             GLSetup."Official Debit Amount" := TotalDebit + StartDebit;
             GLSetup."Official Credit Amount" := TotalCredit + StartCredit;
-            GLSetup.Modify;
+            GLSetup.Modify();
             if not Confirm(Text1045, false) then
                 Error('');
             Message(Text1036);
@@ -589,7 +589,7 @@ report 12121 "G/L Book - Print"
         NoSeriesMgt.CheckSalesDocNoGaps(EndDate);
         NoSeriesMgt.CheckPurchDocNoGaps(EndDate);
 
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true);
         AccPeriod.SetFilter("Starting Date", '<=%1', StartDate);
 
@@ -599,7 +599,7 @@ report 12121 "G/L Book - Print"
         if FiscalYearStartDate = StartDate then begin
             GLSetup."Last Printed G/L Book Page" := 0;
             if not CurrReport.Preview and (ReportType = ReportType::"Final Print") then
-                GLSetup.Modify;
+                GLSetup.Modify();
         end;
 
         AccPeriod.SetFilter("Starting Date", '<=%1', EndDate);

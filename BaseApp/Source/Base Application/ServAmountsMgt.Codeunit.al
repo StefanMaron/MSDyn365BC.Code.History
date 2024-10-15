@@ -28,7 +28,7 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
         RoundingLineIsInserted := false;
         GetCurrency(CurrencyCode, Currency);
-        SalesSetup.Get;
+        SalesSetup.Get();
         IsInitialized := true;
     end;
 
@@ -164,9 +164,9 @@ codeunit 5986 "Serv-Amounts Mgt."
               InvPostingBuffer[2].Quantity + InvPostingBuffer[1].Quantity;
             if not InvPostingBuffer[1]."System-Created Entry" then
                 InvPostingBuffer[2]."System-Created Entry" := false;
-            InvPostingBuffer[2].Modify;
+            InvPostingBuffer[2].Modify();
         end else
-            InvPostingBuffer[1].Insert;
+            InvPostingBuffer[1].Insert();
 
         OnAfterUpdateInvPostBuffer(InvPostingBuffer[1]);
     end;
@@ -194,8 +194,8 @@ codeunit 5986 "Serv-Amounts Mgt."
                     "VAT %" := TempVATAmountLine."VAT %";
                 TempVATAmountLineRemainder := TempVATAmountLine;
                 if not TempVATAmountLineRemainder.Find then begin
-                    TempVATAmountLineRemainder.Init;
-                    TempVATAmountLineRemainder.Insert;
+                    TempVATAmountLineRemainder.Init();
+                    TempVATAmountLineRemainder.Insert();
                 end;
 
                 case QtyType of
@@ -290,7 +290,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                           TempVATAmountLineRemainder."VAT Amount" - "Amount Including VAT" + Amount;
                     end;
 
-                TempVATAmountLineRemainder.Modify;
+                TempVATAmountLineRemainder.Modify();
             end;
 
         OnAfterDivideAmount(ServiceHeader, ServiceLine, QtyType, ServLineQty, TempVATAmountLine, TempVATAmountLineRemainder);
@@ -561,11 +561,11 @@ codeunit 5986 "Serv-Amounts Mgt."
         TotalAdjCostLCY := 0;
         if not IsInitialized then
             Initialize(ServHeader."Currency Code");
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
         OldServLine.CalcVATAmountLines(QtyType, ServHeader, OldServLine, TempVATAmountLine, false);
         with ServHeader do begin
-            GLSetup.Get;
-            SalesSetup.Get;
+            GLSetup.Get();
+            SalesSetup.Get();
             GetCurrency("Currency Code", Currency);
             OldServLine.SetRange("Document Type", "Document Type");
             OldServLine.SetRange("Document No.", "No.");
@@ -641,7 +641,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                     end;
                     if InsertServLine then begin
                         NewServLine := ServLine;
-                        if NewServLine.Insert then;
+                        if NewServLine.Insert() then;
                     end;
                     if RoundingLineInserted then
                         LastLineRetrieved := true

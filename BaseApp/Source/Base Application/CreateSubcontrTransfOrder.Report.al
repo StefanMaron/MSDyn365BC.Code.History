@@ -24,7 +24,7 @@ report 12152 "Create Subcontr.Transf. Order"
                         if QtyToPost > 0 then begin
                             TestField("Location Code");
                             InsertTransferHeader("Location Code");
-                            TransferLine.Init;
+                            TransferLine.Init();
                             TransferLine."Document No." := TransferHeader."No.";
                             LineNum := LineNum + 10000;
                             TransferLine."Line No." := LineNum;
@@ -41,7 +41,7 @@ report 12152 "Create Subcontr.Transf. Order"
                             TransferLine."Routing Reference No." := "Routing Reference No.";
                             TransferLine."Work Center No." := "Work Center No.";
                             TransferLine."Operation No." := "Operation No.";
-                            TransferLine.Insert;
+                            TransferLine.Insert();
                         end;
                     end;
                 end;
@@ -69,7 +69,7 @@ report 12152 "Create Subcontr.Transf. Order"
                 PurchOrderNo := CopyStr("Purchase Header".GetFilter("No."), 1, MaxStrLen(PurchOrderNo));
                 if PurchOrderNo = '' then
                     Error(Text1130000);
-                ManufacturingSetup.Get;
+                ManufacturingSetup.Get();
             end;
         }
     }
@@ -106,7 +106,7 @@ report 12152 "Create Subcontr.Transf. Order"
     [Scope('OnPrem')]
     procedure InsertTransferHeader(FromLocationCode: Code[10])
     begin
-        TransferHeader.Reset;
+        TransferHeader.Reset();
         TransferHeader.SetRange("Source Type", TransferHeader."Source Type"::Vendor);
         TransferHeader.SetRange("Source No.", "Purchase Header"."Buy-from Vendor No.");
         TransferHeader.SetRange(Status, TransferHeader.Status::Open);
@@ -116,7 +116,7 @@ report 12152 "Create Subcontr.Transf. Order"
         TransferHeader.SetRange("Transfer-to Code", "Purchase Header"."Subcontracting Location Code");
         TransferHeader.SetRange("Return Order", false);
         if not TransferHeader.FindFirst then begin
-            TransferHeader.Init;
+            TransferHeader.Init();
             TransferHeader."No." := '';
             TransferHeader.Insert(true);
 
@@ -133,7 +133,7 @@ report 12152 "Create Subcontr.Transf. Order"
             TransferHeader."Transfer-to City" := Vendor.City;
             TransferHeader."Transfer-to County" := Vendor.County;
             TransferHeader."Trsf.-from Country/Region Code" := Vendor."Country/Region Code";
-            TransferHeader.Modify;
+            TransferHeader.Modify();
             LineNum := 0;
         end else begin
             TransferLine.SetRange("Document No.", TransferHeader."No.");
@@ -221,7 +221,7 @@ report 12152 "Create Subcontr.Transf. Order"
                             else
                                 InsertTransferHeader(ProdOrderComponent."Location Code");
                         LineNum := LineNum + 10000;
-                        TransferLine.Init;
+                        TransferLine.Init();
                         TransferLine."Document No." := TransferHeader."No.";
                         TransferLine."Line No." := LineNum;
                         TransferLine.Validate("Item No.", ProdOrderComponent."Item No.");
@@ -242,12 +242,12 @@ report 12152 "Create Subcontr.Transf. Order"
                         TransferLine."Routing Reference No." := PurchLine."Routing Reference No.";
                         TransferLine."Work Center No." := PurchLine."Work Center No.";
                         TransferLine."Operation No." := PurchLine."Operation No.";
-                        TransferLine.Insert;
+                        TransferLine.Insert();
                         if ProdOrderComponent."Original Location" = '' then
                             ProdOrderComponent."Original Location" := ProdOrderComponent."Location Code";
                         ProdOrderComponent."Location Code" := TransferHeader."Transfer-to Code";
                         ProdOrderComponent.GetDefaultBin;
-                        ProdOrderComponent.Modify;
+                        ProdOrderComponent.Modify();
                         SubcontractingMgt.TransfSUBOrdCompToSUBTransfOrd(TransferLine, ProdOrderComponent);
                     end else
                         exit(true);
@@ -261,8 +261,8 @@ report 12152 "Create Subcontr.Transf. Order"
     var
         TransfOrderForm: Page "Subcontr. Transfer Order";
     begin
-        Commit;
-        TransferHeader.Reset;
+        Commit();
+        TransferHeader.Reset();
         TransferHeader.SetRecFilter;
         TransfOrderForm.SetTableView(TransferHeader);
         TransfOrderForm.Editable(false);

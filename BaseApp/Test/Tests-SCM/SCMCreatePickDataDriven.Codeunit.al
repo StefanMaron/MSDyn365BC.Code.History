@@ -55,7 +55,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         isInitialized := true;
         AssignNoSeries;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Create Pick Data Driven");
     end;
 
@@ -175,7 +175,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
                     WhseShipmentLine.FindFirst;
                     TempWhseShipmentLine := WhseShipmentLine;
-                    TempWhseShipmentLine.Insert;
+                    TempWhseShipmentLine.Insert();
                     if WhseShipmentLine."Bin Code" = '' then begin
                         GetZoneAndBin(ZoneCode, BinCode, LocationCode, ItemNo, false);
                         if BinCode <> '' then
@@ -215,7 +215,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     WhseInternalPickHeader.Modify(true);
                     LibraryWarehouse.CreateWhseInternalPickLine(WhseInternalPickHeader, WhseInternalPickLine, ItemNo, Qty);
                     TempWhseInternalPickLine := WhseInternalPickLine;
-                    TempWhseInternalPickLine.Insert;
+                    TempWhseInternalPickLine.Insert();
                     CreatePickFromInternalPick(WhseInternalPickHeader);
                     RegisterWhseActivity(
                       WhseActivityLine."Activity Type"::Pick, WhseActivityLine."Source Document"::" ",
@@ -227,7 +227,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     CreateReserveSalesOrder(SalesHeader, SalesLine, ItemNo, LocationCode, Qty, QtyToReserve);
                     LibrarySales.ReleaseSalesDocument(SalesHeader);
                     TempSalesLine := SalesLine;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                     CreateInvtPutPick(WhseActivityLine."Source Document"::"Sales Order", SalesHeader."No.");
                     RegisterWhseActivity(
                       WhseActivityLine."Activity Type"::"Invt. Pick", WhseActivityLine."Source Document"::"Sales Order",
@@ -239,7 +239,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                       TransferHeader, TransferLine, ItemNo, LocationCode, Qty, QtyToReserve);
                     ReleaseTransferDocument.Run(TransferHeader);
                     TempTransferLine := TransferLine;
-                    TempTransferLine.Insert;
+                    TempTransferLine.Insert();
                     CreateInvtPutPick(WhseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
                     RegisterWhseActivity(
                       WhseActivityLine."Activity Type"::"Invt. Pick", WhseActivityLine."Source Document"::"Outbound Transfer",
@@ -253,7 +253,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
                     ProdOrderComponent.FindFirst;
                     TempProdOrderComponent := ProdOrderComponent;
-                    TempProdOrderComponent.Insert;
+                    TempProdOrderComponent.Insert();
                     ProductionOrder.SetHideValidationDialog(true);
                     ProductionOrder.CreatePick(UserId, 0, false, false, false);
                     if not Location."Directed Put-away and Pick" then
@@ -272,7 +272,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
                     ProdOrderComponent.FindFirst;
                     TempProdOrderComponent := ProdOrderComponent;
-                    TempProdOrderComponent.Insert;
+                    TempProdOrderComponent.Insert();
                     CreateInvtPutPick(WhseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.");
                     RegisterWhseActivity(
                       WhseActivityLine."Activity Type"::"Invt. Pick", WhseActivityLine."Source Document"::"Prod. Consumption",
@@ -308,7 +308,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
                     WhseShipmentLine.FindFirst;
                     TempWhseShipmentLine2 := WhseShipmentLine;
-                    TempWhseShipmentLine2.Insert;
+                    TempWhseShipmentLine2.Insert();
                     if WhseShipmentLine."Bin Code" = '' then begin
                         GetZoneAndBin(ZoneCode, BinCode, LocationCode, ItemNo, false);
                         if BinCode <> '' then
@@ -326,20 +326,20 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     WhseInternalPickHeader.Modify(true);
                     LibraryWarehouse.CreateWhseInternalPickLine(WhseInternalPickHeader, WhseInternalPickLine, ItemNo, Qty);
                     TempWhseInternalPickLine2 := WhseInternalPickLine;
-                    TempWhseInternalPickLine2.Insert;
+                    TempWhseInternalPickLine2.Insert();
                 end;
             DocumentType::"Sales Order":
                 begin
                     CreateReserveSalesOrder(SalesHeader, SalesLine, ItemNo, LocationCode, Qty, QtyToReserve);
                     LibrarySales.ReleaseSalesDocument(SalesHeader);
                     TempSalesLine3 := SalesLine;
-                    TempSalesLine3.Insert;
+                    TempSalesLine3.Insert();
                 end;
             DocumentType::"Transfer Order":
                 begin
                     CreateReserveTransferOrder(TransferHeader, TransferLine, ItemNo, LocationCode, Qty, QtyToReserve);
                     TempTransferLine2 := TransferLine;
-                    TempTransferLine2.Insert;
+                    TempTransferLine2.Insert();
                     ReleaseTransferDocument.Run(TransferHeader);
                 end;
             DocumentType::"Rel. Prod. Order", DocumentType::"Rel. Prod. Order - Invt.":
@@ -350,7 +350,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
                     ProdOrderComponent.FindFirst;
                     TempProdOrderComponent2 := ProdOrderComponent;
-                    TempProdOrderComponent2.Insert;
+                    TempProdOrderComponent2.Insert();
                 end;
         end;
     end;
@@ -468,7 +468,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         WarehouseEmployee: Record "Warehouse Employee";
         BinCount: Integer;
     begin
-        Location.Init;
+        Location.Init();
         if not IsDirected then begin
             LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, PickRequired, PickRequired, ShipmentRequired, ShipmentRequired);
             Location."Directed Put-away and Pick" := IsDirected;
@@ -481,14 +481,14 @@ codeunit 137016 "SCM Create Pick Data Driven"
             Location.SetRange("Directed Put-away and Pick", IsDirected);
             Location.FindFirst;
             TempLocation := Location;
-            TempLocation.Insert;
+            TempLocation.Insert();
         end;
 
         Location."Always Create Pick Line" := false;
         Location."Bin Capacity Policy" := Location."Bin Capacity Policy"::"Never Check Capacity";
         Location.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Stockout Warning" := false;
         SalesReceivablesSetup."Credit Warnings" := SalesReceivablesSetup."Credit Warnings"::"No Warning";
         SalesReceivablesSetup.Modify(true);
@@ -664,7 +664,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
     begin
         if Qty <= 0 then
             exit;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup."Components at Location" := LocationCode;
         ManufacturingSetup.Modify(true);
 
@@ -706,7 +706,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         Clear(WhseActivityLine);
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Source Document", SourceDocument);
         WhseActivityLine.SetRange("Source No.", SourceNo);
         WhseActivityLine.SetRange("Whse. Document Type", WhseDocType);
@@ -759,7 +759,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
     begin
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         WhseRequest.SetRange("Source Document", SourceDocument);
         WhseRequest.SetRange("Source No.", SourceNo);
@@ -924,19 +924,19 @@ codeunit 137016 "SCM Create Pick Data Driven"
         // 12. Qty to reserve on final document.
         // Available Qty to Pick = Qty put-away from Purchase Order(s) - Qty on first document - Qty reserved on sales order.
 
-        TempItem.DeleteAll;
-        TempLocation.DeleteAll;
-        TempWhseShipmentLine.DeleteAll;
-        TempWhseShipmentLine2.DeleteAll;
-        TempSalesLine.DeleteAll;
-        TempSalesLine2.DeleteAll;
-        TempSalesLine3.DeleteAll;
-        TempWhseInternalPickLine.DeleteAll;
-        TempWhseInternalPickLine2.DeleteAll;
-        TempProdOrderComponent.DeleteAll;
-        TempProdOrderComponent2.DeleteAll;
-        TempTransferLine.DeleteAll;
-        TempTransferLine2.DeleteAll;
+        TempItem.DeleteAll();
+        TempLocation.DeleteAll();
+        TempWhseShipmentLine.DeleteAll();
+        TempWhseShipmentLine2.DeleteAll();
+        TempSalesLine.DeleteAll();
+        TempSalesLine2.DeleteAll();
+        TempSalesLine3.DeleteAll();
+        TempWhseInternalPickLine.DeleteAll();
+        TempWhseInternalPickLine2.DeleteAll();
+        TempProdOrderComponent.DeleteAll();
+        TempProdOrderComponent2.DeleteAll();
+        TempTransferLine.DeleteAll();
+        TempTransferLine2.DeleteAll();
         MultipleReservations := MultipleResFactor;
 
         SetupLocation(Location, IsDirected, RequireShip, RequirePick, BinMandatory);
@@ -1031,7 +1031,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             SetupTestDataLine(Location, DocumentType::"Rel. Prod. Order - Invt.",
               DocumentType::"Rel. Prod. Order - Invt.", true, 10, 5, 2, 0, 1, 1, 3, 0);
         end;
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -1045,7 +1045,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
     begin
         LibraryInventory.CreateItem(Item);
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
 
         AllocatedQty := 0;
         for DocCount := 1 to MultipleReservations do begin
@@ -1059,7 +1059,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         CreateReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, SecondDocQty, SecondDocQtyReserved);
         if SecondDocQty > 0 then begin
             TempSalesLine2 := SalesLine;
-            TempSalesLine2.Insert;
+            TempSalesLine2.Insert();
         end;
         ProcessFinalDemand(FinalDocumentType, Item."No.", Location.Code, FinalDocQty, FinalDocQtyReserved);
     end;
@@ -1089,14 +1089,14 @@ codeunit 137016 "SCM Create Pick Data Driven"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Transfer Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup."Inventory Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup."Inventory Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup."Posted Transfer Shpt. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup.Modify(true);
 
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup."Whse. Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup."Whse. Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
@@ -1104,17 +1104,17 @@ codeunit 137016 "SCM Create Pick Data Driven"
         WarehouseSetup."Whse. Internal Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup.Modify(true);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup."Released Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         ManufacturingSetup."Production BOM Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         ManufacturingSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         PurchasesPayablesSetup."Posted Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode;
@@ -1140,7 +1140,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             Location."Bin Capacity Policy" := TempLocation."Bin Capacity Policy";
             Location.Modify(true);
         end;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup."Components at Location" := '';
         ManufacturingSetup.Modify(true);
     end;

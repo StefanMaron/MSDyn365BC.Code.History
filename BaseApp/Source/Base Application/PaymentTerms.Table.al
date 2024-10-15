@@ -124,11 +124,14 @@ table 3 "Payment Terms"
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SetLastModifiedDateTime;
         FilterPaymentLines;
         if PaymentTermsLine.Find('-') then
             Error(Text000, Code);
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     var
@@ -152,7 +155,7 @@ table 3 "Payment Terms"
     [Scope('OnPrem')]
     procedure FilterPaymentLines()
     begin
-        PaymentTermsLine.Reset;
+        PaymentTermsLine.Reset();
         PaymentTermsLine.SetRange(PaymentTermsLine."Sales/Purchase", 0);
         PaymentTermsLine.SetRange(PaymentTermsLine.Type, PaymentTermsLine.Type::"Payment Terms");
         PaymentTermsLine.SetRange(PaymentTermsLine.Code, Code);

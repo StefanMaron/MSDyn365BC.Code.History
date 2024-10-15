@@ -147,7 +147,7 @@ page 12181 "Subform Issued Cust.Bill Lines"
                     IssuedCustomerBillLine."Recalled by" := UserId
                 else
                     IssuedCustomerBillLine."Recalled by" := '***';
-            IssuedCustomerBillLine.Modify;
+            IssuedCustomerBillLine.Modify();
         end;
     end;
 }

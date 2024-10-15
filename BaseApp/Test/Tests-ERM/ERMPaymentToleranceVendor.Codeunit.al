@@ -1,5 +1,6 @@
 codeunit 134003 "ERM Payment Tolerance Vendor"
 {
+    Permissions = TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -712,7 +713,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         // Setup: Create Two Currencies. Update General Ledger Setup. Create and Post General Journal Lines of Invoice and
         // Payment Type for a Vendor. Take Random Amounts. Make Payment less than Invoice Amount to create rounding Entry.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         UpdateAppRndgPrecisionCurrency(CurrencyCode2);
@@ -825,7 +826,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        Commit;
+        Commit();
     end;
 
     local procedure BeforeDiscountDateEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
@@ -833,7 +834,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         DeltaAssert: Codeunit "Delta Assert";
     begin
         // Watch Expected Discount value calculated as per Delta amount.
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         WatchPaymentDiscountAmount(DeltaAssert, DocumentNo, Amount);
 
         // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
@@ -964,17 +965,17 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
 
     local procedure GetDiscountPercent(): Decimal
     var
-        PaymentLines: Record "Payment Lines";
+        PaymentTerms: Record "Payment Terms";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
-        exit(PaymentLines."Discount %");
+        PaymentTerms.Get(GetPaymentTerms);
+        exit(PaymentTerms."Discount %");
     end;
 
     local procedure GetPaymentTolerancePercent(): Decimal
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Payment Tolerance %");
     end;
 
@@ -982,7 +983,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 
@@ -990,16 +991,16 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", GetDueDate));
     end;
 
     local procedure GetDueDate(): Date
     var
-        PaymentLines: Record "Payment Lines";
+        PaymentTerms: Record "Payment Terms";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
-        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
+        PaymentTerms.Get(GetPaymentTerms);
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
     end;
 
     local procedure UpdateAppRndgPrecisionCurrency(CurrencyCode: Code[10])
@@ -1047,7 +1048,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", PaymentDiscountGracePeriod);
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerance);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
@@ -1106,7 +1107,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         Assert: Codeunit Assert;
         AdditionalCurrencyAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         Currency.InitRoundingPrecision;
 

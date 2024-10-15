@@ -294,7 +294,7 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Fiscal Code");

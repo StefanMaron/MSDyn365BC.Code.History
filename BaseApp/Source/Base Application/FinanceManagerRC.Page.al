@@ -72,6 +72,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Returns';
                         RunObject = page "VAT Report List";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("VAT Report")
                     {
@@ -130,6 +133,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Disk...';
                             RunObject = report "VAT- VIES Declaration Disk";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Day Book VAT Entry")
                         {

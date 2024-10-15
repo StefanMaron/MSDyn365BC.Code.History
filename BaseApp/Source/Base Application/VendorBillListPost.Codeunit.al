@@ -51,7 +51,7 @@ codeunit 12173 "Vendor Bill List - Post"
         with VendorBillHeader do begin
             CheckVendorBill(VendorBillHeader, BillPostingGroup, BillCode);
 
-            VendorBillLine.Reset;
+            VendorBillLine.Reset();
             VendorBillLine.SetRange("Vendor Bill List No.", "No.");
             if not VendorBillLine.Find('-') then
                 Error(NothingToPostErr);
@@ -109,7 +109,7 @@ codeunit 12173 "Vendor Bill List - Post"
             Delete(true);
 
             Window.Close;
-            Commit;
+            Commit();
 
             OnAfterPost(VendorBillHeader);
         end;
@@ -133,23 +133,23 @@ codeunit 12173 "Vendor Bill List - Post"
 
     local procedure InsertPostedBillHeader(var PostedVendorBillHeader: Record "Posted Vendor Bill Header"; VendorBillHeader: Record "Vendor Bill Header"; ListNo: Code[20]; BillNo: Code[20])
     begin
-        PostedVendorBillHeader.Init;
+        PostedVendorBillHeader.Init();
         PostedVendorBillHeader.TransferFields(VendorBillHeader);
         PostedVendorBillHeader."No." := ListNo;
         PostedVendorBillHeader."Temporary Bill No." := BillNo;
         PostedVendorBillHeader."User ID" := UserId;
-        PostedVendorBillHeader.Insert;
+        PostedVendorBillHeader.Insert();
     end;
 
     local procedure InsertPostedBillLine(VendorBillLine: Record "Vendor Bill Line"; BillNo: Code[20]; ListNo: Code[20])
     var
         PostedVendorBillLine: Record "Posted Vendor Bill Line";
     begin
-        PostedVendorBillLine.Init;
+        PostedVendorBillLine.Init();
         PostedVendorBillLine.TransferFields(VendorBillLine);
         PostedVendorBillLine."Vendor Bill No." := BillNo;
         PostedVendorBillLine."Vendor Bill List No." := ListNo;
-        PostedVendorBillLine.Insert;
+        PostedVendorBillLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -330,7 +330,7 @@ codeunit 12173 "Vendor Bill List - Post"
         if VendorBillLine."Amount to Pay" + VendorBillLine."Withholding Tax Amount" <> VendorBillLine."Remaining Amount" then begin
             VendLedgEntry."Vendor Bill List" := '';
             VendLedgEntry."Vendor Bill No." := '';
-            VendLedgEntry.Modify;
+            VendLedgEntry.Modify();
         end;
     end;
 

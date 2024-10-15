@@ -41,11 +41,9 @@ table 12184 "Posted Vendor Bill Line"
         {
             Caption = 'Vendor Bill List No.';
         }
-        field(20; "Document Type"; Option)
+        field(20; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(21; "Document No."; Code[20])
         {

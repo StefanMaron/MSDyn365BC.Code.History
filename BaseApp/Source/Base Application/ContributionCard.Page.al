@@ -225,7 +225,7 @@ page 12114 "Contribution Card"
 
                     trigger OnAction()
                     begin
-                        Contributi.Reset;
+                        Contributi.Reset();
                         Contributi.SetFilter("Social Security Code", '<>%1', '');
                         PAGE.RunModal(PAGE::"Contribution List", Contributi);
                     end;
@@ -239,7 +239,7 @@ page 12114 "Contribution Card"
 
                     trigger OnAction()
                     begin
-                        Contributi.Reset;
+                        Contributi.Reset();
                         Contributi.SetFilter("INAIL Code", '<>%1', '');
                         PAGE.RunModal(PAGE::"Contribution List", Contributi);
                     end;
@@ -272,7 +272,7 @@ page 12114 "Contribution Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Vendor.Init;
+        Vendor.Init();
     end;
 
     var

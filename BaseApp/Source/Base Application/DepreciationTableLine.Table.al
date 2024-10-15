@@ -76,7 +76,7 @@ table 5643 "Depreciation Table Line"
     var
         DeprTableHeader: Record "Depreciation Table Header";
     begin
-        LockTable;
+        LockTable();
         DeprTableHeader.Get("Depreciation Table Code");
     end;
 

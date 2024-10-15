@@ -9595,9 +9595,6 @@ End Function
         <Field Name="STRSUBSTNO_Text002__Intrastat_Jnl__Batch___Statistics_Period__">
           <DataField>STRSUBSTNO_Text002__Intrastat_Jnl__Batch___Statistics_Period__</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>

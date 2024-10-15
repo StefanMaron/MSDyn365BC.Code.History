@@ -55,7 +55,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         OnBeforeCancelIssuedReminder(IssuedReminderHeader);
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField(Reminder);
         ReminderSourceCode := SourceCodeSetup.Reminder;
         ReminderTerms.Get(IssuedReminderHeader."Reminder Terms Code");
@@ -103,7 +103,7 @@ codeunit 1393 "Cancel Issued Reminder"
               IssuedReminderHeader."Customer No.", true, DocumentNo, PostingDate);
             TempGenJnlLine.Validate(Amount, TotalAmount);
             TempGenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-            TempGenJnlLine.Insert;
+            TempGenJnlLine.Insert();
         end;
 
         if FeePosted then
@@ -172,7 +172,7 @@ codeunit 1393 "Cancel Issued Reminder"
         ReminderFinChargeEntry.SetRange("Customer Entry No.", IssuedReminderLine."Entry No.");
         if ReminderFinChargeEntry.FindFirst then begin
             ReminderFinChargeEntry.Canceled := true;
-            ReminderFinChargeEntry.Modify;
+            ReminderFinChargeEntry.Modify();
         end;
     end;
 
@@ -182,7 +182,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         CustLedgerEntry.Get(EntryNo);
         CustLedgerEntry."Last Issued Reminder Level" := CustLedgerEntry."Last Issued Reminder Level" - 1;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure InsertGenJnlLineForFee(IssuedReminderHeader: Record "Issued Reminder Header"; var IssuedReminderLine: Record "Issued Reminder Line"; DocumentNo: Code[20]; PostingDate: Date)
@@ -203,7 +203,7 @@ codeunit 1393 "Cancel Issued Reminder"
                 TotalAmount := TotalAmount - TempGenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine."Bill-to/Pay-to No." := IssuedReminderHeader."Customer No.";
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             end;
     end;
 
@@ -263,7 +263,7 @@ codeunit 1393 "Cancel Issued Reminder"
         if UseSameDocumentNo then
             DocumentNo := IssuedReminderHeader."No."
         else begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Canceled Issued Reminder Nos.");
             DocumentNo := NoSeriesManagement.GetNextNo(SalesSetup."Canceled Issued Reminder Nos.", PostingDate, true);
         end;
@@ -278,7 +278,7 @@ codeunit 1393 "Cancel Issued Reminder"
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
             until TempGenJnlLine.Next() = 0;
 
-        TempGenJnlLine.DeleteAll;
+        TempGenJnlLine.DeleteAll();
     end;
 
     procedure SetParameters(NewUseSameDocumentNo: Boolean; NewUseSamePostingDate: Boolean; PostingDate: Date; NewSkipShowNotification: Boolean)
@@ -297,7 +297,7 @@ codeunit 1393 "Cancel Issued Reminder"
         IssuedReminderHeader."Canceled By" := UserId;
         IssuedReminderHeader."Canceled Date" := Today;
         IssuedReminderHeader."Canceled By Document No." := DocumentNo;
-        IssuedReminderHeader.Modify;
+        IssuedReminderHeader.Modify();
 
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
         IssuedReminderLine.ModifyAll(Canceled, true);

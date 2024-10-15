@@ -251,7 +251,7 @@ report 99000756 "Detailed Calculation"
                     while ProdBOMLine[Level].Next = 0 do begin
                         Level := Level - 1;
                         if Level < 1 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         ProdBOMLine[Level].SetRange("Production BOM No.", PBOMNoList[Level]);
                         ProdBOMLine[Level].SetRange("Version Code", PBOMVersionCode[Level]);
                     end;
@@ -303,7 +303,7 @@ report 99000756 "Detailed Calculation"
                 trigger OnPreDataItem()
                 begin
                     if Item."Production BOM No." = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Clear(CostTotal);
                     Level := 1;
@@ -374,7 +374,7 @@ report 99000756 "Detailed Calculation"
                 if ("Production BOM No." = '') and
                    ("Routing No." = '')
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CostTotal := 0;
 
@@ -438,7 +438,7 @@ report 99000756 "Detailed Calculation"
 
     trigger OnInitReport()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
     end;
 
     var

@@ -1,4 +1,4 @@
-﻿page 30 "Item Card"
+page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
@@ -149,6 +149,24 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies how many units, such as pieces, boxes, or cans, of the item are in inventory.';
                     Visible = IsFoundationEnabled;
+
+                    trigger OnAssistEdit()
+                    var
+                        AdjustInventory: Page "Adjust Inventory";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+
+                        if RecRef.IsDirty() then begin
+                            Modify(true);
+                            Commit();
+                        end;
+
+                        AdjustInventory.SetItem("No.");
+                        if AdjustInventory.RunModal() in [ACTION::LookupOK, ACTION::OK] then
+                            Get("No.");
+                        CurrPage.Update()
+                    end;
                 }
                 field(InventoryNonFoundation; Inventory)
                 {
@@ -172,7 +190,7 @@
                 }
                 field("Qty. on Component Lines"; "Qty. on Component Lines")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item are allocated as production order components, meaning listed under outstanding production order lines.';
                 }
                 field("Qty. on Sales Order"; "Qty. on Sales Order")
@@ -255,6 +273,12 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item.';
+                }
+                field("Over-Receipt Code"; "Over-Receipt Code")
+                {
+                    ApplicationArea = All;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies the policy that will be used for the item if more items than ordered are received.';
                 }
             }
             group("Costs & Posting")
@@ -473,6 +497,9 @@
                     Caption = 'Special Sales Prices & Discounts';
                     Editable = false;
                     ToolTip = 'Specifies special prices and line discounts for the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnDrillDown()
                     var
@@ -641,7 +668,7 @@
                         var
                             BOMComponent: Record "BOM Component";
                         begin
-                            Commit;
+                            Commit();
                             BOMComponent.SetRange("Parent Item No.", "No.");
                             PAGE.Run(PAGE::"Assembly BOM", BOMComponent);
                             CurrPage.Update;
@@ -833,7 +860,7 @@
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationCalculationEditable;
-                    ToolTip = 'Specifies the date formula for calculating the expiration date on the item tracking line. Note: This field will be ignored if the involved item has Require Expiration Date Entry set to Yes on the Item Tracking Code page.';
+                    ToolTip = 'Specifies the formula for calculating the expiration date on the item tracking line.';
 
                     trigger OnValidate()
                     begin
@@ -1007,7 +1034,7 @@
                     var
                         AdjustInventory: Page "Adjust Inventory";
                     begin
-                        Commit;
+                        Commit();
                         AdjustInventory.SetItem("No.");
                         AdjustInventory.RunModal;
                     end;
@@ -1368,6 +1395,9 @@
                     Ellipsis = true;
                     Image = ApplyTemplate;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1383,6 +1413,9 @@
                     Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Save the item card as a template that can be reused to create new item cards. Item templates contain preset information to help you fill in fields on item cards.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1820,11 +1853,11 @@
                         Caption = 'Unit of Measure';
                         Image = UnitOfMeasure;
                         RunObject = Page "Item Availability by UOM";
-                        RunPageLink = "No." = FIELD ("No."),
-                                      "Global Dimension 1 Filter" = FIELD ("Global Dimension 1 Filter"),
-                                      "Global Dimension 2 Filter" = FIELD ("Global Dimension 2 Filter"),
-                                      "Location Filter" = FIELD ("Location Filter"),
-                                      "Drop Shipment Filter" = FIELD ("Drop Shipment Filter"),
+                        RunPageLink = "No." = FIELD("No."),
+                                      "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
+                                      "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
+                                      "Location Filter" = FIELD("Location Filter"),
+                                      "Drop Shipment Filter" = FIELD("Drop Shipment Filter"),
                                       "Variant Filter" = FIELD("Variant Filter");
                         ToolTip = 'View the item''s availability by a unit of measure.';
                     }
@@ -2286,6 +2319,7 @@
         SetNoFieldVisible;
         IsSaaS := EnvironmentInfo.IsSaaS;
         DescriptionFieldVisible := true;
+        SetOverReceiptControlsVisibility;
 
         OnAfterOnOpenPage;
     end;
@@ -2367,8 +2401,9 @@
         IsNonInventoriable: Boolean;
         IsInventoriable: Boolean;
         ExpirationCalculationEditable: Boolean;
+        OverReceiptAllowed: Boolean;
 
-    local procedure EnableControls()
+    procedure EnableControls()
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -2419,7 +2454,7 @@
         if IsNonInventoriableType then
             "Stockout Warning" := "Stockout Warning"::No;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         ShowStockoutWarningDefaultYes := SalesSetup."Stockout Warning";
         ShowStockoutWarningDefaultNo := not ShowStockoutWarningDefaultYes;
 
@@ -2431,11 +2466,11 @@
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         if "Base Unit of Measure" <> '' then begin
-            ItemUnitOfMeasure.Init;
+            ItemUnitOfMeasure.Init();
             ItemUnitOfMeasure."Item No." := "No.";
             ItemUnitOfMeasure.Validate(Code, "Base Unit of Measure");
             ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-            ItemUnitOfMeasure.Insert;
+            ItemUnitOfMeasure.Insert();
         end;
     end;
 
@@ -2443,7 +2478,7 @@
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         ShowPreventNegInventoryDefaultYes := InventorySetup."Prevent Negative Inventory";
         ShowPreventNegInventoryDefaultNo := not ShowPreventNegInventoryDefaultYes;
     end;
@@ -2531,6 +2566,7 @@
         OnAfterInitControls();
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
@@ -2589,6 +2625,13 @@
     begin
         // allow customers to edit expiration date to remove it if the item has no item tracking code
         ExpirationCalculationEditable := ItemTrackingCodeUsesExpirationDate or ("Expiration Calculation" <> EmptyDateFormula);
+    end;
+
+    local procedure SetOverReceiptControlsVisibility()
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        OverReceiptAllowed := OverReceiptMgt.IsOverReceiptAllowed();
     end;
 
     [IntegrationEvent(TRUE, false)]

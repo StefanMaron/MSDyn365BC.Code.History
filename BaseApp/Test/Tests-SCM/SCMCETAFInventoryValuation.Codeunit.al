@@ -45,7 +45,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Inventory Valuation");
@@ -80,7 +80,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Purchase component items.
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, CompItem, '', '', (Qty * QtyPer) / 2, Day1, CompItem."Standard Cost", true, false);
         LibraryPatterns.POSTPurchaseOrder(
-          PurchaseHeader1, CompItem, '', '', (Qty * QtyPer) / 2 + 1, Day1, CompItem."Standard Cost", true, false);
+          PurchaseHeader1, CompItem, '', '', (Qty * QtyPer) / 2 + 1, Day1 + 30, CompItem."Standard Cost", true, false);
 
         // Post consumption.
         LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, Day1 + 5, '', '', Qty * QtyPer, 0);
@@ -145,7 +145,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
           CompItem."Costing Method"::Standard, Day1, Qty, QtyPer);
         SubassemblyItem.Get(SubassemblyItem."No.");
         SubassemblyItem.Validate("Replenishment System", SubassemblyItem."Replenishment System"::"Prod. Order");
-        SubassemblyItem.Modify;
+        SubassemblyItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompItem."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), 0, 0, '');
 
@@ -311,9 +311,9 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Invoice the purchase order at a different cost.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Posting Date", Day1);
+        PurchaseHeader.Validate("Posting Date", Day1 + 15);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
@@ -351,7 +351,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
         LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
 
         // Post purchase.
@@ -366,9 +366,9 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Invoice the purchase order at a different cost.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Posting Date", Day1);
+        PurchaseHeader.Validate("Posting Date", Day1 + 15);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
@@ -456,7 +456,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, Location.Code, '', Qty, Day1, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -532,7 +532,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
@@ -547,7 +547,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty - 3, 0, TempItemLedgerEntry."Entry No.");
         ItemJournalLine.Validate("Inventory Value (Revalued)",
           ItemJournalLine."Inventory Value (Calculated)" + LibraryRandom.RandDec(10, 2));
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Adjust.
@@ -623,7 +623,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
 
         // Post purchase.
         Qty := LibraryRandom.RandInt(20);
@@ -713,7 +713,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location."Bin Mandatory" := true;
-        Location.Modify;
+        Location.Modify();
         LibraryWarehouse.CreateBin(Bin1, Location.Code, '', '', '');
         LibraryWarehouse.CreateBin(Bin2, Location.Code, '', '', '');
 
@@ -724,7 +724,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '',
           Qty, Day1 + 4, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Bin Code", Bin2.Code);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Post reclassification from bin 2 to bin 1.
@@ -746,6 +746,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ValCostAmountActualFIFO()
     var
@@ -755,6 +756,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ValCostAmountActualLIFO()
     var
@@ -764,6 +766,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ValCostAmountActualSTD()
     var
@@ -773,6 +776,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ValCostAmountActualAVG()
     var
@@ -783,11 +787,43 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
     [Normal]
     local procedure ValuateCostAmountActual(CostingMethod: Option)
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        PurchaseHeader: Record "Purchase Header";
+        Day1: Date;
+        Qty: Decimal;
     begin
-        // no series issue prohibits posting.
+        Initialize;
+        Day1 := WorkDate;
+
+        // Setup the item.
+        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryRandom.RandDec(100, 2), 0, LibraryRandom.RandInt(10), '');
+
+        Qty := LibraryRandom.RandInt(20);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, Day1, Item."Unit Cost", true, true);
+        Clear(SalesHeader);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 7, Item."Unit Cost", true, false);
+
+        // Undo shipment and then repost.
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 5 * Qty, Day1 + 14, Item."Unit Cost", true, true);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 21, Item."Unit Cost", true, true);
+
+        // Adjust.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // Verify.
+        LibraryCosting.CheckAdjustment(Item);
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CostingManufFIFO()
     var
@@ -797,6 +833,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CostingManufLIFO()
     var
@@ -806,6 +843,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CostingManufSTD()
     var
@@ -815,6 +853,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CostingManufAVG()
     var
@@ -832,8 +871,9 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         CalcInventoryValueCheck: Codeunit "Calc. Inventory Value-Check";
     begin
         // [FEATURE] [Calculate Inventory Value]
-        // [SCENARIO] Calculate Inventory Value can be run with Location Filter and Variant Filter longer than 10 characters
+        // [SCENARIO 378236] Calculate Inventory Value can be run with Location Filter and Variant Filter longer than 10 characters
 
+        Initialize;
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Set filters on Calculate Inventory Value. Fields Location Filter and Variant Filter, both filters longer than 10 characters
@@ -842,6 +882,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
 
         // [WHEN] Run Inventory Valuation - Check
+        CalcInventoryValueCheck.SetProperties(WorkDate, 0, true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification competed without errors
@@ -888,8 +929,84 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
     [Normal]
     local procedure CostingManufacturing(CostingMethod: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ProductionOrder: Record "Production Order";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
+        Status: Option Quote,Planned,"Firm Planned",Released,Finished;
+        Day1: Date;
+        Qty: Decimal;
+        QtyPer: Decimal;
     begin
-        // no series issue prohibits posting.
+        Initialize;
+        Day1 := WorkDate;
+
+        // Setup the items.
+        Qty := LibraryRandom.RandDec(100, 2);
+        QtyPer := LibraryRandom.RandInt(10);
+        LibraryPatterns.MAKEItemSimple(ParentItem, CostingMethod, 0);
+        LibraryPatterns.MAKEItemSimple(ChildItem, CostingMethod, 0);
+        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
+
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader1, ChildItem, '', '', Qty * QtyPer, Day1,
+          LibraryRandom.RandDec(100, 2), true, false);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader2, ChildItem, '', '', Qty * QtyPer, Day1 + 1,
+          LibraryRandom.RandDec(100, 2), true, false);
+
+        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', Qty, Day1 + 5);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst;
+        LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, Day1 + 2, '', '', Qty * QtyPer, 0);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // Post output.
+        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 3, Qty, 0);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
+
+        // Undo output.
+        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 4, -Qty, 0);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindFirst;
+        ItemJournalLine.Validate("Applies-to Entry", TempItemLedgerEntry."Entry No.");
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // Post output again.
+        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 5, 2 * Qty, 0);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // Finish prod. order.
+        ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, Status::Finished, Day1 + 5, false);
+
+        // Invoice the receipts.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, false, true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, false, true);
+
+        // Adjust.
+        LibraryCosting.AdjustCostItemEntries(ChildItem."No." + '|' + ParentItem."No.", '');
+
+        // Sell.
+        LibraryPatterns.POSTSalesOrder(SalesHeader, ParentItem, '', '', 2 * Qty, Day1 + 14, 0, true, true);
+
+        // Adjust.
+        LibraryCosting.AdjustCostItemEntries(ChildItem."No." + '|' + ParentItem."No.", '');
+
+        // Verify.
+        LibraryCosting.CheckAdjustment(ParentItem);
+        LibraryCosting.CheckAdjustment(ChildItem);
     end;
 
     [Normal]
@@ -902,7 +1019,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     [Normal]
@@ -922,7 +1039,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Setup produced and component item.
         LibraryPatterns.MAKEItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
 
@@ -940,7 +1057,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     begin
         Item.Get(Item."No.");
         Item.Validate("Standard Cost", Item."Standard Cost" + LibraryRandom.RandDec(10, 2));
-        Item.Modify;
+        Item.Modify();
     end;
 
     [ConfirmHandler]

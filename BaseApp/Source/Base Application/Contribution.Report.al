@@ -23,9 +23,6 @@ report 12102 Contribution
             column(INPS_Year; Year)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME_Control1130028; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -36,9 +33,6 @@ report 12102 Contribution
             {
             }
             column(INPS_Year_Control1130032; Year)
-            {
-            }
-            column(CurrReport_PAGENO_Control1130007; CurrReport.PageNo)
             {
             }
             column(Vend__No_____________Vend_Name; Vend."No." + ' - ' + Vend.Name)
@@ -215,14 +209,11 @@ report 12102 Contribution
             column(INPS__External_Document_No__Caption; FieldCaption("External Document No."))
             {
             }
-            column(CurrReport_PAGENO_Control1130007Caption; CurrReport_PAGENO_Control1130007CaptionLbl)
-            {
-            }
 
             trigger OnAfterGetRecord()
             begin
                 if ContributionType = ContributionType::INAIL then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Vend.Get("Vendor No.");
                 if FinalPrinting and
@@ -236,15 +227,15 @@ report 12102 Contribution
                    FinalPrinting and
                    not CurrReport.Preview
                 then begin
-                    Payment.LockTable;
-                    Payment.Reset;
+                    Payment.LockTable();
+                    Payment.Reset();
 
                     if Payment.FindLast then
                         NoEnt := Payment."Entry No." + 1
                     else
                         NoEnt := 1;
 
-                    Payment.Init;
+                    Payment.Init();
                     Payment."Entry No." := NoEnt;
 
                     Payment."Contribution Type" := Payment."Contribution Type"::INPS;
@@ -257,7 +248,7 @@ report 12102 Contribution
                     Payment."Total Social Security Amount" := "Total Social Security Amount";
                     Payment."Free-Lance Amount" := "Free-Lance Amount";
                     Payment."Company Amount" := "Company Amount";
-                    Payment.Insert;
+                    Payment.Insert();
                 end;
 
                 PrevSocialSecurCode := "Social Security Code";
@@ -280,7 +271,7 @@ report 12102 Contribution
                     if Payment.FindFirst then begin
                         if not Confirm(Text1033, false, ParamMonth, ParamYear) then
                             CurrReport.Quit;
-                        Payment.DeleteAll;
+                        Payment.DeleteAll();
                         case ContributionType of
                             ContributionType::INPS:
                                 ModifyAll("INPS Paid", false);
@@ -315,9 +306,6 @@ report 12102 Contribution
             column(MonthDescr_Control1130003; MonthDescr)
             {
             }
-            column(CurrReport_PAGENO_Control1130008; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME_Control111; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -328,9 +316,6 @@ report 12102 Contribution
             {
             }
             column(MonthDescr_Control1130001; MonthDescr)
-            {
-            }
-            column(CurrReport_PAGENO_Control1130015; CurrReport.PageNo)
             {
             }
             column(Vend__No_____________Vend_Name_Control1130072; Vend."No." + ' - ' + Vend.Name)
@@ -465,9 +450,6 @@ report 12102 Contribution
             column(Quota_a_Carico_Comm__INAILCaption; Quota_a_Carico_Comm__INAILCaptionLbl)
             {
             }
-            column(CurrReport_PAGENO_Control1130008Caption; CurrReport_PAGENO_Control1130008CaptionLbl)
-            {
-            }
             column(INAIL_PaymentCaption_Control1130016; INAIL_PaymentCaption_Control1130016Lbl)
             {
             }
@@ -501,14 +483,11 @@ report 12102 Contribution
             column(Nr__Documento_EsternoCaption; FieldCaption("External Document No."))
             {
             }
-            column(CurrReport_PAGENO_Control1130015Caption; CurrReport_PAGENO_Control1130015CaptionLbl)
-            {
-            }
 
             trigger OnAfterGetRecord()
             begin
                 if ContributionType = ContributionType::INPS then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Vend.Get("Vendor No.");
                 if FinalPrinting and
@@ -522,15 +501,15 @@ report 12102 Contribution
                    FinalPrinting and
                    not CurrReport.Preview
                 then begin
-                    Payment.LockTable;
-                    Payment.Reset;
+                    Payment.LockTable();
+                    Payment.Reset();
 
                     if Payment.FindLast then
                         NoEnt := Payment."Entry No." + 1
                     else
                         NoEnt := 1;
 
-                    Payment.Init;
+                    Payment.Init();
                     Payment."Entry No." := NoEnt;
 
                     Payment."Contribution Type" := Payment."Contribution Type"::INAIL;
@@ -543,7 +522,7 @@ report 12102 Contribution
                     Payment."Total Social Security Amount" := "INAIL Total Amount";
                     Payment."Free-Lance Amount" := "INAIL Free-Lance Amount";
                     Payment."Company Amount" := "INAIL Company Amount";
-                    Payment.Insert;
+                    Payment.Insert();
                 end;
 
                 PrevINAILCode := "INAIL Code";
@@ -649,17 +628,14 @@ report 12102 Contribution
         INPS_PaymentCaption_Control1130013Lbl: Label 'INPS Payment';
         MonthDescr_Control1130022CaptionLbl: Label 'Referring Period';
         INPS__Document_Date_CaptionLbl: Label 'Document Date';
-        CurrReport_PAGENO_Control1130007CaptionLbl: Label 'Page';
         INAIL_PaymentCaptionLbl: Label 'INAIL Payment';
         MonthDescr_Control1130003CaptionLbl: Label 'Referring Period';
         Cod__Contributo_INAILCaptionLbl: Label 'INAIL Contribution Code';
         Quota_a_Carico_Comm__INAILCaptionLbl: Label 'INAIL Company Amount';
-        CurrReport_PAGENO_Control1130008CaptionLbl: Label 'Page';
         INAIL_PaymentCaption_Control1130016Lbl: Label 'INAIL Payment';
         MonthDescr_Control1130001CaptionLbl: Label 'Referring Period';
         Cod__Contributo_INAILCaption_Control1130118Lbl: Label 'INAIL Contribution Code';
         Quota_a_Carico_Comm__INAILCaption_Control1130124Lbl: Label 'INAIL Company Amount';
         Date_DocumentoCaptionLbl: Label 'Document Date';
-        CurrReport_PAGENO_Control1130015CaptionLbl: Label 'Page';
 }
 

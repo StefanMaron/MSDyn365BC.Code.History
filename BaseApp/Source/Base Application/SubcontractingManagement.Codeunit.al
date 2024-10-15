@@ -118,7 +118,7 @@ codeunit 12152 SubcontractingManagement
                             ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
                         else
                             ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify;
+                    ProdOrdComponent.Modify();
                 until ProdOrdComponent.Next = 0;
 
                 if ShowMsg then
@@ -151,7 +151,7 @@ codeunit 12152 SubcontractingManagement
                   ProdOrdLine."Location Code");
                 repeat
                     ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify;
+                    ProdOrdComponent.Modify();
                 until ProdOrdComponent.Next = 0;
 
                 if ShowMsg then
@@ -191,7 +191,7 @@ codeunit 12152 SubcontractingManagement
                         ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
                     else
                         ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify;
+                    ProdOrdComponent.Modify();
                 until ProdOrdComponent.Next = 0;
 
                 if ShowMsg then
@@ -265,7 +265,7 @@ codeunit 12152 SubcontractingManagement
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
-                TempReservEntry.Insert;
+                TempReservEntry.Insert();
             until ReservEntry.Next = 0;
 
         ReservMgt.SetProdOrderComponent(ProdOrderComponent);

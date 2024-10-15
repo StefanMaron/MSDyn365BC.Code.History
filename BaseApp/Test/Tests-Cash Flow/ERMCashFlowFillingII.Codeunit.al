@@ -29,7 +29,6 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         MinusOneDayFormula: DateFormula;
         SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget";
         UnexpectedCFWorksheetLineCountForMultipleSourcesErr: Label 'ENU=Unexpected Cash Flow journal line count within filter: Cash Flow No.: %1, Document No.: %2, %3, %4.', Comment = 'Unexpected Cash Flow journal line count within filter: Cash Flow No.: Cash Flow No, Document No.: Sales Order No, Purchase Order No, Service Order No.';
-        CFPaymentTermsNotSupportedInITMsg: Label 'Cash Flow payment terms are not supported in IT.';
 
     [Test]
     [Scope('OnPrem')]
@@ -77,10 +76,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Amount: Decimal;
         DiscountedAmount: Decimal;
         ConsiderSource: array[16] of Boolean;
-        DueDateCalculation: DateFormula;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount
+        // Test filling a CF journal using Fill batch considering discount CF Payment Terms
         // This scenario covers a discounted payment AFTER the payment discount date,
         // therefore the expected CF amount is the remaining amount (total amount - discounted amount)
         // the CF date should be the due date
@@ -90,23 +87,21 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.SetupDsctPmtTermsCustLETest(CashFlowForecast, Customer, PaymentTerms, Amount, DiscountedAmount);
         // payment is done 1 day after discount date in order to be overdue
         CustomDateFormula := PlusOneDayFormula;
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
-          DiscountDateCalculation, EmptyDateFormula, CustomDateFormula);
+          PaymentTerms."Discount Date Calculation", EmptyDateFormula, CustomDateFormula);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // Exercise
         // forecast is calculated after the discount date, payment already done
         ConsiderSource[SourceType::Receivables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           EmptyDateFormula, CustomDateFormula);
 
         // Verify
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables,
           CashFlowForecast."No.", Amount - DiscountedAmount,
-          CalcDate(DueDateCalculation, CustLedgerEntry."Document Date"));
+          CalcDate(PaymentTerms."Due Date Calculation", CustLedgerEntry."Document Date"));
     end;
 
     [Test]
@@ -121,19 +116,20 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Amount: Decimal;
         DiscountedAmount: Decimal;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount
+        // Test filling a CF journal using Fill batch considering discount CF Payment Terms
         // This scenario covers a discounted payment from a customer w/ discount default pmt terms
         // BEFORE the payment discount date, therefore the opened entry should be closed and no CF journal line should exist
 
         // Setup
         Initialize;
         LibraryCashFlowHelper.SetupDsctPmtTermsCustLETest(CashFlowForecast, Customer, PaymentTerms, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+        // make sure Customer has discounted default payment terms as well, in order to close open entry
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
         // payment is done 1 day before discount date => discount allowed
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
-          DiscountDateCalculation, EmptyDateFormula, MinusOneDayFormula);
+          PaymentTerms."Discount Date Calculation", EmptyDateFormula, MinusOneDayFormula);
 
         // Exercise
         ConsiderSource[SourceType::Receivables] := true;
@@ -160,20 +156,18 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Amount: Decimal;
         DiscountedAmount: Decimal;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers an opened customer ledger entry w/o payment where the CF forecast is done within the tolerance period
         // The expected CF amount must be the discounted total amount,
         // the CF date must be the calculated discount date + tolerance, based on the ledger entries document date
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(CustomDateFormula); // used as pmt discount grace period
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, CustomDateFormula, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.CreateLedgerEntry(GenJournalLine, Customer."No.", Amount,
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice);
 
@@ -184,10 +178,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables, CashFlowForecast."No.",
-          Amount - LibraryCashFlowHelper.CalcDiscAmtFromGenJnlLine(
-            GenJournalLine, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms)),
+          Amount - LibraryCashFlowHelper.CalcDiscAmtFromGenJnlLine(GenJournalLine, PaymentTerms."Discount %"),
           CalcDate(CustomDateFormula,
-            CalcDate(DiscountDateCalculation, GenJournalLine."Document Date")));
+            CalcDate(PaymentTerms."Discount Date Calculation", GenJournalLine."Document Date")));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -207,27 +200,28 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a total discounted sales invoice payment within payment discount tolerance date.
         // The payment has to close the open invoice, therefore no CF journal lines are expected
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+        // make sure Customer has discounted default payment terms as well, in order to close open entry
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
         // Payment should be done before pmt dsct tol date
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
-          DiscountDateCalculation, PmtDiscountGracePeriod, MinusOneDayFormula);
+          PaymentTerms."Discount Date Calculation", PmtDiscountGracePeriod, MinusOneDayFormula);
 
         // Exercise
         // forecast is done on pmt dsct tol date
         ConsiderSource[SourceType::Receivables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PmtDiscountGracePeriod, EmptyDateFormula);
 
         // Verify
@@ -256,34 +250,30 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
-        DueDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a CF forecast ran after the pmt dsct tol date of a customer ledger entry w/o payment
         // The expected CF amount must be the total ledger entry amount w/o discount, due to an expired dsct date the expected
         // CF date must be the source due date
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.CreateLedgerEntry(GenJournalLine, Customer."No.", Amount,
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice);
 
         // Exercise
         // forecast should be done after pmt dsct tol date
         ConsiderSource[SourceType::Receivables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables,
-          CashFlowForecast."No.", Amount, CalcDate(DueDateCalculation, GenJournalLine."Document Date"));
+          CashFlowForecast."No.", Amount, CalcDate(PaymentTerms."Due Date Calculation", GenJournalLine."Document Date"));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -304,38 +294,34 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
-        DueDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a partial payment AFTER the payment discount tolerance date, no discount allowed, therefore the expected
         // CF amount is the remaining amount (total amount - partial payment), due to an expired Due date the expected CF date must
         // be moved to the CF execution date
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
         // payment should be 1 days before dsct tol date
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -Round(DiscountedAmount / 2),
-          DiscountDateCalculation, MinusOneDayFormula, PmtDiscountGracePeriod);
+          PaymentTerms."Discount Date Calculation", MinusOneDayFormula, PmtDiscountGracePeriod);
         // get invoice ledger entry
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // Exercise
         // forecast should be done after pmt dsct tol date
         ConsiderSource[SourceType::Receivables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables, CashFlowForecast."No.",
-          Amount - Round(DiscountedAmount / 2), CalcDate(DueDateCalculation, CustLedgerEntry."Document Date"));
+          Amount - Round(DiscountedAmount / 2), CalcDate(PaymentTerms."Due Date Calculation", CustLedgerEntry."Document Date"));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -356,26 +342,22 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
-        DueDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance period
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance period
         // Covers a discounted payment AFTER the payment discount tolerance, no discount allowed,
         // therefore the expected CF amount is the remaining amount (total amount - discounted amount),
         // due to an expired Due date the expected CF date must be moved to the CF execution date
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
         // discounted payment should be done after pmt disc tol date
         CustomDateFormula := PlusOneDayFormula;
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
-          DiscountDateCalculation, CustomDateFormula, PmtDiscountGracePeriod);
+          PaymentTerms."Discount Date Calculation", CustomDateFormula, PmtDiscountGracePeriod);
         // get invoice ledger entry
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
 
@@ -383,12 +365,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // forecast should be done after payment
         Evaluate(CustomDateFormula, Format(CustomDateFormula) + Format(PlusOneDayFormula));
         ConsiderSource[SourceType::Receivables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           CustomDateFormula, PmtDiscountGracePeriod);
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables,
-          CashFlowForecast."No.", Amount - DiscountedAmount, CalcDate(DueDateCalculation, CustLedgerEntry."Document Date"));
+          CashFlowForecast."No.", Amount - DiscountedAmount,
+          CalcDate(PaymentTerms."Due Date Calculation", CustLedgerEntry."Document Date"));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -412,7 +395,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.5, 50);
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount,
@@ -454,7 +437,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.3, 30);
         ExpectedAmount := Amount - Round(Amount * 0.3);
@@ -490,20 +473,18 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers an opened vendor ledger entry w/o payment where the CF forecast is done within the discount period
         // The expected CF amount must be the discounted total amount,
         // the CF date must be the calculated discount date + tolerance, based on the ledger entries document date
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.CreateLedgerEntry(GenJournalLine, Vendor."No.", -Amount,
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice);
 
@@ -514,10 +495,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Payables, CashFlowForecast."No.",
-          -(Amount - LibraryCashFlowHelper.CalcDiscAmtFromGenJnlLine(
-              GenJournalLine, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms))),
+          -(Amount - LibraryCashFlowHelper.CalcDiscAmtFromGenJnlLine(GenJournalLine, PaymentTerms."Discount %")),
           CalcDate(PmtDiscountGracePeriod,
-            CalcDate(DiscountDateCalculation, GenJournalLine."Document Date")));
+            CalcDate(PaymentTerms."Discount Date Calculation", GenJournalLine."Document Date")));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -537,27 +517,28 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a total discounted sales invoice payment within payment discount tolerance date.
         // The payment has to close the open invoice, therefore no CF journal lines are expected
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+        // make sure Vendor has discounted default payment terms as well, in order to close open entry
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
         // Payment should be done before pmt dsct tol date
         LibraryCashFlowHelper.CreateAndApplyVendorInvPmt(GenJournalLine, Vendor."No.", -Amount, DiscountedAmount,
-          DiscountDateCalculation, PmtDiscountGracePeriod, MinusOneDayFormula);
+          PaymentTerms."Discount Date Calculation", PmtDiscountGracePeriod, MinusOneDayFormula);
 
         // Exercise
         // Forecast should be done after payment
         ConsiderSource[SourceType::Payables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PmtDiscountGracePeriod, EmptyDateFormula);
 
         // Verify
@@ -585,33 +566,29 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DiscountDateCalculation: DateFormula;
-        DueDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a partial purchase invoice payment within payment discount tolerance date.
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
         LibraryCashFlowHelper.CreateLedgerEntry(GenJournalLine, Vendor."No.", -Amount,
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice);
 
         // Exercise
         // forecast should be done after pmt dsct tol date
         ConsiderSource[SourceType::Payables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Payables, CashFlowForecast."No.",
-          -Amount, CalcDate(DueDateCalculation, GenJournalLine."Document Date"));
+          -Amount, CalcDate(PaymentTerms."Due Date Calculation", GenJournalLine."Document Date"));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -632,25 +609,20 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DiscountedAmount: Decimal;
         PmtDiscountGracePeriod: DateFormula;
         ConsiderSource: array[16] of Boolean;
-        DueDateCalculation: DateFormula;
-        DiscountDateCalculation: DateFormula;
     begin
-        // Test filling a CF journal using Fill batch considering discount and payment discount tolerance date
+        // Test filling a CF journal using Fill batch considering discount, CF pmt terms and payment discount tolerance date
         // Covers a discounted purchase invoice payment outside payment discount tolerance date.
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDueDateCalculation(DueDateCalculation, PaymentTerms);
-
         // discounted payment should be done after pmt disc tol date
         CustomDateFormula := PlusOneDayFormula;
         LibraryCashFlowHelper.CreateAndApplyVendorInvPmt(GenJournalLine, Vendor."No.", -Amount, DiscountedAmount,
-          DiscountDateCalculation, CustomDateFormula, PmtDiscountGracePeriod);
+          PaymentTerms."Discount Date Calculation", CustomDateFormula, PmtDiscountGracePeriod);
         // get invoice ledger entry
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
 
@@ -658,13 +630,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // forecast should be done after pmt dsct tol date and payment
         Evaluate(CustomDateFormula, Format(CustomDateFormula) + Format(PlusOneDayFormula));
         ConsiderSource[SourceType::Payables] := true;
-        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", DiscountDateCalculation,
+        LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           CustomDateFormula, PmtDiscountGracePeriod);
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, GenJournalLine."Document No.", SourceType::Payables, CashFlowForecast."No.",
-          -(Amount - DiscountedAmount), CalcDate(DueDateCalculation, VendorLedgerEntry."Document Date"));
+          -(Amount - DiscountedAmount), CalcDate(PaymentTerms."Due Date Calculation", VendorLedgerEntry."Document Date"));
 
         // Tear down
         LibraryCashFlowHelper.SetupPmtDsctGracePeriod(GeneralLedgerSetup."Payment Discount Grace Period");
@@ -688,8 +660,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
+        LibraryCashFlowForecast.ClearJournal;
         LibraryCashFlowHelper.SetupVendorPmtTolAmtTestCase(CashFlowForecast, Vendor, Amount, 0.5, 50);
         LibraryCashFlowHelper.CreateAndApplyVendorInvPmt(GenJournalLine, Vendor."No.", -Amount,
           Amount - Round(Amount * 0.5 / 100), EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
@@ -731,7 +704,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current state
+        GeneralLedgerSetup.Get(); // keep current state
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupVendorPmtTolAmtTestCase(CashFlowForecast, Vendor, Amount, 0.3, 0);
         ExpectedAmount := Amount - Round(Amount * 0.3);
@@ -756,8 +729,41 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure SOWithPendPrepmtAndCFPmtTerms()
+    var
+        PaymentTerms: Record "Payment Terms";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        SalesHeader: Record "Sales Header";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ExpectedSOAmount: Decimal;
+        ExpectedPrePmtAmount: Decimal;
+        PrePmtInvNo: Code[20];
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Test filling a CF journal using Fill Batch where only CF payment terms are considered,
+        // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
+
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, '', PaymentTerms.Code);
+        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostSOPrepaymentInvoice(SalesHeader, LibraryRandom.RandInt(10));
+        SalesInvoiceHeader.Get(PrePmtInvNo);
+        LibraryCashFlowHelper.CalcSalesExpectedPrepmtAmounts(SalesHeader, 0, ExpectedSOAmount, ExpectedPrePmtAmount);
+
+        // Exercise
+        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::"Sales Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        // Discount is not considered - due date is the indicator
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
+          CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.",
+          ExpectedSOAmount, CalcDate(PaymentTerms."Due Date Calculation", SalesHeader."Document Date"));
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Receivables, CashFlowForecast."No.",
+          ExpectedPrePmtAmount, CalcDate(PaymentTerms."Due Date Calculation", SalesInvoiceHeader."Posting Date"));
     end;
 
     [Test]
@@ -773,8 +779,6 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedPrePmtAmount: Decimal;
         PrePmtInvNo: Code[20];
         ConsiderSource: array[16] of Boolean;
-        DiscountPercentage: Decimal;
-        DiscountDateCalculation: DateFormula;
     begin
         // Test filling a CF journal using Fill Batch where only discount is considered,
         // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
@@ -783,13 +787,11 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize;
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, PaymentTerms.Code);
-        DiscountPercentage := LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
+        LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, PaymentTerms.Code, '');
         PrePmtInvNo := LibraryCashFlowHelper.AddAndPostSOPrepaymentInvoice(SalesHeader, LibraryRandom.RandInt(10));
         SalesInvoiceHeader.Get(PrePmtInvNo);
         LibraryCashFlowHelper.CalcSalesExpectedPrepmtAmounts(
-          SalesHeader, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), ExpectedSOAmount, ExpectedPrePmtAmount);
+          SalesHeader, PaymentTerms."Discount %", ExpectedSOAmount, ExpectedPrePmtAmount);
 
         // Exercise
         ConsiderSource[SourceType::Receivables] := true;
@@ -798,23 +800,92 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
-          CashFlowForecast."No.", ExpectedSOAmount, CalcDate(DiscountDateCalculation, SalesHeader."Document Date"));
+          CashFlowForecast."No.", ExpectedSOAmount, SalesHeader."Pmt. Discount Date");
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Receivables, CashFlowForecast."No.",
-          ExpectedPrePmtAmount, CalcDate(DiscountDateCalculation, SalesInvoiceHeader."Posting Date"));
+          ExpectedPrePmtAmount, CalcDate(PaymentTerms."Discount Date Calculation", SalesInvoiceHeader."Posting Date"));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SOWithPendPrepmtDsctAndCFTerms()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentTerms2: Record "Payment Terms";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        SalesHeader: Record "Sales Header";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ExpectedSOAmount: Decimal;
+        ExpectedPrePmtAmount: Decimal;
+        PrePmtInvNo: Code[20];
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Test filling a CF journal using Fill Batch where discount and CF Pmt Terms are considered,
+        // with a sales order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
+
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
+        LibraryCashFlowHelper.CreatePrepmtSalesOrder(SalesHeader, PaymentTerms.Code, PaymentTerms2.Code);
+        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostSOPrepaymentInvoice(SalesHeader, LibraryRandom.RandInt(10));
+        SalesInvoiceHeader.Get(PrePmtInvNo);
+        LibraryCashFlowHelper.CalcSalesExpectedPrepmtAmounts(
+          SalesHeader, PaymentTerms2."Discount %", ExpectedSOAmount, ExpectedPrePmtAmount);
+
+        // Exercise
+        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::"Sales Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
+          CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.",
+          ExpectedSOAmount, CalcDate(PaymentTerms2."Discount Date Calculation", SalesHeader."Document Date"));
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Receivables, CashFlowForecast."No.",
+          ExpectedPrePmtAmount, CalcDate(PaymentTerms2."Discount Date Calculation", SalesInvoiceHeader."Posting Date"));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure POWithPendPrepmtAndCFPmtTerms()
+    var
+        PaymentTerms: Record "Payment Terms";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        PurchaseHeader: Record "Purchase Header";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ExpectedPOAmount: Decimal;
+        ExpectedPrePmtAmount: Decimal;
+        PrePmtInvNo: Code[20];
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Test filling a CF journal using Fill Batch where only CF payment terms are considered,
+        // with a purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
+
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, '', PaymentTerms.Code);
+        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostPOPrepaymentInvoice(PurchaseHeader, LibraryRandom.RandInt(10));
+        PurchInvHeader.Get(PrePmtInvNo);
+        LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(PurchaseHeader, 0, ExpectedPOAmount, ExpectedPrePmtAmount);
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // Exercise
+        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        // Discount is not considered on CF card - due date is the indicator
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
+          CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders", CashFlowForecast."No.",
+          -ExpectedPOAmount, CalcDate(PaymentTerms."Due Date Calculation", PurchaseHeader."Document Date"));
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Payables, CashFlowForecast."No.",
+          -ExpectedPrePmtAmount, CalcDate(PaymentTerms."Due Date Calculation", PurchInvHeader."Posting Date"));
     end;
 
     [Test]
@@ -828,11 +899,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchInvHeader: Record "Purch. Inv. Header";
         ExpectedPOAmount: Decimal;
         ExpectedPrePmtAmount: Decimal;
-        TotalCheckAmount: Decimal;
         PrePmtInvNo: Code[20];
         ConsiderSource: array[16] of Boolean;
-        DiscountPercentage: Decimal;
-        DiscountDateCalculation: DateFormula;
     begin
         // Test filling a CF journal using Fill Batch where only discount is considered,
         // with a Purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
@@ -841,13 +909,11 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize;
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, PaymentTerms.Code);
-        DiscountPercentage := LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms);
-        LibraryCashFlowHelper.GetPmtTermsDiscountDateCalculation(DiscountDateCalculation, PaymentTerms);
-        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostPOPrepaymentInvoice(PurchaseHeader, LibraryRandom.RandInt(10), TotalCheckAmount);
+        LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '');
+        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostPOPrepaymentInvoice(PurchaseHeader, LibraryRandom.RandInt(10));
         PurchInvHeader.Get(PrePmtInvNo);
         LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(
-          PurchaseHeader, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), ExpectedPOAmount, ExpectedPrePmtAmount);
+          PurchaseHeader, PaymentTerms."Discount %", ExpectedPOAmount, ExpectedPrePmtAmount);
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Exercise
@@ -857,17 +923,53 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Verify
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
-          CashFlowForecast."No.", -ExpectedPOAmount, CalcDate(DiscountDateCalculation, PurchaseHeader."Document Date"));
+          CashFlowForecast."No.", -ExpectedPOAmount, PurchaseHeader."Pmt. Discount Date");
 
-        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Payables,
-          CashFlowForecast."No.", -ExpectedPrePmtAmount, CalcDate(DiscountDateCalculation, PurchInvHeader."Posting Date"));
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Payables, CashFlowForecast."No.",
+          -ExpectedPrePmtAmount, CalcDate(PaymentTerms."Discount Date Calculation", PurchInvHeader."Posting Date"));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure POWithPendPrepmtDsctAndCFTerms()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentTerms2: Record "Payment Terms";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        PurchaseHeader: Record "Purchase Header";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ExpectedPOAmount: Decimal;
+        ExpectedPrePmtAmount: Decimal;
+        PrePmtInvNo: Code[20];
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Test filling a CF journal using Fill Batch where discount and CF Pmt Terms are considered,
+        // with a Purchase order which requires prepayment. The prepayment invoice has been posted and the prepayment is pending.
+
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
+        LibraryCashFlowHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, PaymentTerms.Code, PaymentTerms2.Code);
+        PrePmtInvNo := LibraryCashFlowHelper.AddAndPostPOPrepaymentInvoice(PurchaseHeader, LibraryRandom.RandInt(10));
+        PurchInvHeader.Get(PrePmtInvNo);
+        LibraryCashFlowHelper.CalcPurchExpectedPrepmtAmounts(
+          PurchaseHeader, PaymentTerms2."Discount %", ExpectedPOAmount, ExpectedPrePmtAmount);
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // Exercise
+        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
+
+        // Verify
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
+          CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders", CashFlowForecast."No.",
+          -ExpectedPOAmount, CalcDate(PaymentTerms2."Discount Date Calculation", PurchaseHeader."Document Date"));
+        LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Payables, CashFlowForecast."No.",
+          -ExpectedPrePmtAmount, CalcDate(PaymentTerms2."Discount Date Calculation", PurchInvHeader."Posting Date"));
     end;
 
     [Test]
@@ -945,8 +1047,15 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure ForecastingFCYAmountConsideringDiscountAndCFPmtTermsOnCustLE()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+
+        // Exercise & Verify
+        ForecastingFCYAmountsOnReceivablesWithCFCardOptions(CashFlowForecast);
     end;
 
     local procedure ForecastingFCYAmountsOnReceivablesWithCFCardOptions(CashFlowForecast: Record "Cash Flow Forecast")
@@ -973,8 +1082,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         AmountFCY := CustLedgerEntry.Amount;
         ExpectedAmount :=
           Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision) -
-          LibraryCashFlowHelper.CalcCustDiscAmtLCY(
-            CustLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), RelationalExchangeRateAmount);
+          LibraryCashFlowHelper.CalcCustDiscAmtLCY(CustLedgerEntry, PaymentTerms."Discount %", RelationalExchangeRateAmount);
 
         // Exercise
         ConsiderSource[SourceType::Receivables] := true;
@@ -1003,8 +1111,15 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure ForecastingFCYAmountConsideringDiscountAndCFPmtTermsOnVendLE()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+
+        // Exercise & Verify
+        ForecastingFCYAmountsOnPayablesWithCFCardOptions(CashFlowForecast);
     end;
 
     local procedure ForecastingFCYAmountsOnPayablesWithCFCardOptions(CashFlowForecast: Record "Cash Flow Forecast")
@@ -1032,7 +1147,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmount :=
           Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision) -
           LibraryCashFlowHelper.CalcVendDiscAmtLCY(
-            VendorLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), RelationalExchangeRateAmount);
+            VendorLedgerEntry, PaymentTerms."Discount %", RelationalExchangeRateAmount);
 
         // Exercise
         ConsiderSource[SourceType::Payables] := true;
@@ -1063,14 +1178,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CustomerNo := CreateCustomerWithPaymentTerms(PaymentTerms.Code);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsDifferent, PaymentTerms.Code);
         SalesInvoiceNo := CreateAndPostSalesOrderWithDiscountPercentage(CustomerNo, PaymentTermsDifferent.Code);
-        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
 
         ExpectedAmount :=
           CustLedgerEntry.Amount -
-          LibraryCashFlowHelper.CalcCustDiscAmt(
-            CustLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTermsDifferent));
+          LibraryCashFlowHelper.CalcCustDiscAmt(CustLedgerEntry, PaymentTermsDifferent."Discount %");
 
         // Exercise
         ConsiderSource[SourceType::Receivables] := true;
@@ -1100,14 +1214,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
         LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsDifferent, PaymentTerms.Code);
         PurchaseInvoiceNo := CreateAndPostPurchaseOrderWithDiscountPercentage(VendorNo, PaymentTermsDifferent.Code);
-        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PurchaseInvoiceNo);
         VendorLedgerEntry.CalcFields(Amount);
 
         ExpectedAmount :=
           VendorLedgerEntry.Amount -
-          LibraryCashFlowHelper.CalcVendDiscAmt(
-            VendorLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTermsDifferent));
+          LibraryCashFlowHelper.CalcVendDiscAmt(VendorLedgerEntry, PaymentTermsDifferent."Discount %");
 
         // Exercise
         ConsiderSource[SourceType::Payables] := true;
@@ -1253,15 +1366,64 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        SalesHeader: Record "Sales Header";
+        PaymentTerms: Record "Payment Terms";
+        CustomerNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        CustomerNo := CreateCustomerWithCashFlowPaymentTerms(PaymentTerms.Code);
+        ModifyCustomerWithCurrency(CustomerNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreateSalesOrderWithLineCount(SalesHeader, CustomerNo, 2);
+        ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalSalesAmount(SalesHeader, false);
+
+        // Excercise
+        ConsiderSource[SourceType::"Sales Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithDiscountAndCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        SalesHeader: Record "Sales Header";
+        PaymentTerms: Record "Payment Terms";
+        PaymentTermsCashFlow: Record "Payment Terms";
+        CustomerNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        CustomerNo := CreateCustomerWithPaymentTerms(PaymentTerms.Code);
+        ModifyCustomerWithCashFlowPaymentTerms(CustomerNo, PaymentTermsCashFlow.Code);
+        ModifyCustomerWithCurrency(CustomerNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreateSalesOrderWithLineCount(SalesHeader, CustomerNo, 2);
+        ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalAmountForSalesOrderWithCashFlowPaymentTermsDiscount(SalesHeader);
+
+        // Excercise
+        ConsiderSource[SourceType::"Sales Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.");
     end;
 
     [Test]
@@ -1344,15 +1506,66 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderInFCYWithCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        PurchaseHeader: Record "Purchase Header";
+        PaymentTerms: Record "Payment Terms";
+        VendorNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        VendorNo := CreateVendorWithCashFlowPaymentTerms(PaymentTerms.Code);
+        ModifyVendorWithCurrency(VendorNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
+        ExpectedAmountLCY := -1 * LibraryCashFlowHelper.GetTotalPurchaseAmount(PurchaseHeader, false);
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // Excercise
+        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, PurchaseHeader."No.", SourceType::"Purchase Orders", CashFlowForecast."No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderInFCYWithDiscountAndCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        PurchaseHeader: Record "Purchase Header";
+        PaymentTerms: Record "Payment Terms";
+        PaymentTermsCashFlow: Record "Payment Terms";
+        VendorNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
+        ModifyVendorWithCashFlowPaymentTerms(VendorNo, PaymentTermsCashFlow.Code);
+        ModifyVendorWithCurrency(VendorNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreatePurchaseOrderWithLineCount(PurchaseHeader, VendorNo, 2);
+        ExpectedAmountLCY := -LibraryCashFlowHelper.GetTotalAmountForPurchaseOrderWithCashFlowPaymentTermsDiscount(PurchaseHeader);
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // Excercise
+        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, PurchaseHeader."No.", SourceType::"Purchase Orders", CashFlowForecast."No.");
     end;
 
     [Test]
@@ -1419,7 +1632,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
         CustomerNo := CreateCustomerWithPaymentTerms(PaymentTerms.Code);
         ModifyCustomerWithCurrency(CustomerNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
-        CreateServiceOrderWithLineCount(ServiceHeader, CustomerNo, 3);
+        CreateServiceOrderWithLineCount(ServiceHeader, CustomerNo, 2);
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, true);
 
         // Excercise
@@ -1433,15 +1646,64 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderInFCYWithCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        ServiceHeader: Record "Service Header";
+        PaymentTerms: Record "Payment Terms";
+        CustomerNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        CustomerNo := CreateCustomerWithCashFlowPaymentTerms(PaymentTerms.Code);
+        ModifyCustomerWithCurrency(CustomerNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreateServiceOrderWithLineCount(ServiceHeader, CustomerNo, 2);
+        ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, false);
+
+        // Excercise
+        ConsiderSource[SourceType::"Service Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, ServiceHeader."No.", SourceType::"Service Orders", CashFlowForecast."No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderInFCYWithDiscountAndCashFlowPaymentTerms()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        ServiceHeader: Record "Service Header";
+        PaymentTerms: Record "Payment Terms";
+        PaymentTermsCashFlow: Record "Payment Terms";
+        CustomerNo: Code[20];
+        RelationalExchangeRateAmount: Decimal;
+        ExpectedAmountLCY: Decimal;
+        ConsiderSource: array[16] of Boolean;
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        // Setup
+        Initialize;
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        LibraryCashFlowHelper.GetDifferentDsctPaymentTerms(PaymentTermsCashFlow, PaymentTerms.Code);
+        LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
+        RelationalExchangeRateAmount := LibraryRandom.RandDec(10, 4);
+        CustomerNo := CreateCustomerWithPaymentTerms(PaymentTerms.Code);
+        ModifyCustomerWithCashFlowPaymentTerms(CustomerNo, PaymentTermsCashFlow.Code);
+        ModifyCustomerWithCurrency(CustomerNo, CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount));
+        CreateServiceOrderWithLineCount(ServiceHeader, CustomerNo, 2);
+        ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalAmountForServiceOrderWithCashFlowPaymentTermsDiscount(ServiceHeader);
+
+        // Excercise
+        ConsiderSource[SourceType::"Service Orders"] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // Verify
+        VerifyExpectedCFAmount(ExpectedAmountLCY, ServiceHeader."No.", SourceType::"Service Orders", CashFlowForecast."No.");
     end;
 
     [Test]
@@ -1789,7 +2051,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Filling II");
     end;
 
@@ -1798,7 +2060,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        Commit;  // Commit Required for REPORT.RUN.
+        Commit();  // Commit Required for REPORT.RUN.
         LibraryVariableStorage.Enqueue(CashFlowForecast."No.");  // Enqueue SuggestWorksheetLinesReqPageHandler.
         REPORT.Run(REPORT::"Suggest Worksheet Lines");
         CashFlowWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
@@ -1847,10 +2109,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         AnalysisViewList.EditAnalysis.Invoke;
     end;
 
-    local procedure ThrowAndCatchCFPaymentTermsNotSupportedError()
+    local procedure FillJournalWithoutGroupBy(ConsiderSource: array[16] of Boolean; CashFlowForecastNo: Code[20])
     begin
-        asserterror Assert.Fail(CFPaymentTermsNotSupportedInITMsg);
-        Assert.ExpectedError(CFPaymentTermsNotSupportedInITMsg);
+        LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecastNo, false);
+    end;
+
+    local procedure FillJournalWithGroupBy(ConsiderSource: array[16] of Boolean; CashFlowForecastNo: Code[20])
+    begin
+        LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecastNo, true);
     end;
 
     local procedure CreateCurrencyWithExchangeRate(RelationalExchangeRateAmount: Decimal): Code[10]
@@ -1892,6 +2158,25 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Customer.Modify(true);
     end;
 
+    local procedure CreateCustomerWithCashFlowPaymentTerms(PaymentTermsCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Cash Flow Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure ModifyCustomerWithCashFlowPaymentTerms(CustomerNo: Code[20]; PaymentTermsCode: Code[10])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        Customer.Validate("Cash Flow Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+    end;
+
     local procedure CreateVendorWithPaymentTerms(PaymentTermsCode: Code[10]): Code[20]
     var
         Vendor: Record Vendor;
@@ -1921,13 +2206,32 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Vendor.Modify(true);
     end;
 
+    local procedure CreateVendorWithCashFlowPaymentTerms(PaymentTermsCode: Code[10]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Cash Flow Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure ModifyVendorWithCashFlowPaymentTerms(VendorNo: Code[20]; PaymentTermsCode: Code[10])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Cash Flow Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify(true);
+    end;
+
     local procedure CreateSalesOrderWithLineCount(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LineCount: Integer)
     var
         GLAccount: Record "G/L Account";
         "Count": Integer;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        GLAccount.Init;
+        GLAccount.Init();
         for Count := 1 to LineCount do
             LibraryCashFlowHelper.CreateSalesLine(SalesHeader, GLAccount);
     end;
@@ -1952,7 +2256,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreateSalesOrderWithVAT(var SalesHeader: Record "Sales Header")
@@ -1975,7 +2279,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         CreateSalesOrderWithVAT(SalesHeader);
         SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreatePurchaseOrderWithLineCount(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LineCount: Integer)
@@ -1984,7 +2288,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         "Count": Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        GLAccount.Init;
+        GLAccount.Init();
         for Count := 1 to LineCount do
             LibraryCashFlowHelper.CreatePurchaseLine(PurchaseHeader, GLAccount);
     end;
@@ -2009,7 +2313,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         PurchaseHeader."Your Reference" := YourReference;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreatePurchaseOrderWithVAT(var PurchaseHeader: Record "Purchase Header")
@@ -2033,7 +2337,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         CreatePurchaseOrderWithVAT(PurchaseHeader);
         PurchaseHeader."Your Reference" := YourReference;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2062,7 +2366,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
         CurrencyExchangeRate.Validate("Starting Date", LibraryFiscalYear.GetFirstPostingDate(true));
         CurrencyExchangeRate.Insert(true);
@@ -2170,32 +2474,19 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Assert.AreEqual(ExpectedAmount, CFWorksheetLine."Amount (LCY)", ErrorText);
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Msg: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    local procedure FillJournalWithoutGroupBy(ConsiderSource: array[11] of Boolean; CashFlowForecastNo: Code[20])
-    begin
-        LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecastNo, false);
-    end;
-
-    local procedure FillJournalWithGroupBy(ConsiderSource: array[11] of Boolean; CashFlowForecastNo: Code[20])
-    begin
-        LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecastNo, true);
-    end;
-
     local procedure VerifyExpectedCFAmount(ExpectedAmount: Decimal; DocumentNo: Code[20]; SourceType: Option; CashFlowNo: Code[20])
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        TotalAmount: Decimal;
     begin
         CFWorksheetLine.SetFilter("Cash Flow Forecast No.", '%1', CashFlowNo);
         CFWorksheetLine.SetFilter("Document No.", '%1', DocumentNo);
         CFWorksheetLine.SetFilter("Source Type", '%1', SourceType);
-        CFWorksheetLine.CalcSums("Amount (LCY)");
-        LibraryCashFlowHelper.VerifyExpectedCFAmount(ExpectedAmount, CFWorksheetLine."Amount (LCY)");
+        TotalAmount := 0;
+        repeat
+            TotalAmount += CFWorksheetLine."Amount (LCY)";
+        until CFWorksheetLine.Next = 0;
+        LibraryCashFlowHelper.VerifyExpectedCFAmount(ExpectedAmount, TotalAmount);
     end;
 
     [PageHandler]
@@ -2232,6 +2523,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     procedure AnalysisByDimensionsMatrixHandler(var AnalysisByDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
         AnalysisByDimensionsMatrix.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Msg: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [RequestPageHandler]

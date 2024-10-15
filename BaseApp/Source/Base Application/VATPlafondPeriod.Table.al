@@ -61,7 +61,6 @@ table 12187 "VAT Plafond Period"
         exit(GetDateFilter(DMY2Date(1, 1, Year), DMY2Date(31, 12, Year)));
     end;
 
-    [Scope('OnPrem')]
     procedure CheckAmount(Date: Date; NewAmount: Decimal)
     begin
         if Get(Date2DMY(Date, 3)) then begin
@@ -71,7 +70,6 @@ table 12187 "VAT Plafond Period"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CalcAmounts(StartingDate: Date; EndingDate: Date; var UsedAmount: Decimal; var RemAmount: Decimal): Boolean
     begin
         if not Get(Date2DMY(EndingDate, 3)) then

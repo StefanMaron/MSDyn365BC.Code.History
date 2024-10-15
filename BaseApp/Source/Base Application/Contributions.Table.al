@@ -267,8 +267,8 @@ table 12117 Contributions
 
     trigger OnInsert()
     begin
-        SocialSecurity.LockTable;
-        SocialSecurity.Reset;
+        SocialSecurity.LockTable();
+        SocialSecurity.Reset();
         if SocialSecurity.FindLast then
             "Entry No." := SocialSecurity."Entry No." + 1
         else

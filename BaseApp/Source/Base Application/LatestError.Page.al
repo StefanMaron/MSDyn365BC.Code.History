@@ -43,11 +43,15 @@ page 9180 "Latest Error"
                     }
                     group(ErrorObjectLabel)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The field might contain sensitive data.';
+                        Visible = false;
                         Caption = 'Error Object';
-                        field(ErrorObject; GetErrorObject)
+                        ObsoleteTag = '16.0';
+
+                        field(ErrorObject; '')
                         {
                             ApplicationArea = All;
-                            MultiLine = true;
                             ShowCaption = false;
                         }
                     }
@@ -73,10 +77,5 @@ page 9180 "Latest Error"
 
     var
         ErrorOccurred: Boolean;
-
-    local procedure GetErrorObject(): Text
-    begin
-        exit(Format(GetLastErrorObject));
-    end;
 }
 

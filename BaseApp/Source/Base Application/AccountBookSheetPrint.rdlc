@@ -2671,9 +2671,6 @@ End Function
         <Field Name="CompAddr_5_">
           <DataField>CompAddr_5_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="CompAddr_3_">
           <DataField>CompAddr_3_</DataField>
         </Field>

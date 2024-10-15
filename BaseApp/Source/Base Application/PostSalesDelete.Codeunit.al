@@ -33,7 +33,7 @@ codeunit 363 "PostSales-Delete"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         with SalesHeader do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
             SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -42,56 +42,56 @@ codeunit 363 "PostSales-Delete"
               ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt, SourceCode.Code);
 
             if SalesShptHeader."No." <> '' then begin
-                SalesShptHeader.Insert;
-                SalesShptLine.Init;
+                SalesShptHeader.Insert();
+                SalesShptLine.Init();
                 SalesShptLine."Document No." := SalesShptHeader."No.";
                 SalesShptLine."Line No." := 10000;
                 SalesShptLine.Description := SourceCode.Description;
-                SalesShptLine.Insert;
+                SalesShptLine.Insert();
             end;
 
             if ReturnRcptHeader."No." <> '' then begin
-                ReturnRcptHeader.Insert;
-                ReturnRcptLine.Init;
+                ReturnRcptHeader.Insert();
+                ReturnRcptLine.Init();
                 ReturnRcptLine."Document No." := ReturnRcptHeader."No.";
                 ReturnRcptLine."Line No." := 10000;
                 ReturnRcptLine.Description := SourceCode.Description;
-                ReturnRcptLine.Insert;
+                ReturnRcptLine.Insert();
             end;
 
             if SalesInvHeader."No." <> '' then begin
-                SalesInvHeader.Insert;
-                SalesInvLine.Init;
+                SalesInvHeader.Insert();
+                SalesInvLine.Init();
                 SalesInvLine."Document No." := SalesInvHeader."No.";
                 SalesInvLine."Line No." := 10000;
                 SalesInvLine.Description := SourceCode.Description;
-                SalesInvLine.Insert;
+                SalesInvLine.Insert();
             end;
 
             if SalesCrMemoHeader."No." <> '' then begin
-                SalesCrMemoHeader.Insert;
-                SalesCrMemoLine.Init;
+                SalesCrMemoHeader.Insert();
+                SalesCrMemoLine.Init();
                 SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
                 SalesCrMemoLine."Line No." := 10000;
                 SalesCrMemoLine.Description := SourceCode.Description;
-                SalesCrMemoLine.Insert;
+                SalesCrMemoLine.Insert();
             end;
 
             if SalesInvHeaderPrePmt."No." <> '' then begin
-                SalesInvHeaderPrePmt.Insert;
+                SalesInvHeaderPrePmt.Insert();
                 SalesInvLine."Document No." := SalesInvHeaderPrePmt."No.";
                 SalesInvLine."Line No." := 10000;
                 SalesInvLine.Description := SourceCode.Description;
-                SalesInvLine.Insert;
+                SalesInvLine.Insert();
             end;
 
             if SalesCrMemoHeaderPrePmt."No." <> '' then begin
-                SalesCrMemoHeaderPrePmt.Insert;
-                SalesCrMemoLine.Init;
+                SalesCrMemoHeaderPrePmt.Insert();
+                SalesCrMemoLine.Init();
                 SalesCrMemoLine."Document No." := SalesCrMemoHeaderPrePmt."No.";
                 SalesCrMemoLine."Line No." := 10000;
                 SalesCrMemoLine.Description := SourceCode.Description;
-                SalesCrMemoLine.Insert;
+                SalesCrMemoLine.Insert();
             end;
         end;
 
@@ -118,7 +118,7 @@ codeunit 363 "PostSales-Delete"
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
         if SalesInvLine.Find('-') then
             repeat
-                SalesInvLine.Delete;
+                SalesInvLine.Delete();
                 ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1);
             until SalesInvLine.Next = 0;
 
@@ -130,7 +130,7 @@ codeunit 363 "PostSales-Delete"
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         if SalesCrMemoLine.Find('-') then
             repeat
-                SalesCrMemoLine.Delete;
+                SalesCrMemoLine.Delete();
             until SalesCrMemoLine.Next = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Sales Cr.Memo Line", 0, SalesCrMemoHeader."No.", '', 0, 0, true);
@@ -144,7 +144,7 @@ codeunit 363 "PostSales-Delete"
         if SalesRcptLine.Find('-') then
             repeat
                 SalesRcptLine.TestField("Quantity Invoiced", SalesRcptLine.Quantity);
-                SalesRcptLine.Delete;
+                SalesRcptLine.Delete();
             until SalesRcptLine.Next = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Receipt Line", 0, ReturnRcptHeader."No.", '', 0, 0, true);
@@ -165,7 +165,7 @@ codeunit 363 "PostSales-Delete"
             Clear(SalesInvHeader);
             Clear(SalesCrMemoHeader);
             Clear(ReturnRcptHeader);
-            SalesSetup.Get;
+            SalesSetup.Get();
 
             if ("Shipping No. Series" <> '') and ("Shipping No." <> '') then begin
                 SalesShptHeader.TransferFields(SalesHeader);
@@ -257,7 +257,7 @@ codeunit 363 "PostSales-Delete"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Prevent Posted Doc. Deletion" then
             Error(NotAllowedToDeletePostedDocumentsErr);
         SalesSetup.TestField("Allow Document Deletion Before");

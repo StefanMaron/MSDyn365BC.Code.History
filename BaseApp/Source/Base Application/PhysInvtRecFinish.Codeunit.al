@@ -30,13 +30,13 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
     var
         IsHandled: Boolean;
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         with PhysInvtRecordHeader do begin
             TestField("Order No.");
             TestField("Recording No.");
             TestField(Status, Status::Open);
 
-            PhysInvtRecordLine.Reset;
+            PhysInvtRecordLine.Reset();
             PhysInvtRecordLine.SetRange("Order No.", "Order No.");
             PhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
             PhysInvtRecordLine.SetFilter("Item No.", '<>%1', '');
@@ -47,9 +47,9 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
               '#1#################################\\' + FinishingLinesMsg);
             Window.Update(1, StrSubstNo('%1 %2', TableCaption, "Order No."));
 
-            PhysInvtOrderHeader.LockTable;
-            PhysInvtOrderLine.LockTable;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderHeader.LockTable();
+            PhysInvtOrderLine.LockTable();
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "Order No.");
             if PhysInvtOrderLine.FindLast then
                 NextOrderLineNo := PhysInvtOrderLine."Line No." + 10000
@@ -59,7 +59,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
             PhysInvtOrderHeader.Get("Order No.");
 
             LineCount := 0;
-            PhysInvtRecordLine.Reset;
+            PhysInvtRecordLine.Reset();
             PhysInvtRecordLine.SetRange("Order No.", "Order No.");
             PhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
             if PhysInvtRecordLine.Find('-') then
@@ -95,7 +95,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                         if NoOfOrderLines = 0 then begin
                             if not "Allow Recording Without Order" then
                                 Error(ErrorText);
-                            PhysInvtOrderLine.Init;
+                            PhysInvtOrderLine.Init();
                             PhysInvtOrderLine."Document No." := "Order No.";
                             PhysInvtOrderLine."Line No." := NextOrderLineNo;
                             PhysInvtOrderLine.Validate("Item No.", PhysInvtRecordLine."Item No.");
@@ -111,13 +111,13 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
 
                         PhysInvtRecordLine."Order Line No." := PhysInvtOrderLine."Line No.";
                         PhysInvtRecordLine."Recorded Without Order" := PhysInvtOrderLine."Recorded Without Order";
-                        PhysInvtRecordLine.Modify;
+                        PhysInvtRecordLine.Modify();
 
                         PhysInvtOrderLine."Qty. Recorded (Base)" += PhysInvtRecordLine."Quantity (Base)";
                         PhysInvtOrderLine."No. Finished Rec.-Lines" += 1;
                         PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine);
-                        PhysInvtOrderLine.Modify;
+                        PhysInvtOrderLine.Modify();
                     end;
                 until PhysInvtRecordLine.Next = 0;
 

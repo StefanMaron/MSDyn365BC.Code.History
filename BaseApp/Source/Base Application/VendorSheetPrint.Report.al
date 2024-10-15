@@ -335,7 +335,7 @@ report 12110 "Vendor Sheet - Print"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompAddr[1] := CompanyInfo.Name;
                 CompAddr[2] := CompanyInfo.Address;
                 CompAddr[3] := CompanyInfo."Post Code";
@@ -366,7 +366,7 @@ report 12110 "Vendor Sheet - Print"
     var
         ITReportManagement: Codeunit "IT - Report Management";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         VendDateFilter := Vendor.GetFilter("Date Filter");
 
         if VendDateFilter <> '' then begin

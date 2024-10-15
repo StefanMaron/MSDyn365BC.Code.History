@@ -113,14 +113,14 @@ codeunit 5930 ServAllocationManagement
         ServHeader.Get(DocumentType, DocumentNo);
         if ServHeader.Status <> ServHeader.Status::Finished then begin
             CheckServiceItemLineFinished(ServHeader, ServOrderAlloc."Service Item Line No.");
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey(Status, "Document Type", "Document No.", "Service Item Line No.");
             ServOrderAlloc.SetFilter(Status, '<>%1', ServOrderAlloc.Status::Canceled);
             ServOrderAlloc.SetRange("Document Type", DocumentType);
             ServOrderAlloc.SetRange("Document No.", DocumentNo);
             ServOrderAlloc.SetRange("Service Item Line No.", ServItemLineNo);
             if not ServOrderAlloc.FindFirst then begin
-                NewServOrderAlloc.Init;
+                NewServOrderAlloc.Init();
                 NewServOrderAlloc."Document Type" := DocumentType;
                 NewServOrderAlloc."Document No." := DocumentNo;
                 NewServOrderAlloc."Service Item Line No." := ServItemLineNo;
@@ -151,7 +151,7 @@ codeunit 5930 ServAllocationManagement
             then
                 exit;
 
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
             ServOrderAlloc.SetRange("Document Type", "Document Type");
             ServOrderAlloc.SetRange("Document No.", "Document No.");
@@ -161,7 +161,7 @@ codeunit 5930 ServAllocationManagement
             if not ServOrderAlloc.Find('-') then
                 Error(Text003,
                   ServOrderAlloc.TableCaption, FieldCaption("Allocated Hours"));
-            ServOrderAllocTemp.DeleteAll;
+            ServOrderAllocTemp.DeleteAll();
             repeat
                 ServItemLine.Get(
                   ServOrderAlloc."Document Type",
@@ -170,7 +170,7 @@ codeunit 5930 ServAllocationManagement
                 if RepairStatus.Get(ServItemLine."Repair Status Code") then
                     if not RepairStatus.Finished then begin
                         ServOrderAllocTemp := ServOrderAlloc;
-                        ServOrderAllocTemp.Insert;
+                        ServOrderAllocTemp.Insert();
                     end;
             until ServOrderAlloc.Next = 0;
 
@@ -202,7 +202,7 @@ codeunit 5930 ServAllocationManagement
         ResourceSkill: Record "Resource Skill";
         ResourceSkill2: Record "Resource Skill";
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Resource Skills Option" = ServMgtSetup."Resource Skills Option"::"Not Used" then
             exit(false);
 
@@ -277,7 +277,7 @@ codeunit 5930 ServAllocationManagement
         ServOrderAlloc: Record "Service Order Allocation";
         ServOrderAlloc2: Record "Service Order Allocation";
     begin
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.");
         ServOrderAlloc.SetRange("Document Type", ServHeader."Document Type");
         ServOrderAlloc.SetRange("Document No.", ServHeader."No.");
@@ -287,7 +287,7 @@ codeunit 5930 ServAllocationManagement
                 ServOrderAlloc2.Posted := true;
                 if ServOrderAlloc2.Status = ServOrderAlloc2.Status::Active then
                     ServOrderAlloc2.Status := ServOrderAlloc2.Status::Finished;
-                ServOrderAlloc2.Modify;
+                ServOrderAlloc2.Modify();
             until ServOrderAlloc.Next = 0;
     end;
 
@@ -298,7 +298,7 @@ codeunit 5930 ServAllocationManagement
     begin
         if (ServLine."Service Item Line No." = 0) or (ServLine."Qty. to Ship" = 0) then
             exit;
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.");
         ServOrderAlloc.SetRange("Document Type", ServLine."Document Type");
         ServOrderAlloc.SetRange("Document No.", ServLine."Document No.");
@@ -307,7 +307,7 @@ codeunit 5930 ServAllocationManagement
             repeat
                 ServOrderAlloc2 := ServOrderAlloc;
                 ServOrderAlloc2.Posted := true;
-                ServOrderAlloc2.Modify;
+                ServOrderAlloc2.Modify();
             until ServOrderAlloc.Next = 0;
     end;
 

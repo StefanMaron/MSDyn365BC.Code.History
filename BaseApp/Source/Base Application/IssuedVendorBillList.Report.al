@@ -162,8 +162,8 @@ report 12179 "Issued Vendor Bill List"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        GLSetup.Get;
+        CompanyInfo.Get();
+        GLSetup.Get();
     end;
 
     var

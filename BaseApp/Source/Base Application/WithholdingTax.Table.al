@@ -162,8 +162,8 @@ table 12116 "Withholding Tax"
         field(53; "Non-Taxable Income Type"; Option)
         {
             Caption = 'Non-Taxable Income Type';
-            OptionCaption = ' ,1,2,5,6,7,8,9,10,11';
-            OptionMembers = " ","1","2","5","6","7","8","9","10","11";
+            OptionCaption = ' ,1,2,5,6,7';
+            OptionMembers = " ","1","2","5","6","7";
         }
     }
 
@@ -212,8 +212,8 @@ table 12116 "Withholding Tax"
 
     trigger OnInsert()
     begin
-        WithholdingTax.LockTable;
-        WithholdingTax.Reset;
+        WithholdingTax.LockTable();
+        WithholdingTax.Reset();
         if WithholdingTax.FindLast then
             "Entry No." := WithholdingTax."Entry No." + 1
         else

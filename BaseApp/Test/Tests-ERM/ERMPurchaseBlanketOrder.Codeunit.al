@@ -20,6 +20,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryResource: Codeunit "Library - Resource";
         DocumentTypeRef: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         IsInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
@@ -34,7 +35,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
-        DocumentDateError: Label '%1 cannot be greater than %2';
+        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
 
     [Test]
     [Scope('OnPrem')]
@@ -79,7 +80,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // Verify: Verify VAT Amount on Purchase Blanket Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -208,7 +209,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
 
         // Verify: Verify Invoice Discount on Created Purchase Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Blanket Order No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.FindFirst;
@@ -247,21 +248,23 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine: Record "Purchase Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        // [SCENARIO] Check that blank Posting Date is populating on the created Purchase Order from Blanket Order while Default Posting Date is set to No Date on the Purchase & Payables Setup
+        // [SCENARIO] Check that blank Posting Date is populating on the created Purchase Order from Blanket Order while Default Posting Date is set to No Date on the Purchase & Payables Setup.
 
         // Setup: Update Purchase & Payables Setup and create a Purchase Blanket Order.
         Initialize;
         UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"No Date");
-
-        // [GIVEN] Purchase Blanket Order with blank "Posting Date"
         CreatePurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
           LibraryRandom.RandInt(5), LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);  // Take Randon value for Number of lines.
 
-        // [WHEN] Create Purchase Order From Purchase Blanket Order
-        asserterror CODEUNIT.Run(CODEUNIT::"Blanket Purch. Order to Order", PurchaseHeader);
+        // Exercise: Create Purchase Order From Purchase Blanket Order.
+        LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
 
-        // [THEN] Verify that it is not possible to create Purchase Order from Purchase Quote with Posting Date blank
-        Assert.ExpectedError(StrSubstNo(DocumentDateError, PurchaseHeader.FieldCaption("Document Date"), PurchaseHeader.FieldCaption("Posting Date")));
+        // Verify: Verify that Posting Date must be blank on the newly created Purchase Order.
+        PurchaseLine.SetRange("Blanket Order No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.FindFirst;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.TestField("Posting Date", 0D);
     end;
 
     [Test]
@@ -911,6 +914,42 @@ codeunit 134326 "ERM Purchase Blanket Order"
 
     [Test]
     [Scope('OnPrem')]
+    procedure OrderDocumentDateEqualsToWorkDateWhenDefPostingDateNoDate()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "No Date" in Sales & Receivable setup
+        Initialize;
+
+        // [GIVEN] TAB312."Default Posting Date" = "No Date"
+        UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"No Date");
+
+        // [GIVEN] Purchase Blanket Order with "Document Date" = 01.01.2017
+        // [WHEN] Create Purchase Order from the Blanket Purchase Order on 02.01.2017
+        // [THEN] "Document Date" of the Purchase Order equals to 02.01.2017
+        VerifyDocumentDates;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderDocumentDateEqualsToWorkDateWhenDefPostingDateWorkDate()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "Work Date" in Sales & Receivable setup
+        Initialize;
+
+        // [GIVEN] TAB312."Default Posting Date" = "Work Date"
+        UpdatePurchasePayablesSetup(PurchasesPayablesSetup."Default Posting Date"::"Work Date");
+
+        // [GIVEN] Purchase Blanket Order with "Document Date" = 01.01.2017
+        // [WHEN] Create Purchase Order from the Blanket Purchase Order on 02.01.2017
+        // [THEN] "Document Date" of the Purchase Order equals to 02.01.2017
+        VerifyDocumentDates;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure LinkToBlanketOrderLineWithDiffLocationCannotBeSetOnPurchLineForDropShipment()
     var
         PurchaseHeader: array[2] of Record "Purchase Header";
@@ -924,7 +963,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Location Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank location code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -955,7 +994,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Variant Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank variant code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -986,7 +1025,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank unit of measure code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -1005,10 +1044,26 @@ codeunit 134326 "ERM Purchase Blanket Order"
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderChangePricesInclVATRefreshesPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        BlanketPurchaseOrderPage: TestPage "Blanket Purchase Order";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        // This Country doesn't have this field on the page.
+        Initialize;
+
+        // [GIVEN] Page with Prices including VAT disabled was open
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '');
+        BlanketPurchaseOrderPage.OpenEdit;
+        BlanketPurchaseOrderPage.GotoRecord(PurchaseHeader);
+
+        // [WHEN] User checks Prices including VAT
+        BlanketPurchaseOrderPage."Prices Including VAT".SetValue(true);
+
+        // [THEN] Caption for BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost" field is updated
+        Assert.AreEqual('Direct Unit Cost Incl. VAT',
+          BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost".Caption,
+          'The caption for BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost" is incorrect');
     end;
 
     [Test]
@@ -1072,6 +1127,34 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [WHEN] GetFullDocTypeTxt is called
         // [THEN] 'Purchase Blanket Order' is returned
         Assert.AreEqual('Purchase Blanket Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderFromBlanketOrderWithBlockedResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Create purchase order from blanket order with blocked resource
+        Initialize();
+
+        // [GIVEN] Purchase blanket order with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Blocked resource
+        Resource.Get(PurchaseLine."No.");
+        Resource.Validate(Blocked, true);
+        Resource.Modify(true);
+
+        // [WHEN] Create purchase order
+        asserterror Codeunit.Run(Codeunit::"Blanket Purch. Order to Order", PurchaseHeader);
+
+        // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
+        Assert.ExpectedError(BlockedResourceErr);
     end;
 
     local procedure Initialize()
@@ -1261,7 +1344,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1283,6 +1366,37 @@ codeunit 134326 "ERM Purchase Blanket Order"
             FindFirst;
             TestField("Blanket Order No.", BlanketOrderNo);
             TestField("Blanket Order Line No.", BlanketOrderLineNo);
+        end;
+    end;
+
+    local procedure VerifyDocumentDates()
+    var
+        BlanketPurchaseHeader: Record "Purchase Header";
+        BlanketPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PaymentTerms: Record "Payment Terms";
+        Vendor: Record Vendor;
+        PurchHeaderNo: Code[20];
+    begin
+        Vendor.Get(LibraryPurchase.CreateVendorNo);
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify(true);
+
+        CreatePurchaseBlanketOrder(
+          BlanketPurchaseHeader, BlanketPurchaseLine, 1, Vendor."No.", LibraryInventory.CreateItemNo);
+        BlanketPurchaseHeader.Validate("Document Date", BlanketPurchaseHeader."Document Date" - 1);
+        BlanketPurchaseHeader.Modify();
+
+        PurchHeaderNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(BlanketPurchaseHeader);
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchHeaderNo);
+
+        with PurchaseHeader do begin
+            TestField("Document Date", WorkDate);
+            TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
+            TestField("Prepmt. Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
+            TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
+            TestField("Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
         end;
     end;
 

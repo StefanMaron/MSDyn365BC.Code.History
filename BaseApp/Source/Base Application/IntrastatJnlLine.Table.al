@@ -551,7 +551,7 @@ table 263 "Intrastat Jnl. Line"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if VATEntry.Get(SourceEntryNo) then begin
             Date := VATEntry."Document Date";
             "Country/Region Code" := GetIntrastatCountryCode(VATEntry."Country/Region Code");
@@ -568,14 +568,14 @@ table 263 "Intrastat Jnl. Line"
                 if VATEntry."Document Type" = VATEntry."Document Type"::"Credit Memo" then begin
                     if SalesCrMemoHeader.Get(VATEntry."Document No.") then begin
                         "Corrected Document No." := SalesCrMemoHeader."Applies-to Doc. No.";
-                        VATEntry2.Reset;
+                        VATEntry2.Reset();
                         VATEntry2.SetRange("Document No.", SalesCrMemoHeader."Applies-to Doc. No.");
                         if VATEntry2.FindFirst then
                             "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));
                     end else
                         if ServCrMemoHeader.Get(VATEntry."Document No.") then begin
                             "Corrected Document No." := ServCrMemoHeader."Applies-to Doc. No.";
-                            VATEntry2.Reset;
+                            VATEntry2.Reset();
                             VATEntry2.SetRange("Document No.", ServCrMemoHeader."Applies-to Doc. No.");
                             if VATEntry2.FindFirst then
                                 "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));
@@ -589,7 +589,7 @@ table 263 "Intrastat Jnl. Line"
                     if VATEntry."Document Type" = VATEntry."Document Type"::"Credit Memo" then
                         if PurchCrMemoHeader.Get(VATEntry."Document No.") then begin
                             "Corrected Document No." := PurchCrMemoHeader."Applies-to Doc. No.";
-                            VATEntry2.Reset;
+                            VATEntry2.Reset();
                             VATEntry2.SetRange("Document No.", PurchCrMemoHeader."Applies-to Doc. No.");
                             if VATEntry2.FindFirst then
                                 "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));

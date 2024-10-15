@@ -13,7 +13,7 @@ report 7390 "Whse. Calculate Inventory"
             trigger OnAfterGetRecord()
             begin
                 if SkipCycleSKU("Location Code", "Item No.", "Variant Code") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not HideValidationDialog then
                     Window.Update;
@@ -52,7 +52,7 @@ report 7390 "Whse. Calculate Inventory"
                         if not WhseJnlLine.FindFirst then
                             NextDocNo :=
                               NoSeriesMgt.GetNextNo(WhseJnlBatch."No. Series", RegisteringDate, false);
-                        WhseJnlLine.Init;
+                        WhseJnlLine.Init();
                     end;
                     if NextDocNo = '' then
                         Error(Text001, WhseJnlLine.FieldCaption("Whse. Document No."));
@@ -75,7 +75,7 @@ report 7390 "Whse. Calculate Inventory"
                 if ("Bin Code" = Location."Adjustment Bin Code") or
                    SkipCycleSKU("Location Code", "Item No.", "Variant Code")
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 BinContent.CopyFilters("Bin Content");
                 BinContent.SetRange("Location Code", "Location Code");
@@ -83,9 +83,9 @@ report 7390 "Whse. Calculate Inventory"
                 BinContent.SetRange("Variant Code", "Variant Code");
                 BinContent.SetRange("Unit of Measure Code", "Unit of Measure Code");
                 if not BinContent.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                TempBinContent.Init;
+                TempBinContent.Init();
                 TempBinContent."Location Code" := "Location Code";
                 TempBinContent."Item No." := "Item No.";
                 TempBinContent."Zone Code" := "Zone Code";
@@ -94,12 +94,12 @@ report 7390 "Whse. Calculate Inventory"
                 TempBinContent."Unit of Measure Code" := "Unit of Measure Code";
                 TempBinContent."Quantity (Base)" := 0;
                 if not TempBinContent.Find then
-                    TempBinContent.Insert;
+                    TempBinContent.Insert();
             end;
 
             trigger OnPostDataItem()
             begin
-                TempBinContent.Reset;
+                TempBinContent.Reset();
                 if TempBinContent.FindSet then
                     repeat
                         InsertWhseJnlLine(TempBinContent);
@@ -111,7 +111,7 @@ report 7390 "Whse. Calculate Inventory"
                 if ("Bin Content".GetFilter("Zone Code") = '') and
                    ("Bin Content".GetFilter("Bin Code") = '')
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 "Bin Content".CopyFilter("Location Code", "Location Code");
                 "Bin Content".CopyFilter("Zone Code", "Zone Code");
@@ -122,8 +122,8 @@ report 7390 "Whse. Calculate Inventory"
                 "Bin Content".CopyFilter("Bin Type Code", "Bin Type Code");
                 "Bin Content".CopyFilter("Lot No. Filter", "Lot No.");
                 "Bin Content".CopyFilter("Serial No. Filter", "Serial No.");
-                TempBinContent.Reset;
-                TempBinContent.DeleteAll;
+                TempBinContent.Reset();
+                TempBinContent.DeleteAll();
             end;
         }
     }
@@ -237,14 +237,14 @@ report 7390 "Whse. Calculate Inventory"
     begin
         with WhseJnlLine do begin
             if NextLineNo = 0 then begin
-                LockTable;
+                LockTable();
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 SetRange("Location Code", "Location Code");
                 if FindLast then
                     NextLineNo := "Line No.";
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
             end;
 
             GetLocation(BinContent."Location Code");
@@ -259,8 +259,7 @@ report 7390 "Whse. Calculate Inventory"
             WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
             if WhseEntry.Find('-') then;
             repeat
-                WhseEntry.SetRange("Lot No.", WhseEntry."Lot No.");
-                WhseEntry.SetRange("Serial No.", WhseEntry."Serial No.");
+                WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
                 WhseEntry.CalcSums("Qty. (Base)");
                 if (WhseEntry."Qty. (Base)" <> 0) or ZeroQty then begin
                     ItemUOM.Get(BinContent."Item No.", BinContent."Unit of Measure Code");
@@ -283,8 +282,7 @@ report 7390 "Whse. Calculate Inventory"
                     Validate("Bin Code", BinContent."Bin Code");
                     Validate("Source Code", SourceCodeSetup."Whse. Phys. Invt. Journal");
                     Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
-                    "Serial No." := WhseEntry."Serial No.";
-                    "Lot No." := WhseEntry."Lot No.";
+                    CopyTrackingFromWhseEntry(WhseEntry);
                     "Warranty Date" := WhseEntry."Warranty Date";
                     ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
                     if EntriesExist then
@@ -314,8 +312,7 @@ report 7390 "Whse. Calculate Inventory"
                     OnAfterWhseJnlLineInsert(WhseJnlLine);
                 end;
                 if WhseEntry.Find('+') then;
-                WhseEntry.SetRange("Lot No.");
-                WhseEntry.SetRange("Serial No.");
+                WhseEntry.ClearTrackingFilter;
             until WhseEntry.Next = 0;
         end;
     end;

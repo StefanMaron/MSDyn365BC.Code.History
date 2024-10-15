@@ -17,7 +17,7 @@ report 741 "VAT Report Suggest Lines"
                 if not VATReportLine.IsEmpty then
                     if not Confirm(DeleteReportLinesQst, false) then
                         Error('');
-                VATReportLine.DeleteAll;
+                VATReportLine.DeleteAll();
                 if "VAT Report Type" = "VAT Report Type"::"Cancellation " then
                     CurrReport.Quit;
             end;
@@ -144,7 +144,7 @@ report 741 "VAT Report Suggest Lines"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        VATReportLine.Init;
+        VATReportLine.Init();
         VATReportLine."VAT Report No." := VATReportHeader."No.";
         VATReportLine."Posting Date" := VATEntry."Posting Date";
         VATReportLine."Document No." := VATEntry."Document No.";
@@ -175,7 +175,7 @@ report 741 "VAT Report Suggest Lines"
             VATReportLine."VAT Group Identifier" := VATEntry."Fiscal Code";
 
         VATReportLine."Incl. in Report" := true;
-        VATReportLine.Insert;
+        VATReportLine.Insert();
     end;
 
     local procedure CheckNewGroup(var VATEntry: Record "VAT Entry"): Boolean
@@ -237,7 +237,7 @@ report 741 "VAT Report Suggest Lines"
                 if not VATTransactionReportAmount.IncludeInVATTransacRep(
                      VATReportLine."Posting Date", true, Abs(VATReportLine."Amount Incl. VAT"))
                 then
-                    VATReportLine.Delete;
+                    VATReportLine.Delete();
             until VATReportLine.Next = 0;
     end;
 

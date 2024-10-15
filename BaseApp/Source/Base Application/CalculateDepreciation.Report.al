@@ -15,7 +15,7 @@ report 5692 "Calculate Depreciation"
             trigger OnAfterGetRecord()
             begin
                 if Inactive or Blocked then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 OnBeforeCalculateDepreciation(
                     "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
@@ -41,7 +41,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempFAJnlLine."FA Error Entry No." := ErrorNo;
                         TempFAJnlLine."Line No." := TempFAJnlLine."Line No." + 1;
-                        TempFAJnlLine.Insert;
+                        TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."Document No." := DocumentNo[1];
@@ -50,7 +50,7 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempGenJnlLine."FA Error Entry No." := ErrorNo;
                         TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
-                        TempGenJnlLine.Insert;
+                        TempGenJnlLine.Insert();
                     end;
 
                 if Custom1Amount <> 0 then
@@ -62,7 +62,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempFAJnlLine."FA Error Entry No." := Custom1ErrorNo;
                         TempFAJnlLine."Line No." := TempFAJnlLine."Line No." + 1;
-                        TempFAJnlLine.Insert;
+                        TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."Document No." := DocumentNo[2];
@@ -71,7 +71,7 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempGenJnlLine."FA Error Entry No." := Custom1ErrorNo;
                         TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
-                        TempGenJnlLine.Insert;
+                        TempGenJnlLine.Insert();
                     end;
 
                 if Custom2Amount <> 0 then
@@ -83,7 +83,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempFAJnlLine."FA Error Entry No." := Custom1ErrorNo;
                         TempFAJnlLine."Line No." := TempFAJnlLine."Line No." + 1;
-                        TempFAJnlLine.Insert;
+                        TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."Document No." := DocumentNo[3];
@@ -92,7 +92,7 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine."No. of Depreciation Days" := NumberOfDays;
                         TempGenJnlLine."FA Error Entry No." := Custom1ErrorNo;
                         TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
-                        TempGenJnlLine.Insert;
+                        TempGenJnlLine.Insert();
                     end;
             end;
 
@@ -100,7 +100,7 @@ report 5692 "Calculate Depreciation"
             begin
                 with FAJnlLine do begin
                     if TempFAJnlLine.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                         if UseAutomaticDocumentNo then begin
@@ -146,7 +146,7 @@ report 5692 "Calculate Depreciation"
 
                 with GenJnlLine do begin
                     if TempGenJnlLine.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                         if UseAutomaticDocumentNo then begin
@@ -365,7 +365,7 @@ report 5692 "Calculate Depreciation"
             PostingDate := WorkDate;
             DeprUntilDate := WorkDate;
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

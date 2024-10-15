@@ -192,7 +192,7 @@ report 12174 "Issued Cust Bills Report"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

@@ -56,7 +56,7 @@ codeunit 139026 "Test Job Queue"
     begin
         Initialize;
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue CAL Error Sample";
         JobQueueEntry."Job Queue Category Code" := 'TEST';
@@ -84,22 +84,22 @@ codeunit 139026 "Test Job Queue"
         Initialize;
 
         for i := 1 to 3 do begin
-            JobQueueEntry.Init;
+            JobQueueEntry.Init();
             Clear(JobQueueEntry.ID);
             Clear(JobQueueEntry."System Task ID");
             JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
             JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Sleeping Sample"; // sleeps 10s
             JobQueueEntry."Job Queue Category Code" := 'TEST';
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);  // 1 Background Session created.
-            Commit;
+            Commit();
             Sleep(1000); // allow a small interval between jobs
         end;
-        Commit;
+        Commit();
         i := 0;
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Job Queue Sleeping Sample");
         repeat
             Sleep(2000);
-            NoOfRemainingJobs := JobQueueEntry.Count;
+            NoOfRemainingJobs := JobQueueEntry.Count();
             JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
             Assert.IsTrue(JobQueueEntry.Count <= 1, 'More than one task runs at the same time');
             JobQueueEntry.SetRange(Status);
@@ -122,14 +122,14 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry.LookupRecordToProcess; // Does nothing, just returns.
         JobQueueEntry.ID := CreateGuid;
         asserterror JobQueueEntry.LookupRecordToProcess;
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
         RecRef.GetTable(Customer);
         JobQueueEntry."Record ID to Process" := RecRef.RecordId;
         CustomerLookup.Trap;
         JobQueueEntry.LookupRecordToProcess;
         CustomerLookup.Close;
-        Customer.Delete;
+        Customer.Delete();
         asserterror JobQueueEntry.LookupRecordToProcess;
     end;
 
@@ -234,7 +234,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Daily in Sales Setup
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Daily);
         SalesReceivablesSetup.Modify(true);
@@ -251,7 +251,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Weekly in Sales Setup
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Weekly);
         SalesReceivablesSetup.Modify(true);
@@ -268,7 +268,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue when reset Prepmt. Auto Update Frequency to Never in Sales Setup
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate(
           "Prepmt. Auto Update Frequency", SalesReceivablesSetup."Prepmt. Auto Update Frequency"::Daily);
         SalesReceivablesSetup.Modify(true);
@@ -288,7 +288,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Daily in Purchase Setup
         Initialize;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Daily);
         PurchasesPayablesSetup.Modify(true);
@@ -305,7 +305,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue with Prepmt. Auto Update Frequency = Weekly in Purchase Setup
         Initialize;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Weekly);
         PurchasesPayablesSetup.Modify(true);
@@ -322,7 +322,7 @@ codeunit 139026 "Test Job Queue"
         // [FEATURE] [UT] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Schedule job queue when reset Prepmt. Auto Update Frequency to Never in Purchase Setup
         Initialize;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate(
           "Prepmt. Auto Update Frequency", PurchasesPayablesSetup."Prepmt. Auto Update Frequency"::Daily);
         PurchasesPayablesSetup.Modify(true);
@@ -346,7 +346,7 @@ codeunit 139026 "Test Job Queue"
         Initialize;
 
         // [GIVEN] Job Queue Entry running codeunit with CONFIRM dialog
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Confirm";
         JobQueueEntry."Job Queue Category Code" := 'TEST';
@@ -375,7 +375,7 @@ codeunit 139026 "Test Job Queue"
         Initialize;
 
         // [GIVEN] Job Queue Entry running codeunit with CONFIRM dialog wrapped with GUIALLOWED
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Confirm Guiallowed";
         JobQueueEntry."Job Queue Category Code" := 'TEST';
@@ -450,7 +450,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         i: Integer;
     begin
-        Commit;
+        Commit();
         repeat
             i += 1;
             Sleep(1000);
@@ -469,7 +469,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
         // We won't be able to delete entries with Status = In Process.
-        Commit;
+        Commit();
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
         if JobQueueEntry.FindSet then begin
             repeat
@@ -480,7 +480,7 @@ codeunit 139026 "Test Job Queue"
 
         JobQueueEntry.DeleteAll(true);
         JobQueueLogEntry.DeleteAll(true);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyJobQueueEntry(ExpectedRecID: RecordID)
@@ -506,7 +506,7 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry.TestField("Recurring Job", Recurring);
         JobQueueEntry.TestField("No. of Minutes between Runs", NoOfMinutes);
 
-        JobQueueEntry.Delete;
+        JobQueueEntry.Delete();
     end;
 
     [ConfirmHandler]

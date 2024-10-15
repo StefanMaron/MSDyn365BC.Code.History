@@ -1,4 +1,4 @@
-﻿page 43 "Sales Invoice"
+page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -982,7 +982,7 @@
                         OnBeforeStatisticsAction(Rec, Handled);
                         if not Handled then begin
                             CalcInvDiscForHeader;
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
                         end
@@ -1581,6 +1581,24 @@
                         CancelBackgroundPosting;
                     end;
                 }
+                action(PrintToAttachment)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Ellipsis = true;
+                    Image = PrintAttachment;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                        DocumentPrint: Codeunit "Document-Print";
+                    begin
+                        SalesHeader := Rec;
+                        SalesHeader.SetRecFilter();
+                        DocumentPrint.PrintSalesInvoiceToDocumentAttachment(SalesHeader, DocumentPrint.GetSalesInvoicePrintToAttachmentOption(Rec));
+                    end;
+                }
             }
         }
     }
@@ -1626,7 +1644,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        xRec.Init;
+        xRec.Init();
         "Responsibility Center" := UserMgt.GetSalesFilter;
         if (not DocNoVisible) and ("No." = '') then
             SetSellToCustomerFromFilter;
@@ -1696,8 +1714,6 @@
         JobQueuesUsed: Boolean;
         CanCancelApprovalForRecord: Boolean;
         DocumentIsPosted: Boolean;
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
@@ -1706,6 +1722,10 @@
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1752,7 +1772,7 @@
                         ShowPostedConfirmationMessage(PreAssignedNo);
                 NavigateAfterPost::"New Document":
                     if DocumentIsPosted then begin
-                        SalesHeader.Init;
+                        SalesHeader.Init();
                         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
                         OnPostOnBeforeSalesHeaderInsert(SalesHeader);
                         SalesHeader.Insert(true);
@@ -1811,7 +1831,7 @@
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
     end;
 

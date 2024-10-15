@@ -45,7 +45,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         OnBeforeRunCheck(GenJnlLine);
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if EmptyLine then
                 exit;
@@ -468,7 +468,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
         InclInVATReportValidation: Codeunit "Incl. in VAT Report Validation";
     begin
-        InclInVATReportErrorLogTemp.DeleteAll;
+        InclInVATReportErrorLogTemp.DeleteAll();
         InclInVATReportValidation.ValidateGeneralJournalLine(GenJnlLineParam, InclInVATReportErrorLogTemp);
         if InclInVATReportErrorLogTemp.FindFirst then
             Error(InclInVATReportErrorLogTemp."Error Message" + ' ' + StrSubstNo(Text12000, GenJnlLineParam."Line No."));

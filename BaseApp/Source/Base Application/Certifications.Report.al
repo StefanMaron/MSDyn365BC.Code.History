@@ -382,10 +382,10 @@ report 12106 Certifications
                     DescrWithHoldTax7 := Text1049;
 
                     if not OnlyWithholdTax then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not WithholdTaxCode.Get("Withholding Tax Code") then
-                        WithholdTaxCode.Init;
+                        WithholdTaxCode.Init();
 
                     if FinalReporting and
                        not CurrReport.Preview
@@ -529,10 +529,10 @@ report 12106 Certifications
                 trigger OnAfterGetRecord()
                 begin
                     if not OnlyINPS then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not INPSContribCode.Get("Social Security Code", INPSContribCode."Contribution Type"::INPS) then
-                        INPSContribCode.Init;
+                        INPSContribCode.Init();
 
                     if FinalReporting and not CurrReport.Preview and OnlyINPS then begin
                         Reported := true;
@@ -672,10 +672,10 @@ report 12106 Certifications
                 trigger OnAfterGetRecord()
                 begin
                     if not OnlyINAIL then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not INPSContribCode.Get("INAIL Code", INPSContribCode."Contribution Type"::INAIL) then
-                        INPSContribCode.Init;
+                        INPSContribCode.Init();
 
                     if FinalReporting and not CurrReport.Preview and OnlyINAIL then begin
                         Reported := true;
@@ -711,7 +711,7 @@ report 12106 Certifications
             trigger OnAfterGetRecord()
             begin
                 if not Country.Get("Country/Region Code") then
-                    Country.Init;
+                    Country.Init();
 
                 PageGroupNo := 1;
 
@@ -726,7 +726,7 @@ report 12106 Certifications
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }

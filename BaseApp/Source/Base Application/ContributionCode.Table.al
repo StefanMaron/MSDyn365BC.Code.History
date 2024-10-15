@@ -49,11 +49,11 @@ table 12106 "Contribution Code"
 
     trigger OnDelete()
     begin
-        SocialSecurityCodeLine.Reset;
+        SocialSecurityCodeLine.Reset();
         SocialSecurityCodeLine.SetRange(Code, Code);
 
         if SocialSecurityCodeLine.FindFirst then
-            SocialSecurityCodeLine.DeleteAll;
+            SocialSecurityCodeLine.DeleteAll();
     end;
 
     var

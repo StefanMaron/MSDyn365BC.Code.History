@@ -21,9 +21,6 @@ report 12103 "Summary Withholding Payment"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Withholding_Tax_Payment_Month; Month)
             {
             }

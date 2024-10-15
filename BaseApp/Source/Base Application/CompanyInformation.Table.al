@@ -121,7 +121,7 @@ table 79 "Company Information"
                       VATRegistrationLog."Account Type"::"Company Information", "Country/Region Code");
                     ResultRecordRef.SetTable(Rec);
                 end;
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Validate loc.VAT Reg. No." then
                     LocalAppMgt.CheckDigitVAT("VAT Registration No.");
             end;
@@ -385,10 +385,6 @@ table 79 "Company Information"
                     if not GLNCalculator.IsValidCheckDigit13(GLN) then
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
-        }
-        field(95; "Use GLN in Electronic Document"; Boolean)
-        {
-            Caption = 'Use GLN in Electronic Documents';
         }
         field(96; "Picture - Last Mod. Date Time"; DateTime)
         {

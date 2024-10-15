@@ -1,4 +1,4 @@
-﻿page 5907 "Service Item Worksheet Subform"
+page 5907 "Service Item Worksheet Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -602,7 +602,7 @@
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);
@@ -675,7 +675,7 @@
         ServItemLine: Record "Service Item Line";
         FaultResolutionRelation: Page "Fault/Resol. Cod. Relationship";
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
             ServMgtSetup."Fault Reporting Level"::None:
                 Error(

@@ -21,11 +21,6 @@ page 12198 "Vendor Bill Withh. Tax"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the vendor bill withholding taxes are paid to the tax authority.';
                 }
-                field(Reason; Reason)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code.';
-                }
             }
             group("Withholding Tax")
             {
@@ -194,7 +189,7 @@ page 12198 "Vendor Bill Withh. Tax"
                     VendBillLine.Validate("Amount to Pay", (VendBillLine."Amount to Pay" - "Withholding Tax Amount" - "Free-Lance Amount"));
                 VendBillLine."Withholding Tax Amount" := "Withholding Tax Amount";
                 VendBillLine."Social Security Amount" := "Total Social Security Amount";
-                VendBillLine.Modify;
+                VendBillLine.Modify();
                 "Old Free-Lance Amount" := "Free-Lance Amount";
                 Modify;
             end;

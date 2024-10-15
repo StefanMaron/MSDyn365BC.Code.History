@@ -19,9 +19,6 @@ report 12107 "Calculate Interest on Arrears"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -199,7 +196,7 @@ report 12107 "Calculate Interest on Arrears"
                     trigger OnPreDataItem()
                     begin
                         if not PrintDetail then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, (ix + 1));
                     end;
                 }
@@ -229,7 +226,7 @@ report 12107 "Calculate Interest on Arrears"
                     ix2 := ix2 + 1;
                     DueDateTmp[ix2] := "Due Date";
 
-                    CustLedgerEntry.Reset;
+                    CustLedgerEntry.Reset();
                     CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
                     CustLedgerEntry.SetFilter("Posting Date", '<%1', CreateCustLedgEntry."Due Date");
@@ -345,7 +342,7 @@ report 12107 "Calculate Interest on Arrears"
                         end;
                     if (IntLedgerEntry = "Int. Arrears Amount to Pay") and OnlyOpen then begin
                         IntLedgerEntrySource := PrevIntLedgerEntrySource;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                     "Int. Arrears Amount to Pay" := IntLedgerEntry;
                     Modify;
@@ -354,7 +351,7 @@ report 12107 "Calculate Interest on Arrears"
 
                     if IntLedgerEntry < FinanceChargeTerms."Minimum Amount (LCY)" then begin
                         IntLedgerEntrySource := PrevIntLedgerEntrySource;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                     IntLedgerEntryTotal += IntLedgerEntry;
                 end;
@@ -383,7 +380,7 @@ report 12107 "Calculate Interest on Arrears"
             trigger OnPreDataItem()
             begin
                 if PrintType = PrintType::Vendor then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(Vendor; Vendor)
@@ -393,9 +390,6 @@ report 12107 "Calculate Interest on Arrears"
             {
             }
             column(COMPANYNAME_Control1130087; COMPANYPROPERTY.DisplayName)
-            {
-            }
-            column(CurrReport_PAGENO_Control1130089; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4__Control1130091; Format(Today, 0, 4))
@@ -569,7 +563,7 @@ report 12107 "Calculate Interest on Arrears"
                     trigger OnPreDataItem()
                     begin
                         if not PrintDetail then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, (ix + 1));
                     end;
                 }
@@ -598,7 +592,7 @@ report 12107 "Calculate Interest on Arrears"
                     PrevIntLedgerEntrySource := IntLedgerEntrySource;
                     ix2 := ix2 + 1;
                     DueDateTmp[ix2] := "Due Date";
-                    VenLedgerEntry.Reset;
+                    VenLedgerEntry.Reset();
                     VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     VenLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
                     VenLedgerEntry.SetFilter("Posting Date", '<%1', CreateVendLedgEntry."Due Date");
@@ -716,7 +710,7 @@ report 12107 "Calculate Interest on Arrears"
                         end;
                     if (IntLedgerEntry = "Int. Arrears Amount to Pay") and OnlyOpen then begin
                         IntLedgerEntrySource := PrevIntLedgerEntrySource;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
 
                     "Int. Arrears Amount to Pay" := IntLedgerEntry;
@@ -726,7 +720,7 @@ report 12107 "Calculate Interest on Arrears"
 
                     if IntLedgerEntry < FinanceChargeTerms."Minimum Amount (LCY)" then begin
                         IntLedgerEntrySource := PrevIntLedgerEntrySource;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                     IntLedgerEntryTotal += IntLedgerEntry;
                 end;
@@ -754,7 +748,7 @@ report 12107 "Calculate Interest on Arrears"
             trigger OnPreDataItem()
             begin
                 if PrintType = PrintType::Customer then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -830,7 +824,7 @@ report 12107 "Calculate Interest on Arrears"
         RateInterestDateTmp := RateInterestDate;
         if (FromDate > ToDate) and (ToDate <> 0D) and (FromDate <> 0D) then
             Error(Text1130031);
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -936,7 +930,7 @@ report 12107 "Calculate Interest on Arrears"
             DayDiffDetail[ix] := 0;
         FinanceChargeTerms.Get(InterestCode);
         InterestonArrears.SetFilter("Starting Date", '%1..%2', StartDate, EndingDate);
-        TotalCount := InterestonArrears.Count;
+        TotalCount := InterestonArrears.Count();
         CurrentCount := 0;
         if InterestonArrears.FindSet then
             repeat
@@ -959,7 +953,7 @@ report 12107 "Calculate Interest on Arrears"
                 TotalDayDiff += DayDiff;
                 IntAmount += (DayDiff / FinanceChargeTerms."Interest Period (Days)") * RateFirst / 100;
                 DateFirst := CalcDate('<-1D>', DateSecond);
-                InterestonArrearsNext.Reset;
+                InterestonArrearsNext.Reset();
                 InterestonArrearsNext.SetRange(Code, InterestCode);
                 InterestonArrearsNext.SetFilter("Starting Date", '%1..', CalcDate('<+1D>', DateSecond));
                 if InterestonArrearsNext.FindFirst then begin

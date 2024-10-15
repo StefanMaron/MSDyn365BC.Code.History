@@ -32,14 +32,14 @@ codeunit 12171 "Vend. Bill List-Change Status"
         with VendorBillHeader do begin
             TestField("Posting Date");
 
-            VendorBillLine.Reset;
+            VendorBillLine.Reset();
             VendorBillLine.SetRange("Vendor Bill List No.", "No.");
             VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
             if not VendorBillLine.Find('-') then
                 Error(Text001);
 
             PaymentMethod.Get("Payment Method Code");
-            BillCode.LockTable;
+            BillCode.LockTable();
             BillCode.Get(PaymentMethod."Bill Code");
             if (BillCode."Vendor Bill List" = '') or
                (BillCode."Vendor Bill No." = '')
@@ -67,10 +67,10 @@ codeunit 12171 "Vend. Bill List-Change Status"
                     VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
                     VendLedgEntry."Vendor Bill List" := "Vendor Bill List No.";
                     VendLedgEntry."Vendor Bill No." := NextVendBillNo;
-                    VendLedgEntry.Modify;
+                    VendLedgEntry.Modify();
                 end;
                 VendorBillLine."Vendor Bill No." := NextVendBillNo;
-                VendorBillLine.Modify;
+                VendorBillLine.Modify();
             until VendorBillLine.Next = 0;
         end;
 
@@ -91,7 +91,7 @@ codeunit 12171 "Vend. Bill List-Change Status"
             "User ID" := UserId;
             Modify;
 
-            VendorBillLine.Reset;
+            VendorBillLine.Reset();
             VendorBillLine.SetRange("Vendor Bill List No.", "No.");
             VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
             if VendorBillLine.FindSet then
@@ -100,10 +100,10 @@ codeunit 12171 "Vend. Bill List-Change Status"
                         VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
                         VendLedgEntry."Vendor Bill List" := '';
                         VendLedgEntry."Vendor Bill No." := '';
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                     end;
                     VendorBillLine."Vendor Bill No." := '';
-                    VendorBillLine.Modify;
+                    VendorBillLine.Modify();
                 until VendorBillLine.Next = 0;
         end;
 

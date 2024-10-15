@@ -17,7 +17,7 @@ codeunit 130621 "Graph Background Sync. Subscr."
     var
         ScheduledTask: Record "Scheduled Task";
     begin
-        ScheduledTask.Init;
+        ScheduledTask.Init();
         ScheduledTask.ID := CreateGuid;
         ScheduledTask.Company := CompanyName;
         ScheduledTask."Run Codeunit" := CodeunitID;
@@ -27,7 +27,7 @@ codeunit 130621 "Graph Background Sync. Subscr."
         if RecordID.IsRecordId then
             ScheduledTask.Record := RecordID;
 
-        ScheduledTask.Insert;
+        ScheduledTask.Insert();
     end;
 }
 

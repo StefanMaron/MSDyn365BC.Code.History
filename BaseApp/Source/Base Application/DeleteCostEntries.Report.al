@@ -26,23 +26,23 @@ report 1130 "Delete Cost Entries"
                     CostEntry.ModifyAll("Allocated with Journal No.", 0);
                 end;
 
-                CostEntry.Reset;
+                CostEntry.Reset();
                 CostEntry.SetRange("Entry No.", "From Cost Entry No.", "To Cost Entry No.");
-                CostEntry.DeleteAll;
+                CostEntry.DeleteAll();
             end;
 
             trigger OnPostDataItem()
             var
                 CostEntry: Record "Cost Entry";
             begin
-                DeleteAll;
+                DeleteAll();
                 Reset;
                 SetRange(Source, Source::Allocation);
                 if FindLast then begin
                     CostEntry.Get("To Cost Entry No.");
-                    CostAccSetup.Get;
+                    CostAccSetup.Get();
                     CostAccSetup."Last Allocation Doc. No." := CostEntry."Document No.";
-                    CostAccSetup.Modify;
+                    CostAccSetup.Modify();
                 end;
             end;
 

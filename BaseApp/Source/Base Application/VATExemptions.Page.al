@@ -122,10 +122,10 @@ page 12100 "VAT Exemptions"
         NoSeries: Code[20];
     begin
         if GetFilter(Type) = Format(Type::Customer) then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             NoSeries := SalesSetup."VAT Exemption Nos.";
         end else begin // Vendor
-            PurchasesSetup.Get;
+            PurchasesSetup.Get();
             NoSeries := PurchasesSetup."VAT Exemption Nos.";
         end;
 

@@ -1,4 +1,4 @@
-﻿page 5905 "Service Lines"
+page 5905 "Service Lines"
 {
     AutoSplitKey = true;
     Caption = 'Service Lines';
@@ -622,7 +622,7 @@
                     var
                         ServShptHeader: Record "Service Shipment Header";
                     begin
-                        ServShptHeader.Reset;
+                        ServShptHeader.Reset();
                         ServShptHeader.FilterGroup(2);
                         ServShptHeader.SetRange("Order No.", "Document No.");
                         ServShptHeader.FilterGroup(0);
@@ -640,7 +640,7 @@
                     var
                         ServInvHeader: Record "Service Invoice Header";
                     begin
-                        ServInvHeader.Reset;
+                        ServInvHeader.Reset();
                         ServInvHeader.FilterGroup(2);
                         ServInvHeader.SetRange("Order No.", "Document No.");
                         ServInvHeader.FilterGroup(0);
@@ -946,7 +946,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowPrices;
+                        PickPrice();
                         CurrPage.Update;
                     end;
                 }
@@ -993,7 +993,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDisc;
+                        PickDiscount();
                         CurrPage.Update;
                     end;
                 }
@@ -1038,9 +1038,9 @@
 
                         if ServLine.FindFirst then
                             repeat
-                                TempServLine.Init;
+                                TempServLine.Init();
                                 TempServLine := ServLine;
-                                TempServLine.Insert;
+                                TempServLine.Insert();
                             until ServLine.Next = 0
                         else
                             exit;
@@ -1077,9 +1077,9 @@
 
                         if ServLine.FindFirst then
                             repeat
-                                TempServLine.Init;
+                                TempServLine.Init();
                                 TempServLine := ServLine;
-                                if TempServLine.Insert then;
+                                if TempServLine.Insert() then;
                             until Next = 0
                         else
                             exit;
@@ -1102,7 +1102,7 @@
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);
@@ -1136,7 +1136,7 @@
         SelectionFilter := SelectionFilter::"Lines per Selected Service Item";
         SetSelectionFilter;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
             ServMgtSetup."Fault Reporting Level"::None:
                 begin
@@ -1174,7 +1174,6 @@
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ShortcutDimCode: array[8] of Code[20];
         ServItemLineNo: Integer;
@@ -1254,7 +1253,7 @@
         ServSetup: Record "Service Mgt. Setup";
         FaultResolutionRelation: Page "Fault/Resol. Cod. Relationship";
     begin
-        ServSetup.Get;
+        ServSetup.Get();
         case ServSetup."Fault Reporting Level" of
             ServSetup."Fault Reporting Level"::None:
                 Error(
@@ -1268,20 +1267,6 @@
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
         FaultResolutionRelation.RunModal;
         CurrPage.Update(false);
-    end;
-
-    local procedure ShowPrices()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLinePrice(ServHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLineLineDisc(ServHeader, Rec);
     end;
 
     local procedure NoOnAfterValidate()
@@ -1298,7 +1283,7 @@
         end;
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    procedure LocationCodeOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
@@ -1310,7 +1295,7 @@
         CurrPage.Update(true);
     end;
 
-    local procedure QuantityOnAfterValidate()
+    procedure QuantityOnAfterValidate()
     var
         UpdateIsDone: Boolean;
     begin
@@ -1338,7 +1323,7 @@
             CurrPage.Update(true);
     end;
 
-    local procedure PostingDateOnAfterValidate()
+    procedure PostingDateOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and

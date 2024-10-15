@@ -50,7 +50,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATProdGroupFieldNo: Integer;
         GenProdGroupFieldNo: Integer;
     begin
-        RecRef.Reset;
+        RecRef.Reset();
 
         case RecRef.Number of
             DATABASE::"Finance Charge Memo Line",
@@ -123,13 +123,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FromFieldRef: FieldRef;
         ToFieldRef: FieldRef;
         I: Integer;
-        FieldClass: Option Normal,FlowField,FlowFilter;
     begin
-        ToRecRef.Init;
+        ToRecRef.Init();
         for I := 1 to FromRecRef.FieldCount do begin
             FromFieldRef := FromRecRef.FieldIndex(I);
-            Evaluate(FieldClass, Format(FromFieldRef.Class));
-            if FieldClass = FieldClass::Normal then begin
+            if FromFieldRef.Class = FieldClass::Normal then begin
                 ToFieldRef := ToRecRef.FieldIndex(I);
                 ToFieldRef.Value := FromFieldRef.Value;
             end;
@@ -227,7 +225,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
     begin
-        GenPostingSetup.Init;
+        GenPostingSetup.Init();
         GenPostingSetup.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
         GenPostingSetup.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
         GenPostingSetup.Insert(true);
@@ -256,7 +254,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure CreateGenProdPostingGroup(var GenProdPostingGroup: Record "Gen. Product Posting Group"; AutoInsertDefault: Boolean)
     begin
-        GenProdPostingGroup.Init;
+        GenProdPostingGroup.Init();
         GenProdPostingGroup.Validate(Code, LibraryUtility.GenerateRandomCode
           (GenProdPostingGroup.FieldNo(Code), DATABASE::"Gen. Product Posting Group"));
         GenProdPostingGroup.Validate("Auto Insert Default", AutoInsertDefault);
@@ -286,7 +284,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenProdPostingGroup: Code[20];
     begin
         GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
-        ItemCharge.Init;
+        ItemCharge.Init();
         ItemCharge.Validate("No.", LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."),
             DATABASE::"Item Charge"));
         ItemCharge.Validate(Description, ItemCharge."No.");
@@ -514,32 +512,26 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         ExistingVATPostingSetup: Record "VAT Posting Setup";
-        VATIdentifier: Record "VAT Identifier";
         VATPercent: Integer;
     begin
         ExistingVATPostingSetup.SetFilter("Sales VAT Account", '<>''''');
         ExistingVATPostingSetup.SetFilter("Purchase VAT Account", '<>''''');
         LibraryERM.FindVATPostingSetup(ExistingVATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
         VATPostingSetup.Validate("VAT Bus. Posting Group", ExistingVATPostingSetup."VAT Bus. Posting Group");
-        LibraryERM.CreateVATIdentifier(VATIdentifier);
-        VATPostingSetup.Validate("VAT Identifier", VATIdentifier.Code);
         VATPercent := LibraryRandom.RandInt(30);
+        VATPostingSetup.Validate("VAT Identifier", 'VAT' + Format(VATPercent));
         VATPostingSetup.Validate("VAT %", VATPercent);
         VATPostingSetup.Validate("Sales VAT Account", ExistingVATPostingSetup."Sales VAT Account");
         VATPostingSetup.Validate("Purchase VAT Account", ExistingVATPostingSetup."Purchase VAT Account");
-        // IT specific accounts
-        VATPostingSetup.Validate("Sales Prepayments Account", ExistingVATPostingSetup."Sales VAT Account");
-        VATPostingSetup.Validate("Purch. Prepayments Account", ExistingVATPostingSetup."Purchase VAT Account");
-        // IT
         VATPostingSetup.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateVATProdPostingGroup(var VATProdPostingGroup: Record "VAT Product Posting Group")
     begin
-        VATProdPostingGroup.Init;
+        VATProdPostingGroup.Init();
         VATProdPostingGroup.Validate(Code, LibraryUtility.GenerateRandomCode(VATProdPostingGroup.FieldNo(Code),
             DATABASE::"VAT Product Posting Group"));
         VATProdPostingGroup.Insert(true);
@@ -604,14 +596,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
             repeat
                 if VATRateChangeConv.Type = VATRateChangeConv.Type::"VAT Prod. Posting Group" then begin
                     VATPostingSetup.SetFilter("VAT Prod. Posting Group", '%1|%2', VATRateChangeConv."From Code", VATRateChangeConv."To Code");
-                    VATPostingSetup.DeleteAll;
+                    VATPostingSetup.DeleteAll();
                     VATProdPostingGroup.SetFilter(Code, '%1|%2', VATRateChangeConv."From Code", VATRateChangeConv."To Code");
-                    VATProdPostingGroup.DeleteAll;
+                    VATProdPostingGroup.DeleteAll();
                 end else begin
                     GenPostingSetup.SetFilter("Gen. Prod. Posting Group", '%1|%2', VATRateChangeConv."From Code", VATRateChangeConv."To Code");
-                    GenPostingSetup.DeleteAll;
+                    GenPostingSetup.DeleteAll();
                     GenProdPostingGroup.SetFilter(Code, '%1|%2', VATRateChangeConv."From Code", VATRateChangeConv."To Code");
-                    GenProdPostingGroup.DeleteAll;
+                    GenProdPostingGroup.DeleteAll();
                 end;
                 VATRateChangeConv.Delete(true);
             until VATRateChangeConv.Next = 0;
@@ -1140,8 +1132,10 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
     [Scope('OnPrem')]
     procedure PostPurchasePrepaymentInvoice(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
-        LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
+        PurchasePostPrepayments.Invoice(PurchaseHeader);
     end;
 
     [Scope('OnPrem')]
@@ -1195,9 +1189,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
         ResetVATRateChangeSetup;
-        VATRateChangeConv.DeleteAll;
-        VATRateChangeLogEntry.DeleteAll;
-        Commit;
+        VATRateChangeConv.DeleteAll();
+        VATRateChangeLogEntry.DeleteAll();
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -1206,7 +1200,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
         with VATRateChangeSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Insert;
             "Update Gen. Prod. Post. Groups" := "Update Gen. Prod. Post. Groups"::No;
@@ -1287,7 +1281,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         InventorySetup: Record "Inventory Setup";
     begin
         // Modify Item No. Series in Inventory setup.
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
     end;
@@ -1638,7 +1632,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         // Create posting groups to update and save them in VAT Change Tool Conversion table.
         CreatePostingGroups(false);
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.Validate("Update G/L Accounts", VATRateChangeSetup."Update G/L Accounts"::"VAT Prod. Posting Group");
         VATRateChangeSetup.Validate("Update Items", VATRateChangeSetup."Update Items"::"VAT Prod. Posting Group");
         VATRateChangeSetup.Validate("Update Resources", VATRateChangeSetup."Update Resources"::"VAT Prod. Posting Group");
@@ -1857,7 +1851,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ApplyFilters(RecRef, VATProdPostingGroup, GenProdPostingGroup);
 
         // Prepare Temp Record
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         TempRecRef.FindSet;
 
         // Verify: Existing records updated as expected.

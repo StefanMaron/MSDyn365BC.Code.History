@@ -268,7 +268,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
         // 3. Verify: Verify error occurs "Dimension Blocked" on Selecting Block Dimension on Service Header.
-        DimensionSetEntry.Init;
+        DimensionSetEntry.Init();
         asserterror DimensionSetEntry.Validate("Dimension Code", Dimension.Code);
         Assert.AreEqual(StrSubstNo(BlockDimension, Dimension.Code), GetLastErrorText, UnknownError);
 
@@ -1528,7 +1528,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 1. Setup: Create Customer, Create Default Dimension for Customer and Create Service Header.
         CreateServiceHeaderWithDim(ServiceHeader, DefaultDimension, DefaultDimension."Value Posting"::"Code Mandatory");
-        Commit;
+        Commit();
 
         // 2. Exercise: Delete Document Dimension for Service Header and Post Service Order as Ship and Invoice.
         UpdateDimSetIdOnHeader(
@@ -1723,7 +1723,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 1. Setup: Create Customer, Create Default Dimension for Customer and Create Service Header.
         CreateServiceHeaderWithDim(ServiceHeader, DefaultDimension, DefaultDimension."Value Posting"::"Same Code");
-        Commit;
+        Commit();
 
         // 2. Exercise: Change the Dimension Value on Document Dimension for Service Header and Post Service Order as Ship and Invoice.
         UpdateDimSetIdOnHeader(
@@ -1863,7 +1863,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 1. Setup: Create Customer, Create Default Dimension for Customer and Create Service Header.
         CreateServiceHeaderWithDim(ServiceHeader, DefaultDimension, DefaultDimension."Value Posting"::"No Code");
-        Commit;
+        Commit();
         // 2. Exercise: Change the Dimension Value on Document Dimension for Service Header and Post Service Order as Ship and Invoice.
         UpdateDimSetIdOnHeader(
           ServiceHeader,
@@ -1899,7 +1899,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateLineBlockDimGLAccount(ServiceLine, Dimension);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
-        Commit;
+        Commit();
 
         // 2. Exercise: Post Service Order as Ship and Invoice.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -1932,7 +1932,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateLineBlockDimItem(ServiceLine, Dimension, false);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Item, ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
-        Commit;
+        Commit();
 
         // 2. Exercise: Post Service Order as Ship and Invoice.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -1965,7 +1965,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateLineBlockDimResource(ServiceLine, Dimension, false);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Resource, ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
-        Commit;
+        Commit();
 
         // 2. Exercise: Post Service Order as Ship and Invoice.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -2190,7 +2190,7 @@ codeunit 136118 "Service Posting - Dimensions"
         VerifyDimForServiceItemGrp(ServiceItemLine, ServiceItemGroupCode);
 
         // 4. Teardown: Delete all Default Dimension Priority Related to Service Management.
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
         DefaultDimensionPriority.DeleteAll(true);
     end;
@@ -2511,7 +2511,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceOrder.Close;
 
         // [THEN] Dimension Set Tree Node for "DV" has not been created
-        DimensionSetTreeNode.Init;
+        DimensionSetTreeNode.Init();
         DimensionSetTreeNode.SetRange("Dimension Value ID", DimValueId);
         Assert.RecordIsEmpty(DimensionSetTreeNode);
     end;
@@ -2538,7 +2538,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [GIVEN] Customer posting group with Invoice Rounding G/L Account = "A"
         // [GIVEN] Customer with posting group and dimension "DEPARTMENT" - "ADM"
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.CreateDimensionValue(DimValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -2607,7 +2607,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Dimensions");
     end;
 
@@ -2618,7 +2618,7 @@ codeunit 136118 "Service Posting - Dimensions"
         RoutingHeader: Record "Routing Header";
         WorkCenterNo: Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SetPairedDefaultDimPrioritiesForSourceCode(TableOfHighPriority, TableOfLowPriority, SourceCodeSetup."Production Journal");
 
         CreateCertifiedRoutingForWorkCenter(RoutingHeader, RoutingHeader.Type::Serial, WorkCenterNo);
@@ -3180,7 +3180,7 @@ codeunit 136118 "Service Posting - Dimensions"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         // Use 1,2,3,4,5 Values for Dimension Priority.
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
         DefaultDimensionPriority.DeleteAll(true);
@@ -3233,7 +3233,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryDimension.CreateDefaultDimensionGLAcc(
           DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
         exit(DimensionValue."Dimension Value ID");
     end;
 
@@ -3244,7 +3244,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryDimension.CreateDefaultDimensionGLAcc(
           DefaultDimension, GLAccountNo, DimensionCode, '');
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
     end;
 
     local procedure CreateItemResourceGLDefaultDim(var CustomerNo: Code[20]; var ItemNo: Code[20]; var ResourceNo: Code[20]; var GLAccountNo: Code[20])
@@ -3577,7 +3577,7 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SetPairedDefaultDimPrioritiesForSourceCode(HighPriorityTableID, LowPriorityTableID, SourceCodeSetup."Service Management");
     end;
 

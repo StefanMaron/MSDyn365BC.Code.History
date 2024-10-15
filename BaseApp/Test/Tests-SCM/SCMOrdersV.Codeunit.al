@@ -745,6 +745,7 @@ codeunit 137158 "SCM Orders V"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostSalesOrderWithMultipleSeriesLineAndExtDocument()
     begin
@@ -752,7 +753,7 @@ codeunit 137158 "SCM Orders V"
         // [SCENARIO 252383] Test and verify Post Sales Order with Multiple Series Line and External Document.
 
         Initialize;
-        asserterror PostSalesOrderWithMultipleSeriesLine(true);  // Use True for with External Document.
+        PostSalesOrderWithMultipleSeriesLine(true);  // Use True for with External Document.
     end;
 
     local procedure PostSalesOrderWithMultipleSeriesLine(WithExternalDocumentNo: Boolean)
@@ -766,7 +767,7 @@ codeunit 137158 "SCM Orders V"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // Create Series with different starting dates. Update External Document Mandatory and Posted Invoice Series on Sales Setup. Create Sales Order without External Document.
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CreateNoSeriesWithDifferentStartingDates(NoSeriesLine);
         UpdateExtDocNoMandatoryAndPostedInvNosOnSalesSetup(true, NoSeriesLine."Series Code");
         CreateSalesOrderWithoutExternalDocumentNo(SalesHeader, Customer);
@@ -1040,7 +1041,7 @@ codeunit 137158 "SCM Orders V"
 
         // Exercise: Change the Unit of Measure Code on Sales Order page to trigger the avail. warning and post the order.
         // PS: The automation case cannot detect the error "The following C/AL functionts..." due to testability issue.
-        Commit;
+        Commit();
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines."Unit of Measure Code".SetValue(ItemUnitOfMeasure1.Code); // Trigger the avail.warning.
@@ -1262,7 +1263,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Set Sales Line "Qty. to Ship" to X.
         SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [WHEN] Change Quantity in Sales Line to X + 1 (VALIDATE).
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
@@ -1568,26 +1569,26 @@ codeunit 137158 "SCM Orders V"
         // [FEATURE] [Purchase] [Purchase Line Factbox] [UI]
         // [SCENARIO 305591] "Item Availability" value in Purchase Line Details Factbox is rounded to 0.00001.
         Initialize;
-  
+
         // [GIVEN] Item "I" with 1.555555 pcs (6 digits) in inventory.
         LibraryInventory.CreateItem(Item);
-        MockItemInventory(Item."No.",1.555555);
-  
+        MockItemInventory(Item."No.", 1.555555);
+
         // [GIVEN] Purchase Order Line with "I".
         PurchaseOrder.OpenNew;
         PurchaseOrder."Buy-from Vendor No.".SETVALUE(LibraryPurchase.CreateVendorNo);
         PurchaseOrder.PurchLines.New;
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
-  
+
         // [WHEN] Set Quantity = -1 on the sales line.
         PurchaseOrder.PurchLines.Quantity.SetValue(-1);
-  
+
         PurchaseOrder.PurchLines.Next();
         PurchaseOrder.PurchLines.Previous();
-  
+
         // [THEN] Item Availability in Purchase Line Details Factbox is equal to 0.55556 (rounded to 5 digits).
-        Evaluate(AvailQty,PurchaseOrder.Control3.Availability.Value);
+        Evaluate(AvailQty, PurchaseOrder.Control3.Availability.Value);
         Assert.AreEqual(0.55556, AvailQty, 'Wrong rounding precision of Item Availability value in the factbox.');
     end;
 
@@ -3435,7 +3436,7 @@ codeunit 137158 "SCM Orders V"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Orders V");
     end;
 
@@ -3534,7 +3535,7 @@ codeunit 137158 "SCM Orders V"
         MfgSetup: Record "Manufacturing Setup";
         SalesLine: Record "Sales Line";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
         SalesLine.Validate("Shipment Date", CalcDate(MfgSetup."Default Safety Lead Time", WorkDate)); // To avoid Due Date Before Work Date message.
@@ -3672,7 +3673,7 @@ codeunit 137158 "SCM Orders V"
     begin
         LibraryERM.CreateCurrency(Currency);
         Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
-        Currency.Modify;
+        Currency.Modify();
 
         CreateCurrencyExchangeRate(
           CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
@@ -4211,15 +4212,15 @@ codeunit 137158 "SCM Orders V"
         LastEntryNo: Integer;
         i: Integer;
     begin
-        LastEntryNo := TempTrackingSpec.Count;
+        LastEntryNo := TempTrackingSpec.Count();
         for i := 1 to 3 do begin
             LastEntryNo += 1;
-            TempTrackingSpec.Init;
+            TempTrackingSpec.Init();
             TempTrackingSpec."Entry No." := LastEntryNo;
             TempTrackingSpec."Lot No." := LotNo;
             Evaluate(TempTrackingSpec."Qty. to Handle", SelectStr(i, QtyToShipValues));
             Evaluate(TempTrackingSpec."Qty. to Invoice", SelectStr(i, QtytoInvoiceValues));
-            TempTrackingSpec.Insert;
+            TempTrackingSpec.Insert();
         end;
     end;
 
@@ -4309,7 +4310,7 @@ codeunit 137158 "SCM Orders V"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         LibraryPurchase.GetPurchaseReceiptLine(PurchaseLine);
@@ -4573,7 +4574,7 @@ codeunit 137158 "SCM Orders V"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldExactCostReversingMandatory := PurchasesPayablesSetup."Exact Cost Reversing Mandatory";
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
@@ -4583,7 +4584,7 @@ codeunit 137158 "SCM Orders V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldExactCostReversingMandatory := SalesReceivablesSetup."Exact Cost Reversing Mandatory";
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
@@ -4622,7 +4623,7 @@ codeunit 137158 "SCM Orders V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Ext. Doc. No. Mandatory", ExtDocNoMandatory);
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", PostedInvoiceNos);
         SalesReceivablesSetup.Modify(true);
@@ -4632,7 +4633,7 @@ codeunit 137158 "SCM Orders V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Default Item Quantity", DefaultItemQuantity);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -4659,7 +4660,7 @@ codeunit 137158 "SCM Orders V"
             SalesLine.OpenItemTrackingLines;
             QtyToShip += TempTrackingSpec."Qty. to Handle";
             QtyToInvoice += TempTrackingSpec."Qty. to Invoice";
-            TempTrackingSpec.Delete;
+            TempTrackingSpec.Delete();
         end;
     end;
 
@@ -4679,7 +4680,7 @@ codeunit 137158 "SCM Orders V"
             PurchaseLine.OpenItemTrackingLines;
             QtyToReceive += TempTrackingSpec."Qty. to Handle";
             QtyToInvoice += TempTrackingSpec."Qty. to Invoice";
-            TempTrackingSpec.Delete;
+            TempTrackingSpec.Delete();
         end;
     end;
 

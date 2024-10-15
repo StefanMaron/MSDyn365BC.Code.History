@@ -31,7 +31,7 @@ codeunit 5618 "Table Depr. Calculation"
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date; DeprType2: Option Normal,Custom1,Custom2): Decimal
     begin
         ClearAll;
-        DeprTableBufferTmp.DeleteAll;
+        DeprTableBufferTmp.DeleteAll();
         DeprType := DeprType2;
         if (StartingDate = 0D) or (EndingDate = 0D) then
             exit(0);
@@ -159,7 +159,7 @@ codeunit 5618 "Table Depr. Calculation"
 
         while TotalNoOfDays < EndingLimit do begin
             DeprTableBufferTmp."Entry No." := DeprTableBufferTmp."Entry No." + 1;
-            DeprTableBufferTmp.Insert;
+            DeprTableBufferTmp.Insert();
             TotalNoOfDays := TotalNoOfDays + DaysInPeriod;
         end;
     end;
@@ -182,7 +182,7 @@ codeunit 5618 "Table Depr. Calculation"
             else
                 DeprTableBufferTmp."Period Depreciation %" := DeprTableLine."Period Depreciation %";
         end;
-        DeprTableBufferTmp.Insert;
+        DeprTableBufferTmp.Insert();
     end;
 }
 

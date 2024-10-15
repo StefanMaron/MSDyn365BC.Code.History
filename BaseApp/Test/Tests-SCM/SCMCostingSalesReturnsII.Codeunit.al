@@ -216,7 +216,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         UpdateSalesLine(SalesLine, -LibraryRandom.RandInt(1), 1);  // Qty Sign Factor value important for Test.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         TempItem.FindLast;
-        TempItem.Delete;
+        TempItem.Delete();
 
         // Create Sales Return Order for same Item with postive and negative quantity and Item Charge, and Receive only.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
@@ -337,7 +337,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesOrderNo := SalesHeader."No.";
         CreateItemChargeAndCopyToTemp(TempItemCharge, NoOfCharges);
         if NoOfItems = 0 then
-            TempItem.Delete;
+            TempItem.Delete();
 
         // Make a Credit Memo for Item, Charge or both as required.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
@@ -672,9 +672,9 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Sales Returns-II");
     end;
 
@@ -685,7 +685,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", true);
         SalesReceivablesSetup.Modify(true);
@@ -702,7 +702,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             Clear(Item);
             CreateItemWithInventory(Item, CostingMethod[Counter]);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
     end;
 
@@ -766,7 +766,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."No." := '';
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -844,7 +844,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         for Counter := 1 to NoOfCharges do begin
             LibraryInventory.CreateItemCharge(ItemCharge);
             TempItemCharge := ItemCharge;
-            TempItemCharge.Insert;
+            TempItemCharge.Insert();
         end;
     end;
 
@@ -1041,7 +1041,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesLine.FindSet;
         repeat
             TempSalesLine := SalesLine;
-            TempSalesLine.Insert;
+            TempSalesLine.Insert();
         until SalesLine.Next = 0;
     end;
 
@@ -1050,7 +1050,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Validate(
           "External Document No.",
@@ -1070,8 +1070,8 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
-        SalesLine.Delete;
-        SalesHeader.Delete;
+        SalesLine.Delete();
+        SalesHeader.Delete();
     end;
 
     [Normal]

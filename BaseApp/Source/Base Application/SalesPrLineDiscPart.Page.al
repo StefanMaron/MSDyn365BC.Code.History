@@ -8,6 +8,9 @@ page 1347 "Sales Pr. & Line Disc. Part"
     PageType = ListPart;
     SourceTable = "Sales Price and Line Disc Buff";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {
@@ -205,7 +208,48 @@ page 1347 "Sales Pr. & Line Disc. Part"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        DummySalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
+        CurrFilterGroup: Integer;
+        SalesCode: Code[20];
+        SalesType: Option;
+        SalesTypeAsText: Text;
+        ContextIsCustomer: Boolean;
     begin
+        // Read the filter sent through SubPageLink. The filter that is expected is on 'Sales Type' and 'Sales Code'.
+        // If 'Sales Type' is Customer, then the context is Customer, if it is not Customer or it is not defined, then
+        // it is assumed that the context is Item. The filter is removed after reading.
+        currFilterGroup := FilterGroup;
+        FilterGroup(4);
+        if GetFilters = '' then begin
+            FilterGroup(CurrFilterGroup);
+            exit;
+        end;
+
+        SalesCode := GetFilter("Sales Code");
+        SalesTypeAsText := GetFilter("Sales Type");
+
+        if Evaluate(DummySalesPriceAndLineDiscBuff."Sales Type", SalesTypeAsText) then
+            if (DummySalesPriceAndLineDiscBuff."Sales Type" = DummySalesPriceAndLineDiscBuff."Sales Type"::Customer) then
+                ContextIsCustomer := true;
+
+        if ContextIsCustomer then begin
+            if loadedCustNo <> SalesCode then begin
+                InitPage(false);
+                if Customer.Get(SalesCode) then
+                    LoadCustomer(Customer);
+            end
+        end else
+            if loadedItemNo <> SalesCode then begin
+                InitPage(true);
+                if Item.Get(SalesCode) then
+                    LoadItem(Item);
+            end;
+        Reset();
+        FilterGroup(CurrFilterGroup);
+
         SalesPriceIsEnabled := ("Line Type" = "Line Type"::"Sales Price");
     end;
 

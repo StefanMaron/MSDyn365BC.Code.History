@@ -29,9 +29,10 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         StockWarningSetup: Boolean;
         NoDeferralScheduleErr: Label 'You must create a deferral schedule because you have specified the deferral code %2 in line %1.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
+        ConfirmCallOnceErr: Label 'Confirm should be called once.';
+        DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesOrderWithItem()
     var
@@ -62,7 +63,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesInvoiceWithGLAccount()
     var
@@ -79,7 +79,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [GIVEN] User has assigned a default deferral code to a GL Account
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Default Deferral Template Code", DeferralTemplateCode);
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Creating Sales Line for GL Account should default deferral code
         CreateSalesDocWithLine(SalesHeader, SalesLine,
@@ -95,7 +95,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesCreditMemoWithResource()
     var
@@ -128,7 +127,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesReturnOrderWithItem()
     var
@@ -167,7 +165,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesReturnOrderWithItemReturnStartDate()
     var
@@ -188,7 +185,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::"Return Order", SalesLine.Type::Item, ItemNo, SetDateDay(10, WorkDate));
         SalesLine.Validate("Returns Deferral Start Date", SetDateDay(15, WorkDate));
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [THEN] The Deferral Code was assigned to the sales line
         SalesLine.TestField("Deferral Code", DeferralTemplateCode);
@@ -235,7 +232,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesBlanketOrderWithItem()
     var
@@ -262,7 +258,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestChangingSalesLineType()
     var
@@ -293,7 +288,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestChangingSalesLineNo()
     var
@@ -330,7 +324,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestClearingSalesLineDeferralCode()
     var
@@ -357,7 +350,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestDeletingSalesLine()
     var
@@ -384,7 +376,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyOrderWithDeferral()
     var
@@ -431,7 +422,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyPostedInvoiceWithDeferral()
     var
@@ -444,7 +434,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyPostedInvoiceWithDeferralToReturnOrder()
     var
@@ -507,7 +496,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyOrderWithDeferralToQuote()
     var
@@ -551,7 +539,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyQuoteToOrderDefaultsDeferral()
     var
@@ -592,7 +579,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyOrderWithDeferralToReturnOrder()
     var
@@ -637,7 +623,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestCopyReturnOrderWithDeferralToReturnOrder()
     var
@@ -686,7 +671,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestArchiveOrderWithDeferral()
     var
@@ -766,7 +750,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure TestDeleteArchiveOrderWithDeferral()
     var
@@ -807,7 +791,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferral()
     var
@@ -840,9 +823,54 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostSalesInvoicesRequestPageHandler,MessageHandler,ConfirmMessageHandler')]
+    [HandlerFunctions('BatchPostSalesInvoicesRequestPageHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestPostBatchTwoInvoicesWithDeferral()
+    procedure TestPostBatchTwoInvoicesWithDeferralConfirmYes()
+    var
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        DeferralTemplateCode: Code[10];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
+        AccNo: Code[20];
+        AmtToDefer1: Decimal;
+        AmtToDefer2: Decimal;
+        NewPostDate: Date;
+    begin
+        // [FEATURE] [Post Document] [Batch Posting]
+        // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date should update deferral schedule with Confirm Yes
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(false);
+
+        // [GIVEN] Two Sales Invoices with Posting Date = 01.10.16 and deferral code
+        CreateTwoSalesDocsWithDeferral(
+          SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
+          AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::Invoice);
+
+        // [WHEN] Sales Invoices are posted with batch report on 01.11.16 and confirm update on deferral date = Yes
+        RunBatchPostReport(
+          NewPostDate, SalesHeader1."Posting Date", true,
+          SalesHeader1."No.", SalesHeader2."No.",
+          REPORT::"Batch Post Sales Invoices");
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+
+        // [THEN] Posting Date of Purchase Invoices is 01.11.16
+        VerifyInvoicePostingDate(DocNo1, NewPostDate);
+        VerifyInvoicePostingDate(DocNo2, NewPostDate);
+
+        // [THEN] The deferrals are posted according to schedule from 01.11.16
+        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyPostedInvoiceDeferralsAndGL(DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, NewPostDate, false);
+        VerifyPostedInvoiceDeferralsAndGL(DocNo2, DeferralTemplateCode, AccNo, AmtToDefer2, AmtToDefer2, 2, 3, NewPostDate, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoicesRequestPageHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostBatchTwoInvoicesWithDeferralConfirmYesBackground()
     var
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
@@ -856,7 +884,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         NewPostDate: Date;
     begin
         // [FEATURE] [Post Document] [Batch Posting]
-        // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date updates deferral schedule
+        // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -867,13 +895,16 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
           AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::Invoice);
 
-        // [WHEN] Sales Invoices are posted with batch report on 01.11.16
+        // [WHEN] Sales Invoices are posted with batch report on 01.11.16 and confirm update on deferral date = Yes
         RunBatchPostReport(
           NewPostDate, SalesHeader1."Posting Date", true,
           SalesHeader1."No.", SalesHeader2."No.",
           REPORT::"Batch Post Sales Invoices");
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -887,9 +918,9 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler,ConfirmMessageHandler')]
+    [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestPostBatchTwoOrdersWithDeferral()
+    procedure TestPostBatchTwoOrdersWithDeferralConfirmYes()
     var
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
@@ -903,7 +934,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         NewPostDate: Date;
     begin
         // [FEATURE] [Post Document] [Batch Posting]
-        // [SCENARIO 382285] Batch Posting of Deferral Sales Orders with updated Posting Date updates deferral schedule
+        // [SCENARIO 382285] Batch Posting of Deferral Sales Orders with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -914,13 +945,16 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
           AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::Order);
 
-        // [WHEN] Sales Orders are posted with batch report on 01.11.16
+        // [WHEN] Sales Orders are posted with batch report on 01.11.16 and confirm update on deferral date = Yes
         RunBatchPostReport(
           NewPostDate, SalesHeader1."Posting Date", true,
           SalesHeader1."No.", SalesHeader2."No.",
           REPORT::"Batch Post Sales Orders");
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -934,9 +968,9 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostSalesCreditMemosRequestPageHandler,MessageHandler,ConfirmMessageHandler')]
+    [HandlerFunctions('BatchPostSalesCreditMemosRequestPageHandler,MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure TestPostBatchTwoCreditMemosWithDeferral()
+    procedure TestPostBatchTwoCreditMemosWithDeferralConfirmYes()
     var
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
@@ -950,7 +984,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         NewPostDate: Date;
     begin
         // [FEATURE] [Post Document] [Batch Posting]
-        // [SCENARIO 382285] Batch Posting of Deferral Credit Memos with updated Posting Date updates deferral schedule
+        // [SCENARIO 382285] Batch Posting of Deferral Credit Memos with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
@@ -961,13 +995,16 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
           AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::"Credit Memo");
 
-        // [WHEN] Credit Memos are posted with batch report on 01.11.16
+        // [WHEN] Credit Memos are posted with batch report on 01.11.16 and confirm update on deferral date = Yes
         RunBatchPostReport(
           NewPostDate, SalesHeader1."Posting Date", true,
           SalesHeader1."No.", SalesHeader2."No.",
           REPORT::"Batch Post Sales Credit Memos");
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Posted Credit Memos is 01.11.16
         VerifyCrMemoPostingDate(DocNo1, NewPostDate);
@@ -983,7 +1020,164 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
+    [HandlerFunctions('BatchPostSalesInvoicesRequestPageHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostBatchTwoInvoicesWithDeferralConfirmNo()
+    var
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        DeferralTemplateCode: Code[10];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
+        AccNo: Code[20];
+        AmtToDefer1: Decimal;
+        AmtToDefer2: Decimal;
+        NewPostDate: Date;
+    begin
+        // [FEATURE] [Post Document] [Batch Posting]
+        // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date should update deferral schedule with Confirm No
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Two Sales Invoices with Posting Date = 01.10.16 and deferral code
+        CreateTwoSalesDocsWithDeferral(
+          SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
+          AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::Invoice);
+
+        // [WHEN] Sales Invoices are posted with batch report on 01.11.16 and confirm update on deferral date = No
+        RunBatchPostReport(
+          NewPostDate, SalesHeader1."Posting Date", false,
+          SalesHeader1."No.", SalesHeader2."No.",
+          REPORT::"Batch Post Sales Invoices");
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+
+        // [THEN] Posting Date of Purchase Invoices is 01.11.16
+        VerifyInvoicePostingDate(DocNo1, NewPostDate);
+        VerifyInvoicePostingDate(DocNo2, NewPostDate);
+
+        // [THEN] The deferrals are posted according to schedule from 01.10.16
+        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyPostedInvoiceDeferralsAndGL(
+          DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, SalesHeader1."Posting Date", false);
+        VerifyPostedInvoiceDeferralsAndGL(
+          DocNo2, DeferralTemplateCode, AccNo, AmtToDefer2, AmtToDefer2, 2, 3, SalesHeader2."Posting Date", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostBatchTwoOrdersWithDeferralConfirmNo()
+    var
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        DeferralTemplateCode: Code[10];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
+        AccNo: Code[20];
+        AmtToDefer1: Decimal;
+        AmtToDefer2: Decimal;
+        NewPostDate: Date;
+    begin
+        // [FEATURE] [Post Document] [Batch Posting]
+        // [SCENARIO 382285] Batch Posting of Deferral Sales Orders with updated Posting Date should update deferral schedule with Confirm No
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Two Sales Orders with Posting Date = 01.10.16 and deferral code
+        CreateTwoSalesDocsWithDeferral(
+          SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
+          AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::Order);
+
+        // [WHEN] Sales Orders are posted with batch report on 01.11.16 and confirm update on deferral date = No
+        RunBatchPostReport(
+          NewPostDate, SalesHeader1."Posting Date", false,
+          SalesHeader1."No.", SalesHeader2."No.",
+          REPORT::"Batch Post Sales Orders");
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+
+        // [THEN] Posting Date of Purchase Invoices is 01.11.16
+        VerifyInvoicePostingDate(DocNo1, NewPostDate);
+        VerifyInvoicePostingDate(DocNo2, NewPostDate);
+
+        // [THEN] The deferrals are posted according to schedule from 01.10.16
+        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyPostedInvoiceDeferralsAndGL(
+          DocNo1, DeferralTemplateCode, AccNo, AmtToDefer1, AmtToDefer1, 2, 3, SalesHeader1."Posting Date", false);
+        VerifyPostedInvoiceDeferralsAndGL(
+          DocNo2, DeferralTemplateCode, AccNo, AmtToDefer2, AmtToDefer2, 2, 3, SalesHeader2."Posting Date", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesCreditMemosRequestPageHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostBatchTwoCreditMemosWithDeferralConfirmNo()
+    var
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        DeferralTemplateCode: Code[10];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
+        AccNo: Code[20];
+        AmtToDefer1: Decimal;
+        AmtToDefer2: Decimal;
+        NewPostDate: Date;
+    begin
+        // [FEATURE] [Post Document] [Batch Posting]
+        // [SCENARIO 382285] Batch Posting of Deferral Credit Memos with updated Posting Date should update deferral schedule with Confirm No
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Two Credit Memos with Posting Date = 01.10.16 and deferral code
+        CreateTwoSalesDocsWithDeferral(
+          SalesHeader1, SalesHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
+          AmtToDefer1, AmtToDefer2, SalesHeader1."Document Type"::"Credit Memo");
+
+        // [WHEN] Credit Memos are posted with batch report on 01.11.16 and confirm update on deferral date = No
+        RunBatchPostReport(
+          NewPostDate, SalesHeader1."Posting Date", false,
+          SalesHeader1."No.", SalesHeader2."No.",
+          REPORT::"Batch Post Sales Credit Memos");
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader1.RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader2.RecordId);
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+
+        // [THEN] Posting Date of Posted Credit Memos is 01.11.16
+        VerifyCrMemoPostingDate(DocNo1, NewPostDate);
+        VerifyCrMemoPostingDate(DocNo2, NewPostDate);
+
+        // [THEN] The deferrals are posted according to schedule from 01.10.16
+        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyPostedCrMemosDeferralsAndGL(
+          SalesDocType::"Posted Credit Memo", DocNo1, DeferralTemplateCode,
+          AccNo, AmtToDefer1, AmtToDefer1, 2, 3, SalesHeader1."Posting Date");
+        VerifyPostedCrMemosDeferralsAndGL(
+          SalesDocType::"Posted Credit Memo", DocNo2, DeferralTemplateCode,
+          AccNo, AmtToDefer2, AmtToDefer2, 2, 3, SalesHeader1."Posting Date");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferralDeletesDeferralHeaderAndLines()
     var
@@ -1023,7 +1217,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithCurrencyAndDeferral()
     var
@@ -1061,7 +1254,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceTwoLinesWithDeferral()
     var
@@ -1106,7 +1298,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithPartialDeferral()
     var
@@ -1149,7 +1340,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferralNoDeferralHeader()
     var
@@ -1169,7 +1359,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
 
         FindDeferralHeader(SalesLine, DeferralHeader);
-        DeferralHeader.Delete;
+        DeferralHeader.Delete();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1179,7 +1369,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferralDeferralHeaderZero()
     var
@@ -1200,7 +1389,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         FindDeferralHeader(SalesLine, DeferralHeader);
         DeferralHeader."Amount to Defer" := 0;
-        DeferralHeader.Modify;
+        DeferralHeader.Modify();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1210,7 +1399,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferralNoDeferralLines()
     var
@@ -1232,7 +1420,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         FindDeferralHeader(SalesLine, DeferralHeader);
         RangeDeferralLines(DeferralHeader, DeferralLine);
-        DeferralLine.DeleteAll;
+        DeferralLine.DeleteAll();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1242,7 +1430,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostInvoiceWithDeferralOneZeroDeferralLine()
     var
@@ -1267,7 +1454,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         if DeferralLine.FindFirst then begin
             DeferralLine.Amount := 0.0;
             DeferralLine."Amount (LCY)" := 0.0;
-            DeferralLine.Modify;
+            DeferralLine.Modify();
         end;
 
         // [WHEN] Document is posted
@@ -1278,7 +1465,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostCreditMemoWithDeferral()
     var
@@ -1320,7 +1506,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostCreditMemoWithPartialDeferral()
     var
@@ -1360,7 +1545,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateGLAccount(GLAccount);
         SalesAccount := GLAccount."No.";
         GenPostingSetup.Validate("Sales Credit Memo Account", SalesAccount);
-        GenPostingSetup.Modify;
+        GenPostingSetup.Modify();
 
         // [WHEN] Document is posted
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1383,7 +1568,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostReturnOrderWithDeferral()
     var
@@ -1423,7 +1607,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostOrderWithDeferral()
     var
@@ -1458,7 +1641,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPartialOrderWithDeferral()
     var
@@ -1493,7 +1675,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPartialOrderWithCurrencyAndDeferral()
     var
@@ -1533,7 +1714,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPartialOrderTwoLinesWithDeferral()
     var
@@ -1574,7 +1754,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPartialOrderWithPartialDeferral()
     var
@@ -1619,7 +1798,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPartialOrderWithDeferralMultipleTimes()
     var
@@ -1662,7 +1840,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesInvoiceDeferralSchedulePos()
     var
@@ -1720,7 +1897,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,UpdateDeferralSchedulePeriodHandler')]
+    [HandlerFunctions('UpdateDeferralSchedulePeriodHandler')]
     [Scope('OnPrem')]
     procedure TestEditSalesInvoiceDeferralScheduleIsRecalculated()
     var
@@ -1740,7 +1917,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
-        Commit;
+        Commit();
 
         // [GIVEN] Two periods are created
         FindDeferralHeader(SalesLine, DeferralHeader);
@@ -1763,7 +1940,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleHandler')]
+    [HandlerFunctions('DeferralScheduleHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesOrderDeferralSchedulePos()
     var
@@ -1825,7 +2002,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleHandler')]
+    [HandlerFunctions('DeferralScheduleHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesCreditMemoDeferralSchedulePos()
     var
@@ -1885,7 +2062,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleHandler')]
+    [HandlerFunctions('DeferralScheduleHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesReturnOrderDeferralSchedulePos()
     var
@@ -1945,7 +2122,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleViewHandler')]
+    [HandlerFunctions('DeferralScheduleViewHandler')]
     [Scope('OnPrem')]
     procedure TestOpenPostedSalesInvoiceDeferralSchedulePos()
     var
@@ -1982,7 +2159,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleViewHandler')]
+    [HandlerFunctions('DeferralScheduleViewHandler')]
     [Scope('OnPrem')]
     procedure TestOpenPostedSalesCreditMemoDeferralSchedulePos()
     var
@@ -2019,7 +2196,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleArchiveHandler')]
+    [HandlerFunctions('DeferralScheduleArchiveHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesOrderArchiveDeferralSchedulePos()
     var
@@ -2057,7 +2234,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler,DeferralScheduleArchiveHandler')]
+    [HandlerFunctions('DeferralScheduleArchiveHandler')]
     [Scope('OnPrem')]
     procedure TestOpenSalesReturnOrderArchiveDeferralSchedulePos()
     var
@@ -2110,7 +2287,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Sales Doc");
     end;
 
@@ -2180,7 +2357,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
-        UpdateNoSeriesLines(SalesHeader."Posting No. Series", PostingDate);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
@@ -2197,7 +2373,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Integer; PostingDate: Date; CustomerCode: Code[20])
     begin
         Clear(SalesHeader);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Validate("Sell-to Customer No.", CustomerCode);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -2339,7 +2515,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OrigianlOption: Boolean;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OrigianlOption := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", Option);
         SalesReceivablesSetup.Modify(true);
@@ -2351,7 +2527,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OrigianlOption: Option;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OrigianlOption := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", Option);
         SalesReceivablesSetup.Modify(true);
@@ -2724,7 +2900,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         if GLEntry.FindSet then
             repeat
                 AccAmt := AccAmt + GLEntry.Amount;
@@ -2749,7 +2925,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         if GLEntry.FindSet then begin
             SalesAmt := GLEntry.Amount;
             repeat
@@ -2871,7 +3047,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         NewPostingDate := CalcDate('<+1M>', PostingDate);
         SetupBatchPostingReportParameters(NewPostingDate, ConfirmValue);
-        Commit;
+        Commit();
         SalesHeader.SetFilter("No.", '%1|%2', DocNo1, DocNo2);
         REPORT.Run(ReportID, true, false, SalesHeader);
     end;
@@ -2881,16 +3057,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(0); // confirm counter
         LibraryVariableStorage.Enqueue(ConfirmValue);
-    end;
-
-    local procedure UpdateNoSeriesLines(NoSeriesCode: Code[20]; PostingDate: Date)
-    var
-        NoSeriesLineSales: Record "No. Series Line Sales";
-    begin
-        NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetRange(Open, true);
-        NoSeriesLineSales.SetFilter("Last Date Used", '<>0D');
-        NoSeriesLineSales.ModifyAll("Last Date Used", PostingDate);
     end;
 
     local procedure VerifyPostedInvoiceDeferralsAndGL(DocNo: Code[20]; DeferralTemplateCode: Code[10]; AccNo: Code[20]; AmtToDefer: Decimal; AmtToDeferLCY: Decimal; NoOfPeriods: Integer; GLRecordCount: Integer; PostingDate: Date; PartialDeferral: Boolean)
@@ -3148,6 +3314,15 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostSalesCreditMemos.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
         BatchPostSalesCreditMemos.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(DeferralLineQst, Question);
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1); // count of handler call's
+        Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 }
 

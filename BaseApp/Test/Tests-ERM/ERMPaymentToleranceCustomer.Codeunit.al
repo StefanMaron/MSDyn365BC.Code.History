@@ -1,5 +1,6 @@
 codeunit 134005 "ERM Payment Tolerance Customer"
 {
+    Permissions = TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -597,7 +598,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup;
         InvAmount := 10 * LibraryRandom.RandInt(100);
 
@@ -737,7 +738,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        Commit;
+        Commit();
     end;
 
     local procedure BeforeDiscountDateEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
@@ -745,7 +746,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         DeltaAssert: Codeunit "Delta Assert";
     begin
         // Watch Expected Discount value calculated as per Delta amount.
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         WatchPaymentDiscountAmount(DeltaAssert, DocumentNo, Amount);
 
         // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
@@ -872,10 +873,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure GetDueDate(): Date
     var
-        PaymentLines: Record "Payment Lines";
+        PaymentTerms: Record "Payment Terms";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
-        exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
+        PaymentTerms.Get(GetPaymentTerms);
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
@@ -885,17 +886,17 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure GetDiscountPercent(): Decimal
     var
-        PaymentLines: Record "Payment Lines";
+        PaymentTerms: Record "Payment Terms";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
-        exit(PaymentLines."Discount %");
+        PaymentTerms.Get(GetPaymentTerms);
+        exit(PaymentTerms."Discount %");
     end;
 
     local procedure GetPaymentTolerancePercent(): Decimal
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Payment Tolerance %");
     end;
 
@@ -903,7 +904,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 
@@ -911,7 +912,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", GetDueDate));
     end;
 
@@ -950,7 +951,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", PaymentDiscountGracePeriod);
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerance);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
@@ -1009,7 +1010,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Assert: Codeunit Assert;
         AdditionalCurrencyAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         Currency.InitRoundingPrecision;
         GLRegister.FindLast;

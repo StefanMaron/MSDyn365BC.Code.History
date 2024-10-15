@@ -64,7 +64,7 @@ codeunit 12183 "Datifattura Validate"
         CompanyInfo: Record "Company Information";
         Vendor: Record Vendor;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         // validate tax details for the company
         ErrorMessage.LogIfEmpty(CompanyInfo, CompanyInfo.FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);

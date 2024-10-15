@@ -187,19 +187,19 @@ page 456 "No. Series"
                         case "No. Series Type" of
                             "No. Series Type"::Normal:
                                 begin
-                                    NoSeriesLine.Reset;
+                                    NoSeriesLine.Reset();
                                     NoSeriesLine.SetRange("Series Code", Code);
                                     PAGE.RunModal(PAGE::"No. Series Lines", NoSeriesLine);
                                 end;
                             "No. Series Type"::Sales:
                                 begin
-                                    NoSeriesLineSales.Reset;
+                                    NoSeriesLineSales.Reset();
                                     NoSeriesLineSales.SetRange("Series Code", Code);
                                     PAGE.RunModal(PAGE::"No. Series Lines Sales", NoSeriesLineSales);
                                 end;
                             "No. Series Type"::Purchase:
                                 begin
-                                    NoSeriesLinePurchase.Reset;
+                                    NoSeriesLinePurchase.Reset();
                                     NoSeriesLinePurchase.SetRange("Series Code", Code);
                                     PAGE.RunModal(PAGE::"No. Series Lines Purchase", NoSeriesLinePurchase);
                                 end;
@@ -282,7 +282,7 @@ page 456 "No. Series"
                 begin
                     NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, Code, 0D);
                     if not NoSeriesLine.Find('-') then
-                        NoSeriesLine.Init;
+                        NoSeriesLine.Init();
                     StartDate := NoSeriesLine."Starting Date";
                     StartNo := NoSeriesLine."Starting No.";
                     EndNo := NoSeriesLine."Ending No.";
@@ -295,7 +295,7 @@ page 456 "No. Series"
                 begin
                     NoSeriesMgt.SetNoSeriesLineSalesFilter(NoSeriesLineSales, Code, 0D);
                     if not NoSeriesLineSales.Find('-') then
-                        NoSeriesLineSales.Init;
+                        NoSeriesLineSales.Init();
                     StartDate := NoSeriesLineSales."Starting Date";
                     StartNo := NoSeriesLineSales."Starting No.";
                     EndNo := NoSeriesLineSales."Ending No.";
@@ -308,7 +308,7 @@ page 456 "No. Series"
                 begin
                     NoSeriesMgt.SetNoSeriesLinePurchaseFilter(NoSeriesLinePurchase, Code, 0D);
                     if not NoSeriesLinePurchase.Find('-') then
-                        NoSeriesLinePurchase.Init;
+                        NoSeriesLinePurchase.Init();
                     StartDate := NoSeriesLinePurchase."Starting Date";
                     StartNo := NoSeriesLinePurchase."Starting No.";
                     EndNo := NoSeriesLinePurchase."Ending No.";

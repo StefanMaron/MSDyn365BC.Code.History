@@ -196,13 +196,15 @@ codeunit 132600 "Report Layout"
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
-    procedure TesttPriceList()
+    procedure TestPriceList()
     var
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
         LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Price List");
     end;
 
@@ -530,7 +532,7 @@ codeunit 132600 "Report Layout"
             exit;
 
         // Setup logo to be printed by default
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Logo Position on Documents", SalesSetup."Logo Position on Documents"::Center);
         SalesSetup.Modify(true);
 
@@ -939,11 +941,9 @@ codeunit 132600 "Report Layout"
     procedure RHCalcPostVATSettlement(var CalcandPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     var
         GLAccount: Record "G/L Account";
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         FindGLAccount(GLAccount);
-        GeneralLedgerSetup.Get;
-        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<+1D>', GeneralLedgerSetup."Last Settlement Date"));
+        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
         CalcandPostVATSettlement.PostingDt.SetValue(WorkDate);
         CalcandPostVATSettlement.SettlementAcc.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.DocumentNo.SetValue(GLAccount."No.");

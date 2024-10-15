@@ -61,7 +61,7 @@ report 1086 "Job Calculate WIP"
             if PostingDate = 0D then
                 PostingDate := WorkDate;
 
-            JobsSetup.Get;
+            JobsSetup.Get();
 
             JobsSetup.TestField("Job Nos.");
             NoSeriesMgt.InitSeries(JobsSetup."Job WIP Nos.", JobsSetup."Job WIP Nos.", 0D, DocNo, NewNoSeriesCode);
@@ -80,7 +80,7 @@ report 1086 "Job Calculate WIP"
         JobWIPEntry.SetCurrentKey("Job No.");
         JobWIPEntry.SetFilter("Job No.", Job.GetFilter("No."));
         WIPPosted := JobWIPEntry.FindFirst;
-        Commit;
+        Commit();
 
         if WIPPosted then begin
             if WIPPostedWithWarnings then
@@ -105,7 +105,7 @@ report 1086 "Job Calculate WIP"
     var
         NewNoSeriesCode: Code[20];
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
 
         if DocNo = '' then begin
             JobsSetup.TestField("Job Nos.");

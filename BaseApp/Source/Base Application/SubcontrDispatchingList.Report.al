@@ -22,9 +22,6 @@ report 12155 "Subcontr. Dispatching List"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Vendor__No__; "No.")
             {
             }

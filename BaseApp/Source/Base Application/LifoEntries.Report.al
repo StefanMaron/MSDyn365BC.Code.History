@@ -14,9 +14,6 @@ report 12123 "Lifo Entries"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CompanyInfo_Name; CompanyInfo.Name)
             {
             }
@@ -176,7 +173,7 @@ report 12123 "Lifo Entries"
             begin
                 InventoryValue := 0;
                 ShowTotals := true;
-                LifoBand2.Reset;
+                LifoBand2.Reset();
 
                 if not CompYearBlank then begin
                     MarkFilteredRec;
@@ -213,7 +210,7 @@ report 12123 "Lifo Entries"
         if "Lifo Band".GetFilter("Competence Year") <> '' then
             CompYearBlank := false;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         "Lifo Band".SetRange(Definitive, false);
         if "Lifo Band".FindFirst then
             NotDefMsg := Text1033;

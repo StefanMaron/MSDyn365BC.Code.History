@@ -60,7 +60,7 @@ report 12108 "VAT Register Grouped"
             trigger OnAfterGetRecord()
             begin
                 if not PrintCompanyInformations then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -68,7 +68,7 @@ report 12108 "VAT Register Grouped"
                 for i := 1 to 6 do
                     if CompanyInformation[i] = '' then
                         Error(Text1049);
-                AccPeriod.Reset;
+                AccPeriod.Reset();
                 AccPeriod.SetRange("New Fiscal Year", true);
                 AccPeriod.SetFilter("Starting Date", '<=%1', StartingDate);
                 AccPeriod.FindLast;
@@ -77,9 +77,6 @@ report 12108 "VAT Register Grouped"
         dataitem(ForCode; "VAT Register - Buffer")
         {
             DataItemTableView = SORTING("VAT Register Code") ORDER(Ascending);
-            column(STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1__; StrSubstNo(Text10381Lbl, Format(CurrReport.PageNo - 1)))
-            {
-            }
             column(Text10381; Text10381Lbl)
             {
             }
@@ -87,9 +84,6 @@ report 12108 "VAT Register Grouped"
             {
             }
             column(CompanyInformation_1_Control1130214; CompanyInformation[1] + '    ' + CompanyInformation[2] + '    ' + CompanyInformation[3] + '    ' + Text1046 + CompanyInformation[5])
-            {
-            }
-            column(STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216; StrSubstNo(Text10381Lbl, Format(CurrReport.PageNo - 1)))
             {
             }
             column(CompanyInformation_6__Control1130211; CompanyInformation[6])
@@ -223,9 +217,6 @@ report 12108 "VAT Register Grouped"
         dataitem(ForType; "VAT Register - Buffer")
         {
             DataItemTableView = SORTING("Register Type", "VAT Prod. Posting Group", "VAT Identifier", "VAT %", "VAT Deductible %") ORDER(Ascending);
-            column(STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130218; StrSubstNo(Text10381Lbl, Format(CurrReport.PageNo - 1)))
-            {
-            }
             column(PrintCompanyInformations2; PrintCompanyInformations)
             {
             }
@@ -236,9 +227,6 @@ report 12108 "VAT Register Grouped"
             {
             }
             column(CompanyInformation_6__Control1130212; CompanyInformation[6])
-            {
-            }
-            column(STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130213; StrSubstNo(Text10381Lbl, Format(CurrReport.PageNo - 1)))
             {
             }
             column(IsHeader1; "Register Type" = "Register Type"::Purchase)
@@ -514,7 +502,7 @@ report 12108 "VAT Register Grouped"
         trigger OnOpenPage()
         begin
             PrintCompanyInformations := true;
-            CompInfo.Get;
+            CompInfo.Get();
             CompanyInformation[1] := CompInfo.Name;
             CompanyInformation[2] := CompInfo.Address;
             CompanyInformation[3] := CompInfo."Post Code" + '  ' + CompInfo.City + '  ' + CompInfo.County;

@@ -22,7 +22,7 @@ report 12115 "Calculate End Year Costs"
                 NotInvAmtForWIP := 0;
                 ExpectedCostExist := false;
                 StartDateLIFO := 0D;
-                ItemCostingSetup.Get;
+                ItemCostingSetup.Get();
                 InitItemCostHistory;
                 SetFilter("Date Filter", '%1..%2', StartingDate, ReferenceDate);
                 CalcFields("Net Change");
@@ -93,7 +93,7 @@ report 12115 "Calculate End Year Costs"
         FiscalYearStartDate: Date;
         FiscalYearEndDate: Date;
     begin
-        ItemCostingSetup.Get;
+        ItemCostingSetup.Get();
         if Item.FindFirst then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Item);
@@ -146,7 +146,7 @@ report 12115 "Calculate End Year Costs"
             Reset;
             SetRange("Competence Year", FiscalYearStartDate, FiscalYearEndDate);
             SetRange(Definitive, false);
-            DeleteAll;
+            DeleteAll();
         end;
 
         with LIFOBand do begin
@@ -159,26 +159,23 @@ report 12115 "Calculate End Year Costs"
                             LIFOBand2."Absorbed Quantity" := LIFOBand2."Absorbed Quantity" + "Increment Quantity";
                             LIFOBand2."Residual Quantity" := LIFOBand2."Increment Quantity" - LIFOBand2."Absorbed Quantity";
                             LIFOBand2."Increment Value" := LIFOBand2."Increment Value" - "Increment Value";
-                            LIFOBand3.Reset;
+                            LIFOBand3.Reset();
                             LIFOBand3.SetRange(Definitive, true);
                             LIFOBand3.SetRange("Closed by Entry No.", LIFOBand2."Entry No.");
                             if LIFOBand3.FindLast then
                                 LIFOBand2."Closed by Entry No." := LIFOBand3."Entry No."
                             else
                                 LIFOBand2."Closed by Entry No." := 0;
-                            LIFOBand2.Modify;
+                            LIFOBand2.Modify();
                         end;
                 until Next = 0;
 
             Reset;
             SetRange(Definitive, false);
-            DeleteAll;
+            DeleteAll();
 
             Reset;
-            if FindLast then
-                NextEntryNo := "Entry No." + 1
-            else
-                NextEntryNo := 1;
+            NextEntryNo := GetLastEntryNo() + 1;
         end;
         Window.Open(ProgressBarTxt);
     end;
@@ -470,7 +467,7 @@ report 12115 "Calculate End Year Costs"
         TotRoutingAmt: Decimal;
         ProdAmt: Decimal;
     begin
-        ProdOrderComp.Reset;
+        ProdOrderComp.Reset();
         ProdOrderComp.SetCurrentKey("Prod. Order No.", "Prod. Order Line No.");
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
@@ -484,7 +481,7 @@ report 12115 "Calculate End Year Costs"
         TotCompAmt := ItemCompCost * ProdOrderLine."Finished Quantity" / ProdOrderLine.Quantity;
         if not ItemLedgEntry."Completely Invoiced" then
             NotInvAmtForEstWIP += TotCompAmt;
-        ProdOrdRoutingLine.Reset;
+        ProdOrdRoutingLine.Reset();
         ProdOrdRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.");
         ProdOrdRoutingLine.SetRange(Status, ProdOrderLine.Status);
         ProdOrdRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -551,14 +548,14 @@ report 12115 "Calculate End Year Costs"
         InvoicedAmount: Decimal;
     begin
         GetBefStartItemQtyAndCost(BefStItemCostQty, BefStItemCostAmt);
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", "Posting Date", "Location Code");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Posting Date", StartingDate, ReferenceDate);
         if ItemLedgEntry.FindSet then begin
             repeat
                 if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Purchase, ItemLedgEntry."Entry Type"::Output] then begin
-                    ValueEntry.Reset;
+                    ValueEntry.Reset();
                     ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                     ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
                     ValueEntry.SetFilter("Item Ledger Entry Type", '<>%1', ValueEntry."Item Ledger Entry Type"::Transfer);
@@ -595,7 +592,7 @@ report 12115 "Calculate End Year Costs"
         NotInvoicedAmt: Decimal;
     begin
         GetAdjCosts(TotInvoicedQty, TotInvoicedAmt, NotInvoicedQty, NotInvoicedAmt);
-        ItemCostingSetup.Get;
+        ItemCostingSetup.Get();
         ItemCostHistory.Get(Item."No.", ReferenceDate);
         with LIFOBand do begin
             Init;
@@ -733,7 +730,7 @@ report 12115 "Calculate End Year Costs"
                         else
                             SubconAmt += ("Direct Cost" + "Overhead Cost");
                     end else begin
-                        PurchLine.Reset;
+                        PurchLine.Reset();
                         PurchLine.SetRange("Prod. Order No.", "Order No.");
                         PurchLine.SetRange("No.", "Item No.");
                         if PurchLine.FindFirst then
@@ -828,7 +825,7 @@ report 12115 "Calculate End Year Costs"
         AccountingPeriod: Record "Accounting Period";
     begin
         ReferenceDate := CompetenceYear;
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '<=%1', ReferenceDate);
         AccountingPeriod.FindLast;
@@ -936,12 +933,12 @@ report 12115 "Calculate End Year Costs"
         ProdAmt: Decimal;
     begin
         if not UpdateItemCostHistory then begin
-            ItemCostingSetup.Get;
+            ItemCostingSetup.Get();
             ItemLedgEntry.Copy(ItemLedgEntry2);
             Item.Get(ItemLedgEntry2."Item No.");
         end;
         if ItemCostingSetup."Estimated WIP Consumption" then begin
-            ProdOrderLine.Reset;
+            ProdOrderLine.Reset();
             ProdOrderLine.SetCurrentKey("Prod. Order No.", "Line No.");
             ProdOrderLine.SetRange("Prod. Order No.", ItemLedgEntry2."Order No.");
             ProdOrderLine.SetRange("Line No.", ItemLedgEntry2."Order Line No.");

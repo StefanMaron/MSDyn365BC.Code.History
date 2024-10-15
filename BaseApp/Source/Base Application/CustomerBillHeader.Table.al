@@ -113,7 +113,7 @@ table 12174 "Customer Bill Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Temporary Bill List No.");
             "User ID" := UserId;
             NoSeriesMgt.InitSeries(
@@ -145,12 +145,12 @@ table 12174 "Customer Bill Header"
     begin
         with CustomerBillHeader do begin
             CustomerBillHeader := Rec;
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Temporary Bill List No.");
             if NoSeriesMgt.SelectSeries(SalesSetup."Temporary Bill List No.",
                  OldCustomerBillHeader."No. Series", "No. Series")
             then begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Temporary Bill List No.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := CustomerBillHeader;

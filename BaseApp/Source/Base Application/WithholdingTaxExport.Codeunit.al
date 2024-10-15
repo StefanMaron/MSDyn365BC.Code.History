@@ -28,7 +28,7 @@ codeunit 12132 "Withholding Tax Export"
         TempWithholdingTaxPrevYears: Record "Withholding Tax" temporary;
         TempContributions: Record Contributions temporary;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ReportPreparedBy := PreparedBy;
         CommunicationNumber := NrOfCommunication;
 
@@ -81,7 +81,7 @@ codeunit 12132 "Withholding Tax Export"
                        (Reason <> TempWithholdingTax.Reason) or
                        ("Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type")
                     then begin
-                        TempWithholdingTax.Insert;
+                        TempWithholdingTax.Insert();
                         InitTempWithholdingTax(TempWithholdingTax, WithholdingTax);
                     end;
                     TempWithholdingTax."Total Amount" += "Total Amount";
@@ -92,7 +92,7 @@ codeunit 12132 "Withholding Tax Export"
                     TempWithholdingTax."Withholding Tax Amount" += "Withholding Tax Amount";
                     CalculateContributions(WithholdingTax, TempWithholdingTax."Entry No.", TempContributions);
                 until Next = 0;
-                TempWithholdingTax.Insert;
+                TempWithholdingTax.Insert();
             end;
         end;
     end;
@@ -104,9 +104,9 @@ codeunit 12132 "Withholding Tax Export"
         with Contributions do begin
             SetRange("External Document No.", WithholdingTax."External Document No.");
             if not TempContributions.Get(EntryNo) then begin
-                TempContributions.Init;
+                TempContributions.Init();
                 TempContributions."Entry No." := EntryNo;
-                TempContributions.Insert;
+                TempContributions.Insert();
             end;
 
             if FindSet then
@@ -114,7 +114,7 @@ codeunit 12132 "Withholding Tax Export"
                     TempContributions."Company Amount" += "Company Amount";
                     TempContributions."Free-Lance Amount" += "Free-Lance Amount";
                 until Next = 0;
-            TempContributions.Modify;
+            TempContributions.Modify();
         end;
     end;
 
@@ -236,7 +236,7 @@ codeunit 12132 "Withholding Tax Export"
                 FlatFileManagement.WritePositionalValue(428, 1, ConstFormat::NU, '1', false) // B-28
             else
                 FlatFileManagement.WritePositionalValue(428, 1, ConstFormat::NU, '2', false); // B-28 // Prepared by Tax Representative
-            VATReportSetup.Get;
+            VATReportSetup.Get();
             TempErrorMessage.LogIfEmpty(VATReportSetup, VATReportSetup.FieldNo("Intermediary Date"), TempErrorMessage."Message Type"::Error);
             FlatFileManagement.WritePositionalValue(
               429, 8, ConstFormat::DT, FlatFileManagement.FormatDate(VATReportSetup."Intermediary Date", ConstFormat::DT), false); // B-29
@@ -452,7 +452,7 @@ codeunit 12132 "Withholding Tax Export"
     local procedure InitTempWithholdingTax(var TempWithholdingTax: Record "Withholding Tax" temporary; WithholdingTax: Record "Withholding Tax")
     begin
         with WithholdingTax do begin
-            TempWithholdingTax.Init;
+            TempWithholdingTax.Init();
             TempWithholdingTax."Entry No." := "Entry No.";
             TempWithholdingTax."Vendor No." := "Vendor No.";
             TempWithholdingTax.Reason := Reason;

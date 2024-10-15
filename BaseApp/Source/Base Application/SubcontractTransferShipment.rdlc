@@ -4305,9 +4305,6 @@ End Function
         <Field Name="Text1130001">
           <DataField>Text1130001</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO__</DataField>
-        </Field>
         <Field Name="TransferToAddr_1_">
           <DataField>TransferToAddr_1_</DataField>
         </Field>
@@ -4448,9 +4445,6 @@ End Function
         </Field>
         <Field Name="CopyText_Control1130558">
           <DataField>CopyText_Control1130558</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO___Control1130559">
-          <DataField>STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO___Control1130559</DataField>
         </Field>
         <Field Name="CompanyAddr_2__Control1130565">
           <DataField>CompanyAddr_2__Control1130565</DataField>

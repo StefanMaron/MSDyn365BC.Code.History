@@ -27,7 +27,7 @@ report 12171 "Closing Bank Receipts"
                     CustLedgEntry.ModifyAll("Applies-to ID", '');
                     CustEntrySetApplId.SetApplId(CustLedgEntry, CustEntry1, Format("Entry No."));
 
-                    Commit;
+                    Commit();
 
                     Clear(CustEntryApplyPostedEntries);
                     CustEntryApplyPostedEntries.SetCheckDim(CheckDim);
@@ -47,7 +47,7 @@ report 12171 "Closing Bank Receipts"
             trigger OnAfterGetRecord()
             begin
                 if "Due Date" > ClosePerDay then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -114,7 +114,7 @@ report 12171 "Closing Bank Receipts"
 
     trigger OnInitReport()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Clear(NULL);
         RiskPeriod := SalesSetup."Bank Receipts Risk Period";
         if RiskPeriod = NULL then

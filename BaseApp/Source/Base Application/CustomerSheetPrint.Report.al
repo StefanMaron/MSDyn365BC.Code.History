@@ -356,7 +356,7 @@ report 12104 "Customer Sheet - Print"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompAddr[1] := CompanyInfo.Name;
                 CompAddr[2] := CompanyInfo.Address;
                 CompAddr[3] := CompanyInfo."Post Code";
@@ -387,7 +387,7 @@ report 12104 "Customer Sheet - Print"
     var
         ITReportManagement: Codeunit "IT - Report Management";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CustDateFilter := Customer.GetFilter("Date Filter");
         if CustDateFilter <> '' then begin
             MinimunDate := Customer.GetRangeMin("Date Filter") - 1;

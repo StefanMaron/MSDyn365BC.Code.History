@@ -133,7 +133,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId;
         ConfigPackage."Product Version" :=
           CopyStr(ApplicationSystemConstants.ApplicationVersion, 1, StrLen(ConfigPackage."Product Version"));
-        ConfigPackage.Modify;
+        ConfigPackage.Modify();
 
         InsertPackageTables;
         InsertPackageFields;
@@ -145,8 +145,8 @@ codeunit 1806 "Excel Data Migrator"
         DataMigrationSetup: Record "Data Migration Setup";
     begin
         if not DataMigrationSetup.Get then begin
-            DataMigrationSetup.Init;
-            DataMigrationSetup.Insert;
+            DataMigrationSetup.Init();
+            DataMigrationSetup.Insert();
         end;
 
         InsertPackageTableCustomer(DataMigrationSetup);
@@ -173,7 +173,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, PackageCodeTxt, DATABASE::Customer);
         ConfigPackageTable."Data Template" := DataMigrationSetup."Default Customer Template";
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
         ConfigPackageManagement.InsertProcessingRuleCustom(
           ConfigTableProcessingRule, ConfigPackageTable, 100000, CODEUNIT::"Excel Post Processor");
     end;
@@ -210,7 +210,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, PackageCodeTxt, DATABASE::Vendor);
         ConfigPackageTable."Data Template" := DataMigrationSetup."Default Vendor Template";
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
         ConfigPackageManagement.InsertProcessingRuleCustom(
           ConfigTableProcessingRule, ConfigPackageTable, 100000, CODEUNIT::"Excel Post Processor");
     end;
@@ -246,7 +246,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, PackageCodeTxt, DATABASE::Item);
         ConfigPackageTable."Data Template" := DataMigrationSetup."Default Item Template";
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
         ConfigPackageManagement.InsertProcessingRuleCustom(
           ConfigTableProcessingRule, ConfigPackageTable, 100000, CODEUNIT::"Excel Post Processor")
     end;
@@ -311,7 +311,7 @@ codeunit 1806 "Excel Data Migrator"
 
         if ConfigPackageTable.FindSet then
             repeat
-                ConfigPackageField.Reset;
+                ConfigPackageField.Reset();
 
                 // Check if Excel file contains data sheets with the supported master tables (Customer, Vendor, Item)
                 if IsTableInExcel(TempExcelBuffer, FileName, ConfigPackageTable) then
@@ -336,7 +336,7 @@ codeunit 1806 "Excel Data Migrator"
 
         if ConfigPackageTable.FindSet then
             repeat
-                ConfigPackageField.Reset;
+                ConfigPackageField.Reset();
 
                 // Check if Excel file contains data sheets with the supported master tables (Customer, Vendor, Item)
                 if IsTableInExcelStream(TempExcelBuffer, FileStream, ConfigPackageTable) then
@@ -378,7 +378,7 @@ codeunit 1806 "Excel Data Migrator"
                     if ConfigPackageField.FindFirst then begin
                         FieldID[TempExcelBuffer."Column No."] := ConfigPackageField."Field ID";
                         ConfigPackageField."Include Field" := true;
-                        ConfigPackageField.Modify;
+                        ConfigPackageField.Modify();
                         ColumnCount += 1;
                     end else // Error is thrown when the template is corrupted (i.e., there are columns in Excel file that cannot be mapped to NAV)
                         Error(ExcelValidationErr, PRODUCTNAME.Marketing);
@@ -407,8 +407,8 @@ codeunit 1806 "Excel Data Migrator"
                 end;
             until TempExcelBuffer.Next = 0;
 
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         TempExcelBuffer.CloseBook;
     end;
 
@@ -458,7 +458,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ConfigPackage.Get(PackageCodeTxt);
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        DataMigrationEntity.DeleteAll;
+        DataMigrationEntity.DeleteAll();
 
         with ConfigPackageTable do
             if FindSet then
@@ -501,7 +501,7 @@ codeunit 1806 "Excel Data Migrator"
         if Sender."No." <> GetCodeunitNumber then
             exit;
 
-        DataMigrationSetup.Get;
+        DataMigrationSetup.Get();
         if (DataMigrationSetup."Default Customer Template" = '') and
            (DataMigrationSetup."Default Vendor Template" = '') and
            (DataMigrationSetup."Default Item Template" = '')
@@ -690,7 +690,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, PackageCodeTxt, DATABASE::"G/L Account");
         ConfigPackageTable."Data Template" := DataMigrationSetup."Default Account Template";
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
         ConfigPackageManagement.InsertProcessingRuleCustom(
           ConfigTableProcessingRule, ConfigPackageTable, 100000, CODEUNIT::"Excel Post Processor");
     end;

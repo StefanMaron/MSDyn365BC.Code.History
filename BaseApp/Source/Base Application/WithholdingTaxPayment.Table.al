@@ -111,7 +111,7 @@ table 12114 "Withholding Tax Payment"
 
     trigger OnDelete()
     begin
-        WithholdingTax.Reset;
+        WithholdingTax.Reset();
         WithholdingTax.SetRange(Month, Month);
         WithholdingTax.SetRange(Year, Year);
         WithholdingTax.SetRange("Tax Code", "Tax Code");

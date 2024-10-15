@@ -155,7 +155,7 @@ page 12118 "Item Cost History List"
                         ItemCostHistory: Record "Item Cost History";
                         DetailLedgEntries: Report "Ledger Entry Details";
                     begin
-                        ItemCostHistory.Reset;
+                        ItemCostHistory.Reset();
                         ItemCostHistory.SetRange("Item No.", "Item No.");
                         ItemCostHistory.SetRange("Competence Year", "Competence Year");
                         DetailLedgEntries.SetTableView(ItemCostHistory);

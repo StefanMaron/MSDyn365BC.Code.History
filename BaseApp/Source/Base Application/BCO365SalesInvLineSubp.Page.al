@@ -226,7 +226,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if TaxSetup.Get then;
         Currency.InitRoundingPrecision;
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);

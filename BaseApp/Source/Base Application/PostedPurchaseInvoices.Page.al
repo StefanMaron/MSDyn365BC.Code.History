@@ -267,6 +267,13 @@ page 146 "Posted Purchase Invoices"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(122),
+                              "No." = FIELD("No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -369,8 +376,27 @@ page 146 "Posted Purchase Invoices"
                 var
                     PurchInvHeader: Record "Purch. Inv. Header";
                 begin
+                    PurchInvHeader := Rec;
                     CurrPage.SetSelectionFilter(PurchInvHeader);
                     PurchInvHeader.PrintRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category7;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchInvHeader: Record "Purch. Inv. Header";
+                begin
+                    PurchInvHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchInvHeader);
+                    PrintToDocumentAttachment(PurchInvHeader);
                 end;
             }
             action(Navigate)

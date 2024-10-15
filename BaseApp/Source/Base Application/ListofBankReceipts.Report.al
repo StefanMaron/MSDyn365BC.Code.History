@@ -181,7 +181,7 @@ report 12170 "List of Bank Receipts"
 
             trigger OnAfterGetRecord()
             begin
-                Company.Get;
+                Company.Get();
 
                 BankAccount.Get("Bank Account No.");
                 if "Test Report" then

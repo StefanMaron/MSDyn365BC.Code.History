@@ -113,7 +113,7 @@ report 12150 "VAT Payment Communication"
         var
             GeneralLedgerSetup: Record "General Ledger Setup";
         begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             StartDate := CalcDate('<CQ-1Q+1D>', GeneralLedgerSetup."Last Settlement Date" + 1);
             YearOfDeclaration := Date2DMY(StartDate, 3) - 2000;
         end;
@@ -147,7 +147,7 @@ report 12150 "VAT Payment Communication"
         else
             ServerFilePathAlreadySet := true;
 
-        VATPmtCommDataLookup.Init;
+        VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(StartDate);
         VATPmtCommDataLookup.SetYearOfDeclaration(YearOfDeclaration);
         VATPmtCommDataLookup.SetTaxDeclarant(TaxDeclarant);
@@ -166,7 +166,7 @@ report 12150 "VAT Payment Communication"
         VATPmtCommXMLGenerator.CreateXml(XMLDoc);
 
         XMLDoc.Save(ServerFilePath);
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         SuggestedFileName := 'IT' + VATPmtCommDataLookup.GetFiscalCode + '_LI_' +
           VATPmtCommDataLookup.FormatCommunicationId(VATReportSetup."Spesometro Communication ID") +
           '.xml';

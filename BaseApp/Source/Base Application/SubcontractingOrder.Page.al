@@ -416,7 +416,7 @@ page 12152 "Subcontracting Order"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Order Statistics", Rec);
                     end;
                 }

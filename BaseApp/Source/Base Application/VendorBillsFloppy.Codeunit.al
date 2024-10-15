@@ -8,7 +8,7 @@ codeunit 12175 "Vendor Bills Floppy"
         if VendorBillHeader.IsEmpty then
             Error(ExportVendBillHdrErr);
         SEPADDExportMgt.DeleteExportErrors(GetFilter("Document No."), '');
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Vendor Bills Floppy", false, false, VendorBillHeader);
     end;
 

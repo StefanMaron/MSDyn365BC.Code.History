@@ -52,7 +52,7 @@ report 12113 "Close/Open Balance Sheet"
                                 EntryNo := "Close Income Statement Dim. ID";
                                 DimBufMgt.GetDimensions(EntryNo, TempDimBuf);
                             end;
-                            TempDimBuf2.DeleteAll;
+                            TempDimBuf2.DeleteAll();
                             if TempSelectedDim.FindSet then
                                 repeat
                                     if TempDimBuf.Get(DATABASE::"G/L Entry", EntryNo, TempSelectedDim."Dimension Code")
@@ -60,7 +60,7 @@ report 12113 "Close/Open Balance Sheet"
                                         TempDimBuf2."Table ID" := TempDimBuf."Table ID";
                                         TempDimBuf2."Dimension Code" := TempDimBuf."Dimension Code";
                                         TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
-                                        TempDimBuf2.Insert;
+                                        TempDimBuf2.Insert();
                                     end;
                                 until TempSelectedDim.Next = 0;
 
@@ -69,12 +69,12 @@ report 12113 "Close/Open Balance Sheet"
                             if EntryNoAmountBuf.Get("Business Unit Code", EntryNo) then begin
                                 EntryNoAmountBuf.Amount := EntryNoAmountBuf.Amount + Amount;
                                 EntryNoAmountBuf.Amount2 := EntryNoAmountBuf.Amount2 + "Additional-Currency Amount";
-                                EntryNoAmountBuf.Modify;
+                                EntryNoAmountBuf.Modify();
                             end else begin
                                 EntryNoAmountBuf."Entry No." := EntryNo;
                                 EntryNoAmountBuf.Amount := Amount;
                                 EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";
-                                EntryNoAmountBuf.Insert;
+                                EntryNoAmountBuf.Insert();
                             end;
                         end;
                         Find('+');
@@ -110,7 +110,7 @@ report 12113 "Close/Open Balance Sheet"
                                     GenJnlLine.Validate(Amount, EntryNoAmountBuf.Amount);
                                     GenJnlLine."Source Currency Amount" := EntryNoAmountBuf.Amount2;
                                 end;
-                                TempDimBuf2.DeleteAll;
+                                TempDimBuf2.DeleteAll();
                                 DimBufMgt.RetrieveDimensions(EntryNoAmountBuf."Entry No.", TempDimBuf2);
                                 NewDimensionID := DimMgt.CreateDimSetIDFromDimBuf(TempDimBuf2);
                                 GenJnlLine."Dimension Set ID" := NewDimensionID;
@@ -124,7 +124,7 @@ report 12113 "Close/Open Balance Sheet"
                                 HandleGenJnlLine;
                             until EntryNoAmountBuf.Next = 0;
 
-                        EntryNoAmountBuf.DeleteAll;
+                        EntryNoAmountBuf.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -142,14 +142,14 @@ report 12113 "Close/Open Balance Sheet"
                             if CloseTransactionNo <> 0 then
                                 SetFilter("Transaction No.", '<>%1', CloseTransactionNo);
 
-                        EntryNoAmountBuf.DeleteAll;
+                        EntryNoAmountBuf.DeleteAll();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if ("No." = ClAccNo) or ("No." = OpAccNo) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Window.Update(1, "No.");
                     UpdateCloseIncomeStmtDimID("No.");
                     GenJnlLine."Closing Balance Sheet" := true;
@@ -189,7 +189,7 @@ report 12113 "Close/Open Balance Sheet"
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if not GenJnlLine.FindLast then;
-                GenJnlLine.Init;
+                GenJnlLine.Init();
             end;
         }
     }
@@ -432,8 +432,8 @@ report 12113 "Close/Open Balance Sheet"
         if (ClAccNo = '') or (OpAccNo = '') then
             Error(Text1130012);
 
-        SourceCodeSetup.Get;
-        GLSetup.Get;
+        SourceCodeSetup.Get();
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then begin
             if not Confirm(AddRepCurrUsageQst, false) then
                 CurrReport.Quit;
@@ -565,7 +565,7 @@ report 12113 "Close/Open Balance Sheet"
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterHandleGenJnlLineGenJnlPostLine(GenJnlLine, Integer.Number);
         end else
-            GenJnlLine.Insert;
+            GenJnlLine.Insert();
     end;
 
     local procedure CollectCloseIncomeStmtDimID()
@@ -583,13 +583,13 @@ report 12113 "Close/Open Balance Sheet"
             repeat
                 if GLEntry."Dimension Set ID" <> 0 then begin
                     DimSetEntry.SetRange("Dimension Set ID", GLEntry."Dimension Set ID");
-                    TempDimBuf.DeleteAll;
+                    TempDimBuf.DeleteAll();
                     DimSetEntry.FindSet;
                     repeat
                         TempDimBuf."Table ID" := DATABASE::"G/L Entry";
                         TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                         TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                        TempDimBuf.Insert;
+                        TempDimBuf.Insert();
                     until DimSetEntry.Next = 0;
                     DimBufMgt.InsertDimensionsUsingEntryNo(
                       TempDimBuf, GLEntry."Close Income Statement Dim. ID");
@@ -646,7 +646,7 @@ report 12113 "Close/Open Balance Sheet"
                 DimBuf."Entry No." := GLEntryNo;
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                DimBuf.Insert;
+                DimBuf.Insert();
                 Counter += 1;
             until DimSetEntry.Next = 0;
         exit(Counter);

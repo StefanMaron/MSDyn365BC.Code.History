@@ -500,13 +500,11 @@ table 4 Currency
             Error(Text002, VendLedgEntry.TableCaption, TableCaption, Code);
 
         CurrExchRate.SetRange("Currency Code", Code);
-        CurrExchRate.DeleteAll;
+        CurrExchRate.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        TestField(Code);
-         
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
@@ -540,7 +538,7 @@ table 4 Currency
 
     procedure InitRoundingPrecision()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Amount Rounding Precision" <> 0 then
             "Amount Rounding Precision" := GLSetup."Amount Rounding Precision"
         else
@@ -743,7 +741,7 @@ table 4 Currency
         if CurrencyCode <> '' then
             exit(Currency.ResolveCurrencySymbol(CurrencyCode));
 
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup.GetCurrencySymbol);
     end;
 
@@ -762,7 +760,7 @@ table 4 Currency
         RecRef.GetTable(Rec);
         SuggestGainLossAccounts(RecRef);
         SuggestOtherAccounts(RecRef);
-        RecRef.Modify;
+        RecRef.Modify();
     end;
 
     local procedure SuggestGainLossAccounts(var RecRef: RecordRef)
@@ -802,13 +800,13 @@ table 4 Currency
     begin
         CurrencyRecRef.Open(DATABASE::Currency);
 
-        CurrencyRecRef.Reset;
+        CurrencyRecRef.Reset();
         CurrencyFieldRef := CurrencyRecRef.Field(FieldNo(Code));
         CurrencyFieldRef.SetFilter('<>%1', Code);
         TempAccountUseBuffer.UpdateBuffer(CurrencyRecRef, AccountFieldNo);
         CurrencyRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);

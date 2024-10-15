@@ -20,10 +20,10 @@ report 594 "Get Item Ledger Entries"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Entry Type" in ["Entry Type"::Sale, "Entry Type"::Purchase] then begin
-                        ItemLedgEntry.Reset;
+                        ItemLedgEntry.Reset();
                         ItemLedgEntry.SetCurrentKey("Document No.", "Document Type");
                         ItemLedgEntry.SetRange("Document No.", "Document No.");
                         ItemLedgEntry.SetRange("Item No.", "Item No.");
@@ -35,7 +35,7 @@ report 594 "Get Item Ledger Entries"
                             if ItemLedgEntry.FindSet then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 until ItemLedgEntry.Next = 0;
                         end;
                     end;
@@ -44,10 +44,10 @@ report 594 "Get Item Ledger Entries"
                        SalesShipmentHeader.Get("Document No.") and
                        (CompanyInfo."Country/Region Code" = SalesShipmentHeader."Bill-to Country/Region Code")
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not HasCrossedBorder("Item Ledger Entry") or IsService("Item Ledger Entry") or IsServiceItem("Item No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                     if ValueEntry.FindSet(false, false) then
@@ -58,7 +58,7 @@ report 594 "Get Item Ledger Entries"
                                 if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then
                                     InsertItemJnlLine
                                 else begin
-                                    IntrastatJnlLine2.Reset;
+                                    IntrastatJnlLine2.Reset();
                                     IntrastatJnlLine2.SetRange("Item No.", "Item No.");
                                     IntrastatJnlLine2.SetRange("Document No.", ValueEntry."Document No.");
                                     if not IntrastatJnlLine2.FindFirst then
@@ -70,7 +70,7 @@ report 594 "Get Item Ledger Entries"
                 trigger OnPreDataItem()
                 begin
                     if IntrastatJnlBatch."EU Service" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Last Invoice Date", StartDate, EndDate);
 
@@ -126,10 +126,10 @@ report 594 "Get Item Ledger Entries"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if IsJobService("Job Ledger Entry") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     InsertJobLedgerLine;
                 end;
@@ -137,10 +137,10 @@ report 594 "Get Item Ledger Entries"
                 trigger OnPreDataItem()
                 begin
                     if IntrastatJnlBatch."EU Service" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Posting Date", StartDate, EndDate);
-                    IntrastatJnlLine2.Reset;
+                    IntrastatJnlLine2.Reset();
                     IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                     IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"Job Entry");
                 end;
@@ -161,7 +161,7 @@ report 594 "Get Item Ledger Entries"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst or ("Country/Region Code" = CompanyInfo."Country/Region Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if IntrastatJnlBatch."Corrective Entry" then
                         case Type of
@@ -169,9 +169,9 @@ report 594 "Get Item Ledger Entries"
                                 begin
                                     EntryNo := GetCustLedgEntryNo("VAT Entry");
                                     if EntryNo = 0 then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     if EntryNo = PrevEntryNo then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     PrevEntryNo := EntryNo;
                                     CustLedgEntry.Get(EntryNo);
                                     FindAppliedCustLedgEntries(CustLedgEntry, TempCustLedgEntry);
@@ -191,9 +191,9 @@ report 594 "Get Item Ledger Entries"
                                 begin
                                     EntryNo := GetVendLedgEntryNo("VAT Entry");
                                     if EntryNo = 0 then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     if EntryNo = PrevEntryNo then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     PrevEntryNo := EntryNo;
                                     VendLedgEntry.Get(EntryNo);
                                     FindAppliedVendLedgEntries(VendLedgEntry, TempVendLedgEntry);
@@ -213,7 +213,7 @@ report 594 "Get Item Ledger Entries"
                     else begin
                         if "Document Type" = "Document Type"::"Credit Memo" then
                             if DocumentHasApplications("VAT Entry") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                         InsertEUServiceLine("VAT Entry");
                     end;
@@ -222,7 +222,7 @@ report 594 "Get Item Ledger Entries"
                 trigger OnPreDataItem()
                 begin
                     if not IntrastatJnlBatch."EU Service" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if IntrastatJnlBatch.Type = IntrastatJnlBatch.Type::Purchases then
                         SetRange(Type, Type::Purchase)
@@ -235,7 +235,7 @@ report 594 "Get Item Ledger Entries"
                     SetRange("Operation Occurred Date", StartDate, EndDate);
                     SetRange("Reverse Sales VAT", false);
 
-                    IntrastatJnlLine2.Reset;
+                    IntrastatJnlLine2.Reset();
                     IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                     IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"VAT Entry")
                 end;
@@ -250,17 +250,17 @@ report 594 "Get Item Ledger Entries"
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
                     if IntrastatJnlLine2.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
                     then begin
                         if ("Item Ledger Entry"."Posting Date" > StartDate) and ("Item Ledger Entry"."Posting Date" < EndDate) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if "Country/Region".Get("Item Ledger Entry"."Country/Region Code") then
                             if "Country/Region"."EU Country/Region Code" = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         if not HasCrossedBorder("Item Ledger Entry") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         InsertValueEntryLine;
                     end;
                 end;
@@ -289,7 +289,7 @@ report 594 "Get Item Ledger Entries"
                 else
                     SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Sale);
 
-                IntrastatJnlLine2.Reset;
+                IntrastatJnlLine2.Reset();
                 IntrastatJnlLine2.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
                 IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                 IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"Item Entry");
@@ -423,12 +423,12 @@ report 594 "Get Item Ledger Entries"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntrastatJnlLine.LockTable;
+        IntrastatJnlLine.LockTable();
         if IntrastatJnlLine.FindLast then
             if not Confirm(LinesDeletionConfirmationTxt, true, IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Journal Template Name") then
                 CurrReport.Quit;
 
-        IntrastatJnlLine.DeleteAll;
+        IntrastatJnlLine.DeleteAll();
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
@@ -533,7 +533,7 @@ report 594 "Get Item Ledger Entries"
                     if Vendor.Get(PurchRcptHeader."Buy-from Vendor No.") then
                         "VAT Registration No." := Vendor."VAT Registration No.";
                 end else begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     if not PurchSetup."Receipt on Invoice" and
                        PurchInvHeader.Get("Item Ledger Entry"."Document No.")
                     then begin
@@ -646,7 +646,7 @@ report 594 "Get Item Ledger Entries"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Additional Reporting Currency" <> '' then
                 Currency.Get(GLSetup."Additional Reporting Currency");
         end;
@@ -940,7 +940,7 @@ report 594 "Get Item Ledger Entries"
                                             DocItemSum += PurchRcptLine."Quantity Invoiced";
                                         until PurchRcptLine.Next = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
-                                            CurrReport.Skip;
+                                            CurrReport.Skip();
                                     end;
                                 end;
                             end else begin
@@ -967,7 +967,7 @@ report 594 "Get Item Ledger Entries"
                                             DocItemSum += PurchRcptLine."Quantity Invoiced";
                                         until PurchRcptLine.Next = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
-                                            CurrReport.Skip;
+                                            CurrReport.Skip();
                                     end;
                                 end;
                             end;
@@ -1002,12 +1002,11 @@ report 594 "Get Item Ledger Entries"
                                             DocItemSum += SalesShipLine."Quantity Invoiced";
                                         until SalesShipLine.Next = 0;
                                         if (DocItemSum = 0) and CorrectionFound then
-                                            CurrReport.Skip;
+                                            CurrReport.Skip();
                                     end;
                                 end;
                             end else
-                                if (ValueEntry."Invoiced Quantity" >= 0) and
-                          (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
+                                if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
                                     SalesCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
                                     SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
                                     SalesCrMemoLine.SetRange("No.", ValueEntry."Item No.");
@@ -1031,12 +1030,11 @@ report 594 "Get Item Ledger Entries"
                                                 DocItemSum += SalesShipLine."Quantity Invoiced";
                                             until SalesShipLine.Next = 0;
                                             if (DocItemSum = 0) and CorrectionFound then
-                                                CurrReport.Skip;
+                                                CurrReport.Skip();
                                         end;
                                     end;
                                 end else
-                                    if (ValueEntry."Invoiced Quantity" < 0) and
-                              (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
+                                    if (ValueEntry."Invoiced Quantity" < 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
                                         ServiceInvoiceLine.SetRange("Document No.", ValueEntry."Document No.");
                                         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
                                         ServiceInvoiceLine.SetRange("No.", ValueEntry."Item No.");
@@ -1060,12 +1058,11 @@ report 594 "Get Item Ledger Entries"
                                                     DocItemSum += ServiceShipLine."Quantity Invoiced";
                                                 until ServiceShipLine.Next = 0;
                                                 if (DocItemSum = 0) and CorrectionFound then
-                                                    CurrReport.Skip;
+                                                    CurrReport.Skip();
                                             end;
                                         end;
                                     end else
-                                        if (ValueEntry."Invoiced Quantity" >= 0) and
-                                  (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
+                                        if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
                                             ServiceCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
                                             ServiceCrMemoLine.SetRange(Type, ServiceCrMemoLine.Type::Item);
                                             ServiceCrMemoLine.SetRange("No.", ValueEntry."Item No.");
@@ -1089,7 +1086,7 @@ report 594 "Get Item Ledger Entries"
                                                         DocItemSum += ServiceShipLine."Quantity Invoiced";
                                                     until ServiceShipLine.Next = 0;
                                                     if (DocItemSum = 0) and CorrectionFound then
-                                                        CurrReport.Skip;
+                                                        CurrReport.Skip();
                                                 end;
                                             end;
                                         end;
@@ -1187,7 +1184,7 @@ report 594 "Get Item Ledger Entries"
             end else
                 if not HasApplications then begin
                     IntrastatJnlLine2.Amount += GetVATEntryAmount(VATEntry);
-                    IntrastatJnlLine2.Modify;
+                    IntrastatJnlLine2.Modify();
                 end
         end;
     end;
@@ -1331,8 +1328,8 @@ report 594 "Get Item Ledger Entries"
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
     begin
-        TempAppliedCustLedgEntry.Reset;
-        TempAppliedCustLedgEntry.DeleteAll;
+        TempAppliedCustLedgEntry.Reset();
+        TempAppliedCustLedgEntry.DeleteAll();
 
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -1351,7 +1348,7 @@ report 594 "Get Item Ledger Entries"
                                 CustLedgEntry2.SetRange("Entry No.", DtldCustLedgEntry2."Cust. Ledger Entry No.");
                                 if CustLedgEntry2.FindFirst then begin
                                     TempAppliedCustLedgEntry := CustLedgEntry2;
-                                    TempAppliedCustLedgEntry.Insert;
+                                    TempAppliedCustLedgEntry.Insert();
                                 end;
                             end;
                         until DtldCustLedgEntry2.Next = 0;
@@ -1360,7 +1357,7 @@ report 594 "Get Item Ledger Entries"
                     CustLedgEntry2.SetRange("Entry No.", DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
                     if CustLedgEntry2.FindFirst then begin
                         TempAppliedCustLedgEntry := CustLedgEntry2;
-                        TempAppliedCustLedgEntry.Insert;
+                        TempAppliedCustLedgEntry.Insert();
                     end;
                 end;
             until DtldCustLedgEntry.Next = 0;
@@ -1372,8 +1369,8 @@ report 594 "Get Item Ledger Entries"
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         VendLedgEntry2: Record "Vendor Ledger Entry";
     begin
-        TempAppliedVendLedgEntry.Reset;
-        TempAppliedVendLedgEntry.DeleteAll;
+        TempAppliedVendLedgEntry.Reset();
+        TempAppliedVendLedgEntry.DeleteAll();
 
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
@@ -1392,7 +1389,7 @@ report 594 "Get Item Ledger Entries"
                                 VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
                                 if VendLedgEntry2.FindFirst then begin
                                     TempAppliedVendLedgEntry := VendLedgEntry2;
-                                    TempAppliedVendLedgEntry.Insert;
+                                    TempAppliedVendLedgEntry.Insert();
                                 end;
                             end;
                         until DtldVendLedgEntry2.Next = 0;
@@ -1401,7 +1398,7 @@ report 594 "Get Item Ledger Entries"
                     VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     if VendLedgEntry2.FindFirst then begin
                         TempAppliedVendLedgEntry := VendLedgEntry2;
-                        TempAppliedVendLedgEntry.Insert;
+                        TempAppliedVendLedgEntry.Insert();
                     end;
                 end;
             until DtldVendLedgEntry.Next = 0;
@@ -1409,7 +1406,7 @@ report 594 "Get Item Ledger Entries"
 
     local procedure FilterVATEntryOnCustLedgEntry(var VATEntry: Record "VAT Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetCurrentKey("Transaction No.");
         VATEntry.SetRange("Transaction No.", CustLedgEntry."Transaction No.");
         VATEntry.SetRange("Document No.", CustLedgEntry."Document No.");
@@ -1418,7 +1415,7 @@ report 594 "Get Item Ledger Entries"
 
     local procedure FilterVATEntryOnVendLedgEntry(var VATEntry: Record "VAT Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetCurrentKey("Transaction No.");
         VATEntry.SetRange("Transaction No.", VendLedgEntry."Transaction No.");
         VATEntry.SetRange("Document No.", VendLedgEntry."Document No.");
@@ -1497,7 +1494,7 @@ report 594 "Get Item Ledger Entries"
     begin
         if SalesShipmentHeader.Get("Item Ledger Entry"."Document No.") then
             exit(SalesShipmentHeader."Sell-to Customer No.");
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Shipment on Invoice" and SalesInvoiceHeader.Get("Item Ledger Entry"."Document No.") then
             exit(SalesInvoiceHeader."Sell-to Customer No.");
         if SalesCrMemoHeader.Get(ValueEntry."Document No.") then

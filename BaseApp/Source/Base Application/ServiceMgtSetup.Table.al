@@ -319,7 +319,7 @@ table 5911 "Service Mgt. Setup"
                 ElectronicDocumentFormat: Record "Electronic Document Format";
             begin
                 if "Validate Document On Posting" then begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     SalesReceivablesSetup.TestField("Fattura PA Electronic Format");
                     ElectronicDocumentFormat.Get(
                       SalesReceivablesSetup."Fattura PA Electronic Format", ElectronicDocumentFormat.Usage::"Service Validation");

@@ -109,10 +109,10 @@ report 23 "G/L Document Nos."
             begin
                 if "Source Code" <> SourceCode.Code then
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 if "No. Series" <> NoSeries.Code then
                     if not NoSeries.Get("No. Series") then
-                        NoSeries.Init;
+                        NoSeries.Init();
 
                 if ("No. Series" <> LastNoSeriesCode) or FirstRecord then begin
                     if "No. Series" = '' then

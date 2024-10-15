@@ -110,7 +110,7 @@ report 5908 "Service Order - Response Time"
                     TotalTimeFooter += "Actual Response Time (Hours)";
                     LastOrderNo := "Order No.";
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 LastRespCenterCode := "Responsibility Center";
             end;

@@ -13,9 +13,6 @@ report 12117 "Customer Bills List"
             DataItemTableView = SORTING("No.") ORDER(Ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(EndingDate; Format(EndingDate))
             {
             }
@@ -252,7 +249,7 @@ report 12117 "Customer Bills List"
                     trigger OnAfterGetRecord()
                     begin
                         if OnlyOpened then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         ClosedByAmountLCY := "Amount (LCY)";
                         TotalForCustomer += "Amount (LCY)";
@@ -319,7 +316,7 @@ report 12117 "Customer Bills List"
                         AmountLCY: Decimal;
                     begin
                         if not TempDetailedCustLedgEntry.Get("Entry No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         CustLedgEntry3.Get("Cust. Ledger Entry No.");
                         CustLedgEntry3.CalcFields("Original Amt. (LCY)");
@@ -450,7 +447,7 @@ report 12117 "Customer Bills List"
     begin
         if EndingDate = 0D then
             Error(EmptyEndingDateErr);
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Bank Receipts Risk Period");
         Evaluate(RiskPeriod, '-' + Format(SalesSetup."Bank Receipts Risk Period"));
         ExposureDate := CalcDate(RiskPeriod, EndingDate);
@@ -494,8 +491,8 @@ report 12117 "Customer Bills List"
         DetailedCustLedgEntryApplied: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntryApplied: Record "Cust. Ledger Entry";
     begin
-        TempDetailedCustLedgEntry.Reset;
-        TempDetailedCustLedgEntry.DeleteAll;
+        TempDetailedCustLedgEntry.Reset();
+        TempDetailedCustLedgEntry.DeleteAll();
 
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustomerLedgerEntryNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
@@ -522,7 +519,7 @@ report 12117 "Customer Bills List"
                             CustLedgerEntryApplied.Get(DetailedCustLedgEntryApplied."Cust. Ledger Entry No.");
                             if IsPaymentDocumentType(CustLedgerEntryApplied) then begin
                                 TempDetailedCustLedgEntry := DetailedCustLedgEntryApplied;
-                                if TempDetailedCustLedgEntry.Insert then;
+                                if TempDetailedCustLedgEntry.Insert() then;
                             end;
                         until DetailedCustLedgEntryApplied.Next = 0;
                 end;

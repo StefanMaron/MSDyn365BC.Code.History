@@ -18,6 +18,8 @@ codeunit 5055 "CustVendBank-Update"
                         UpdateVendor(Rec, ContBusRel);
                     ContBusRel."Link to Table"::"Bank Account":
                         UpdateBankAccount(Rec, ContBusRel);
+                    else
+                        OnRunCustVendBankUpdateCaseElse(Rec, ContBusRel);
                 end;
             until ContBusRel.Next = 0;
     end;
@@ -98,6 +100,11 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBankAccount(var BankAccount: Record "Bank Account"; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCustVendBankUpdateCaseElse(var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation")
     begin
     end;
 }

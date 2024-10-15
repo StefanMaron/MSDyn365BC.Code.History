@@ -11,7 +11,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(Contact; Contact)
@@ -21,7 +21,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Contact Profile Answer"; "Contact Profile Answer")
@@ -31,7 +31,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Contact Mailing Group"; "Contact Mailing Group")
@@ -41,7 +41,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Interaction Log Entry"; "Interaction Log Entry")
@@ -51,7 +51,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Contact Job Responsibility"; "Contact Job Responsibility")
@@ -61,7 +61,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Contact Industry Group"; "Contact Industry Group")
@@ -71,7 +71,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Contact Business Relation"; "Contact Business Relation")
@@ -81,7 +81,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("Value Entry"; "Value Entry")
@@ -91,7 +91,7 @@ report 5197 "Remove Contacts - Reduce"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

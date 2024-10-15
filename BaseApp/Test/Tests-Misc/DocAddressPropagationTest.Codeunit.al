@@ -1094,7 +1094,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         SalesSetupPage.Close;
 
         // [THEN] "Ignore Updated Addresses" table field is set to TRUE.
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Ignore Updated Addresses", true);
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -1123,7 +1123,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         PurchasesSetupPage.Close;
 
         // [THEN] "Ignore Updated Addresses" table field is set to TRUE.
-        PurchasesSetup.Get;
+        PurchasesSetup.Get();
         PurchasesSetup.TestField("Ignore Updated Addresses", true);
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -1145,7 +1145,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         CreateTempCustomer(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         Customer."Ship-to Code" := ShipToAddress.Code;
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] Create sales order for customer
         CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -1314,7 +1314,7 @@ codeunit 134772 "Doc. Address Propagation Test"
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
     end;
@@ -1351,7 +1351,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         CreateTempCustomer(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         Customer."Ship-to Code" := ShipToAddress.Code;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure ChangePurchaseHeaderBuyFromAddressFields(var PurchaseHeader: Record "Purchase Header")

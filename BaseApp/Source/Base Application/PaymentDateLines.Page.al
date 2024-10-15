@@ -143,7 +143,7 @@ page 12171 "Payment Date Lines"
                                 Currency.Get(ServiceHeader."Currency Code");
                             CurrencyCode := Currency.Code;
                             DocumentAmount := 0;
-                            ServiceLine.Reset;
+                            ServiceLine.Reset();
                             ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
                             ServiceLine.SetRange("Document No.", ServiceHeader."No.");
                             if ServiceLine.FindSet then

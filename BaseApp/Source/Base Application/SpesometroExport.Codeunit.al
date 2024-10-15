@@ -43,8 +43,8 @@ codeunit 12131 "Spesometro Export"
         OrgReportReceiptNo := '';
 
         // Get global data
-        CompanyInfo.Get;
-        VATReportSetup.Get;
+        CompanyInfo.Get();
+        VATReportSetup.Get();
 
         ValidateGlobalData;
     end;
@@ -59,7 +59,7 @@ codeunit 12131 "Spesometro Export"
     var
         SpesometroAppointment: Record "Spesometro Appointment";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Industrial Classification");
@@ -349,7 +349,7 @@ codeunit 12131 "Spesometro Export"
 
         // Fallback: Tax Representative, use a virtual entry
         if CompanyInfo."Tax Representative No." <> '' then begin
-            SpesometroAppointment.Init;
+            SpesometroAppointment.Init();
             SpesometroAppointment."Appointment Code" := '06'; // Tax Representative
             SpesometroAppointment."Vendor No." := CompanyInfo."Tax Representative No.";
             SpesometroAppointment."Starting Date" := StartDate;
@@ -423,7 +423,7 @@ codeunit 12131 "Spesometro Export"
                 DateRef := CopyStr(FormatPadding(ConstFormat::NUp, Format(Date2DMY(StartDate, 2)), 2), 1, 2);
             PeriodType::Quarter:
                 begin
-                    Date.Reset;
+                    Date.Reset();
                     Date.SetRange("Period Type", Date."Period Type"::Quarter);
                     Date.SetFilter("Period Start", '<=%1', StartDate);
                     Date.SetFilter("Period End", '>=%1', StartDate);

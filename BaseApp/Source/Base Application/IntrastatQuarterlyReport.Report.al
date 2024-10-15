@@ -35,9 +35,6 @@ report 12161 "Intrastat - Quarterly Report"
                 column(USERID; UserId)
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(Intrastat_Jnl__Line__Intrastat_Jnl__Line___Type; "Intrastat Jnl. Line".Type)
                 {
                 }
@@ -402,7 +399,7 @@ report 12161 "Intrastat - Quarterly Report"
                            ("Transaction Type" = '') and
                            ("Total Weight" = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         TestField("VAT Registration No.");
                         TestField("Transaction Type");
@@ -413,7 +410,7 @@ report 12161 "Intrastat - Quarterly Report"
                             TestField(Quantity);
                         Country.Get("Country/Region Code");
 
-                        IntrastatJnlLineTemp.Reset;
+                        IntrastatJnlLineTemp.Reset();
                         IntrastatJnlLineTemp.SetRange(Type, Type);
                         IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
                         IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
@@ -421,11 +418,11 @@ report 12161 "Intrastat - Quarterly Report"
                         IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
                         if not IntrastatJnlLineTemp.FindFirst then begin
                             IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                            IntrastatJnlLineTemp.Insert;
+                            IntrastatJnlLineTemp.Insert();
                             NoOfRecordsRTC += 1;
                         end;
 
-                        "Intra - form Buffer".Reset;
+                        "Intra - form Buffer".Reset();
 
                         if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.", "Intrastat Jnl. Line"."Transaction Type",
                              "Intrastat Jnl. Line"."Tariff No.", '', '', '', '', '', "Intrastat Jnl. Line"."Corrective entry")
@@ -433,7 +430,7 @@ report 12161 "Intrastat - Quarterly Report"
                             "Intra - form Buffer".Amount := "Intra - form Buffer".Amount + "Intrastat Jnl. Line".Amount;
                             "Intra - form Buffer"."Source Currency Amount" := "Intra - form Buffer"."Source Currency Amount" +
                               "Intrastat Jnl. Line"."Source Currency Amount";
-                            "Intra - form Buffer".Modify;
+                            "Intra - form Buffer".Modify();
                         end else begin
                             "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
                             "Intra - form Buffer"."User ID" := UserId;
@@ -443,21 +440,20 @@ report 12161 "Intrastat - Quarterly Report"
                             "Intra - form Buffer"."Country/Region of Origin Code" := '';
                             "Intra - form Buffer".Area := '';
                             "Intra - form Buffer"."No." := 0;
-                            "Intra - form Buffer".Insert;
+                            "Intra - form Buffer".Insert();
                         end;
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    IntrastatJnlLineTemp.DeleteAll;
+                    IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
                 Sales := "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales;
             end;
 
@@ -597,7 +593,7 @@ report 12161 "Intrastat - Quarterly Report"
             trigger OnPreDataItem()
             begin
                 if "Intrastat Jnl. Batch"."EU Service" then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 NoOfRecords := 0;
                 TotRoundAmount := 0;
             end;
@@ -622,21 +618,21 @@ report 12161 "Intrastat - Quarterly Report"
 
     trigger OnPostReport()
     begin
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
     end;
 
     trigger OnPreReport()
     begin
         BatchNameFilter := "Intrastat Jnl. Line".GetFilter("Journal Batch Name");
         "Intrastat Jnl. Line".Type := "Intrastat Jnl. Batch".Type;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text000, '    ');
 
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
     end;
 
     var

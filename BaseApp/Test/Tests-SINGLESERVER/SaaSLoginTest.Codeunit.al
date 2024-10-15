@@ -21,8 +21,8 @@ codeunit 139470 "SaaS Login Test"
         TermsAndConditionsState: Record "Terms And Conditions State";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
-        TermsAndConditions.DeleteAll;
-        TermsAndConditionsState.DeleteAll;
+        TermsAndConditions.DeleteAll();
+        TermsAndConditionsState.DeleteAll();
 
         if Initialized then
             exit;
@@ -137,7 +137,7 @@ codeunit 139470 "SaaS Login Test"
     begin
         Company.Get(CompanyName);
         Company."Evaluation Company" := IsEvaluationCompany;
-        Company.Modify;
+        Company.Modify();
     end;
 
     local procedure CreateEvalCompany()

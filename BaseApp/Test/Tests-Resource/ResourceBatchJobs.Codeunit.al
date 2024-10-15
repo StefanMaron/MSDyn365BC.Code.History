@@ -40,7 +40,7 @@ codeunit 136402 "Resource Batch Jobs"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Batch Jobs");
     end;
 
@@ -153,7 +153,7 @@ codeunit 136402 "Resource Batch Jobs"
         // 2. Exercise: Run Date Compress Resource Ledger report without start date and end date.
         StartDate := 0D;
         EndDate := 0D;
-        Commit;  // Commit needs before run Date Compress Resource Ledger report.
+        Commit();  // Commit needs before run Date Compress Resource Ledger report.
         asserterror DateCompressResourceJournal(Resource."No.");
 
         // 3. Verify: Check expected ERROR must be come for End date.
@@ -291,7 +291,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResLedgerEntry: Record "Res. Ledger Entry";
         DateCompressResourceLedger: Report "Date Compress Resource Ledger";
     begin
-        Commit; // required for CH
+        Commit(); // required for CH
         Clear(DateCompressResourceLedger);
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         DateCompressResourceLedger.SetTableView(ResLedgerEntry);
@@ -333,7 +333,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResLedgerEntry: Record "Res. Ledger Entry";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         ResLedgerEntry.SetRange("Source Code", SourceCodeSetup."Compress Res. Ledger");
         ResLedgerEntry.FindFirst;

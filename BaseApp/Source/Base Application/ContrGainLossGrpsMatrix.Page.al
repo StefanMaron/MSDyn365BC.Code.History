@@ -523,7 +523,7 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
         MATRIX_CellData: array[32] of Text[80];
         MATRIX_CaptionSet: array[32] of Text[80];
         StartFilter: Text[1024];
-        Text000: Label '<Sign><Integer Thousand><Decimals,3>';
+        Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
         [InDataSet]
         Field1Visible: Boolean;
         [InDataSet]
@@ -609,7 +609,7 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
 
     local procedure CalculateTotals()
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Contract Group Code", "Change Date");
         ContractGainLossEntry.SetFilter("Contract Group Code", GroupFilter);
         if AmountType = AmountType::"Net Change" then
@@ -633,7 +633,7 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Contract Group Code", "Change Date");
         ContractGainLossEntry.SetRange("Contract Group Code", MatrixRecords[MATRIX_ColumnOrdinal].Code);
         if AmountType = AmountType::"Net Change" then

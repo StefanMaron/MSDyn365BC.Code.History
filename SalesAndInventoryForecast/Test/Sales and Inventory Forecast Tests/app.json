@@ -1,0 +1,44 @@
+{
+    "id":  "cbb50af4-5f42-4b8d-a2dc-1afc5034411d",
+    "name":  "Sales and Inventory Forecast Tests",
+    "publisher":  "Microsoft",
+    "brief":  "Tests for the Sales and Inventory Forecast extension.",
+    "description":  "Tests for the Sales and Inventory Forecast extension.",
+    "version":  "16.0.11240.12076",
+    "privacyStatement":  "",
+    "EULA":  "",
+    "help":  "",
+    "url":  "",
+    "logo":  "",
+    "dependencies":  [
+                         {
+                             "id":  "c526b3e9-b8ca-4683-81ba-fcd5f6b1472a",
+                             "name":  "Sales and Inventory Forecast",
+                             "publisher":  "Microsoft",
+                             "version":  "16.0.0.0"
+                         },
+                         {
+                             "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
+                             "name":  "Tests-TestLibraries",
+                             "publisher":  "Microsoft",
+                             "version":  "16.0.0.0"
+                         }
+                     ],
+    "screenshots":  [
+
+                    ],
+    "platform":  "11.0.0.0",
+    "idRanges":  [
+                     {
+                         "from":  139500,
+                         "to":  139899
+                     },
+                     {
+                         "from":  148000,
+                         "to":  148499
+                     }
+                 ],
+    "target":  "OnPrem",
+    "showMyCode":  false,
+    "application":  "16.0.0.0"
+}

@@ -200,7 +200,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(CompanyInformation."Post Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation.City.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Country/Region Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(CompanyInformation.County.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -225,8 +224,10 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
+        SetExternalDocNoMandatory(true);
         SalesInvoice.OpenNew;
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
         SalesInvoice.SalesLines.New;
         Assert.AreEqual(false, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -241,6 +242,12 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
         Assert.IsFalse(SalesInvoice.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice.Close;
+
+        // verify that external document number is not mandatory if you specify so in the setup
+        SetExternalDocNoMandatory(false);
+        SalesInvoice.OpenNew;
+        Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        SalesInvoice.Close;
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesOrder(Customer: Record Customer)
@@ -248,8 +255,10 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
+        SetExternalDocNoMandatory(true);
         SalesOrder.OpenNew;
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
         SalesOrder.SalesLines.New;
         Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -263,6 +272,12 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
         Assert.IsFalse(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        SalesOrder.Close;
+
+        // verify that external document number is not mandatory if you specify so in the setup
+        SetExternalDocNoMandatory(false);
+        SalesOrder.OpenNew;
+        Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder.Close;
     end;
 
@@ -349,7 +364,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(PurchaseInvoice."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
-        Assert.IsTrue(PurchaseInvoice."Check Total".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.PurchLines.New;
         Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -380,7 +394,6 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseOrder.OpenNew;
         Assert.IsTrue(PurchaseOrder."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseOrder."Check Total".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         PurchaseOrder.PurchLines.New;
         Assert.IsFalse(PurchaseOrder.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -412,8 +425,6 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseCreditMemo.OpenNew;
         Assert.IsTrue(PurchaseCreditMemo."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseCreditMemo."Vendor Cr. Memo No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseCreditMemo."Operation Type".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseCreditMemo."Check Total".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseCreditMemo.PurchLines.New;
         Assert.IsFalse(PurchaseCreditMemo.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -437,7 +448,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         PurchasesPayablesSetup.FindFirst;
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)
@@ -446,7 +457,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure DeleteAllTemplates()

@@ -1,4 +1,4 @@
-﻿page 141 "Posted Purch. Cr. Memo Subform"
+page 141 "Posted Purch. Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

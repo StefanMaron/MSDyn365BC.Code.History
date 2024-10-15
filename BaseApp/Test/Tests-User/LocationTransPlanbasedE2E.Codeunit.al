@@ -24,7 +24,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IsInitialized: Boolean;
-        TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location.', Locked = true;
+        TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location. ', Locked = true;
 
     [Test]
     [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
@@ -115,7 +115,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -193,7 +193,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -300,7 +300,6 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
@@ -320,12 +319,9 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
@@ -587,27 +583,16 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
-        DocumentNo: Code[20];
     begin
         PurchaseInvoice.OpenNew;
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
-
         PurchaseInvoice.PurchLines.New;
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines."Location Code".SetValue(LocationCode);
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(10, 100, 2));
-
-        DocumentNo := PurchaseInvoice."No.".Value;
-        PurchaseInvoice.OK.Invoke;
-
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, DocumentNo);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
-
-        PurchaseInvoice.OpenEdit;
-        PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Post.Invoke;
     end;
 
@@ -737,7 +722,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Location: Record Location;
     begin
         Location.Get(Code);
-        Location.Delete;
+        Location.Delete();
     end;
 
     local procedure AssertPostedTransferShipmentExists(FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitLocationCode: Code[10])

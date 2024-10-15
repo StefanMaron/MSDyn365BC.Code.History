@@ -15,10 +15,10 @@ codeunit 12177 "SEPA - DD Export Mgt."
         BankAccount.Get(BankAccountNo);
         DirectDebitCollection.CreateNew(CustomerBillNo, BankAccountNo, PartnerType);
         DirectDebitCollection."Source Table ID" := SourceTableID;
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DeleteExportErrors(CustomerBillNo, Format(SourceTableID));
-        Commit;
+        Commit();
         RunFileExportCodeunit(BankAccount.GetDDExportCodeunitID, DirectDebitCollection."No.", DirectDebitCollectionEntry);
         DeleteDirectDebitCollection(DirectDebitCollection."No.");
     end;
@@ -35,7 +35,7 @@ codeunit 12177 "SEPA - DD Export Mgt."
 
         LastError := GetLastErrorText;
         DeleteDirectDebitCollection(DirectDebitCollectionNo);
-        Commit;
+        Commit();
         Error(LastError);
     end;
 

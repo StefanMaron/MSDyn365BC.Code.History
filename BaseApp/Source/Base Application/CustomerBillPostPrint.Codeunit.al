@@ -81,7 +81,7 @@ codeunit 12172 "Customer Bill - Post + Print"
                 InsertIssuedBillHeader(IssuedCustBillHeader, CustomerBillHeader, BillCode, ListNumber);
 
                 OldCustBillLine := CustomerBillLine;
-                CustLedgEntry.LockTable;
+                CustLedgEntry.LockTable();
                 BalanceAmount := 0;
                 BRNumber := NoSeriesMgt.GetNextNo(BillCode."Final Bill No.", "List Date", true);
                 repeat
@@ -117,7 +117,7 @@ codeunit 12172 "Customer Bill - Post + Print"
                 Delete(true);
 
                 Window.Close;
-                Commit;
+                Commit();
 
                 OnAfterPost(CustomerBillHeader, IssuedCustBillHeader);
 
@@ -154,23 +154,23 @@ codeunit 12172 "Customer Bill - Post + Print"
 
     local procedure InsertIssuedBillHeader(var IssuedCustBillHeader: Record "Issued Customer Bill Header"; CustomerBillHeader: Record "Customer Bill Header"; BillCode: Record Bill; ListNo: Code[20])
     begin
-        IssuedCustBillHeader.Init;
+        IssuedCustBillHeader.Init();
         IssuedCustBillHeader.TransferFields(CustomerBillHeader);
         IssuedCustBillHeader."No. Series" := BillCode."List No.";
         IssuedCustBillHeader."No." := ListNo;
         IssuedCustBillHeader."User ID" := UserId;
-        IssuedCustBillHeader.Insert;
+        IssuedCustBillHeader.Insert();
     end;
 
     local procedure InsertIssuedBillLine(CustomerBillLine: Record "Customer Bill Line"; ListNo: Code[20]; FinalBillNo: Code[20])
     var
         IssuedCustBillLine: Record "Issued Customer Bill Line";
     begin
-        IssuedCustBillLine.Init;
+        IssuedCustBillLine.Init();
         IssuedCustBillLine.TransferFields(CustomerBillLine);
         IssuedCustBillLine."Customer Bill No." := ListNo;
         IssuedCustBillLine."Final Cust. Bill No." := FinalBillNo;
-        IssuedCustBillLine.Insert;
+        IssuedCustBillLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -288,7 +288,7 @@ codeunit 12172 "Customer Bill - Post + Print"
             RbCustLedgEntry.SetRange("Document Occurrence to Close", CustLedgEntry."Document Occurrence");
             if RbCustLedgEntry.FindFirst then begin
                 RbCustLedgEntry."Due Date" := CustomerBillLine."Due Date";
-                RbCustLedgEntry.Modify;
+                RbCustLedgEntry.Modify();
                 DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", RbCustLedgEntry."Entry No.");
                 DtldCustLedgEntry.ModifyAll("Initial Entry Due Date", RbCustLedgEntry."Due Date");
             end;
@@ -298,7 +298,7 @@ codeunit 12172 "Customer Bill - Post + Print"
         CustLedgEntry."Customer Bill No." := BRNumber;
         CustLedgEntry."Bank Receipts List No." := ListNumber;
         CustLedgEntry."Bank Receipt Issued" := true;
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
     end;
 
     [Scope('OnPrem')]

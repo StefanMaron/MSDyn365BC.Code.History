@@ -294,6 +294,18 @@ page 6050 "Service Contract"
                     Importance = Promoted;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
+                field("Payment Method Code"; "Payment Method Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                }
+                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct-debit collection of payments.';
+                }
                 field("Currency Code"; "Currency Code")
                 {
                     ApplicationArea = Service;
@@ -876,13 +888,13 @@ page 6050 "Service Contract"
                         if not ConfirmManagement.GetResponseOrDefault(Text010, true) then
                             exit;
 
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         ServContractLine.SetRange(Credited, false);
                         ServContractLine.SetFilter("Credit Memo Date", '>%1&<=%2', 0D, WorkDate);
-                        i := ServContractLine.Count;
+                        i := ServContractLine.Count();
                         j := 0;
                         if ServContractLine.Find('-') then begin
                             LineFound := true;
@@ -1026,7 +1038,7 @@ page 6050 "Service Contract"
 
                     trigger OnAction()
                     begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         REPORT.RunModal(REPORT::"Remove Lines from Contract", true, true, ServContractLine);
@@ -1239,16 +1251,16 @@ page 6050 "Service Contract"
         ServShptHeader: Record "Service Shipment Header";
         ServShptLine: Record "Service Shipment Line";
     begin
-        TempServShptHeader.Reset;
-        TempServShptHeader.DeleteAll;
-        ServShptLine.Reset;
+        TempServShptHeader.Reset();
+        TempServShptHeader.DeleteAll();
+        ServShptLine.Reset();
         ServShptLine.SetCurrentKey("Contract No.");
         ServShptLine.SetRange("Contract No.", "Contract No.");
         if ServShptLine.Find('-') then
             repeat
                 if ServShptHeader.Get(ServShptLine."Document No.") then begin
                     TempServShptHeader.Copy(ServShptHeader);
-                    if TempServShptHeader.Insert then;
+                    if TempServShptHeader.Insert() then;
                 end;
             until ServShptLine.Next = 0;
     end;

@@ -1730,9 +1730,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Withholding_Tax_Payment_Month">
           <DataField>Withholding_Tax_Payment_Month</DataField>
         </Field>

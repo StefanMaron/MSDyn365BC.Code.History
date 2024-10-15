@@ -22,7 +22,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -39,7 +39,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     begin
         PaymentDocNo := FromGenJnlLine.GetFilter("Document No.");
         VendorBillHeader.Get(PaymentDocNo);
-        VendorBillLine.Reset;
+        VendorBillLine.Reset();
         VendorBillLine.SetCurrentKey("Vendor Bill List No.", "Vendor No.", "Due Date", "Vendor Bank Acc. No.", "Cumulative Transfers");
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
 

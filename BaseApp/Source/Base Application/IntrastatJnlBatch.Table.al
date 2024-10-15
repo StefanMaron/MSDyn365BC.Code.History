@@ -143,12 +143,12 @@ table 262 "Intrastat Jnl. Batch"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", Name);
-        IntrastatJnlLine.DeleteAll;
+        IntrastatJnlLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         IntraJnlTemplate.Get("Journal Template Name");
     end;
 
@@ -182,7 +182,7 @@ table 262 "Intrastat Jnl. Batch"
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        IntrastatJnlLine.Reset;
+        IntrastatJnlLine.Reset();
         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", Name);
         exit(IntrastatJnlLine.FindFirst);

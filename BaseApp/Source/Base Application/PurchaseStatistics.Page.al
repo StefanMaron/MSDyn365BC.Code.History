@@ -161,7 +161,7 @@ page 161 "Purchase Statistics"
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=

@@ -2142,7 +2142,7 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
 
     trigger OnPreXmlPort()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
     end;
 

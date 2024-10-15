@@ -40,11 +40,11 @@ table 12108 "Contribution Bracket"
 
     trigger OnDelete()
     begin
-        SocialSecurityBracketLine.Reset;
+        SocialSecurityBracketLine.Reset();
         SocialSecurityBracketLine.SetRange(Code, Code);
 
         if SocialSecurityBracketLine.FindFirst then
-            SocialSecurityBracketLine.DeleteAll;
+            SocialSecurityBracketLine.DeleteAll();
     end;
 
     var

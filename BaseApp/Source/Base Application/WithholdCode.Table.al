@@ -79,11 +79,11 @@ table 12104 "Withhold Code"
 
     trigger OnDelete()
     begin
-        WithholdCodeLine.Reset;
+        WithholdCodeLine.Reset();
         WithholdCodeLine.SetRange("Withhold Code", Code);
 
         if WithholdCodeLine.FindFirst then
-            WithholdCodeLine.DeleteAll;
+            WithholdCodeLine.DeleteAll();
     end;
 
     var

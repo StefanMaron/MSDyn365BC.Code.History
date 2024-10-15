@@ -16,9 +16,6 @@ report 12190 "Update VAT Transaction Data"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -104,7 +101,7 @@ report 12190 "Update VAT Transaction Data"
             trigger OnAfterGetRecord()
             begin
                 if not CheckVATBase(Base, "Operation Occurred Date") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not ShowListOnly then begin
                     if SetIncludeInDataTransmission = SetIncludeInDataTransmission::"Set Fields" then
@@ -191,7 +188,7 @@ report 12190 "Update VAT Transaction Data"
     var
         DataTransmissionThreshold: Record "VAT Transaction Report Amount";
     begin
-        DataTransmissionThreshold.Reset;
+        DataTransmissionThreshold.Reset();
         DataTransmissionThreshold.SetFilter("Starting Date", '..%1', OperationOccurredDate);
         if DataTransmissionThreshold.FindLast then
             if CompareAgainstThreshold then begin

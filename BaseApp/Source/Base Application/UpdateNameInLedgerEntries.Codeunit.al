@@ -27,13 +27,13 @@ codeunit 104 "Update Name In Ledger Entries"
     begin
         InsertJobQueueEntry(JobQueueEntry, Notification.GetData('Type'));
         ScheduleAJob.SetJob(JobQueueEntry);
-        Commit;
+        Commit();
         ScheduleAJob.RunModal;
     end;
 
     local procedure InsertJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Type: Text)
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Description := StrSubstNo(JobQueueDescrTxt, LowerCase(Type));
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -116,7 +116,7 @@ codeunit 104 "Update Name In Ledger Entries"
         FieldRef.SetRange('');
         if RecRef.IsEmpty then
             Result := 0;
-        Result := RecRef.Count;
+        Result := RecRef.Count();
         RecRef.Close;
     end;
 

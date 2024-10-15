@@ -226,7 +226,7 @@ table 288 "Vendor Bank Account"
                     ConvertBankAccNo;
                     GetBBAN;
                 end;
-                AbiCabCodes.Reset;
+                AbiCabCodes.Reset();
             end;
 
             trigger OnValidate()
@@ -269,7 +269,7 @@ table 288 "Vendor Bank Account"
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 
@@ -285,7 +285,7 @@ table 288 "Vendor Bank Account"
             if not Confirmed then begin
                 IBAN := xRec.IBAN;
                 Modify;
-                Commit;
+                Commit();
                 Error(Text12102);
             end;
         end;

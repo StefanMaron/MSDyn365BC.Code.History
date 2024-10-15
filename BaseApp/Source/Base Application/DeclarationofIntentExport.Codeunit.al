@@ -28,7 +28,7 @@ codeunit 12134 "Declaration of Intent Export"
         if AmountToDeclare <= 0 then
             Error(NoAmountToDeclareErr);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         FlatFileManagement.Initialize;
         FlatFileManagement.StartNewFile;
@@ -316,8 +316,8 @@ codeunit 12134 "Declaration of Intent Export"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
-        Vendor.Init;
+        CompanyInformation.Get();
+        Vendor.Init();
         Vendor.Name := CompanyInformation.Name;
         Vendor."VAT Registration No." := CompanyInformation."VAT Registration No.";
         Vendor."Individual Person" := false;

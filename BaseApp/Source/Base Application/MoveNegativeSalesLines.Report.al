@@ -136,7 +136,7 @@ report 6699 "Move Negative Sales Lines"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        Commit;
+        Commit();
         if ToSalesHeader.Find then
             if ConfirmManagement.GetResponse(
                  StrSubstNo(Text001, ToSalesHeader."Document Type", ToSalesHeader."No."), true)

@@ -97,7 +97,7 @@ table 12180 Bill
 
     trigger OnDelete()
     begin
-        PaymentMethod.Reset;
+        PaymentMethod.Reset();
         PaymentMethod.SetRange("Bill Code", Code);
 
         if PaymentMethod.FindFirst then

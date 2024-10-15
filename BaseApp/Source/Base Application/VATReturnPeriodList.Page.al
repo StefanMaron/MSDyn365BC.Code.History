@@ -114,7 +114,7 @@ page 737 "VAT Return Period List"
 
     trigger OnOpenPage()
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         IsEditable := VATReportSetup."Manual Receive Period CU ID" = 0;
     end;
 

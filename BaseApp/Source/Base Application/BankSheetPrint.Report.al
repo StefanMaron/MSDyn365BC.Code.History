@@ -195,7 +195,7 @@ report 12112 "Bank Sheet - Print"
                     BankAccountLedgerEntry.SetRange("Bank Account No.", "Bank Account"."No.");
                     BankAccountLedgerEntry.SetFilter("Posting Date", BankDateFilter);
                     if (StartOnHand = 0) and (BankAccountLedgerEntry.Count = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -210,24 +210,22 @@ report 12112 "Bank Sheet - Print"
                         SetFilter("Date Filter", BankDateFilter);
                     end;
                 Amnt := StartOnHand;
-
-                if CurrReport.PageNo = 1 then begin
-                    if "Bank Account".GetFilter("No.") <> '' then
-                        BankFilterNo := "Bank Account".GetFilter("No.")
-                    else
-                        BankFilterNo := Text1036;
-                end;
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompAddr[1] := CompanyInfo.Name;
                 CompAddr[2] := CompanyInfo.Address;
                 CompAddr[3] := CompanyInfo."Post Code";
                 CompAddr[4] := CompanyInfo.City;
                 CompAddr[5] := CompanyInfo."Fiscal Code";
                 CompressArray(CompAddr);
+
+                if "Bank Account".GetFilter("No.") <> '' then
+                    BankFilterNo := "Bank Account".GetFilter("No.")
+                else
+                    BankFilterNo := Text1036;
             end;
         }
     }

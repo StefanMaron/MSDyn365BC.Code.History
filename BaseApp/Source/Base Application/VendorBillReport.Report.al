@@ -173,8 +173,8 @@ report 12178 "Vendor Bill Report"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        GLSetup.Get;
+        CompanyInfo.Get();
+        GLSetup.Get();
     end;
 
     var

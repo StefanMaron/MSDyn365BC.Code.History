@@ -9,12 +9,10 @@ table 5520 "Unplanned Demand"
 
     fields
     {
-        field(1; "Demand Type"; Option)
+        field(1; "Demand Type"; Enum "Unplanned Demand Type")
         {
             Caption = 'Demand Type';
             Editable = false;
-            OptionCaption = ' ,Production,Sales,Service,Job,Assembly';
-            OptionMembers = " ",Production,Sales,Service,Job,Assembly;
         }
         field(2; "Demand SubType"; Option)
         {

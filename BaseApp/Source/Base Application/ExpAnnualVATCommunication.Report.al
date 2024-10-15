@@ -335,7 +335,7 @@ report 12125 "Exp. Annual VAT Communication"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Fiscal Code");

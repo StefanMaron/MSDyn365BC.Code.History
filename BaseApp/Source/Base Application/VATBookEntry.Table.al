@@ -21,7 +21,7 @@ table 12142 "VAT Book Entry"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; enum "Gen. Journal Document Type")
         {
             CalcFormula = Lookup ("VAT Entry"."Document Type" WHERE("Document No." = FIELD("Document No."),
                                                                     Type = FIELD(Type),
@@ -35,8 +35,6 @@ table 12142 "VAT Book Entry"
             Caption = 'Document Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(7; Type; Option)
         {
@@ -77,7 +75,7 @@ table 12142 "VAT Book Entry"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             CalcFormula = Lookup ("VAT Entry"."VAT Calculation Type" WHERE("Document No." = FIELD("Document No."),
                                                                            Type = FIELD(Type),
@@ -91,8 +89,6 @@ table 12142 "VAT Book Entry"
             Caption = 'VAT Calculation Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(12; "Sell-to/Buy-from No."; Code[20])
         {

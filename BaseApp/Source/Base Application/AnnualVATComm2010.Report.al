@@ -321,11 +321,6 @@ report 12126 "Annual VAT Comm. - 2010"
                 }
             }
 
-            trigger OnAfterGetRecord()
-            begin
-                CurrReport.PageNo := 1;
-            end;
-
             trigger OnPreDataItem()
             begin
                 "VAT Statement Name".SetRange("Statement Template Name", "VAT Statement Name"."Statement Template Name");
@@ -446,7 +441,7 @@ report 12126 "Annual VAT Comm. - 2010"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         GeneralLedgerSetup.GetRecordOnce();
     end;
 

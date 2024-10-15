@@ -1,4 +1,4 @@
-﻿page 5634 "Recurring Fixed Asset Journal"
+page 5634 "Recurring Fixed Asset Journal"
 {
     ApplicationArea = FixedAssets;
     AutoSplitKey = true;

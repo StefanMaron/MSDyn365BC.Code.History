@@ -35,7 +35,7 @@ codeunit 358 "DateFilter-Calc"
 
     local procedure CreateAccountingDateFilter(var "Filter": Text[30]; var Name: Text[30]; FiscalYear: Boolean; Date: Date; NextStep: Integer)
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         if FiscalYear then
             AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod."Starting Date" := Date;

@@ -72,7 +72,7 @@ codeunit 99000773 "Calculate Prod. Order"
         if RoutingLine.Find('-') then
             repeat
                 RoutingLine.TestField(Recalculate, false);
-                ProdOrderRoutingLine.Init;
+                ProdOrderRoutingLine.Init();
                 ProdOrderRoutingLine.Status := ProdOrderLine.Status;
                 ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
                 ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
@@ -137,7 +137,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingLine."Ending Date" := ProdOrderLine."Ending Date";
                 ProdOrderRoutingLine.UpdateDatetime;
                 OnAfterTransferRoutingLine(ProdOrderLine, RoutingLine, ProdOrderRoutingLine);
-                ProdOrderRoutingLine.Insert;
+                ProdOrderRoutingLine.Insert();
                 OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
                 TransferTaskInfo(ProdOrderRoutingLine, ProdOrderLine."Routing Version Code");
             until RoutingLine.Next = 0;
@@ -173,7 +173,7 @@ codeunit 99000773 "Calculate Prod. Order"
         if ProdBOMNo = '' then
             exit;
 
-        ProdOrderComp.LockTable;
+        ProdOrderComp.LockTable();
 
         if Level > 50 then
             Error(
@@ -260,7 +260,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderComp.SetFilterFromProdBOMLine(ProdBOMLine[Level]);
         OnAfterProdOrderCompFilter(ProdOrderComp, ProdBOMLine[Level]);
         if not ProdOrderComp.FindFirst then begin
-            ProdOrderComp.Reset;
+            ProdOrderComp.Reset();
             ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
             ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
@@ -269,7 +269,7 @@ codeunit 99000773 "Calculate Prod. Order"
             else
                 NextProdOrderCompLineNo := 10000;
 
-            ProdOrderComp.Init;
+            ProdOrderComp.Init();
             ProdOrderComp.SetIgnoreErrors;
             ProdOrderComp.BlockDynamicTracking(Blocked);
             ProdOrderComp.Status := ProdOrderLine.Status;
@@ -325,7 +325,7 @@ codeunit 99000773 "Calculate Prod. Order"
               ProdOrderComp."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
             ProdOrderComp.Validate("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
             OnBeforeProdOrderCompModify(ProdOrderComp, ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM);
-            ProdOrderComp.Modify;
+            ProdOrderComp.Modify();
         end;
         if ProdOrderComp.HasErrorOccured then
             ErrorOccured := true;
@@ -348,7 +348,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 OnCalculateComponentsOnBeforeUpdateRoutingLinkCode(ProdOrderComp, ProdOrderLine, IsHandled);
                 if not IsHandled then begin
                     ProdOrderComp.Validate("Routing Link Code");
-                    ProdOrderComp.Modify;
+                    ProdOrderComp.Modify();
                     ProdOrderComp.AutoReserve;
                 end;
             until ProdOrderComp.Next = 0;
@@ -526,13 +526,13 @@ codeunit 99000773 "Calculate Prod. Order"
         end;
 
         ProdOrderLine.UpdateDatetime;
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
 
         OnBeforeUpdateProdOrderDates(ProdOrder, ProdOrderLine);
 
         if not ProdOrderModify then begin
             ProdOrder.AdjustStartEndingDate;
-            ProdOrder.Modify;
+            ProdOrder.Modify();
         end;
     end;
 
@@ -670,8 +670,8 @@ codeunit 99000773 "Calculate Prod. Order"
         if ProdBOMCommentLine.FindSet then
             repeat
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProdBOMCommentLine, ProdOrderComp);
-                if not ProdOrderCompCmtLine.Insert then
-                    ProdOrderCompCmtLine.Modify;
+                if not ProdOrderCompCmtLine.Insert() then
+                    ProdOrderCompCmtLine.Modify();
             until ProdBOMCommentLine.Next = 0;
     end;
 
@@ -689,7 +689,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRtngCommentLine.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRtngCommentLine."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngCommentLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                ProdOrderRtngCommentLine.Insert;
+                ProdOrderRtngCommentLine.Insert();
             until RoutingCommentLine.Next = 0;
     end;
 
@@ -707,7 +707,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingPersonnel.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRoutingPersonnel."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRoutingPersonnel."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                ProdOrderRoutingPersonnel.Insert;
+                ProdOrderRoutingPersonnel.Insert();
             until RoutingPersonnel.Next = 0;
     end;
 
@@ -725,7 +725,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRtngQltyMeas.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRtngQltyMeas."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngQltyMeas."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                ProdOrderRtngQltyMeas.Insert;
+                ProdOrderRtngQltyMeas.Insert();
             until RoutingQualityMeasure.Next = 0;
     end;
 
@@ -743,7 +743,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingTool.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRoutingTool."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRoutingTool."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                ProdOrderRoutingTool.Insert;
+                ProdOrderRoutingTool.Insert();
             until RoutingTool.Next = 0;
     end;
 
@@ -851,7 +851,7 @@ codeunit 99000773 "Calculate Prod. Order"
     begin
         if ProdOrderLine.Get(ProdOrderStatus, ProdOrderNo, ProdOrderLineNo) then begin
             SetProdOrderLineBinCodeFromProdRtngLines(ProdOrderLine);
-            ProdOrderLine.Modify;
+            ProdOrderLine.Modify();
         end;
     end;
 

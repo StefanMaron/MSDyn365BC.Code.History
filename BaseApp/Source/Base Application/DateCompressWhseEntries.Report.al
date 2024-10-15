@@ -33,14 +33,13 @@ report 7398 "Date Compress Whse. Entries"
                     if (not RetainSerialNo) or (not RetainLotNo) then
                         UpdateITWhseEntries;
 
-                    SetRange("Serial No.", "Serial No.");
-                    SetRange("Lot No.", "Lot No.");
+                    SetTrackingFilterFromWhseEntry(WhseEntry2);
                     SetRange("Warranty Date", "Warranty Date");
                     SetRange("Expiration Date", "Expiration Date");
 
                     CalcCompressWhseEntry;
 
-                    NewWhseEntry.Init;
+                    NewWhseEntry.Init();
                     NewWhseEntry."Location Code" := "Location Code";
                     NewWhseEntry."Bin Code" := "Bin Code";
                     NewWhseEntry."Item No." := "Item No.";
@@ -51,8 +50,7 @@ report 7398 "Date Compress Whse. Entries"
                     NewWhseEntry."Zone Code" := "Zone Code";
                     NewWhseEntry."Bin Type Code" := "Bin Type Code";
                     NewWhseEntry."Registering Date" := GetRangeMin("Registering Date");
-                    NewWhseEntry."Serial No." := "Serial No.";
-                    NewWhseEntry."Lot No." := "Lot No.";
+                    NewWhseEntry.CopyTrackingFromWhseEntry(WhseEntry2);
                     NewWhseEntry."Warranty Date" := "Warranty Date";
                     NewWhseEntry."Expiration Date" := "Expiration Date";
 
@@ -98,7 +96,7 @@ report 7398 "Date Compress Whse. Entries"
             begin
                 if not HideDialog then
                     if not Confirm(Text000, false) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -109,15 +107,14 @@ report 7398 "Date Compress Whse. Entries"
                   Text006 +
                   Text007);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Whse. Entries");
 
-                NewWhseEntry.LockTable;
-                WhseReg.LockTable;
-                DateComprReg.LockTable;
+                NewWhseEntry.LockTable();
+                WhseReg.LockTable();
+                DateComprReg.LockTable();
 
-                if WhseEntry2.FindLast then;
-                LastEntryNo := WhseEntry2."Entry No.";
+                LastEntryNo := WhseEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Registering Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -245,17 +242,15 @@ report 7398 "Date Compress Whse. Entries"
     var
         NextRegNo: Integer;
     begin
-        if WhseReg.Find('+') then;
-        WhseReg.Init;
-        WhseReg."No." := WhseReg."No." + 1;
+        WhseReg.Init();
+        WhseReg."No." := WhseReg.GetLastEntryNo() + 1;
         WhseReg."Creation Date" := Today;
         WhseReg."Creation Time" := Time;
         WhseReg."Source Code" := SourceCodeSetup."Compress Whse. Entries";
         WhseReg."User ID" := UserId;
         WhseReg."From Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then
-            NextRegNo := DateComprReg."No." + 1;
+        NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
         DateComprReg.InitRegister(
           DATABASE::"Warehouse Entry", NextRegNo,
@@ -275,28 +270,30 @@ report 7398 "Date Compress Whse. Entries"
     end;
 
     local procedure InsertRegisters(var WhseReg: Record "Warehouse Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        FoundLastEntryNo: Integer;
     begin
         WhseReg."To Entry No." := NewWhseEntry."Entry No.";
 
         if WhseRegExists then begin
-            WhseReg.Modify;
-            DateComprReg.Modify;
+            WhseReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            WhseReg.Insert;
-            DateComprReg.Insert;
+            WhseReg.Insert();
+            DateComprReg.Insert();
             WhseRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        NewWhseEntry.LockTable;
-        WhseReg.LockTable;
-        DateComprReg.LockTable;
+        NewWhseEntry.LockTable();
+        WhseReg.LockTable();
+        DateComprReg.LockTable();
 
-        WhseEntry2.Reset;
+        WhseEntry2.Reset();
 
-        if WhseEntry2.FindLast then;
-        if LastEntryNo <> WhseEntry2."Entry No." then begin
-            LastEntryNo := WhseEntry2."Entry No.";
+        FoundLastEntryNo := WhseEntry2.GetLastEntryNo();
+        if LastEntryNo <> FoundLastEntryNo then begin
+            LastEntryNo := FoundLastEntryNo;
             InitRegisters;
         end;
     end;
@@ -353,17 +350,16 @@ report 7398 "Date Compress Whse. Entries"
     var
         LocalWhseEntry: Record "Warehouse Entry";
         LocalWhseEntry2: Record "Warehouse Entry";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         QtyonBin: Decimal;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
     begin
-        ItemTrackingMgt.CheckWhseItemTrkgSetup(WhseEntry2."Item No.", SNRequired, LNRequired, false);
+        ItemTrackingMgt.GetWhseItemTrkgSetup(WhseEntry2."Item No.", WhseItemTrackingSetup);
 
         LocalWhseEntry.Copy(WhseEntry2);
         with LocalWhseEntry do begin
             if RetainSerialNo or RetainLotNo then begin
-                if SNRequired or LNRequired then begin
+                if WhseItemTrackingSetup.TrackingRequired() then begin
                     SetFilter("Warranty Date", '<>%1', 0D);
                     SetFilter("Expiration Date", '<>%1', 0D);
                     if not Find('-') then begin
@@ -377,12 +373,12 @@ report 7398 "Date Compress Whse. Entries"
             end;
 
             if not RetainSerialNo then begin
-                if SNRequired then
+                if WhseItemTrackingSetup."Serial No. Required" then
                     SetFilter("Serial No.", '<>''''');
             end else
                 SetRange("Serial No.", WhseEntry2."Serial No.");
             if not RetainLotNo then begin
-                if LNRequired then
+                if WhseItemTrackingSetup."Lot No. Required" then
                     SetFilter("Lot No.", '<>''''');
             end else
                 SetRange("Lot No.", WhseEntry2."Lot No.");
@@ -391,14 +387,14 @@ report 7398 "Date Compress Whse. Entries"
                     QtyonBin := 0;
                     LocalWhseEntry2.Copy(LocalWhseEntry);
 
-                    if not RetainSerialNo and SNRequired then
+                    if not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required" then
                         LocalWhseEntry2.SetRange("Serial No.", "Serial No.");
 
-                    if not RetainLotNo and LNRequired then
+                    if not RetainLotNo and WhseItemTrackingSetup."Lot No. Required" then
                         LocalWhseEntry2.SetRange("Lot No.", "Lot No.");
 
-                    if (not RetainSerialNo and SNRequired) or
-                       (not RetainLotNo and LNRequired)
+                    if (not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required") or
+                       (not RetainLotNo and WhseItemTrackingSetup."Lot No. Required")
                     then begin
                         LocalWhseEntry2.SetRange("Warranty Date", "Warranty Date");
                         LocalWhseEntry2.SetRange("Expiration Date", "Expiration Date");
@@ -412,22 +408,23 @@ report 7398 "Date Compress Whse. Entries"
                     if QtyonBin <= 0 then begin
                         if LocalWhseEntry2.Find('-') then
                             repeat
-                                if not RetainSerialNo and SNRequired then
+                                if not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required" then
                                     LocalWhseEntry2."Serial No." := '';
-                                if not RetainLotNo and LNRequired then
+                                if not RetainLotNo and WhseItemTrackingSetup."Lot No. Required" then
                                     LocalWhseEntry2."Lot No." := '';
-                                if (not RetainSerialNo and SNRequired) or
-                                   (not RetainLotNo and LNRequired)
+                                if (not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required") or
+                                   (not RetainLotNo and WhseItemTrackingSetup."Lot No. Required")
                                 then begin
                                     LocalWhseEntry2."Warranty Date" := 0D;
                                     LocalWhseEntry2."Expiration Date" := 0D;
                                 end;
-                                OnUpdateITWhseEntriesOnBeforeLocalWhseEntry2Modify(LocalWhseEntry2, RetainSerialNo, SNRequired, RetainLotNo, LNRequired);
-                                LocalWhseEntry2.Modify;
+                                OnUpdateITWhseEntriesOnBeforeLocalWhseEntry2Modify(
+                                    LocalWhseEntry2, RetainSerialNo, WhseItemTrackingSetup."Serial No. Required", RetainLotNo, WhseItemTrackingSetup."Lot No. Required");
+                                LocalWhseEntry2.Modify();
                             until LocalWhseEntry2.Next = 0;
 
-                        if (not RetainSerialNo and SNRequired) or
-                           (not RetainLotNo and LNRequired)
+                        if (not RetainSerialNo and WhseItemTrackingSetup."Serial No. Required") or
+                           (not RetainLotNo and WhseItemTrackingSetup."Lot No. Required")
                         then begin
                             WhseEntry2."Warranty Date" := 0D;
                             WhseEntry2."Expiration Date" := 0D;
@@ -436,7 +433,8 @@ report 7398 "Date Compress Whse. Entries"
                             WhseEntry2."Serial No." := '';
                         if not RetainLotNo then
                             WhseEntry2."Lot No." := '';
-                        OnUpdateITWhseEntriesOnAfterSetWhseEntry2(WhseEntry2, RetainSerialNo, SNRequired, RetainLotNo, LNRequired);
+                        OnUpdateITWhseEntriesOnAfterSetWhseEntry2(
+                            WhseEntry2, RetainSerialNo, WhseItemTrackingSetup."Serial No. Required", RetainLotNo, WhseItemTrackingSetup."Lot No. Required");
                     end;
                 until Next = 0;
         end;
@@ -452,7 +450,7 @@ report 7398 "Date Compress Whse. Entries"
         WhseEntry.Weight := Weight;
         WhseEntry."Entry Type" := EntryType;
         OnBeforeInsertNewEntry(WhseEntry);
-        WhseEntry.Insert;
+        WhseEntry.Insert();
     end;
 
     procedure InitializeReport(EntrdDateComprReg2: Record "Date Compr. Register"; SerialNo: Boolean; LotNo: Boolean)

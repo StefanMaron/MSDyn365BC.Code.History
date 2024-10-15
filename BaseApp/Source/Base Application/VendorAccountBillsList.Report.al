@@ -13,9 +13,6 @@ report 12116 "Vendor Account Bills List"
             DataItemTableView = SORTING("No.") ORDER(Ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(EndingDate; Format(EndingDate))
             {
             }
@@ -255,7 +252,7 @@ report 12116 "Vendor Account Bills List"
                     trigger OnAfterGetRecord()
                     begin
                         if Open = false then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         ClosedByAmountLCY := "Closed by Amount (LCY)";
                         TotalForVendor += "Closed by Amount (LCY)";
                         TotalClosedByAmntLCY += "Amount (LCY)";
@@ -323,7 +320,7 @@ report 12116 "Vendor Account Bills List"
                         AmountLCY: Decimal;
                     begin
                         if not TempDetailedVendorLedgEntryApplied.Get("Entry No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         VendLedgEntry3.Get("Vendor Ledger Entry No.");
                         VendLedgEntry3.CalcFields("Original Amt. (LCY)");
@@ -372,7 +369,7 @@ report 12116 "Vendor Account Bills List"
                     TotalForVendor := TotalForVendor + "Amount (LCY)";
                     TotalVendLedgrEntries := TotalVendLedgrEntries + "Amount (LCY)";
                     if "Vendor Bill No." <> '' then begin
-                        VendorBillLine.Reset;
+                        VendorBillLine.Reset();
                         VendorBillLine.SetRange("Vendor Entry No.", "Entry No.");
                         if VendorBillLine.FindFirst then
                             VendorBillAmnt := VendorBillLine."Amount to Pay";
@@ -493,8 +490,8 @@ report 12116 "Vendor Account Bills List"
         DetailedVendorLedgEntryApplied: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntryApplied: Record "Vendor Ledger Entry";
     begin
-        TempDetailedVendorLedgEntryApplied.Reset;
-        TempDetailedVendorLedgEntryApplied.DeleteAll;
+        TempDetailedVendorLedgEntryApplied.Reset();
+        TempDetailedVendorLedgEntryApplied.DeleteAll();
 
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntryNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
@@ -521,7 +518,7 @@ report 12116 "Vendor Account Bills List"
                             VendorLedgerEntryApplied.Get(DetailedVendorLedgEntryApplied."Vendor Ledger Entry No.");
                             if IsPaymentDocumentType(VendorLedgerEntryApplied) then begin
                                 TempDetailedVendorLedgEntryApplied := DetailedVendorLedgEntryApplied;
-                                if TempDetailedVendorLedgEntryApplied.Insert then;
+                                if TempDetailedVendorLedgEntryApplied.Insert() then;
                             end;
                         until DetailedVendorLedgEntryApplied.Next = 0;
                 end;

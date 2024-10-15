@@ -61,11 +61,9 @@ table 99000830 "Planning Routing Line"
                 SetRecalcStatus;
             end;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Capacity Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
 
             trigger OnValidate()
             begin
@@ -547,7 +545,7 @@ table 99000830 "Planning Routing Line"
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
         ProdOrderCapNeed.SetRange("Worksheet Line No.", "Worksheet Line No.");
         ProdOrderCapNeed.SetRange("Operation No.", "Operation No.");
-        ProdOrderCapNeed.DeleteAll;
+        ProdOrderCapNeed.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -690,7 +688,7 @@ table 99000830 "Planning Routing Line"
 
         GetLine;
 
-        PlanningRtngLine.Reset;
+        PlanningRtngLine.Reset();
         PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
@@ -743,7 +741,7 @@ table 99000830 "Planning Routing Line"
 
         GetLine;
 
-        PlanningRtngLine.Reset;
+        PlanningRtngLine.Reset();
         PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
@@ -800,7 +798,7 @@ table 99000830 "Planning Routing Line"
                 ProdOrderCapNeed."No." := "No.";
                 ProdOrderCapNeed."Work Center No." := "Work Center No.";
                 ProdOrderCapNeed."Work Center Group Code" := "Work Center Group Code";
-                ProdOrderCapNeed.Modify;
+                ProdOrderCapNeed.Modify();
             until ProdOrderCapNeed.Next = 0;
     end;
 
@@ -815,7 +813,7 @@ table 99000830 "Planning Routing Line"
         if PlanningComponent.Find('-') then
             repeat
                 PlanningComponent.Validate("Routing Link Code");
-                PlanningComponent.Modify;
+                PlanningComponent.Modify();
             until PlanningComponent.Next = 0;
     end;
 
@@ -944,7 +942,7 @@ table 99000830 "Planning Routing Line"
             PlanningRtngLine2.SetRange("Next Operation No.", '');
             if PlanningRtngLine2.FindFirst then begin
                 PlanningRtngLine2."Next Operation No." := "Operation No.";
-                PlanningRtngLine2.Modify;
+                PlanningRtngLine2.Modify();
             end;
         end;
     end;
@@ -953,7 +951,7 @@ table 99000830 "Planning Routing Line"
     begin
         if not HasGLSetup then begin
             HasGLSetup := true;
-            GLSetup.Get;
+            GLSetup.Get();
         end;
     end;
 
@@ -964,11 +962,11 @@ table 99000830 "Planning Routing Line"
     begin
         if PlanningRoutingLine.Get("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Previous Operation No.") then begin
             PlanningRoutingLine."Next Operation No." := "Next Operation No.";
-            PlanningRoutingLine.Modify;
+            PlanningRoutingLine.Modify();
         end;
         if PlanningRoutingLine.Get("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Next Operation No.") then begin
             PlanningRoutingLine."Previous Operation No." := "Previous Operation No.";
-            PlanningRoutingLine.Modify;
+            PlanningRoutingLine.Modify();
         end;
     end;
 

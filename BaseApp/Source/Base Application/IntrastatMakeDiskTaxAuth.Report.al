@@ -40,7 +40,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         "Intra - form Buffer"."User ID" := UserId;
                         "Intra - form Buffer"."No." := "Intra - form Buffer"."No." + TotalLines;
                         "Intra - form Buffer"."Progressive No." := "Progressive No.";
-                        "Intra - form Buffer".Insert;
+                        "Intra - form Buffer".Insert();
                         TotalAmount += Round(Amount, 1);
                         TotalRecords += 1;
                     end else begin
@@ -54,7 +54,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                ("Transport Method" = '') and
                                ("Total Weight" = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if "Intrastat Jnl. Batch".Periodicity = "Intrastat Jnl. Batch".Periodicity::Month then begin
                                 TestField("Transaction Specification");
                                 TestField(Area);
@@ -74,7 +74,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                 SupplUnits := "Intrastat Jnl. Line".Quantity;
 
                             EU3PartyTrade := IsEU3PartyTrade("Intrastat Jnl. Line");
-                            "Intra - form Buffer".Reset;
+                            "Intra - form Buffer".Reset();
                             if "Intra - form Buffer".Get("Intrastat Jnl. Line"."VAT Registration No.",
                                  "Intrastat Jnl. Line"."Transaction Type", "Intrastat Jnl. Line"."Tariff No.",
                                  "Intrastat Jnl. Line"."Group Code", "Intrastat Jnl. Line"."Transport Method",
@@ -88,7 +88,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                 "Intra - form Buffer"."Total Weight" := "Intra - form Buffer"."Total Weight" + "Intrastat Jnl. Line"."Total Weight";
                                 "Intra - form Buffer"."Statistical Value" += "Statistical Value";
                                 "Intra - form Buffer".Quantity := "Intra - form Buffer".Quantity + SupplUnits;
-                                "Intra - form Buffer".Modify;
+                                "Intra - form Buffer".Modify();
                                 TotalAmount += Round("Intra - form Buffer".Amount, 1);
                             end else begin
                                 "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
@@ -97,7 +97,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                                 "Intra - form Buffer"."User ID" := UserId;
                                 "Intra - form Buffer"."No." := 0;
                                 "Intra - form Buffer"."EU 3-Party Trade" := EU3PartyTrade;
-                                "Intra - form Buffer".Insert;
+                                "Intra - form Buffer".Insert();
                                 TotalAmount += Round(Amount, 1);
                                 TotalRecords += 1;
                             end;
@@ -117,7 +117,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             CheckCorrectiveStatPeriod("Intrastat Jnl. Line", "Intrastat Jnl. Batch"."Statistics Period");
                             "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
                             "Intra - form Buffer"."User ID" := UserId;
-                            "Intra - form Buffer".Insert;
+                            "Intra - form Buffer".Insert();
                             TotalAmount += Round(Amount, 1);
                             TotalRecords += 1;
                             OldReferencePeriod := "Reference Period";
@@ -169,7 +169,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPostDataItem()
                 begin
                     "Intrastat Jnl. Batch".Reported := true;
-                    "Intrastat Jnl. Batch".Modify;
+                    "Intrastat Jnl. Batch".Modify();
                     "Intrastat Jnl. Line".ModifyAll("Statistics Period", "Intrastat Jnl. Batch"."Statistics Period");
                 end;
 
@@ -185,7 +185,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 LineNo := 0;
                 TestField("Statistics Period");
                 TestField("File Disk No.");
-                CurrReport.PageNo := 1;
             end;
 
             trigger OnPostDataItem()
@@ -236,21 +235,21 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     trigger OnPostReport()
     begin
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
     end;
 
     trigger OnPreReport()
     begin
         FileName := FileMgt.ServerTempFileName('');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
         CompanyInfo.TestField("VAT Registration No.");
-        "Intra - form Buffer".Reset;
+        "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll;
+        "Intra - form Buffer".DeleteAll();
         if FileName = '' then
             Error(Text000);
         IntraFile.TextMode := true;
@@ -316,7 +315,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         else
             TotalRec := LineNo;
         OutText := Format('EUROX');
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if (CompanyInfo."Tax Representative No." <> '') and Vendor.Get(CompanyInfo."Tax Representative No.") and
            (Vendor."VAT Registration No." <> '')
         then

@@ -41,8 +41,8 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
-        UserSetup.DeleteAll;
-        WorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        WorkflowWebhookEntry.DeleteAll();
         LibraryWorkflow.DisableAllWorkflows;
         RemoveBogusUser;
         if IsInitialized then
@@ -99,7 +99,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
-        Commit;
+        Commit();
 
         // Exercise
         SalesOrder.OpenView;
@@ -130,7 +130,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         SalesOrder.OpenView;
@@ -222,7 +222,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -254,7 +254,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderPageSendForApproval(SalesHeader);
         MakeCurrentUserAnApprover;
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -286,7 +286,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderPageSendForApproval(SalesHeader);
         MakeCurrentUserAnApprover;
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -319,7 +319,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrderPageSendForApproval(SalesHeader);
         ChangeWorkflowWebhookEntryInitiatedBy(SalesHeader.Id, BogusUserIdTxt);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -352,7 +352,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -385,7 +385,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
@@ -416,7 +416,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
 
-        Commit;
+        Commit();
 
         // Verify
         Assert.AreEqual(1, DummyWorkflowWebhookEntry.Count, UnexpectedNoOfApprovalEntriesErr);
@@ -882,13 +882,13 @@ codeunit 134216 "WFWH Sales Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;
 
         WorkflowWebhookEntry."Initiated By User ID" := InitiatedByUserID;
-        WorkflowWebhookEntry.Modify;
+        WorkflowWebhookEntry.Modify();
     end;
 
     local procedure CreateAndEnableOpenSalesOrderWorkflowDefinition(ResponseUserID: Code[50]): Code[20]
@@ -955,7 +955,7 @@ codeunit 134216 "WFWH Sales Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -970,7 +970,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -1010,7 +1010,7 @@ codeunit 134216 "WFWH Sales Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;

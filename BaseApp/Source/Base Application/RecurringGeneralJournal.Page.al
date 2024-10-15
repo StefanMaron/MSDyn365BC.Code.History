@@ -260,8 +260,8 @@ page 283 "Recurring General Journal"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
-                        GenJnlAlloc.Reset;
+                        Commit();
+                        GenJnlAlloc.Reset();
                         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -735,7 +735,7 @@ page 283 "Recurring General Journal"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

@@ -526,7 +526,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>= iif(isnothing(Fields!STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130218.Value), "  ", Fields!STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130218.Value)</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -3960,9 +3960,6 @@ End Function</Code>
         <Field Name="PeriodCaption">
           <DataField>PeriodCaption</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1__">
-          <DataField>STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1__</DataField>
-        </Field>
         <Field Name="Text10381">
           <DataField>Text10381</DataField>
         </Field>
@@ -3971,9 +3968,6 @@ End Function</Code>
         </Field>
         <Field Name="CompanyInformation_1_Control1130214">
           <DataField>CompanyInformation_1_Control1130214</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216">
-          <DataField>STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216</DataField>
         </Field>
         <Field Name="CompanyInformation_6__Control1130211">
           <DataField>CompanyInformation_6__Control1130211</DataField>
@@ -4116,9 +4110,6 @@ End Function</Code>
         <Field Name="ForType__VAT_Identifier_Caption">
           <DataField>ForType__VAT_Identifier_Caption</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130218">
-          <DataField>STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130218</DataField>
-        </Field>
         <Field Name="PrintCompanyInformations2">
           <DataField>PrintCompanyInformations2</DataField>
         </Field>
@@ -4130,9 +4121,6 @@ End Function</Code>
         </Field>
         <Field Name="CompanyInformation_6__Control1130212">
           <DataField>CompanyInformation_6__Control1130212</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130213">
-          <DataField>STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130213</DataField>
         </Field>
         <Field Name="IsHeader1">
           <DataField>IsHeader1</DataField>

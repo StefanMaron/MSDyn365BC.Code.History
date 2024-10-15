@@ -99,7 +99,7 @@ page 99000799 "Standard Tasks"
         More: Boolean;
     begin
         CurrPage.SetSelectionFilter(StandardTask);
-        StdTaskCount := StandardTask.Count;
+        StdTaskCount := StandardTask.Count();
         if StdTaskCount > 0 then begin
             StandardTask.Find('-');
             while StdTaskCount > 0 do begin

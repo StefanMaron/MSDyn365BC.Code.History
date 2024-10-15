@@ -60,7 +60,7 @@ report 12120 "VAT Register - Print"
             trigger OnAfterGetRecord()
             begin
                 if not PrintCompanyInformations then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -379,7 +379,7 @@ report 12120 "VAT Register - Print"
                         end else
                             IntraC := '';
 
-                        VATBookEntryTemp.Reset;
+                        VATBookEntryTemp.Reset();
                         VATBookEntryTemp.SetRange("VAT Identifier", "VAT Identifier");
                         VATBookEntryTemp.SetRange("VAT %", "VAT %");
                         VATBookEntryTemp.SetRange("Deductible %", "Deductible %");
@@ -391,9 +391,9 @@ report 12120 "VAT Register - Print"
                             VATBookEntryTemp."Nondeductible Amount" := VATBookEntryTemp."Nondeductible Amount" + "Nondeductible Amount";
                             VATBookEntryTemp."Unrealized Base" := VATBookEntryTemp."Unrealized Base" + "Unrealized Base";
                             VATBookEntryTemp."Unrealized Amount" := VATBookEntryTemp."Unrealized Amount" + "Unrealized Amount";
-                            VATBookEntryTemp.Modify;
+                            VATBookEntryTemp.Modify();
                         end else begin
-                            VATBookEntryTemp.Init;
+                            VATBookEntryTemp.Init();
                             VATBookEntryTemp."VAT Identifier" := "VAT Identifier";
                             VATBookEntryTemp."VAT %" := "VAT %";
                             VATBookEntryTemp."Deductible %" := "Deductible %";
@@ -404,12 +404,12 @@ report 12120 "VAT Register - Print"
                             VATBookEntryTemp."Unrealized Base" := "Unrealized Base";
                             VATBookEntryTemp."Unrealized Amount" := "Unrealized Amount";
                             VATBookEntryTemp."Entry No." := "Entry No.";
-                            VATBookEntryTemp.Insert;
+                            VATBookEntryTemp.Insert();
                             VATLines := VATLines + 1;
                         end;
 
                         VATIdentifier.Get("VAT Identifier");
-                        DescrVATIdentifier := VATIdentifier.Code;
+                        DescrVATIdentifier := VATIdentifier.Description;
 
                         if (PrintingType = PrintingType::Final) and
                            not Preview
@@ -434,7 +434,7 @@ report 12120 "VAT Register - Print"
                             Type::Purchase:
                                 begin
                                     SetDetailsForVendor("VAT Book Entry");
-                                    VendLedgEntry.Reset;
+                                    VendLedgEntry.Reset();
                                     VendLedgEntry.SetCurrentKey("Document Type", "External Document No.", "Vendor No.", "Document Occurrence");
                                     VendLedgEntry.SetRange("Document Type", "Document Type");
                                     VendLedgEntry.SetRange("External Document No.", "External Document No.");
@@ -452,7 +452,7 @@ report 12120 "VAT Register - Print"
                                 begin
                                     if VATBookEntry."Reverse VAT Entry" then begin
                                         SetDetailsForVendor("VAT Book Entry");
-                                        VendLedgEntry.Reset;
+                                        VendLedgEntry.Reset();
                                         VendLedgEntry.SetCurrentKey("Document Type", "External Document No.", "Vendor No.", "Document Occurrence");
                                         VendLedgEntry.SetRange("Document Type", "Document Type");
                                         VendLedgEntry.SetRange("External Document No.", "External Document No.");
@@ -467,7 +467,7 @@ report 12120 "VAT Register - Print"
                                             end;
                                     end else
                                         SetDetailsForCustomer("VAT Book Entry");
-                                    CustLedgEntry.Reset;
+                                    CustLedgEntry.Reset();
                                     CustLedgEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Document No.", "Currency Code");
                                     CustLedgEntry.SetRange("Document Type", "Document Type");
                                     CustLedgEntry.SetRange("Customer No.", "Sell-to/Buy-from No.");
@@ -629,7 +629,7 @@ report 12120 "VAT Register - Print"
                     begin
                         VATBookEntryTemp2.SetRange("Entry No.", "Entry No.");
                         if VATBookEntryTemp2.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if "VAT Register".Type = "VAT Register".Type::Purchase then
                             DocumentTotal := DocumentTotalCalculation("Transaction No.", "Document No.", "Unrealized VAT Entry No.")
@@ -637,7 +637,7 @@ report 12120 "VAT Register - Print"
                             DocumentTotal := -DocumentTotalCalculation("Transaction No.", "Document No.", "Unrealized VAT Entry No.");
                         VATEntry2.Get("Unrealized VAT Entry No.");
                         DocNo := VATEntry2."Document No.";
-                        VATBookEntry2.Reset;
+                        VATBookEntry2.Reset();
                         VATBookEntry2.SetRange("Document No.", "Document No.");
                         VATBookEntry2.SetRange(Type, Type);
                         VATBookEntry2.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
@@ -653,7 +653,7 @@ report 12120 "VAT Register - Print"
                                 VATEntry2.Get(VATBookEntry2."Unrealized VAT Entry No.");
                                 if DocNo = VATEntry2."Document No." then begin
                                     VATBookEntryTemp2 := VATBookEntry2;
-                                    VATBookEntryTemp2.Insert;
+                                    VATBookEntryTemp2.Insert();
 
                                     VATBookEntry2.CalcFields(Base, Amount, "Unrealized Base", "Unrealized Amount", "Nondeductible Base",
                                       "Nondeductible Amount");
@@ -679,7 +679,7 @@ report 12120 "VAT Register - Print"
                                        not Preview
                                     then begin
                                         VATBookEntry2."Printing Date" := Today;
-                                        VATBookEntry2.Modify;
+                                        VATBookEntry2.Modify();
                                     end;
                                 end;
                             until VATBookEntry2.Next = 0;
@@ -703,7 +703,7 @@ report 12120 "VAT Register - Print"
                         end else
                             IntraC := '';
 
-                        VATBookEntryTemp.Reset;
+                        VATBookEntryTemp.Reset();
                         VATBookEntryTemp.SetRange("VAT Identifier", "VAT Identifier");
                         VATBookEntryTemp.SetRange("VAT %", "VAT %");
                         VATBookEntryTemp.SetRange("Deductible %", "Deductible %");
@@ -715,9 +715,9 @@ report 12120 "VAT Register - Print"
                             VATBookEntryTemp."Nondeductible Amount" := VATBookEntryTemp."Nondeductible Amount" + "Nondeductible Amount";
                             VATBookEntryTemp."Unrealized Base" := VATBookEntryTemp."Unrealized Base" + "Unrealized Base";
                             VATBookEntryTemp."Unrealized Amount" := VATBookEntryTemp."Unrealized Amount" + "Unrealized Amount";
-                            VATBookEntryTemp.Modify;
+                            VATBookEntryTemp.Modify();
                         end else begin
-                            VATBookEntryTemp.Init;
+                            VATBookEntryTemp.Init();
                             VATBookEntryTemp."VAT Identifier" := "VAT Identifier";
                             VATBookEntryTemp."VAT %" := "VAT %";
                             VATBookEntryTemp."Deductible %" := "Deductible %";
@@ -728,12 +728,12 @@ report 12120 "VAT Register - Print"
                             VATBookEntryTemp."Unrealized Base" := "Unrealized Base";
                             VATBookEntryTemp."Unrealized Amount" := "Unrealized Amount";
                             VATBookEntryTemp."Entry No." := "Entry No.";
-                            VATBookEntryTemp.Insert;
+                            VATBookEntryTemp.Insert();
                             VATLines := VATLines + 1;
                         end;
 
                         VATIdentifier.Get("VAT Identifier");
-                        DescrVATIdentifier := VATIdentifier.Code;
+                        DescrVATIdentifier := VATIdentifier.Description;
 
                         if (PrintingType = PrintingType::Final) and
                            not Preview
@@ -986,7 +986,7 @@ report 12120 "VAT Register - Print"
             begin
                 SetRange(Number, 1, VATLines);
 
-                VATBookEntryTemp.Reset;
+                VATBookEntryTemp.Reset();
                 if VATBookEntryTemp.Find('-') then;
                 FirstVATLine := true;
             end;
@@ -1107,7 +1107,7 @@ report 12120 "VAT Register - Print"
         trigger OnOpenPage()
         begin
             PrintCompanyInformations := true;
-            CompInfo.Get;
+            CompInfo.Get();
             CompanyInformation[1] := CompInfo.Name;
             CompanyInformation[2] := CompInfo.Address;
             CompanyInformation[3] := CompInfo."Post Code" + '  ' + CompInfo.City + '  ' + CompInfo.County;
@@ -1123,13 +1123,13 @@ report 12120 "VAT Register - Print"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPostReport()
     begin
-        VATBookEntryTemp.Reset;
-        VATBookEntryTemp.DeleteAll;
+        VATBookEntryTemp.Reset();
+        VATBookEntryTemp.DeleteAll();
         VATRegister.Get(VATRegister.Code);
         if (PrintingType = PrintingType::Final) and
            not Preview
@@ -1145,8 +1145,8 @@ report 12120 "VAT Register - Print"
             VATRegister."Last Printing Date" := EndingDate;
             if not Confirm(Text1130040, false) then
                 Error('');
-            VATRegister.Modify;
-            ReprintInfo.Insert;
+            VATRegister.Modify();
+            ReprintInfo.Insert();
             Message(Text12100, VATRegister.FieldCaption("Last Printed VAT Register Page"), VATRegister.TableCaption);
         end;
     end;
@@ -1162,11 +1162,11 @@ report 12120 "VAT Register - Print"
             Error(Text1130008, VATRegister.FieldCaption(Code));
 
         if PrintingType = PrintingType::Final then begin
-            VATBookEntry.Reset;
+            VATBookEntry.Reset();
             VATBookEntry.SetFilter("Posting Date", '<%1', StartingDate);
             VATBookEntry.SetRange("Printing Date", 0D);
             VATBookEntry.SetFilter(Type, '<>%1', VATBookEntry.Type::Settlement);
-            NoSeries.Reset;
+            NoSeries.Reset();
             NoSeries.SetRange("VAT Register", VATRegister.Code);
             if NoSeries.FindSet then begin
                 FirstOne := true;
@@ -1351,7 +1351,7 @@ report 12120 "VAT Register - Print"
     begin
         LocalTotDoc := 0;
 
-        VATBookEntry.Reset;
+        VATBookEntry.Reset();
         VATBookEntry.SetRange("Transaction No.", TransactionNo);
         VATBookEntry.SetRange("No. Series", "No. Series".Code);
         VATBookEntry.SetRange("Document No.", DocNo);
@@ -1378,7 +1378,7 @@ report 12120 "VAT Register - Print"
         // Correct = FALSE : datainizio deve essere <= fine periodo
 
         SamePeriod := false;
-        Date.Reset;
+        Date.Reset();
 
         if EndingDate < StartingDate then
             exit;

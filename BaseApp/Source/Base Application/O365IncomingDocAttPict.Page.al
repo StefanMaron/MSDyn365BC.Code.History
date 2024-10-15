@@ -49,7 +49,7 @@ page 2123 "O365 Incoming Doc. Att. Pict."
     trigger OnAfterGetRecord()
     begin
         if not IncomingDocumentAttachment.Get("Incoming Document Entry No.", "Line No.") then
-            IncomingDocumentAttachment.Init;
+            IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.CalcFields(Content);
         SetRecFilter;
     end;

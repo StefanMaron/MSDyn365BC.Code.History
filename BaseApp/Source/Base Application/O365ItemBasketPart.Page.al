@@ -200,10 +200,10 @@ page 2124 "O365 Item Basket Part"
     begin
         if O365ItemBasketEntry.Get("Item No.") then
             exit;
-        O365ItemBasketEntry.Init;
+        O365ItemBasketEntry.Init();
         O365ItemBasketEntry."Item No." := "Item No.";
         O365ItemBasketEntry.Description := Description;
-        O365ItemBasketEntry.Insert;
+        O365ItemBasketEntry.Insert();
     end;
 
     local procedure AddOneToBasket()
@@ -225,7 +225,7 @@ page 2124 "O365 Item Basket Part"
         else begin
             TempO365ItemBasketEntry."Unit Price" := "Unit Price";
             TempO365ItemBasketEntry."Line Total" := Round(TempO365ItemBasketEntry.Quantity * TempO365ItemBasketEntry."Unit Price");
-            TempO365ItemBasketEntry.Modify;
+            TempO365ItemBasketEntry.Modify();
         end;
         AnySelectionMade := true;
     end;
@@ -249,7 +249,7 @@ page 2124 "O365 Item Basket Part"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        TempO365ItemBasketEntry.DeleteAll;
+        TempO365ItemBasketEntry.DeleteAll();
         OrgSalesLine.FilterGroup(4);
         if OrgSalesLine.GetFilters = '' then
             exit;
@@ -261,16 +261,16 @@ page 2124 "O365 Item Basket Part"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet then
             repeat
-                TempO365ItemBasketEntry.Init;
+                TempO365ItemBasketEntry.Init();
                 TempO365ItemBasketEntry."Item No." := SalesLine."No.";
                 if not TempO365ItemBasketEntry.Find then
-                    TempO365ItemBasketEntry.Insert;
+                    TempO365ItemBasketEntry.Insert();
                 TempO365ItemBasketEntry.Quantity += SalesLine.Quantity;
                 TempO365ItemBasketEntry."Unit Price" := SalesLine."Unit Price";
                 TempO365ItemBasketEntry."Line Total" := Round(TempO365ItemBasketEntry.Quantity * TempO365ItemBasketEntry."Unit Price");
                 TempO365ItemBasketEntry.Description := SalesLine.Description;
                 TempO365ItemBasketEntry."Base Unit of Measure" := SalesLine."Unit of Measure Code";
-                TempO365ItemBasketEntry.Modify;
+                TempO365ItemBasketEntry.Modify();
             until SalesLine.Next = 0;
     end;
 
@@ -295,7 +295,7 @@ page 2124 "O365 Item Basket Part"
         SalesLine.SetHideValidationDialog(true);
         if TempO365ItemBasketEntry.FindSet then
             repeat
-                SalesLine.Init;
+                SalesLine.Init();
                 SalesLine."Line No." += 10000;
                 SalesLine.Type := SalesLine.Type::Item;
                 SalesLine.Validate("No.", TempO365ItemBasketEntry."Item No.");
@@ -306,7 +306,7 @@ page 2124 "O365 Item Basket Part"
                         SalesLine."Unit of Measure" := UnitOfMeasure.GetDescriptionInCurrentLanguage;
                 SalesLine.Validate("Unit Price", TempO365ItemBasketEntry."Unit Price");
                 SalesLine.Validate(Quantity, TempO365ItemBasketEntry.Quantity);
-                SalesLine.Insert;
+                SalesLine.Insert();
             until TempO365ItemBasketEntry.Next = 0;
     end;
 }

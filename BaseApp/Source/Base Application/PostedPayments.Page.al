@@ -134,7 +134,7 @@ page 12172 "Posted Payments"
                     "Sales/Purchase"::Service:
                         if ServiceInvoiceHeader.Get(Code) then begin
                             CurrencyCode := ServiceInvoiceHeader."Currency Code";
-                            ServiceInvoiceLine.Reset;
+                            ServiceInvoiceLine.Reset();
                             ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
                             if ServiceInvoiceLine.FindSet then
                                 repeat
@@ -143,7 +143,7 @@ page 12172 "Posted Payments"
                         end else
                             if ServiceCrMemoHeader.Get(Code) then begin
                                 CurrencyCode := ServiceCrMemoHeader."Currency Code";
-                                ServiceCrMemoLine.Reset;
+                                ServiceCrMemoLine.Reset();
                                 ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
                                 if ServiceCrMemoLine.FindSet then
                                     repeat

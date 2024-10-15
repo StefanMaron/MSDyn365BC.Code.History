@@ -1,4 +1,4 @@
-﻿page 99000755 "Work Center List"
+page 99000755 "Work Center List"
 {
     AdditionalSearchTerms = 'production resource,production personnel';
     ApplicationArea = Manufacturing;
@@ -373,7 +373,7 @@
         More: Boolean;
     begin
         CurrPage.SetSelectionFilter(WorkCenter);
-        WrkCntrCount := WorkCenter.Count;
+        WrkCntrCount := WorkCenter.Count();
         if WrkCntrCount > 0 then begin
             WorkCenter.Find('-');
             while WrkCntrCount > 0 do begin

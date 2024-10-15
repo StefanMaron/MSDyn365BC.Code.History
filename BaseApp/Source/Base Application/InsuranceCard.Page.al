@@ -1,4 +1,4 @@
-﻿page 5644 "Insurance Card"
+page 5644 "Insurance Card"
 {
     Caption = 'Insurance Card';
     PageType = Card;

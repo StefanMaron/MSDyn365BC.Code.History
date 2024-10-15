@@ -12,7 +12,7 @@ table 12181 "Vendor Bill Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     NoSeriesMgt.TestManual(PurchSetup."Temporary Bill List No.");
                     "No. Series" := '';
                 end;
@@ -186,7 +186,7 @@ table 12181 "Vendor Bill Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Temporary Bill List No.");
             NoSeriesMgt.InitSeries(PurchSetup."Temporary Bill List No.",
               "No. Series", 0D, "No.", "No. Series");
@@ -223,12 +223,12 @@ table 12181 "Vendor Bill Header"
     begin
         with VendorBillHeader do begin
             VendorBillHeader := Rec;
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Temporary Bill List No.");
             if NoSeriesMgt.SelectSeries(PurchSetup."Temporary Bill List No.",
                  OldVendorBillHeader."No. Series", "No. Series")
             then begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 PurchSetup.TestField("Temporary Bill List No.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := VendorBillHeader;
@@ -248,7 +248,7 @@ table 12181 "Vendor Bill Header"
     [Scope('OnPrem')]
     procedure GetLines()
     begin
-        VendorBillLine.Reset;
+        VendorBillLine.Reset();
         VendorBillLine.SetRange("Vendor Bill List No.", "No.");
     end;
 

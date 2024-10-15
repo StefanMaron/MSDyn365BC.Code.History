@@ -506,7 +506,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 
     local procedure InsertGenJnlLine()
@@ -516,7 +516,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
         DeleteGenJnlLine;
         Clear(GenJnlLine);
         GenJnlLine."Document No." := "Gen. Journal Line".GetFilter("Document No.");
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
     end;
 
     local procedure DeleteGenJnlLine()
@@ -526,7 +526,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
         GenJnlLine.SetRange("Journal Template Name", '');
         GenJnlLine.SetRange("Journal Batch Name", '');
         GenJnlLine.SetRange("Line No.", 0);
-        GenJnlLine.DeleteAll;
+        GenJnlLine.DeleteAll();
     end;
 
     local procedure InsertTempGroupedGenJnlLine(var PaymentExportData: Record "Payment Export Data")

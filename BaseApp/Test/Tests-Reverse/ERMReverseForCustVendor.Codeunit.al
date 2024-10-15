@@ -341,7 +341,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -703,7 +703,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
 
         CreateSalesDocument(SalesHeader, CustNo, GLAccount."No.");
-        SalesHeader.Validate("Payment Terms Code", '');
+        SalesHeader.Validate("Payment Discount %", 0);
         SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -762,7 +762,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
 
         CreatePurchDocument(PurchHeader, VendNo, GLAccount."No.");
-        PurchHeader.Validate("Payment Terms Code", '');
+        PurchHeader.Validate("Payment Discount %", 0);
         PurchHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
     end;

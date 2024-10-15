@@ -7,11 +7,6 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
-    var
-        PCS: Label 'PCS';
-        BOX: Label 'BOX';
-        LibrarySplitVAT: Codeunit "Library - Split VAT";
-
     procedure InitializeCountry()
     begin
         exit;
@@ -113,21 +108,13 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdatePurchasesPayablesSetup()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Prevent Posted Doc. Deletion" := false;
-        PurchasesPayablesSetup.Modify();
+        exit;
     end;
 
     procedure UpdateSalesReceivablesSetup()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Prevent Posted Doc. Deletion" := false;
-        SalesReceivablesSetup.Modify();
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -141,13 +128,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure CreateUnitsOfMeasure()
-    var
-        UnitofMeasure: Record "Unit of Measure";
     begin
-        if not UnitofMeasure.Get(PCS) then
-            CreateUnitOfMeasure(PCS);
-        if not UnitofMeasure.Get(BOX) then
-            CreateUnitOfMeasure(BOX);
+        exit;
     end;
 
     procedure CreateTransportMethodTableData()
@@ -166,12 +148,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateFAJnlTemplateName()
-    var
-        FAJournalTemplate: Record "FA Journal Template";
     begin
-        if FAJournalTemplate.Get('ATTIVITA''') then begin
-            FAJournalTemplate.Rename('ATTIVITA');
-        end;
+        exit;
     end;
 
     procedure CreateNewFiscalYear()
@@ -180,14 +158,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateVATPostingSetup()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATTransactionNatureCode: Code[4];
     begin
-        VATTransactionNatureCode := LibrarySplitVAT.CreateVATTransactionNatureCode;
-
-        VATPostingSetup.SetRange("VAT Transaction Nature", '');
-        VATPostingSetup.ModifyAll("VAT Transaction Nature", VATTransactionNatureCode);
+        exit;
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -206,14 +178,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateLocalData()
-    var
-        SettlementVATEntry: Record "Periodic Settlement VAT Entry";
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Use Document Date in Currency", false);
-        GeneralLedgerSetup.Modify(true);
-        SettlementVATEntry.ModifyAll("VAT Period Closed", false);
+        exit;
     end;
 
     procedure CompanyInfoSetVATRegistrationNo()
@@ -236,16 +202,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
-    end;
-
-    local procedure CreateUnitOfMeasure("Code": Text)
-    var
-        UnitofMeasure: Record "Unit of Measure";
-    begin
-        UnitofMeasure.Init();
-        UnitofMeasure.Code := Code;
-        UnitofMeasure.Description := Code;
-        UnitofMeasure.Insert();
     end;
 }
 

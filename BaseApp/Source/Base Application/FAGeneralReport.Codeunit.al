@@ -250,7 +250,7 @@ codeunit 5626 "FA General Report"
         Window: Dialog;
     begin
         Window.Open(Text006);
-        FA.LockTable;
+        FA.LockTable();
         FA.Copy(FA2);
         FA.SetRange("FA Posting Group");
         if FA.Find('-') then
@@ -258,14 +258,13 @@ codeunit 5626 "FA General Report"
                 if FADeprBook.Get(FA."No.", DeprBookCode) then
                     if FA."FA Posting Group" <> FADeprBook."FA Posting Group" then begin
                         FA."FA Posting Group" := FADeprBook."FA Posting Group";
-                        FA.Modify;
+                        FA.Modify();
                     end;
             until FA.Next = 0;
-        Commit;
+        Commit();
         Window.Close;
     end;
 
-    [Scope('OnPrem')]
     procedure SetAquisitionDate(var FA2: Record "Fixed Asset"; DeprBookCode: Code[10])
     var
         FA: Record "Fixed Asset";
@@ -274,7 +273,7 @@ codeunit 5626 "FA General Report"
         DeprStartingDate: Integer;
     begin
         Window.Open(Text006);
-        FA.LockTable;
+        FA.LockTable();
         FA.Copy(FA2);
         FA.SetRange("Acquisition Year");
         if FA.Find('-') then
@@ -286,11 +285,11 @@ codeunit 5626 "FA General Report"
                         DeprStartingDate := Date2DMY(FADeprBook."Depreciation Starting Date", 3);
                     if FA."Acquisition Year" <> DeprStartingDate then begin
                         FA."Acquisition Year" := DeprStartingDate;
-                        FA.Modify;
+                        FA.Modify();
                     end;
                 end;
             until FA.Next = 0;
-        Commit;
+        Commit();
         Window.Close;
     end;
 

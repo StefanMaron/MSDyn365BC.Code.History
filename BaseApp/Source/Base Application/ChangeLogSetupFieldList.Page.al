@@ -169,7 +169,7 @@ page 594 "Change Log Setup (Field) List"
     local procedure GetRec()
     begin
         if not ChangeLogSetupField.Get(TableNo, "No.") then begin
-            ChangeLogSetupField.Init;
+            ChangeLogSetupField.Init();
             ChangeLogSetupField."Table No." := TableNo;
             ChangeLogSetupField."Field No." := "No.";
         end;

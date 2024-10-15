@@ -22,7 +22,7 @@ report 12180 "Issuing Customer Bill"
 
                 BankReceiptToIssue := BankReceiptToIssue + 1;
 
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine.Validate("Posting Date", PostingDate);
                 GenJnlLine."Document Date" := DocumentDate;
                 GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
@@ -73,7 +73,7 @@ report 12180 "Issuing Customer Bill"
                 DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
                 DetailedCustLedgEntry.FindFirst;
                 DetailedCustLedgEntry."Bank Receipt Issued" := true;
-                DetailedCustLedgEntry.Modify;
+                DetailedCustLedgEntry.Modify();
 
                 GenJnlPostLine.SetCheckDim(CheckDim);
                 if not CheckDim then

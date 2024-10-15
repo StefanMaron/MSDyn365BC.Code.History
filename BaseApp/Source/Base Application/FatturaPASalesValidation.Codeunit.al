@@ -58,7 +58,7 @@ codeunit 12180 "FatturaPA Sales Validation"
         if Customer."PA Code" = '' then
             exit;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Fattura PA Electronic Format");
 
         ElectronicDocumentFormat.Code := SalesReceivablesSetup."Fattura PA Electronic Format";
@@ -74,7 +74,7 @@ codeunit 12180 "FatturaPA Sales Validation"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         DummyElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if not SalesReceivablesSetup."Validate Document On Posting" then
             exit;
 

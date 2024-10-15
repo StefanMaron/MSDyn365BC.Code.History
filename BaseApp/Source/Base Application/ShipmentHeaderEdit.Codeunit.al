@@ -9,7 +9,7 @@ codeunit 391 "Shipment Header - Edit"
     trigger OnRun()
     begin
         SalesShptHeader := Rec;
-        SalesShptHeader.LockTable;
+        SalesShptHeader.LockTable();
         SalesShptHeader.Find;
         SalesShptHeader."Shipping Agent Code" := "Shipping Agent Code";
         SalesShptHeader."Shipping Agent Service Code" := "Shipping Agent Service Code";
@@ -23,7 +23,7 @@ codeunit 391 "Shipment Header - Edit"
         SalesShptHeader."TDD Prepared By" := "TDD Prepared By";
         OnBeforeSalesShptHeaderModify(SalesShptHeader, Rec);
         SalesShptHeader.TestField("No.", "No.");
-        SalesShptHeader.Modify;
+        SalesShptHeader.Modify();
         Rec := SalesShptHeader;
     end;
 
@@ -36,7 +36,7 @@ codeunit 391 "Shipment Header - Edit"
         ReturnShptHeader: Record "Return Shipment Header";
     begin
         ReturnShptHeader := ReturnShptHeader2;
-        ReturnShptHeader.LockTable;
+        ReturnShptHeader.LockTable();
         ReturnShptHeader.Find;
         with ReturnShptHeader2 do begin
             ReturnShptHeader."Shipping Agent Code" := "Shipping Agent Code";
@@ -48,7 +48,7 @@ codeunit 391 "Shipment Header - Edit"
             ReturnShptHeader."Additional Instructions" := "Additional Instructions";
             ReturnShptHeader."TDD Prepared By" := "TDD Prepared By";
             OnBeforeReturnShptHeaderModify(ReturnShptHeader, ReturnShptHeader2);
-            ReturnShptHeader.Modify;
+            ReturnShptHeader.Modify();
         end;
         ReturnShptHeader2 := ReturnShptHeader;
     end;
@@ -59,7 +59,7 @@ codeunit 391 "Shipment Header - Edit"
         TransferShptHeader: Record "Transfer Shipment Header";
     begin
         TransferShptHeader := TransferShptHeader2;
-        TransferShptHeader.LockTable;
+        TransferShptHeader.LockTable();
         TransferShptHeader.Find;
         with TransferShptHeader2 do begin
             TransferShptHeader."Transport Reason Code" := "Transport Reason Code";
@@ -79,7 +79,7 @@ codeunit 391 "Shipment Header - Edit"
             TransferShptHeader."Additional Instructions" := "Additional Instructions";
             TransferShptHeader."TDD Prepared By" := "TDD Prepared By";
             OnBeforeTransferShptHeaderModify(TransferShptHeader, TransferShptHeader2);
-            TransferShptHeader.Modify;
+            TransferShptHeader.Modify();
         end;
         TransferShptHeader2 := TransferShptHeader;
     end;
@@ -90,7 +90,7 @@ codeunit 391 "Shipment Header - Edit"
         ServiceShptHeader: Record "Service Shipment Header";
     begin
         ServiceShptHeader := ServiceShptHeader2;
-        ServiceShptHeader.LockTable;
+        ServiceShptHeader.LockTable();
         ServiceShptHeader.Find;
         with ServiceShptHeader2 do begin
             ServiceShptHeader."Shipping Agent Code" := "Shipping Agent Code";
@@ -102,7 +102,7 @@ codeunit 391 "Shipment Header - Edit"
             ServiceShptHeader."Additional Instructions" := "Additional Instructions";
             ServiceShptHeader."TDD Prepared By" := "TDD Prepared By";
             OnBeforeServiceShptHeaderModify(ServiceShptHeader, ServiceShptHeader2);
-            ServiceShptHeader.Modify;
+            ServiceShptHeader.Modify();
         end;
         ServiceShptHeader2 := ServiceShptHeader;
     end;

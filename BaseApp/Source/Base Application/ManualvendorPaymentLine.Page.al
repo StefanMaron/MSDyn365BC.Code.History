@@ -84,7 +84,6 @@ page 12188 "Manual vendor Payment Line"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
                     ToolTip = 'Specifies the document type.';
                 }
                 field(DocumentNo; DocumentNo)
@@ -109,7 +108,7 @@ page 12188 "Manual vendor Payment Line"
                     var
                         VendBankAcc: Record "Vendor Bank Account";
                     begin
-                        VendBankAcc.Reset;
+                        VendBankAcc.Reset();
                         VendBankAcc.SetRange("Vendor No.", VendorNo);
                         if PAGE.RunModal(PAGE::"Vendor Bank Account List", VendBankAcc, VendBankAcc.Code) = ACTION::LookupOK then
                             VendorBankAccount := VendBankAcc.Code;
@@ -150,7 +149,7 @@ page 12188 "Manual vendor Payment Line"
                     NextLineNo: Integer;
                 begin
                     with VendorBillLine do begin
-                        LockTable;
+                        LockTable();
                         Reset;
                         SetRange("Vendor Bill List No.", VendorBillNo);
                         if not FindLast then

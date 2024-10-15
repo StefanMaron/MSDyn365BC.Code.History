@@ -659,7 +659,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -691,7 +691,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -719,7 +719,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -750,7 +750,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -779,7 +779,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -808,7 +808,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -840,7 +840,7 @@ codeunit 135544 "Default Dimensions E2E Test"
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -875,7 +875,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -913,7 +913,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -956,7 +956,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
         DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -993,7 +993,7 @@ codeunit 135544 "Default Dimensions E2E Test"
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
         DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(

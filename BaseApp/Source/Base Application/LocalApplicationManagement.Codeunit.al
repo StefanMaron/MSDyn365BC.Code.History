@@ -18,7 +18,7 @@ codeunit 12104 LocalApplicationManagement
         Text1042: Label '%1 must be less than %2.';
         Text1043: Label 'Dates must have the same Month/Year.';
         Text1044: Label 'This month does not exist.';
-        Text1045: Label '<Month Text>';
+        Text1045: Label '<Month Text>', Locked = true;
         CheckFiscalCodeSetup: Record "Check Fiscal Code Setup";
         Date: Record Date;
         StrLengthOfVar: Integer;
@@ -57,8 +57,6 @@ codeunit 12104 LocalApplicationManagement
         SkipMsgDisplay: Boolean;
         FieldModifyQst: Label '%1 will be modified according to %2. Do you want to continue?', Comment = '%1=Field name, %2=Another field name';
         ValueLessThanAnotherErr: Label '%1 cannot be less than %2.', Comment = '%1=Field name, %2=Another field name';
-        PostingNoExistsQst: Label 'If you create an invoice based on order %1 with an existing posting number, it will cause a gap in the number series. \\Do you want to continue?', Comment = '%1=Document number';
-        CancelledErr: Label 'Cancelled by user.';
 
     [Scope('OnPrem')]
     procedure CheckDigit(FiscalCode: Code[20])
@@ -187,8 +185,8 @@ codeunit 12104 LocalApplicationManagement
     procedure InitiateCheckFiscalCodeSetup()
     begin
         if not CheckFiscalCodeSetup.Get then begin
-            CheckFiscalCodeSetup.Init;
-            CheckFiscalCodeSetup.Insert;
+            CheckFiscalCodeSetup.Init();
+            CheckFiscalCodeSetup.Insert();
         end;
 
         if not CheckFiscalCodeSetup."Initiated Values" then begin
@@ -203,7 +201,7 @@ codeunit 12104 LocalApplicationManagement
             CheckFiscalCodeSetup.Str2 := '00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25';
             CheckFiscalCodeSetup.Str3 := Text1038;
             CheckFiscalCodeSetup."Initiated Values" := true;
-            CheckFiscalCodeSetup.Modify;
+            CheckFiscalCodeSetup.Modify();
         end;
 
         CheckFiscalCodeSetup.TestField(Str1);
@@ -330,18 +328,27 @@ codeunit 12104 LocalApplicationManagement
                 ErrorMessage(SetValue::B, 0, 0, CheckDigitVar);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckData(FirstDate: Date; SecondDate: Date; Text1: Text[30]; Text2: Text[30])
     begin
         if FirstDate > SecondDate then
             Error(Text1042, Text1, Text2);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckSameMonth(FirstDate: Date; SecondDate: Date)
     begin
         if (Date2DMY(FirstDate, 2) <> Date2DMY(SecondDate, 2)) or (Date2DMY(FirstDate, 3) <> Date2DMY(SecondDate, 3)) then
             Error(Text1043);
+    end;
+
+    procedure ConvertToNumeric(DocNo: Code[20]; MaxStrLength: Integer): Code[20]
+    begin
+        if MaxStrLength > MaxStrLen(DocNo) then
+            MaxStrLength := MaxStrLen(DocNo);
+        DocNo := DelChr(Format(DocNo, MaxStrLength), '=', DelChr(DocNo, '=', '1234567890'));
+        DocNo := DelChr(DocNo, '=', ' ');
+        if StrLen(DocNo) < MaxStrLength then
+            DocNo := PadStr('', MaxStrLength - StrLen(DocNo), '0') + DocNo;
+        exit(DocNo);
     end;
 
     [Scope('OnPrem')]
@@ -389,6 +396,7 @@ codeunit 12104 LocalApplicationManagement
     begin
         SkipMsgDisplay := SkipMsgDisplay2;
     end;
+
     [Scope('OnPrem')]
     procedure ValidateOperationOccurredDate(var RecordRef: RecordRef; HideValidationDialog: Boolean)
     var
@@ -441,49 +449,20 @@ codeunit 12104 LocalApplicationManagement
         case RecordRef.Number of
             DATABASE::"Sales Header":
                 begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     exit(SalesReceivablesSetup."Notify On Occur. Date Change");
                 end;
             DATABASE::"Purchase Header":
                 begin
-                    PurchasesPayablesSetup.Get;
+                    PurchasesPayablesSetup.Get();
                     exit(PurchasesPayablesSetup."Notify On Occur. Date Change");
                 end;
             DATABASE::"Service Header":
                 begin
-                    ServiceMgtSetup.Get;
+                    ServiceMgtSetup.Get();
                     exit(ServiceMgtSetup."Notify On Occur. Date Change");
                 end;
         end;
     end;
-    local procedure CheckOriginalOrderPostingNo(var PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean
-    var
-        PurchRcptHeader2: Record "Purch. Rcpt. Header";
-        PurchaseHeader: Record "Purchase Header";
-        PurchRcptLine2: Record "Purch. Rcpt. Line";
-        ConfirmManagement: Codeunit "Confirm Management";
-    begin
-        PurchRcptLine2.Copy(PurchRcptLine);
-        PurchaseHeader.SetFilter("Posting No.", '<>%1', '');
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        if PurchRcptLine2.FindSet() then
-            repeat
-                if PurchRcptHeader2.Get(PurchRcptLine2."Document No.") then begin
-                    PurchaseHeader.SetRange("No.", PurchRcptHeader2."Order No.");
-                    if PurchaseHeader.FindFirst() then
-                        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(PostingNoExistsQst, PurchaseHeader."No."), true));
-                end;
-            until PurchRcptLine2.Next() = 0;
-        exit(true);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 74, 'OnCreateInvLinesOnBeforeFind', '', true, true)]
-    [Scope('Internal')]
-    procedure CheckPostingNoOnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
-    begin
-        if not CheckOriginalOrderPostingNo(PurchRcptLine) then
-            Error(CancelledErr);
-    end;
-
 }
 

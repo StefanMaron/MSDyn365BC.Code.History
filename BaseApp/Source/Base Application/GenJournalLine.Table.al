@@ -1,4 +1,4 @@
-﻿table 81 "Gen. Journal Line"
+table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -15,11 +15,9 @@
         {
             Caption = 'Line No.';
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
 
             trigger OnValidate()
             begin
@@ -182,11 +180,9 @@
                     Validate("Deferral Code");
             end;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
 
             trigger OnValidate()
             var
@@ -630,11 +626,9 @@
         {
             Caption = 'On Hold';
         }
-        field(35; "Applies-to Doc. Type"; Option)
+        field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
 
             trigger OnValidate()
             begin
@@ -803,7 +797,7 @@
                 if "Job No." = xRec."Job No." then
                     exit;
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 if "Source Code" <> SourceCodeSetup."Job G/L WIP" then
                     Validate("Job Task No.", '');
                 if "Job No." = '' then begin
@@ -1065,12 +1059,10 @@
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(60; "VAT Calculation Type"; Option)
+        field(60; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(61; "EU 3-Party Trade"; Boolean)
         {
@@ -1082,11 +1074,9 @@
             Caption = 'Allow Application';
             InitValue = true;
         }
-        field(63; "Bal. Account Type"; Option)
+        field(63; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
 
             trigger OnValidate()
             begin
@@ -1216,12 +1206,10 @@
                         Validate("Bal. VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(67; "Bal. VAT Calculation Type"; Option)
+        field(67; "Bal. VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Bal. VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(68; "Bal. VAT %"; Decimal)
         {
@@ -1337,12 +1325,10 @@
                 UpdateSalesPurchLCY;
             end;
         }
-        field(70; "Bank Payment Type"; Option)
+        field(70; "Bank Payment Type"; Enum "Bank Payment Type")
         {
             AccessByPermission = TableData "Bank Account" = R;
             Caption = 'Bank Payment Type';
-            OptionCaption = ' ,Computer Check,Manual Check,Electronic Payment,Electronic Payment-IAT';
-            OptionMembers = " ","Computer Check","Manual Check","Electronic Payment","Electronic Payment-IAT";
 
             trigger OnValidate()
             begin
@@ -1490,7 +1476,7 @@
 
                 if TmpWithholdingSocSec.Get("Journal Template Name", "Journal Batch Name", "Line No.") then begin
                     TmpWithholdingSocSec."Payment Date" := "Document Date";
-                    TmpWithholdingSocSec.Modify;
+                    TmpWithholdingSocSec.Modify();
                 end;
 
                 Validate("Payment Terms Code");
@@ -1500,11 +1486,9 @@
         {
             Caption = 'External Document No.';
         }
-        field(78; "Source Type"; Option)
+        field(78; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
 
             trigger OnValidate()
             begin
@@ -2482,12 +2466,10 @@
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Gen. Journal Line FA Posting Type")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance';
-            OptionMembers = " ","Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance;
 
             trigger OnValidate()
             begin
@@ -2978,6 +2960,7 @@
         key(Key2; "Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.")
         {
             MaintainSQLIndex = false;
+            SumIndexFields = "Debit Amount", "Credit Amount";
         }
         key(Key3; "Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.")
         {
@@ -3000,6 +2983,11 @@
         key(Key8; "Journal Batch Name", "Journal Template Name")
         {
             SumIndexFields = "Balance (LCY)";
+        }
+        key(Key9; "Source Code", "Document No.", "Posting Date")
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = "VAT Amount (LCY)", "Bal. VAT Amount (LCY)";
         }
     }
 
@@ -3035,7 +3023,7 @@
         GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
         if not GenJnlAlloc.IsEmpty then
-            GenJnlAlloc.DeleteAll;
+            GenJnlAlloc.DeleteAll();
 
         DeleteTmpWithhSocSec;
 
@@ -3049,8 +3037,8 @@
 
     trigger OnInsert()
     begin
-        GenJnlAlloc.LockTable;
-        LockTable;
+        GenJnlAlloc.LockTable();
+        LockTable();
 
         SetLastModifiedDateTime;
 
@@ -3358,7 +3346,7 @@
         // step1 - renumber to non-existing document number
         DocNo := FirstTempDocNo;
         GenJnlLine2 := Rec;
-        GenJnlLine2.Reset;
+        GenJnlLine2.Reset();
         RenumberDocNoOnLines(DocNo, GenJnlLine2);
         LastTempDocNo := DocNo;
 
@@ -3370,7 +3358,7 @@
 
         // step3 - renumber to real document number (outside filter)
         DocNo := IncStr(DocNo);
-        GenJnlLine2.Reset;
+        GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Document No.", FirstTempDocNo, LastTempDocNo);
         RenumberDocNoOnLines(DocNo, GenJnlLine2);
 
@@ -3390,7 +3378,7 @@
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LastGenJnlLine.Init;
+            LastGenJnlLine.Init();
             First := true;
             if FindSet then begin
                 repeat
@@ -3407,7 +3395,7 @@
                     GenJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
                     CheckJobQueueStatus(GenJnlLine3);
                     GenJnlLine3."Document No." := DocNo;
-                    GenJnlLine3.Modify;
+                    GenJnlLine3.Modify();
                     First := false;
                     LastGenJnlLine := GenJnlLine2
                 until Next = 0
@@ -3452,12 +3440,12 @@
                 exit
         end;
         GenJnlLine2."Applies-to ID" := NewAppliesToID;
-        GenJnlLine2.Modify;
+        GenJnlLine2.Modify();
     end;
 
     local procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
     begin
-        GenJnlLine2.Reset;
+        GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Journal Template Name", GenJnlLine2."Journal Template Name");
         GenJnlLine2.SetRange("Journal Batch Name", GenJnlLine2."Journal Batch Name");
         GenJnlLine2.SetRange("Applies-to Doc. Type", GenJnlLine2."Document Type");
@@ -3468,7 +3456,7 @@
     local procedure CheckVATInAlloc()
     begin
         if "Gen. Posting Type" <> 0 then begin
-            GenJnlAlloc.Reset;
+            GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -3525,24 +3513,18 @@
     var
         SourceExists1: Boolean;
         SourceExists2: Boolean;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeUpdateSource(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
         SourceExists1 := ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '');
         SourceExists2 := ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '');
         case true of
             SourceExists1 and not SourceExists2:
                 begin
-                    "Source Type" := "Account Type";
+                    "Source Type" := "Account Type".AsInteger();
                     "Source No." := "Account No.";
                 end;
             SourceExists2 and not SourceExists1:
                 begin
-                    "Source Type" := "Bal. Account Type";
+                    "Source Type" := "Bal. Account Type".AsInteger();
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
@@ -3646,7 +3628,7 @@
     local procedure GetVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     begin
         if not VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup) then
-            VATPostingSetup.Init;
+            VATPostingSetup.Init();
         OnAfterGetVATPostingSetup(VATPostingSetup);
     end;
 
@@ -3655,7 +3637,7 @@
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         TempVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         TempEmplLedgEntry: Record "Employee Ledger Entry" temporary;
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
         GetAccTypeAndNo(Rec, AccType, AccNo);
@@ -3664,7 +3646,7 @@
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
                         ClearCustApplnEntryFields;
-                        TempCustLedgEntry.DeleteAll;
+                        TempCustLedgEntry.DeleteAll();
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
                     end
                 end else
@@ -3677,7 +3659,7 @@
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
                         ClearVendApplnEntryFields;
-                        TempVendLedgEntry.DeleteAll;
+                        TempVendLedgEntry.DeleteAll();
                         VendEntrySetApplID.SetApplId(VendLedgEntry, TempVendLedgEntry, '');
                     end
                 end else
@@ -3690,7 +3672,7 @@
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
                         ClearEmplApplnEntryFields;
-                        TempEmplLedgEntry.DeleteAll;
+                        TempEmplLedgEntry.DeleteAll();
                         EmplEntrySetApplID.SetApplId(EmplLedgEntry, TempEmplLedgEntry, '');
                     end
                 end else
@@ -3700,6 +3682,8 @@
                             CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmplLedgEntry);
                         end;
         end;
+
+        OnAfterClearCustVendApplnEntry(Rec, xRec, AccType, AccNo);
     end;
 
     local procedure ClearCustApplnEntryFields()
@@ -3921,7 +3905,7 @@
         DefaultFADeprBook: Record "FA Depreciation Book";
     begin
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get;
+            FASetup.Get();
 
             DefaultFADeprBook.SetRange("FA No.", FANo);
             DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
@@ -3946,7 +3930,7 @@
     procedure DeleteTmpWithhSocSec()
     begin
         if TmpWithholdingSocSec.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
-            TmpWithholdingSocSec.Delete;
+            TmpWithholdingSocSec.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -3954,7 +3938,7 @@
     begin
         GenJnlTemplate.Get("Journal Template Name");
 
-        PaymentTermsLine.Reset;
+        PaymentTermsLine.Reset();
         PaymentTermsLine.SetRange("Sales/Purchase", PaymentTermsLine."Sales/Purchase"::" ");
         PaymentTermsLine.SetRange(Type, PaymentTermsLine.Type::"Payment Terms");
         PaymentTermsLine.SetRange(Code, "Payment Terms Code");
@@ -3973,14 +3957,14 @@
     [Scope('OnPrem')]
     procedure DeletePaymentLines()
     begin
-        PaymentSales.Reset;
+        PaymentSales.Reset();
         PaymentSales.SetRange("Sales/Purchase", PaymentSales."Sales/Purchase"::" ");
         PaymentSales.SetRange(Type, PaymentSales.Type::"General Journal");
         PaymentSales.SetRange(Code, "Journal Batch Name");
         PaymentSales.SetRange("Journal Template Name", "Journal Template Name");
         PaymentSales.SetRange("Journal Line No.", "Line No.");
         if PaymentSales.FindFirst then
-            PaymentSales.DeleteAll;
+            PaymentSales.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -3988,7 +3972,7 @@
     var
         Vend: Record Vendor;
     begin
-        PaymentPurchase.Init;
+        PaymentPurchase.Init();
         PaymentPurchase."Sales/Purchase" := PaymentPurchase."Sales/Purchase"::" ";
         PaymentPurchase.Type := PaymentPurchase.Type::"General Journal";
         PaymentPurchase."Journal Template Name" := "Journal Template Name";
@@ -4010,7 +3994,7 @@
         if PaymentPurchase."Due Date" < "Document Date" then
             PaymentPurchase."Due Date" := "Document Date";
 
-        FixedDueDate.Reset;
+        FixedDueDate.Reset();
         Vend.Get("Account No.");
         if Vend."Apply Company Payment days" = true then begin
             FixedDueDate.SetRange(Type, FixedDueDate.Type::Company);
@@ -4058,13 +4042,13 @@
                 PaymentPurchase."Pmt. Discount Date" := "Document Date";
         end;
 
-        PaymentPurchase.Insert;
+        PaymentPurchase.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure SalePayment()
     begin
-        PaymentSales.Init;
+        PaymentSales.Init();
         PaymentSales."Sales/Purchase" := PaymentSales."Sales/Purchase"::" ";
         PaymentSales.Type := PaymentSales.Type::"General Journal";
         PaymentSales."Journal Template Name" := "Journal Template Name";
@@ -4100,7 +4084,7 @@
                 PaymentSales."Due Date" := "Document Date";
         end;
 
-        FixedDueDate.Reset;
+        FixedDueDate.Reset();
         FixedDueDate.SetRange(Type, FixedDueDate.Type::Customer);
         FixedDueDate.SetRange(Code, "Account No.");
 
@@ -4142,7 +4126,7 @@
                 PaymentSales."Pmt. Discount Date" := "Document Date";
         end;
 
-        PaymentSales.Insert;
+        PaymentSales.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -4664,7 +4648,7 @@
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;
@@ -4737,7 +4721,7 @@
         if ("Account Type" = "Account Type"::Customer) and ("Account No." = '') and
            ("Applies-to Doc. No." <> '') and (Amount = 0)
         then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange(Open, true);
             if not CustLedgEntry.FindFirst then
@@ -4775,7 +4759,7 @@
         if ("Account Type" = "Account Type"::Vendor) and ("Account No." = '') and
            ("Applies-to Doc. No." <> '') and (Amount = 0)
         then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendLedgEntry.SetRange(Open, true);
             if not VendLedgEntry.FindFirst then
@@ -4813,7 +4797,7 @@
         if ("Account Type" = "Account Type"::Employee) and ("Account No." = '') and
            ("Applies-to Doc. No." <> '') and (Amount = 0)
         then begin
-            EmplLedgEntry.Reset;
+            EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             EmplLedgEntry.SetRange(Open, true);
             if not EmplLedgEntry.FindFirst then
@@ -5238,7 +5222,7 @@
 
     local procedure FindFirstCustLedgEntryWithAppliesToID(AccNo: Code[20]; AppliesToID: Code[50]): Boolean
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open);
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange("Applies-to ID", AppliesToID);
@@ -5248,7 +5232,7 @@
 
     local procedure FindFirstCustLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Document No.");
         CustLedgEntry.SetRange("Document No.", AppliestoDocNo);
         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
@@ -5259,7 +5243,7 @@
 
     local procedure FindFirstVendLedgEntryWithAppliesToID(AccNo: Code[20]; AppliesToID: Code[50]): Boolean
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open);
         VendLedgEntry.SetRange("Vendor No.", AccNo);
         VendLedgEntry.SetRange("Applies-to ID", AppliesToID);
@@ -5269,7 +5253,7 @@
 
     local procedure FindFirstVendLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", AppliestoDocNo);
         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
@@ -5280,7 +5264,7 @@
 
     local procedure FindFirstEmplLedgEntryWithAppliesToID(AccNo: Code[20]; AppliesToID: Code[50]): Boolean
     begin
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetCurrentKey("Employee No.", "Applies-to ID", Open);
         EmplLedgEntry.SetRange("Employee No.", AccNo);
         EmplLedgEntry.SetRange("Applies-to ID", AppliesToID);
@@ -5290,7 +5274,7 @@
 
     local procedure FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
     begin
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetCurrentKey("Document No.");
         EmplLedgEntry.SetRange("Document No.", AppliestoDocNo);
         EmplLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
@@ -5452,7 +5436,7 @@
                         exit(true);
                 end;
 
-                VendLedgerEntry.Reset;
+                VendLedgerEntry.Reset();
                 VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
                 VendLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
                 VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
@@ -6006,6 +5990,7 @@
         "Payment Method Code" := ServiceHeader."Payment Method Code";
         "Pmt. Discount Date" := ServiceHeader."Pmt. Discount Date";
         "Payment Discount %" := ServiceHeader."Payment Discount %";
+        "Direct Debit Mandate ID" := ServiceHeader."Direct Debit Mandate ID";
 
         OnAfterCopyGenJnlLineFromServHeaderPayment(ServiceHeader, Rec);
     end;
@@ -6701,7 +6686,7 @@
         TestField("Posting Date");
 
         // Creating Fixed Asset Line
-        FAGenJournalLine.Init;
+        FAGenJournalLine.Init();
         FAGenJournalLine.Validate("Journal Template Name", "Journal Template Name");
         FAGenJournalLine.Validate("Journal Batch Name", "Journal Batch Name");
         FAGenJournalLine.Validate("Line No.", GetNewLineNo("Journal Template Name", "Journal Batch Name"));
@@ -6802,7 +6787,7 @@
         GenJournalLine2: Record "Gen. Journal Line";
         VoidTransmitElecPmnts: Report "Void/Transmit Elec. Pmnts";
     begin
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine := Rec;
         TempGenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         TempGenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -6830,7 +6815,7 @@
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         VoidTransmitElecPmnts: Report "Void/Transmit Elec. Pmnts";
     begin
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine := Rec;
         TempGenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         TempGenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -7694,12 +7679,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnAfterClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

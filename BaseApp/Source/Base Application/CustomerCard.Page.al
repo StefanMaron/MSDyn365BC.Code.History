@@ -1,4 +1,4 @@
-﻿page 21 "Customer Card"
+page 21 "Customer Card"
 {
     Caption = 'Customer Card';
     PageType = Card;
@@ -98,7 +98,7 @@
                     var
                         CustLedgEntry: Record "Cust. Ledger Entry";
                     begin
-                        CustLedgEntry.Reset;
+                        CustLedgEntry.Reset();
                         CustLedgEntry.SetCurrentKey("Customer No.", "Bank Receipt", "Document Type", "Due Date",
                           "Currency Code", "Bank Receipt Issued", Open);
                         CustLedgEntry.SetRange("Customer No.", "No.");
@@ -398,11 +398,6 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the customer in connection with electronic document sending.';
                 }
-                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
-                }
                 field("Copy Sell-to Addr. to Qte From"; "Copy Sell-to Addr. to Qte From")
                 {
                     ApplicationArea = Basic, Suite;
@@ -424,6 +419,9 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how many copies of an invoice for the customer will be printed at a time.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality was used by reports 204-207 that are now obsolete';
+                    ObsoleteTag = '16.0';
                 }
                 group(PostingDetails)
                 {
@@ -457,6 +455,14 @@
                         ApplicationArea = Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the default currency for the customer.';
+                    }
+                    field("Price Calculation Method"; "Price Calculation Method")
+                    {
+                        // Visibility should be turned on by an extension for Price Calculation
+                        Visible = false;
+                        ApplicationArea = Basic, Suite;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the default price calculation method.';
                     }
                     field("Customer Price Group"; "Customer Price Group")
                     {
@@ -839,7 +845,12 @@
             {
                 ApplicationArea = All;
                 Caption = 'Special Prices & Discounts';
-                Visible = FoundationOnly;
+                Visible = FoundationOnly AND (NOT LoadOnDemand);
+                SubPageLink = "Sales Code" = FIELD("No."),
+                              "Sales Type" = CONST(Customer);
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This part impairs performance.';
+                ObsoleteTag = '16.0';
             }
         }
         area(factboxes)
@@ -1115,16 +1126,16 @@
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 Sales';
+                Caption = 'Common Data Service';
                 Enabled = Blocked = Blocked::" ";
-                Visible = CRMIntegrationEnabled;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoAccount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
-                    ToolTip = 'Open the coupled Dynamics 365 Sales account.';
-                    Visible = CRMIntegrationEnabled;
+                    ToolTip = 'Open the coupled Common Data Service account.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -1141,8 +1152,8 @@
                     Image = Refresh;
                     Promoted = true;
                     PromotedCategory = Process;
-                    ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
-                    Visible = CRMIntegrationEnabled;
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -1157,7 +1168,7 @@
                     Caption = 'Update Account Statistics';
                     Enabled = CRMIsCoupledToRecord;
                     Image = UpdateXML;
-                    ToolTip = 'Send customer statistics data to Dynamics 365 Sales to update the Account Statistics FactBox.';
+                    ToolTip = 'Send customer statistics data to Common Data Service to update the Account Statistics FactBox.';
                     Visible = CRMIntegrationEnabled;
 
                     trigger OnAction()
@@ -1171,7 +1182,7 @@
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -1180,8 +1191,8 @@
                         Image = LinkAccount;
                         Promoted = true;
                         PromotedCategory = Category9;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -1197,8 +1208,8 @@
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -1214,7 +1225,7 @@
                     Caption = 'Synchronization Log';
                     Image = Log;
                     ToolTip = 'View integration synchronization jobs for the customer table.';
-                    Visible = CRMIntegrationEnabled;
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -1349,6 +1360,22 @@
                                   "Sales Code" = FIELD("No.");
                     RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                }
+                action("Prices and Discounts Overview")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Prices & Discounts Overview';
+                    Image = PriceWorksheet;
+                    ToolTip = 'View all the special prices and line discounts that you grant for this customer when certain criteria are met, such as quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        SalesPriceAndLineDiscounts: Page "Sales Price and Line Discounts";
+                    begin
+                        SalesPriceAndLineDiscounts.InitPage(false);
+                        SalesPriceAndLineDiscounts.LoadCustomer(Rec);
+                        SalesPriceAndLineDiscounts.RunModal;
+                    end;
                 }
             }
             group(Action82)
@@ -2013,6 +2040,9 @@
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2032,6 +2062,9 @@
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = true;
                     ToolTip = 'Save the customer card as a template that can be reused to create new customer cards. Customer templates contain preset information to help you fill fields on customer cards.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2190,7 +2223,7 @@
         ActivateFields;
         StyleTxt := SetStyle;
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-        if CRMIntegrationEnabled then begin
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
@@ -2199,7 +2232,7 @@
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
         if FoundationOnly and ("No." <> '') then begin
-            GetSalesPricesAndSalesLineDisc;
+            OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
             BalanceExhausted := 10000 <= CalcCreditLimitLCYExpendedPct;
             DaysPastDueDate := AgedAccReceivable.InvoicePaymentDaysAverage("No.");
             AttentionToPaidDay := DaysPastDueDate > 0;
@@ -2250,12 +2283,10 @@
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
 
         SetNoFieldVisible;
         IsSaaS := EnvironmentInfo.IsSaaS;
-
-        if FoundationOnly then
-            CurrPage.PriceAndLineDisc.PAGE.InitPage(false);
     end;
 
     var
@@ -2274,6 +2305,7 @@
         [InDataSet]
         ShowCharts: Boolean;
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         OpenApprovalEntriesExistCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -2317,6 +2349,7 @@
         IsSaaS: Boolean;
         IsCountyVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
+        LoadOnDemand: Boolean;
 
     local procedure GetTotalSales(): Decimal
     begin
@@ -2365,23 +2398,6 @@
     local procedure GetMoneyOwedExpected(): Decimal
     begin
         exit(CustomerMgt.CalculateAmountsWithVATOnUnpostedDocuments("No."))
-    end;
-
-    local procedure GetSalesPricesAndSalesLineDisc()
-    var
-        LoadOnDemand: Boolean;
-    begin
-        OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
-
-        if LoadOnDemand then begin
-            CurrPage.PriceAndLineDisc.PAGE.SetLoadedCustno("No.");
-            exit;
-        end;
-
-        if "No." <> CurrPage.PriceAndLineDisc.PAGE.GetLoadedCustNo then begin
-            CurrPage.PriceAndLineDisc.PAGE.LoadCustomer(Rec);
-            CurrPage.PriceAndLineDisc.PAGE.Update(false);
-        end;
     end;
 
     local procedure ActivateFields()
@@ -2445,7 +2461,7 @@
                 if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
                     if Customer."Validate EU Vat Reg. No." then begin
                         EUVATRegistrationNoCheck.SetRecordRef(Customer);
-                        Commit;
+                        Commit();
                         EUVATRegistrationNoCheck.RunModal;
                         EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
                         CustomerRecRef.SetTable(Customer);

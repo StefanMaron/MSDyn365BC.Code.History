@@ -4366,7 +4366,7 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=IIF(First(Fields!ContributionType.Value)="INPS",First(Fields!CurrReport_PAGENOCaption.Value),First(Fields!CurrReport_PAGENO_Control1130008Caption.Value))</Value>
+                    <Value>=First(Fields!CurrReport_PAGENOCaption.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                     </Style>
@@ -4381,36 +4381,6 @@
             <ZIndex>10</ZIndex>
             <Visibility>
               <Hidden>=IIF(First(Fields!PrintDetails.Value, "DataSet_Result") = True or First(Fields!PrintDetails_Control1130042.Value, "DataSet_Result") = True, FALSE, TRUE)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="PageNumberTextBox">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=IIF(First(Fields!ContributionType.Value)="INPS",First(Fields!CurrReport_PAGENO.Value),First(Fields!CurrReport_PAGENO_Control1130008.Value))</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Right</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Top>0.423cm</Top>
-            <Left>12.90082cm</Left>
-            <Height>0.423cm</Height>
-            <Width>0.45cm</Width>
-            <ZIndex>9</ZIndex>
-            <Visibility>
-              <Hidden>=IIF(First(Fields!PrintDetails.Value, "DataSet_Result") = True or First(Fields!PrintDetails_Control1130042.Value, "DataSet_Result") = True,TRUE,FALSE)</Hidden>
             </Visibility>
             <DataElementOutput>NoOutput</DataElementOutput>
             <Style>
@@ -4538,42 +4508,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="textbox6">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=IIF(First(Fields!ContributionType.Value)="INPS",First(Fields!CurrReport_PAGENO.Value),First(Fields!CurrReport_PAGENO_Control1130008.Value))</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Right</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Top>0.423cm</Top>
-            <Left>16.28481cm</Left>
-            <Height>0.423cm</Height>
-            <ZIndex>3</ZIndex>
-            <Visibility>
-              <Hidden>=IIF(First(Fields!PrintDetails.Value, "DataSet_Result") = True or First(Fields!PrintDetails_Control1130042.Value, "DataSet_Result") = True, FALSE, TRUE)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
           <Textbox Name="CurrReport_PAGENOCaption1">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=IIF(First(Fields!ContributionType.Value)="INPS",First(Fields!CurrReport_PAGENOCaption.Value),First(Fields!CurrReport_PAGENO_Control1130008Caption.Value))</Value>
+                    <Value>=First(Fields!CurrReport_PAGENOCaption.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                     </Style>
@@ -4713,9 +4654,6 @@ End Function
         <Field Name="INPS_Year">
           <DataField>INPS_Year</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME_Control1130028">
           <DataField>COMPANYNAME_Control1130028</DataField>
         </Field>
@@ -4727,9 +4665,6 @@ End Function
         </Field>
         <Field Name="INPS_Year_Control1130032">
           <DataField>INPS_Year_Control1130032</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1130007">
-          <DataField>CurrReport_PAGENO_Control1130007</DataField>
         </Field>
         <Field Name="Vend__No_____________Vend_Name">
           <DataField>Vend__No_____________Vend_Name</DataField>
@@ -4941,9 +4876,6 @@ End Function
         <Field Name="INPS__External_Document_No__Caption">
           <DataField>INPS__External_Document_No__Caption</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1130007Caption">
-          <DataField>CurrReport_PAGENO_Control1130007Caption</DataField>
-        </Field>
         <Field Name="COMPANYNAME_Control98">
           <DataField>COMPANYNAME_Control98</DataField>
         </Field>
@@ -4956,9 +4888,6 @@ End Function
         <Field Name="MonthDescr_Control1130003">
           <DataField>MonthDescr_Control1130003</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1130008">
-          <DataField>CurrReport_PAGENO_Control1130008</DataField>
-        </Field>
         <Field Name="COMPANYNAME_Control111">
           <DataField>COMPANYNAME_Control111</DataField>
         </Field>
@@ -4970,9 +4899,6 @@ End Function
         </Field>
         <Field Name="MonthDescr_Control1130001">
           <DataField>MonthDescr_Control1130001</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1130015">
-          <DataField>CurrReport_PAGENO_Control1130015</DataField>
         </Field>
         <Field Name="Vend__No_____________Vend_Name_Control1130072">
           <DataField>Vend__No_____________Vend_Name_Control1130072</DataField>
@@ -5142,9 +5068,6 @@ End Function
         <Field Name="Quota_a_Carico_Comm__INAILCaption">
           <DataField>Quota_a_Carico_Comm__INAILCaption</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1130008Caption">
-          <DataField>CurrReport_PAGENO_Control1130008Caption</DataField>
-        </Field>
         <Field Name="INAIL_PaymentCaption_Control1130016">
           <DataField>INAIL_PaymentCaption_Control1130016</DataField>
         </Field>
@@ -5177,9 +5100,6 @@ End Function
         </Field>
         <Field Name="Nr__Documento_EsternoCaption">
           <DataField>Nr__Documento_EsternoCaption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1130015Caption">
-          <DataField>CurrReport_PAGENO_Control1130015Caption</DataField>
         </Field>
       </Fields>
       <Query>

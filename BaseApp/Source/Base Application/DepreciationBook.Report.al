@@ -20,9 +20,6 @@ report 12119 "Depreciation Book"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(EndText; EndText)
             {
             }
@@ -567,12 +564,12 @@ report 12119 "Depreciation Book"
                 else
                     FASource := Text008;
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FixedAsset.Copy("Fixed Asset");
                 if SkipRecord then begin
                     if FixedAsset.Next = 0 then
                         CreateTotals;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
                 if "FA Posting Group" <> FADeprBook."FA Posting Group" then
                     Error(Text007, FieldCaption("FA Posting Group"), "No.");
@@ -646,7 +643,7 @@ report 12119 "Depreciation Book"
                 PrevInventoryYear := 0;
                 Printyear := false;
                 NextFALedgEntryNo := 1;
-                TempFALedgEntry.DeleteAll;
+                TempFALedgEntry.DeleteAll();
 
                 for k := 1 to 14 do begin
                     TotalSubclass[k] := 0;
@@ -715,7 +712,7 @@ report 12119 "Depreciation Book"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
             PrintDetails := true;
@@ -956,7 +953,7 @@ report 12119 "Depreciation Book"
         Type: Integer;
     begin
         for Type := 1 to 14 do begin
-            TempFALedgEntry.Reset;
+            TempFALedgEntry.Reset();
             if Subclass then
                 TempFALedgEntry.SetRange("FA Subclass Code", "Fixed Asset"."FA Subclass Code");
             TempFALedgEntry.SetRange("FA Class Code", "Fixed Asset"."FA Class Code");
@@ -982,7 +979,7 @@ report 12119 "Depreciation Book"
             TempFALedgEntry."FA Subclass Code" := "Fixed Asset"."FA Subclass Code";
             TempFALedgEntry."Transaction No." := x;
             TempFALedgEntry.Amount := Total[x];
-            TempFALedgEntry.Insert;
+            TempFALedgEntry.Insert();
             NextFALedgEntryNo := NextFALedgEntryNo + 1;
         end;
     end;

@@ -48,16 +48,16 @@ codeunit 12101 "Withholding - Contribution"
                     ComputedWithholdingTax."Withholding Tax Code" := "Withholding Tax Code";
                     ComputedWithholdingTax."Related Date" := "Related Date";
                     ComputedWithholdingTax."Payment Date" := "Payment Date";
-                    ComputedWithholdingTax.Modify;
+                    ComputedWithholdingTax.Modify();
                 end;
 
-                WithholdingTax.LockTable;
+                WithholdingTax.LockTable();
                 if WithholdingTax.FindLast then
                     EntryNo := WithholdingTax."Entry No." + 1
                 else
                     EntryNo := 1;
 
-                WithholdingTax.Init;
+                WithholdingTax.Init();
                 WithholdingTax."Entry No." := EntryNo;
                 WithholdingTax.Month := Date2DMY(GenJnlLine."Posting Date", 2);
                 WithholdingTax.Year := Date2DMY(GenJnlLine."Posting Date", 3);
@@ -112,7 +112,7 @@ codeunit 12101 "Withholding - Contribution"
                 end;
 
                 OnBeforeWithholdingTaxInsert(WithholdingTax, TempWithholdingSocSec);
-                WithholdingTax.Insert;
+                WithholdingTax.Insert();
 
                 if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then
                     if ComputedSocialSec.Get("Vendor No.", "Document Date", "Invoice No.") then begin
@@ -139,7 +139,7 @@ codeunit 12101 "Withholding - Contribution"
                               CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
                                 ComputedSocialSec."Currency Code", "Free-Lance Amount");
                         end;
-                        ComputedSocialSec.Modify;
+                        ComputedSocialSec.Modify();
                     end;
 
                 if ("INAIL Code" <> '') and
@@ -173,16 +173,16 @@ codeunit 12101 "Withholding - Contribution"
                               CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
                                 ComputedSocialSec."Currency Code", "INAIL Free-Lance Amount");
                         end;
-                        ComputedSocialSec.Modify;
+                        ComputedSocialSec.Modify();
                     end;
                 InsertRec := false;
                 // Insert INPS/INAIL values
-                SocialSecurity.LockTable;
+                SocialSecurity.LockTable();
                 if SocialSecurity.FindLast then
                     EntryNo := SocialSecurity."Entry No." + 1
                 else
                     EntryNo := 1;
-                SocialSecurity.Init;
+                SocialSecurity.Init();
                 SocialSecurity."Entry No." := EntryNo;
 
                 SocialSecurity.Month := Date2DMY(GenJnlLine."Posting Date", 2);
@@ -275,7 +275,7 @@ codeunit 12101 "Withholding - Contribution"
                     end;
                 end;
                 if InsertRec then
-                    SocialSecurity.Insert;
+                    SocialSecurity.Insert();
             end;
             if not CalledFromVendBillLine then
                 Delete;
@@ -288,7 +288,7 @@ codeunit 12101 "Withholding - Contribution"
         PurchLine: Record "Purchase Line";
         TotalAmount: Decimal;
     begin
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange(Type, PurchLine.Type::"G/L Account");
@@ -306,11 +306,10 @@ codeunit 12101 "Withholding - Contribution"
                 OnCalculateWithholdingTaxOnRecalculate(PurchWithSoc, PurchHeader);
                 PurchWithSoc."Currency Code" := PurchHeader."Currency Code";
                 PurchWithSoc.Validate("Total Amount", TotalAmount);
-                PurchWithSoc.Modify;
+                PurchWithSoc.Modify();
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateTmpWithhSocSec(var GenJnlLine: Record "Gen. Journal Line")
     var
         Vend: Record Vendor;
@@ -329,10 +328,10 @@ codeunit 12101 "Withholding - Contribution"
             TestField("Account No.");
             TestField("System-Created Entry", false);
 
-            TmpWithholdingSocSec.Reset;
+            TmpWithholdingSocSec.Reset();
 
             if not TmpWithholdingSocSec.Get("Journal Template Name", "Journal Batch Name", "Line No.") then begin
-                TmpWithholdingSocSec.Init;
+                TmpWithholdingSocSec.Init();
                 TmpWithholdingSocSec."Journal Template Name" := "Journal Template Name";
                 TmpWithholdingSocSec."Journal Batch Name" := "Journal Batch Name";
                 TmpWithholdingSocSec."Line No." := "Line No.";
@@ -444,11 +443,11 @@ codeunit 12101 "Withholding - Contribution"
                     TmpWithholdingSocSec.Validate("Withholding Tax Amount", ComputedWithholdingTax."WHT Amount Manual");
 
                 OnBeforeTmpWithholdingSocSecInsert(TmpWithholdingSocSec, ComputedWithholdingTax, GenJnlLine);
-                TmpWithholdingSocSec.Insert;
+                TmpWithholdingSocSec.Insert();
             end;
         end;
 
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Show Computed Withh. Contrib.", TmpWithholdingSocSec);
     end;
 
@@ -458,7 +457,7 @@ codeunit 12101 "Withholding - Contribution"
         if ValidityDate = 0D then
             ValidityDate := WorkDate;
 
-        WithholdCodeLine.Reset;
+        WithholdCodeLine.Reset();
         WithholdCodeLine.SetRange("Withhold Code", WithholdCode);
         WithholdCodeLine.SetRange("Starting Date", 0D, ValidityDate);
 
@@ -474,7 +473,7 @@ codeunit 12101 "Withholding - Contribution"
         if StartingDate = 0D then
             StartingDate := WorkDate;
 
-        SocSecCodeLine.Reset;
+        SocSecCodeLine.Reset();
         SocSecCodeLine.SetFilter("Contribution Type", '%1', TipoContributo);
         SocSecCodeLine.SetRange(Code, SocialSecurityCode);
         SocSecCodeLine.SetRange("Starting Date", 0D, StartingDate);
@@ -488,7 +487,7 @@ codeunit 12101 "Withholding - Contribution"
     [Scope('OnPrem')]
     procedure SocSecBracketFilter(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; TipoContributo: Option INPS,INAIL; "Code": Code[20])
     begin
-        SocSecBracketLine.Reset;
+        SocSecBracketLine.Reset();
         SocSecBracketLine.SetFilter("Contribution Type", '%1', TipoContributo);
         SocSecBracketLine.SetRange(Code, SocialSecurityBracketCode);
         if not SocSecBracketLine.FindLast then
@@ -524,7 +523,7 @@ codeunit 12101 "Withholding - Contribution"
                     if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                        DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
                     then begin
-                        DtldVendLedgEntry2.Init;
+                        DtldVendLedgEntry2.Init();
                         DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                         DtldVendLedgEntry2.SetRange(
                           "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
@@ -572,7 +571,7 @@ codeunit 12101 "Withholding - Contribution"
             RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
             if FindSet then begin
                 repeat
-                    ComputedWithholdingTax1.Reset;
+                    ComputedWithholdingTax1.Reset();
                     ComputedWithholdingTax1.SetRange("Document No.", "Document No.");
                     if ComputedWithholdingTax1.FindFirst then
                         RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";

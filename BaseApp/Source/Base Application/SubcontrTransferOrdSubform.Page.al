@@ -285,6 +285,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                     trigger OnAction()
                     begin
+                        Find;
                         ShowReservation;
                     end;
                 }
@@ -402,25 +403,6 @@ page 12155 "Subcontr.Transfer Ord. Subform"
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ShortcutDimCode: array[8] of Code[20];
-
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        ShowDimensions;
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowReservation()
-    begin
-        Find;
-        ShowReservation;
-    end;
-
-    [Scope('OnPrem')]
-    procedure OpenItemTrackingLines(Direction: Option Outbound,Inbound)
-    begin
-        OpenItemTrackingLines(Direction);
-    end;
 
     [Scope('OnPrem')]
     procedure UpdateForm(SetSaveRecord: Boolean)

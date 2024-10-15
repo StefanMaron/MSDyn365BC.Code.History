@@ -459,7 +459,7 @@ codeunit 134206 "Workflow Rule Tests"
 
         // Setup.
         CreateAndEnableWorkflow(Workflow, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Increased);
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
 
         // Exercise.
@@ -495,7 +495,7 @@ codeunit 134206 "Workflow Rule Tests"
         // Setup
         WorkflowRule."Table ID" := DATABASE::Customer;
         WorkflowRule."Field No." := -LibraryRandom.RandIntInRange(50000, 99999);
-        WorkflowRule.Insert;
+        WorkflowRule.Insert();
         RecRef.Open(DATABASE::Customer);
         RecRef.Find('-');
         ClearLastError;
@@ -542,7 +542,7 @@ codeunit 134206 "Workflow Rule Tests"
 
     local procedure CreateWorkflowRule(var WorkflowRule: Record "Workflow Rule"; TableID: Integer; FieldNo: Integer; Operator: Option)
     begin
-        WorkflowRule.Init;
+        WorkflowRule.Init();
         WorkflowRule."Table ID" := TableID;
         WorkflowRule."Field No." := FieldNo;
         WorkflowRule.Operator := Operator;

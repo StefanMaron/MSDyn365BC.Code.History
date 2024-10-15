@@ -19,7 +19,7 @@ report 297 "Batch Post Sales Invoices"
                 SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -72,7 +72,7 @@ report 297 "Batch Post Sales Invoices"
                         var
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
-                            SalesReceivablesSetup.Get;
+                            SalesReceivablesSetup.Get();
                             SalesReceivablesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -88,7 +88,7 @@ report 297 "Batch Post Sales Invoices"
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
                             if PrintDoc then begin
-                                SalesReceivablesSetup.Get;
+                                SalesReceivablesSetup.Get();
                                 if SalesReceivablesSetup."Post with Job Queue" then
                                     SalesReceivablesSetup.TestField("Post & Print with Job Queue");
                             end;
@@ -106,7 +106,7 @@ report 297 "Batch Post Sales Invoices"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
         begin
-            SalesReceivablesSetup.Get;
+            SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;

@@ -4767,9 +4767,6 @@ End Function</Code>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4_">
           <DataField>FORMAT_TODAY_0_4_</DataField>
         </Field>
@@ -4967,9 +4964,6 @@ End Function</Code>
         </Field>
         <Field Name="COMPANYNAME_Control1130087">
           <DataField>COMPANYNAME_Control1130087</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1130089">
-          <DataField>CurrReport_PAGENO_Control1130089</DataField>
         </Field>
         <Field Name="FORMAT_TODAY_0_4__Control1130091">
           <DataField>FORMAT_TODAY_0_4__Control1130091</DataField>

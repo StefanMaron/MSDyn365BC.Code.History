@@ -8,7 +8,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
     end;
 
@@ -188,27 +188,27 @@ codeunit 137907 "SCM Assembly Order Functions"
         TempDimSetEntry."Dimension Code" := Dimension1.Code;
         TempDimSetEntry."Dimension Value Code" := DimValue1.Code;
         TempDimSetEntry."Dimension Value ID" := DimValue1."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         TempDimSetEntry."Dimension Code" := Dimension2.Code;
         TempDimSetEntry."Dimension Value Code" := DimValue21.Code;
         TempDimSetEntry."Dimension Value ID" := DimValue21."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
 
         DimSetID1 := DimMgt.GetDimensionSetID(TempDimSetEntry);
 
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         TempDimSetEntry."Dimension Code" := Dimension1.Code;
         TempDimSetEntry."Dimension Value Code" := DimValue2.Code;
         TempDimSetEntry."Dimension Value ID" := DimValue2."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         TempDimSetEntry."Dimension Code" := Dimension2.Code;
         TempDimSetEntry."Dimension Value Code" := DimValue22.Code;
         TempDimSetEntry."Dimension Value ID" := DimValue22."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         TempDimSetEntry."Dimension Code" := Dimension3.Code;
         TempDimSetEntry."Dimension Value Code" := DimValue3.Code;
         TempDimSetEntry."Dimension Value ID" := DimValue3."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
 
         DimSetID2 := DimMgt.GetDimensionSetID(TempDimSetEntry);
         parent := LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1);
@@ -216,34 +216,34 @@ codeunit 137907 "SCM Assembly Order Functions"
         ParentItem.Get(parent);
         ChildItem.Get(child);
 
-        DefaultDim.Init;
+        DefaultDim.Init();
         DefaultDim.Validate("Table ID", DATABASE::Item);
         DefaultDim.Validate("No.", ParentItem."No.");
         DefaultDim.Validate("Dimension Code", Dimension1.Code);
         DefaultDim.Validate("Dimension Value Code", DimValue1.Code);
-        DefaultDim.Insert;
+        DefaultDim.Insert();
         DefaultDim.Validate("Table ID", DATABASE::Item);
         DefaultDim.Validate("No.", ParentItem."No.");
         DefaultDim.Validate("Dimension Code", Dimension2.Code);
         DefaultDim.Validate("Dimension Value Code", DimValue21.Code);
-        DefaultDim.Insert;
+        DefaultDim.Insert();
 
-        DefaultDim.Init;
+        DefaultDim.Init();
         DefaultDim.Validate("Table ID", DATABASE::Item);
         DefaultDim.Validate("No.", ChildItem."No.");
         DefaultDim.Validate("Dimension Code", Dimension1.Code);
         DefaultDim.Validate("Dimension Value Code", DimValue2.Code);
-        DefaultDim.Insert;
+        DefaultDim.Insert();
         DefaultDim.Validate("Table ID", DATABASE::Item);
         DefaultDim.Validate("No.", ChildItem."No.");
         DefaultDim.Validate("Dimension Code", Dimension2.Code);
         DefaultDim.Validate("Dimension Value Code", DimValue22.Code);
-        DefaultDim.Insert;
+        DefaultDim.Insert();
         DefaultDim.Validate("Table ID", DATABASE::Item);
         DefaultDim.Validate("No.", ChildItem."No.");
         DefaultDim.Validate("Dimension Code", Dimension3.Code);
         DefaultDim.Validate("Dimension Value Code", DimValue3.Code);
-        DefaultDim.Insert;
+        DefaultDim.Insert();
 
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, child, 1, ChildItem."Base Unit of Measure");
@@ -253,7 +253,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         // TEST WITH THE ASM setup option Copy Component Dimensions from := Order Header
         AsmSetup.FindFirst;
         AsmSetup.Validate("Copy Component Dimensions from", AsmSetup."Copy Component Dimensions from"::"Order Header");
-        AsmSetup.Modify;
+        AsmSetup.Modify();
 
         AssemblyHeader.Validate("Dimension Set ID", DimSetID1);
         AssemblyHeader.Modify(true);
@@ -285,7 +285,7 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         // TEST WITH THE OTHER ASM setup option Copy Component Dimensions from := Item/Resource Card
         AsmSetup.Validate("Copy Component Dimensions from", AsmSetup."Copy Component Dimensions from"::"Item/Resource Card");
-        AsmSetup.Modify;
+        AsmSetup.Modify();
 
         DimSetID2 := AssemblyLine."Dimension Set ID";
         AssemblyHeader.RefreshBOM;
@@ -646,7 +646,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Order Functions");
     end;
 
@@ -707,7 +707,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         DimensionValue: Record "Dimension Value";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         DimSetID[1] := CreateItemWithDefaultDimension(Item[1], DimensionValue);
         DimSetID[2] := CreateItemWithDefaultDimension(Item[2], DimensionValue);
@@ -754,32 +754,32 @@ codeunit 137907 "SCM Assembly Order Functions"
         // Create child assembly item
         LibraryInventory.CreateItem(ChildItem);
         ChildItem."Replenishment System" := ChildItem."Replenishment System"::Assembly;
-        ChildItem.Modify;
+        ChildItem.Modify();
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ChildItem."No.", BOMComponent.Type::" ", '', 1, '');
         ChildItemDesc1 := LibraryUtility.GenerateRandomCode(BOMComponent.FieldNo(Description), DATABASE::"BOM Component");
         BOMComponent.Validate(Description, ChildItemDesc1);
-        BOMComponent.Modify;
+        BOMComponent.Modify();
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ChildItem."No.", BOMComponent.Type::Item, ChildChildItem."No.", 1, '');
         ResourceNo := LibraryKitting.CreateResourceWithNewUOM(1, 1); // Any resource price/cost
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ChildItem."No.", BOMComponent.Type::Resource, ResourceNo, 1, '');
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ChildItem."No.", BOMComponent.Type::" ", '', 1, '');
         ChildItemDesc2 := LibraryUtility.GenerateRandomCode(BOMComponent.FieldNo(Description), DATABASE::"BOM Component");
         BOMComponent.Validate(Description, ChildItemDesc2);
-        BOMComponent.Modify;
+        BOMComponent.Modify();
 
         // Create parent assembly item
         LibraryInventory.CreateItem(ParentItem);
         ParentItem."Replenishment System" := ParentItem."Replenishment System"::Assembly;
-        ParentItem.Modify;
+        ParentItem.Modify();
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::" ", '', 1, '');
         ParentItemDesc1 := LibraryUtility.GenerateRandomCode(BOMComponent.FieldNo(Description), DATABASE::"BOM Component");
         BOMComponent.Validate(Description, ParentItemDesc1);
-        BOMComponent.Modify;
+        BOMComponent.Modify();
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, '');
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", BOMComponent.Type::" ", '', 1, '');
         ParentItemDesc2 := LibraryUtility.GenerateRandomCode(BOMComponent.FieldNo(Description), DATABASE::"BOM Component");
         BOMComponent.Validate(Description, ParentItemDesc2);
-        BOMComponent.Modify;
+        BOMComponent.Modify();
 
         // Make Asm header and lines
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, DueDate, ParentItem."No.", '', LibraryRandom.RandInt(10), '');
@@ -804,7 +804,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         end;
 
         // VERIFY
-        AsmLine.Reset;
+        AsmLine.Reset();
         FindAssemblyLine(AsmLine, AsmHeader);
         LineCount := 0;
         ExpectedNoLines := 7;

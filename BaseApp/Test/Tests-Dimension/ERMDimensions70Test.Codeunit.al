@@ -37,7 +37,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         // Verifies that the new dimension exists and that the total amount of dimensions was increased
 
         // Setup
-        DimensionCount := Dimension.Count;
+        DimensionCount := Dimension.Count();
 
         // Exercise
         LibraryDimension.CreateDimension(Dimension);
@@ -62,7 +62,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
 
         // Setup
         LibraryDimension.CreateDimension(Dimension);
-        DimensionValueCount := DimensionValue.Count;
+        DimensionValueCount := DimensionValue.Count();
 
         // Exercise
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -181,11 +181,11 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
 
         DimSetEntry.SetRange("Dimension Set ID");
 
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         NewDimID := DimSetEntry.GetDimensionSetID(TempDimSetEntry);
         Assert.AreEqual(NewDimID, 0, '11 : The empty set should return 0');
 
@@ -193,7 +193,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
 
         NewDimID := DimSetEntry.GetDimensionSetID(TempDimSetEntry);
         Assert.AreNotEqual(NewDimID, 0, '12 : No Dimension Set Entry was inserted');
@@ -201,24 +201,24 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         DimSetEntry.SetRange("Dimension Set ID", NewDimID);
         Assert.AreEqual(DimSetEntry.Count, 1, '14 : Not exactly one Dimension Set Entry was inserted');
 
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         DimVal.Get(DimX, 'A');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         DimVal.Get(DimY, 'C');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         NewDimID := DimSetEntry.GetDimensionSetID(TempDimSetEntry);
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         DimVal.Get(DimX, 'A');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         NewDimID2 := DimSetEntry.GetDimensionSetID(TempDimSetEntry);
         Assert.IsTrue(NewDimID2 < NewDimID, '15 : New Dim ID should be less than previous')
     end;
@@ -243,7 +243,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         Assert.AreEqual(DimVal."Dimension Value ID", TempDimSetEntry."Dimension Value ID", '2 : Dimension Value ID is wrong.');
 
         DimVal.Get(Dim2, 'A');
-        TempDimSetEntry.Init;
+        TempDimSetEntry.Init();
         TempDimSetEntry."Dimension Code" := '';
         TempDimSetEntry.Validate("Dimension Code", DimVal."Dimension Code");
         Assert.AreEqual('', TempDimSetEntry."Dimension Value Code", '3: Dimension Value Code must be blank');
@@ -254,7 +254,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         asserterror TempDimSetEntry.Validate("Dimension Value Code", DimVal.Code);
 
         DimVal.Get(DimX, 'X');
-        TempDimSetEntry.Init;
+        TempDimSetEntry.Init();
         TempDimSetEntry."Dimension Code" := '';
         asserterror TempDimSetEntry.Validate("Dimension Code", DimVal."Dimension Code");
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
@@ -281,7 +281,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
           DimSetID,
           0, '1 : No Dimension Set Entry was inserted');
 
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
         Assert.AreEqual(1, TempDimSetEntry.Count, '2: Only one record was expected.');
         TempDimSetEntry.FindFirst;
@@ -354,21 +354,21 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         Global1DimVal.FindFirst;
         Global2DimVal.SetRange("Dimension Code", Dim2);
         Global2DimVal.FindFirst;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetupOld := GeneralLedgerSetup;
         GeneralLedgerSetup."Global Dimension 1 Code" := Global1DimVal."Dimension Code";
         GeneralLedgerSetup."Global Dimension 2 Code" := Global2DimVal."Dimension Code";
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         DimSetEntry.FindLast;
         DimSetEntry."Dimension Set ID" += 1;
         DimSetEntry."Dimension Code" := Global1DimVal."Dimension Code";
         DimSetEntry."Dimension Value Code" := Global1DimVal.Code;
-        DimSetEntry.Insert;
+        DimSetEntry.Insert();
         DimSetEntry."Dimension Code" := Global2DimVal."Dimension Code";
         DimSetEntry."Dimension Value Code" := Global2DimVal.Code;
-        DimSetEntry.Insert;
+        DimSetEntry.Insert();
 
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.CopyDim(DimSetEntry."Dimension Set ID");
 
         Assert.AreEqual(Global1DimVal.Code, ItemJournalLine."Shortcut Dimension 1 Code",
@@ -379,7 +379,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         // Tear-Down
         GeneralLedgerSetup."Global Dimension 1 Code" := GeneralLedgerSetupOld."Global Dimension 1 Code";
         GeneralLedgerSetup."Global Dimension 2 Code" := GeneralLedgerSetupOld."Global Dimension 2 Code";
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
     end;
 
     [Test]
@@ -444,12 +444,12 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         DimVal: Record "Dimension Value";
     begin
         if Dim.Get(DimCode) then
-            Dim.Delete;
+            Dim.Delete();
         Dim.Validate(Code, DimCode);
         Dim.Validate(Blocked, IsBlocked);
         Dim.Insert(true);
         DimVal.SetRange("Dimension Code", Dim.Code);
-        DimVal.DeleteAll;
+        DimVal.DeleteAll();
         InsertDimValues(Dim.Code, 'A', false);
         InsertDimValues(Dim.Code, 'B', false);
         InsertDimValues(Dim.Code, 'C', false);
@@ -460,11 +460,11 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
     var
         DimVal: Record "Dimension Value";
     begin
-        DimVal.Init;
+        DimVal.Init();
         DimVal."Dimension Code" := DimCode;
         DimVal.Validate(Code, DimValCode);
         DimVal.Validate(Blocked, IsBlocked);
-        DimVal.Insert;
+        DimVal.Insert();
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
@@ -497,7 +497,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         InsertDim(DimY, false);
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 }
 

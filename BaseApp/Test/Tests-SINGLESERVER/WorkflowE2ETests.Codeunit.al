@@ -200,7 +200,7 @@ codeunit 134302 "Workflow E2E Tests"
         Initialize;
         SetupUsersForApproval(RequestorUserSetup, ApproverUserSetup);
         RequestorUserSetup."Approver ID" := RequestorUserSetup."User ID";
-        RequestorUserSetup.Modify;
+        RequestorUserSetup.Modify();
 
         CreatePurchInvLoopbackWorkflow(Workflow);
         EnableWorkflow(Workflow.Code);
@@ -591,10 +591,10 @@ codeunit 134302 "Workflow E2E Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        NotificationEntry.DeleteAll;
-        NotificationSetup.DeleteAll;
-        JobQueueEntry.DeleteAll;
-        ApprovalEntry.DeleteAll;
+        NotificationEntry.DeleteAll();
+        NotificationSetup.DeleteAll();
+        JobQueueEntry.DeleteAll();
+        ApprovalEntry.DeleteAll();
 
         ConfigureEmail;
         WorkflowEventHandling.CreateEventsLibrary;
@@ -615,7 +615,7 @@ codeunit 134302 "Workflow E2E Tests"
         end else
             if UserSetup."E-Mail" = '' then begin
                 UserSetup."E-Mail" := UserEmailAddressTxt;
-                UserSetup.Modify;
+                UserSetup.Modify();
             end;
     end;
 
@@ -628,9 +628,9 @@ codeunit 134302 "Workflow E2E Tests"
 
         // CL 10941868 introduced new User Card Page behavior. It inserts current user as Super User when user table is empty. So we try to insert current user twice.
         // Stub user helps to avoid unwanted default user insertion.
-        StubUser.Init;
+        StubUser.Init();
         StubUser."User Security ID" := CreateGuid;
-        StubUser.Insert;
+        StubUser.Insert();
 
         if not LibraryDocumentApprovals.UserExists(UserId) then
             LibraryDocumentApprovals.CreateUser(Format(CreateGuid), UserId);
@@ -644,9 +644,9 @@ codeunit 134302 "Workflow E2E Tests"
         LibraryDocumentApprovals.UpdateApprovalLimits(RequestorUserSetup, false, false, false, 0, 0, 0);
 
         ApproverUserSetup."Approval Administrator" := true;
-        ApproverUserSetup.Modify;
+        ApproverUserSetup.Modify();
 
-        StubUser.Delete;
+        StubUser.Delete();
     end;
 
     local procedure CreatePurchaseInvBasedOnIncomingDoc(var PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -769,7 +769,7 @@ codeunit 134302 "Workflow E2E Tests"
             else
                 ApprovalEntry."Approver ID" := ApproverID;
             ApprovalEntry."Sender ID" := SenderID;
-            ApprovalEntry.Modify;
+            ApprovalEntry.Modify();
         until ApprovalEntry.Next = 0;
     end;
 
@@ -779,7 +779,7 @@ codeunit 134302 "Workflow E2E Tests"
     begin
         UserSetup.Get(UserId);
         UserSetup."Approval Administrator" := ApprovalAdministrator;
-        UserSetup.Modify;
+        UserSetup.Modify();
     end;
 
     local procedure CheckPurchInvStatus(DocumentNo: Code[20]; Status: Option)
@@ -850,7 +850,7 @@ codeunit 134302 "Workflow E2E Tests"
 
     local procedure CreateWorkflow(var Workflow: Record Workflow)
     begin
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := LibraryUtility.GenerateRandomCode(Workflow.FieldNo(Code), DATABASE::Workflow);
         Workflow.Enabled := false;
         Workflow.Insert(true);

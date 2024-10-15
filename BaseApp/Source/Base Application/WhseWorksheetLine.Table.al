@@ -436,12 +436,10 @@ table 7326 "Whse. Worksheet Line"
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
         }
-        field(44; "Shipping Advice"; Option)
+        field(44; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
             Editable = false;
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(45; "Shipment Date"; Date)
         {
@@ -612,7 +610,7 @@ table 7326 "Whse. Worksheet Line"
         with WhseWkshLine do begin
             NotEnough := false;
             SetHideValidationDialog(true);
-            LockTable;
+            LockTable();
             if Find('-') then
                 repeat
                     if "Qty. to Handle" <> "Qty. Outstanding" then begin
@@ -638,7 +636,7 @@ table 7326 "Whse. Worksheet Line"
     procedure DeleteQtyToHandle(var WhseWkshLine: Record "Whse. Worksheet Line")
     begin
         with WhseWkshLine do begin
-            LockTable;
+            LockTable();
             if Find('-') then
                 repeat
                     Validate("Qty. to Handle", 0);
@@ -647,7 +645,7 @@ table 7326 "Whse. Worksheet Line"
         end;
     end;
 
-    local procedure AssignedQtyOnReservedLines(): Decimal
+    procedure AssignedQtyOnReservedLines(): Decimal
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
@@ -808,7 +806,7 @@ table 7326 "Whse. Worksheet Line"
             SequenceNo := 10000;
             repeat
                 WhseWkshLine."Sorting Sequence No." := SequenceNo;
-                WhseWkshLine.Modify;
+                WhseWkshLine.Modify();
                 SequenceNo := SequenceNo + 10000;
             until WhseWkshLine.Next = 0;
         end;
@@ -950,21 +948,21 @@ table 7326 "Whse. Worksheet Line"
     begin
         WhseWkshSelected := true;
 
-        WhseWkshTemplate.Reset;
+        WhseWkshTemplate.Reset();
         WhseWkshTemplate.SetRange("Page ID", PageID);
         WhseWkshTemplate.SetRange(Type, PageTemplate);
 
         case WhseWkshTemplate.Count of
             0:
                 begin
-                    WhseWkshTemplate.Init;
+                    WhseWkshTemplate.Init();
                     WhseWkshTemplate.Validate(Type, PageTemplate);
                     WhseWkshTemplate.Validate("Page ID");
                     WhseWkshTemplate.Name :=
                       Format(WhseWkshTemplate.Type, MaxStrLen(WhseWkshTemplate.Name));
                     WhseWkshTemplate.Description := StrSubstNo(Text008, WhseWkshTemplate.Type);
-                    WhseWkshTemplate.Insert;
-                    Commit;
+                    WhseWkshTemplate.Insert();
+                    Commit();
                 end;
             1:
                 WhseWkshTemplate.FindFirst;
@@ -1097,7 +1095,7 @@ table 7326 "Whse. Worksheet Line"
                         until (WhseEmployee.Next = 0) or FoundLocation;
                 end;
                 if not FoundLocation then begin
-                    WhseWkshName.Init;
+                    WhseWkshName.Init();
                     WhseWkshName."Worksheet Template Name" := CurrentWkshTemplateName;
                     WhseWkshName.SetupNewName;
                     WhseWkshName.Name := Text005;
@@ -1106,7 +1104,7 @@ table 7326 "Whse. Worksheet Line"
                     WhseWkshName.Insert(true);
                 end;
                 CurrentLocationCode := WhseWkshName."Location Code";
-                Commit;
+                Commit();
             end;
             CurrentWkshName := WhseWkshName.Name;
             CurrentLocationCode := WhseWkshName."Location Code";
@@ -1160,7 +1158,7 @@ table 7326 "Whse. Worksheet Line"
     var
         WhseWkshName: Record "Whse. Worksheet Name";
     begin
-        Commit;
+        Commit();
         WhseWkshName."Worksheet Template Name" := WhseWkshLine.GetRangeMax("Worksheet Template Name");
         WhseWkshName.Name := WhseWkshLine.GetRangeMax(Name);
         WhseWkshName.FilterGroup(2);
@@ -1193,7 +1191,7 @@ table 7326 "Whse. Worksheet Line"
                 WhseActivLine2."Source Type" := 0;
                 WhseActivLine2."Source No." := '';
                 WhseActivLine2."Source Line No." := 0;
-                WhseActivLine2.Modify;
+                WhseActivLine2.Modify();
             until WhseActivLine.Next = 0;
     end;
 
@@ -1237,12 +1235,14 @@ table 7326 "Whse. Worksheet Line"
 
     procedure AvailableQtyToPickExcludingQCBins(): Decimal
     var
-        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        UOMMgt: Codeunit "Unit of Measure Management";
         TypeHelper: Codeunit "Type Helper";
     begin
         if "Qty. per Unit of Measure" <> 0 then
-            exit(UnitOfMeasureManagement.CalcQtyFromBase(
-                TypeHelper.Maximum(0, CalcAvailableQtyBase - QtyOnQCBins), "Qty. per Unit of Measure"));
+            exit(
+                UOMMgt.CalcQtyFromBase(
+                    "Item No.", "Variant Code", "Unit of Measure Code",
+                    TypeHelper.Maximum(0, CalcAvailableQtyBase - QtyOnQCBins), "Qty. per Unit of Measure"));
         exit(0);
     end;
 
@@ -1285,7 +1285,7 @@ table 7326 "Whse. Worksheet Line"
 
     procedure SetUpNewLine(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To"; LineNo: Integer)
     begin
-        WhseWorksheetLine.Reset;
+        WhseWorksheetLine.Reset();
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWkshTemplate);
         WhseWorksheetLine.SetRange(Name, WhseWkshName);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);

@@ -62,7 +62,7 @@ codeunit 740 "VAT Report Mediator"
         VATReportHeader.TestField(Status, VATReportHeader.Status::Open);
         if Confirm(Text001, true) then begin
             VATReportReleaseReopen.Release(VATReportHeader);
-            Commit;
+            Commit();
             PrintReleased(VATReportHeader);
         end
     end;
@@ -83,7 +83,7 @@ codeunit 740 "VAT Report Mediator"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         exit(VATReportSetup."Filter Datifattura Lines" and VATReportHeader.isDatifattura)
     end;
 }

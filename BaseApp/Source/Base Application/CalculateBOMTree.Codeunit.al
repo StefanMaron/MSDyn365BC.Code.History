@@ -39,18 +39,18 @@ codeunit 5870 "Calculate BOM Tree"
 
     local procedure InitVars()
     begin
-        TempItemAvailByDate.Reset;
-        TempItemAvailByDate.DeleteAll;
-        TempMemoizedResult.Reset;
-        TempMemoizedResult.DeleteAll;
-        TempItem.Reset;
-        TempItem.DeleteAll;
+        TempItemAvailByDate.Reset();
+        TempItemAvailByDate.DeleteAll();
+        TempMemoizedResult.Reset();
+        TempMemoizedResult.DeleteAll();
+        TempItem.Reset();
+        TempItem.DeleteAll();
     end;
 
     local procedure InitBOMBuffer(var BOMBuffer: Record "BOM Buffer")
     begin
-        BOMBuffer.Reset;
-        BOMBuffer.DeleteAll;
+        BOMBuffer.Reset();
+        BOMBuffer.DeleteAll();
     end;
 
     local procedure InitTreeType(NewTreeType: Option)
@@ -185,7 +185,7 @@ codeunit 5870 "Calculate BOM Tree"
                 exit(false);
             end;
             TempItem := ParentItem;
-            TempItem.Insert;
+            TempItem.Insert();
 
             if ParentItem."Replenishment System" = ParentItem."Replenishment System"::"Prod. Order" then begin
                 "Is Leaf" := not GenerateProdCompSubTree(ParentItem, BOMBuffer);
@@ -199,7 +199,7 @@ codeunit 5870 "Calculate BOM Tree"
             Modify(true);
 
             TempItem.Get(ItemNo);
-            TempItem.Delete;
+            TempItem.Delete();
             exit(not "Is Leaf");
         end;
     end;
@@ -357,7 +357,7 @@ codeunit 5870 "Calculate BOM Tree"
                                 BOMBuffer.RoundCosts(
                                   ParentBOMBuffer."Qty. per Top Item" *
                                   UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code") / LotSize);
-                                BOMBuffer.Modify;
+                                BOMBuffer.Modify();
                             end;
                         end;
                     until Next = 0;
@@ -471,8 +471,8 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer: Record "BOM Buffer";
     begin
         ParentBOMBuffer := BOMBuffer;
-        TempItemAvailByDate.Reset;
-        TempItemAvailByDate.DeleteAll;
+        TempItemAvailByDate.Reset();
+        TempItemAvailByDate.DeleteAll();
 
         with BOMBuffer do
             repeat
@@ -486,7 +486,7 @@ codeunit 5870 "Calculate BOM Tree"
                     end else
                         BOMItem.SetRange("Variant Filter", "Variant Code");
 
-                    TempItemAvailByDate.Init;
+                    TempItemAvailByDate.Init();
                     TempItemAvailByDate."Item No." := "No.";
                     TempItemAvailByDate.Date := "Needed by Date";
                     TempItemAvailByDate."Variant Code" := "Variant Code";
@@ -497,7 +497,7 @@ codeunit 5870 "Calculate BOM Tree"
                     TempItemAvailByDate."Available Qty" :=
                       AvailableToPromise.QtyAvailabletoPromise(BOMItem, "Gross Requirement", "Scheduled Receipts", "Needed by Date", 0, ZeroDF);
                     TempItemAvailByDate."Updated Available Qty" := TempItemAvailByDate."Available Qty";
-                    TempItemAvailByDate.Insert;
+                    TempItemAvailByDate.Insert();
 
                     Modify;
                 end;
@@ -519,7 +519,7 @@ codeunit 5870 "Calculate BOM Tree"
                     if Indentation = 0 then begin
                         InitItemAvailDates(BOMBuffer);
                         SubOptimalQty := TraverseTree(BOMBuffer, AvailToUse::QtyOnItemAvail);
-                        TempMemoizedResult.DeleteAll;
+                        TempMemoizedResult.DeleteAll();
                         OptimalQty := BinarySearchOptimal(BOMBuffer, UOMMgt.QtyRndPrecision, SubOptimalQty);
                         MarkBottlenecks(BOMBuffer, OptimalQty);
                         CalcAvailability(BOMBuffer, OptimalQty, false);
@@ -661,11 +661,11 @@ codeunit 5870 "Calculate BOM Tree"
         if InputHigh <= 0 then
             exit(0);
         if CalcAvailability(BOMBuffer, InputHigh, true) then begin
-            TempMemoizedResult.DeleteAll;
+            TempMemoizedResult.DeleteAll();
             exit(InputHigh);
         end;
         if InputHigh - InputLow = UOMMgt.QtyRndPrecision then begin
-            TempMemoizedResult.DeleteAll;
+            TempMemoizedResult.DeleteAll();
             exit(InputLow);
         end;
         InputMid := Round((InputLow + InputHigh) / 2, UOMMgt.QtyRndPrecision);
@@ -809,7 +809,7 @@ codeunit 5870 "Calculate BOM Tree"
             Reset;
             SetCurrentKey(Type, "No.", Indentation);
             SetFilter("Entry No.", '>=%1', "Entry No.");
-            TempItemAvailByDate.Reset;
+            TempItemAvailByDate.Reset();
             if TempItemAvailByDate.FindSet then
                 repeat
                     if TempItemAvailByDate."Updated Available Qty" <> 0 then begin

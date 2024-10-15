@@ -99,7 +99,7 @@ codeunit 12150 "VAT Pmt. Comm. XML Generator"
         MonthlyStartDate := FirstDateOfQuarter;
         PopulateModuloForMonth(XMLNode, MonthlyStartDate); // first month of quarter
         MonthlyStartDate := CalcDate('<1M>', MonthlyStartDate);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if (GeneralLedgerSetup."VAT Settlement Period" = GeneralLedgerSetup."VAT Settlement Period"::Month) and
            (MonthlyStartDate <= StartDate)
         then begin
@@ -121,7 +121,7 @@ codeunit 12150 "VAT Pmt. Comm. XML Generator"
         XMLDOMManagement.AddElement(DataContabiliNode, 'Modulo', '', '', XMLNode);
         AddElementIfNotEmpty(XMLNode, 'NumeroModulo',
           Format(VATPmtCommDataLookup.GetModuleNumber), '', TempXMLNode);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."VAT Settlement Period" = GeneralLedgerSetup."VAT Settlement Period"::Month then
             AddElementIfNotEmpty(XMLNode, 'Mese',
               VATPmtCommDataLookup.GetMonth, '', TempXMLNode)

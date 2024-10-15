@@ -78,7 +78,7 @@ codeunit 12185 "Export Self-Billing Documents"
                     ClientFileName := RecordExportBuffer.ClientFileName;
                 end;
 
-            RecordExportBuffer.DeleteAll;
+            RecordExportBuffer.DeleteAll();
         end;
     end;
 
@@ -86,14 +86,14 @@ codeunit 12185 "Export Self-Billing Documents"
     var
         HeaderEntryNo: Integer;
     begin
-        TempVATEntry.Reset;
-        TempVATEntry.DeleteAll;
+        TempVATEntry.Reset();
+        TempVATEntry.DeleteAll();
         with SelectedVATEntry do begin
             SetRange("Document No.", "Document No.");
             SetRange("Posting Date", "Posting Date");
             repeat
                 TempVATEntry := SelectedVATEntry;
-                TempVATEntry.Insert;
+                TempVATEntry.Insert();
                 if TempVATEntry."Related Entry No." = 0 then
                     HeaderEntryNo := TempVATEntry."Entry No.";
             until Next = 0;
@@ -106,7 +106,7 @@ codeunit 12185 "Export Self-Billing Documents"
                     AllVATEntry.FindSet;
                     repeat
                         TempVATEntry := AllVATEntry;
-                        if TempVATEntry.Insert then;
+                        if TempVATEntry.Insert() then;
                     until AllVATEntry.Next = 0;
                 end;
             AllVATEntry.SetRange("Related Entry No.");

@@ -29,9 +29,9 @@ report 82 "Export Budget to Excel"
                 if TempBudgetBuf2.Find then begin
                     TempBudgetBuf2.Amount :=
                       TempBudgetBuf2.Amount + TempBudgetBuf1.Amount;
-                    TempBudgetBuf2.Modify;
+                    TempBudgetBuf2.Modify();
                 end else
-                    TempBudgetBuf2.Insert;
+                    TempBudgetBuf2.Insert();
             end;
 
             trigger OnPostDataItem()
@@ -51,7 +51,7 @@ report 82 "Export Budget to Excel"
                   Text005 +
                   '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
-                TotalRecNo := GLAcc.Count;
+                TotalRecNo := GLAcc.Count();
                 RecNo := 0;
 
                 RowNo := 1;
@@ -59,7 +59,7 @@ report 82 "Export Budget to Excel"
                 EnterCell(RowNo, 2, '', false, true, '', ExcelBuf."Cell Type"::Text);
                 EnterFilterInCell(GetFilter("Budget Name"), FieldCaption("Budget Name"));
 
-                GLSetup.Get;
+                GLSetup.Get();
                 EnterFilterInCell(GetFilter("Business Unit Code"), FieldCaption("Business Unit Code"));
                 EnterDimFilter(GLSetup."Global Dimension 1 Code", GetFilter("Global Dimension 1 Code"));
                 EnterDimFilter(GLSetup."Global Dimension 2 Code", GetFilter("Global Dimension 2 Code"));
@@ -161,7 +161,7 @@ report 82 "Export Budget to Excel"
                 EnterRangeOfValues(DimensionRange, BusUnit, DimValue);
                 if HasFormulaError then
                     if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text007, ExcelBuf.GetExcelReference(7)), true) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 ExcelBuf.CreateBook(ServerFileName, ExcelBuf.GetExcelReference(10));
                 ExcelBuf.SetCurrent(HeaderRowNo + 1, 1);
@@ -218,7 +218,7 @@ report 82 "Export Budget to Excel"
                 then
                     Error(Text002);
 
-                SelectedDim.Reset;
+                SelectedDim.Reset();
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object Type", 3);
                 SelectedDim.SetRange("Object ID", REPORT::"Export Budget to Excel");
@@ -249,12 +249,12 @@ report 82 "Export Budget to Excel"
                     TempPeriod."Period End" := CalcDate(PeriodLength, TempPeriod."Period Start");
                     TempPeriod."Period End" := CalcDate('<-1D>', TempPeriod."Period End");
                     TempPeriod."Period No." := i;
-                    TempPeriod.Insert;
+                    TempPeriod.Insert();
                 end;
 
                 SetRange(Date, StartDate, TempPeriod."Period End");
-                TempBudgetBuf2.DeleteAll;
-                ExcelBuf.DeleteAll;
+                TempBudgetBuf2.DeleteAll();
+                ExcelBuf.DeleteAll();
             end;
         }
     }
@@ -394,7 +394,7 @@ report 82 "Export Budget to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30]; CellType: Option)
     begin
-        ExcelBuf.Init;
+        ExcelBuf.Init();
         ExcelBuf.Validate("Row No.", RowNo);
         ExcelBuf.Validate("Column No.", ColumnNo);
         ExcelBuf."Cell Value as Text" := CellValue;
@@ -403,7 +403,7 @@ report 82 "Export Budget to Excel"
         ExcelBuf.Underline := UnderLine;
         ExcelBuf.NumberFormat := NumberFormat;
         ExcelBuf."Cell Type" := CellType;
-        ExcelBuf.Insert;
+        ExcelBuf.Insert();
     end;
 
     local procedure EnterFilterInCell("Filter": Text; FieldName: Text[100])
@@ -445,7 +445,7 @@ report 82 "Export Budget to Excel"
 
     local procedure EnterFormula(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30])
     begin
-        ExcelBuf.Init;
+        ExcelBuf.Init();
         ExcelBuf.Validate("Row No.", RowNo);
         ExcelBuf.Validate("Column No.", ColumnNo);
         ExcelBuf."Cell Value as Text" := '';
@@ -453,7 +453,7 @@ report 82 "Export Budget to Excel"
         ExcelBuf.Bold := Bold;
         ExcelBuf.Underline := UnderLine;
         ExcelBuf.NumberFormat := NumberFormat;
-        ExcelBuf.Insert;
+        ExcelBuf.Insert();
     end;
 
     local procedure EnterDimFilter(DimCode: Code[20]; DimFilter: Text)

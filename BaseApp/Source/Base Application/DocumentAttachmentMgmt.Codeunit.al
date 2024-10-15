@@ -7,6 +7,11 @@ codeunit 1173 "Document Attachment Mgmt"
     begin
     end;
 
+    var
+        PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
+        NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
+        ShowAttachmentsTxt: Label 'Show Attachments';
+
     local procedure DeleteAttachedDocuments(RecRef: RecordRef)
     var
         DocumentAttachment: Record "Document Attachment";
@@ -73,7 +78,7 @@ codeunit 1173 "Document Attachment Mgmt"
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
-        DocumentAttachment.DeleteAll;
+        DocumentAttachment.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Table, 18, 'OnAfterDeleteEvent', '', false, false)]
@@ -972,7 +977,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if FromDocumentAttachment.FindSet then begin
             repeat
                 Clear(ToDocumentAttachment);
-                ToDocumentAttachment.Init;
+                ToDocumentAttachment.Init();
                 ToDocumentAttachment.TransferFields(FromDocumentAttachment);
                 ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
 
@@ -1033,7 +1038,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if FromDocumentAttachment.FindSet then begin
             repeat
                 Clear(ToDocumentAttachment);
-                ToDocumentAttachment.Init;
+                ToDocumentAttachment.Init();
                 ToDocumentAttachment.TransferFields(FromDocumentAttachment);
                 ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
 
@@ -1060,7 +1065,7 @@ codeunit 1173 "Document Attachment Mgmt"
     begin
         FromFieldRef := FromRecRef.Field(3);
         FromNo := FromFieldRef.Value;
-        FromDocumentAttachmentLines.Reset;
+        FromDocumentAttachmentLines.Reset();
 
         FromFieldRef := FromRecRef.Field(1);
         FromDocumentType := FromFieldRef.Value;
@@ -1141,7 +1146,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if DocumentAttachmentFound.FindSet then begin
             repeat
                 Clear(DocumentAttachmentToCreate);
-                DocumentAttachmentToCreate.Init;
+                DocumentAttachmentToCreate.Init();
                 DocumentAttachmentToCreate.TransferFields(DocumentAttachmentFound);
                 DocumentAttachmentToCreate.Validate("No.", MoveToRecNo);
                 DocumentAttachmentToCreate.Insert(true);
@@ -1151,5 +1156,75 @@ codeunit 1173 "Document Attachment Mgmt"
         // Delete orphan attachments
         DocumentAttachmentFound.DeleteAll(true);
     end;
+
+    procedure ShowNotification(Variant: Variant; NumberOfReportsAttached: Integer; ShowAction: Boolean)
+    begin
+        if NumberOfReportsAttached > 0 then
+            ShowDocPrintedToAttachmentNotification(Variant, ShowAction)
+        else
+            ShowNotFoundPrintableReportsNotification(Variant);
+    end;
+
+    local procedure ShowDocPrintedToAttachmentNotification(Variant: Variant; ShowAction: Boolean)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        Notification: Notification;
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Variant);
+        DocumentAttachment.InitFieldsFromRecRef(RecRef);
+        Notification.Id := GetNotificationId();
+        Notification.Message := PrintedToAttachmentTxt;
+        if ShowAction then
+            Notification.AddAction(ShowAttachmentsTxt, Codeunit::"Document Attachment Mgmt", 'ShowDocumentAttachments');
+        Notification.SetData(DocumentAttachment.FieldName("Table ID"), Format(DocumentAttachment."Table ID"));
+        Notification.SetData(DocumentAttachment.FieldName("Document Type"), Format(DocumentAttachment."Document Type"));
+        Notification.SetData(DocumentAttachment.FieldName("No."), Format(DocumentAttachment."No."));
+
+        NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
+          Notification, RecRef.RecordId(), GetNotificationId());
+    end;
+
+    procedure ShowNotFoundPrintableReportsNotification(Variant: Variant)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        Notification: Notification;
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Variant);
+        DocumentAttachment.InitFieldsFromRecRef(RecRef);
+        Notification.Id := GetNoPritableReportsNotificationId();
+        Notification.Message := NoSaveToPDFReportTxt;
+
+        NotificationLifecycleMgt.SendNotification(Notification, RecRef.RecordId());
+    end;
+
+    local procedure GetNotificationId(): Guid;
+    begin
+        exit('7D722415-F630-4ED5-B876-0372C1360C9F');
+    end;
+
+    local procedure GetNoPritableReportsNotificationId(): Guid;
+    begin
+        exit('2E0AD887-8F86-4AD4-ADE9-846002434BFA');
+    end;
+
+    PROCEDURE ShowDocumentAttachments(Notification: Notification);
+    VAR
+        DocumentAttachment: Record 1173;
+        TableId: Integer;
+        DocumentNo: Code[20];
+    BEGIN
+        Evaluate(TableId, Notification.GetData(DocumentAttachment.FieldName("Table ID")));
+        Evaluate(DocumentAttachment."Document Type", Notification.GetData(DocumentAttachment.FieldName("Document Type")));
+        Evaluate(DocumentNo, Notification.GetData(DocumentAttachment.FieldName("No.")));
+
+        DocumentAttachment.SetRange("Table ID", TableId);
+        DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type");
+        DocumentAttachment.SetRange("No.", DocumentNo);
+        Page.RunModal(Page::"Document Attachment Details", DocumentAttachment);
+    END;
 }
 

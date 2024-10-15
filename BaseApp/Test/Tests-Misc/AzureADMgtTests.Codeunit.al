@@ -417,7 +417,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaaS);
 
         // Reset both sources of the client ID to be empty
-        AzureADAppSetup.DeleteAll;
+        AzureADAppSetup.DeleteAll();
         LibraryAzureADAuthFlow.SetClientIdAvailable(false);
 
         // Set the client ID source based on whether the app is SaaS or On-Prem/PaaS
@@ -425,11 +425,11 @@ codeunit 139086 "Azure AD Mgt. Tests"
             LibraryAzureADAuthFlow.SetClientIdAvailable(ClientIdAvailable)
         else
             if ClientIdAvailable then begin
-                AzureADAppSetup.Init;
+                AzureADAppSetup.Init();
                 AzureADAppSetup."App ID" := '22222222-2222-2222-2222-222222222222';
                 AzureADAppSetup.SetSecretKey('Ultra super secret key');
                 AzureADAppSetup."Redirect URL" := GetUnencodedRedirectUrl('OAuthLanding.htm');
-                AzureADAppSetup.Insert;
+                AzureADAppSetup.Insert();
             end;
 
         LibraryAzureADAuthFlow.SetGuestTokenAvailable(GuestTokenAvailable);
@@ -440,9 +440,9 @@ codeunit 139086 "Azure AD Mgt. Tests"
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
     begin
-        AzureADMgtSetup.Get;
+        AzureADMgtSetup.Get();
         AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
-        AzureADMgtSetup.Modify;
+        AzureADMgtSetup.Modify();
     end;
 
     [Normal]

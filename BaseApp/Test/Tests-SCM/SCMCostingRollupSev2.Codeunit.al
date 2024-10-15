@@ -12,6 +12,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         LibraryCosting: Codeunit "Library - Costing";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -24,22 +25,25 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        UnexpectedValueMsg: Label 'Unexpected %1 value in %2.';
         CalcStdCostOptionTxt: Label '&Top level,&All levels';
         MissingOutputQst: Label 'Some output is still missing.';
         MissingConsumptionQst: Label 'Some consumption is still missing.';
         RunAdjCostMsg: Label 'You must run the Adjust Cost - Item Entries batch job once to adjust these.';
-        ItemFilterTok: Label '%1|%2|%3', Locked = true;
-        ApplyItemEntryErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4', Locked = true;
+        ItemFilterTok: Label '%1|%2|%3';
+        ApplyItemEntryErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4';
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         CalculatePer: Option "Item Ledger Entry",Item;
         CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         isInitialized: Boolean;
+        InvCostMustBeZeroErr: Label 'Total cost amount must be 0 after correction.';
 
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Rollup Sev 2");
+        LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
 
         // Lazy Setup.
@@ -55,7 +59,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 2");
     end;
 
@@ -68,7 +72,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
         InventorySetup.Modify(true);
         // Avoid instability due to message appearing only if Automatic Cost Adjustment was not already set to Always
@@ -87,7 +91,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Never);
         InventorySetup.Modify(true);
         B208054(false);
@@ -121,7 +125,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CreateItemWithAdditionalUOM_FixedVal(ParentItem, ParSecItemUnitOfMeasure, CompItem."Costing Method"::Standard, 0, 200);
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         ParentItem."Replenishment System" := ParentItem."Replenishment System"::"Prod. Order";
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         // Create Production BOM with Scrap
         CreateProductionBOM(ProductionBOMHeader, ParentItem, CompItem, ParentItem."Base Unit of Measure", '', 1, 10);
@@ -212,7 +216,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Prepare Inventory Setup.
         Initialize;
         LibraryCosting.AdjustCostItemEntries('', '');
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
@@ -246,7 +250,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", TempItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish the production order.
@@ -257,7 +261,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Invoice component at a different cost.
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         PurchaseLine.Validate("Direct Unit Cost", UnitCost + LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // Verify: No rounding entry is generated.
@@ -294,7 +298,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Create Currency and updated then same on General Ledger Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup(CreateCurrency);
         PostValueEntryToGLWithZeroCost;
 
@@ -321,7 +325,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // This test case verifies Post Value Entry to G/L and ACY Cost Amount is correct with Zero costs in Purchase transaction.
 
         // Setup: Create Purchase Order for Production and Component Item. Post as Receive.
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         Quantity := 10 + LibraryRandom.RandInt(100);  // Using Random value for Quantity.
         ProductionQuantity := LibraryRandom.RandInt(Quantity);  // Using Random value of Quantity for Production Quantity.
         ItemNo :=
@@ -385,10 +389,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create and post Purchase Order, Create Purchase Return Order.
@@ -429,10 +433,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         CreateAndPostPurcOrderThenCreatePurchReturnOrder(Item, PurchaseHeader, PurchaseLine);
@@ -470,10 +474,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         // Create and post Sales order, create Sales Return Order.
@@ -550,10 +554,10 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         CreateAndPostPurcOrderThenCreatePurchReturnOrder(Item, PurchaseHeader, PurchaseLine);
@@ -701,7 +705,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", FirstOutputItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post Output again with positive quantity, finish the Released Production Order and Adjust Cost.
@@ -749,7 +753,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         CreateSetupFor242530(TempItemLedgerEntry, Item, ChildItem, ProductionOrder);
@@ -782,7 +786,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         // Setup: Create Parent and Child Items in Certified Production BOM. Update Backward Flushing method on child Item. Create and post Purchase Order for Child Item. Create and Refresh a Released Production Order.
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         UpdateInventorySetup(InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
         CreateSetupFor242530(TempItemLedgerEntry, Item, ChildItem, ProductionOrder);
@@ -908,7 +912,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + LibraryRandom.RandInt(10));
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         LibraryPatterns.POSTItemJournalLineWithApplication(
@@ -951,11 +955,11 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
           InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period"::Month);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 966.26829);
@@ -1050,6 +1054,119 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         VerifyCostAmountOnValuationDate(ProdItem."No.", ProdOrder."No.", WorkDate + 1, ComponentItem."Unit Cost" * 2);
     end;
 
+    [Test]
+    [HandlerFunctions('MsgHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CalcSubcontractOrderForReleasedProdOrderWithNonBaseUOM()
+    var
+        WorkCenter: Record "Work Center";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        NonBaseItemUOM: Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        PurchaseLine: Record "Purchase Line";
+        RoutingLine: Record "Routing Line";
+        Location: Record Location;
+        RoutingLink: Record "Routing Link";
+        ProductionBOMHeader: Record "Production BOM Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Test: PS 49588 (Vedbaek SE)  -  VSTF HF 211299
+        Initialize;
+        CustomizeSetupsAndLocation(Location);
+        CreateManufacturingItems(ParentItem, NonBaseItemUOM, ChildItem);
+        CreateRoutingSetup(WorkCenter, RoutingLine, RoutingLink);
+        CreateProductionBOM(
+          ProductionBOMHeader, ParentItem, ChildItem, NonBaseItemUOM.Code, RoutingLink.Code, LibraryRandom.RandDec(20, 2), 0);
+        UpdateItemRoutingNo(ParentItem, RoutingLine."Routing No.");
+
+        // Supply child item
+        LibraryPatterns.POSTPositiveAdjustment(ChildItem, Location.Code, '', '',
+          LibraryRandom.RandDec(125, 2), WorkDate, LibraryRandom.RandDec(225, 2));
+
+        // Create and refresh Released Production Order. Update new Unit Of Measure on Production Order Line.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ParentItem."No.", Location.Code);
+        UpdateProdOrderLineUnitOfMeasureCode(ParentItem."No.", NonBaseItemUOM.Code);
+
+        // Calculate subcontracts from subcontracting worksheet and create subcontracted purchase order
+        CalculateSubcontractOrder(WorkCenter);
+        CarryOutActionMessageSubcontractWksh(ParentItem."No.");
+
+        SelectPurchaseOrderLine(PurchaseLine, ParentItem."No.");
+        VerifyPurchaseOrderLine(PurchaseLine, NonBaseItemUOM, ParentItem."No.", Location.Code,
+          ProductionOrder.Quantity, RoutingLine."Unit Cost per");
+
+        // Post purchase header (only receipt)
+        PurchaseHeader.SetCurrentKey("Document Type", "No.");
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        // Now post invoice
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        VerifyCapacityLedgerEntries(WorkCenter."No.", ParentItem."No.", ProductionOrder.Quantity,
+          NonBaseItemUOM."Qty. per Unit of Measure", RoutingLine."Unit Cost per");
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,MsgHandler,ItemChargeAssignmentPurchPageHandler,PostedTransferReceiptLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustCostForTransferAndItemChargeAssignment()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ComponentItem: Record Item;
+        ProdItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        Quantity: Decimal;
+        VendorNo: Code[20];
+    begin
+        // This test is verify that Value Entries are correct after posting transfer order and assign Item Charge with Average Cost Calc. Type = Item
+
+        // Setup: Update Inventory Setup
+        UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+
+        // Create a production item
+        CreateProdItemWithAvgCosting(ComponentItem, ProdItem);
+
+        VendorNo := CreateVendor;
+        Quantity := LibraryRandom.RandInt(10);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+
+        // Create and Post Purchase Order
+        CreatePurchaseDocWithDirectUnitCost(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+          VendorNo, PurchaseLine.Type::Item, ComponentItem."No.", Quantity, FromLocation.Code);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Create a Transfer Order
+        CreateAndPostTransferOrder(ComponentItem."No.", FromLocation.Code, ToLocation.Code, Quantity);
+
+        // Exercise: Create and Post Purchase Invoice with Assign Item Charge
+        // Verify: Post successfully without error
+        CreateAndPostPurchaseInvoiceWithAssignItemCharge(VendorNo, Quantity, ToLocation.Code, ComponentItem."No.");
+
+        // Create a Release Production Order, update Location Code on Component line, post Production Journal, change Status to Finished
+        CreateReleasedProdOrderAndChangeStatusToFinished(ProdItem, ComponentItem, Quantity, ToLocation.Code);
+
+        // Exercise: Run Adjust Cost - Item Entries Batch job
+        LibraryCosting.AdjustCostItemEntries(ComponentItem."No." + '|' + ProdItem."No.", '');
+
+        // Verify: Verify Value Entries - Cost Amount Actual should contain the Item Charge adjust entry, the total should be zero.
+        Assert.AreEqual(0, InventoryCostByItem(ComponentItem."No."), InvCostMustBeZeroErr);
+    end;
+
+    local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
+    begin
+        SelectRequisitionLine(RequisitionLine, ItemNo);
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
+    end;
+
     local procedure CreateAndPostSalesOrderWithItemTracking(var Item: Record Item; SecondUoMCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
@@ -1068,6 +1185,19 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SecondSalesLine, '', 'D', 33);
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SecondSalesLine, '', 'E', 69);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    [Normal]
+    local procedure CustomizeSetupsAndLocation(var Location: Record Location)
+    var
+        InvtSetup: Record "Inventory Setup";
+        MfgSetup: Record "Manufacturing Setup";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        UpdateInventorySetup(InvtSetup, true, true, InvtSetup."Automatic Cost Adjustment"::Always,
+          InvtSetup."Average Cost Calc. Type"::Item,
+          InvtSetup."Average Cost Period"::Day);
+        LibraryManufacturing.UpdateManufacturingSetup(MfgSetup, '', Location.Code, true, true, true);
     end;
 
     local procedure CreateAndModifyItem(ReplenishmentSystem: Option; CostingMethod: Option): Code[20]
@@ -1119,6 +1249,13 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     end;
 
     [Normal]
+    local procedure CreateItemWithAdditionalUOM(var Item: Record Item; var NewItemUOM: Record "Item Unit of Measure")
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUOM, Item."No.", LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Normal]
     local procedure CreateItemWithAdditionalUOM_FixedVal(var Item: Record Item; var NewItemUOM: Record "Item Unit of Measure"; CostingMethod: Option; UnitCost: Decimal; QtyperUoM: Decimal)
     begin
         LibraryPatterns.MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
@@ -1157,7 +1294,52 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Quantity);
         ItemJournalLine.Validate(Amount, Amount);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
+    end;
+
+    local procedure CreateProdItemWithAvgCosting(var ComponentItem: Record Item; var ProdItem: Record Item)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        CreateItemWithAvgCosting(ComponentItem, ComponentItem."Replenishment System"::Purchase);
+        CreateItemWithAvgCosting(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        CreateProductionBOM(ProductionBOMHeader, ProdItem, ComponentItem, ProdItem."Base Unit of Measure", '', 1, 0);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+    end;
+
+    [Normal]
+    local procedure CreateManufacturingItems(var ParentItem: Record Item; var NonBaseItemUOM: Record "Item Unit of Measure"; var ChildItem: Record Item)
+    begin
+        CreateItemWithAdditionalUOM(ParentItem, NonBaseItemUOM);
+        ParentItem.Validate("Costing Method", ParentItem."Costing Method"::Average);
+        ParentItem.Modify(true);
+
+        LibraryInventory.CreateItem(ChildItem);
+        ChildItem.Validate("Costing Method", ChildItem."Costing Method"::Average);
+        ChildItem.Validate("Replenishment System", ChildItem."Replenishment System"::Purchase);
+        ChildItem.Validate("Flushing Method", ChildItem."Flushing Method"::Backward);
+        ChildItem.Modify(true);
+    end;
+
+    local procedure CreateSubcontractedWorkCenter(var WorkCenter: Record "Work Center")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
+        WorkCenter.Validate("Direct Unit Cost", 0);
+        WorkCenter.Validate("Specific Unit Cost", true);
+        LibraryPurchase.CreateSubcontractor(Vendor);
+        WorkCenter.Validate("Subcontractor No.", Vendor."No.");
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Units);
+        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        WorkCenter.Modify(true);
+
+        // Calculate calendar
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate),
+          CalcDate('<1M>', WorkDate));
     end;
 
     local procedure CreateWorkCenter_FixedCost(var WorkCenter: Record "Work Center"; DirectUnitCost: Decimal; OverheadRate: Decimal)
@@ -1197,6 +1379,15 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreatePurchaseDocWithDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateAndPostPurchaseOrderWithIT(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo)
@@ -1242,6 +1433,22 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
+    local procedure CreateAndPostPurchaseInvoiceWithAssignItemCharge(VendorNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemCharge: Record "Item Charge";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CreatePurchaseDocWithDirectUnitCost(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
+          VendorNo, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", Quantity, LocationCode);
+
+        LibraryVariableStorage.Enqueue(ItemNo); // ItemNo used in PostedTransferReceiptLinePageHandler.
+        PurchaseLine.ShowItemChargeAssgnt;
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure CreateAndPostSalesOrder(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -1251,6 +1458,21 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(100, 2), WorkDate,
           LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateAndPostTransferOrder(ItemNo: Code[20]; FromLocation: Code[10]; ToLocation: Code[10]; Qty: Decimal)
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransitLocation: Record Location;
+    begin
+        TransitLocation.SetRange("Use As In-Transit", true);
+        TransitLocation.FindFirst;
+
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, TransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
+
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
     end;
 
     local procedure CreateReleaseProdOrderWithLine(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; ItemQty: Decimal)
@@ -1267,6 +1489,34 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst;
+    end;
+
+    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20]; RoutingLinkCode: Code[10])
+    var
+        OperationNo: Code[10];
+    begin
+        // Random value used so that the Next Operation No is greater than the previous Operation No.
+        OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
+
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, CenterNo,
+          OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+        RoutingLine.Validate("Unit Cost per", LibraryRandom.RandDec(10, 2));
+        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure CreateRoutingSetup(var WorkCenter: Record "Work Center"; var RoutingLine: Record "Routing Line"; var RoutingLink: Record "Routing Link")
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        CreateSubcontractedWorkCenter(WorkCenter);
+
+        // Setup routing (and its cost) for parent item
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", RoutingLink.Code);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -1288,6 +1538,34 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateReleasedProdOrderAndChangeStatusToFinished(ProdItem: Record Item; ComponentItem: Record Item; Quantity: Decimal; LocationCode: Code[10])
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionJnlMgt: Codeunit "Production Journal Mgt";
+    begin
+        CreateReleaseProdOrderWithLine(ProdOrder, ProdOrderLine, ProdItem, Quantity);
+        ProductionJnlMgt.InitSetupValues;
+        ProductionJnlMgt.CreateJnlLines(ProdOrder, ProdOrderLine."Line No.");
+        UpdateLocationCodeForComponentToProdOrder(ProdOrder, LocationCode);
+
+        // Posting consumption and output
+        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, LocationCode, '', Quantity, WorkDate, ComponentItem."Unit Cost");
+        LibraryPatterns.POSTOutput(ProdOrderLine, Quantity, WorkDate, ProdItem."Unit Cost");
+
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrder."No.");
     end;
 
     local procedure CreatePurchRetOrderGetPstdDocLineToRev(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; OrderNo: Code[20]; ItemNo: Code[20])
@@ -1328,6 +1606,20 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CopyDocMgt.CopySalesInvLinesToDoc(SalesHeader, SalesInvLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
+    local procedure CalculateSubcontractOrder(var WorkCenter: Record "Work Center")
+    begin
+        WorkCenter.SetRange("No.", WorkCenter."No.");
+        LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
+    end;
+
+    local procedure CarryOutActionMessageSubcontractWksh(ItemNo: Code[20])
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        AcceptActionMessage(RequisitionLine, ItemNo);
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+    end;
+
     local procedure CreateSetupFor242530(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var Item: Record Item; var ChildItem: Record Item; var ProductionOrder: Record "Production Order")
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1360,6 +1652,16 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
     end;
 
+    local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", RoutingNo);
+        if RoutingLine.FindLast then
+            exit(RoutingLine."Operation No.");
+        exit('');
+    end;
+
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Positive: Boolean)
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -1371,6 +1673,19 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
+    end;
+
+    local procedure InventoryCostByItem(ItemNo: Code[20]): Decimal
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        with ValueEntry do begin
+            SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+            SetRange("Item No.", ItemNo);
+            CalcSums("Cost Amount (Actual)");
+
+            exit("Cost Amount (Actual)");
+        end;
     end;
 
     local procedure PostProductionJournal(var ProductionOrder: Record "Production Order")
@@ -1390,6 +1705,21 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
         ItemJournalLine.FindFirst;
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    local procedure SelectPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", No);
+        PurchaseLine.FindFirst;
+    end;
+
+    local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
+    begin
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", No);
+        RequisitionLine.FindFirst;
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
@@ -1422,6 +1752,12 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         end;
     end;
 
+    local procedure UpdateItemRoutingNo(var Item: Record Item; RoutingNo: Code[20])
+    begin
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
     local procedure UpdateGeneralPostingSetup(PurchaseLine: Record "Purchase Line")
     var
         GLAccount: Record "G/L Account";
@@ -1439,7 +1775,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1448,7 +1784,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -1463,11 +1799,21 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         if Confirm('') then;
     end;
 
+    local procedure UpdateProdOrderLineUnitOfMeasureCode(ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst;
+        ProdOrderLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        ProdOrderLine.Modify(true);
+    end;
+
     local procedure UpdateAddCurrencySetup(CurrencyCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1492,6 +1838,66 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         SalesLine.FindFirst;
         SalesLine.Validate("Appl.-from Item Entry", 0);
         SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateLocationCodeForComponentToProdOrder(ProductionOrder: Record "Production Order"; LocationCode: Code[10])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        with ProdOrderComponent do begin
+            SetRange(Status, ProductionOrder.Status);
+            SetRange("Prod. Order No.", ProductionOrder."No.");
+            FindFirst;
+
+            Validate("Location Code", LocationCode);
+            Modify(true);
+        end;
+    end;
+
+    [Normal]
+    local procedure VerifyPurchaseOrderLine(PurchaseLine: Record "Purchase Line"; ItemUOM: Record "Item Unit of Measure"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; DirectUnitCost: Decimal)
+    begin
+        Assert.AreEqual(PurchaseLine."Unit of Measure Code", ItemUOM.Code,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption("Unit of Measure Code"), PurchaseLine.TableCaption));
+        Assert.AreEqual(PurchaseLine.Type, PurchaseLine.Type::Item,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption(Type), PurchaseLine.TableCaption));
+        Assert.AreEqual(PurchaseLine."No.", ItemNo,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption));
+        Assert.AreEqual(PurchaseLine."Location Code", LocationCode,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption("Location Code"), PurchaseLine.TableCaption));
+        Assert.AreEqual(PurchaseLine.Quantity, Qty,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption(Quantity), PurchaseLine.TableCaption));
+
+        Assert.AreNearlyEqual(PurchaseLine."Line Amount",
+          DirectUnitCost * Qty * ItemUOM."Qty. per Unit of Measure",
+          LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption("Line Amount"), PurchaseLine.TableCaption));
+        Assert.AreNearlyEqual(PurchaseLine."Direct Unit Cost",
+          DirectUnitCost * ItemUOM."Qty. per Unit of Measure",
+          LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(UnexpectedValueMsg, PurchaseLine.FieldCaption("Direct Unit Cost"), PurchaseLine.TableCaption));
+    end;
+
+    [Normal]
+    local procedure VerifyCapacityLedgerEntries(WorkCenterNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; QtyPerBaseUOM: Decimal; DirectUnitCost: Decimal)
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapacityLedgerEntry.SetRange("Item No.", ItemNo);
+        CapacityLedgerEntry.SetRange("Work Center No.", WorkCenterNo);
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.FindLast;
+
+        Assert.AreNearlyEqual(CapacityLedgerEntry."Output Quantity",
+          Qty * QtyPerBaseUOM,
+          LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(UnexpectedValueMsg, CapacityLedgerEntry.FieldCaption("Output Quantity"), CapacityLedgerEntry.TableCaption));
+
+        CapacityLedgerEntry.CalcFields("Direct Cost");
+        Assert.AreNearlyEqual(CapacityLedgerEntry."Direct Cost",
+          Qty * QtyPerBaseUOM * DirectUnitCost,
+          LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(UnexpectedValueMsg, CapacityLedgerEntry.FieldCaption("Direct Cost"), CapacityLedgerEntry.TableCaption));
     end;
 
     local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; Positive: Boolean; Quantity: Decimal)
@@ -1619,6 +2025,26 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // If this is not the message that this function is meant to handle, then propagate it further
         if StrPos(InputMessage, RunAdjCostMsg) = 0 then
             Message(InputMessage);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.GetTransferReceiptLines.Invoke;
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(ItemChargeAssignmentPurch.AssignableQty.AsDEcimal);
+        ItemChargeAssignmentPurch.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedTransferReceiptLinePageHandler(var PostedTransferReceiptLines: TestPage "Posted Transfer Receipt Lines")
+    var
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);
+        PostedTransferReceiptLines.FILTER.SetFilter("Item No.", ItemNo);
+        PostedTransferReceiptLines.OK.Invoke;
     end;
 }
 

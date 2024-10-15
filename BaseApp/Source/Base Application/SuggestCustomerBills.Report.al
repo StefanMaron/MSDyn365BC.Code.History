@@ -15,9 +15,9 @@ report 12176 "Suggest Customer Bills"
             begin
                 Customer.Get("Customer No.");
                 if Customer."Privacy Blocked" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if (Customer.Blocked in [Customer.Blocked::All]) or (Customer."Partner Type" <> PartnerType) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 CalcFields("Remaining Amount");
 
                 if UseSameABI then begin
@@ -32,7 +32,7 @@ report 12176 "Suggest Customer Bills"
                 if (MaxAmount > 0) and
                    (TotalPayments >= MaxAmount)
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
@@ -53,8 +53,8 @@ report 12176 "Suggest Customer Bills"
                     SetRange("Bank Receipt Temp. No.", '');
                 end;
 
-                CustomerBillLine.LockTable;
-                CustomerBillLine.Reset;
+                CustomerBillLine.LockTable();
+                CustomerBillLine.Reset();
                 CustomerBillLine.SetRange("Customer Bill No.", CustBillHeader."No.");
 
                 if not CustomerBillLine.FindLast then
@@ -112,7 +112,7 @@ report 12176 "Suggest Customer Bills"
     trigger OnPostReport()
     begin
         CustBillHeader."Partner Type" := PartnerType;
-        CustBillHeader.Modify;
+        CustBillHeader.Modify();
     end;
 
     trigger OnPreReport()
@@ -154,7 +154,7 @@ report 12176 "Suggest Customer Bills"
             if (MaxAmount = 0) or
                (TotalPayments + CustLedgEntry."Remaining Amount" <= MaxAmount)
             then begin
-                CustomerBillLine.Init;
+                CustomerBillLine.Init();
                 CustomerBillLine."Customer Bill No." := CustBillHeader."No.";
                 CustomerBillLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
@@ -173,7 +173,7 @@ report 12176 "Suggest Customer Bills"
                     CustomerBillLine."Customer Bank Acc. No." := CustLedgEntry."Recipient Bank Account";
                 CustomerBillLine."Customer Entry No." := CustLedgEntry."Entry No.";
                 CustomerBillLine."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
-                CustomerBillLine.Insert;
+                CustomerBillLine.Insert();
                 if MaxAmount > 0 then
                     PaymentsCalc;
             end;

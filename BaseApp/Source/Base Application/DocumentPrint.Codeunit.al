@@ -21,6 +21,127 @@ codeunit 229 "Document-Print"
         DoPrintSalesHeader(SalesHeader, false);
     end;
 
+    procedure PrintSalesHeaderToDocumentAttachment(var SalesHeader: Record "Sales Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := SalesHeader.Count() = 1;
+        if SalesHeader.FindSet() then
+            repeat
+                DoPrintSalesHeaderToDocumentAttachment(SalesHeader, ShowNotificationAction);
+            until SalesHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintSalesHeaderToDocumentAttachment(SalesHeader: Record "Sales Header"; ShowNotificationAction: Boolean);
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        SalesHeader.SetRecFilter();
+        CalcSalesDisc(SalesHeader);
+        ReportSelections.SaveAsDocumentAttachment(GetSalesDocTypeUsage(SalesHeader), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+    end;
+
+    procedure PrintSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesInvoicePrintToAttachmentOption: Integer)
+    begin
+        case SalesInvoicePrintToAttachmentOption of
+            "Sales Invoice Print Option"::"Draft Invoice":
+                PrintSalesHeaderToDocumentAttachment(SalesHeader);
+            "Sales Invoice Print Option"::"Pro Forma Invoice":
+                PrintProformaSalesInvoiceToDocumentAttachment(SalesHeader);
+        end;
+        OnAfterPrintSalesInvoiceToDocumentAttachment(SalesHeader, SalesInvoicePrintToAttachmentOption);
+    end;
+
+    procedure GetSalesInvoicePrintToAttachmentOption(SalesHeader: Record "Sales Header"): Integer
+    var
+        StrMenuText: Text;
+        PrintOptionCaption: Text;
+        i: Integer;
+    begin
+        foreach i in "Sales Invoice Print Option".Ordinals() do begin
+            PrintOptionCaption := Format("Sales Invoice Print Option".FromInteger(i));
+            if StrMenuText = '' then
+                StrMenuText := PrintOptionCaption
+            else
+                StrMenuText := StrMenuText + ',' + PrintOptionCaption;
+        end;
+        exit(StrMenu(StrMenuText));
+    end;
+
+    procedure PrintSalesOrderToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesOrderPrintToAttachmentOption: Integer)
+    var
+        Usage: Option "Order Confirmation","Work Order","Pick Instruction";
+    begin
+        case SalesOrderPrintToAttachmentOption of
+            "Sales Order Print Option"::"Order Confirmation":
+                PrintSalesOrderToAttachment(SalesHeader, Usage::"Order Confirmation");
+            "Sales Order Print Option"::"Pro Forma Invoice":
+                PrintProformaSalesInvoiceToDocumentAttachment(SalesHeader);
+            "Sales Order Print Option"::"Work Order":
+                PrintSalesOrderToAttachment(SalesHeader, Usage::"Work Order");
+            "Sales Order Print Option"::"Pick Instruction":
+                PrintSalesOrderToAttachment(SalesHeader, Usage::"Pick Instruction");
+        end;
+        OnAfterPrintSalesOrderToDocumentAttachment(SalesHeader, SalesOrderPrintToAttachmentOption);
+    end;
+
+    procedure GetSalesOrderPrintToAttachmentOption(SalesHeader: Record "Sales Header"): Integer
+    var
+        StrMenuText: Text;
+        PrintOptionCaption: Text;
+        i: Integer;
+    begin
+        foreach i in "Sales Order Print Option".Ordinals() do begin
+            PrintOptionCaption := Format("Sales Order Print Option".FromInteger(i));
+            if StrMenuText = '' then
+                StrMenuText := PrintOptionCaption
+            else
+                StrMenuText := StrMenuText + ',' + PrintOptionCaption;
+        end;
+        exit(StrMenu(StrMenuText));
+    end;
+
+    procedure PrintProformaSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header")
+    begin
+        if SalesHeader.FindSet() then
+            repeat
+                DoPrintProformaSalesInvoiceToDocumentAttachment(SalesHeader, SalesHeader.Count() = 1)
+            until SalesHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintProformaSalesInvoiceToDocumentAttachment(SalesHeader: Record "Sales Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        SalesHeader.SetRecFilter();
+        CalcSalesDisc(SalesHeader);
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"Pro Forma S. Invoice", SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+    end;
+
+    procedure PrintSalesOrderToAttachment(var SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := SalesHeader.Count() = 1;
+        if SalesHeader.FindSet() then
+            repeat
+                DoPrintSalesOrderToAttachment(SalesHeader, Usage, ShowNotificationAction);
+            until SalesHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintSalesOrderToAttachment(SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
+            exit;
+
+        SalesHeader.SetRange("No.", SalesHeader."No.");
+        CalcSalesDisc(SalesHeader);
+
+        ReportSelections.SaveAsDocumentAttachment(GetSalesOrderUsage(Usage), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+    end;
+
     local procedure DoPrintSalesHeader(SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
     var
         ReportSelections: Record "Report Selections";
@@ -54,6 +175,26 @@ codeunit 229 "Document-Print"
 
         ReportSelections.PrintWithGUIYesNoVendor(
           GetPurchDocTypeUsage(PurchHeader), PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+    end;
+
+    procedure PrintPurchaseHeaderToDocumentAttachment(var PurchaseHeader: Record "Purchase Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := PurchaseHeader.Count() = 1;
+        if PurchaseHeader.FindSet() then
+            repeat
+                DoPrintPurchaseHeaderToDocumentAttachment(PurchaseHeader, ShowNotificationAction);
+            until PurchaseHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintPurchaseHeaderToDocumentAttachment(PurchaseHeader: Record "Purchase Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        PurchaseHeader.SetRecFilter();
+        CalcPurchDisc(PurchaseHeader);
+        ReportSelections.SaveAsDocumentAttachment(GetPurchDocTypeUsage(PurchaseHeader), PurchaseHeader, PurchaseHeader."No.", PurchaseHeader."Pay-to Vendor No.", ShowNotificationAction);
     end;
 
     procedure PrintBankAccStmt(BankAccStmt: Record "Bank Account Statement")
@@ -469,15 +610,15 @@ codeunit 229 "Document-Print"
         if IsHandled then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             SalesLine.FindFirst;
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-            Commit;
+            Commit();
         end;
     end;
 
@@ -491,15 +632,15 @@ codeunit 229 "Document-Print"
         if IsHandled then
             exit;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Calc. Inv. Discount" then begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             PurchLine.FindFirst;
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
-            Commit;
+            Commit();
         end;
     end;
 
@@ -513,16 +654,26 @@ codeunit 229 "Document-Print"
         if IsHandled then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
-            ServLine.Reset;
+            ServLine.Reset();
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
             ServLine.FindFirst;
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
-            Commit;
+            Commit();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesInvoicePrintToAttachmentOption: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintSalesOrderToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesOrderPrintToAttachmentOption: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

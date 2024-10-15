@@ -144,7 +144,7 @@ page 12161 "Declaration of Intent Export"
                         DeclarationOfIntentReport.Run;
 
                         VATExemption."Declared Operations Up To Amt." += AmountToDeclare;
-                        VATExemption.Modify;
+                        VATExemption.Modify();
                     end;
                 end;
             }

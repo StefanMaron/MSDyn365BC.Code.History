@@ -20,18 +20,18 @@ codeunit 350 IntraJnlManagement
     begin
         JnlSelected := true;
 
-        IntraJnlTemplate.Reset;
+        IntraJnlTemplate.Reset();
         IntraJnlTemplate.SetRange("Page ID", PageID);
 
         case IntraJnlTemplate.Count of
             0:
                 begin
-                    IntraJnlTemplate.Init;
+                    IntraJnlTemplate.Init();
                     IntraJnlTemplate.Name := Text000;
                     IntraJnlTemplate.Description := Text001;
                     IntraJnlTemplate.Validate("Page ID");
-                    IntraJnlTemplate.Insert;
-                    Commit;
+                    IntraJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 IntraJnlTemplate.FindFirst;
@@ -124,12 +124,12 @@ codeunit 350 IntraJnlManagement
         if not IntrastatJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not IntrastatJnlBatch.FindFirst then begin
                 IntraJnlTemplate.Get(CurrentJnlTemplateName);
-                IntrastatJnlBatch.Init;
+                IntrastatJnlBatch.Init();
                 IntrastatJnlBatch."Journal Template Name" := IntraJnlTemplate.Name;
                 IntrastatJnlBatch.Name := Text002;
                 IntrastatJnlBatch.Description := Text003;
-                IntrastatJnlBatch.Insert;
-                Commit;
+                IntrastatJnlBatch.Insert();
+                Commit();
             end;
             CurrentJnlBatchName := IntrastatJnlBatch.Name;
         end;

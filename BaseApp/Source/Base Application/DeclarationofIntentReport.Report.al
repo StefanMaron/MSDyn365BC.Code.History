@@ -362,7 +362,7 @@ report 12194 "Declaration of Intent Report"
 
     trigger OnInitReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

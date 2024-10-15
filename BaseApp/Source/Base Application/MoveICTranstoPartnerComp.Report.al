@@ -150,9 +150,9 @@ report 513 "Move IC Trans. to Partner Comp"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.TestField("IC Partner Code");
-                GLSetup.Get;
+                GLSetup.Get();
                 GLSetup.TestField("LCY Code");
             end;
         }
@@ -207,11 +207,11 @@ report 513 "Move IC Trans. to Partner Comp"
             Error(Text001, CompanyInfo."IC Partner Code", CurrentPartner.Code);
 
         PartnerInboxTransaction.ChangeCompany(CurrentPartner."Inbox Details");
-        PartnerInboxTransaction.LockTable;
+        PartnerInboxTransaction.LockTable();
         if TempICInboxTransaction.Find('-') then
             repeat
                 PartnerInboxTransaction := TempICInboxTransaction;
-                if not PartnerInboxTransaction.Insert then
+                if not PartnerInboxTransaction.Insert() then
                     Error(
                       Text002, TempICInboxTransaction.FieldCaption("Transaction No."),
                       TempICInboxTransaction."Transaction No.",
@@ -226,7 +226,7 @@ report 513 "Move IC Trans. to Partner Comp"
                     PartnerInboxJnlLine."Currency Code" := GLSetup."LCY Code";
                 if PartnerInboxJnlLine."Currency Code" = CurrentPartner."Currency Code" then
                     PartnerInboxJnlLine."Currency Code" := '';
-                PartnerInboxJnlLine.Insert;
+                PartnerInboxJnlLine.Insert();
             until TempICInboxJnlLine.Next = 0;
 
         PartnerInboxPurchHeader.ChangeCompany(CurrentPartner."Inbox Details");
@@ -236,14 +236,14 @@ report 513 "Move IC Trans. to Partner Comp"
                 PartnerInboxPurchHeader."Buy-from Vendor No." := PartnerICPartner."Vendor No.";
                 PartnerInboxPurchHeader."Pay-to Vendor No." := PartnerICPartner."Vendor No.";
                 OnBeforePartnerInboxPurchHeaderInsert(PartnerInboxPurchHeader, CurrentPartner);
-                PartnerInboxPurchHeader.Insert;
+                PartnerInboxPurchHeader.Insert();
             until TempInboxPurchHeader.Next = 0;
 
         PartnerInboxPurchLine.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxPurchLine.Find('-') then
             repeat
                 PartnerInboxPurchLine := TempInboxPurchLine;
-                PartnerInboxPurchLine.Insert;
+                PartnerInboxPurchLine.Insert();
             until TempInboxPurchLine.Next = 0;
 
         PartnerInboxSalesHeader.ChangeCompany(CurrentPartner."Inbox Details");
@@ -253,43 +253,43 @@ report 513 "Move IC Trans. to Partner Comp"
                 PartnerInboxSalesHeader."Sell-to Customer No." := PartnerICPartner."Customer No.";
                 PartnerInboxSalesHeader."Bill-to Customer No." := PartnerICPartner."Customer No.";
                 OnBeforePartnerInboxSalesHeaderInsert(PartnerInboxSalesHeader, CurrentPartner);
-                PartnerInboxSalesHeader.Insert;
+                PartnerInboxSalesHeader.Insert();
             until TempInboxSalesHeader.Next = 0;
 
         PartnerInboxSalesLine.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxSalesLine.Find('-') then
             repeat
                 PartnerInboxSalesLine := TempInboxSalesLine;
-                PartnerInboxSalesLine.Insert;
+                PartnerInboxSalesLine.Insert();
             until TempInboxSalesLine.Next = 0;
 
         PartnerInboxOutboxJnlLineDim.ChangeCompany(CurrentPartner."Inbox Details");
         if TempInboxOutboxJnlLineDim.Find('-') then
             repeat
                 PartnerInboxOutboxJnlLineDim := TempInboxOutboxJnlLineDim;
-                PartnerInboxOutboxJnlLineDim.Insert;
+                PartnerInboxOutboxJnlLineDim.Insert();
             until TempInboxOutboxJnlLineDim.Next = 0;
 
         PartnerICDocDim.ChangeCompany(CurrentPartner."Inbox Details");
         if TempICDocDim.Find('-') then
             repeat
                 PartnerICDocDim := TempICDocDim;
-                PartnerICDocDim.Insert;
+                PartnerICDocDim.Insert();
             until TempICDocDim.Next = 0;
 
         OnICInboxTransactionCreated(PartnerInboxTransaction, CurrentPartner."Inbox Details");
 
-        TempICInboxTransaction.DeleteAll;
-        TempInboxPurchHeader.DeleteAll;
-        TempInboxPurchLine.Reset;
-        TempInboxPurchLine.DeleteAll;
-        TempInboxSalesHeader.DeleteAll;
-        TempInboxSalesLine.Reset;
-        TempInboxSalesLine.DeleteAll;
-        TempICInboxJnlLine.Reset;
-        TempICInboxJnlLine.DeleteAll;
-        TempInboxOutboxJnlLineDim.DeleteAll;
-        TempICDocDim.DeleteAll;
+        TempICInboxTransaction.DeleteAll();
+        TempInboxPurchHeader.DeleteAll();
+        TempInboxPurchLine.Reset();
+        TempInboxPurchLine.DeleteAll();
+        TempInboxSalesHeader.DeleteAll();
+        TempInboxSalesLine.Reset();
+        TempInboxSalesLine.DeleteAll();
+        TempICInboxJnlLine.Reset();
+        TempICInboxJnlLine.DeleteAll();
+        TempInboxOutboxJnlLineDim.DeleteAll();
+        TempICDocDim.DeleteAll();
     end;
 
     procedure RecreateInboxTrans(OutboxTrans: Record "IC Outbox Transaction")
@@ -311,16 +311,16 @@ report 513 "Move IC Trans. to Partner Comp"
         ICCommentLine: Record "IC Comment Line";
         HandledICCommentLine: Record "IC Comment Line";
     begin
-        HandledICInboxTrans.LockTable;
-        ICInboxTrans.LockTable;
+        HandledICInboxTrans.LockTable();
+        ICInboxTrans.LockTable();
 
         HandledICInboxTrans.Get(
           OutboxTrans."Transaction No.", OutboxTrans."IC Partner Code",
           ICInboxTrans."Transaction Source"::"Created by Partner", OutboxTrans."Document Type");
         ICInboxTrans.TransferFields(HandledICInboxTrans, true);
         ICInboxTrans."Line Action" := ICInboxTrans."Line Action"::"No Action";
-        ICInboxTrans.Insert;
-        HandledICInboxTrans.Delete;
+        ICInboxTrans.Insert();
+        HandledICInboxTrans.Delete();
 
         HandledICCommentLine.SetRange("Table Name", HandledICCommentLine."Table Name"::"Handled IC Inbox Transaction");
         HandledICCommentLine.SetRange("Transaction No.", HandledICInboxTrans."Transaction No.");
@@ -330,8 +330,8 @@ report 513 "Move IC Trans. to Partner Comp"
             repeat
                 ICCommentLine := HandledICCommentLine;
                 ICCommentLine."Table Name" := ICCommentLine."Table Name"::"IC Inbox Transaction";
-                ICCommentLine.Insert;
-                HandledICCommentLine.Delete;
+                ICCommentLine.Insert();
+                HandledICCommentLine.Delete();
             until HandledICCommentLine.Next = 0;
 
         with HandledICInboxJnlLine do begin
@@ -341,7 +341,7 @@ report 513 "Move IC Trans. to Partner Comp"
             if Find('-') then
                 repeat
                     ICInboxJnlLine.TransferFields(HandledICInboxJnlLine, true);
-                    ICInboxJnlLine.Insert;
+                    ICInboxJnlLine.Insert();
                     HandledICInboxOutboxJnlLineDim.SetRange("Table ID", DATABASE::"Handled IC Inbox Jnl. Line");
                     HandledICInboxOutboxJnlLineDim.SetRange("Transaction No.", "Transaction No.");
                     HandledICInboxOutboxJnlLineDim.SetRange("IC Partner Code", "IC Partner Code");
@@ -349,8 +349,8 @@ report 513 "Move IC Trans. to Partner Comp"
                         repeat
                             ICInboxOutboxJnlLineDim := HandledICInboxOutboxJnlLineDim;
                             ICInboxOutboxJnlLineDim."Table ID" := DATABASE::"IC Inbox Jnl. Line";
-                            ICInboxOutboxJnlLineDim.Insert;
-                            HandledICInboxOutboxJnlLineDim.Delete;
+                            ICInboxOutboxJnlLineDim.Insert();
+                            HandledICInboxOutboxJnlLineDim.Delete();
                         until HandledICInboxOutboxJnlLineDim.Next = 0;
                     Delete;
                 until Next = 0;
@@ -363,7 +363,7 @@ report 513 "Move IC Trans. to Partner Comp"
             if Find('-') then
                 repeat
                     ICInboxSalesHdr.TransferFields(HandledICInboxSalesHdr, true);
-                    ICInboxSalesHdr.Insert;
+                    ICInboxSalesHdr.Insert();
                     MoveHandledICDocDim(
                       DATABASE::"Handled IC Inbox Sales Header", DATABASE::"IC Inbox Sales Header",
                       "IC Transaction No.", "IC Partner Code");
@@ -374,12 +374,12 @@ report 513 "Move IC Trans. to Partner Comp"
                     if HandledICInboxSalesLine.Find('-') then
                         repeat
                             ICInboxSalesLine.TransferFields(HandledICInboxSalesLine, true);
-                            ICInboxSalesLine.Insert;
+                            ICInboxSalesLine.Insert();
                             MoveHandledICDocDim(
                               DATABASE::"Handled IC Inbox Sales Line", DATABASE::"IC Inbox Sales Line",
                               "IC Transaction No.", "IC Partner Code");
                             OnBeforeHandledICInboxSalesLineDelete(HandledICInboxSalesLine);
-                            HandledICInboxSalesLine.Delete;
+                            HandledICInboxSalesLine.Delete();
                         until HandledICInboxSalesLine.Next = 0;
                     OnBeforeHandledICInboxSalesHdrDelete(HandledICInboxSalesHdr);
                     Delete;
@@ -393,7 +393,7 @@ report 513 "Move IC Trans. to Partner Comp"
             if Find('-') then
                 repeat
                     ICInboxPurchHdr.TransferFields(HandledICInboxPurchHdr, true);
-                    ICInboxPurchHdr.Insert;
+                    ICInboxPurchHdr.Insert();
                     MoveHandledICDocDim(
                       DATABASE::"Handled IC Inbox Purch. Header", DATABASE::"IC Inbox Purchase Header",
                       "IC Transaction No.", "IC Partner Code");
@@ -404,12 +404,12 @@ report 513 "Move IC Trans. to Partner Comp"
                     if HandledICInboxPurchLine.Find('-') then
                         repeat
                             ICInboxPurchLine.TransferFields(HandledICInboxPurchLine, true);
-                            ICInboxPurchLine.Insert;
+                            ICInboxPurchLine.Insert();
                             MoveHandledICDocDim(
                               DATABASE::"Handled IC Inbox Purch. Line", DATABASE::"IC Inbox Purchase Line",
                               "IC Transaction No.", "IC Partner Code");
                             OnBeforeHandledICInboxPurchLineDelete(HandledICInboxPurchLine);
-                            HandledICInboxPurchLine.Delete;
+                            HandledICInboxPurchLine.Delete();
                         until HandledICInboxPurchLine.Next = 0;
                     OnBeforeHandledICInboxPurchHdrDelete(HandledICInboxPurchHdr);
                     Delete;
@@ -429,8 +429,8 @@ report 513 "Move IC Trans. to Partner Comp"
             repeat
                 ICDocDim := HandledICDocDim;
                 ICDocDim."Table ID" := ToTableID;
-                ICDocDim.Insert;
-                HandledICDocDim.Delete;
+                ICDocDim.Insert();
+                HandledICDocDim.Delete();
             until HandledICDocDim.Next = 0;
     end;
 

@@ -18,7 +18,7 @@ report 12195 "Datifattura Suggest Lines"
                 if not VATReportLine.IsEmpty then
                     if not Confirm(DeleteReportLinesQst, false) then
                         Error('');
-                VATReportLine.DeleteAll;
+                VATReportLine.DeleteAll();
                 if "VAT Report Type" = "VAT Report Type"::"Cancellation " then
                     CurrReport.Quit;
             end;
@@ -31,7 +31,7 @@ report 12195 "Datifattura Suggest Lines"
             trigger OnAfterGetRecord()
             begin
                 if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and (Type = Type::Sale) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not IsForeignInvoiceLinkedWithCustoms(VATInvoices) then
                     CreateVATReportLine(VATInvoices);
             end;
@@ -83,7 +83,7 @@ report 12195 "Datifattura Suggest Lines"
             InsertVATReportLine(VATReportLine, VATEntry);
 
         SetAmountsInVATReportLine(VATReportLine, VATEntry);
-        VATReportLine.Modify;
+        VATReportLine.Modify();
     end;
 
     local procedure GetNextLineNo(): Integer
@@ -138,7 +138,7 @@ report 12195 "Datifattura Suggest Lines"
     begin
         Clear(FountVATReportLine);
 
-        VATReportLine.Reset;
+        VATReportLine.Reset();
         VATReportLine.SetRange("Document Type", VATEntry."Document Type");
         VATReportLine.SetRange("Document No.", VATEntry."Document No.");
         VATReportLine.SetRange(Type, VATEntry.Type);
@@ -154,7 +154,7 @@ report 12195 "Datifattura Suggest Lines"
 
     local procedure InsertVATReportLine(var VATReportLine: Record "VAT Report Line"; VATEntry: Record "VAT Entry")
     begin
-        VATReportLine.Init;
+        VATReportLine.Init();
         VATReportLine."VAT Report No." := VATReportHeader."No.";
         VATReportLine."Posting Date" := VATEntry."Posting Date";
         VATReportLine."Document No." := GetVATReportLineDocumentNo(VATEntry, MaxStrLen(VATReportLine."Document No."));
@@ -181,7 +181,7 @@ report 12195 "Datifattura Suggest Lines"
 
         VATReportLine."VAT Transaction Nature" := GetVATTransactionNature(VATEntry);
         VATReportLine."Incl. in Report" := true;
-        VATReportLine.Insert;
+        VATReportLine.Insert();
     end;
 
     local procedure IsForeignInvoiceLinkedWithCustoms(VATEntry: Record "VAT Entry"): Boolean

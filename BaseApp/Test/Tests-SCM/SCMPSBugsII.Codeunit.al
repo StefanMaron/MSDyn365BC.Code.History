@@ -511,7 +511,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderLine.SetRange("Item No.", ItemNo[5]);
         Assert.RecordCount(ProdOrderLine, 1);
 
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         for I := 1 to ArrayLen(ItemNo) - 1 do begin
             ProdOrderLine.SetRange("Item No.", ItemNo[I]);
             Assert.RecordIsEmpty(ProdOrderLine);
@@ -578,7 +578,7 @@ codeunit 137036 "SCM PS Bugs - II"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM PS Bugs - II");
     end;
 
@@ -668,7 +668,7 @@ codeunit 137036 "SCM PS Bugs - II"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
         GetSalesOrder(RequisitionLine, No);
@@ -748,7 +748,7 @@ codeunit 137036 "SCM PS Bugs - II"
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.Validate("Document No.", DocumentNo);
         PurchaseLine.Validate("Line No.", SalesLine."Line No.");

@@ -159,7 +159,7 @@ report 12101 "Withholding Taxes"
                                 EntryNo := WithholdingTaxPayment."Entry No." + 1
                             else
                                 EntryNo := 1;
-                            WithholdingTaxPayment.Init;
+                            WithholdingTaxPayment.Init();
                             WithholdingTaxPayment."Entry No." := EntryNo;
                             WithholdingTaxPayment.Month := MonthParam;
                             WithholdingTaxPayment.Year := YearParam;
@@ -171,7 +171,7 @@ report 12101 "Withholding Taxes"
                             WithholdingTaxPayment."Taxable Amount" := TaxableBase;
                             WithholdingTaxPayment."Withholding Tax Amount" := WithhTaxAmount;
                             WithholdingTaxPayment."Payable Amount" := Round(PayableAmount);
-                            WithholdingTaxPayment.Insert;
+                            WithholdingTaxPayment.Insert();
                         end;
                         ModifyAll(Paid, true)
                     end;
@@ -189,7 +189,7 @@ report 12101 "Withholding Taxes"
             trigger OnAfterGetRecord()
             begin
                 if PrevTaxCode = "Tax Code" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if PrevTaxCode <> "Tax Code" then begin
                     TotalAmount := 0;
                     BaseExclAmount := 0;
@@ -217,7 +217,7 @@ report 12101 "Withholding Taxes"
                     if WithholdingTaxPayment.FindFirst then begin
                         if not Confirm(Text1033, false, MonthParam, YearParam) then
                             CurrReport.Quit;
-                        WithholdingTaxPayment.DeleteAll;
+                        WithholdingTaxPayment.DeleteAll();
                         ModifyAll(Paid, false);
                     end;
                 end;

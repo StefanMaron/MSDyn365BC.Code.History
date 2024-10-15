@@ -133,7 +133,7 @@ codeunit 396 NoSeriesManagement
     var
         NoSeriesRelationship: Record "No. Series Relationship";
     begin
-        NoSeries.Reset;
+        NoSeries.Reset();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
         if NoSeriesRelationship.FindSet then
             repeat
@@ -171,7 +171,7 @@ codeunit 396 NoSeriesManagement
                     if ModifySeries or (LastNoSeriesLine."Series Code" = '') then begin
                         SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
                         if ModifySeries and not NoSeriesLine."Allow Gaps in Nos." then
-                            NoSeriesLine.LockTable;
+                            NoSeriesLine.LockTable();
                         if not NoSeriesLine.FindFirst then begin
                             if NoErrorsOrWarnings then
                                 exit('');
@@ -254,7 +254,7 @@ codeunit 396 NoSeriesManagement
     begin
         if ModifySeries or (LastNoSeriesLineSales."Series Code" = '') then begin
             if ModifySeries then
-                NoSeriesLineSales.LockTable;
+                NoSeriesLineSales.LockTable();
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLineSalesFilter(NoSeriesLineSales, NoSeriesCode, SeriesDate);
             if not NoSeriesLineSales.Find('-') then begin
@@ -329,7 +329,7 @@ codeunit 396 NoSeriesManagement
     begin
         if ModifySeries or (LastNoSeriesLinePurchase."Series Code" = '') then begin
             if ModifySeries then
-                NoSeriesLinePurchase.LockTable;
+                NoSeriesLinePurchase.LockTable();
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLinePurchaseFilter(NoSeriesLinePurchase, NoSeriesCode, SeriesDate);
             if not NoSeriesLinePurchase.Find('-') then begin
@@ -431,17 +431,17 @@ codeunit 396 NoSeriesManagement
         case NoSeries."No. Series Type" of
             NoSeries."No. Series Type"::Normal:
                 if (LastNoSeriesLine."Series Code" <> '') and not LastNoSeriesLine."Allow Gaps in Nos." then begin
-                    LastNoSeriesLine.Modify;
+                    LastNoSeriesLine.Modify();
                     OnAfterSaveNoSeries(LastNoSeriesLine);
                 end;
             NoSeries."No. Series Type"::Sales:
                 if LastNoSeriesLineSales."Series Code" <> '' then begin
-                    LastNoSeriesLineSales.Modify;
+                    LastNoSeriesLineSales.Modify();
                     OnAfterSaveNoSeriesSales(LastNoSeriesLineSales);
                 end;
             NoSeries."No. Series Type"::Purchase:
                 if LastNoSeriesLinePurchase."Series Code" <> '' then begin
-                    LastNoSeriesLinePurchase.Modify;
+                    LastNoSeriesLinePurchase.Modify();
                     OnAfterSaveNoSeriesPurchase(LastNoSeriesLinePurchase);
                 end;
         end;
@@ -598,7 +598,7 @@ codeunit 396 NoSeriesManagement
     begin
         if StartDate = 0D then
             StartDate := WorkDate;
-        NoSeriesLineSales.Reset;
+        NoSeriesLineSales.Reset();
         NoSeriesLineSales.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
         NoSeriesLineSales.SetRange("Starting Date", 0D, StartDate);
@@ -613,7 +613,7 @@ codeunit 396 NoSeriesManagement
     begin
         if StartDate = 0D then
             StartDate := WorkDate;
-        NoSeriesLinePurchase.Reset;
+        NoSeriesLinePurchase.Reset();
         NoSeriesLinePurchase.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
         NoSeriesLinePurchase.SetRange("Starting Date", 0D, StartDate);
@@ -737,7 +737,7 @@ codeunit 396 NoSeriesManagement
     var
         NoSeriesRelationship: Record "No. Series Relationship";
     begin
-        NoSeriesRelationship.Reset;
+        NoSeriesRelationship.Reset();
         NoSeriesRelationship.SetRange(Code, DefaultNoSeriesCode);
         exit(not NoSeriesRelationship.IsEmpty);
     end;

@@ -36,13 +36,13 @@ report 5706 "Create Stockkeeping Unit"
                 OnItemOnAfterGetRecordOnAfterSetLocationFilter(Location, Item);
 
                 if ReplacePreviousSKUs then begin
-                    StockkeepingUnit.Reset;
+                    StockkeepingUnit.Reset();
                     StockkeepingUnit.SetRange("Item No.", "No.");
                     if GetFilter("Variant Filter") <> '' then
                         StockkeepingUnit.SetFilter("Variant Code", GetFilter("Variant Filter"));
                     if GetFilter("Location Filter") <> '' then
                         StockkeepingUnit.SetFilter("Location Code", GetFilter("Location Filter"));
-                    StockkeepingUnit.DeleteAll;
+                    StockkeepingUnit.DeleteAll();
                 end;
 
                 DialogWindow.Update(1, "No.");
@@ -207,7 +207,7 @@ report 5706 "Create Stockkeeping Unit"
 
     procedure CreateSKU(var Item2: Record Item; LocationCode: Code[10]; VariantCode: Code[10])
     begin
-        StockkeepingUnit.Init;
+        StockkeepingUnit.Init();
         StockkeepingUnit."Item No." := Item2."No.";
         StockkeepingUnit."Location Code" := LocationCode;
         StockkeepingUnit."Variant Code" := VariantCode;

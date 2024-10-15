@@ -15,7 +15,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
         SetTrackInfoForCancellation(Rec);
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -245,7 +245,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         PostingDate: Date;
     begin
         PostingDate := WorkDate;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, PurchCrMemoHdr);
@@ -258,7 +258,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if (PurchCrMemoHdr."Vendor Cr. Memo No." = '') and PurchasesPayablesSetup."Ext. Doc. No. Mandatory" then
             ErrorHelperHeader(ErrorType::ExtDocErr, PurchCrMemoHdr);
     end;

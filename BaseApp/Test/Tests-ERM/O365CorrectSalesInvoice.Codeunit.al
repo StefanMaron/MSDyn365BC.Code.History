@@ -499,7 +499,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CurrencyExchangeRate.FindFirst;
         BillToCust.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -529,7 +529,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Get(SellToCust."No.");
         SellToCust.Validate(Blocked, SellToCust.Blocked::All);
         SellToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -567,7 +567,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Get(BillToCust."No.");
         BillToCust.Validate(Blocked, BillToCust.Blocked::All);
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -604,7 +604,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Get(SellToCust."No.");
         SellToCust.Validate("Privacy Blocked", true);
         SellToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -642,7 +642,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Get(BillToCust."No.");
         BillToCust.Validate("Privacy Blocked", true);
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -676,7 +676,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Item.Find;
         Item.Validate(Blocked, true);
         Item.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -936,10 +936,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate);
         GLSetup.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -951,10 +951,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := 0D;
         GLSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -975,16 +975,16 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         CreateAndPostPurchInvForItem(Item, 1, 1);
 
-        CreateCustomer(Cust);
+        LibrarySmallBusiness.CreateCustomer(Cust);
         SellItem(Cust, Item, 1, SalesInvoiceHeader);
 
         LibraryCosting.AdjustCostItemEntries('', '');
 
-        InvtPeriod.Init;
+        InvtPeriod.Init();
         InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InvtPeriod.Closed := true;
-        InvtPeriod.Insert;
-        Commit;
+        InvtPeriod.Insert();
+        Commit();
 
         GLEntry.FindLast;
 
@@ -996,8 +996,8 @@ codeunit 138015 "O365 Correct Sales Invoice"
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        InvtPeriod.Delete;
-        Commit;
+        InvtPeriod.Delete();
+        Commit();
     end;
 
     [Test]
@@ -1035,11 +1035,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Initialize;
 
         CreateItemsWithPrice(Item, 0);
-        CreateCustomer(Cust);
+        LibrarySmallBusiness.CreateCustomer(Cust);
 
         if GLEntry.FindLast then;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", false);
         SalesSetup.Modify(true);
 
@@ -1050,11 +1050,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         OldSalesSetup := SalesSetup;
         SalesSetup.Validate("Ext. Doc. No. Mandatory", true);
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -1070,10 +1070,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", OldSalesSetup."Ext. Doc. No. Mandatory");
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -1143,7 +1143,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         CreateItemsWithPrice(Item, 1);
 
-        CreateCustomer(Cust);
+        LibrarySmallBusiness.CreateCustomer(Cust);
         SetupCustToPayInCash(Cust);
 
         SellItem(Cust, Item, 1, SalesInvoiceHeader);
@@ -1209,6 +1209,55 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Cust.CalcFields(Balance);
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         Cust.TestField(Balance, -SalesInvoiceHeader."Amount Including VAT");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCancelInvoiceBasedOnOrder()
+    var
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GLEntry: Record "G/L Entry";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        Initialize;
+
+        if GLEntry.FindLast then;
+
+        CreateAndPostSalesOrderForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
+        CheckSomethingIsPosted(Item, Cust);
+
+        // EXERCISE
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // VERIFY: Sales Header must match before and after Correct Invoice
+        CheckEverythingIsReverted(Item, Cust, GLEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceBasedOnOrder()
+    var
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GLEntry: Record "G/L Entry";
+        SalesHeaderCorrection: Record "Sales Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        Initialize;
+
+        if GLEntry.FindLast then;
+
+        CreateAndPostSalesOrderForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
+        CheckSomethingIsPosted(Item, Cust);
+
+        // EXERCISE
+        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+
+        // VERIFY: Sales Header must match before and after Correct Invoice
+        CheckEverythingIsReverted(Item, Cust, GLEntry);
     end;
 
     [Test]
@@ -1354,20 +1403,20 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableFoundationSetup;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
 
         if SalesSetup."Posted Shipment Nos." = '' then
             SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
 
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Invoice");
     end;
 
@@ -1406,7 +1455,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // Make Dimension Mandatory
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           DefaultDim, DATABASE::"G/L Account", GLAcc."No.", DefaultDim."Value Posting"::"Code Mandatory");
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -1424,21 +1473,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         // Unblock the Dimension
         DefaultDim.Delete(true);
-        Commit;
-    end;
-
-    local procedure CreateCustomer(var Customer: Record Customer)
-    begin
-        LibrarySmallBusiness.CreateCustomer(Customer);
-        Customer."Payment Terms Code" := '';
-        Customer.Modify;
-    end;
-
-    local procedure CreateVendor(var Vendor: Record Vendor)
-    begin
-        LibrarySmallBusiness.CreateVendor(Vendor);
-        Vendor."Payment Terms Code" := '';
-        Vendor.Modify;
+        Commit();
     end;
 
     local procedure CreateItemsWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1451,7 +1486,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         LibraryResource.CreateResourceNew(Resource);
         Resource.Validate("Unit Price", UnitPrice);
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     local procedure CreateInventoryItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1459,7 +1494,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Inventory;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateServiceItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1467,7 +1502,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Service;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1484,7 +1519,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         FromGLAcc.FindSet;
         repeat
             ToGLAcc := FromGLAcc;
-            if ToGLAcc.Insert then;
+            if ToGLAcc.Insert() then;
         until FromGLAcc.Next = 0;
     end;
 
@@ -1493,7 +1528,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, true);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockGLAcc(var GLAcc: Record "G/L Account")
@@ -1501,13 +1536,13 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, false);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSellToWithDifferentBillToCust(var SellToCust: Record Customer; var BillToCust: Record Customer)
     begin
-        CreateCustomer(BillToCust);
-        CreateCustomer(SellToCust);
+        LibrarySmallBusiness.CreateCustomer(SellToCust);
+        LibrarySmallBusiness.CreateCustomer(BillToCust);
         SellToCust.Validate("Bill-to Customer No.", BillToCust."No.");
         SellToCust.Modify(true);
     end;
@@ -1516,8 +1551,8 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         CreateItemsWithPrice(Item, UnitPrice);
         Item.Description := 'Test Item';
-        Item.Modify;
-        CreateCustomer(Cust);
+        Item.Modify();
+        LibrarySmallBusiness.CreateCustomer(Cust);
         SellItem(Cust, Item, Qty, SalesInvoiceHeader);
     end;
 
@@ -1528,7 +1563,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Job: Record Job;
     begin
         CreateResourceWithPrice(Resource, UnitPrice);
-        CreateCustomer(Cust);
+        LibrarySales.CreateCustomer(Cust);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", Qty);
         LibraryJob.CreateJob(Job);
@@ -1540,7 +1575,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     local procedure CreateSalesInvForNewItemAndCust(var Item: Record Item; var Cust: Record Customer; UnitPrice: Decimal; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         CreateItemsWithPrice(Item, UnitPrice);
-        CreateCustomer(Cust);
+        LibrarySmallBusiness.CreateCustomer(Cust);
         CreateSalesInvoiceForItem(Cust, Item, Qty, SalesHeader, SalesLine);
     end;
 
@@ -1557,11 +1592,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PurchLine: Record "Purchase Line";
         Vend: Record Vendor;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchSetup.Modify(true);
 
-        CreateVendor(Vend);
+        LibrarySmallBusiness.CreateVendor(Vend);
 
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchHeader, Vend);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, Qty);
@@ -1569,6 +1604,20 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PurchLine.Validate("Unit Cost", UnitCost);
         PurchLine.Modify(true);
         LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader);
+    end;
+
+    local procedure CreateAndPostSalesOrderForNewItemAndCust(var Item: Record Item; var Cust: Record Customer; UnitPrice: Decimal; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateItemsWithPrice(Item, UnitPrice);
+        Item.Description := 'Test Item';
+        Item.Modify();
+        LibrarySmallBusiness.CreateCustomer(Cust);
+        LibrarySmallBusiness.CreateSalesOrderHeader(SalesHeader, Cust);
+        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, Qty);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CorrectAndCancelWithFailureAndVerificaltion(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1619,10 +1668,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Exact Cost Reversing Mandatory", false);
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckSomethingIsPosted(Item: Record Item; Cust: Record Customer)

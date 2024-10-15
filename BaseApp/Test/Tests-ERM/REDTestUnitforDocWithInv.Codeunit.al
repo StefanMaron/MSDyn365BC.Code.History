@@ -19,6 +19,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -27,7 +28,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralDocType: Option Purchase,Sales,"G/L";
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesOrderInvoiceDiscount()
     var
@@ -54,7 +54,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPurchaseOrderInvoiceDiscount()
     var
@@ -81,7 +80,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestSalesOrderInvoiceDiscountFCY()
     var
@@ -108,7 +106,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
     [Scope('OnPrem')]
     procedure TestPurchaseOrderInvoiceDiscountFCY()
     var
@@ -150,7 +147,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] LCY Sales Order with multiple lines
         Initialize;
         InitializeSalesMultipleLinesEqualAmountsScenario(
-          SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetPostingDate(1, WorkDate));
+          SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(1, WorkDate));
 
         // [GIVEN] Set Invoice Discount Amount
         UpdateInvDiscAmtOnSalesOrder(SalesHeader, InvoiceDiscountAmount);
@@ -180,7 +177,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] LCY Purchase Order with multiple lines
         Initialize;
         InitializePurchaseMultipleLinesEqualAmountsScenario(
-          PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetPostingDate(1, WorkDate));
+          PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(1, WorkDate));
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
         PostingDate := PurchaseHeader."Posting Date";
 
@@ -436,7 +433,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] LCY Sales Order with multiple lines
         Initialize;
         InitializeSalesMultipleLinesEqualAmountsScenario(
-          SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetPostingDate(18, WorkDate));
+          SalesHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
 
         // [GIVEN] Set Invoice Discount Amount
         UpdateInvDiscAmtOnSalesOrder(SalesHeader, InvoiceDiscountAmount);
@@ -466,7 +463,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] FCY Purchase Order with multiple lines
         Initialize;
         InitializePurchaseMultipleLinesEqualAmountsScenario(
-          PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetPostingDate(18, WorkDate));
+          PurchaseHeader, InvoiceDiscountAmount, '', DeferralPercent, SetDateDay(15, WorkDate));
         AccNo := GetDeferralTemplateAccountForPurchLine(PurchaseHeader);
         PostingDate := PurchaseHeader."Posting Date";
 
@@ -502,7 +499,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Doc With Inv");
     end;
 
@@ -514,7 +511,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralTemplate."Deferral %" := LibraryRandom.RandDecInRange(10, 99, 2);
         DeferralPercent := DeferralTemplate."Deferral %";
         DeferralTemplate."Period Description" := 'Deferral Revenue for %4';
-        DeferralTemplate.Modify;
+        DeferralTemplate.Modify();
         exit(DeferralTemplate."Deferral Code");
     end;
 
@@ -863,7 +860,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         GLEntry.CalcSums(Amount);
         AccAmt := GLEntry.Amount;
         if GLEntry.FindFirst then begin
@@ -995,8 +992,8 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomerWithVAT(VATPostingSetup."VAT Bus. Posting Group"));
-        SalesHeader.Validate("Posting Date", SetPostingDate(15, WorkDate));
-        SalesHeader.Modify;
+        SalesHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
+        SalesHeader.Modify();
 
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent);
 
@@ -1015,8 +1012,8 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2));
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, DocumentType, CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchHeader.Validate("Posting Date", SetPostingDate(15, WorkDate));
-        PurchHeader.Modify;
+        PurchHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
+        PurchHeader.Modify();
 
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent);
 
@@ -1024,7 +1021,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         PurchLine.Validate("Allow Invoice Disc.", true);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 39));
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATProdPostingGroup: Code[20]; var DeferralPercent: Decimal)
@@ -1033,7 +1030,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         GLAccount.Validate(
           "Default Deferral Template Code", CreateDeferralCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 3, DeferralPercent));
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     local procedure InitializeSalesMultipleLinesMultiplelVATPercentScenario(var SalesHeader: Record "Sales Header"; var InvoiceDiscountAmount: Decimal; CurrencyCode: Code[10]; var DeferralPercent: Decimal; var Line1AccNo: Code[20]; var Line2AccNo: Code[20])
@@ -1051,7 +1048,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Validate("Posting Date", SetPostingDate(18, WorkDate));
+        SalesHeader.Validate("Posting Date", SetDateDay(13, WorkDate));
         SalesHeader.Modify(true);
 
         CreateGLAccount(GLAccount, VATPostingSetup[1]."VAT Prod. Posting Group", DeferralPercent);
@@ -1083,7 +1080,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
         PurchHeader.Validate("Currency Code", CurrencyCode);
-        PurchHeader.Validate("Posting Date", SetPostingDate(18, WorkDate));
+        PurchHeader.Validate("Posting Date", SetDateDay(13, WorkDate));
         PurchHeader.Modify(true);
 
         CreateGLAccount(GLAccount, VATPostingSetup[1]."VAT Prod. Posting Group", DeferralPercent);
@@ -1103,7 +1100,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     local procedure CreateTwoVATPostingSetups(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; VATRate: Decimal)
     var
         DummyGLAccount: Record "G/L Account";
-        VATIdentifier: Record "VAT Identifier";
         i: Integer;
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1112,8 +1108,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DummyGLAccount."VAT Bus. Posting Group" := VATPostingSetup[1]."VAT Bus. Posting Group";
         DummyGLAccount."VAT Prod. Posting Group" := VATPostingSetup[1]."VAT Prod. Posting Group";
         VATPostingSetup[2].Get(VATPostingSetup[1]."VAT Bus. Posting Group", LibraryERM.CreateRelatedVATPostingSetup(DummyGLAccount));
-        LibraryERM.CreateVATIdentifier(VATIdentifier);
-        VATPostingSetup[2].Validate("VAT Identifier", VATIdentifier.Code);
+        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID);
         VATPostingSetup[2].Validate("VAT %", LibraryRandom.RandDec(100, 2));
         VATPostingSetup[2].Modify(true);
 
@@ -1154,14 +1149,14 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         Customer.Modify(true);
 
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        SalesHeader.Validate("Posting Date", SetPostingDate(15, WorkDate));
-        SalesHeader.Modify;
+        SalesHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
+        SalesHeader.Modify();
 
         // Create Posting Setup for Sales Tax.
         CreateVATPostingSetupForSalesTax(VATPostingSetup, SalesHeader."VAT Bus. Posting Group");
         SetupSalesTax(
           TaxDetail, TaxJurisdiction, Customer."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax",
-          1000, SetPostingDate(15, WorkDate));
+          1000, SetDateDay(15, WorkDate));
 
         ItemNo := CreateItemVATWithDeferral(true, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent, TaxGroupCode);
 
@@ -1188,13 +1183,13 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, Vendor."No.");
         PurchHeader.Validate("Tax Area Code", Vendor."Tax Area Code");
         PurchHeader.Validate("Tax Liable", true);
-        PurchHeader.Validate("Posting Date", SetPostingDate(15, WorkDate));
-        PurchHeader.Modify;
+        PurchHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
+        PurchHeader.Modify();
 
         CreateVATPostingSetupForSalesTax(VATPostingSetup, PurchHeader."VAT Bus. Posting Group");
         SetupSalesTax(
           TaxDetail, TaxJurisdiction, Vendor."Tax Area Code", TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax",
-          1000, SetPostingDate(5, WorkDate));
+          1000, SetDateDay(15, WorkDate));
         ItemNo := CreateItemVATWithDeferral(true, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent, TaxGroupCode);
 
         LibraryPurchase.CreatePurchaseLine(
@@ -1255,7 +1250,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
-        GLAccount.Modify;
+        GLAccount.Modify();
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
         TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
@@ -1279,19 +1274,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    local procedure SetPostingDate(Day: Integer; StartDate: Date): Date
-    begin
-        // Use the workdate but set to a specific day of that month and increment the month by 1
-        exit(DMY2Date(Day, Date2DMY(StartDate, 2) + 1, Date2DMY(StartDate, 3)));
     end;
 }
 

@@ -23,7 +23,7 @@ report 951 "Suggest Res. Jnl. Lines"
                 QtyToPost: Decimal;
             begin
                 if TempTimeSheetLine.FindSet then begin
-                    ResJnlLine.LockTable;
+                    ResJnlLine.LockTable();
                     ResJnlTemplate.Get(ResJnlLine."Journal Template Name");
                     ResJnlBatch.Get(ResJnlLine."Journal Template Name", ResJnlLine."Journal Batch Name");
                     if ResJnlBatch."No. Series" = '' then
@@ -47,7 +47,7 @@ report 951 "Suggest Res. Jnl. Lines"
                             repeat
                                 QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
                                 if QtyToPost <> 0 then begin
-                                    ResJnlLine.Init;
+                                    ResJnlLine.Init();
                                     LineNo := LineNo + 10000;
                                     ResJnlLine."Line No." := LineNo;
                                     ResJnlLine."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
@@ -64,7 +64,7 @@ report 951 "Suggest Res. Jnl. Lines"
                                     ResJnlLine."Source Code" := ResJnlTemplate."Source Code";
                                     ResJnlLine."Reason Code" := ResJnlBatch."Reason Code";
                                     OnBeforeResJnlLineInsert(ResJnlLine, TimeSheetHeader, TempTimeSheetLine, TimeSheetDetail, ResJnlTemplate, ResJnlBatch);
-                                    ResJnlLine.Insert;
+                                    ResJnlLine.Insert();
                                 end;
                             until TimeSheetDetail.Next = 0;
                     until TempTimeSheetLine.Next = 0;
@@ -163,7 +163,7 @@ report 951 "Suggest Res. Jnl. Lines"
                 if TimeSheetLine.FindSet then
                     repeat
                         TempTimeSheetLine := TimeSheetLine;
-                        TempTimeSheetLine.Insert;
+                        TempTimeSheetLine.Insert();
                     until TimeSheetLine.Next = 0;
             until TimeSheetHeader.Next = 0;
     end;

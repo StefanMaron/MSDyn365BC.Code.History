@@ -25,7 +25,7 @@ codeunit 12178 "SEPA CT CBI-Check Line"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
                 InsertPaymentFileError(MustBeBankAccErr);

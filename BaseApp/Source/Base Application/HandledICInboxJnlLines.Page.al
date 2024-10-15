@@ -1,4 +1,4 @@
-﻿page 618 "Handled IC Inbox Jnl. Lines"
+page 618 "Handled IC Inbox Jnl. Lines"
 {
     Caption = 'Handled IC Inbox Jnl. Lines';
     DataCaptionFields = "IC Partner Code";

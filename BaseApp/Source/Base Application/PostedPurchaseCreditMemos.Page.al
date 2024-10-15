@@ -241,6 +241,13 @@ page 147 "Posted Purchase Credit Memos"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(124),
+                              "No." = FIELD("No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -345,6 +352,24 @@ page 147 "Posted Purchase Credit Memos"
                     CurrPage.SetSelectionFilter(PurchCrMemoHdr);
                     OnBeforePrintRecords(PurchCrMemoHdr);
                     PurchCrMemoHdr.PrintRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+                begin
+                    PurchCrMemoHdr := Rec;
+                    CurrPage.SetSelectionFilter(PurchCrMemoHdr);
+                    PrintToDocumentAttachment(PurchCrMemoHdr);
                 end;
             }
             action("&Navigate")

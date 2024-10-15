@@ -2708,9 +2708,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Vendor__No__">
           <DataField>Vendor__No__</DataField>
         </Field>

@@ -399,7 +399,7 @@ codeunit 134914 "ERM Payment Disc Application"
         ApplyVendorPmtToSevDocs(VendorNo, PaymentNo, InvoiceNo);
         // [GIVEN] 14 VAT Entries have been created for Apply
         ApplTransactionNo := GetVendApplTransactionNo(VendorNo, PaymentNo);
-        VerifyVATEntriesCountAndBalanceByTransactionNo(ApplTransactionNo, 16, -16.64, -1.44);
+        VerifyVATEntriesCountAndBalanceByTransactionNo(ApplTransactionNo, 14, -14.56, -1.96);
 
         // [WHEN] Unapply payment
         UnapplyVendorLedgerEntry(VendorNo, PaymentNo);
@@ -550,7 +550,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -583,17 +583,14 @@ codeunit 134914 "ERM Payment Disc Application"
         NewVATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         NewVATPostingSetup."VAT Identifier" := VATProductPostingGroup.Code;
         NewVATPostingSetup.Validate("VAT %", VATRate);
-        NewVATPostingSetup.Insert;
+        NewVATPostingSetup.Insert();
     end;
 
     local procedure CreatePaymentTermsDiscount(var PaymentTerms: Record "Payment Terms"; DiscountPct: Decimal)
-    var
-        PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
-        LibraryERM.FindPaymentLines(PaymentLines, PaymentTerms.Code);
-        PaymentLines.Validate("Discount %", DiscountPct);
-        PaymentLines.Modify(true);
+        PaymentTerms.Validate("Discount %", DiscountPct);
+        PaymentTerms.Modify(true);
     end;
 
     local procedure CreatePostPurchaseInvoiceWithSevLines(VATPostingSetup: array[3] of Record "VAT Posting Setup"; VendorNo: Code[20]; PaymentTermsCode: Code[10]; DirectUnitCost: Decimal): Code[20]
@@ -1107,7 +1104,7 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         DummyVATEntry: Record "VAT Entry";
     begin
-        DummyVATEntry.Init;
+        DummyVATEntry.Init();
         DummyVATEntry.SetRange("Transaction No.", TransactionNo);
         Assert.RecordCount(DummyVATEntry, ExpectedCount);
     end;

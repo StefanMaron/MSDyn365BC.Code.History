@@ -114,7 +114,7 @@ report 12175 "Vendor Bills Floppy"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("SIA Code");
 
         if "Vendor Bill Header".GetFilter("No.") = '' then

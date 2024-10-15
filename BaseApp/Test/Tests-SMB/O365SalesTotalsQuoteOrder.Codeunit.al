@@ -15,6 +15,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
@@ -43,25 +44,39 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
 
+        ClearTable(DATABASE::"Res. Ledger Entry");
+
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
         if InventorySetup."Item Nos." <> ItemNoSeries then begin
             InventorySetup.Validate("Item Nos.", ItemNoSeries);
-            InventorySetup.Modify;
+            InventorySetup.Modify();
         end;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
+    end;
+
+    local procedure ClearTable(TableID: Integer)
+    var
+        ResLedgerEntry: Record "Res. Ledger Entry";
+    begin
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        case TableID of
+            DATABASE::"Res. Ledger Entry":
+                ResLedgerEntry.DeleteAll();
+        end;
+        LibraryLowerPermissions.SetO365Full;
     end;
 
     [Test]
@@ -1128,14 +1143,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         LibrarySmallBusiness.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CheckExistOrAddCurrencyExchageRate(CurrencyCode: Code[10])
@@ -1323,7 +1338,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     var
         Currency: Record Currency;
     begin
-        Currency.Init;
+        Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
         Currency.FindFirst;
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
@@ -1431,8 +1446,6 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         CreateItem(Item, ItemUnitPrice);
         CreateCustomerWithDiscount(Customer, DiscPct, MinAmt);
-        Customer."Payment Terms Code" := '';
-        Customer.Modify;
     end;
 
     local procedure SetupDataForDiscountTypeAmt(var Item: Record Item; var ItemQuantity: Decimal; var Customer: Record Customer; var InvoiceDiscountAmount: Decimal)

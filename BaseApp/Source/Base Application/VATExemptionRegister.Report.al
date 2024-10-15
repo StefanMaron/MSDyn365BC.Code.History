@@ -138,7 +138,7 @@ report 12181 "VAT Exemption Register"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Exemption".Type <> "VAT Exemption".Type::Customer then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
             dataitem(Vend; Vendor)
@@ -173,7 +173,7 @@ report 12181 "VAT Exemption Register"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Exemption".Type <> "VAT Exemption".Type::Vendor then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -190,7 +190,7 @@ report 12181 "VAT Exemption Register"
             var
                 VATExemption: Record "VAT Exemption";
             begin
-                VATExemption.Reset;
+                VATExemption.Reset();
                 VATExemption.SetRange(Type, GetRangeMin(Type));
                 VATExemption.SetFilter("VAT Exempt. Int. Registry Date", '<%1', StartDate);
                 VATExemption.SetRange(Printed, false);
@@ -282,7 +282,7 @@ report 12181 "VAT Exemption Register"
         if "VAT Exemption".GetRangeMin(Type) <> "VAT Exemption".GetRangeMax(Type) then
             Error(Text12105);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompAddr[1] := CompanyInfo.Name;
         CompAddr[2] := CompanyInfo.Address;
         CompAddr[3] := CompanyInfo."Post Code";

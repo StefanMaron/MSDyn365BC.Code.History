@@ -136,7 +136,7 @@ table 90 "BOM Component"
 
             trigger OnLookup()
             begin
-                BOMComp.Reset;
+                BOMComp.Reset();
                 BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                 BOMComp.SetRange(Type, BOMComp.Type::Item);
                 BOMComp.SetFilter("Line No.", '<>%1', "Line No.");
@@ -155,7 +155,7 @@ table 90 "BOM Component"
                 if "Installed in Line No." <> 0 then begin
                     if "Installed in Line No." = "Line No." then
                         Error(Text000, FieldCaption("Installed in Line No."));
-                    BOMComp.Reset;
+                    BOMComp.Reset();
                     BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("Line No.", "Installed in Line No.");
@@ -173,7 +173,7 @@ table 90 "BOM Component"
 
             trigger OnLookup()
             begin
-                BOMComp.Reset;
+                BOMComp.Reset();
                 BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                 BOMComp.SetRange(Type, BOMComp.Type::Item);
                 BOMComp."No." := "Installed in Item No.";
@@ -191,7 +191,7 @@ table 90 "BOM Component"
             trigger OnValidate()
             begin
                 if "Installed in Item No." <> '' then begin
-                    BOMComp.Reset;
+                    BOMComp.Reset();
                     BOMComp.SetRange("Parent Item No.", "Parent Item No.");
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("No.", "Installed in Item No.");

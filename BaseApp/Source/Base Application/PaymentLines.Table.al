@@ -242,7 +242,7 @@ table 12170 "Payment Lines"
         if (SalesHeader."Payment Terms Code" = '') or (SalesHeader."Document Date" = 0D) then
             exit;
 
-        PaymentLinesTerms.Reset;
+        PaymentLinesTerms.Reset();
         PaymentLinesTerms.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::" ");
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, SalesHeader."Payment Terms Code");
@@ -252,12 +252,12 @@ table 12170 "Payment Lines"
             DeferringDueDates.SetCurrentKey("No.", "To-Date");
             DeferringDueDates.SetRange("No.", SalesHeader."Bill-to Customer No.");
 
-            FixedDueDates.Reset;
+            FixedDueDates.Reset();
             FixedDueDates.SetRange(Type, FixedDueDates.Type::Customer);
             FixedDueDates.SetRange(Code, SalesHeader."Bill-to Customer No.");
 
             repeat
-                PaymentLines.Init;
+                PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Sales;
                 if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Blanket Order" then
                     PaymentLines.Type := SalesHeader."Document Type"
@@ -323,7 +323,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < SalesHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := SalesHeader."Document Date";
-                PaymentLines.Insert;
+                PaymentLines.Insert();
             until PaymentLinesTerms.Next = 0;
         end;
     end;
@@ -349,7 +349,7 @@ table 12170 "Payment Lines"
         if (PurchaseHeader."Payment Terms Code" = '') or (PurchaseHeader."Document Date" = 0D) then
             exit;
 
-        PaymentLinesTerms.Reset;
+        PaymentLinesTerms.Reset();
         PaymentLinesTerms.SetRange("Sales/Purchase", PaymentLinesTerms."Sales/Purchase"::" ");
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, PurchaseHeader."Payment Terms Code");
@@ -357,7 +357,7 @@ table 12170 "Payment Lines"
         if PaymentLinesTerms.FindSet then begin
             ;
             PaymentCounter := 0;
-            FixedDueDates.Reset;
+            FixedDueDates.Reset();
             Vendor.Get(PurchaseHeader."Pay-to Vendor No.");
             if Vendor."Apply Company Payment days" then begin
                 FixedDueDates.SetRange(Type, FixedDueDates.Type::Company);
@@ -367,7 +367,7 @@ table 12170 "Payment Lines"
                 FixedDueDates.SetRange(Code, Vendor."No.");
             end;
             repeat
-                PaymentLines.Init;
+                PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Purchase;
                 if PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Blanket Order" then
                     PaymentLines.Type := PurchaseHeader."Document Type"
@@ -417,7 +417,7 @@ table 12170 "Payment Lines"
                 if PaymentLines."Pmt. Discount Date" < PurchaseHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := PurchaseHeader."Document Date";
 
-                PaymentLines.Insert;
+                PaymentLines.Insert();
             until PaymentLinesTerms.Next = 0;
         end;
     end;
@@ -444,7 +444,7 @@ table 12170 "Payment Lines"
         if (ServiceHeader."Payment Terms Code" = '') or (ServiceHeader."Document Date" = 0D) then
             exit;
 
-        PaymentLinesTerms.Reset;
+        PaymentLinesTerms.Reset();
         PaymentLinesTerms.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::" ");
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, ServiceHeader."Payment Terms Code");
@@ -454,12 +454,12 @@ table 12170 "Payment Lines"
             DeferringDueDates.SetCurrentKey("No.", "To-Date");
             DeferringDueDates.SetRange("No.", ServiceHeader."Bill-to Customer No.");
 
-            FixedDueDates.Reset;
+            FixedDueDates.Reset();
             FixedDueDates.SetRange(Type, FixedDueDates.Type::Customer);
             FixedDueDates.SetRange(Code, ServiceHeader."Bill-to Customer No.");
 
             repeat
-                PaymentLines.Init;
+                PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Service;
                 PaymentLines.Type := ServiceHeader."Document Type";
                 PaymentLines.Code := ServiceHeader."No.";
@@ -522,7 +522,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < ServiceHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := ServiceHeader."Document Date";
-                PaymentLines.Insert;
+                PaymentLines.Insert();
             until PaymentLinesTerms.Next = 0;
         end;
     end;
@@ -575,7 +575,7 @@ table 12170 "Payment Lines"
     var
         PaymentLines: Record "Payment Lines";
     begin
-        PaymentLines.Reset;
+        PaymentLines.Reset();
         PaymentLines.SetRange("Sales/Purchase", SalesPurchaseType);
 
         if not IsBlanketOrder then
@@ -585,7 +585,7 @@ table 12170 "Payment Lines"
 
         PaymentLines.SetRange(Code, DocumentNo);
         if not PaymentLines.IsEmpty then
-            PaymentLines.DeleteAll;
+            PaymentLines.DeleteAll();
     end;
 }
 

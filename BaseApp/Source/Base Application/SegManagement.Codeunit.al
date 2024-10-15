@@ -30,7 +30,7 @@ codeunit 5051 SegManagement
         NextInteractLogEntryNo: Integer;
     begin
         OnBeforeLogSegment(SegmentHeader, Deliver, Followup);
-        LoggedSegment.LockTable;
+        LoggedSegment.LockTable();
         LoggedSegment.SetCurrentKey("Segment No.");
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
         if not LoggedSegment.IsEmpty then
@@ -38,17 +38,17 @@ codeunit 5051 SegManagement
 
         SegmentHeader.TestField(Description);
 
-        LoggedSegment.Reset;
-        LoggedSegment.Init;
+        LoggedSegment.Reset();
+        LoggedSegment.Init();
         LoggedSegment."Entry No." := GetNextLoggedSegmentEntryNo;
         LoggedSegment."Segment No." := SegmentHeader."No.";
         LoggedSegment.Description := SegmentHeader.Description;
         LoggedSegment."Creation Date" := Today;
         LoggedSegment."User ID" := UserId;
         OnBeforeLoggedSegmentInsert(LoggedSegment);
-        LoggedSegment.Insert;
+        LoggedSegment.Insert();
 
-        SegmentLine.LockTable;
+        SegmentLine.LockTable();
         SegmentLine.SetCurrentKey("Segment No.", "Campaign No.", Date);
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         SegmentLine.SetFilter("Campaign No.", '<>%1', '');
@@ -57,10 +57,10 @@ codeunit 5051 SegManagement
             repeat
                 SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, LoggedSegment."Entry No.");
                 OnBeforeCampaignEntryNoModify(SegmentLine);
-                SegmentLine.Modify;
+                SegmentLine.Modify();
             until SegmentLine.Next = 0;
 
-        SegmentLine.Reset;
+        SegmentLine.Reset();
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
 
@@ -69,7 +69,7 @@ codeunit 5051 SegManagement
             NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
             repeat
                 TestFields(SegmentLine);
-                InteractLogEntry.Init;
+                InteractLogEntry.Init();
                 InteractLogEntry."Entry No." := NextInteractLogEntryNo;
                 InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
                 InteractLogEntry.CopyFromSegment(SegmentLine);
@@ -85,11 +85,11 @@ codeunit 5051 SegManagement
                     TempDeliverySorter."Send Word Docs. as Attmt." := InteractLogEntry."Send Word Docs. as Attmt.";
                     TempDeliverySorter."Language Code" := SegmentLine."Language Code";
                     OnBeforeDeliverySorterInsert(TempDeliverySorter, SegmentLine);
-                    TempDeliverySorter.Insert;
+                    TempDeliverySorter.Insert();
                 end;
                 OnBeforeInteractLogEntryInsert(InteractLogEntry, SegmentLine);
-                InteractLogEntry.Insert;
-                Attachment.LockTable;
+                InteractLogEntry.Insert();
+                Attachment.LockTable();
                 if Attachment.Get(SegmentLine."Attachment No.") and (not Attachment."Read Only") then begin
                     Attachment."Read Only" := true;
                     Attachment.Modify(true);
@@ -141,7 +141,7 @@ codeunit 5051 SegManagement
 
         if AttachmentTemp."Attachment File".HasValue then begin
             with Attachment do begin
-                LockTable;
+                LockTable();
                 if (SegmentLine."Line No." <> 0) and Get(SegmentLine."Attachment No.") then begin
                     RemoveAttachment(false);
                     AttachmentTemp."No." := SegmentLine."Attachment No.";
@@ -154,7 +154,7 @@ codeunit 5051 SegManagement
                 Insert(true);
             end;
 
-            MarketingSetup.Get;
+            MarketingSetup.Get();
             if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                 if Attachment."No." <> 0 then begin
                     FileName := Attachment.ConstDiskFileName;
@@ -170,7 +170,7 @@ codeunit 5051 SegManagement
         if SegmentLine."Line No." = 0 then begin
             NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
 
-            InteractLogEntry.Init;
+            InteractLogEntry.Init();
             InteractLogEntry."Entry No." := NextInteractLogEntryNo;
             InteractLogEntry.CopyFromSegment(SegmentLine);
             InteractLogEntry.Postponed := Postponed;
@@ -181,18 +181,18 @@ codeunit 5051 SegManagement
             InteractLogEntry.CopyFromSegment(SegmentLine);
             InteractLogEntry.Postponed := Postponed;
             OnLogInteractionOnBeforeInteractionLogEntryModify(InteractLogEntry);
-            InteractLogEntry.Modify;
+            InteractLogEntry.Modify();
             InterLogEntryCommentLine.SetRange("Entry No.", InteractLogEntry."Entry No.");
-            InterLogEntryCommentLine.DeleteAll;
+            InterLogEntryCommentLine.DeleteAll();
         end;
 
         if InterLogEntryCommentLineTmp.FindSet then
             repeat
-                InterLogEntryCommentLine.Init;
+                InterLogEntryCommentLine.Init();
                 InterLogEntryCommentLine := InterLogEntryCommentLineTmp;
                 InterLogEntryCommentLine."Entry No." := InteractLogEntry."Entry No.";
                 OnLogInteractionOnBeforeInterLogEntryCommentLineInsert(InterLogEntryCommentLine);
-                InterLogEntryCommentLine.Insert;
+                InterLogEntryCommentLine.Insert();
             until InterLogEntryCommentLineTmp.Next = 0;
 
         if Deliver and (SegmentLine."Correspondence Type" <> 0) and (not Postponed) then begin
@@ -204,7 +204,7 @@ codeunit 5051 SegManagement
             TempDeliverySorter."Send Word Docs. as Attmt." := false;
             TempDeliverySorter."Language Code" := SegmentLine."Language Code";
             OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter);
-            TempDeliverySorter.Insert;
+            TempDeliverySorter.Insert();
             AttachmentManagement.Send(TempDeliverySorter);
         end;
         OnAfterLogInteraction(SegmentLine, InteractLogEntry);
@@ -258,7 +258,7 @@ codeunit 5051 SegManagement
                 end;
         end;
 
-        TempSegmentLine.Init;
+        TempSegmentLine.Init();
         TempSegmentLine."Document Type" := DocumentType;
         TempSegmentLine."Document No." := DocumentNo;
         TempSegmentLine."Doc. No. Occurrence" := DocNoOccurrence;
@@ -274,7 +274,7 @@ codeunit 5051 SegManagement
         TempSegmentLine.Validate("Interaction Template Code", InteractTmplCode);
         if CampaignNo <> '' then
             TempSegmentLine."Campaign No." := CampaignNo;
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
 
         LogInteraction(TempSegmentLine, Attachment, InterLogEntryCommentLine, false, false);
     end;
@@ -381,6 +381,8 @@ codeunit 5051 SegManagement
                             if ContAltAddr."Fax No." <> '' then
                                 "Correspondence Type" := "Correspondence Type"::Fax;
                     end;
+                else
+                    OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
             end;
         end;
     end;
@@ -403,7 +405,7 @@ codeunit 5051 SegManagement
 
     local procedure FindInteractTmplSetupCaption(DocumentType: Integer) InteractTmplSetupCaption: Text[80]
     begin
-        InteractionTmplSetup.Get;
+        InteractionTmplSetup.Get();
         case DocumentType of
             1:
                 InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Quotes");
@@ -461,7 +463,7 @@ codeunit 5051 SegManagement
         exit(InteractTmplSetupCaption);
     end;
 
-    local procedure FindContactFromContBusRelation(LinkToTable: Option; AccountNo: Code[20]): Code[20]
+    local procedure FindContactFromContBusRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20]): Code[20]
     var
         ContBusRel: Record "Contact Business Relation";
     begin
@@ -529,7 +531,7 @@ codeunit 5051 SegManagement
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         with InteractionLogEntry do begin
-            LockTable;
+            LockTable();
             if FindLast then;
             exit("Entry No." + 1);
         end;
@@ -541,7 +543,7 @@ codeunit 5051 SegManagement
         LoggedSegment: Record "Logged Segment";
     begin
         with LoggedSegment do begin
-            LockTable;
+            LockTable();
             if FindLast then;
             exit("Entry No." + 1);
         end;
@@ -553,7 +555,7 @@ codeunit 5051 SegManagement
         CampaignEntry: Record "Campaign Entry";
     begin
         with CampaignEntry do begin
-            LockTable;
+            LockTable();
             if FindLast then;
             exit("Entry No." + 1);
         end;
@@ -570,13 +572,13 @@ codeunit 5051 SegManagement
         if CampaignEntry.FindFirst then
             exit(CampaignEntry."Entry No.");
 
-        CampaignEntry.Reset;
-        CampaignEntry.Init;
+        CampaignEntry.Reset();
+        CampaignEntry.Init();
         CampaignEntry."Entry No." := GetNextCampaignEntryNo;
         if LoggedSegmentEntryNo <> 0 then
             CampaignEntry."Register No." := LoggedSegmentEntryNo;
         CopyFieldsToCampaignEntry(CampaignEntry, SegmentLine);
-        CampaignEntry.Insert;
+        CampaignEntry.Insert();
         exit(CampaignEntry."Entry No.");
     end;
 
@@ -672,6 +674,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnAfterCreateInteractionLogEntries(var SegmentHeader: Record "Segment Header"; var LoggedSegment: Record "Logged Segment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(var SegmentLine: Record "Segment Line"; Contact: Record Contact)
     begin
     end;
 }

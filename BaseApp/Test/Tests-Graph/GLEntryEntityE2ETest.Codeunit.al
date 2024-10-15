@@ -31,7 +31,7 @@ codeunit 135539 "GLEntryEntity E2E Test"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 135539 "GLEntryEntity E2E Test"
         CreateAndPostGeneralJournalLineByPage(GeneralJournal);
 
         // [THEN] A new G/L Entry has been created
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntryNo);
         Assert.IsTrue(GLEntry.FindFirst, 'The G/L Entry should exist in the table.');
         GLEntryId := Format(GLEntry."Entry No.");

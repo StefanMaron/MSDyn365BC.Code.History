@@ -146,7 +146,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         LibraryLowerPermissions.SetSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
-        CreateCustomer(Customer);
+        LibrarySmallBusiness.CreateCustomer(Customer);
         CreateNewInvoiceWithLines(SalesHeader, Customer, NumberOfLines, ItemUnitPrice, ItemQuantity);
 
         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, SalesHeader);
@@ -201,7 +201,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         LibraryLowerPermissions.SetSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
-        CreateCustomer(Customer);
+        LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct1, MinAmount1, '');
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct2, MinAmount2, '');
 
@@ -389,7 +389,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Calc Disc By Type");
     end;
 
@@ -401,9 +401,9 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll;
+                ResLedgerEntry.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -428,16 +428,9 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
             LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, ItemQuantity);
     end;
 
-    local procedure CreateCustomer(var Customer: Record Customer)
-    begin
-        LibrarySmallBusiness.CreateCustomer(Customer);
-        Customer."Payment Terms Code" := '';
-        Customer.Modify;
-    end;
-
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinDiscAmount: Decimal)
     begin
-        CreateCustomer(Customer);
+        LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct, MinDiscAmount, '');
     end;
 

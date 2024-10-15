@@ -147,38 +147,26 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
                 }
                 field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
-                }
-                field("Starting Date-Time"; "Starting Date-Time")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the entry''s starting date and starting time, which is retrieved from the production order routing.';
-                }
-                field("Ending Date-Time"; "Ending Date-Time")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the entry''s ending date and ending time, which is retrieved from the production order routing.';
+                    Visible = false;
                 }
                 field("Production BOM No."; "Production BOM No.")
                 {
@@ -287,19 +275,9 @@ page 5406 "Prod. Order Line List"
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
     end;
 
     var
@@ -308,7 +286,6 @@ page 5406 "Prod. Order Line List"
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDocument(var ProdOrderLine: Record "Prod. Order Line"; ProdOrder: Record "Production Order")

@@ -11,7 +11,7 @@ codeunit 51 "BOM-Explode BOM"
         FromBOMComp.SetRange("Parent Item No.", "No.");
         ToBOMComp.SetRange("Parent Item No.", "Parent Item No.");
 
-        NoOfBOMComp := FromBOMComp.Count;
+        NoOfBOMComp := FromBOMComp.Count();
         if NoOfBOMComp = 0 then
             Error(
               Text001,
@@ -39,7 +39,7 @@ codeunit 51 "BOM-Explode BOM"
             ToBOMComp.Position := StrSubstNo(Position, FromBOMComp.Position);
             ToBOMComp."Installed in Line No." := "Installed in Line No.";
             ToBOMComp."Installed in Item No." := "Installed in Item No.";
-            ToBOMComp.Insert;
+            ToBOMComp.Insert();
         until FromBOMComp.Next = 0;
 
         Delete;

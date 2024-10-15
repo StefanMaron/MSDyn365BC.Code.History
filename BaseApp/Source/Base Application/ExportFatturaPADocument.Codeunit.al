@@ -47,7 +47,7 @@ codeunit 12179 "Export FatturaPA Document"
         ServerFileName: Text[250];
         FileName: Text;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BindSubscription(ExportFatturaPADocument);
         // prepare files
         ServerFileName := CopyStr(FileManagement.ServerTempFileName('xml'), 1, MaxStrLen(ServerFileName));
@@ -96,7 +96,7 @@ codeunit 12179 "Export FatturaPA Document"
             // 2.2 DatiBeniServizi - Goods/Services data
             GetParent;
             AddGroupElement('DatiBeniServizi');
-            TempFatturaLine.Reset;
+            TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
             if TempFatturaLine.FindSet then
                 repeat
@@ -104,7 +104,7 @@ codeunit 12179 "Export FatturaPA Document"
                 until TempFatturaLine.Next = 0;
 
             // fill in LineVATData
-            TempFatturaLine.Reset;
+            TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
             if TempFatturaLine.FindSet then
                 repeat
@@ -158,7 +158,7 @@ codeunit 12179 "Export FatturaPA Document"
     var
         FatturaSetup: Record "Fattura Setup";
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."Country/Region Code" := CompanyInformation."Country/Region Code";
         Customer."Fiscal Code" := CompanyInformation."Fiscal Code";
         Customer."VAT Registration No." := CompanyInformation."VAT Registration No.";
@@ -167,7 +167,7 @@ codeunit 12179 "Export FatturaPA Document"
         Customer."Post Code" := CompanyInformation."Post Code";
         Customer.County := CompanyInformation.County;
         Customer.City := CompanyInformation.City;
-        FatturaSetup.Get;
+        FatturaSetup.Get();
         FatturaSetup.TestField("Company PA Code");
         Customer."PA Code" := FatturaSetup."Company PA Code";
     end;
@@ -351,7 +351,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddNonEmptyElement('TipoDocumento', TempFatturaHeader."Fattura Document Type");
 
             // 2.1.1.2 Divisa
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             AddNonEmptyElement('Divisa', GeneralLedgerSetup."LCY Code");
 
             // 2.1.1.3  Data
@@ -447,7 +447,7 @@ codeunit 12179 "Export FatturaPA Document"
     begin
         // 2.1.2  DatiOrdineAcquisto
 
-        TempFatturaLine.Reset;
+        TempFatturaLine.Reset();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Order);
         if not TempFatturaLine.FindSet then
             exit;
@@ -473,7 +473,7 @@ codeunit 12179 "Export FatturaPA Document"
     begin
         // 2.4. DatiPagamento - Payment Data
         with TempXMLBuffer do begin
-            TempFatturaLine.Reset;
+            TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Payment);
             if TempFatturaLine.FindSet then begin
                 AddGroupElement('DatiPagamento');
@@ -492,7 +492,7 @@ codeunit 12179 "Export FatturaPA Document"
 
     local procedure PopulateShipmentData(var TempFatturaLine: Record "Fattura Line" temporary)
     begin
-        TempFatturaLine.Reset;
+        TempFatturaLine.Reset();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Shipment);
         if not TempFatturaLine.FindSet then
             exit;

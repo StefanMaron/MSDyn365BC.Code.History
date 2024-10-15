@@ -135,20 +135,20 @@ table 308 "No. Series"
     trigger OnDelete()
     begin
         NoSeriesLine.SetRange("Series Code", Code);
-        NoSeriesLine.DeleteAll;
+        NoSeriesLine.DeleteAll();
 
         NoSeriesLineSales.SetRange("Series Code", Code);
-        NoSeriesLineSales.DeleteAll;
+        NoSeriesLineSales.DeleteAll();
 
         NoSeriesLinePurchase.SetRange("Series Code", Code);
-        NoSeriesLinePurchase.DeleteAll;
+        NoSeriesLinePurchase.DeleteAll();
 
         NoSeriesRelationship.SetRange(Code, Code);
-        NoSeriesRelationship.DeleteAll;
+        NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange(Code);
 
         NoSeriesRelationship.SetRange("Series Code", Code);
-        NoSeriesRelationship.DeleteAll;
+        NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange("Series Code");
     end;
 
@@ -207,7 +207,7 @@ table 308 "No. Series"
                 begin
                     FindNoSeriesLineToShow(NoSeriesLine);
                     if not NoSeriesLine.Find('-') then
-                        NoSeriesLine.Init;
+                        NoSeriesLine.Init();
                     StartDate := NoSeriesLine."Starting Date";
                     StartNo := NoSeriesLine."Starting No.";
                     EndNo := NoSeriesLine."Ending No.";
@@ -220,7 +220,7 @@ table 308 "No. Series"
                 begin
                     FindNoSeriesLineSalesToShow(NoSeriesLineSales);
                     if not NoSeriesLineSales.Find('-') then
-                        NoSeriesLineSales.Init;
+                        NoSeriesLineSales.Init();
                     StartDate := NoSeriesLineSales."Starting Date";
                     StartNo := NoSeriesLineSales."Starting No.";
                     EndNo := NoSeriesLineSales."Ending No.";
@@ -233,7 +233,7 @@ table 308 "No. Series"
                 begin
                     FindNoSeriesLinePurchToShow(NoSeriesLinePurchase);
                     if not NoSeriesLinePurchase.Find('-') then
-                        NoSeriesLinePurchase.Init;
+                        NoSeriesLinePurchase.Init();
                     StartDate := NoSeriesLinePurchase."Starting Date";
                     StartNo := NoSeriesLinePurchase."Starting No.";
                     EndNo := NoSeriesLinePurchase."Ending No.";
@@ -254,7 +254,7 @@ table 308 "No. Series"
         if NoSeriesLine.FindLast then
             exit;
 
-        NoSeriesLine.Reset;
+        NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", Code);
     end;
 
@@ -267,7 +267,7 @@ table 308 "No. Series"
         if NoSeriesLineSales.FindLast then
             exit;
 
-        NoSeriesLineSales.Reset;
+        NoSeriesLineSales.Reset();
         NoSeriesLineSales.SetRange("Series Code", Code);
     end;
 
@@ -280,7 +280,7 @@ table 308 "No. Series"
         if NoSeriesLinePurchase.FindLast then
             exit;
 
-        NoSeriesLinePurchase.Reset;
+        NoSeriesLinePurchase.Reset();
         NoSeriesLinePurchase.SetRange("Series Code", Code);
     end;
 }

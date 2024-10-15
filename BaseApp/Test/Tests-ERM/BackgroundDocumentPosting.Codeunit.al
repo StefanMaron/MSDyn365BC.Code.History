@@ -113,7 +113,7 @@ codeunit 134893 "Background Document Posting"
         // [GIVEN] Sales Order with blank "External Document No.".
         CreateSalesOrder(SalesHeader);
         SalesHeader."External Document No." := '';
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesHeaderCopy := SalesHeader;
 
         // [WHEN] Post Sales Order via Job Queue.
@@ -252,7 +252,6 @@ codeunit 134893 "Background Document Posting"
 
         // [GIVEN] Purchase Invoice.
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
 
         // [WHEN] Post Purchase Invoice via Job Queue.
         PostPurchaseDocumentViaJobQueue(PurchaseHeader);
@@ -294,7 +293,6 @@ codeunit 134893 "Background Document Posting"
 
         // [GIVEN] Purchase Credit Memo.
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
 
         // [WHEN] Post Purchase Credit Memo via Job Queue.
         PostPurchaseDocumentViaJobQueue(PurchaseHeader);
@@ -338,7 +336,7 @@ codeunit 134893 "Background Document Posting"
         // [GIVEN] Purchase Order with blank "Vendor Invoice No.".
         CreatePurchaseOrder(PurchaseHeader);
         PurchaseHeader."Vendor Invoice No." := '';
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchaseHeaderCopy := PurchaseHeader;
 
         // [WHEN] Post Purchase Order via Job Queue.
@@ -486,7 +484,7 @@ codeunit 134893 "Background Document Posting"
         LibrarySales.CreateSalesOrder(SalesHeader);
         SalesHeader.Invoice := true;
         SalesHeader.Ship := true;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreateSalesReturnOrder(var SalesHeader: Record "Sales Header")
@@ -497,25 +495,23 @@ codeunit 134893 "Background Document Posting"
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate);
         SalesHeader.Invoice := true;
         SalesHeader.Receive := true;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Receive := true;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
-        LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Ship := true;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreateJobQueueEntryForPostingSalesDocument(var SalesHeader: Record "Sales Header"; var TempJobQueueEntry: Record "Job Queue Entry" temporary)
@@ -583,15 +579,15 @@ codeunit 134893 "Background Document Posting"
         SalesSetup: Record "Sales & Receivables Setup";
         PurchasesSetup: Record "Purchases & Payables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Post with Job Queue" := true;
         SalesSetup."Ext. Doc. No. Mandatory" := true;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        PurchasesSetup.Get;
+        PurchasesSetup.Get();
         PurchasesSetup."Post with Job Queue" := true;
         PurchasesSetup."Ext. Doc. No. Mandatory" := true;
-        PurchasesSetup.Modify;
+        PurchasesSetup.Modify();
     end;
 
     local procedure UpdateInvoiceShipReceiveOnSalesDocument(var SalesHeader: Record "Sales Header"; Invoice: Boolean; Ship: Boolean; Receive: Boolean)
@@ -600,7 +596,7 @@ codeunit 134893 "Background Document Posting"
         SalesHeader.Invoice := Invoice;
         SalesHeader.Ship := Ship;
         SalesHeader.Receive := Receive;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure UpdateInvoiceShipReceiveOnPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; Invoice: Boolean; Ship: Boolean; Receive: Boolean)
@@ -609,7 +605,7 @@ codeunit 134893 "Background Document Posting"
         PurchaseHeader.Invoice := Invoice;
         PurchaseHeader.Ship := Ship;
         PurchaseHeader.Receive := Receive;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure VerifyPostedSalesInvoice(SalesHeader: Record "Sales Header")

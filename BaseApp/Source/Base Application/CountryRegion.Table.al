@@ -146,7 +146,7 @@ table 9 "Country/Region"
         VATRegNoFormat: Record "VAT Registration No. Format";
     begin
         VATRegNoFormat.SetFilter("Country/Region Code", Code);
-        VATRegNoFormat.DeleteAll;
+        VATRegNoFormat.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -176,7 +176,7 @@ table 9 "Country/Region"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Get(CountryCode) then
             if ("Intrastat Code" <> '') and (CompanyInfo."Country/Region Code" <> CountryCode) then
                 exit(false);
@@ -210,17 +210,17 @@ table 9 "Country/Region"
     var
         CustomAddressFormat: Record "Custom Address Format";
     begin
-        CustomAddressFormat.Init;
+        CustomAddressFormat.Init();
         CustomAddressFormat."Country/Region Code" := Code;
         CustomAddressFormat."Field ID" := FieldID;
         CustomAddressFormat."Line Position" := LinePosition - 1;
-        CustomAddressFormat.Insert;
+        CustomAddressFormat.Insert();
 
         if FieldID <> 0 then
             CreateAddressFormatLine(CountryCode, 1, FieldID, CustomAddressFormat."Line No.");
 
         CustomAddressFormat.BuildAddressFormat;
-        CustomAddressFormat.Modify;
+        CustomAddressFormat.Modify();
 
         exit(CustomAddressFormat."Line No.");
     end;
@@ -229,12 +229,12 @@ table 9 "Country/Region"
     var
         CustomAddressFormatLine: Record "Custom Address Format Line";
     begin
-        CustomAddressFormatLine.Init;
+        CustomAddressFormatLine.Init();
         CustomAddressFormatLine."Country/Region Code" := CountryCode;
         CustomAddressFormatLine."Line No." := LineNo;
         CustomAddressFormatLine."Field Position" := FieldPosition - 1;
         CustomAddressFormatLine.Validate("Field ID", FieldID);
-        CustomAddressFormatLine.Insert;
+        CustomAddressFormatLine.Insert();
     end;
 
     procedure InitAddressFormat()
@@ -273,7 +273,7 @@ table 9 "Country/Region"
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat;
-            CustomAddressFormat.Modify;
+            CustomAddressFormat.Modify();
         end;
     end;
 

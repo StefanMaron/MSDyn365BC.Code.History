@@ -171,7 +171,7 @@ report 6653 "Combine Return Receipts"
 
                         trigger OnValidate()
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -195,7 +195,7 @@ report 6653 "Combine Return Receipts"
                 PostingDateReq := WorkDate;
             if DocDateReq = 0D then
                 DocDateReq := WorkDate;
-            SalesSetup.Get;
+            SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
         end;
     }
@@ -249,7 +249,7 @@ report 6653 "Combine Return Receipts"
             if CalcInvDisc then
                 SalesCalcDisc.Run(SalesLine);
             Find;
-            Commit;
+            Commit();
             Clear(SalesCalcDisc);
             Clear(SalesPost);
             NoOfSalesInv := NoOfSalesInv + 1;
@@ -290,7 +290,7 @@ report 6653 "Combine Return Receipts"
             OnBeforeSalesCrMemoHeaderModify(SalesHeader, SalesOrderHeader);
 
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 

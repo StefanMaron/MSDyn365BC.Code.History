@@ -34,7 +34,7 @@ codeunit 139060 "Office Add-in Jobs"
         Initialize;
 
         // [GIVEN] Calendar appointment, where Subject is JobNo:JobTaskNo:PlanningLineNo
-        OfficeAddinContext.Init;
+        OfficeAddinContext.Init();
         RandomLineNo := LibraryRandom.RandInt(9999);
         OfficeAddinContext.Subject := CreateAppointmentSubject(TestJobNoTxt, TestJobTaskNoTxt, RandomLineNo);
         OfficeAddinContext."Item Type" := OfficeAddinContext."Item Type"::Appointment;
@@ -489,7 +489,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -503,8 +503,8 @@ codeunit 139060 "Office Add-in Jobs"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -512,9 +512,9 @@ codeunit 139060 "Office Add-in Jobs"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure RunMailEngine(var OfficeAddinContext: Record "Office Add-in Context")

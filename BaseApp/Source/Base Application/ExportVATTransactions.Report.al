@@ -81,7 +81,7 @@ report 12193 "Export VAT Transactions"
                 trigger OnAfterGetRecord()
                 begin
                     if not DetailedExport then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
             dataitem(AggregatedRecords; "Integer")
@@ -135,7 +135,7 @@ report 12193 "Export VAT Transactions"
                 trigger OnAfterGetRecord()
                 begin
                     if DetailedExport then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -188,7 +188,7 @@ report 12193 "Export VAT Transactions"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -477,7 +477,7 @@ report 12193 "Export VAT Transactions"
 
     local procedure PreProcessFAInvoices()
     begin
-        CurrentVATEntity.Reset;
+        CurrentVATEntity.Reset();
         CurrentVATEntityIdentifier := '';
         IsVATEntityInitialized := false;
         Clear(FASumUp);
@@ -492,7 +492,7 @@ report 12193 "Export VAT Transactions"
                IsVATEntityInitialized
             then begin
                 WriteFALine(CurrentVATEntity);
-                CurrentVATEntity.Reset;
+                CurrentVATEntity.Reset();
                 Clear(FASumUp);
                 CurrentVATEntityIdentifier := '';
             end;
@@ -536,7 +536,7 @@ report 12193 "Export VAT Transactions"
     [Scope('OnPrem')]
     procedure PreProcessBLTransactions()
     begin
-        CurrentVATEntity.Reset;
+        CurrentVATEntity.Reset();
         CurrentVATEntityIdentifier := '';
         CurrentBLRecordIdentifier := '';
         CurrentBillToPayTo := '';
@@ -551,7 +551,7 @@ report 12193 "Export VAT Transactions"
                CurrLineDiffNonResidentCust(BLTransactions, CurrentBillToPayTo)
             then begin
                 WriteBLLine(CurrentVATEntity, CurrentBLRecordIdentifier);
-                CurrentVATEntity.Reset;
+                CurrentVATEntity.Reset();
                 CurrentVATEntityIdentifier := '';
                 CurrentBLRecordIdentifier := '';
                 CurrentBillToPayTo := '';
@@ -716,7 +716,7 @@ report 12193 "Export VAT Transactions"
         FAInvoices.SetRange("VAT Report No.", "VAT Report Header"."No.");
         FAInvoices.SetRange("Incl. in Report", true);
         FAInvoices.SetFilter("Record Identifier", 'FE|FR|NE|NR');
-        VATReportLinePrev.Init;
+        VATReportLinePrev.Init();
         if FAInvoices.FindSet then begin
             repeat
                 if (VATReportLinePrev."VAT Group Identifier" <> FAInvoices."VAT Group Identifier") or
@@ -728,7 +728,7 @@ report 12193 "Export VAT Transactions"
             if DistinctCount = 0 then
                 DistinctCount += 1;
         end;
-        FAInvoices.Reset;
+        FAInvoices.Reset();
 
         exit(DistinctCount);
     end;
@@ -742,7 +742,7 @@ report 12193 "Export VAT Transactions"
         BLTransactions.SetRange("VAT Report No.", "VAT Report Header"."No.");
         BLTransactions.SetRange("Incl. in Report", true);
         BLTransactions.SetFilter("Record Identifier", 'FN|SE|BL');
-        VATReportLinePrev.Init;
+        VATReportLinePrev.Init();
         if BLTransactions.FindSet then
             repeat
                 if ((VATReportLinePrev."Record Identifier" <> BLTransactions."Record Identifier") or
@@ -754,7 +754,7 @@ report 12193 "Export VAT Transactions"
                     DistinctCount := DistinctCount + 1;
                 VATReportLinePrev := BLTransactions;
             until BLTransactions.Next = 0;
-        BLTransactions.Reset;
+        BLTransactions.Reset();
 
         exit(DistinctCount);
     end;

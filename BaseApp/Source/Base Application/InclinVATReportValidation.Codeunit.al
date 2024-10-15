@@ -25,7 +25,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine."Include in VAT Transac. Rep." then begin
             // Clear Log
-            IncludeinVATReportErrorLog.DeleteAll;
+            IncludeinVATReportErrorLog.DeleteAll();
             // Exit if No VAT will be posted
             if not GenJournalLine.CheckincludeInVATSetup then begin
                 // Temp records needed for correct formatting of "Account Type"
@@ -46,7 +46,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             if IncludeinVATReportErrorLog.FindSet then
                 repeat
                     IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
-                    IncludeVATReportErrorLogParam.Insert;
+                    IncludeVATReportErrorLogParam.Insert();
                 until IncludeinVATReportErrorLog.Next = 0;
         end;
     end;
@@ -137,7 +137,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Quantity, '<>0');
@@ -146,7 +146,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             exit;
 
         // Clear Log
-        IncludeinVATReportErrorLog.DeleteAll;
+        IncludeinVATReportErrorLog.DeleteAll();
         CheckFiscalCodeInSalesHeader(SalesHeader);
         CheckNRFirstNameInSalesHeader(SalesHeader);
         CheckNRLastNameInSalesHeader(SalesHeader);
@@ -163,7 +163,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
-                IncludeVATReportErrorLogParam.Insert;
+                IncludeVATReportErrorLogParam.Insert();
             until IncludeinVATReportErrorLog.Next = 0;
     end;
 
@@ -249,7 +249,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter(Quantity, '<>0');
@@ -258,7 +258,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             exit;
 
         // Clear Log
-        IncludeinVATReportErrorLog.DeleteAll;
+        IncludeinVATReportErrorLog.DeleteAll();
         CheckFiscalCodeInPurchaseHeader(PurchaseHeader);
         CheckNRFirstNameInPurchaseHeader(PurchaseHeader);
         CheckNRLastNameInPurchaseHeader(PurchaseHeader);
@@ -275,7 +275,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
-                IncludeVATReportErrorLogParam.Insert;
+                IncludeVATReportErrorLogParam.Insert();
             until IncludeinVATReportErrorLog.Next = 0;
     end;
 
@@ -362,7 +362,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
     var
         ServiceLine: Record "Service Line";
     begin
-        ServiceLine.Reset;
+        ServiceLine.Reset();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetFilter(Quantity, '<>0');
@@ -371,7 +371,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             exit;
 
         // Clear Log
-        IncludeinVATReportErrorLog.DeleteAll;
+        IncludeinVATReportErrorLog.DeleteAll();
         CheckFiscalCodeInServiceHeader(ServiceHeader);
         CheckNRFirstNameInServiceHeader(ServiceHeader);
         CheckNRLastNameInServiceHeader(ServiceHeader);
@@ -388,7 +388,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         if IncludeinVATReportErrorLog.FindSet then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
-                IncludeVATReportErrorLogParam.Insert;
+                IncludeVATReportErrorLogParam.Insert();
             until IncludeinVATReportErrorLog.Next = 0;
     end;
 
@@ -477,7 +477,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
         IncludeinVATReportErrorLog."Field No." := FieldNo;
         IncludeinVATReportErrorLog."Error Message" := ErrorText;
         IncludeinVATReportErrorLog."Line No." := LineNo;
-        IncludeinVATReportErrorLog.Insert;
+        IncludeinVATReportErrorLog.Insert();
     end;
 
     [Scope('OnPrem')]

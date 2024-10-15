@@ -25,9 +25,6 @@ report 12154 "Subcontract. Transfer Shipment"
                     column(Text1130001; Text1130001Lbl)
                     {
                     }
-                    column(STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1130002, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(TransferToAddr_1_; TransferToAddr[1])
                     {
                     }
@@ -160,9 +157,6 @@ report 12154 "Subcontract. Transfer Shipment"
                     column(CopyText_Control1130558; CopyText)
                     {
                     }
-                    column(STRSUBSTNO_Text1130002_FORMAT_CurrReport_PAGENO___Control1130559; StrSubstNo(Text1130002, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CompanyAddr_2__Control1130565; CompanyAddr[2])
                     {
                     }
@@ -291,10 +285,10 @@ report 12154 "Subcontract. Transfer Shipment"
                         begin
                             if Number = 1 then begin
                                 if "Transfer Shipment Header"."Dimension Set ID" = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             Clear(DimText);
                             Continue := false;
 
@@ -321,7 +315,7 @@ report 12154 "Subcontract. Transfer Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Transfer Shipment Line"; "Transfer Shipment Line")
@@ -396,10 +390,10 @@ report 12154 "Subcontract. Transfer Shipment"
                             begin
                                 if Number = 1 then begin
                                     if "Transfer Shipment Line"."Dimension Set ID" = 0 then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -427,7 +421,7 @@ report 12154 "Subcontract. Transfer Shipment"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -452,7 +446,7 @@ report 12154 "Subcontract. Transfer Shipment"
                             while MoreLines and (Description = '') and ("Item No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -467,7 +461,6 @@ report 12154 "Subcontract. Transfer Shipment"
                         CopyText := Text1130006;
                     if Number > 3 then
                         CopyText := Text1130000;
-                    CurrReport.PageNo := 1;
 
                     if Number > 1 then
                         OutputNo += 1;
@@ -496,18 +489,18 @@ report 12154 "Subcontract. Transfer Shipment"
                 end;
 
                 if not ShipmentMethod.Get("Shipment Method Code") then
-                    ShipmentMethod.Init;
+                    ShipmentMethod.Init();
 
                 if not ShippingAgent.Get("Shipping Agent Code") then
-                    ShippingAgent.Init;
+                    ShippingAgent.Init();
 
                 if not TransportReasonCode.Get("Transport Reason Code") then
-                    TransportReasonCode.Init;
+                    TransportReasonCode.Init();
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.CalcFields(Picture);
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
 

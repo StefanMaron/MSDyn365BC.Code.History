@@ -22,7 +22,7 @@ page 743 "VAT Report Setup"
                 }
                 field("Filter Datifattura Lines"; "Filter Datifattura Lines")
                 {
-                    ApplicationArea = Basic, "#Suite";
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Enable Datifattura Lines Filtering';
                     ToolTip = 'Specifies if the request page must be shown when suggesting Datifattura lines to allow setting a filter for the entries that will be considered.';
                 }

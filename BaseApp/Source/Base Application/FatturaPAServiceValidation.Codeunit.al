@@ -57,7 +57,7 @@ codeunit 12181 "FatturaPA Service Validation"
         DummyElectronicDocumentFormat: Record "Electronic Document Format";
         FatturaPASalesValidation: Codeunit "FatturaPA Sales Validation";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if not ServiceMgtSetup."Validate Document On Posting" then
             exit;
 
