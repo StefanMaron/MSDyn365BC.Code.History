@@ -2102,13 +2102,13 @@ codeunit 134385 "ERM Sales Document"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CustomerCardOpenedDirectlyDateFilterIsEmpty()
+    procedure CustomerCardOpenedDirectlyDateFilterIsWorkDate()
     var
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
         // [FEATURE] [Customer Card]
-        // [SCENARIO 253165] Customer Card opened not from the Customer List should have empty Date Filter.
+        // [SCENARIO 253165] Customer Card opened not from the Customer List should be  filtered until workdate..
         Initialize;
 
         // [GIVEN] A Customer.
@@ -2118,8 +2118,8 @@ codeunit 134385 "ERM Sales Document"
         CustomerCard.OpenView;
         CustomerCard.GotoKey(Customer."No.");
 
-        // [THEN] Customer List has empty Date Filter.
-        Assert.AreEqual('', CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
+        // [THEN] Customer Card are filtered until workdate.
+        Assert.AreEqual('''''' + '..' + Format(WorkDate()), CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
     [Test]

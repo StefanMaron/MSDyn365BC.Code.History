@@ -376,59 +376,93 @@ codeunit 7018 "Price UX Management"
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Campaign, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Campaign, Campaign."No.");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Campaign, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Contact: Record Contact; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Contact, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Contact, Contact."No.");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Contact, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Customer: Record Customer; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
-        PriceSourceList.Add(PriceSourceType::Customer, Customer."No.");
+        OnBeforeGetPriceSource(Customer, "Price Type"::Sale, PriceSourceList);
+
+        if Customer."Bill-to Customer No." <> '' then
+            PriceSourceList.Add(PriceSourceType::Customer, Customer."Bill-to Customer No.")
+        else
+            PriceSourceList.Add(PriceSourceType::Customer, Customer."No.");
         PriceSourceList.Add(PriceSourceType::"All Customers");
         if Customer."Customer Price Group" <> '' then
             PriceSourceList.Add(PriceSourceType::"Customer Price Group", Customer."Customer Price Group");
         if Customer."Customer Disc. Group" <> '' then
             PriceSourceList.Add(PriceSourceType::"Customer Disc. Group", Customer."Customer Disc. Group");
+
+        OnAfterGetPriceSource(Customer, PriceSourceList);
     end;
 
     local procedure GetPriceSource(CustomerPriceGroup: Record "Customer Price Group"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(CustomerPriceGroup, "Price Type"::Sale, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::"Customer Price Group", CustomerPriceGroup.Code);
+
+        OnAfterGetPriceSource(CustomerPriceGroup, PriceSourceList);
     end;
 
     local procedure GetPriceSource(CustomerDiscountGroup: Record "Customer Discount Group"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(CustomerDiscountGroup, "Price Type"::Sale, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::"Customer Disc. Group", CustomerDiscountGroup.Code);
+
+        OnAfterGetPriceSource(CustomerDiscountGroup, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Vendor: Record Vendor; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
-        PriceSourceList.Add(PriceSourceType::Vendor, Vendor."No.");
+        OnBeforeGetPriceSource(Vendor, "Price Type"::Purchase, PriceSourceList);
+
+        if Vendor."Pay-to Vendor No." <> '' then
+            PriceSourceList.Add(PriceSourceType::Vendor, Vendor."Pay-to Vendor No.")
+        else
+            PriceSourceList.Add(PriceSourceType::Vendor, Vendor."No.");
         PriceSourceList.Add(PriceSourceType::"All Vendors");
+
+        OnAfterGetPriceSource(Vendor, PriceSourceList);
     end;
 
     local procedure GetPriceSource(Job: Record Job; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
     var
         PriceSourceType: Enum "Price Source Type";
     begin
+        OnBeforeGetPriceSource(Job, PriceType, PriceSourceList);
+
         PriceSourceList.Add(PriceSourceType::Job, Job."No.");
         PriceSourceList.Add(PriceSourceType::"All Jobs");
         PriceSourceList.SetPriceType(PriceType);
+
+        OnAfterGetPriceSource(Job, PriceSourceList);
     end;
 
     procedure SetPriceListsFilters(var PriceListHeader: Record "Price List Header"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
@@ -580,6 +614,16 @@ codeunit 7018 "Price UX Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPriceListLines(PriceSource: Record "Price Source"; PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPriceSource(FromRecord: Variant; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPriceSource(FromRecord: Variant; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
 }
