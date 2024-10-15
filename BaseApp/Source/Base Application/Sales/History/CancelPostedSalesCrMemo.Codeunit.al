@@ -274,7 +274,13 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     local procedure TestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         CancelledDocument: Record "Cancelled Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CancelledDocument.FindSalesCorrectiveCrMemo(SalesCrMemoHeader."No.") then
             ErrorHelperHeader(ErrorType::IsCanceled, SalesCrMemoHeader);
     end;
@@ -558,6 +564,11 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfCrMemoIsCorrectiveDoc(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

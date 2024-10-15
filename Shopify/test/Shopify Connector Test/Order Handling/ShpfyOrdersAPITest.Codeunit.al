@@ -235,6 +235,7 @@ codeunit 139608 "Shpfy Orders API Test"
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Customer Mapping Type" := "Shpfy Customer Mapping"::"By EMail/Phone";
+        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -280,6 +281,7 @@ codeunit 139608 "Shpfy Orders API Test"
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Customer Mapping Type" := "Shpfy Customer Mapping"::"By EMail/Phone";
+        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -327,6 +329,7 @@ codeunit 139608 "Shpfy Orders API Test"
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Tax Area Priority" := Shop."Tax Area Priority"::"Ship-to -> Sell-to -> Bill-to";
         Shop."County Source" := Shop."County Source"::"Code";
+        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -371,6 +374,7 @@ codeunit 139608 "Shpfy Orders API Test"
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Tax Area Priority" := Shop."Tax Area Priority"::"Sell-to -> Ship-to -> Bill-to";
         Shop."County Source" := Shop."County Source"::"Name";
+        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);

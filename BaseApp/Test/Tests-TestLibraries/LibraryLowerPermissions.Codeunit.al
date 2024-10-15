@@ -64,6 +64,7 @@ codeunit 132217 "Library - Lower Permissions"
         BasicISVTok: Label 'D365 BASIC ISV', Locked = true;
         XBackupRestoreTok: Label 'D365 BACKUP/RESTORE';
         D365ServiceMgtTxt: Label 'D365PREM SMG, VIEW';
+        D365ServiceMgtEditTxt: Label 'D365PREM SMG, EDIT';
         D365WhseEditTok: Label 'D365 WHSE, EDIT';
 
     procedure StartLoggingNAVPermissions(PermissionSetRoleID: Code[20])
@@ -563,6 +564,16 @@ codeunit 132217 "Library - Lower Permissions"
     procedure AddO365ServiceMgtRead()
     begin
         AddPermissionSet(D365ServiceMgtTxt);
+    end;
+
+    procedure SetO365ServiceMgtEdit()
+    begin
+        PushPermissionSet(D365ServiceMgtEditTxt);
+    end;
+
+    procedure AddO365ServiceMgtEdit()
+    begin
+        AddPermissionSet(D365ServiceMgtEditTxt);
     end;
 
     procedure AddBackupRestore()

@@ -22,6 +22,7 @@ page 103 "Account Schedule Names"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the unique name (code) of the financial report row definition. You can use up to 10 characters.';
                 }
                 field(Description; Rec.Description)
                 {

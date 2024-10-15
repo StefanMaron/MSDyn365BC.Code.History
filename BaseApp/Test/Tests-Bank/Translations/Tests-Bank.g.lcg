@@ -254,7 +254,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Match Bank Reconciliation - UT - NamedType MatchSummaryMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Matched lines count, %2 = Total lines count]D;]A;(LookupHint=Codeunit Match Bank Reconciliation - UT - NamedType MatchSummaryMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2291228186 - NamedType 3041688090" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

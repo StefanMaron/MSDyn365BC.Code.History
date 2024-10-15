@@ -24,18 +24,29 @@ report 5914 "Delete Invoiced Service Orders"
 
             trigger OnAfterGetRecord()
             var
+                ServiceOrderItemLine: Record "Service Item Line";
+                ServiceOrderLine: Record "Service Line";
+                ServiceShipmentHeader: Record "Service Shipment Header";
+                ServiceInvoiceHeader: Record "Service Invoice Header";
+                ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+                ServiceCommentLine: Record "Service Comment Line";
+                WarehouseRequest: Record "Warehouse Request";
+                ServiceOrderAllocation: Record "Service Order Allocation";
+                ServicePost: Codeunit "Service-Post";
+                ServiceLineReserve: Codeunit "Service Line-Reserve";
+                ServAllocationManagement: Codeunit ServAllocationManagement;
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeServiceHeaderOnAfterGetRecord("Service Header", IsHandled);
+                OnBeforeServiceHeaderOnAfterGetRecord("Service Header", IsHandled, ProgressDialog);
                 if IsHandled then
                     CurrReport.Skip();
 
                 if GuiAllowed() then
-                    Window.Update(1, "No.");
+                    ProgressDialog.Update(1, "No.");
 
-                ServiceOrderLine.Reset();
+
                 ServiceOrderLine.SetRange("Document Type", "Document Type");
                 ServiceOrderLine.SetRange("Document No.", "No.");
                 ServiceOrderLine.SetFilter("Quantity Invoiced", '<>0');
@@ -64,7 +75,7 @@ report 5914 "Delete Invoiced Service Orders"
                                         ServiceOrderItemLine.Delete();
                                     until ServiceOrderItemLine.Next() = 0;
 
-                                ServicePost.DeleteHeader("Service Header", ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
+                                ServicePost.DeleteHeader("Service Header", ServiceShipmentHeader, ServiceInvoiceHeader, ServiceCrMemoHeader);
 
                                 ServiceLineReserve.DeleteInvoiceSpecFromHeader("Service Header");
 
@@ -73,19 +84,19 @@ report 5914 "Delete Invoiced Service Orders"
                                 ServiceCommentLine.SetRange("Table Subtype", "Document Type");
                                 ServiceCommentLine.DeleteAll();
 
-                                WhseRequest.SetRange("Source Type", DATABASE::"Service Line");
-                                WhseRequest.SetRange("Source Subtype", "Document Type");
-                                WhseRequest.SetRange("Source No.", "No.");
-                                if not WhseRequest.IsEmpty() then
-                                    WhseRequest.DeleteAll(true);
+                                WarehouseRequest.SetRange("Source Type", Database::"Service Line");
+                                WarehouseRequest.SetRange("Source Subtype", "Document Type");
+                                WarehouseRequest.SetRange("Source No.", "No.");
+                                if not WarehouseRequest.IsEmpty() then
+                                    WarehouseRequest.DeleteAll(true);
 
-                                ServOrderAlloc.Reset();
-                                ServOrderAlloc.SetCurrentKey("Document Type");
-                                ServOrderAlloc.SetRange("Document Type", "Document Type");
-                                ServOrderAlloc.SetRange("Document No.", "No.");
-                                ServOrderAlloc.SetRange(Posted, false);
-                                ServOrderAlloc.DeleteAll();
-                                ServAllocMgt.SetServOrderAllocStatus("Service Header");
+                                ServiceOrderAllocation.Reset();
+                                ServiceOrderAllocation.SetCurrentKey("Document Type");
+                                ServiceOrderAllocation.SetRange("Document Type", "Document Type");
+                                ServiceOrderAllocation.SetRange("Document No.", "No.");
+                                ServiceOrderAllocation.SetRange(Posted, false);
+                                ServiceOrderAllocation.DeleteAll();
+                                ServAllocationManagement.SetServOrderAllocStatus("Service Header");
 
                                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
@@ -102,42 +113,14 @@ report 5914 "Delete Invoiced Service Orders"
             trigger OnPreDataItem()
             begin
                 if GuiAllowed() then
-                    Window.Open(Text000Txt);
+                    ProgressDialog.Open(ProcessingProgressTxt);
             end;
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     var
-        ServiceOrderItemLine: Record "Service Item Line";
-        ServiceOrderLine: Record "Service Line";
-        ServiceShptHeader: Record "Service Shipment Header";
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceCommentLine: Record "Service Comment Line";
-        WhseRequest: Record "Warehouse Request";
-        ServOrderAlloc: Record "Service Order Allocation";
-        ServicePost: Codeunit "Service-Post";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
-        ServAllocMgt: Codeunit ServAllocationManagement;
-        Window: Dialog;
-
-        Text000Txt: Label 'Processing Service orders #1##########';
+        ProgressDialog: Dialog;
+        ProcessingProgressTxt: Label 'Processing Service orders #1##########', Comment = '%1 - Service Order No.';
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServiceHeader(var ServiceHeader: Record "Service Header")
@@ -155,7 +138,7 @@ report 5914 "Delete Invoiced Service Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderOnAfterGetRecord(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderOnAfterGetRecord(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean; var ProgressDialog: Dialog)
     begin
     end;
 }

@@ -685,13 +685,13 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var
-        Value: Text;
+        Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempUserPassword);
         if not IsNullGuid("User Password Key") then
             IsolatedStorageManagement.Get("User Password Key", DATASCOPE::Company, Value);
-        exit(Value);
+        exit(Value.Unwrap());
     end;
 
     local procedure GetUserName() UserName: Text
