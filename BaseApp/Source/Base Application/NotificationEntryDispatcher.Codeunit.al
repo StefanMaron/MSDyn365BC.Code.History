@@ -1,4 +1,4 @@
-codeunit 1509 "Notification Entry Dispatcher"
+﻿codeunit 1509 "Notification Entry Dispatcher"
 {
     Permissions = TableData "User Setup" = r,
                   TableData "Notification Entry" = rimd,
@@ -108,12 +108,15 @@ codeunit 1509 "Notification Entry Dispatcher"
         FileManagement: Codeunit "File Management";
         TempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
+        DocumentRecRef: RecordRef;
         BodyText: Text;
         MailSubject: Text;
         ErrorText: Text;
         IsEmailedSuccessfully: Boolean;
         IsHandled: Boolean;
         AttachmentStream: InStream;
+        SourceTables, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         if not GetHTMLBodyText(NotificationEntry, BodyText) then
             exit;
@@ -125,11 +128,25 @@ codeunit 1509 "Notification Entry Dispatcher"
             exit;
 
         TempBlob.CreateInStream(AttachmentStream);
-        SourceReference.GetTable(NotificationEntry);
-        SourceReference.GetBySystemId(NotificationEntry.SystemId);
+
+        if NotificationEntry.FindSet() then
+            repeat
+                // Add "Primary Source" Related Record (Notification Entry)
+                SourceReference.GetTable(NotificationEntry);
+                SourceReference.GetBySystemId(NotificationEntry.SystemId);
+                SourceTables.Add(SourceReference.Number());
+                SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo()).Value());
+                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+                // Add "Related Entity" Related Record (Document)
+                GetTargetRecRef(NotificationEntry, DocumentRecRef);
+                SourceTables.Add(DocumentRecRef.Number());
+                SourceIDs.Add(DocumentRecRef.Field(DocumentRecRef.SystemIdNo()).Value());
+                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+            until NotificationEntry.Next() = 0;
 
         IsEmailedSuccessfully := DocumentMailing.EmailFile(
-         AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceReference);
+         AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceTables, SourceIDs, SourceRelationTypes);
         FileManagement.DeleteServerFile(HtmlBodyFilePath);
         if IsEmailedSuccessfully then
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
@@ -230,16 +247,23 @@ codeunit 1509 "Notification Entry Dispatcher"
         NotificationManagement.GetDocumentTypeAndNumber(RecRef, DocumentType, DocumentNo);
         DocumentName := DocumentType + ' ' + DocumentNo;
         ActionText := NotificationManagement.GetActionTextFor(NotificationEntry);
+        OnCreateNoteBodyOnAfterGetActionTextFor(NotificationEntry, ActionText);
         Body := DocumentName + ' ' + ActionText;
     end;
 
     [Scope('OnPrem')]
-    procedure GetHTMLBodyText(var NotificationEntry: Record "Notification Entry"; var BodyTextOut: Text): Boolean
+    procedure GetHTMLBodyText(var NotificationEntry: Record "Notification Entry"; var BodyTextOut: Text) Result: Boolean
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         FileManagement: Codeunit "File Management";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetHTMLBodyText(NotificationEntry, BodyTextOut, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         HtmlBodyFilePath := FileManagement.ServerTempFileName('html');
         ReportLayoutSelection.SetTempLayoutSelected('');
         if not REPORT.SaveAsHtml(REPORT::"Notification Email", HtmlBodyFilePath, NotificationEntry) then begin
@@ -359,6 +383,16 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTargetRecRef(var NotificationEntry: Record "Notification Entry"; var TargetRecRefOut: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetHTMLBodyText(var NotificationEntry: Record "Notification Entry"; var BodyTextOut: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNoteBodyOnAfterGetActionTextFor(var NotificationEntry: Record "Notification Entry"; var ActionText: Text)
     begin
     end;
 }

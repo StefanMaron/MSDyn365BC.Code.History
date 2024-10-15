@@ -64,11 +64,14 @@ page 26101 "Report Selection - VAT"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('0001Q0A', VatReportTok, Enum::"Feature Uptake Status"::Discovered);
         SetUsageFilter;
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ReportUsage2: Option "VAT Statement","Sales VAT Adv. Not. Acc. Proof","VAT Statement Schedule";
+        VatReportTok: Label 'DACH VAT Report', Locked = true;
 
     local procedure SetUsageFilter()
     begin

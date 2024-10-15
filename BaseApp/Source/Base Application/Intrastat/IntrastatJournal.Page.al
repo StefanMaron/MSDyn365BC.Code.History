@@ -279,6 +279,7 @@
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    ToolTip = 'Print the intrastat journal.';
 
                     trigger OnAction()
                     begin
@@ -299,8 +300,11 @@
                     trigger OnAction()
                     begin
                         FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                        Commit();
+
                         DocPrint.PrintIntrastatDisk(Rec);
-			            FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
+
+                        FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                     end;
                 }
                 action(DiskLabels)
@@ -385,7 +389,6 @@
         JnlSelected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
-        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;

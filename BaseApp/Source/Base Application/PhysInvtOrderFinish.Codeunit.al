@@ -188,7 +188,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             Item.TestField(Blocked, false);
 
             IsHandled := false;
-            OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader, IsHandled);
+            OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader, IsHandled, PhysInvtOrderLine2);
             if not IsHandled then
                 if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
                      PhysInvtOrderLine, ErrorText, PhysInvtOrderLine2) > 1
@@ -408,7 +408,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line")
     begin
     end;
 

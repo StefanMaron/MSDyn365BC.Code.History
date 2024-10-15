@@ -206,8 +206,13 @@ page 740 "VAT Report"
                     ToolTip = 'Suggest Tax lines.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        VatReportTok: Label 'DACH VAT Report', Locked = true;
                     begin
+                        FeatureTelemetry.LogUptake('0001Q1E', VatReportTok, Enum::"Feature Uptake Status"::"Used");
                         VATReportMediator.GetLines(Rec);
+                        FeatureTelemetry.LogUsage('0001Q1F', VatReportTok, 'DACH VAT Report Generated');
                     end;
                 }
                 action("Co&rrect Lines")

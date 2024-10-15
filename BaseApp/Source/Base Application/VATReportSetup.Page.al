@@ -92,7 +92,11 @@ page 743 "VAT Report Setup"
     }
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        VatReportTok: Label 'DACH VAT Report', Locked = true;
     begin
+        FeatureTelemetry.LogUptake('0001Q0B', VatReportTok, Enum::"Feature Uptake Status"::"Set up");
         Reset;
         if not Get then begin
             Init;

@@ -246,7 +246,13 @@ table 279 "Extended Text Header"
     procedure IncrementTextNo()
     var
         ExtTextHeader: Record "Extended Text Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIncrementTextNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ExtTextHeader.SetRange("Table Name", "Table Name");
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.SetRange("Language Code", "Language Code");
@@ -319,6 +325,11 @@ table 279 "Extended Text Header"
             exit(StrSubstNo('%1 %2 %3 %4', "No.", Descr, "Language Code", Format("Text No.")));
         end;
         exit(UntitledMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncrementTextNo(var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

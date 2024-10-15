@@ -49,5 +49,13 @@ page 5005279 "Delivery Reminder Terms"
             }
         }
     }
+
+    trigger OnInit()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        DeliverTok: Label 'DACH Delivery Reminder', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('0001Q0R', DeliverTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
 }
 

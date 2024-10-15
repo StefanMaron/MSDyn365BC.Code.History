@@ -499,7 +499,7 @@
                         ItemLedgerEntry."Country/Region Code",
                         IntraJnlManagement.GetVATRegNo(
                           Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
-                        Customer."Partner Type" = Customer."Partner Type"::Person, EU3rdPartyTrade));
+                        IsCustomerPrivatePerson(Customer."No."), EU3rdPartyTrade));
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
                 begin
@@ -510,7 +510,7 @@
                         ItemLedgerEntry."Country/Region Code",
                         IntraJnlManagement.GetVATRegNo(
                           Vendor."Country/Region Code", Vendor."VAT Registration No.", IntrastatSetup."Vend. VAT No. on File"),
-                        Vendor."Partner Type" = Vendor."Partner Type"::Person, false));
+                        IsVendorPrivatePerson(Vendor."No."), false));
                 end;
         end;
     end;
@@ -536,13 +536,19 @@
             Customer."Country/Region Code",
             IntraJnlManagement.GetVATRegNo(
               Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
-            Customer."Partner Type" = Customer."Partner Type"::Person, false));
+            IsCustomerPrivatePerson(Customer."No."), false));
     end;
 
     local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
     var
         CountryRegion: Record "Country/Region";
+        PartnerID: Text[50];
+        IsHandled: Boolean;
     begin
+        OnBeforeGetPartnerIDForCountry(CountryRegionCode, VATRegistrationNo, IsPrivatePerson, IsThirdPartyTrade, PartnerID, IsHandled);
+        if IsHandled then
+            exit(PartnerID);
+
         if IsPrivatePerson then
             exit('QN999999999999');
 
@@ -566,18 +572,24 @@
     var
         Customer: Record Customer;
     begin
-        if Customer.Get(CustomerNo) then
-            exit(Customer."Partner Type" = Customer."Partner Type"::Person);
-        exit(false);
+        if not Customer.Get(CustomerNo) then
+            exit(false);
+        if Customer."Intrastat Partner Type" <> "Partner Type"::" " then
+            exit(Customer."Intrastat Partner Type" = "Partner Type"::Person)
+        else
+            exit(Customer."Partner Type" = "Partner Type"::Person);
     end;
 
     protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin
-        if Vendor.Get(VendorNo) then
-            exit(Vendor."Partner Type" = Vendor."Partner Type"::Person);
-        exit(false);
+        if not Vendor.Get(VendorNo) then
+            exit(false);
+        if Vendor."Intrastat Partner Type" <> "Partner Type"::" " then
+            exit(Vendor."Intrastat Partner Type" = "Partner Type"::Person)
+        else
+            exit(Vendor."Partner Type" = "Partner Type"::Person);
     end;
 
     [IntegrationEvent(false, false)]
@@ -602,6 +614,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateCountryRegionOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean; var PartnerID: Text[50]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -84,6 +84,8 @@
                 end;
                 "Order Address Code" := '';
 
+                OnValidateBuyFromVendorNoOnAfterValidatePayToVendor(Rec);
+
                 CopyPayToVendorAddressFieldsFromVendor(Vend, false);
                 if IsCreditDocType() then begin
                     "Ship-to Name" := Vend.Name;
@@ -440,7 +442,7 @@
                 then
                     PriceMessageIfPurchLinesExist(FieldCaption("Posting Date"));
 
-                OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(Rec, xRec);
+                OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(Rec, xRec, CurrFieldNo);
                 ResetInvoiceDiscountValue();
 
                 if "Currency Code" <> '' then begin
@@ -507,6 +509,7 @@
                     if not IsHandled then
                         Validate("Due Date", "Document Date");
                     if not UpdateDocumentDate then begin
+                        OnValidatePaymentTermsCodeOnBeforeValidatePmtDiscountWhenBlank(Rec);
                         Validate("Pmt. Discount Date", 0D);
                         Validate("Payment Discount %", 0);
                     end;
@@ -3511,7 +3514,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateDocumentDateWithPostingDate(Rec, CurrFieldNo, IsHandled);
+        OnBeforeValidateDocumentDateWithPostingDate(Rec, CurrFieldNo, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -4044,7 +4047,13 @@
     procedure CalcInvDiscForHeader()
     var
         PurchaseInvDisc: Codeunit "Purch.-Calc.Discount";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcInvDiscForHeader(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchSetup();
         if PurchSetup."Calc. Inv. Discount" then
             PurchaseInvDisc.CalculateIncDiscForHeader(Rec);
@@ -5915,7 +5924,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
     local procedure ShouldCheckShowRecurringSalesLines(var xHeader: Record "Purchase Header"; var Header: Record "Purchase Header"): Boolean
@@ -5970,7 +5979,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -6230,7 +6239,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    local procedure OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6246,6 +6255,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBuyFromPostCodeOnBeforeLookupHandled(var PurchaseHeader: Record "Purchase Header"; PostCode: Record "Post Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvDiscForHeader(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6535,7 +6549,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDocumentDateWithPostingDate(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateDocumentDateWithPostingDate(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6624,6 +6638,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoOnValidateBuyFromVendorNoOnBeforeValidatePayToVendor(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBuyFromVendorNoOnAfterValidatePayToVendor(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6769,6 +6788,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeValidatePmtDiscountWhenBlank(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

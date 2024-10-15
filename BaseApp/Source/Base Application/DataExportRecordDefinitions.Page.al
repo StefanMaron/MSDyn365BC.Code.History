@@ -145,7 +145,11 @@ page 11003 "Data Export Record Definitions"
     }
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        DataTok: Label 'DACH Data Export', Locked = true;
     begin
+        FeatureTelemetry.LogUptake('0001Q0N', DataTok, Enum::"Feature Uptake Status"::"Set up");
         MoveFiltersToFilterGroup(2);
     end;
 

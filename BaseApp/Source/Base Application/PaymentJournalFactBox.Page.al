@@ -160,27 +160,8 @@ page 35517 "Payment Journal FactBox"
             GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
             UpdateBalance;
             UpdateInfoBox;
-        end else begin
-            AccName := '';
-            BalAccName := '';
-            AgeDays := 0;
-            PaymDiscDays := 0;
-            DueDays := 0;
-            OeRemainAmountFC := 0;
-            PaymDiscDeductAmount := 0;
-            RemainAfterPayment := 0;
-            PmtDiscount := 0;
-            AcceptedPaymentTol := 0;
-            PostingDate := 0D;
-            DueDate := 0D;
-            PmtDiscDate := 0D;
-            PaymentAmt := 0;
-            RemainAfterPaymentCaption := Text001;
-            PaymentTerms := '';
-            Balance := 0;
-            TotalBalance := 0;
-            TotalPayAmount := 0;
-        end;
+        end else
+            ClearGlobalsWhenNotFound(Which);
         exit(Find(Which));
     end;
 
@@ -215,9 +196,7 @@ page 35517 "Payment Journal FactBox"
         GenJnlLine: Record "Gen. Journal Line";
         LineNo: Integer;
     begin
-        Balance := 0;
-        TotalBalance := 0;
-        TotalPayAmount := 0;
+        InitAmountValues();
 
         LineNo := "Line No.";
         PaymentAmt := -Amount * Factor;
@@ -242,6 +221,42 @@ page 35517 "Payment Journal FactBox"
         GenJnlLine.SetRange("Bal. Account Type", GenJnlLine."Bal. Account Type"::Vendor);
         GenJnlLine.CalcSums("Amount (LCY)");
         TotalPayAmount += GenJnlLine."Amount (LCY)";
+
+        OnAfterUpdateBalance(GenJnlLine);
+    end;
+
+    local procedure ClearGlobalsWhenNotFound(Which: Text)
+    begin
+        AccName := '';
+        BalAccName := '';
+        AgeDays := 0;
+        PaymDiscDays := 0;
+        DueDays := 0;
+        OeRemainAmountFC := 0;
+        PaymDiscDeductAmount := 0;
+        RemainAfterPayment := 0;
+        PmtDiscount := 0;
+        AcceptedPaymentTol := 0;
+        PostingDate := 0D;
+        DueDate := 0D;
+        PmtDiscDate := 0D;
+        PaymentAmt := 0;
+        RemainAfterPaymentCaption := Text001;
+        PaymentTerms := '';
+        Balance := 0;
+        TotalBalance := 0;
+        TotalPayAmount := 0;
+
+        OnAfterClearGlobalsWhenNotFound(Rec, Which);
+    end;
+
+    local procedure InitAmountValues()
+    begin
+        Balance := 0;
+        TotalBalance := 0;
+        TotalPayAmount := 0;
+
+        OnAfterInitAmountValues();
     end;
 
     [Scope('OnPrem')]
@@ -375,8 +390,23 @@ page 35517 "Payment Journal FactBox"
         until VendLedgEntry.Next() = 0;
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitAmountValues()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateBalance(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterClearGlobalsWhenNotFound(var GenJournalLine: Record "Gen. Journal Line"; Which: Text)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateInfoBoxOnAfterSetVendLedgEntryFilters(var GenJournalLine : Record "Gen. Journal Line"; var VendorLedgerEntry : Record "Vendor Ledger Entry"; var IsHandled : Boolean)
+    local procedure OnUpdateInfoBoxOnAfterSetVendLedgEntryFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

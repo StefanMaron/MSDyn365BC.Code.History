@@ -92,7 +92,13 @@ table 99 "Item Vendor"
     local procedure InsertItemReference()
     var
         ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertItemReference(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 ItemReferenceMgt.InsertItemReference(Rec);
@@ -101,7 +107,13 @@ table 99 "Item Vendor"
     local procedure DeleteItemReference()
     var
         ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteItemReference(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 ItemReferenceMgt.DeleteItemReference(Rec);
@@ -169,6 +181,16 @@ table 99 "Item Vendor"
                 if Vend.Get("Vendor No.") then
                     "Lead Time Calculation" := Vend."Lead Time Calculation";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteItemReference(var ItemVendor: Record "Item Vendor"; xItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemReference(var ItemVendor: Record "Item Vendor"; xItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

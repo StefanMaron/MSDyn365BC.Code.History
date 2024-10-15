@@ -60,6 +60,9 @@
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {
+      "path": "./shopify/test/Shopify Connector Test"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Bank"
     },
     {
