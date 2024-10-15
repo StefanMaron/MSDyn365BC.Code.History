@@ -30,9 +30,6 @@ codeunit 1535 "Approvals Mgmt."
         NoReqToRejectErr: Label 'There is no approval request to reject.';
         NoReqToDelegateErr: Label 'There is no approval request to delegate.';
         PendingApprovalMsg: Label 'An approval request has been sent.';
-        NoApprovalsSentMsg: Label 'No approval requests have been sent, either because they are already sent or because related workflows do not support the journal line.';
-        PendingApprovalForSelectedLinesMsg: Label 'Approval requests have been sent.';
-        PendingApprovalForSomeSelectedLinesMsg: Label 'Approval requests have been sent.\\Requests for some journal lines were not sent, either because they are already sent or because related workflows do not support the journal line.';
         PurchaserUserNotFoundErr: Label 'The salesperson/purchaser user ID %1 does not exist in the Approval User Setup window for %2 %3.', Comment = 'Example: The salesperson/purchaser user ID NAVUser does not exist in the Approval User Setup window for Salesperson/Purchaser code AB.';
         NoApprovalRequestsFoundErr: Label 'No approval requests exist.';
         NoWFUserGroupMembersErr: Label 'A workflow user group with at least one member must be set up.';
@@ -2230,8 +2227,6 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        LinesSent: Integer;
     begin
         OnBeforeTrySendJournalLineApprovalRequests(GenJournalLine);
         if GenJournalLine.Count = 1 then
@@ -2244,18 +2239,8 @@ codeunit 1535 "Approvals Mgmt."
                not HasOpenApprovalEntries(GenJournalLine.RecordId)
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
-                LinesSent += 1;
             end;
         until GenJournalLine.Next() = 0;
-
-        case LinesSent of
-            0:
-                Message(NoApprovalsSentMsg);
-            GenJournalLine.Count:
-                Message(PendingApprovalForSelectedLinesMsg);
-            else
-                Message(PendingApprovalForSomeSelectedLinesMsg);
-        end;
     end;
 
     procedure TryCancelJournalBatchApprovalRequest(var GenJournalLine: Record "Gen. Journal Line")

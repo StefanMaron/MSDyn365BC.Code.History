@@ -172,6 +172,7 @@ page 1190 "Create Payment"
         SpecifyStartingDocNumErr: Label 'In the Starting Document No. field, specify the first document number to be used.';
         MessageToRecipientMsg: Label 'Payment of %1 %2 ', Comment = '%1 document type, %2 Document No.';
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.', Comment = '%1 - Document Type, %2 - Document No.. You cannot create a payment with an earlier posting date for Invoice INV-001.';
+        DocToApplyLbl: Label '%1 %2', Locked = true, Comment = '%1=Document Type;%2=Vendor No.';
 
     procedure GetPostingDate(): Date
     begin
@@ -203,8 +204,8 @@ page 1190 "Create Payment"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
         TempPaymentBuffer: Record "Payment Buffer" temporary;
+        DocumentsToApply: List of [Text];
         PaymentAmt: Decimal;
-        SummarizePerVend: Boolean;
         VendorLedgerEntryView: Text;
         ThereAreNoPaymentsToProccesErr: Label 'There are no payments to process for the selected entries . They might be included in another payment process. If so, the Applies-to ID field will contain a value. You might need to use Page Inspection (Ctrl+Alt+F1) to find the field.';
     begin
@@ -250,8 +251,10 @@ page 1190 "Create Payment"
                     TempPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempPaymentBuffer."Vendor Ledg. Entry Doc. Type");
                     if TempPaymentBuffer.Find('-') then begin
                         TempPaymentBuffer.Amount += PaymentAmt;
-                        SummarizePerVend := true;
                         TempPaymentBuffer.Modify();
+
+                        if not DocumentsToApply.Contains(StrSubstNo(DocToApplyLbl, TempPaymentBuffer."Vendor Ledg. Entry Doc. Type", VendorLedgerEntry."Vendor No.")) then
+                            DocumentsToApply.Add(StrSubstNo(DocToApplyLbl, TempPaymentBuffer."Vendor Ledg. Entry Doc. Type", VendorLedgerEntry."Vendor No."));
                     end else begin
                         TempPaymentBuffer."Document No." := NextDocNo;
                         NextDocNo := IncStr(NextDocNo);
@@ -266,11 +269,11 @@ page 1190 "Create Payment"
             until VendorLedgerEntry.Next() = 0;
         if TempPaymentBuffer.IsEmpty() then
             error(ThereAreNoPaymentsToProccesErr);
-        CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
+        CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, DocumentsToApply);
         VendorLedgerEntry.SetView(VendorLedgerEntryView);
     end;
 
-    local procedure CopyTempPaymentBufferToGenJournalLines(var TempPaymentBuffer: Record "Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
+    local procedure CopyTempPaymentBufferToGenJournalLines(var TempPaymentBuffer: Record "Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; DocumentsToApply: List of [Text])
     var
         Vendor: Record Vendor;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -321,7 +324,7 @@ page 1190 "Create Payment"
                     Validate("Currency Code", TempPaymentBuffer."Currency Code");
                     Validate("Posting Group", TempPaymentBuffer."Vendor Posting Group"); // NAVCZ
 
-                    "Message to Recipient" := GetMessageToRecipient(SummarizePerVend, TempPaymentBuffer);
+                    "Message to Recipient" := GetMessageToRecipient(TempPaymentBuffer, DocumentsToApply);
                     "Bank Payment Type" := BankPaymentType;
                     "Applies-to ID" := "Document No.";
 
@@ -445,12 +448,12 @@ page 1190 "Create Payment"
             NewCVLedgEntryBuf, OldCVLedgEntryBuf2, ApplnRoundingPrecision, false, CheckAmount));
     end;
 
-    local procedure GetMessageToRecipient(SummarizePerVend: Boolean; TempPaymentBuffer: Record "Payment Buffer" temporary): Text[140]
+    local procedure GetMessageToRecipient(TempPaymentBuffer: Record "Payment Buffer" temporary; DocumentsToApply: List of [Text]): Text[140]
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         CompanyInformation: Record "Company Information";
     begin
-        if SummarizePerVend then begin
+        if DocumentsToApply.Contains(StrSubstNo(DocToApplyLbl, TempPaymentBuffer."Vendor Ledg. Entry Doc. Type", TempPaymentBuffer."Vendor No.")) then begin
             CompanyInformation.Get();
             exit(CompanyInformation.Name);
         end;

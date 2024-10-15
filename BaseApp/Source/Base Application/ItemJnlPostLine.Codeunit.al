@@ -1438,7 +1438,8 @@ codeunit 22 "Item Jnl.-Post Line"
               CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
                (ProdOrderComp."Remaining Quantity" <> 0) and
-               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision")
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision") and
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1)
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else

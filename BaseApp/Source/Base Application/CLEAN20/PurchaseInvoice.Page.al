@@ -1,4 +1,4 @@
-#if CLEAN20
+﻿#if CLEAN20
 page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
@@ -1691,6 +1691,7 @@ page 51 "Purchase Invoice"
         CalculateCurrentShippingAndPayToOption();
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

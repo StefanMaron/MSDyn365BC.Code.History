@@ -2344,6 +2344,7 @@ page 50 "Purchase Order"
         ShowOverReceiptNotification();
         BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

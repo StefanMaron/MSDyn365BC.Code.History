@@ -1237,9 +1237,11 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
         if WIPInventory then begin
             OnBeforeGetInvPostingGroupCode(ValueEntry, InvPostingGroupCode);
-            if ValueEntry."Source No." <> ValueEntry."Item No." then
+            if (ValueEntry."Source Type" = ValueEntry."Source Type"::Item) and (ValueEntry."Source No." <> ValueEntry."Item No.") then begin
+                Item.SetLoadFields("Inventory Posting Group");
                 if Item.Get(ValueEntry."Source No.") then
                     exit(Item."Inventory Posting Group");
+            end;
         end;
 
         exit(InvPostingGroupCode);

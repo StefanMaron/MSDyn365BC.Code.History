@@ -61,7 +61,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
         OnBeforeCreateProdOrderLines(ProdOrder, SalesLine, IsHandled);
         if not IsHandled then begin
             CreateProdOrderLines.SetSalesLine(SalesLine);
-            CreateProdOrderLines.Copy(ProdOrder, 1, SalesLine."Variant Code", true);
+            CreateProdOrderLines.Copy(ProdOrder, 1, SalesLine."Variant Code", false);
         end;
 
         IsHandled := false;

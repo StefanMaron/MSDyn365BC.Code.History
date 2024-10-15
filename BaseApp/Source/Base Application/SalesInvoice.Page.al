@@ -1051,50 +1051,6 @@ page 43 "Sales Invoice"
                                   "Document Line No." = CONST(0);
                     ToolTip = 'View or add comments for the record.';
                 }
-            }
-#if not CLEAN19
-            group(Prepayment)
-            {
-                Caption = 'Prepayment (Obsolete)';
-                Image = Prepayment;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                ObsoleteTag = '19.0';
-                Visible = false;
-
-                action("Assignment Ad&vance Letters")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assignment Ad&vance Letters (Obsolete)';
-                    Image = Documents;
-                    ToolTip = 'Specifies the assigned advance letters.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
-
-                    trigger OnAction()
-                    begin
-                        xShowAdvLetters; // NAVCZ
-                    end;
-                }
-                action("Assigned Adv. Letters - detail")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assigned Adv. Letters - detail (Obsolete)';
-                    Image = ViewDetails;
-                    RunObject = Page "Advance Letter Line Relations";
-                    RunPageLink = Type = CONST(Sale),
-                                  "Document Type" = CONST(Invoice),
-                                  "Document No." = FIELD("No.");
-                    RunPageView = SORTING(Type, "Document Type", "Document No.", "Document Line No.", "Letter No.", "Letter Line No.");
-                    ToolTip = 'Specifies the assigned advance letters.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
-                }
-#endif
                 action(Approvals)
                 {
                     AccessByPermission = TableData "Approval Entry" = R;
@@ -1155,7 +1111,49 @@ page 43 "Sales Invoice"
                         DocumentAttachmentDetails.RunModal();
                     end;
                 }
+            }
 #if not CLEAN19
+            group(Prepayment)
+            {
+                Caption = 'Prepayment (Obsolete)';
+                Image = Prepayment;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
+                action("Assignment Ad&vance Letters")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Assignment Ad&vance Letters (Obsolete)';
+                    Image = Documents;
+                    ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+
+                    trigger OnAction()
+                    begin
+                        xShowAdvLetters; // NAVCZ
+                    end;
+                }
+                action("Assigned Adv. Letters - detail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Assigned Adv. Letters - detail (Obsolete)';
+                    Image = ViewDetails;
+                    RunObject = Page "Advance Letter Line Relations";
+                    RunPageLink = Type = CONST(Sale),
+                                  "Document Type" = CONST(Invoice),
+                                  "Document No." = FIELD("No.");
+                    RunPageView = SORTING(Type, "Document Type", "Document No.", "Document Line No.", "Letter No.", "Letter Line No.");
+                    ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+                }
             }
 #endif
             group(History)
@@ -1465,6 +1463,43 @@ page 43 "Sales Invoice"
                         WorkflowWebhookMgt.FindAndCancel(RecordId);
                     end;
                 }
+                group(Flow)
+                {
+                    Caption = 'Power Automate';
+                    Image = Flow;
+                    action(CreateFlow)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Create a Power Automate approval flow';
+                        Image = Flow;
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
+                        Visible = IsSaaS;
+
+                        trigger OnAction()
+                        var
+                            FlowServiceManagement: Codeunit "Flow Service Management";
+                            FlowTemplateSelector: Page "Flow Template Selector";
+                        begin
+                            // Opens page 6400 where the user can use filtered templates to create new flows.
+                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
+                            FlowTemplateSelector.Run();
+                        end;
+                    }
+#if not CLEAN21
+                    action(SeeFlows)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'See my flows';
+                        Image = Flow;
+                        RunObject = Page "Flow Selector";
+                        ToolTip = 'View and configure Power Automate flows that you created.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
+                    }
+#endif
+                }
             }
 #if not CLEAN19
             group(Action1220032)
@@ -1555,45 +1590,6 @@ page 43 "Sales Invoice"
                         SalesPostAdvances.CorrectVATbyDeductedVAT(Rec); // NAVCZ
                     end;
                 }
-#endif
-                group(Flow)
-                {
-                    Caption = 'Power Automate';
-                    Image = Flow;
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaaS;
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
-                }
-#if not CLEAN19
             }
 #endif
             group("P&osting")
@@ -1916,6 +1912,7 @@ page 43 "Sales Invoice"
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;
@@ -2061,11 +2058,11 @@ page 43 "Sales Invoice"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         OfficeMgt: Codeunit "Office Management";
-        InstructionMgt: Codeunit "Instruction Mgt.";        
+        InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
-        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);        
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -2085,7 +2082,7 @@ page 43 "Sales Invoice"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
-        if OfficeMgt.IsAvailable() then begin            
+        if OfficeMgt.IsAvailable() then begin
             SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
             if SalesInvoiceHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
@@ -2125,7 +2122,7 @@ page 43 "Sales Invoice"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
-        if SalesInvoiceHeader.FindFirst() then            
+        if SalesInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
             then

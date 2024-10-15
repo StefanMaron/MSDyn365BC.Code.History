@@ -1753,6 +1753,7 @@ page 43 "Sales Invoice"
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;
