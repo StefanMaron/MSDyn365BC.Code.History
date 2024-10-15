@@ -305,7 +305,10 @@ codeunit 10680 "Elec. VAT OAuth Mgt."
                 exit(false);
             end;
 
-        ServicerrorMessage := JToken.AsValue().AsText();
+        if JToken.IsObject then
+            JToken.WriteTo(ServicerrorMessage)
+        else
+            ServicerrorMessage := JToken.AsValue().AsText();
         if ServicerrorMessage = '' then begin
             Session.LogMessage('0000G8J', EmptyJsonErrMsgErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NOVATReturnSubmissionTok);
             exit(false);

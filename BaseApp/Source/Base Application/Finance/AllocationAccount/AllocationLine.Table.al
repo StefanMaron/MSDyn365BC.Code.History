@@ -37,36 +37,9 @@ table 2672 "Allocation Line"
         {
             DataClassification = SystemMetadata;
             Caption = 'Destination Account Number';
-
-            trigger OnLookup()
-            var
-                GLAccount: Record "G/L Account";
-                BankAccount: Record "Bank Account";
-                GLAccountList: Page "G/L Account List";
-                BankAccountList: Page "Bank Account List";
-            begin
-                case Rec."Destination Account Type" of
-                    Rec."Destination Account Type"::"G/L Account":
-                        begin
-                            GLAccountList.LookupMode(true);
-                            GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-                            GLAccount.SetRange("Direct Posting", true);
-                            GLAccountList.SetTableView(GLAccount);
-                            if GLAccountList.RunModal() = ACTION::LookupOK then begin
-                                GLAccountList.GetRecord(GLAccount);
-                                Rec.Validate("Destination Account Number", GLAccount."No.");
-                            end;
-                        end;
-                    Rec."Destination Account Type"::"Bank Account":
-                        begin
-                            BankAccountList.LookupMode(true);
-                            if BankAccountList.RunModal() = ACTION::LookupOK then begin
-                                BankAccountList.GetRecord(BankAccount);
-                                Rec.Validate("Destination Account Number", BankAccount."No.");
-                            end;
-                        end;
-                end;
-            end;
+            TableRelation = if ("Destination Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting), "Direct Posting" = const(true))
+            else
+            if ("Destination Account Type" = const("Bank Account")) "Bank Account";
         }
         field(5; "Destination Account Name"; Text[2048])
         {

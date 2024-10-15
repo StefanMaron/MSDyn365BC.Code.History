@@ -301,7 +301,16 @@ table 339 "Item Application Entry"
     end;
 
     local procedure CheckCyclicProdCyclicalLoop(CheckItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeCheckCyclicProdCyclicalLoop(Rec, CheckItemLedgEntry, ItemLedgEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not IsItemEverOutput(ItemLedgEntry."Item No.") then
             exit(false);
 
@@ -681,6 +690,11 @@ table 339 "Item Application Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFixed(ItemApplicationEntry: Record "Item Application Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCyclicProdCyclicalLoop(var ItemApplicationEntry: Record "Item Application Entry"; CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

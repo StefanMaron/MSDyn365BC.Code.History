@@ -2878,6 +2878,7 @@ table 5902 "Service Line"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         FieldCausedPriceCalculation: Integer;
         Select: Integer;
+        CalledFromServiceItemLine: Boolean;
         FullAutoReservation: Boolean;
         HideReplacementDialog: Boolean;
         Text022: Label 'The %1 cannot be greater than the %2 set on the %3.';
@@ -3260,12 +3261,14 @@ table 5902 "Service Line"
         end;
 
         if "Exclude Contract Discount" then
-            if (CurrFieldNo = FieldNo("Fault Reason Code")) and (not "Exclude Warranty") then
+            if ((CurrFieldNo = FieldNo("Fault Reason Code")) or CalledFromServiceItemLine) and (not "Exclude Warranty") then
                 Discounts[2] := "Line Discount %"
             else
                 Discounts[2] := 0
         else
             Discounts[2] := "Contract Disc. %";
+
+        SetCalledFromServiceItemLine(false);
 
         ServHeader.Get(Rec."Document Type", Rec."Document No.");
 
@@ -6039,6 +6042,11 @@ table 5902 "Service Line"
         end;
 
         exit(Result);
+    end;
+
+    procedure SetCalledFromServiceItemLine(CallFromServiceItemLine: Boolean)
+    begin
+        CalledFromServiceItemLine := CallFromServiceItemLine;
     end;
 
     [IntegrationEvent(false, false)]
