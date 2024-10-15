@@ -5,17 +5,23 @@ codeunit 139742 "VAT Group Submit To Repr. Test"
 
     var
         Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryGraphMgt: Codeunit "Library - Graph Mgt";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryVATGroup: Codeunit "Library - VAT Group";
+        NoVATReportSetupErr: Label 'The VAT report setup was not found. You can create one on the VAT Report Setup page.';
+        NotFoundErr: Label 'Not Found: cannot locate the requested resource.';
+        InvalidSyntaxErr: Label 'Bad Request: the server could not understand the request due to invalid syntax.';
+        HasErrorsMsg: Label 'One or more errors were found. You must resolve all the errors before you can proceed.';
 
     [Test]
     procedure TestVATReportSetupMissing()
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        NoVATReportSetupErr: Label 'The VAT report setup was not found. You can create one on the VAT Report Setup page.';
     begin
-        // [WHEN] The "VAT Report Setup" table is empty 
-        VATReportSetup.DeleteAll();
+        // [SCENARIO 374187] VAT Report Setup Missing
+        Initialize();
+
+        // [WHEN] The "VAT Report Setup" table is empty
+        LibraryVATGroup.DeleteVATReportSetup();
 
         // [THEN] A error is expected
         asserterror Codeunit.Run(Codeunit::"VAT Group Submit To Represent.");
@@ -23,46 +29,47 @@ codeunit 139742 "VAT Group Submit To Repr. Test"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     procedure TestFailureInSend()
     var
-        VATReportSetup: Record "VAT Report Setup";
-        VATReportCouldNotSubmitMsg: Label 'One or more errors were found. You must resolve all the errors before you can proceed.';
+        VATReportHeader: Record "VAT Report Header";
     begin
+        // [SCENARIO 374187] Failure In Send
+        Initialize();
+
         // [WHEN] The "VAT Report Setup" table is configured but the API URL is wrong
-        InitVATReportSetupTable();
-        VATReportSetup.FindFirst();
-        VATReportSetup."Group Representative Company" := 'TestWrongName';
-        VATReportSetup.Modify();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
+        LibraryVATGroup.UpdateRepresentativeCompanyName(LibraryUtility.GenerateGUID());
 
         // [THEN] A error is expected
-        asserterror Codeunit.Run(Codeunit::"VAT Group Submit To Represent.");
-        Assert.ExpectedError(VATReportCouldNotSubmitMsg);
+        InitVATReportHeader(VATReportHeader);
+        Codeunit.Run(Codeunit::"VAT Group Submit To Represent.", VATReportHeader);
+
+        VerifyErrorMessage(VATReportHeader, NotFoundErr);
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     procedure TestFailureInSendMissingApprovedMember()
     var
-        VATReportSetup: Record "VAT Report Setup";
         VATReportHeader: Record "VAT Report Header";
-        VATReportCouldNotSubmitMsg: Label 'One or more errors were found. You must resolve all the errors before you can proceed.';
     begin
+        // [SCENARIO 374187] Failure In Send Missing Approved Member
+        Initialize();
+
         // [GIVEN] The "VAT Report Setup" table is configured but the API URL is wrong
-        InitVATReportSetupTable();
-        VATReportSetup.FindFirst();
-        VATReportSetup."Group Member ID" := CreateGuid();
-        VATReportSetup.Modify();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
 
         // [GIVEN] The "VAT Report Header" table is configured
-        InitVATReportHeader();
+        InitVATReportHeader(VATReportHeader);
 
         // [GIVEN] The Status of a VAT Report is Open (Default Status)
-        VATReportHeader.FindFirst();
         Assert.AreEqual(VATReportHeader.Status, VATReportHeader.Status::Open, 'Status should be Open');
 
         // [WHEN] The submission is sent
-        asserterror Codeunit.Run(Codeunit::"VAT Group Submit To Represent.", VATReportHeader);
+        Codeunit.Run(Codeunit::"VAT Group Submit To Represent.", VATReportHeader);
 
-        Assert.ExpectedError(VATReportCouldNotSubmitMsg);
+        VerifyErrorMessage(VATReportHeader, InvalidSyntaxErr);
     end;
 
     [Test]
@@ -72,65 +79,43 @@ codeunit 139742 "VAT Group Submit To Repr. Test"
         VATGroupSubmissionHeader: Record "VAT Group Submission Header";
         VATGroupSubmissionLine: Record "VAT Group Submission Line";
     begin
+        // [SCENARIO 374187] Successful Send
+        Initialize();
+
         // [GIVEN] The "VAT Report Setup" table is configured
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
 
         // [GIVEN] The "VAT Group Approved Member" contains the member ID of the current submission.
-        InitVATGroupApprovedMemberTable();
-        Commit();
+        LibraryVATGroup.UpdateMemberId(LibraryVATGroup.MockVATGroupApprovedMember());
 
         // [GIVEN] The "VAT Report Header" table is configured
-        InitVATReportHeader();
+        InitVATReportHeader(VATReportHeader);
 
         // [GIVEN] The Status of a VAT Report is Open (Default Status)
-        VATReportHeader.FindFirst();
         Assert.AreEqual(VATReportHeader.Status, VATReportHeader.Status::Open, 'Status should be Open');
 
         // [WHEN] The submission is sent
+        Commit();
         Codeunit.Run(Codeunit::"VAT Group Submit To Represent.", VATReportHeader);
 
         // [THEN] The Status should be Submitted
-        VATReportHeader.FindFirst();
         Assert.AreEqual(VATReportHeader.Status, VATReportHeader.Status::Submitted, 'Status should be Submitted');
 
-        //[THEN] There should be submissions in the VAT Group Submission table and lines.
+        // [THEN] There should be submissions in the VAT Group Submission table and lines.
         Assert.RecordIsNotEmpty(VATGroupSubmissionHeader);
 
         VATGroupSubmissionLine.SetFilter("VAT Group Submission No.", VATReportHeader."No.");
         Assert.RecordIsNotEmpty(VATGroupSubmissionLine);
-
-        if VATGroupSubmissionHeader.FindSet() then
-            VATGroupSubmissionHeader.DeleteAll(true);
     end;
 
-    local procedure InitVATReportSetupTable()
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        TmpURL: Text;
+    local procedure Initialize()
     begin
-        TmpURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '');
-
-        VATReportSetup.DeleteAll();
-        VATReportSetup."Primary key" := '';
-        VATReportSetup."Group Representative API URL" := CopyStr(TmpURL, 1, StrPos(TmpURL, '/api/') - 1);
-        VATReportSetup."Group Representative Company" := CompanyName();
-        VATReportSetup."VAT Group Role" := VATReportSetup."VAT Group Role"::Member;
-        VATReportSetup."Authentication Type" := VATReportSetup."Authentication Type"::WindowsAuthentication;
-        VATReportSetup."Group Member ID" := '54198086-7f01-46ff-b0f6-2f29c5eb5792';
-        VATReportSetup.Insert();
+        LibraryVariableStorage.Clear();
     end;
 
-    local procedure InitVATReportHeader()
-    var
-        VATReportHeader: Record "VAT Report Header";
+    local procedure InitVATReportHeader(var VATReportHeader: Record "VAT Report Header")
     begin
-        VATReportHeader.DeleteAll();
-
-        VATReportHeader."No." := LibraryRandom.RandText(20);
-        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
-        VATReportHeader."Start Date" := Today();
-        VATReportHeader."End Date" := Today();
-        VATReportHeader.Insert();
+        LibraryVATGroup.MockVATReportHeaderWithDates(VATReportHeader, Today(), Today());
         InitVATReportLines(VATReportHeader);
         InitVATReportLines(VATReportHeader);
     end;
@@ -139,22 +124,26 @@ codeunit 139742 "VAT Group Submit To Repr. Test"
     var
         VATStatementReportLine: Record "VAT Statement Report Line";
     begin
-        VATStatementReportLine."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code";
-        VATStatementReportLine."VAT Report No." := VATReportHeader."No.";
-        VATStatementReportLine."Line No." := LibraryRandom.RandInt(1000000);
-        VATStatementReportLine."Row No." := '00' + Format(LibraryRandom.RandInt(9));
-        VATStatementReportLine.Description := CopyStr(LibraryRandom.RandText(100), 1, 100);
-        VATStatementReportLine."Box No." := Format(LibraryRandom.RandInt(1000));
-        VATStatementReportLine.Amount := LibraryRandom.RandDecInRange(0, 1000000, 2);
-        VATStatementReportLine.Insert();
+        LibraryVATGroup.MockVATStatementReportLineWithBoxNo(
+          VATStatementReportLine, VATReportHeader,
+          LibraryRandom.RandDecInRange(0, 1000000, 2), '00' + Format(LibraryRandom.RandInt(9)), Format(LibraryRandom.RandInt(1000)));
     end;
 
-    local procedure InitVATGroupApprovedMemberTable()
+    local procedure VerifyErrorMessage(var VATReportHeader: Record "VAT Report Header"; ExpectedError: Text)
     var
-        VATGroupApprovedMember: Record "VAT Group Approved Member";
+        ErrorMessage: Record "Error Message";
     begin
-        VATGroupApprovedMember.ID := '54198086-7f01-46ff-b0f6-2f29c5eb5792';
-        VATGroupApprovedMember."Group Member Name" := 'test user';
-        VATGroupApprovedMember.Insert();
+        ErrorMessage.SETRANGE("Context Record ID", VATReportHeader.RecordId());
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(ExpectedError, ErrorMessage.Description);
+
+        Assert.ExpectedMessage(HasErrorsMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 }

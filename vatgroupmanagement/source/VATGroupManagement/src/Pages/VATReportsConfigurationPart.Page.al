@@ -1,10 +1,8 @@
 page 4709 "VAT Reports Configuration Part"
 {
-    ApplicationArea = VAT;
     Caption = 'VAT Reports Configuration';
     PageType = ListPart;
     SourceTable = "VAT Reports Configuration";
-    UsageCategory = ReportsAndAnalysis;
 
     layout
     {

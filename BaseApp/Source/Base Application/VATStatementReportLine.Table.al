@@ -1,4 +1,4 @@
-table 742 "VAT Statement Report Line"
+﻿table 742 "VAT Statement Report Line"
 {
     Caption = 'VAT Statement Report Line';
 
@@ -47,6 +47,18 @@ table 742 "VAT Statement Report Line"
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
+        }
+        field(4800; RepresentativeAmount; Decimal)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to VAT Group Management extension field 4700 Representative Amount';
+            ObsoleteTag = '18.0';
+        }
+        field(4801; GroupAmount; Decimal)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to VAT Group Management extension field 4701 Group Amount';
+            ObsoleteTag = '18.0';
         }
     }
 
