@@ -129,6 +129,12 @@ table 289 "Payment Method"
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
         }
+        field(11501; "Swiss QRBill Bank Account No."; Code[20])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
+            ObsoleteTag = '19.0';
+        }
     }
 
     keys

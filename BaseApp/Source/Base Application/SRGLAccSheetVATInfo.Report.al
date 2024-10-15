@@ -295,6 +295,11 @@ report 11567 "SR G/L Acc Sheet VAT Info"
                             ProvCredit := -("Amount (LCY)" - "VAT Amount (LCY)")
                         else
                             ProvDebit := "Amount (LCY)" - "VAT Amount (LCY)";
+
+                        "VAT Bus. Posting Group" := "Bal. VAT Bus. Posting Group";
+                        "VAT Prod. Posting Group" := "Bal. VAT Prod. Posting Group";
+                        "VAT %" := "Bal. VAT %";
+                        "VAT Amount" := "Bal. VAT Amount";
                     end;
 
                     if ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") and ("Bal. Account No." = "G/L Account"."No.") then begin

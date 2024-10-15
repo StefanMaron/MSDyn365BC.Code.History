@@ -741,7 +741,7 @@ page 256 "Payment Journal"
                 }
                 action("&Print Payment Ad&vice")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = '&Print Payment Ad&vice';
                     Image = "Report";
                     Promoted = true;

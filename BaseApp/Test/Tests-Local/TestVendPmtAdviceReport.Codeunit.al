@@ -17,6 +17,7 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         PmtProcessedMsg: Label 'Payment advice processed for 1 vendors.';
         MissingBankAccErr: Label 'Bank  does not exist for vendor %1.';
         RelatedPmtVendEntryNoTxt: Label 'EntryNo_PartPmtVendorEntry2';
@@ -216,6 +217,24 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
           RelatedPmtVendEntryNoTxt, GetVendLedgEntryNo(VendLedgEntry."Document Type"::"Credit Memo", CrMemoNo[1]));
     end;
 
+    [Test]
+    [HandlerFunctions('VendPmtAdviceNoActionReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunVendPmtAdviceReportFromPmtJournalInSaaS()
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 408605] Stan can run the "SR Vendor Payment Advice" report from the "Payment Journal" page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        Commit();
+        PaymentJournal.OpenEdit();
+        PaymentJournal."&Print Payment Ad&vice".Invoke();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -330,6 +349,13 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         SRVendorPaymentAdvice.RespPerson.SetValue(Responsible);
         SRVendorPaymentAdvice.MsgTxt.SetValue(Advice);
         SRVendorPaymentAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VendPmtAdviceNoActionReqPageHandler(var SRVendorPaymentAdvice: TestRequestPage "SR Vendor Payment Advice")
+    begin
+        SRVendorPaymentAdvice.Cancel().Invoke();
     end;
 
     [MessageHandler]

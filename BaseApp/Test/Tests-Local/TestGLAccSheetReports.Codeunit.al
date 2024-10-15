@@ -1506,13 +1506,20 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
                 else
                     LibraryReportDataset.AssertCurrentRowValueEquals('GenJournalLineFcyAcyAmt', 0);
             REPORT::"SR G/L Acc Sheet VAT Info":
-                begin
+                if GlAccIsBalAcc then begin // TFS 406567
                     LibraryReportDataset.AssertCurrentRowValueEquals('VAT_GenJournalLine', GenJournalLine."VAT %");
                     LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GenJournalLine', GenJournalLine."VAT Amount");
                     LibraryReportDataset.AssertCurrentRowValueEquals(
-                      'VATBusPostingGroup_GenJournalLine', GenJournalLine."VAT Bus. Posting Group");
+                        'VATBusPostingGroup_GenJournalLine', GenJournalLine."VAT Bus. Posting Group");
                     LibraryReportDataset.AssertCurrentRowValueEquals(
-                      'VATProdPostingGroup_GenJournalLine', GenJournalLine."VAT Prod. Posting Group");
+                        'VATProdPostingGroup_GenJournalLine', GenJournalLine."VAT Prod. Posting Group");
+                end else begin
+                    LibraryReportDataset.AssertCurrentRowValueEquals('VAT_GenJournalLine', GenJournalLine."Bal. VAT %");
+                    LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GenJournalLine', GenJournalLine."Bal. VAT Amount");
+                    LibraryReportDataset.AssertCurrentRowValueEquals(
+                        'VATBusPostingGroup_GenJournalLine', GenJournalLine."Bal. VAT Bus. Posting Group");
+                    LibraryReportDataset.AssertCurrentRowValueEquals(
+                        'VATProdPostingGroup_GenJournalLine', GenJournalLine."Bal. VAT Prod. Posting Group");
                 end;
         end;
     end;

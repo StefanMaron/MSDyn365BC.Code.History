@@ -1340,6 +1340,11 @@
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     local procedure DescriptionOnFormat()
     begin
         if Level > 0 then
