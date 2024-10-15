@@ -1071,7 +1071,8 @@
                 end;
             ItemLedgerEntry."Document Type"::"Service Shipment":
                 if ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceShipmentHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceShipmentHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceShipmentHeader."Bill-to Country/Region Code", ServiceShipmentHeader."VAT Registration No.",
@@ -1079,7 +1080,8 @@
                 end;
             ItemLedgerEntry."Document Type"::"Service Invoice":
                 if ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceInvoiceHeader."Bill-to Country/Region Code", ServiceInvoiceHeader."VAT Registration No.",
@@ -1087,7 +1089,8 @@
                 end;
             ItemLedgerEntry."Document Type"::"Service Credit Memo":
                 if ServiceCrMemoHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceCrMemoHeader."Bill-to Country/Region Code", ServiceCrMemoHeader."VAT Registration No.",
@@ -1108,7 +1111,8 @@
         case ItemLedgerEntry."Source Type" of
             ItemLedgerEntry."Source Type"::Customer:
                 begin
-                    Customer.Get(ItemLedgerEntry."Source No.");
+                    if not Customer.Get(ItemLedgerEntry."Source No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ItemLedgerEntry."Country/Region Code", Customer."VAT Registration No.",
@@ -1116,7 +1120,8 @@
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
                 begin
-                    Vendor.Get(ItemLedgerEntry."Source No.");
+                    if not Vendor.Get(ItemLedgerEntry."Source No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ItemLedgerEntry."Country/Region Code", Vendor."VAT Registration No.",

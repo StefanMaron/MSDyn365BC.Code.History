@@ -1,4 +1,4 @@
-﻿codeunit 5064 "Email Logging Dispatcher"
+codeunit 5064 "Email Logging Dispatcher"
 {
     TableNo = "Job Queue Entry";
 
@@ -99,6 +99,9 @@
         TenantId: Text;
         Initialized: Boolean;
     begin
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            exit;
+
         Session.LogMessage('0000BVL', EmailLoggingDispatcherStartedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if IsNullGuid(JobQueueEntry.ID) then begin

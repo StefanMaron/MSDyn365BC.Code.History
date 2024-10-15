@@ -3655,6 +3655,7 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", '');
+        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
         if ("Planning Line Origin" = "Planning Line Origin"::"Order Planning") and ValidateFields then
             PlanningLineMgt.Calculate(Rec, 1, true, true, 0);
@@ -3672,6 +3673,7 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", StockkeepingUnit."Transfer-from Code");
+        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
         OnAfterSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
     end;

@@ -817,8 +817,8 @@
                     GeneralLedgerSetup.GetRecordOnce();
                     if GeneralLedgerSetup."Use Activity Code" then
                         TestField("Activity Code");
-                    VATEntry."Activity Code" := "Activity Code";
                 end;
+                VATEntry."Activity Code" := "Activity Code";
                 CheckVATPlafond(VATEntry, true);
                 SetRelatedEntryData(GenJnlLine);
 
@@ -7291,6 +7291,7 @@
                 HasNonDeductibleVAT :=
                   (VATPostingSetup."Deductible %" <> 100) and (DeferralDocType = DeferralDocType::Purchase) and
                   (VATPostingSetup."VAT Calculation Type" in [VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+                                                          VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
                                                           VATPostingSetup."VAT Calculation Type"::"Full VAT"]);
                 if DeferralPostBuffer.FindSet() then begin
                     DeferralTemplate.Get(DeferralPostBuffer."Deferral Code");

@@ -324,9 +324,16 @@ codeunit 48 PostingSetupManagement
         FldRef := RecRef.Field(FieldNumber);
 
         ErrorMessageMgt.LogContextFieldError(
-              0, StrSubstNo(MissingAccountTxt, FldRef.Caption, RecRef.Caption),
+              0, StrSubstNo(MissingAccountTxt, FldRef.Caption, GetRecordIdDescription(RecRef)),
               RecRef.RecordId, FieldNumber,
               ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
+    end;
+
+    local procedure GetRecordIdDescription(RecRef: RecordRef): Text
+    begin
+        RecRef.Reset();
+        RecRef.SetRecFilter();
+        exit(RecRef.Caption() + ' ' + RecRef.GetFilters());
     end;
 
     procedure SendVATPostingSetupNotification(VATPostingSetup: Record "VAT Posting Setup"; FieldCaption: Text)

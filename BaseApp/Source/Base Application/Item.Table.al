@@ -125,6 +125,7 @@
             begin
                 if ExistsItemLedgerEntry then
                     Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ItemLedgEntryTableCaptionTxt);
+                TestNoWhseEntriesExist(FieldCaption(Type));
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
                 if IsNonInventoriableType then

@@ -323,6 +323,7 @@ page 41 "Sales Quote"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -1649,6 +1650,8 @@ page 41 "Sales Quote"
     begin
         EnableBillToCustomerNo := true;
         EnableSellToCustomerTemplateCode := true;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1734,6 +1737,7 @@ page 41 "Sales Quote"
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1744,6 +1748,14 @@ page 41 "Sales Quote"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
         SetEnableSellToCustomerTemplateCode();
         SetSalesLinesAvailability();
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     local procedure ApproveCalcInvDisc()

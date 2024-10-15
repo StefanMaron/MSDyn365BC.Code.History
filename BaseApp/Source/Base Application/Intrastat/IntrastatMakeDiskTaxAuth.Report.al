@@ -279,6 +279,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if not IntrastatSetup.Get() then
             exit;
 
+        if IntrastatJnlLine.GetFilter(Type) <> '' then
+            exit;
+
         if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
             exit;
 
@@ -518,6 +521,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     procedure GetTotals(): Text
     var
         OutText: Text;
+        Length: Integer;
     begin
         if "Intrastat Jnl. Batch"."EU Service" then begin
             if "Intrastat Jnl. Batch"."Corrective Entry" then begin
@@ -540,7 +544,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 OutText += FormatNum('0', 36);
             end else begin
                 OutText += GetTotalRecTotalAmt;
-                OutText += FormatNum('0', 54);
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
+                    Length := 49
+                else
+                    Length := 54;
+                OutText += FormatNum('0', Length);
             end;
         OutText += FormatNum('0', 5);
         exit(OutText);

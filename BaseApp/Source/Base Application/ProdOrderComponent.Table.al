@@ -1164,6 +1164,8 @@
             exit;
 
         TestField("Item No.");
+        Item.Get("Item No.");
+        Item.TestField(Reserve);
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
         Reservation.RunModal();
