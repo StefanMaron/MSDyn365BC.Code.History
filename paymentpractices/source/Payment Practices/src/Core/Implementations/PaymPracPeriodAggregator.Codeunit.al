@@ -52,7 +52,7 @@ codeunit 685 "Paym. Prac. Period Aggregator" implements PaymentPracticeLinesAggr
         PaymentPracticeLine.Insert();
     end;
 
-    local procedure SetPercentPaidInPeriod(var PaymentPracticeData: Record "Payment Practice Data"; DayFrom: Integer; DayTo: Integer; var PercentPaidInPeriodByNumber: Decimal; var PercentPaidInPeriodByAmount: Decimal)
+    local procedure SetPercentPaidInPeriod(var PaymentPracticeData: Record "Payment Practice Data"; DaysFrom: Integer; DaysTo: Integer; var PercentPaidInPeriodByNumber: Decimal; var PercentPaidInPeriodByAmount: Decimal)
     var
         Total: Integer;
         PaidInPeriod: Integer;
@@ -61,13 +61,13 @@ codeunit 685 "Paym. Prac. Period Aggregator" implements PaymentPracticeLinesAggr
     begin
         // Paid in period is:
         // 1. Closed
-        // 2. Payment date is between due date + DayFrom and due date + DayTo
+        // 2. Actual Payment Days is between DayFrom and DayTo
         // Total is:
         // 1. All closed invoices
         PaymentPracticeData.SetRange("Invoice Is Open", false);
         if PaymentPracticeData.FindSet() then
             repeat
-                if (PaymentPracticeData."Pmt. Posting Date" >= PaymentPracticeData."Invoice Received Date" + DayFrom) and (PaymentPracticeData."Pmt. Posting Date" <= PaymentPracticeData."Invoice Received Date" + DayTo) then begin
+                if (PaymentPracticeData."Actual Payment Days" >= DaysFrom) and ((PaymentPracticeData."Actual Payment Days" <= DaysTo) or (DaysTo = 0)) then begin
                     PaidInPeriodAmount += PaymentPracticeData."Invoice Amount";
                     PaidInPeriod += 1;
                 end;
