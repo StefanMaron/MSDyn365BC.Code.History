@@ -26,7 +26,7 @@ page 9043 "Team Member Activities No Msgs"
                     action(OpenCurrentTimeSheet)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Open Current Time Sheet';
+                        Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
 #if not CLEAN22

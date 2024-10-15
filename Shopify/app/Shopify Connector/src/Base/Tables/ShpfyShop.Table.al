@@ -74,7 +74,7 @@ table 30102 "Shpfy Shop"
                 end else begin
                     Rec.Enabled := true;
                     Rec.Validate("Order Created Webhooks", false);
-                    WebhooksMgt.DisableBulkOperationsWebhook(Rec, CompanyName());
+                    WebhooksMgt.DisableBulkOperationsWebhook(Rec);
                     Rec.Enabled := false;
                 end;
             end;
@@ -631,7 +631,7 @@ table 30102 "Shpfy Shop"
                 if "Order Created Webhooks" then
                     ShpfyWebhooksMgt.EnableOrderCreatedWebhook(Rec)
                 else
-                    ShpfyWebhooksMgt.DisableOrderCreatedWebhook(Rec, CompanyName());
+                    ShpfyWebhooksMgt.DisableOrderCreatedWebhook(Rec);
             end;
         }
         field(109; "Order Created Webhook User"; Code[50])
@@ -801,13 +801,16 @@ table 30102 "Shpfy Shop"
             Clustered = true;
         }
         key(Idx1; "Shop Id") { }
+        key(Idx2; "Shopify URL") { }
+        key(Idx3; Enabled) { }
     }
 
     trigger OnDelete()
     var
         ShpfyWebhooksMgt: Codeunit "Shpfy Webhooks Mgt.";
     begin
-        ShpfyWebhooksMgt.DisableOrderCreatedWebhook(Rec, CompanyName());
+        ShpfyWebhooksMgt.DisableOrderCreatedWebhook(Rec);
+        ShpfyWebhooksMgt.DisableBulkOperationsWebhook(Rec);
     end;
 
     var

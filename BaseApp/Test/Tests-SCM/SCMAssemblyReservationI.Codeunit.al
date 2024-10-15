@@ -492,6 +492,76 @@ codeunit 137916 "SCM Assembly Reservation I"
                 ReservationEntry[2].TableName()));
     end;
 
+    [Test]
+    procedure AutomaticReservationInFIFOItemAndCustomerReserveAlwaysToReduceRightReservationEntries()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationEntry: array[2] of Record "Reservation Entry";
+        Quantity: array[3] of Integer;
+        ReservationQuantity: Integer;
+    begin
+        // [SCENARIO 501832] Automatic reservation on a FIFO item, a reduction in quantity on sales line to reduce the right reservation entries.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method and Reserve.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate(Reserve, Item.Reserve::Optional);
+        Item.Modify(true);
+
+        // [GIVEN] Assign Variable Quantity with random Quantities.
+        Quantity[1] := LibraryRandom.RandIntInRange(15, 20);
+        Quantity[2] := LibraryRandom.RandIntInRange(10, 25);
+        Quantity[3] := LibraryRandom.RandIntInRange(25, 30);
+
+        // [GIVEN] Post Postive Adjustment Item Journal of Quantities to add Inventory of Item.
+        AddItemToInventory(Item, Quantity[1]);
+        AddItemToInventory(Item, Quantity[2]);
+        AddItemToInventory(Item, Quantity[3]);
+
+        // [GIVEN] Create a Customer and Validate Reserve to Always.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate(Reserve, Customer.Reserve::Always);
+        Customer.Modify(true);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Line with the Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity[1] + Quantity[2]);
+
+        // [GIVEN] Reserve the Sales Line.
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Find the Reservation Entry and assign Reservation quantity of first line.
+        ReservationEntry[1].SetRange("Source ID", SalesHeader."No.");
+        ReservationEntry[1].SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry[1].SetRange("Source Subtype", SalesHeader."Document Type");
+        ReservationEntry[1].FindFirst();
+        ReservationQuantity := ReservationEntry[1].Quantity;
+
+        // [WHEN] Reduce the Quantity of the Sales Line.
+        SalesLine.Validate(Quantity, SalesLine.Quantity - LibraryRandom.RandInt(1));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Reserve the Sales Line.
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [THEN] Find the Reserve Quantity from Reservation Entry and check if it is equal.
+        ReservationEntry[2].CopyFilters(ReservationEntry[1]);
+        ReservationEntry[2].FindFirst();
+        Assert.AreEqual(
+            ReservationQuantity,
+            ReservationEntry[2].Quantity,
+            StrSubstNo(
+                ReservationQtyErr,
+                ReservationQuantity,
+                ReservationEntry[2].TableName()));
+    end;
+
     local procedure Initialize()
     var
         MfgSetup: Record "Manufacturing Setup";
