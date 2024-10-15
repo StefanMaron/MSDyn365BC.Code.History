@@ -38,7 +38,7 @@ codeunit 137271 "SCM Reservation IV"
         TransferOrderDeletedMsg: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Document No.';
         OrderTrackingPolicyMsg: Label 'The change will not affect existing entries.';
         AvailabilityWarningMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
-        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 Package No.  for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
+        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
         ReservationErr: Label 'There is nothing available to reserve.';
         ValidationErr: Label '%1 must be %2.', Comment = '%1:Field1,%2:Value1';
         ReservationDisruptedWarningMsg: Label 'One or more reservation entries exist for the item';

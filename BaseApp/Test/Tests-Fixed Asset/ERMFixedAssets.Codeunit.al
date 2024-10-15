@@ -535,9 +535,6 @@ codeunit 134451 "ERM Fixed Assets"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 2.Exercise: Create and Post Sales Order.
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddCustomerEdit;
-        LibraryLowerPermissions.AddO365FAEdit;
         Clear(SalesHeader);
         SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Order, FixedAsset."No.", DepreciationBook.Code);
         SalesHeader.CalcFields(Amount);
@@ -1330,9 +1327,6 @@ codeunit 134451 "ERM Fixed Assets"
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
         // [WHEN] Sell Fixed Asset. System creates: GLEntry "A" with VAT Amount <> 0; VATEntry "B".
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddCustomerEdit;
-        LibraryLowerPermissions.AddO365FAEdit;
         SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Invoice, FixedAsset."No.", DepreciationBook.Code);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 

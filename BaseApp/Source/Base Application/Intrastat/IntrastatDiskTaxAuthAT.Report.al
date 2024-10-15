@@ -1,7 +1,11 @@
+#if not CLEAN22
 report 11106 "Intrastat - Disk Tax Auth AT"
 {
     Caption = 'Intrastat - Disk Tax Auth AT';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     dataset
     {
@@ -31,24 +35,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     if LinePeriod <> Period then
                         Error(InvalideDateErr, Date, "Line No.", Period);
 
-#if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth AT", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth AT", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        if CompanyInfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        if CompanyInfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        TestField("Total Weight");
-                        if "Supplementary Units" then
-                            TestField(Quantity);
-                    end;
-#endif
 
                     // Check Tariff
                     IntrastatJnlLineBuf."Tariff No." := DelChr("Tariff No.");
@@ -718,9 +705,6 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Sales Authorized No.");
         CompanyInfo.TestField("Purch. Authorized No.");
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
     end;
 
     var
@@ -786,9 +770,6 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         IntraJnlLineTest: Record "Intrastat Jnl. Line";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLineBuf: Record "Intrastat Jnl. Line" temporary;
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         FileManagement: Codeunit "File Management";
         DiskStatus: Dialog;
@@ -888,4 +869,4 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             until TariffNumber.Next() = 0;
     end;
 }
-
+#endif

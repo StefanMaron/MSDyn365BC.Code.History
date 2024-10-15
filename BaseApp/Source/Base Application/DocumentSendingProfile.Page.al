@@ -16,12 +16,12 @@ page 360 "Document Sending Profile"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the document sending method in the system.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document sending format.';
                 }
-                field(Default; Default)
+                field(Default; Rec.Default)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this document sending method will be used as the default method for all customers.';

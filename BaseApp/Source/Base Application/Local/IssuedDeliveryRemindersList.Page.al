@@ -22,7 +22,7 @@ page 5005275 "Issued Delivery Reminders List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';

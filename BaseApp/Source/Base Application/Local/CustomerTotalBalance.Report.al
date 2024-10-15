@@ -389,12 +389,8 @@ report 11003 "Customer Total-Balance"
         StartBalance: Decimal;
         PeriodDebitAmount: Decimal;
         PeriodCreditAmount: Decimal;
-        PeriodEndBalance: Decimal;
-        PeriodEndBalanceType: Option " ",Debit,Credit;
         YearDebitAmount: Decimal;
         YearCreditAmount: Decimal;
-        EndBalanceType: Option " ",Debit,Credit;
-        EndBalance: Decimal;
         AdjPeriodAmount: Decimal;
         AdjYearAmount: Decimal;
         AdjustAmounts: Boolean;
@@ -409,6 +405,12 @@ report 11003 "Customer Total-Balance"
         PeriodEndingBalanceCaptionLbl: Label 'Period Ending Balance';
         YearEndingBalanceCaptionLbl: Label 'Year Ending Balance';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        EndBalance: Decimal;
+        EndBalanceType: Option " ",Debit,Credit;
+        PeriodEndBalance: Decimal;
+        PeriodEndBalanceType: Option " ",Debit,Credit;
 
     [Scope('OnPrem')]
     procedure GetAdjAmount(CustomerLedgEntryEntryNo: Integer): Decimal

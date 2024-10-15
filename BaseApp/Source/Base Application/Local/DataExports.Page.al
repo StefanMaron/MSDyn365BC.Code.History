@@ -18,7 +18,7 @@ page 11002 "Data Exports"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for a data export.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a short description of the data export.';

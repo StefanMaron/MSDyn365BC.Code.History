@@ -234,7 +234,6 @@
 
         trigger OnOpenPage()
         begin
-            FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
 
@@ -246,10 +245,6 @@
     begin
         IntrastatFileWriter.Initialize(true, false, 0);
         IntrastatExportMgtDACH.Initialize(CurrentDateTime());
-#if not CLEAN19
-        CompanyInfo.Get();
-        if IntrastatSetup.Get() then;
-#endif
 
 #if not CLEAN20
         FormatType := FormatType::XML;
@@ -286,10 +281,6 @@
     var
         ItemIntrastatJnlLine: Record "Intrastat Jnl. Line";
         DeclarationIntrastatJnlLine: Record "Intrastat Jnl. Line";
-#if not CLEAN19
-        CompanyInfo: Record "Company Information";
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
         IntrastatFileWriter: Codeunit "Intrastat File Writer";
@@ -311,53 +302,9 @@
 #endif
         TestSubmission: Boolean;
 
-    local procedure FilterSourceLinesByIntrastatSetupExportTypes()
-#if CLEAN19
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
-    begin
-        if not IntrastatSetup.Get() then
-            exit;
-
-        if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-            exit;
-
-        if IntrastatSetup."Report Receipts" then
-            IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
-        else
-            if IntrastatSetup."Report Shipments" then
-                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
-    end;
-
     local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-#if CLEAN19
         IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Disk Tax Auth DE", true);
-#else
-        if IntrastatSetup."Use Advanced Checklist" then
-            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Disk Tax Auth DE", true)
-        else begin
-            IntrastatJnlLine.TestField("Tariff No.");
-            IntrastatJnlLine.TestField("Country/Region Code");
-            IntrastatJnlLine.TestField("Transaction Type");
-            if CompanyInfo."Check Transport Method" then
-                IntrastatJnlLine.TestField("Transport Method");
-            IntrastatJnlLine.TestField(Area);
-            if CompanyInfo."Check Transaction Specific." then
-                IntrastatJnlLine.TestField("Transaction Specification");
-            if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Receipt then
-                IntrastatJnlLine.TestField("Country/Region of Origin Code")
-            else begin
-                if CompanyInfo."Check for Partner VAT ID" then
-                    IntrastatJnlLine.TestField("Partner VAT ID");
-                if CompanyInfo."Check for Country of Origin" then
-                    IntrastatJnlLine.TestField("Country/Region of Origin Code");
-            end;
-            if IntrastatJnlLine."Supplementary Units" then
-                IntrastatJnlLine.TestField(Quantity);
-        end;
-#endif
     end;
 
     [Scope('OnPrem')]

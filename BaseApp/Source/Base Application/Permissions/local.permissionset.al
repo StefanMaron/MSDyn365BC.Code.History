@@ -4,8 +4,12 @@ permissionset 1001 "LOCAL"
     Assignable = true;
     Caption = 'Country/region-specific func.';
 
+#if not CLEAN22
     Permissions = tabledata Certificate = RIMD,
                   tabledata "DACH Report Selections" = RIMD,
+#else
+    Permissions = tabledata "DACH Report Selections" = RIMD,
+#endif
                   tabledata "Data Exp. Primary Key Buffer" = RIMD,
                   tabledata "Data Export" = RIMD,
                   tabledata "Data Export Buffer" = RIMD,

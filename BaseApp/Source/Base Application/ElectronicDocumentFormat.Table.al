@@ -391,13 +391,13 @@ table 61 "Electronic Document Format"
                     exit(Job."No.");
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDocumentNoCaseElse(DocumentVariant, DocumentNo, IsHandled);
-                    if IsHandled then
-                        exit(DocumentNo);
+                IsHandled := false;
+                OnGetDocumentNoCaseElse(DocumentVariant, DocumentNo, IsHandled);
+                if IsHandled then
+                    exit(DocumentNo);
 
-                    Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
-                end;
+                Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
+            end;
         end;
     end;
 
@@ -457,7 +457,7 @@ table 61 "Electronic Document Format"
             Error(ElectronicFormatErr, ElectronicFormat);
     end;
 
-    local procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
+    procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
         DummySalesHeader: Record "Sales Header";
         DummyServiceHeader: Record "Service Header";

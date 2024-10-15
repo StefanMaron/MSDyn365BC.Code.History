@@ -73,38 +73,6 @@ codeunit 142037 "UT REP INTRASTAT AT"
         VerifyIntrastatChecklistATReport(StrSubstNo(HeaderText, GeneralLedgerSetup."LCY Code"));
     end;
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('IntrastatFormATRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatFormATOnAfterGetRecordTransactionSpecificationError()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record Item;
-        CompanyInformation: Record "Company Information";
-    begin
-        // Purpose of the test is to validate function - OnAfterGetRecord of Report - Intrastat - Form AT.
-
-        // Setup: Update Check Transaction specific - TRUE on Company Information.
-        CompanyInformation.Get();
-        CompanyInformation."Check Transaction Specific." := true;
-        CompanyInformation.Modify();
-        CreateItemWithTariffNumber(Item);
-
-        // Create Intrastat Journal Line with Transaction specification.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Total Weight" := 10;
-        UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '100000');  // Transaction specification more than 5 digits.
-
-        // Exercise: Run Report Intrastat - Form AT.
-        asserterror REPORT.Run(REPORT::"Intrastat - Form AT");
-
-        // Verify: Verify Error that, transaction specification should be equal to five digits.
-        Assert.ExpectedError('Transaction Specification 100000 must have 5 digits');
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('IntrastatFormATRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -132,38 +100,6 @@ codeunit 142037 "UT REP INTRASTAT AT"
         // Verify: Verify Error, Intrastat Journal Line must have Quantity, when Supplementory Units is True on it.
         Assert.ExpectedError('Quantity must have a value in Intrastat Jnl. Line');
     end;
-
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('IntrastatFormATRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatFormATOnAfterGetRecordTransportMethodError()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record Item;
-        CompanyInformation: Record "Company Information";
-    begin
-        // Purpose of the test is to validate function - OnAfterGetRecord of Report - Intrastat - Form AT.
-
-        // Setup: Update Check Transport Method - TRUE on Company Information.
-        CompanyInformation.Get();
-        CompanyInformation."Check Transport Method" := true;
-        CompanyInformation.Modify();
-        CreateItemWithTariffNumber(Item);
-
-        // Create Intrastat Journal Line without Transport Method.
-        CreateIntrastatJournalLine(IntrastatJnlLine, Item, '', IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Total Weight" := 10;
-        UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
-
-        // Exercise: Run Report Intrastat - Form AT.
-        asserterror REPORT.Run(REPORT::"Intrastat - Form AT");
-
-        // Verify: Verify Error that Transport Method must have value on Intrastat Journal Line.
-        Assert.ExpectedError('Transport Method must have a value in Intrastat Jnl. Line');
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('IntrastatChecklistATShipmentRequestPageHandler')]

@@ -17,7 +17,7 @@ page 5005271 "Delivery Reminder Sub."
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the reminded purchase order.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
@@ -38,12 +38,12 @@ page 5005271 "Delivery Reminder Sub."
                     ToolTip = 'Specifies the number of the vendor who you want to post a delivery reminder for.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies either the name of or a description of the item or G/L account.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

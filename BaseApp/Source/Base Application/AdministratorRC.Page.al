@@ -140,35 +140,6 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Image Analysis Setup";
                     }
                 }
-#if not CLEAN19
-                group("Group3")
-                {
-                    Caption = 'Microsoft Outlook';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Legacy outlook sync functionality has been removed.';
-                    ObsoleteTag = '19.0';
-
-                    action("Outlook Synch. Entities")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Outlook Synch. Entities';
-                        RunObject = page "Outlook Synch. Entity List";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Legacy outlook sync functionality has been removed.';
-                        ObsoleteTag = '19.0';
-                    }
-                    action("Outlook Synch. User Setup")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Outlook Synch. User Setup';
-                        RunObject = page "Outlook Synch. User Setup";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Legacy outlook sync functionality has been removed.';
-                        ObsoleteTag = '19.0';
-                    }
-                }
-#endif
                 group("Group4")
                 {
                     Caption = 'Job Queue';
@@ -299,26 +270,6 @@ page 8900 "Administrator Main Role Center"
                 group("Group7")
                 {
                     Caption = 'Developer';
-#if not CLEAN19
-                    action("Sandbox Environment")
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Sandbox Environment';
-                        RunObject = page "Sandbox Environment";
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
-                    }
-                    action("Sandbox Environment1")
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Container Sandbox Environment';
-                        RunObject = page "Container Sandbox Environment";
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
-                    }
-#endif
                     action("Test Tool")
                     {
                         ApplicationArea = All;
@@ -557,7 +508,7 @@ page 8900 "Administrator Main Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'User Page Personalizations';
-                            RunObject = page "User Page Personalization List";
+                            RunObject = page "Personalized Pages";
                         }
                     }
                 }
@@ -571,11 +522,23 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Users';
                     RunObject = page "Users";
                 }
+#if not CLEAN22
                 action("User Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Groups';
                     RunObject = page "User Groups";
+                    Visible = false; // cannot control the visibility with the feature switch
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Security Groups action.';
+                    ObsoleteTag = '22.0';
+                }
+#endif
+                action("Security Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Security Groups';
+                    RunObject = page "Security Groups";
                 }
                 action("User Setup")
                 {
@@ -836,18 +799,6 @@ page 8900 "Administrator Main Role Center"
                     RunObject = Page "Email Accounts";
                     ToolTip = 'Set up email accounts used in the product.';
                 }
-#if not CLEAN19
-                action("SharePoint Connection Setup")
-                {
-                    ApplicationArea = All;
-                    Caption = 'SharePoint Connection Setup';
-                    RunObject = page "Document Service Config";
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moving to Microsoft 365 action group as SharePoint Connection Setup.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("OCR Service Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -896,28 +847,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Payment Services';
                     RunObject = page "Payment Services";
                 }
-#if not CLEAN19
-                action("Office Add-In Management")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Office Add-in Management';
-                    RunObject = page "Office Add-in Management";
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moving to Microsoft 365 action group as Outlook Add-in Management.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Exchange Sync. Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Exchange Sync. Setup';
-                    RunObject = page "Exchange Sync. Setup";
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moving to Microsoft 365 action group.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("VAT Registration Service (VIES) Setting")
                 {
                     ApplicationArea = Basic, Suite;
@@ -955,6 +884,18 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Teams App Centralized Deployment';
                         RunObject = page "Teams Centralized Deployment";
                     }
+                    action("Card Settings")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Card settings';
+                        RunObject = page "Page Summary Settings";
+                    }
+                    action("Microsoft 365 license access")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Microsoft 365 license access';
+                        RunObject = page "MS 365 License Setup Wizard";
+                    }
                 }
                 group("GroupExcel")
                 {
@@ -962,7 +903,7 @@ page 8900 "Administrator Main Role Center"
                     action("Excel Add-in Centralized Deployment")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Excel Add-in Centralized Deployment';
+                        Caption = 'Add-in Centralized Deployment';
                         RunObject = page "Excel Centralized Depl. Wizard";
                     }
                 }
@@ -972,7 +913,7 @@ page 8900 "Administrator Main Role Center"
                     action("Outlook Add-in Centralized Deployment")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Outlook Add-in Centralized Deployment';
+                        Caption = 'Add-in Centralized Deployment';
                         RunObject = page "Outlook Centralized Deployment";
                     }
                     action("Outlook Add-in Management")

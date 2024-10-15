@@ -284,12 +284,8 @@ report 11002 "G/L Total-Balance"
         StartBalance: Decimal;
         PeriodDebitAmount: Decimal;
         PeriodCreditAmount: Decimal;
-        PeriodEndBalance: Decimal;
-        PeriodEndBalanceType: Option " ",Debit,Credit;
         YearDebitAmount: Decimal;
         YearCreditAmount: Decimal;
-        EndBalanceType: Option " ",Debit,Credit;
-        EndBalance: Decimal;
         PageGroupNo: Integer;
         NewPage: Boolean;
         AccountTypeInt: Integer;
@@ -305,5 +301,11 @@ report 11002 "G/L Total-Balance"
         DebitCreditCaptionLbl: Label 'Debit/ Credit';
         PeriodEndBalanceCaptionLbl: Label 'Period Ending Balance';
         EmptyStringCaptionLbl: Label '**';
+
+    protected var
+        EndBalance: Decimal;
+        EndBalanceType: Option " ",Debit,Credit;
+        PeriodEndBalance: Decimal;
+        PeriodEndBalanceType: Option " ",Debit,Credit;
 }
 

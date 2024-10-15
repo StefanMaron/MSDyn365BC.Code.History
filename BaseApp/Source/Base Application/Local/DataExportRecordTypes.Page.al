@@ -16,7 +16,7 @@ page 11014 "Data Export Record Types"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for a data export record type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a short description for a data export record type.';

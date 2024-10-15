@@ -780,7 +780,7 @@ codeunit 136200 "Marketing Campaign Segments"
         // [GIVEN] Interaction Log Entry with "Document Type" = "Sales Order Confirmation", "Document No." = "Y"
         // Interaction Log Entry with type "Sales Order Confirmation" inserts when print "Sales Order Confirmation" report
         MockInteractionLogEntry(
-          "Interaction Log Entry Document Type".FromInteger(SegManagement.SalesInvoiceInterDocType), SalesHeader."No.",
+          "Interaction Log Entry Document Type"::"Sales Inv.", SalesHeader."No.",
           GetContactBusinessRelation(ContactBusinessRelation."Link to Table"::Customer, SalesHeader."Bill-to Customer No."));
 
         // [WHEN] Post Sales Order
@@ -1669,7 +1669,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionLogEntry."Contact No." := ContactNo;
         InteractionLogEntry."Document Type" := DocType;
         InteractionLogEntry."Document No." := DocNo;
-        InteractionTemplate.Get(SegManagement.FindInteractTmplCode(DocType.AsInteger()));
+        InteractionTemplate.Get(SegManagement.FindInteractionTemplateCode(DocType.AsInteger()));
         InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
         InteractionLogEntry."Interaction Group Code" := InteractionTemplate."Interaction Group Code";
         InteractionLogEntry.Insert();
@@ -2035,7 +2035,7 @@ codeunit 136200 "Marketing Campaign Segments"
             SavedSegmentCriteriaLine.Validate(Action, SegmentCriteriaLine.Action);
             SavedSegmentCriteriaLine.Validate(Type, SegmentCriteriaLine.Type);
             SavedSegmentCriteriaLine.Validate("Table No.", SegmentCriteriaLine."Table No.");
-            SavedSegmentCriteriaLine.Validate(View, SegmentCriteriaLine.View);
+            SavedSegmentCriteriaLine.Validate("Table View", SegmentCriteriaLine."Table View");
             SavedSegmentCriteriaLine.Validate("Allow Existing Contacts", SegmentCriteriaLine."Allow Existing Contacts");
             SavedSegmentCriteriaLine.Validate("Expand Contact", SegmentCriteriaLine."Expand Contact");
             SavedSegmentCriteriaLine.Validate("Allow Company with Persons", SegmentCriteriaLine."Allow Company with Persons");

@@ -10,6 +10,7 @@ codeunit 130440 "Library - Random"
 
     var
         Seed: Integer;
+        SeedSet: Boolean;
 
     procedure RandDec(Range: Integer; Decimals: Integer): Decimal
     begin
@@ -39,7 +40,8 @@ codeunit 130440 "Library - Random"
         // Returns a pseudo random integer in the interval [1,Range]
         if Range < 1 then
             exit(1);
-        exit(1 + Round(Uniform * (Range - 1), 1));
+
+        exit(GetNextValue(Range));
     end;
 
     procedure RandIntInRange("Min": Integer; "Max": Integer): Integer
@@ -92,25 +94,17 @@ codeunit 130440 "Library - Random"
     begin
         // Set the random seed to reproduce pseudo random sequence
         Seed := Val;
-        Seed := Seed mod 10000;  // Overflow protection
+        SeedSet := true;
+        Randomize(Seed);
         exit(Seed);
     end;
 
-    local procedure UpdateSeed()
+    local procedure GetNextValue(MaxValue: Integer): Integer
     begin
-        // Generates a new seed value and
-        Seed := Seed + 3;
-        Seed := Seed * 3;
-        Seed := Seed * Seed;
-        Seed := Seed mod 10000;  // Overflow protection
-    end;
+        if (not SeedSet) then
+            SetSeed(1);
 
-    local procedure Uniform(): Decimal
-    begin
-        // Generates a pseudo random uniform number
-        UpdateSeed;
-
-        exit((Seed mod 137) / 137);
+        exit(Random(MaxValue));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CAL Test Runner Publisher", 'OnSetSeed', '', false, false)]

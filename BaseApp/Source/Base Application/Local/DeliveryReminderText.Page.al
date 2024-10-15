@@ -34,7 +34,7 @@ page 5005283 "Delivery Reminder Text"
                     ToolTip = 'Specifies whether the text will appear at the beginning or the end of the delivery reminder.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the text for this line of the reminder.';

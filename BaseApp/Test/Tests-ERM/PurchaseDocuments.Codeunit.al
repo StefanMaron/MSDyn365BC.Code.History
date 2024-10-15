@@ -1593,7 +1593,9 @@ codeunit 134099 "Purchase Documents"
 
     local procedure Initialize()
     var
+#if not CLEAN22
         IntrastatSetup: Record "Intrastat Setup";
+#endif
         ReportSelections: Record "Report Selections";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -1610,6 +1612,7 @@ codeunit 134099 "Purchase Documents"
 
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+#if not CLEAN22
         if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
@@ -1617,6 +1620,7 @@ codeunit 134099 "Purchase Documents"
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
+#endif
 
         ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsagePurchaseQuote);
         ReportSelections.ModifyAll("Report ID", REPORT::"Purchase - Quote");

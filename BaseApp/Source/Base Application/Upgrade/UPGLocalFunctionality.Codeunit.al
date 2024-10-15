@@ -229,27 +229,8 @@ codeunit 104100 "Upg Local Functionality"
 #if not CLEAN20
     [Obsolete('Function will be removed', '20.0')]
     procedure UpgradeCheckPartnerVATID()
-#if not CLEAN19
-    var
-        CompanyInformation: Record "Company Information";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCheckPartnerVATIDTag()) then
-            exit;
-
-        if CompanyInformation.Get() then begin
-            CompanyInformation."Check for Partner VAT ID" := true;
-            CompanyInformation."Check for Country of Origin" := true;
-            if CompanyInformation.Modify() then;
-        end;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCheckPartnerVATIDTag());
-    end;
-#else
     begin
     end;
-#endif
 #endif
 
     procedure UpdateVendorRegistrationNo()

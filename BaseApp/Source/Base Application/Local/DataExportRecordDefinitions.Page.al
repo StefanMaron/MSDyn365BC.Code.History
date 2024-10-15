@@ -23,7 +23,7 @@ page 11003 "Data Export Record Definitions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the data export record definition.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the data export record definition.';
