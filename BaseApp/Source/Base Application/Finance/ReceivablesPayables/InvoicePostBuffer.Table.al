@@ -785,7 +785,7 @@ table 49 "Invoice Post. Buffer"
             SalesSetup."Copy Line Descr. to G/L Entry",
             SalesLine."Line No.",
             SalesLine.Description,
-            SalesHeader."Posting Description", false);
+            SalesHeader."Posting Description", SalesSetup."Copy Line Descr. to G/L Entry");
     end;
 
     local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line")

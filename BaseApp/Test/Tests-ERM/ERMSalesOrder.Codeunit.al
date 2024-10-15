@@ -2196,6 +2196,70 @@ codeunit 134378 "ERM Sales Order"
     end;
 
     [Test]
+    [HandlerFunctions('DummyMessageHandler,CreatePickReportHandler')]
+    [Scope('OnPrem')]
+    procedure AddNonInventoryItemToShippingAdviceCompleteSalesOrderWithExistingPick()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        NonInventoryItemItem: Record Item;
+        RegularItem: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Sales and Receivables Setup with "Auto Post Non-Invt. via Whse." = "All"
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Auto Post Non-Invt. via Whse.", SalesReceivablesSetup."Auto Post Non-Invt. via Whse."::All);
+        SalesReceivablesSetup.Modify();
+
+        //[GIVEN] wharehouse location with pick and put-away true
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        // [GIVEN] Non-Inventory Item and Regular Item with some inventory on location       
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItemItem);
+        LibraryInventory.CreateItem(RegularItem);
+        Qty := LibraryRandom.RandInt(1000);
+        CreateItemJournalLinePositiveAdjustment(RegularItem."No.", Qty, Location.Code);
+
+        // [GIVEN] Sales Order with Shipping Advice = Complete and Regular Item Sales Line
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, CreateCustomer());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader."Shipping Advice" := SalesHeader."Shipping Advice"::Complete;
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, RegularItem."No.", Qty / 2);
+
+        // [GIVEN] Sales Order is released and pick created
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        // [WHEN] reopen Sales Order
+        Commit();
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [THEN] Add Non-Inventory Item is possible
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, NonInventoryItemItem."No.", LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        Commit();
+
+        // [WHEN] Invt. Pick is registred
+        FindWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityLine, DATABASE::"Sales Line", SalesHeader."No.", WarehouseActivityHeader.Type::"Invt. Pick");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        PostWhsDocument(WarehouseActivityLine, true, false, false, true, false);
+
+        // [THEN] Complete Sales Order is posted
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Assert.IsTrue(SalesLine.IsEmpty(), 'Sales Line is not empty');
+    end;
+
+    [Test]
     [HandlerFunctions('ShipAndInvoiceStrMenuHandler')]
     [Scope('OnPrem')]
     procedure PostedSalesInvoiceWithPartialQuantity()
@@ -5223,6 +5287,56 @@ codeunit 134378 "ERM Sales Order"
         VerifySalesOrderAfterPostCorrectiveCreditMemo(SalesHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckNoErrorOnDeletionOfChargeItemLineInSalesOrder()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLine1: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 495893] Delete invoiced Item Charge in Sales Order is not possible if there is VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+
+        // [GIVEN] Create Sales Line with Type Item
+        CreateSalesLineWithUnitPrice(
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInDecimalRange(5, 10, 0), LibraryRandom.RandDecInRange(500, 100, 2));
+
+        // [GIVEN] Create Sales Line with Type Charge Item  
+        CreateSalesLineWithUnitPrice(
+          SalesLine1, SalesHeader, SalesLine1.Type::"Charge (Item)", CreateItemChargeWithVAT(SalesLine."VAT Prod. Posting Group"), 1, LibraryRandom.RandDecInRange(50, 100, 2));
+
+        // [GIVEN] Update the first Sales Line with Qty. to Ship as 1  
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify();
+
+        // [GIVEN] Post the Order with Shipment
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Assign the Item Charge Assignment On Second Sales Line
+        OpenItemChargeAssgnt(SalesLine1, true, 1);
+
+        // [GIVEN] Update the first Sales Line with Qty. to Invoice as 1
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine.Modify();
+
+        // [GIVEN] Post the order with Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Reopen the Sales Document
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [WHEN] Delete the Sales Line with Type as Charge Item
+        SalesLine1.Delete(true);
+
+        // [THEN] No error is thrown
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5447,6 +5561,16 @@ codeunit 134378 "ERM Sales Order"
         ItemCharge: Record "Item Charge";
     begin
         LibraryInventory.CreateItemCharge(ItemCharge);
+        exit(ItemCharge."No.");
+    end;
+
+    local procedure CreateItemChargeWithVAT(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ItemCharge.Modify(true);
         exit(ItemCharge."No.");
     end;
 
@@ -6998,6 +7122,32 @@ codeunit 134378 "ERM Sales Order"
         ShipToAddress.Modify(true);
     end;
 
+    local procedure FindWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceType, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(ActivityType, WarehouseActivityLine."No.");
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Type", SourceType);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure PostWhsDocument(var WarehouseActivityLine: Record "Warehouse Activity Line"; PostInvoice: Boolean; PrintDoc: Boolean; SuppressCommit: Boolean; HideDialog: Boolean; IsPreview: Boolean)
+    var
+        WhseActivityPost: Codeunit "Whse.-Activity-Post";
+    begin
+        WhseActivityPost.SetInvoiceSourceDoc(PostInvoice);
+        WhseActivityPost.PrintDocument(PrintDoc);
+        WhseActivityPost.SetSuppressCommit(SuppressCommit);
+        WhseActivityPost.ShowHideDialog(HideDialog);
+        WhseActivityPost.SetIsPreview(IsPreview);
+        WhseActivityPost.Run(WarehouseActivityLine);
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: Page Navigate)
@@ -7436,6 +7586,20 @@ codeunit 134378 "ERM Sales Order"
     procedure SalesCreditMemoPageHandler(var SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
         LibraryVariableStorage.Enqueue(SalesCreditMemo."No.".Value());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickReportHandler(var CreatePickReqPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreatePickReqPage.CInvtPick.SetValue(true);
+        CreatePickReqPage.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure DummyMessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

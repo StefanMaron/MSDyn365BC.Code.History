@@ -309,6 +309,7 @@ report 20 "Calc. and Post VAT Settlement"
                         VATEntry.CalcSums(
                           Base, Amount,
                           "Additional-Currency Base", "Additional-Currency Amount",
+                          "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY",
                           "Non Ded. VAT Amount", "Non Ded. Source Curr. VAT Amt.");
 
                         ReversingEntry := false;
@@ -852,11 +853,17 @@ report 20 "Calc. and Post VAT Settlement"
             "Source Currency Amount" := -VATEntry."Additional-Currency Amount";
             "Source Curr. VAT Amount" := -VATEntry."Additional-Currency Amount";
             "Source Curr. VAT Base Amount" := -VATEntry."Additional-Currency Base";
+            "Non-Deductible VAT Amount" := -VATEntry."Non-Deductible VAT Amount";
+            "Non-Deductible VAT Amount LCY" := -VATEntry."Non-Deductible VAT Amount";
+            "Non-Deductible VAT Amount ACY" := -VATEntry."Non-Deductible VAT Amount ACY";
+            "Non-Deductible VAT Base" := -VATEntry."Non-Deductible VAT Base";
+            "Non-Deductible VAT Base LCY" := -VATEntry."Non-Deductible VAT Base";
+            "Non-Deductible VAT Base ACY" := -VATEntry."Non-Deductible VAT Base ACY";
         end;
         OnAfterCopyAmounts(GenJournalLine, VATEntry);
     end;
 
-    local procedure CreateGenJnlLine(var GenJnlLine2: Record "Gen. Journal Line"; AccountNo: Code[20])
+    local procedure CreateGenJnlLine(var GenJnlLine2: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AmountACY: Decimal)
     begin
         Clear(GenJnlLine2);
         GenJnlLine2."System-Created Entry" := true;
@@ -869,9 +876,9 @@ report 20 "Calc. and Post VAT Settlement"
         GenJnlLine2."Source Code" := SourceCodeSetup."VAT Settlement";
         GenJnlLine2."VAT Posting" := GenJnlLine2."VAT Posting"::"Manual VAT Entry";
         GenJnlLine2."Account No." := AccountNo;
-        GenJnlLine2.Amount := VATEntry.Amount;
+        GenJnlLine2.Amount := Amount;
         GenJnlLine2."Source Currency Code" := GLSetup."Additional Reporting Currency";
-        GenJnlLine2."Source Currency Amount" := VATEntry."Additional-Currency Amount";
+        GenJnlLine2."Source Currency Amount" := AmountACY;
     end;
 
     local procedure BalanceNormalFullVAT()
@@ -899,7 +906,10 @@ report 20 "Calc. and Post VAT Settlement"
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine);
 
-                    CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
+                    CreateGenJnlLine(
+                        GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false),
+                        VATEntry.Amount + VATEntry."Non-Deductible VAT Amount",
+                        VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
                     GenJnlLine2.Amount += VATEntry."Non Ded. VAT Amount";
                     GenJnlLine2."Source Currency Amount" += VATEntry."Non Ded. Source Curr. VAT Amt.";
                     GenJnlLine2."Journal Template Name" := GenJnlLine."Journal Template Name";
@@ -908,6 +918,8 @@ report 20 "Calc. and Post VAT Settlement"
                         PostGenJnlLine(GenJnlLine2);
                     VATAmount -= VATEntry."Non Ded. VAT Amount";
                     VATAmountAddCurr -= VATEntry."Non Ded. Source Curr. VAT Amt.";
+                    VATAmount -= VATEntry."Non-Deductible VAT Amount";
+                    VATAmountAddCurr -= VATEntry."Non-Deductible VAT Amount ACY";
                     ReversingEntry := true;
                 end;
             VATEntry.Type::Sale:
@@ -940,7 +952,8 @@ report 20 "Calc. and Post VAT Settlement"
                         PostGenJnlLine(GenJnlLine);
 
                     TaxJurisdiction.TestField("Reverse Charge (Purchases)");
-                    CreateGenJnlLine(GenJnlLine2, TaxJurisdiction."Reverse Charge (Purchases)");
+                    CreateGenJnlLine(
+                        GenJnlLine2, TaxJurisdiction."Reverse Charge (Purchases)", VATEntry.Amount, VATEntry."Additional-Currency Amount");
                     GenJnlLine2."Tax Area Code" := TaxJurisdiction.Code;
                     GenJnlLine2."Use Tax" := VATEntry."Use Tax";
                     if PostSettlement then

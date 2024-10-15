@@ -262,7 +262,7 @@ codeunit 408 DimensionManagement
     var
         ShortcutDimCode: array[8] of Code[20];
     begin
-        GetShortcutDimensions(DimSetID, ShortcutDimCode);
+        GetGlobalDimensions(DimSetID, ShortcutDimCode);
         GlobalDimVal1 := ShortcutDimCode[1];
         GlobalDimVal2 := ShortcutDimCode[2];
     end;
@@ -1149,6 +1149,13 @@ codeunit 408 DimensionManagement
         end else
             if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[FieldNumber]) then
                 DefaultDim.Delete();
+    end;
+
+    procedure GetGlobalDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])
+    var
+        GetShortcutDimensionValues: Codeunit "Get Shortcut Dimension Values";
+    begin
+        GetShortcutDimensionValues.GetGlobalDimensions(DimSetID, ShortcutDimCode);
     end;
 
     procedure GetShortcutDimensions(DimSetID: Integer; var ShortcutDimCode: array[8] of Code[20])

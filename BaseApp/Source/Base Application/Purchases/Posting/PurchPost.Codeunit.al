@@ -6386,7 +6386,7 @@ codeunit 90 "Purch.-Post"
         PreviewMode := NewPreviewMode;
     end;
 
-    internal procedure SetCalledBy(NewCalledBy: Integer)
+    procedure SetCalledBy(NewCalledBy: Integer)
     begin
         CalledBy := NewCalledBy;
     end;
