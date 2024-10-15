@@ -441,6 +441,7 @@ table 99000853 "Inventory Profile"
         "Planning Level Code" := PlanningComponent."Planning Level Code";
         ReservePlanningComponent.FilterReservFor(ReservEntry, PlanningComponent);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
+        PlanningComponent.CalcFields("Reserved Qty. (Base)");
         "Untracked Quantity" :=
           PlanningComponent."Expected Quantity (Base)" - PlanningComponent."Reserved Qty. (Base)" + AutoReservedQty;
         case PlanningComponent."Ref. Order Type" of
