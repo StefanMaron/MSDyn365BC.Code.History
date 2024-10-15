@@ -177,6 +177,21 @@ table 5062 Attachment
 #endif
     end;
 
+    [Scope('OnPrem')]
+    procedure OpenAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
+    begin
+        if IsHTML() then begin
+            PreviewHTMLContent(SegLine);
+            exit;
+        end;
+
+        if "Storage Type" = "Storage Type"::Embedded then
+            CalcFields("Attachment File");
+
+        if SegLine."Word Template Code" = '' then
+            ProcessWebAttachment(WordCaption + '.' + "File Extension");
+    end;
+
     procedure ShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
     var
         WordTemplateInteractions: Codeunit "Word Template Interactions";
@@ -679,6 +694,24 @@ table 5062 Attachment
         Clear("Email Entry ID");
         "Email Entry ID".CreateOutStream(Stream);
         Stream.WriteText(EntryID);
+    end;
+
+    procedure GetEmailMessageUrl() Return: Text
+    var
+        InStream: InStream;
+    begin
+        CalcFields("Email Message Url");
+        "Email Message Url".CreateInStream(InStream);
+        InStream.ReadText(Return);
+    end;
+
+    procedure SetEmailMessageUrl(Url: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Clear("Email Message Url");
+        "Email Message Url".CreateOutStream(OutStream);
+        OutStream.WriteText(url);
     end;
 
     procedure Read() Result: Text

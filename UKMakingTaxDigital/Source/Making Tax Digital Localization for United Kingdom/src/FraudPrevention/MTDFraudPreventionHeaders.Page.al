@@ -10,6 +10,9 @@ page 10537 "MTD Fraud Prevention Headers"
     SourceTable = "MTD Default Fraud Prev. Hdr";
     AboutTitle = 'About Fraud Prevention Headers';
     AboutText = 'HMRC requires that all communication with their APIs contain fraud prevention headers. These headers provide information about the systems that communicate with their APIs. Business Central tries to get necessary information at the time when communication takes place, but to ensure headers are always provided, you must set up default values on this page.';
+    ObsoleteReason = 'Not used anymore.';
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
 
     layout
     {

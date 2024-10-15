@@ -58,7 +58,7 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
                 "Service URL" := CopyStr(ServiceURLSandboxTxt, 1, MaxStrLen("Service URL"));
                 Description := CopyStr(OAuthsandboxSetupDescriptionLbl, 1, MaxStrLen(Description));
             end;
-            "Redirect URL" := RedirectURLTxt;
+            "Redirect URL" := GetDefaultRedirectURL();
             Scope := ScopeTxt;
             "Authorization URL Path" := AuthorizationURLPathTxt;
             "Access Token URL Path" := AccessTokenURLPathTxt;
@@ -68,6 +68,21 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
             "Daily Limit" := 1000;
             Modify();
         end;
+    end;
+
+    local procedure GetDefaultRedirectURL(): Text
+    var
+        OAuth2: Codeunit OAuth2;
+        EnvironmentInfo: Codeunit "Environment Information";
+        redirect: Text;
+    begin
+        if EnvironmentInfo.IsSaaS() then begin
+            OAuth2.GetDefaultRedirectURL(redirect);
+            if redirect <> '' then
+                exit(redirect);
+        end;
+
+        exit(RedirectURLTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"OAuth 2.0 Setup", 'OnBeforeDeleteEvent', '', true, true)]
@@ -118,6 +133,13 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
     [NonDebuggable]
     [EventSubscriber(ObjectType::Table, Database::"OAuth 2.0 Setup", 'OnBeforeRequestAuthoizationCode', '', true, true)]
     local procedure OnBeforeRequestAuthoizationCode(OAuth20Setup: Record "OAuth 2.0 Setup"; var Processed: Boolean)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        OAuth2ControlAddIn: Page OAuth2ControlAddIn;
+        auth_error: Text;
+        AuthorizationCode: Text;
+        url: Text;
+        state: Text;
     begin
         if not IsMTDOAuthSetup(OAuth20Setup) or Processed then
             exit;
@@ -125,7 +147,30 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
 
         CheckOAuthConsistencySetup(OAuth20Setup);
         UpdateClientTokens(OAuth20Setup);
-        Hyperlink(OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, GetToken(OAuth20Setup."Client ID", OAuth20Setup.GetTokenDataScope())));
+        if not EnvironmentInfo.IsSaaS() then begin
+            Hyperlink(OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, GetToken(OAuth20Setup."Client ID", OAuth20Setup.GetTokenDataScope())));
+            exit;
+        end;
+
+        state := Format(CreateGuid(), 0, 4);
+        url :=
+            StrSubstNo(
+                '%1&state=%2',
+                OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, GetToken(OAuth20Setup."Client ID", OAuth20Setup.GetTokenDataScope())),
+                state);
+        OAuth2ControlAddIn.SetOAuth2Properties(url, state);
+        OAuth2ControlAddIn.RunModal();
+
+        auth_error := OAuth2ControlAddIn.GetAuthError();
+        if auth_error <> '' then
+            Error(auth_error);
+
+        AuthorizationCode := OAuth2ControlAddIn.GetAuthCode();
+        if AuthorizationCode <> '' then begin
+            OAuth20Setup.Find();
+            if not OAuth20Setup.RequestAccessToken(auth_error, AuthorizationCode) then
+                Error(auth_error);
+        end;
     end;
 
     [NonDebuggable]
@@ -340,7 +385,6 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
                     TestField("Service URL", '');
             end;
 
-            TestField("Redirect URL", RedirectURLTxt);
             TestField(Scope, ScopeTxt);
             TestField("Authorization URL Path", AuthorizationURLPathTxt);
             TestField("Access Token URL Path", AccessTokenURLPathTxt);

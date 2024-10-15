@@ -1,4 +1,4 @@
-﻿table 743 "VAT Report Setup"
+table 743 "VAT Report Setup"
 {
     Caption = 'VAT Report Setup';
     LookupPageID = "VAT Report Setup";
@@ -229,6 +229,12 @@
             ObsoleteReason = 'Moved to VAT Group Management extension field 4718 VAT Group BC Version';
             ObsoleteTag = '18.0';
             OptionMembers = BC,NAV2018,NAV2017;
+        }
+        field(10541; "MTD-FP Public IP Service URL"; Text[250])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to Making Tax Digital extension.';
+            ObsoleteTag = '21.0';
         }
     }
 

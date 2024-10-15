@@ -2203,6 +2203,56 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure BaseUnitOfMeasureOnRequisitionLineForAssembly()
+    var
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [UT] [Unit of Measure]
+        // [SCENARIO 428463] "Unit of Measure Code" is copied from item's base unit of measure on order planning line for assembly.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(
+          RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Planning Line Origin", RequisitionLine."Planning Line Origin"::"Order Planning");
+
+        RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Assembly);
+
+        RequisitionLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
+    [Test]
+    procedure BaseUnitOfMeasureOnRequisitionLineForTransfer()
+    var
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [UT] [Unit of Measure]
+        // [SCENARIO 428463] "Unit of Measure Code" is copied from item's base unit of measure on order planning line for transfer.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(
+          RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Planning Line Origin", RequisitionLine."Planning Line Origin"::"Order Planning");
+
+        RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Transfer);
+
+        RequisitionLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -528,11 +528,23 @@ codeunit 10530 "MTD Mgt."
         exit('MS-407087-GB-MTD-FeatureConsent-20210805');
     end;
 
+    procedure GetDisablePeriodJobTag(): Code[250];
+    begin
+        exit('MS-408178-GB-MTD-DisablePeriodJob-20220202');
+    end;
+
+    procedure GetDefaultRedirectTag(): Code[250];
+    begin
+        exit('MS-408178-GB-MTD-DEfaultRedirect-20220202');
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
         PerCompanyUpgradeTags.Add(GetVATReportSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDailyLimitUpgradeTag());
         PerCompanyUpgradeTags.Add(GetFeatureConsentCheckboxTag());
+        PerCompanyUpgradeTags.Add(GetDisablePeriodJobTag());
+        PerCompanyUpgradeTags.Add(GetDefaultRedirectTag());
     end;
 }

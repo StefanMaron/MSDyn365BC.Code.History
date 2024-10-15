@@ -374,6 +374,7 @@ codeunit 148080 "Library - Making Tax Digital"
                 Validate("MTD OAuth Setup Option", "MTD OAuth Setup Option"::Sandbox)
             else
                 Validate("MTD OAuth Setup Option", "MTD OAuth Setup Option"::Production);
+            "MTD FP Public IP Service URL" := 'dummy';
             Modify(true);
         end;
     end;
