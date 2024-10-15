@@ -474,6 +474,10 @@ table 5992 "Service Invoice Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(180; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

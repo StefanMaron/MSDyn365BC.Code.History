@@ -536,6 +536,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Acc. Allocations - NamedType WrongBalanceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 995361431 - NamedType 1741848719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to 'No'  in Cost Center: Code=%2. Current value is 'Yes'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Acc. Allocations - NamedType CostCenterBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 3992542682" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cost allocation sources were found.]]></Val>

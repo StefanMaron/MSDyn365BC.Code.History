@@ -64,6 +64,8 @@
 
                         UpdateTypeText;
                         DeltaUpdateTotals;
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -634,6 +636,8 @@
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord;
+                        Commit;
                         ShowDeferralSchedule;
                     end;
                 }
