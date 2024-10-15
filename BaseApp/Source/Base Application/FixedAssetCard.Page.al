@@ -321,6 +321,7 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = FIELD("No.");
                 Visible = NOT Simple;
+                UpdatePropagation = Both;
             }
             group(Maintenance)
             {
@@ -685,7 +686,6 @@ page 5600 "Fixed Asset Card"
     end;
 
     var
-        FADepreciationBookOld: Record "FA Depreciation Book";
         FAAcquireWizardNotificationId: Guid;
         NoFieldVisible: Boolean;
         Simple: Boolean;
@@ -699,6 +699,7 @@ page 5600 "Fixed Asset Card"
 
     protected var
         FADepreciationBook: Record "FA Depreciation Book";
+        FADepreciationBookOld: Record "FA Depreciation Book";
 
     protected procedure ShowAcquisitionNotification()
     var

@@ -26,6 +26,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryResource: Codeunit "Library - Resource";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         OneLineShouldBeCopiedErr: Label 'One line should be copied.';
         InvoiceNoTxt: Label 'Invoice No. %1:';
@@ -3635,6 +3636,3122 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesLine.TestField("Special Order");
     end;
 
+    #region Received-from Sales Credit Memo
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromEditableOnSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 446099] Received-from Country Code editable on Sales Credit Memo
+
+        // [GIVEN] Received-from Country Code
+        CreateCountryRegion(CountryRegion, true);
+
+        // [GIVEN] Sales Credit Memo without lines
+        CreateSalesHeader(SalesHeader, CreateCustomer(), WorkDate(), SalesHeader."Document Type"::"Credit Memo");
+
+        // [GIVEN] Open Sales Credit Memo
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+
+        // Exercise. Received-from Country Code is set
+        Assert.AreNotEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is not set');
+
+        // [WHEN] Set Recceived-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".SetValue(CountryRegion.Code);
+
+        // [THEN] Verify that received from country code is saved
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value());
+        SalesCreditMemo.Close();
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(CountryRegion.Code);
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Credit Memo to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Credit Memo", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromSalesReturnOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Return Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Return Order", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromSalesShipment()
+    var
+        Location: Record Location;
+        CountryRegion: Record "Country/Region";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Sales Shipment as Ship-to Country Code
+        Initialize();
+
+        // [GIVEN] Create and ship Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+        SalesShipmentHeader.SetLoadFields("Sell-to Customer No.", "Ship-to Country/Region Code");
+        SalesShipmentHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesShipmentHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Shipment to Sales Credit Memo with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.", '', '', true, true);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesShipmentHeader."Ship-to Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromPostedSalesInvoice()
+    var
+        Location: Record Location;
+        CountryRegion: Record "Country/Region";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Posted Sales Invoice as Ship-to Country Code
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+        SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.", "Ship-to Country/Region Code");
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesInvoiceHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesInvoiceHeader."Ship-to Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromPostedSalesCrMemo()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        SalesCreditMemoHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesCreditMemoHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Credit Memo", SalesCreditMemoHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromReturnReceipt()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(ReturnReceiptHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Return Receipt to Sales Credit Memo with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.", '', '', true, true);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesQuote()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Quote to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Quote, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Order, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesBlanketOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Blanket Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Blanket Order", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Invoice to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Invoice, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesCreditMemoFromSalesReturnOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Credit Memo from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Return Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd-from Country/Region Code");
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesQuoteArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Quote
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Quote to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesCreditMemoFromSalesBlanketOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Credit Memo from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Credit Memo with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesCreditMemo.Close();
+    end;
+    #endregion
+
+    #region Received-from Sales Return Order
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromEditableOnSalesReturnOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 446099] Received-from Country Code editable on Sales Return Order
+
+        // [GIVEN] Received-from Country Code
+        CreateCountryRegion(CountryRegion, true);
+
+        // [GIVEN] Sales Return Order without lines
+        CreateSalesHeader(SalesHeader, CreateCustomer(), WorkDate(), SalesHeader."Document Type"::"Return Order");
+
+        // [GIVEN] Open Sales Return Order
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.GoToRecord(SalesHeader);
+
+        // Exercise. Received-from Country Code is set
+        Assert.AreNotEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is not set');
+
+        // [WHEN] Set Recceived-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".SetValue(CountryRegion.Code);
+
+        // [THEN] Verify that received from country code is saved
+        SalesHeader.Get(SalesHeader."Document Type"::"Return Order", SalesReturnOrder."No.".Value());
+        SalesReturnOrder.Close();
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.GoToRecord(SalesHeader);
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(CountryRegion.Code);
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Credit Memo to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Credit Memo", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromSalesReturnOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Return Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Return Order", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromSalesShipment()
+    var
+        Location: Record Location;
+        CountryRegion: Record "Country/Region";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Sales Shipment as Ship-to Country Code
+        Initialize();
+
+        // [GIVEN] Create and ship Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+        SalesShipmentHeader.SetLoadFields("Sell-to Customer No.", "Ship-to Country/Region Code");
+        SalesShipmentHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesShipmentHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Shipment to Sales Return Order with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.", '', '', true, true);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesShipmentHeader."Ship-to Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromPostedSalesInvoice()
+    var
+        Location: Record Location;
+        CountryRegion: Record "Country/Region";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+        SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.", "Ship-to Country/Region Code");
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesInvoiceHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesInvoiceHeader."Ship-to Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromPostedSalesCrMemo()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        SalesCreditMemoHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesCreditMemoHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Credit Memo", SalesCreditMemoHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromReturnReceipt()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(ReturnReceiptHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Return Receipt to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesQuote()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Quote to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Quote, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Order, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesBlanketOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Blanket Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Blanket Order", SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Invoice to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::Invoice, SalesHeader."No.", '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromCopiedToSalesReturnOrderFromSalesReturnOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code copied to Sales Return Order from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Return Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created with Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd-from Country/Region Code");
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesQuoteArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Quote
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Quote to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Quote", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyArchiveDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesReturnOrderFromSalesBlanketOrderArchive()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Return Order from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(SalesHeader);
+
+        // [GIVEN] Archive Sales Return Order
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesHeaderArchive."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Return Order with Include Header option
+        EnqueueCopyDocumentReqpageParametersArchive("Sales Document Type From"::"Arch. Blanket Order", SalesHeaderArchive."No.", 1, 1, '', '', true, false);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify new Sales Return Order is created without Received-from Country Code
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals('');
+        SalesReturnOrder.Close();
+    end;
+    #endregion
+
+    #region Received-from Sales Quote
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesCreditMemo()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Credit Memo to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesReturnOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Return Order to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromPostedSalesInvoice()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+
+        // [GIVEN] Prepare Sales Quote
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Quote
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesShipment()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Shipment
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+
+        // [GIVEN] Prepare Sales Quote
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Shipment to Sales Quote
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromPostedSalesCrMemo()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+
+        // [GIVEN] Prepare Sales Quote
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Quote
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromReturnReceipt()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields();
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] Prepare Sales Quote
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Return Receipt to Sales Quote
+        RunCopySalesDoc(
+          ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesQuote()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Quote to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Order to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesInvoice()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Invoice to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesBlanketOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Blanket Order to Sales Quote
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesReturnOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Return Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Quote
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesQuoteArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Quote
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Quote to Sales Quote
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Order to Sales Quote
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesQuoteFromSalesBlanketOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Quote from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Quote
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Quote is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+    #endregion
+
+    #region Received-from Sales Order
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesCreditMemo()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Credit Memo to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesReturnOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Return Order to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesQuote()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Quote to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Order to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesInvoice()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Invoice to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesBlanketOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Blanket Order to Sales Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromPostedSalesInvoice()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+
+        // [GIVEN] Prepare Sales Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesShipment()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Shipment
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+
+        // [GIVEN] Prepare Sales Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Shipment to Sales Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromPostedSalesCrMemo()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+
+        // [GIVEN] Prepare Sales Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromReturnReceipt()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields();
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] Prepare Sales Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Return Receipt to Sales Order
+        RunCopySalesDoc(
+          ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesReturnOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Return Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesQuoteArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Quote
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Quote to Sales Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Order to Sales Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesOrderFromSalesBlanketOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Order from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Order);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+    #endregion
+
+    #region Received-from Sales Blanket Order
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesCreditMemo()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Credit Memo to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesReturnOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Return Order to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesQuote()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Quote to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Order to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesInvoice()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Invoice to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesBlanketOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Blanket Order to Sales Blanket Order
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromPostedSalesInvoice()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Blanket Order");
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Blanket Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesShipment()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Shipment
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Blanket Order");
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Shipment to Sales Blanket Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromPostedSalesCrMemo()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Blanket Order");
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Blanket Order
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromReturnReceipt()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields();
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] Prepare Sales Blanket Order
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Blanket Order");
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Return Receipt to Sales Blanket Order
+        RunCopySalesDoc(
+          ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesReturnOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Return Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Blanket Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesQuoteArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Quote to Sales Blanket Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Order to Sales Blanket Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesBlanketOrderFromSalesBlanketOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Blanket Order from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Blanket Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::"Blanket Order");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Blanket Order
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+    #endregion
+
+    #region Received-from Sales Invoice
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesCreditMemo()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Credit Memo";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Credit Memo to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesReturnOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Return Order
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Return Order to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesQuote()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Quote
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Quote to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Order to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesInvoice()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Invoice
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Invoice;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Invoice to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesBlanketOrder()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Blanket Order to Sales Invoice
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromPostedSalesInvoice()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, true);
+
+        // [GIVEN] Prepare Sales Invoice
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Invoice
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesShipment()
+    var
+        CountryRegion: Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Shipment
+        Initialize();
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesOrderWithCountryAndLocation(CountryRegion.Code, Location.Code, ItemNo, true, false);
+
+        // [GIVEN] Prepare Sales Invoice
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Shipment to Sales Invoice
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromPostedSalesCrMemo()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Posted Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Create and invoice Sales Credit Memo
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+
+        // [GIVEN] Prepare Sales Invoice
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Posted Sales Credit Memo to Sales Invoice
+        RunCopySalesDoc(
+          DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromReturnReceipt()
+    var
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Return Receipt
+        Initialize();
+
+        // [GIVEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields();
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [GIVEN] Prepare Sales Invoice
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Copy Return Receipt to Sales Invoice
+        RunCopySalesDoc(
+          ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesReturnOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Return Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Return Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Return Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Return Order to Sales Invoice
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesQuoteArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Quote Archive
+        Initialize();
+
+        // [GIVEN] Sales Quote with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Quote;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Invoice
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Order
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Quote to Sales Invoice
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::Order;
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Order to Sales Invoice
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
+
+        // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceivedFromNotCopiedToSalesInvoiceFromSalesBlanketOrderArchive()
+    var
+        FromSalesHeader, ToSalesHeader : Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Sales] [Copy Document]
+        // [SCENARIO 446099] Received-from Country Code not copied to Sales Invoice from Sales Blanket Order Archive
+        Initialize();
+
+        // [GIVEN] Sales Blanket Order with Received-from Country Code
+        FromSalesHeader."Document Type" := FromSalesHeader."Document Type"::"Blanket Order";
+        CreateSalesDocumentWithReceivedFromCountryRegion(FromSalesHeader);
+
+        // [GIVEN] Archive Sales Blanket Order
+        ArchiveSalesDocument(FromSalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare Sales Invoice
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Invoice);
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Blanket Order to Sales Invoice
+        RunCopySalesDoc(
+          SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
+
+        // [THEN] Verify new Sales Invoice is created without Received-from Country Code
+        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+    end;
+    #endregion
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryAfterPostingSalesCreditMemoWithoutReturnReceipt()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 446099] Verify Country Code on Item Ledger Entry after posting Sales Credit Memo
+        Initialize();
+
+        // [WHEN] Create and post Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(false);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        SalesCreditMemoHeader.SetLoadFields("Posting Date");
+        SalesCreditMemoHeader.Get(DocumentNo);
+
+        // [THEN] Verify Received-from Country Code on Item Ledger Entries
+        ItemLedgerEntry.SetLoadFields("Country/Region Code");
+        ItemLedgerEntry.Setrange("Document No.", SalesCreditMemoHeader."No.");
+        ItemLedgerEntry.SetRange("Posting Date", SalesCreditMemoHeader."Posting Date");
+        ItemLedgerEntry.FindFirst();
+        Assert.AreNotEqual(CountryRegion.Code, ItemLedgerEntry."Country/Region Code", 'Received-from Country Code set');
+        Assert.AreEqual(ReceivedFromCountryRegion.Code, ItemLedgerEntry."Country/Region Code", 'Received-from Country Code not set');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryAfterPostingSalesCreditMemoWithReturnReceipt()
+    var
+        Location: Record Location;
+        CountryRegion, ReceivedFromCountryRegion : Record "Country/Region";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 446099] Verify Country Code on Item Ledger Entry after Return Receipt on Sales Credit Memo
+        Initialize();
+
+        // [WHEN] Create and return receipt on Sales Credit Memo
+        UpdateReturnReceiptOnCrMemoSalesSetup(true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ItemNo := CreateItem();
+        CreateCountryRegion(CountryRegion, true);
+        CreateCountryRegion(ReceivedFromCountryRegion, true);
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+        CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
+        ReturnReceiptHeader.SetLoadFields("Posting Date");
+        ReturnReceiptHeader.SetCurrentKey("Posting Date");
+        ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
+        ReturnReceiptHeader.FindLast();
+
+        // [THEN] Verify Received-from Country Code on Item Ledger Entries
+        ItemLedgerEntry.SetLoadFields("Country/Region Code");
+        ItemLedgerEntry.Setrange("Document No.", ReturnReceiptHeader."No.");
+        ItemLedgerEntry.SetRange("Posting Date", ReturnReceiptHeader."Posting Date");
+        ItemLedgerEntry.FindFirst();
+        Assert.AreNotEqual(CountryRegion.Code, ItemLedgerEntry."Country/Region Code", 'Received-from Country Code set');
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    procedure VerifyShipToOnSalesCrMemoWithLocationDataAfterCopyingPostedSalesInv()
+    var
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+        CountryRegion: array[2] of Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Location data after coyping Posted Sales Invoice to Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Update ship-to data on Company Information
+        UpdateShiptoAddrOfCompany();
+        CompanyInformation.Get();
+        CreateCountryRegion(CountryRegion[1], false);
+        CompanyInformation."Country/Region Code" := CountryRegion[1].Code;
+        CompanyInformation.Modify();
+
+        // [GIVEN] Location "L" with address different then one set in Company Information
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateCountryRegion(CountryRegion[2], false);
+        UpdateLocationAddress(Location, CountryRegion[2].Code);
+
+        // [GIVEN] Inventory for new item on "L"
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(
+                        SalesLine,
+                        SalesHeader,
+                        SalesLine.Type::Item,
+                        ItemNo,
+                        LibraryRandom.RandIntInRange(1, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.");
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesInvoiceHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Credit Memo with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", '', '', true, true);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify Ship-to is set from Location
+        Clear(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
+        SalesCreditMemo.Close();
+        Assert.AreEqual(Location.Name, SalesHeader."Ship-to Name", 'Ship-to name not set from location');
+        Assert.AreEqual(Location.Address, SalesHeader."Ship-to Address", 'Ship-to address not set from location');
+        Assert.AreEqual(Location."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code not set from location');
+        Assert.AreEqual(Location."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region not set from location');
+
+        Assert.AreNotEqual(CompanyInformation."Ship-to Name", SalesHeader."Ship-to Name", 'Ship-to name is set from company');
+        Assert.AreNotEqual(CompanyInformation.Address, SalesHeader."Ship-to Address", 'Ship-to address is set from company');
+        Assert.AreNotEqual(CompanyInformation."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code is set from company');
+        Assert.AreNotEqual(CompanyInformation."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region is set from company');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CopyDocRequestPageHandler')]
+    procedure VerifyShipToOnSalesCrMemoWithLocationDataAfterCopyingPostedSalesShpt()
+    var
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+        CountryRegion: array[2] of Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Location data after coyping Posted Sales Shipment to Sales Credit Memo
+        Initialize();
+
+        // [GIVEN] Update ship-to data on Company Information
+        UpdateShiptoAddrOfCompany();
+        CompanyInformation.Get();
+        CreateCountryRegion(CountryRegion[1], false);
+        CompanyInformation."Country/Region Code" := CountryRegion[1].Code;
+        CompanyInformation.Modify();
+
+        // [GIVEN] Location "L" with address different then one set in Company Information
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateCountryRegion(CountryRegion[2], false);
+        UpdateLocationAddress(Location, CountryRegion[2].Code);
+
+        // [GIVEN] Inventory for new item on "L"
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(
+                        SalesLine,
+                        SalesHeader,
+                        SalesLine.Type::Item,
+                        ItemNo,
+                        LibraryRandom.RandIntInRange(1, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesShipmentHeader.SetLoadFields("Sell-to Customer No.");
+        SalesShipmentHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer No.".SetValue(SalesShipmentHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Shipment to Sales Credit Memo with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.", '', '', true, true);
+        Commit();
+        SalesCreditMemo.CopyDocument.Invoke();
+
+        // [THEN] Verify Ship-to is set from Location
+        Clear(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
+        SalesCreditMemo.Close();
+        Assert.AreEqual(Location.Name, SalesHeader."Ship-to Name", 'Ship-to name not set from location');
+        Assert.AreEqual(Location.Address, SalesHeader."Ship-to Address", 'Ship-to address not set from location');
+        Assert.AreEqual(Location."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code not set from location');
+        Assert.AreEqual(Location."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region not set from location');
+
+        Assert.AreNotEqual(CompanyInformation."Ship-to Name", SalesHeader."Ship-to Name", 'Ship-to name is set from company');
+        Assert.AreNotEqual(CompanyInformation.Address, SalesHeader."Ship-to Address", 'Ship-to address is set from company');
+        Assert.AreNotEqual(CompanyInformation."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code is set from company');
+        Assert.AreNotEqual(CompanyInformation."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region is set from company');
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyDocRequestPageHandler')]
+    procedure VerifyShipToOnSalesRetOrdWithLocationDataAfterCopyingPostedSalesInv()
+    var
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+        CountryRegion: array[2] of Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Location data after coyping Posted Sales Invoice to Sales Return Order
+        Initialize();
+
+        // [GIVEN] Update ship-to data on Company Information
+        UpdateShiptoAddrOfCompany();
+        CompanyInformation.Get();
+        CreateCountryRegion(CountryRegion[1], false);
+        CompanyInformation."Country/Region Code" := CountryRegion[1].Code;
+        CompanyInformation.Modify();
+
+        // [GIVEN] Location "L" with address different then one set in Company Information
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateCountryRegion(CountryRegion[2], false);
+        UpdateLocationAddress(Location, CountryRegion[2].Code);
+
+        // [GIVEN] Inventory for new item on "L"
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(
+                        SalesLine,
+                        SalesHeader,
+                        SalesLine.Type::Item,
+                        ItemNo,
+                        LibraryRandom.RandIntInRange(1, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.");
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesInvoiceHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Posted Sales Invoice to Sales Return Order with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", '', '', true, true);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify Ship-to is set from Location
+        Clear(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::"Return Order", SalesReturnOrder."No.".Value);
+        SalesReturnOrder.Close();
+        Assert.AreEqual(Location.Name, SalesHeader."Ship-to Name", 'Ship-to name not set from location');
+        Assert.AreEqual(Location.Address, SalesHeader."Ship-to Address", 'Ship-to address not set from location');
+        Assert.AreEqual(Location."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code not set from location');
+        Assert.AreEqual(Location."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region not set from location');
+
+        Assert.AreNotEqual(CompanyInformation."Ship-to Name", SalesHeader."Ship-to Name", 'Ship-to name is set from company');
+        Assert.AreNotEqual(CompanyInformation.Address, SalesHeader."Ship-to Address", 'Ship-to address is set from company');
+        Assert.AreNotEqual(CompanyInformation."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code is set from company');
+        Assert.AreNotEqual(CompanyInformation."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region is set from company');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CopyDocRequestPageHandler')]
+    procedure VerifyShipToOnSalesRetOrdWithLocationDataAfterCopyingPostedSalesShpt()
+    var
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+        CountryRegion: array[2] of Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemNo, DocumentNo : Code[20];
+    begin
+        // [FEATURE] [Sales] [Copy Document] [UI]
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Location data after coyping Posted Sales Shipment to Sales Return Order
+        Initialize();
+
+        // [GIVEN] Update ship-to data on Company Information
+        UpdateShiptoAddrOfCompany();
+        CompanyInformation.Get();
+        CreateCountryRegion(CountryRegion[1], false);
+        CompanyInformation."Country/Region Code" := CountryRegion[1].Code;
+        CompanyInformation.Modify();
+
+        // [GIVEN] Location "L" with address different then one set in Company Information
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateCountryRegion(CountryRegion[2], false);
+        UpdateLocationAddress(Location, CountryRegion[2].Code);
+
+        // [GIVEN] Inventory for new item on "L"
+        ItemNo := CreateItem();
+        CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
+
+        // [GIVEN] Create, ship and invoice Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(
+                        SalesLine,
+                        SalesHeader,
+                        SalesLine.Type::Item,
+                        ItemNo,
+                        LibraryRandom.RandIntInRange(1, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesShipmentHeader.SetLoadFields("Sell-to Customer No.");
+        SalesShipmentHeader.Get(DocumentNo);
+
+        // [GIVEN] New Sales Return order
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(SalesShipmentHeader."Sell-to Customer No.");
+
+        // [WHEN] Copy Sales Shipment to Sales Credit Memo with options Include Header and Recalculate Lines
+        EnqueueCopyDocumentReqpageParameters("Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.", '', '', true, true);
+        Commit();
+        SalesReturnOrder.CopyDocument.Invoke();
+
+        // [THEN] Verify Ship-to is set from Location
+        Clear(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::"Return Order", SalesReturnOrder."No.".Value);
+        SalesReturnOrder.Close();
+        Assert.AreEqual(Location.Name, SalesHeader."Ship-to Name", 'Ship-to name not set from location');
+        Assert.AreEqual(Location.Address, SalesHeader."Ship-to Address", 'Ship-to address not set from location');
+        Assert.AreEqual(Location."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code not set from location');
+        Assert.AreEqual(Location."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region not set from location');
+
+        Assert.AreNotEqual(CompanyInformation."Ship-to Name", SalesHeader."Ship-to Name", 'Ship-to name is set from company');
+        Assert.AreNotEqual(CompanyInformation.Address, SalesHeader."Ship-to Address", 'Ship-to address is set from company');
+        Assert.AreNotEqual(CompanyInformation."Post Code", SalesHeader."Ship-to Post Code", 'Ship-to post code is set from company');
+        Assert.AreNotEqual(CompanyInformation."Country/Region Code", SalesHeader."Ship-to Country/Region Code", 'Ship-to country/region is set from company');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShiptoAddrOfCompanyAfterCopySalesInvToRetOrd()
+    var
+        SalesHeader: Record "Sales Header";
+        PostedSalesDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales][Credit Memo]
+        // [SCENARIO 469244] Verify Ship-to Address is updated with Company data after coyping Posted Sales Invoice to Sales Return Order        
+        Initialize();
+
+        // [GIVEN] Company Information with "Ship-to Address" = "SA"
+        UpdateShiptoAddrOfCompany();
+
+        // [GIVEN] Posted Sales Invoice "PSI"
+        PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '');
+
+        // [GIVEN] New Return Order "RO"
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
+
+        // [WHEN] Run copy sales document - "PSI" -> "RO"
+        RunCopySalesDoc(PostedSalesDocNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+        SalesHeader.Validate("Location Code");
+        SalesHeader.Modify();
+
+        // [THEN] Ship-to address fields of "RO" are equal to "SA"
+        VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3643,6 +6760,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
         LibrarySetupStorage.Restore();
         PriceListLine.DeleteAll();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
@@ -4387,6 +7505,24 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CompanyInformation.Modify();
     end;
 
+    local procedure UpdateLocationAddress(var Location: Record Location; CountryRegionCode: Code[10])
+    begin
+        Location.Get(Location.Code);
+        LibraryUtility.FillFieldMaxText(Location, Location.FieldNo("Name"));
+        Location.Get(Location.Code);
+        LibraryUtility.FillFieldMaxText(Location, Location.FieldNo("Name 2"));
+        Location.Get(Location.Code);
+        LibraryUtility.FillFieldMaxText(Location, Location.FieldNo(Address));
+        Location.Get(Location.Code);
+        LibraryUtility.FillFieldMaxText(Location, Location.FieldNo("Address 2"));
+        Location.Get(Location.Code);
+        LibraryUtility.FillFieldMaxText(Location, Location.FieldNo(Contact));
+        Location.Get(Location.Code);
+        Location.Validate("Post Code", CreatePostCode);
+        Location.Validate("Country/Region Code", CountryRegionCode);
+        Location.Modify();
+    end;
+
     local procedure UpdateShiptoAddrSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         LibraryUtility.FillFieldMaxText(SalesHeader, SalesHeader.FieldNo("Ship-to Name"));
@@ -4977,6 +8113,187 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         exit(DeferralTemplate."Deferral Code");
     end;
 
+    local procedure ArchiveSalesDocument(SalesHeader: Record "Sales Header"; var SalesHeaderArchive: Record "Sales Header Archive")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        ArchiveManagement.StoreSalesDocument(SalesHeader, false);
+        SalesHeaderArchive.Get(SalesHeader."Document Type", SalesHeader."No.", 1, 1);
+    end;
+
+    local procedure CreateSalesDocumentWithReceivedFromCountryRegion(var SalesHeader: Record "Sales Header")
+    var
+        CountryRegion: Record "Country/Region";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocument(
+             SalesHeader, SalesLine, CreateCustomerWithVATRegNo(true), WorkDate(), SalesHeader."Document Type",
+             SalesLine.Type::Item, CreateItem(), 1);
+        CreateCountryRegion(CountryRegion, true);
+        SalesHeader.Validate("Rcvd-from Country/Region Code", CountryRegion.Code);
+        SalesHeader.Modify();
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20]; NoOfLines: Integer)
+    var
+        i: Integer;
+    begin
+        // Create Sales Order with Random Quantity and Unit Price.
+        CreateSalesHeader(SalesHeader, CustomerNo, PostingDate, DocumentType);
+        for i := 1 to NoOfLines do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));
+            SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+            SalesLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateCustomerWithVATRegNo(IsEUCountry: Boolean): Code[20]
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateCountryRegion(CountryRegion, IsEUCountry);
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItemWithTariffNo(Item, LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number"));
+        exit(Item."No.");
+    end;
+
+    local procedure CreateAndPostSalesOrderWithCountryAndLocation(CountryRegionCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; NewShipReceive: Boolean; NewInvoice: Boolean): Code[20]
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomerWithLocationCode(Customer, LocationCode);
+        Customer.Validate("Country/Region Code", CountryRegionCode);
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("VAT Country/Region Code", CountryRegionCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, NewShipReceive, NewInvoice));
+    end;
+
+    local procedure CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegionCode: Code[10]; ReceivedFromCountryRegionCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomerWithLocationCode(Customer, LocationCode);
+        Customer.Validate("Country/Region Code", CountryRegionCode);
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("VAT Country/Region Code", CountryRegionCode);
+        SalesHeader.Validate("Rcvd-from Country/Region Code", ReceivedFromCountryRegionCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure EnqueueCopyDocumentReqpageParameters(DocType: Variant; DocNo: Variant; SellToCustNo: Variant; SellToName: Variant; IncludeHeader: Variant; RecalcLines: Variant)
+    begin
+        LibraryVariableStorage.Enqueue(DocType);
+        LibraryVariableStorage.Enqueue(DocNo);
+        LibraryVariableStorage.Enqueue(SellToCustNo);
+        LibraryVariableStorage.Enqueue(SellToName);
+        LibraryVariableStorage.Enqueue(IncludeHeader);
+        LibraryVariableStorage.Enqueue(RecalcLines);
+    end;
+
+    local procedure EnqueueCopyDocumentReqpageParametersArchive(DocType: Variant; DocNo: Variant; DocNoOccurrence: Variant; VersionNo: Variant; SellToCustNo: Variant; SellToName: Variant; IncludeHeader: Variant; RecalcLines: Variant)
+    begin
+        LibraryVariableStorage.Enqueue(DocType);
+        LibraryVariableStorage.Enqueue(DocNo);
+        LibraryVariableStorage.Enqueue(DocNoOccurrence);
+        LibraryVariableStorage.Enqueue(VersionNo);
+        LibraryVariableStorage.Enqueue(SellToCustNo);
+        LibraryVariableStorage.Enqueue(SellToName);
+        LibraryVariableStorage.Enqueue(IncludeHeader);
+        LibraryVariableStorage.Enqueue(RecalcLines);
+    end;
+
+    local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region"; IsEUCountry: Boolean)
+    begin
+        CountryRegion.Code :=
+            LibraryUtility.GenerateRandomCodeWithLength(CountryRegion.FieldNo(Code), Database::"Country/Region", 3);
+        CountryRegion.Validate("Intrastat Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
+        if IsEUCountry then
+            CountryRegion.Validate("EU Country/Region Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
+        CountryRegion.Insert(true);
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", GetCountryRegionCode());
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure GetCountryRegionCode(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
+        CountryRegion.SetFilter("Intrastat Code", '<>''''');
+        CountryRegion.FindFirst();
+        exit(CountryRegion.Code);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdateReturnReceiptOnCrMemoSalesSetup(ReturnReceiptOnCreditMemo: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", ReturnReceiptOnCreditMemo);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostPurchaseItemJournalLine(LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalTemplate.Name,
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase,
+          ItemNo,
+          LibraryRandom.RandIntInRange(10, 1000));
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopySalesDocReportHandlerOKWithEmptyDocumentNo(var CopySalesDocument: TestRequestPage "Copy Sales Document")
@@ -5015,5 +8332,65 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     local procedure OnBeforeInsertOldSalesDocNoLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
         IsHandled := true;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyDocRequestPageHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
+    var
+        ValueFromQueue: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc type
+        CopySalesDocument.DocumentType.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc no
+        CopySalesDocument.DocumentNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to no
+        CopySalesDocument.SellToCustNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to name
+        CopySalesDocument.SellToCustName.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Include header
+        CopySalesDocument.IncludeHeader_Options.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
+        CopySalesDocument.RecalculateLines.SetValue(ValueFromQueue);
+
+        CopySalesDocument.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyArchiveDocRequestPageHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
+    var
+        ValueFromQueue: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc type
+        CopySalesDocument.DocumentType.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc no
+        CopySalesDocument.DocumentNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc no occurrence
+        CopySalesDocument.FromDocNoOccurrence.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Version no
+        CopySalesDocument.FromDocVersionNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to no
+        CopySalesDocument.SellToCustNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to name
+        CopySalesDocument.SellToCustName.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Include header
+        CopySalesDocument.IncludeHeader_Options.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
+        CopySalesDocument.RecalculateLines.SetValue(ValueFromQueue);
+
+        CopySalesDocument.OK().Invoke();
     end;
 }
