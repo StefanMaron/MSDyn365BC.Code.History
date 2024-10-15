@@ -6,7 +6,8 @@
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        Code;
+        SalesHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
+        Code();
         Rec := SalesHeader;
     end;
 

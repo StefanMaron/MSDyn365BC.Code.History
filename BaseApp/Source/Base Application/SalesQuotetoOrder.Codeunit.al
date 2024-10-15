@@ -29,11 +29,11 @@ codeunit 86 "Sales-Quote to Order"
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
 
         CheckInProgressOpportunities(Rec);
 
-        CreateSalesHeader(Rec, Cust."Prepayment %");
+        CreateSalesHeader(Rec, Cust);
 
         TransferQuoteToOrderLines(SalesQuoteLine, Rec, SalesOrderLine, SalesOrderHeader, Cust);
         OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec, SalesOrderHeader);
@@ -60,8 +60,8 @@ codeunit 86 "Sales-Quote to Order"
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            DeleteLinks;
-            Delete;
+            DeleteLinks();
+            Delete();
             SalesQuoteLine.DeleteAll();
         end;
 
@@ -91,7 +91,7 @@ codeunit 86 "Sales-Quote to Order"
             ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(SalesHeader.RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
     end;
 
-    local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
+    local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; Customer: Record Customer)
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
@@ -120,9 +120,12 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
             SalesOrderHeader.Reserve := Reserve;
 
-            SalesOrderHeader."Prepayment %" := PrepmtPercent;
+            SalesOrderHeader."Prepayment %" := Customer."Prepayment %";
             if SalesOrderHeader."Posting Date" = 0D then
-                SalesOrderHeader."Posting Date" := WorkDate;
+                SalesOrderHeader."Posting Date" := WorkDate();
+
+            if SalesOrderHeader."VAT Registration No." = '' then
+                SalesOrderHeader."VAT Registration No." := Customer."VAT Registration No.";
 
             CalcFields("Work Description");
             SalesOrderHeader."Work Description" := "Work Description";
@@ -208,10 +211,10 @@ codeunit 86 "Sales-Quote to Order"
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesHeader."No.");
         Opp.SetRange(Status, Opp.Status::"In Progress");
-        if Opp.FindFirst then begin
+        if Opp.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text000, Opp.TableCaption, Opp."Sales Document Type"::Quote,
+                   Text000, Opp.TableCaption(), Opp."Sales Document Type"::Quote,
                    Opp."Sales Document Type"::Order), true)
             then
                 Error('');
@@ -241,8 +244,8 @@ codeunit 86 "Sales-Quote to Order"
             Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
             Opp.SetRange("Sales Document No.", SalesHeader."No.");
             Opp.SetRange(Status, Opp.Status::"In Progress");
-            if Opp.FindFirst then
-                Error(Text001, Opp.TableCaption, Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
+            if Opp.FindFirst() then
+                Error(Text001, Opp.TableCaption(), Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
             Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         end;
@@ -257,7 +260,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesQuoteHeader."No.");
-        if Opp.FindFirst then
+        if Opp.FindFirst() then
             if Opp.Status = Opp.Status::Won then begin
                 Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
                 Opp."Sales Document No." := SalesOrderHeader."No.";
@@ -266,7 +269,7 @@ codeunit 86 "Sales-Quote to Order"
                 OpportunityEntry.SetCurrentKey(Active, "Opportunity No.");
                 OpportunityEntry.SetRange(Active, true);
                 OpportunityEntry.SetRange("Opportunity No.", Opp."No.");
-                if OpportunityEntry.FindFirst then begin
+                if OpportunityEntry.FindFirst() then begin
                     OpportunityEntry."Calcd. Current Value (LCY)" := OpportunityEntry.GetSalesDocValue(SalesOrderHeader);
                     OpportunityEntry.Modify();
                 end;
@@ -291,7 +294,7 @@ codeunit 86 "Sales-Quote to Order"
         SalesQuoteLine.SetRange("Document Type", SalesQuoteHeader."Document Type");
         SalesQuoteLine.SetRange("Document No.", SalesQuoteHeader."No.");
         OnTransferQuoteToOrderLinesOnAfterSetFilters(SalesQuoteLine, SalesQuoteHeader);
-        if SalesQuoteLine.FindSet then
+        if SalesQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnBeforeTransferQuoteLineToOrderLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesOrderHeader, IsHandled);
@@ -308,7 +311,7 @@ codeunit 86 "Sales-Quote to Order"
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");
                     SalesOrderLine.Validate("Prepayment %");
                     if SalesOrderLine."No." <> '' then
-                        SalesOrderLine.DefaultDeferralCode;
+                        SalesOrderLine.DefaultDeferralCode();
                     OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
                     SalesOrderLine.Insert();
                     OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);

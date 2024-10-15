@@ -2872,14 +2872,14 @@ codeunit 144090 "ERM Withhold"
     local procedure VerifyVendorBillLineAmtToPayAndSocSecAmtWhtManual(PurchWithhContribution: Record "Purch. Withh. Contribution"; VendorBillHeaderNo: Code[20]; TotalAmtInclVAT: Decimal)
     var
         VendorBillLine: Record "Vendor Bill Line";
+        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
     begin
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeaderNo);
         VendorBillLine.FindFirst();
-        VendorBillLine.TestField(
-          "Amount to Pay",
-          TotalAmtInclVAT - PurchWithhContribution."WHT Amount Manual" - PurchWithhContribution."Free-Lance Amount");
+        VendorBillLine.TestField("Gross Amount to Pay", TotalAmtInclVAT);
         VendorBillLine.TestField("Social Security Amount", PurchWithhContribution."Total Social Security Amount");
-        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."WHT Amount Manual")
+        VendorBillWithholdingTax.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.");
+        VendorBillWithholdingTax.TestField("Withholding Tax Amount", PurchWithhContribution."WHT Amount Manual");
     end;
 
     local procedure VerifyContributions(SocialSecurityCode: Code[20]; INAILCode: Code[20]; SocialSecurityPct: Decimal; INAILFreeLancePct: Decimal)

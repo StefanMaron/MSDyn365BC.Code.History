@@ -810,7 +810,12 @@ report 12119 "Depreciation Book"
         trigger OnOpenPage()
         var
             CompanyInfo: Record "Company Information";
+            IsCompanyInfoInitialized: Boolean;
         begin
+            IsCompanyInfoInitialized := CompanyInformation[1] <> '';
+            if IsCompanyInfoInitialized then    // to prevent error when Preview is pressed
+                exit;
+
             if DeprBookCode = '' then begin
                 FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
