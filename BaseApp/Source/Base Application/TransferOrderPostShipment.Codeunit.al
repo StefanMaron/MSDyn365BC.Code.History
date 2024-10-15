@@ -130,8 +130,9 @@
 
             OnBeforeCopyTransLines(TransHeader);
 
+            TransLine.SetRange("Qty. to Ship");
             TransLine.SetFilter("WIP Qty. To Ship", '<>0');
-            if TransLine.FindFirst then begin
+            if TransLine.FindSet(true) then begin
                 repeat
                     TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
                     TransLine.Modify();

@@ -4046,6 +4046,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType ChangeStatusErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2418598749 - NamedType 3703926689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[WIP Qty. is not Shipped.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType NotShippedQtyForWIPItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2418598749 - NamedType 2044182582" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot update the order line because the order line is associated with production order]]></Val>

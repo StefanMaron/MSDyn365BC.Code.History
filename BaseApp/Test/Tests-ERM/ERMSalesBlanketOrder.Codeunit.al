@@ -30,6 +30,8 @@ codeunit 134377 "ERM Sales Blanket Order"
         BlanketOrderErr: Label 'Blanket Order No. must have a value in Sales Line';
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when customer is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when customer is selected.';
+        BlanketOrderNoFieldError: Label 'Blanket Order No. missing on related Sales Credit Memo';
+        BlanketOrderLineNoFieldError: Label 'Blanket Order Line No. missing on related Sales Credit Memo';
 
     [Test]
     [Scope('OnPrem')]
@@ -486,7 +488,7 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Sales Credit Memo line
         VerifyBlanketOrderDetailsOnSalesLine(
-          SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLineOrder."Sell-to Customer No.", '', 0);
+          SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLineOrder."Sell-to Customer No.", SalesLineOrder."Blanket Order No.", SalesLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -546,7 +548,7 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Sales Credit Memo line
         VerifyBlanketOrderDetailsOnSalesLine(
-          SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLineOrder."Sell-to Customer No.", '', 0);
+          SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLineOrder."Sell-to Customer No.", SalesLineOrder."Blanket Order No.", SalesLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -678,7 +680,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Posted Sales Invoice line
-        VerifyBlanketOrderFieldsOnSalesInvoiceLine(InvoiceNo, '', 0);
+        VerifyBlanketOrderFieldsOnSalesInvoiceLine(InvoiceNo, SalesLineOrder."Blanket Order No.", SalesLineOrder."Blanket Order Line No.");
         // [THEN] Quantity Shipped in Blanket Order is equal to "X"
         FindSalesLine(SalesLine, SalesHeader."Document Type"::"Blanket Order", SalesHeader."Sell-to Customer No.");
         SalesLine.TestField("Quantity Shipped", SalesLineOrder.Quantity);
@@ -1145,6 +1147,47 @@ codeunit 134377 "ERM Sales Blanket Order"
             SalesLine."Qty. to Ship (Base)", SalesLine.FieldName("Qty. to Ship (Base)"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoFrmBlnketOrdrReference()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 453126] Blanket Purchase/Sales Order not linked automatically in Purchase/Sales Credit Memo when using the Correct Function (Correct, Cancel or Create Corrective Credit Memo) in a Posted Purchase/Sales Invoice
+
+        // [GIVEN] Setup: Create Sales Blanket Order
+        Initialize();
+        UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::"Blanket Order", CreateCustomerInvDiscount(LibrarySales.CreateCustomerNo));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+
+        // [THEN] Create Sales Order from Sales Blanket Order, and Post Sales order
+        CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", SalesHeader);
+        FindOrderLineFromBlanket(SalesLine2, SalesHeader);
+        SalesHeader2.Get(SalesLine2."Document Type", SalesLine2."Document No.");
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader2);
+        Clear(SalesLine2);
+
+        // [GIVEN] Create Sales Credit memo when "Create Corrective Credit Memo" is invoked
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader2);
+
+        // [THEN] Get Sales Credit Memo Line
+        FindCreditMemoLineFromBlanket(SalesLine2, SalesHeader);
+
+        // [VERIFY] Verify Blanket Order References on Sales Credit Memo Line
+        VerifyBlanketOrderDetailsOnSalesCreditMemoLine(SalesLine, SalesLine2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1449,6 +1492,27 @@ codeunit 134377 "ERM Sales Blanket Order"
             TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
             TestField("Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
         end;
+    end;
+
+    local procedure FindCreditMemoLineFromBlanket(var SalesLine: Record "Sales Line"; BlanketSalesHeader: Record "Sales Header")
+    begin
+        FilterCreditMemoLineFromBlanket(SalesLine, BlanketSalesHeader);
+        SalesLine.FindFirst();
+    end;
+
+    local procedure FilterCreditMemoLineFromBlanket(var SalesLine: Record "Sales Line"; BlanketSalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
+        SalesLine.SetRange("Blanket Order No.", BlanketSalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+    end;
+
+    local procedure VerifyBlanketOrderDetailsOnSalesCreditMemoLine(BlanketOrderSalesLine: Record "Sales Line"; SalesCreditMemoLine: Record "Sales Line")
+    begin
+        Assert.AreEqual(
+            BlanketOrderSalesLine."Document No.", SalesCreditMemoLine."Blanket Order No.", BlanketOrderNoFieldError);
+        Assert.AreEqual(
+            BlanketOrderSalesLine."Line No.", SalesCreditMemoLine."Blanket Order Line No.", BlanketOrderLineNoFieldError);
     end;
 
     [MessageHandler]

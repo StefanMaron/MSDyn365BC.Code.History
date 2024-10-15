@@ -1305,6 +1305,7 @@ codeunit 144064 "ERM Intrastat - III"
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
         SalesHeader.Validate("Transport Method", TransportMethod);
         SalesHeader.Validate("Service Tariff No.", ServiceTariffNo);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
     end;
 

@@ -457,7 +457,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Credit Memo line
         VerifyBlanketOrderDetailsOnPurchaseLine(
-          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", '', 0);
+          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -517,7 +517,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Credit Memo line
         VerifyBlanketOrderDetailsOnPurchaseLine(
-          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", '', 0);
+          PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
     end;
 
     [Test]
@@ -649,7 +649,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Posted Purchase Invoice line
-        VerifyBlanketOrderFieldsOnPurchaseInvoiceLine(InvoiceNo, '', 0);
+        VerifyBlanketOrderFieldsOnPurchaseInvoiceLine(InvoiceNo, PurchaseLineOrder."Blanket Order No.", PurchaseLineOrder."Blanket Order Line No.");
         // [THEN] Quantity Received in Blanket Order is equal to "X"
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", PurchaseLineOrder."Buy-from Vendor No.");
         PurchaseLine.TestField("Quantity Received", PurchaseLineOrder.Quantity);

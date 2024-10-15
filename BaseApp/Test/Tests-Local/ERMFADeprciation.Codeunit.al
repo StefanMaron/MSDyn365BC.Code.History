@@ -44,6 +44,7 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         CompletionStatsTok: Label 'The depreciation has been calculated.';
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationBookRequestPageHandler,DepreciationCalcConfirmHandler')]
@@ -1015,7 +1016,15 @@ codeunit 144143 "ERM FA Deprciation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+
+        if IsInitialized then
+            exit;
+
+        SetFiscalCodeAndRegCompanyNoOnCompanyInfo();
+
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure CreateAndPostDisposalAfterReclassification(FADepreciationBook: array[2] of Record "FA Depreciation Book"; InitialAmount: Decimal; ReclassAmount: Decimal; DisposalAmount: Decimal)
@@ -1400,6 +1409,16 @@ codeunit 144143 "ERM FA Deprciation"
         FAReclassJournal.FILTER.SetFilter("Depreciation Book Code", DepreciationBookCode);
         FAReclassJournal.Reclassify.Invoke;
         PostFAReclassJournal;
+    end;
+
+    local procedure SetFiscalCodeAndRegCompanyNoOnCompanyInfo()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Fiscal Code", '01369030935');
+        CompanyInformation.Validate("Register Company No.", Format(LibraryRandom.RandInt(10)));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateIntegrationInDepreciationBook(DepreciationBookCode: Code[10])

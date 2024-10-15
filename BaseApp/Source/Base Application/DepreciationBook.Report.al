@@ -8,6 +8,58 @@ report 12119 "Depreciation Book"
 
     dataset
     {
+        dataitem("Integer"; "Integer")
+        {
+            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+            column(CompanyName; CompanyInformation[1])
+            {
+            }
+            column(CompanyAddress; CompanyInformation[2])
+            {
+            }
+            column(CompanyPostCodeCityCounty; CompanyInformation[3])
+            {
+            }
+            column(RegisterCompanyNo; CompanyInformation[4])
+            {
+            }
+            column(CompanyVATRegNo; CompanyInformation[5])
+            {
+            }
+            column(CompanyFiscalCode; CompanyInformation[6])
+            {
+            }
+            column(ReportCaption; CompanyInformation[7])
+            {
+            }
+            column(PrintCompanyInfoField; PrintCompanyInformation)
+            {
+            }
+            column(RegisterCompanyNoCaption; RegisterCompanyNoCaptionLbl)
+            {
+            }
+            column(VATRegNoCaption; VATRegNoCaptionLbl)
+            {
+            }
+            column(FiscalCodeCaption; FiscalCodeCaptionLbl)
+            {
+            }
+            column(Integer_Number; Number)
+            {
+            }
+
+            trigger OnPreDataItem()
+            var
+                i: Integer;
+            begin
+                if not PrintCompanyInformation then
+                    CurrReport.Break();
+
+                for i := 1 to 6 do
+                    if CompanyInformation[i] = '' then
+                        Error(CompanyFieldsNotFilledErr);
+            end;
+        }
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
@@ -696,6 +748,49 @@ report 12119 "Depreciation Book"
                         Caption = 'Print per Fixed Asset';
                         ToolTip = 'Specifies if you want to print per fixed asset.';
                     }
+                    field(PrintCompanyInfo; PrintCompanyInformation)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Print Company Information';
+                        MultiLine = true;
+                        ToolTip = 'Specifies if you want to print your company information.';
+                    }
+                    field(Name; CompanyInformation[1])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name';
+                        ToolTip = 'Specifies the company name.';
+                    }
+                    field(Address; CompanyInformation[2])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Address';
+                        ToolTip = 'Specifies the company address.';
+                    }
+                    field(PostCodeCityCounty; CompanyInformation[3])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Post Code  City  County';
+                        ToolTip = 'Specifies the post code, city, and county.';
+                    }
+                    field(RegisterCompanyNo; CompanyInformation[4])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Register Company No.';
+                        ToolTip = 'Specifies the register company number.';
+                    }
+                    field(VATRegistrationNo; CompanyInformation[5])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Registration No.';
+                        ToolTip = 'Specifies the VAT registration number of your company or your tax representative.';
+                    }
+                    field(FiscalCode; CompanyInformation[6])
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Fiscal Code';
+                        ToolTip = 'Specifies the fiscal code.';
+                    }
                 }
             }
         }
@@ -713,12 +808,24 @@ report 12119 "Depreciation Book"
         end;
 
         trigger OnOpenPage()
+        var
+            CompanyInfo: Record "Company Information";
         begin
             if DeprBookCode = '' then begin
                 FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
             PrintDetails := true;
+
+            PrintCompanyInformation := true;
+            CompanyInfo.Get();
+            CompanyInformation[1] := CompanyInfo.Name;
+            CompanyInformation[2] := CompanyInfo.Address;
+            CompanyInformation[3] := CompanyInfo."Post Code" + '  ' + CompanyInfo.City + '  ' + CompanyInfo.County;
+            CompanyInformation[4] := CompanyInfo."Register Company No.";
+            CompanyInformation[6] := CompanyInfo."Fiscal Code";
+            CompanyInformation[5] := CompanyInfo."VAT Registration No.";
+            CompanyInformation[7] := Depreciation_BookCaptionLbl;
         end;
     }
 
@@ -855,6 +962,12 @@ report 12119 "Depreciation Book"
         ReclassificationCaptionLbl: Label 'Reclassification';
         ReclassAmount: array[10] of Decimal;
         TotalReclassAmount: array[14] of Decimal;
+        PrintCompanyInformation: Boolean;
+        CompanyFieldsNotFilledErr: Label 'All Company Information related fields should be filled in on the request form.';
+        RegisterCompanyNoCaptionLbl: Label 'Register Company No.';
+        VATRegNoCaptionLbl: Label 'VAT Registration No.';
+        FiscalCodeCaptionLbl: Label 'Fiscal Code';
+        CompanyInformation: array[7] of Text[100];
 
     local procedure SkipRecord(): Boolean
     begin
