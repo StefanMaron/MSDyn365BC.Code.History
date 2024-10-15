@@ -17,8 +17,8 @@ codeunit 5920 ServItemManagement
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         TempReservEntry: Record "Reservation Entry" temporary;
         GLSetup: Record "General Ledger Setup";
-        ServiceItemTEMP: Record "Service Item" temporary;
-        ServiceItemCompTEMP: Record "Service Item Component" temporary;
+        TempServiceItem: Record "Service Item" temporary;
+        TempServiceItemComp: Record "Service Item Component" temporary;
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ServLogMgt: Codeunit ServLogManagement;
@@ -227,8 +227,8 @@ codeunit 5920 ServItemManagement
                 TempReservEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
                 TrackingLinesExist := TempReservEntry.FindSet;
 
-                ServiceItemTEMP.DeleteAll;
-                ServiceItemCompTEMP.DeleteAll;
+                TempServiceItem.DeleteAll;
+                TempServiceItemComp.DeleteAll;
 
                 GLSetup.Get;
                 ServMgtSetup.Get;
@@ -303,9 +303,9 @@ codeunit 5920 ServItemManagement
                     OnCreateServItemOnSalesLineShpt(ServItem, SalesHeader, SalesLine);
 
                     ServItem.Modify;
-                    Clear(ServiceItemTEMP);
-                    ServiceItemTEMP := ServItem;
-                    if ServiceItemTEMP.Insert then;
+                    Clear(TempServiceItem);
+                    TempServiceItem := ServItem;
+                    if TempServiceItem.Insert then;
                     ResSkillMgt.AssignServItemResSkills(ServItem);
                     if SalesLine."BOM Item No." <> '' then begin
                         Clear(BOMComp);
@@ -324,13 +324,17 @@ codeunit 5920 ServItemManagement
                                         for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
                                             NextLineNo := NextLineNo + 10000;
                                             InsertServItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
-                                            Clear(ServiceItemCompTEMP);
-                                            ServiceItemCompTEMP := ServItemComponent;
-                                            ServiceItemCompTEMP.Insert;
+                                            Clear(TempServiceItemComp);
+                                            TempServiceItemComp := ServItemComponent;
+                                            TempServiceItemComp.Insert;
                                         end;
                                     until BOMComp2.Next = 0;
                             until BOMComp.Next = 0;
                     end;
+
+                    OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(
+                      SalesHeader, SalesLine, SalesShipmentLine, ServItem, TempServiceItem, TempServiceItemComp);
+
                     Clear(ServLogMgt);
                     ServLogMgt.ServItemAutoCreated(ServItem);
                     TrackingLinesExist := TempReservEntry.Next = 1;
@@ -503,20 +507,20 @@ codeunit 5920 ServItemManagement
         end;
     end;
 
-    procedure ReturnServItemComp(var ServItemTmp: Record "Service Item" temporary; var ServItemCmpTmp: Record "Service Item Component" temporary)
+    procedure ReturnServItemComp(var TempServItem: Record "Service Item" temporary; var TempServItemComp: Record "Service Item Component" temporary)
     begin
-        ServItemTmp.DeleteAll;
-        if ServiceItemTEMP.Find('-') then
+        TempServItem.DeleteAll;
+        if TempServiceItem.Find('-') then
             repeat
-                ServItemTmp := ServiceItemTEMP;
-                ServItemTmp.Insert;
-            until ServiceItemTEMP.Next = 0;
-        ServItemCmpTmp.DeleteAll;
-        if ServiceItemCompTEMP.Find('-') then
+                TempServItem := TempServiceItem;
+                TempServItem.Insert;
+            until TempServiceItem.Next = 0;
+        TempServItemComp.DeleteAll;
+        if TempServiceItemComp.Find('-') then
             repeat
-                ServItemCmpTmp := ServiceItemCompTEMP;
-                ServItemCmpTmp.Insert;
-            until ServiceItemCompTEMP.Next = 0;
+                TempServItemComp := TempServiceItemComp;
+                TempServItemComp.Insert;
+            until TempServiceItemComp.Next = 0;
     end;
 
     procedure DeleteServItemOnSaleCreditMemo(SalesHeader: Record "Sales Header")
@@ -628,6 +632,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServItemOnServItemLineOnBeforeServItemModify(var ServiceItem: Record "Service Item"; ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record "Service Item"; var TempServiceItem: Record "Service Item" temporary; var TempServiceItemComp: Record "Service Item Component" temporary)
     begin
     end;
 }

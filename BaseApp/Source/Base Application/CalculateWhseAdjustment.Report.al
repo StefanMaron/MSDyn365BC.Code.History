@@ -15,6 +15,7 @@ report 7315 "Calculate Whse. Adjustment"
 
                 trigger OnAfterGetRecord()
                 var
+                    AdjmtBin: Record Bin;
                     ReservationEntry: Record "Reservation Entry";
                     SNLotNumbersByBin: Query "Lot Numbers by Bin";
                 begin
@@ -24,8 +25,11 @@ report 7315 "Calculate Whse. Adjustment"
                         Location.SetRange("Directed Put-away and Pick", true);
                         if Location.FindSet then
                             repeat
+                                AdjmtBin.Get(Location.Code, Location."Adjustment Bin Code");
+
                                 SNLotNumbersByBin.SetRange(Location_Code, Location.Code);
-                                SNLotNumbersByBin.SetRange(Bin_Code, Location."Adjustment Bin Code");
+                                SNLotNumbersByBin.SetRange(Zone_Code, AdjmtBin."Zone Code");
+                                SNLotNumbersByBin.SetRange(Bin_Code, AdjmtBin.Code);
                                 SNLotNumbersByBin.SetRange(Item_No, Item."No.");
                                 SNLotNumbersByBin.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
                                 SNLotNumbersByBin.SetFilter(Lot_No, Item.GetFilter("Lot No. Filter"));
@@ -76,6 +80,7 @@ report 7315 "Calculate Whse. Adjustment"
                                         ReservationEntry.CalcSums("Qty. to Handle (Base)");
                                         if ReservationEntry."Qty. to Handle (Base)" <> 0 then begin
                                             "Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
+                                            OnBeforeAdjmtBinQuantityBufferModify(AdjmtBinQuantityBuffer, ReservationEntry);
                                             Modify;
                                         end;
                                     until ItemJnlLine.Next = 0;
@@ -440,6 +445,8 @@ report 7315 "Calculate Whse. Adjustment"
 
         WarehouseEntry."Qty. (Base)" += TempReservationEntryBuffer."Quantity (Base)";
         WarehouseEntry.Quantity += TempReservationEntryBuffer.Quantity;
+
+        OnAfterUpdateWarehouseEntryQtyByReservationEntryBuffer(WarehouseEntry, TempReservationEntryBuffer);
     end;
 
     [IntegrationEvent(false, false)]
@@ -458,7 +465,17 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWarehouseEntryQtyByReservationEntryBuffer(var WarehouseEntry: Record "Warehouse Entry"; var TempReservationEntryBuffer: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjmtBinQuantityBufferInsert(var BinContentBuffer: Record "Bin Content Buffer"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjmtBinQuantityBufferModify(var BinContentBuffer: Record "Bin Content Buffer"; ReservationEntry: Record "Reservation Entry")
     begin
     end;
 

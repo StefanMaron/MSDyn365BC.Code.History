@@ -1724,6 +1724,15 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Invoices - Control invoiceDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 3424186788 - Control 1260828904 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[postingDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Invoices - Control postingDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 3424186788 - Control 2763176388 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[dueDate]]></Val>
@@ -2585,7 +2594,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - the ID of the general journal batch]D;]A;(LookupHint=Page APIV1 - Journals - NamedType CannotFindBatchErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - the System ID of the general journal batch]D;]A;(LookupHint=Page APIV1 - Journals - NamedType CannotFindBatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2993549997 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -3227,24 +3236,6 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Dimension Lines - NamedType RecordDoesntExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 2069541849 - NamedType 4150146900" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The record was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Dimension Lines - NamedType RecordWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 2069541849 - NamedType 1374935575" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Lines do not exist for the Entity with that Id.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Dimension Lines - NamedType WrongEntityErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Page 2069541849 - NamedType 1040139754" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The dimension field values do not match to a specific Dimension.]]></Val>
@@ -3630,6 +3621,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Orders - Control orderDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2686554897 - Control 1260828904 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[postingDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Orders - Control postingDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2686554897 - Control 38468747 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -4739,6 +4739,15 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Quotes - Control documentDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 1019532645 - Control 1260828904 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[postingDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Quotes - Control postingDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 1019532645 - Control 2763176388 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[dueDate]]></Val>
@@ -5232,6 +5241,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Credit Memos - Control creditMemoDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1278005506 - Control 1260828904 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[postingDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Credit Memos - Control postingDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1278005506 - Control 2763176388 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -6134,6 +6152,24 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Time Registr. Entries - NamedType CannotModifyDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 2305153529 - NamedType 1415552295" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value for employee ID cannot be modified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeIdErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2305153529 - NamedType 2901946605" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value for employee number cannot be modified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeNumberErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 1789293813 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[purchaseInvoices]]></Val>
@@ -6168,6 +6204,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Purchase Invoices - Control invoiceDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1789293813 - Control 1260828904 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[postingDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Purchase Invoices - Control postingDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1789293813 - Control 2763176388 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -6827,24 +6872,6 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Invoice Lines - NamedType CannotChangeLineNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 3908586298 - NamedType 3157948212" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The item was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Invoice Lines - NamedType ItemWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3908586298 - NamedType 4031061085" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The id is already in use.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Invoice Lines - NamedType IdIsAlreadyUsedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Page 3908586298 - NamedType 3559327969" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Both itemId and accountId are specified. Specify only one of them.]]></Val>
@@ -7205,24 +7232,6 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Order Lines - NamedType CannotChangeLineNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 1254803123 - NamedType 3157948212" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The item was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Order Lines - NamedType ItemWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1254803123 - NamedType 4031061085" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The id is already in use.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Order Lines - NamedType IdIsAlreadyUsedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Page 1254803123 - NamedType 3559327969" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Both itemId and accountId are specified. Specify only one of them.]]></Val>
@@ -7527,24 +7536,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Quote Lines - NamedType CannotChangeLineNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 287431775 - NamedType 3157948212" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The item was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Quote Lines - NamedType ItemWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 287431775 - NamedType 4031061085" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The id is already in use.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Quote Lines - NamedType IdIsAlreadyUsedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 287431775 - NamedType 3559327969" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7871,24 +7862,6 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Sales Credit Mem Lines - NamedType CannotChangeLineNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 2572387921 - NamedType 3157948212" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The item was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page APIV1 - Sales Credit Mem Lines - NamedType ItemWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 2572387921 - NamedType 4031061085" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The id is already in use.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page APIV1 - Sales Credit Mem Lines - NamedType IdIsAlreadyUsedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Page 2572387921 - NamedType 3559327969" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Both itemId and accountId are specified. Specify only one of them.]]></Val>
@@ -8193,24 +8166,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Purchase Invoice Lines - NamedType CannotChangeLineNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1048301999 - NamedType 3157948212" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The item was deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Purchase Invoice Lines - NamedType ItemWasDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1048301999 - NamedType 4031061085" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The id is already in use.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Purchase Invoice Lines - NamedType IdIsAlreadyUsedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1048301999 - NamedType 3559327969" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8575,7 +8530,7 @@
   </Item>
   <Item ItemId=";Query 2195829034 - QueryColumn 38468747 - Property 2879900210" ItemType=";Query - QueryColumn" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Id]]></Val>
+      <Val><![CDATA[SystemId]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8629,7 +8584,7 @@
   </Item>
   <Item ItemId=";Query 1984868130 - QueryColumn 149332515 - Property 2879900210" ItemType=";Query - QueryColumn" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Id]]></Val>
+      <Val><![CDATA[SystemId]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

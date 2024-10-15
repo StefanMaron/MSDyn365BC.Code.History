@@ -2650,7 +2650,7 @@ codeunit 134385 "ERM Sales Document"
     end;
 
     [Test]
-    [HandlerFunctions('CustomerLookupHandler,ConfirmHandler')]
+    [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYesNo')]
     [Scope('OnPrem')]
     procedure LookUpSecondCustomerSameNameAsSellToCustOnSalesInvoice()
     var
@@ -2669,20 +2669,25 @@ codeunit 134385 "ERM Sales Document"
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibraryVariableStorage.Enqueue(Customer2."No.");
+        LibraryVariableStorage.Enqueue(true); // yes to change "Sell-to Customer No."
+        LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit;
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] Select "Cust2" when lookup "Sell-to Customer Name"
         SalesInvoice."Sell-to Customer Name".Lookup;
+        SalesInvoice.Close;
 
         // [THEN] "Sell-to Customer No." is updated with "Cust2" on the Sales Invoice
         SalesHeader.Find;
         SalesHeader.TestField("Sell-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer2.Name);
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('CustomerLookupHandler,ConfirmHandler')]
+    [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYesNo')]
     [Scope('OnPrem')]
     procedure LookUpSecondCustomerSameNameAsBillToCustOnSalesInvoice()
     var
@@ -2701,16 +2706,20 @@ codeunit 134385 "ERM Sales Document"
         // [GIVEN] Sales Invoice card is opened
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibraryVariableStorage.Enqueue(Customer2."No.");
+        LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
         SalesInvoice.OpenEdit;
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] Select "Cust2" when lookup "Bill-to Customer Name"
         SalesInvoice."Bill-to Name".Lookup;
+        SalesInvoice.Close;
 
         // [THEN] "Bill-to Customer No." is updated with "Cust2" on the Sales Invoice
         SalesHeader.Find;
         SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Bill-to Name", Customer2.Name);
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -2839,6 +2848,210 @@ codeunit 134385 "ERM Sales Document"
 
         // [THEN] Message "One or more return document lines were not copied..."
         Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderDateOnSalesDocumentIsInitializedWithWorkDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocType: Option;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 327504] Order Date on sales documents is initialized with WORKDATE. This is required to pick the current sales price.
+        Initialize;
+
+        for DocType := SalesHeader."Document Type"::Quote to SalesHeader."Document Type"::"Return Order" do begin
+            Clear(SalesHeader);
+            CreateSalesDocument(SalesHeader, SalesLine, DocType, '');
+
+            SalesHeader.TestField("Order Date", WorkDate);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLookupHandler')]
+    [Scope('OnPrem')]
+    procedure LookUpSellToCustomerNameValidateItemInLine()
+    var
+        Customer1: Record Customer;
+        Customer2: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+
+        CreateCustomersWithSameName(Customer1, Customer2);
+
+        SalesHeader.Init;
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+        SalesHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(Customer1."No.");
+
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        SalesInvoice."Sell-to Customer Name".Lookup;
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.Close;
+
+        SalesHeader.Find;
+        SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
+        SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Type);
+        SalesLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYesNo')]
+    [Scope('OnPrem')]
+    procedure LookUpBillToCustomerNameValidateItemInLine()
+    var
+        Customer1: Record Customer;
+        Customer2: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+
+        CreateCustomersWithSameName(Customer1, Customer2);
+
+        SalesHeader.Init;
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+        SalesHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(Customer2."No.");
+        LibraryVariableStorage.Enqueue(true);
+
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer1."No.");
+        SalesInvoice."Bill-to Name".Lookup;
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.Close;
+
+        SalesHeader.Find;
+        SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
+        SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
+        SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
+        SalesHeader.TestField("Bill-to Name", Customer2.Name);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Type);
+        SalesLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateSellToCustomerNameValidateItemInLine()
+    var
+        Customer1: Record Customer;
+        Customer2: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+
+        CreateCustomersWithSameName(Customer1, Customer2);
+
+        SalesHeader.Init;
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+        SalesHeader.TestField("No.");
+
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        SalesInvoice."Sell-to Customer Name".SetValue(Customer1."No.");
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.Close;
+
+        SalesHeader.Find;
+        SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
+        SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
+        SalesHeader.TestField("Bill-to Customer No.", Customer1."No.");
+        SalesHeader.TestField("Bill-to Name", Customer1.Name);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Type);
+        SalesLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesNo')]
+    [Scope('OnPrem')]
+    procedure ValidateBillToCustomerNameValidateItemInLine()
+    var
+        Customer1: Record Customer;
+        Customer2: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+
+        CreateCustomersWithSameName(Customer1, Customer2);
+        Customer2.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Customer2.Name));
+        Customer2.Modify; // we don't need duplicate names in this test
+
+        SalesHeader.Init;
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
+        SalesHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(true);
+
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer1."No.");
+        SalesInvoice."Bill-to Name".SetValue(Customer2."No.");
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.Close;
+
+        SalesHeader.Find;
+        SalesHeader.TestField("Sell-to Customer No.", Customer1."No.");
+        SalesHeader.TestField("Sell-to Customer Name", Customer1.Name);
+        SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
+        SalesHeader.TestField("Bill-to Name", Customer2.Name);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Type);
+        SalesLine.TestField("No.");
+
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -3214,7 +3427,7 @@ codeunit 134385 "ERM Sales Document"
     begin
         LibrarySales.CreateCustomer(Customer1);
         LibrarySales.CreateCustomer(Customer2);
-        Customer1.Validate(Name, LibraryUtility.GenerateGUID);
+        Customer1.Validate(Name, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Customer1.Name)));
         Customer1.Modify(true);
         Customer2.Validate(Name, Customer1.Name);
         Customer2.Modify(true);

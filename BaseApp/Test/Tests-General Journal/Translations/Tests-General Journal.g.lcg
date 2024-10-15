@@ -518,6 +518,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType JournalBatchNotApprovedCheckErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 682591466 - NamedType 2571027736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of stored file names.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incom. Doc. Attach. FactBox - NamedType UnexpecteFileNameNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3832870962 - NamedType 1109901106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 payment lines out of %2 are matched.\\]]></Val>

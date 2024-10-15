@@ -228,6 +228,19 @@
         DocumentNoOnFormat;
     end;
 
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindRecord(Which, Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        exit(true);
+    end;
+
     var
         ReturnRcptLine: Record "Return Receipt Line";
         TempReturnRcptLine: Record "Return Receipt Line" temporary;
@@ -278,6 +291,11 @@
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(Which: Text; var ReturnReceiptLine: Record "Return Receipt Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -117,13 +117,18 @@ codeunit 134092 "ERM Consolidation"
     [HandlerFunctions('GLConsolidationEliminationsRPH')]
     [Scope('OnPrem')]
     procedure GLConsolidationEliminationsBooleanColumnType()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [FEATURE] [Reports] [UT]
         // [SCENARIO 375924] "G/L Consolidation Eliminations" report dataset uses "0"/"1" for boolean columns
         Initialize;
 
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+
         // [WHEN] Run "G/L Consolidation Eliminations" report
-        RunGLConsolidationEliminationsRep(LibraryERM.CreateGLAccountNo);
+        Commit;
+        RunGLConsolidationEliminationsRep(GenJournalBatch);
 
         // [THEN] Report dataset contains "0"/"1" for boolean columns "FirstLine" and "FirstLine2"
         LibraryReportDataset.LoadDataSetFile;
@@ -240,6 +245,62 @@ codeunit 134092 "ERM Consolidation"
         REPORT.Run(REPORT::"Import Consolidation from DB", true, false, BusinessUnit);
 
         // [THEN] No errors is thrown
+    end;
+
+    [Test]
+    [HandlerFunctions('GLConsolidationEliminationsRPH')]
+    [Scope('OnPrem')]
+    procedure GLConsolidationEliminationReportIncludesBalAccountInGenJournal()
+    var
+        GLAccount: Record "G/L Account";
+        BalGLAccount: Record "G/L Account";
+        TotalingGLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Reports]
+        // [SCENARIO 322981] G/L Consolidation Elimination report includes balanced account amount on general journal line.
+        Initialize;
+
+        // [GIVEN] G/L Accounts "A", "B".
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(BalGLAccount);
+
+        // [GIVEN] Totaling g/l account "T" with totaling formula "A"|"B".
+        LibraryERM.CreateGLAccount(TotalingGLAccount);
+        TotalingGLAccount.Totaling := StrSubstNo('%1|%2', GLAccount."No.", BalGLAccount."No.");
+        TotalingGLAccount.Modify(true);
+
+        // [GIVEN] Gen. journal line with account no. = "A" and bal. account no. = "B". Amount = "X".
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0,
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.", LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Run "G/L Consolidation Eliminations" report.
+        Commit;
+        RunGLConsolidationEliminationsRep(GenJournalBatch);
+
+        // [THEN] The amount for g/l account "A" in the report layout = "X".
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('GLAcc2No', GLAccount."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GenJournalLine', GenJournalLine.Amount);
+
+        // [THEN] The amount for balanced g/l account "B" in the report layout = -"X".
+        // [THEN] The description of this entry is equal to the name of "B".
+        LibraryReportDataset.SetRange('GLAcc2No', BalGLAccount."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GenJournalLine', -GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Desc_GenJournalLine', BalGLAccount.Name);
+
+        // [THEN] The amount for totaling g/l account "T" = 0.
+        LibraryReportDataset.SetRange('No2__GLAccount', TotalingGLAccount."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('EliminationAmount', 0);
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()
@@ -372,21 +433,11 @@ codeunit 134092 "ERM Consolidation"
         Consolidate.Run(BusinessUnit);
     end;
 
-    local procedure RunGLConsolidationEliminationsRep(GLAccountNo: Code[20])
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GLAccount: Record "G/L Account";
-        GLConsolidationEliminations: Report "G/L Consolidation Eliminations";
+    local procedure RunGLConsolidationEliminationsRep(GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
-        GLAccount.SetRange("No.", GLAccountNo);
-
-        Commit;
-        Clear(GLConsolidationEliminations);
-        GLConsolidationEliminations.SetTableView(GLAccount);
-        GLConsolidationEliminations.Run;
+        REPORT.Run(REPORT::"G/L Consolidation Eliminations", true, false);
     end;
 
     local procedure RunConsolidationTestDatabase()

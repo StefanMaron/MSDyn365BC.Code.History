@@ -638,6 +638,48 @@ codeunit 137310 "SCM Manufacturing Reports -II"
           QtyRequiredForReleasedOrder + QtyRequiredForPlannedOrder - QtySuppliedFromInventory - QtySuppliedFromPlannedOrder);
     end;
 
+    [Test]
+    [HandlerFunctions('ProdOrderShortageListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderShortageListReportScheduledNeedAndReceipt()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Prod. Order Shortage List]
+        // [SCENARIO 321733] "Scheduled Need" and "Scheduled Receipt" calculation in Prod. Order Shortage List report.
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Component item "C", manufacturing item "P", both set up for "Prod. Order" replenishment.
+        CreateItem(CompItem, '', '');
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+        CreateItem(ProdItem, '', ProductionBOMHeader."No.");
+
+        // [GIVEN] Firm planned production order for "C", quantity = 10, due date = WORKDATE.
+        // [GIVEN] Firm planned production order for "P", quantity = 10, due date = WORKDATE.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", CompItem."No.", Qty);
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProdItem."No.", Qty);
+
+        // [GIVEN] Released production order for "P", quantity = 10, due date = WORKDATE + 1 week.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", Qty);
+        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Run "Prod. Order - Shortage list" report to calculate scheduled need and receipt for the released production order.
+        Commit;
+        REPORT.Run(REPORT::"Prod. Order - Shortage List", true, false);
+
+        // [THEN] The report shows "Scheduled Need" of the component "C" as 20 (10 needed for firm planned order + 10 for the released order).
+        // [THEN] The report shows "Scheduled Receipt" of the component "C" as 10 (expected output in the firm planned order).
+        VerifyScheduledQtysInProdOrderShortageListReport(ProductionOrder."No.", 2 * Qty, Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1103,6 +1145,15 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.SetRange(KeyElement, KeyValue);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals(InventoryElement, Item.Inventory);
+    end;
+
+    local procedure VerifyScheduledQtysInProdOrderShortageListReport(ProdOrderNo: Code[20]; ScheduledNeed: Decimal; ScheduledReceipt: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_ProdOrder', ProdOrderNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompItemSchdldNeedQty', ScheduledNeed);
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompItemSchdldRcptQty', ScheduledReceipt);
     end;
 
     local procedure ExecuteUIHandlers()

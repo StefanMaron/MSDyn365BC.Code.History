@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.16058cm</Width>
+                  <Width>18.09282cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -10654,25 +10654,25 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>2.68282cm</Width>
+                                    <Width>2.66863cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.76802cm</Width>
+                                    <Width>2.75383cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.98818cm</Width>
+                                    <Width>1.97399cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.3148cm</Width>
+                                    <Width>2.30061cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.3148cm</Width>
+                                    <Width>2.30061cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>4.18981cm</Width>
+                                    <Width>4.17562cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.89997cm</Width>
+                                    <Width>1.88578cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -11239,7 +11239,7 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
                               <Top>9.39624cm</Top>
                               <Left>0.00218cm</Left>
                               <Height>1.66687cm</Height>
-                              <Width>18.1584cm</Width>
+                              <Width>18.05905cm</Width>
                               <ZIndex>7</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -11296,7 +11296,7 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
             </PageBreak>
             <Left>0.07056cm</Left>
             <Height>20.1683cm</Height>
-            <Width>18.16058cm</Width>
+            <Width>18.09282cm</Width>
             <Style>
               <FontFamily>Segoe UI</FontFamily>
               <FontSize>8pt</FontSize>
@@ -11309,7 +11309,7 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
           <FontSize>8pt</FontSize>
         </Style>
       </Body>
-      <Width>19cm</Width>
+      <Width>18.16338cm</Width>
       <Page>
         <PageHeader>
           <Height>9.38601cm</Height>
@@ -12546,7 +12546,7 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>39</ZIndex>
@@ -12569,7 +12569,7 @@ Fields!No_SalesCrMemoHeader.Value, 2)</Hidden>
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>40</ZIndex>

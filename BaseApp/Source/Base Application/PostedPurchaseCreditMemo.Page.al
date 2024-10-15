@@ -537,6 +537,7 @@
 
                 trigger OnAction()
                 begin
+                    PurchCrMemoHeader := Rec;
                     CurrPage.SetSelectionFilter(PurchCrMemoHeader);
                     PurchCrMemoHeader.PrintRecords(true);
                 end;

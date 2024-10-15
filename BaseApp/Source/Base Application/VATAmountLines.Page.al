@@ -15,18 +15,18 @@ page 9401 "VAT Amount Lines"
                 ShowCaption = false;
                 field("VAT Identifier"; "VAT Identifier")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contents of this field from the VAT Identifier field in the VAT Posting Setup table.';
                     Visible = false;
                 }
                 field("VAT %"; "VAT %")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT % that was used on the sales or purchase lines with this VAT Identifier.';
                 }
                 field("VAT Calculation Type"; "VAT Calculation Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = false;
                 }

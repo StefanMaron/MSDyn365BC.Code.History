@@ -72,7 +72,7 @@ codeunit 1798 "Data Migration Mgt."
         MigrationStatus: Option Pending,"In Progress","Completed with errors",Completed,Stopped,Failed,"Not Started";
         GoThereNowTxt: Label 'Go there now';
         MoreInfoTxt: Label 'Learn more';
-        DataMigrationHelpTopicURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=859445', Comment = 'Locked';
+        DataMigrationHelpTopicURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=859445', Locked = true;
         CustomerContactNotificationNameTxt: Label 'Show a suggestion to create contacts for newly created customers.';
         VendorContactNotificationNameTxt: Label 'Show a suggestion to create contacts for newly created vendors.';
         CustContactNotificationDescTxt: Label 'Show a suggestion to create contacts for customers.';

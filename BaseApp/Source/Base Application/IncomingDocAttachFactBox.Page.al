@@ -71,6 +71,8 @@ page 193 "Incoming Doc. Attach. FactBox"
                     IncomingDocument: Record "Incoming Document";
                 begin
                     IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
+                    if GlobalRecordID.TableNo <> 0 then
+                        MainRecordRef := GlobalRecordID.GetRecord;
                     IncomingDocumentAttachment.SetFiltersFromMainRecord(MainRecordRef, IncomingDocumentAttachment);
 
                     // check MainRecordRef is initialized
@@ -113,6 +115,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
     var
         MainRecordRef: RecordRef;
+        GlobalRecordID: RecordID;
         StyleExpressionTxt: Text;
         CreateMainDocumentFirstErr: Label 'You must fill in any field to create a main record before you try to attach a document. Refresh the page and try again.';
 
@@ -137,6 +140,14 @@ page 193 "Incoming Doc. Attach. FactBox"
         CurrPage.Update(false);
     end;
 
+    procedure SetCurrentRecordID(NewRecordID: RecordID)
+    begin
+        if GlobalRecordID = NewRecordID then
+            exit;
+
+        GlobalRecordID := NewRecordID;
+    end;
+
     procedure LoadDataFromIncomingDocument(IncomingDocument: Record "Incoming Document")
     begin
         DeleteAll;
@@ -151,20 +162,21 @@ page 193 "Incoming Doc. Attach. FactBox"
         if not DataTypeManagement.GetRecordRef(MainRecordVariant, MainRecordRef) then
             exit(false);
 
-        case MainRecordRef.Number of
-            DATABASE::"Incoming Document":
-                begin
-                    IncomingDocument.Copy(MainRecordVariant);
-                    exit(true);
-                end;
-            else begin
-                    if IncomingDocument.FindFromIncomingDocumentEntryNo(MainRecordRef, IncomingDocument) then
-                        exit(true);
-                    if IncomingDocument.FindByDocumentNoAndPostingDate(MainRecordRef, IncomingDocument) then
-                        exit(true);
-                    exit(false);
-                end;
+        if MainRecordRef.Number = DATABASE::"Incoming Document" then begin
+            IncomingDocument.Copy(MainRecordVariant);
+            exit(true);
         end;
+
+        exit(GetIncomingDocumentRecordFromRecordRef(IncomingDocument, MainRecordRef));
+    end;
+
+    local procedure GetIncomingDocumentRecordFromRecordRef(var IncomingDocument: Record "Incoming Document"; MainRecordRef: RecordRef): Boolean
+    begin
+        if IncomingDocument.FindFromIncomingDocumentEntryNo(MainRecordRef, IncomingDocument) then
+            exit(true);
+        if IncomingDocument.FindByDocumentNoAndPostingDate(MainRecordRef, IncomingDocument) then
+            exit(true);
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]
