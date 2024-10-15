@@ -641,16 +641,8 @@ table 6651 "Return Shipment Line"
                 OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(Rec, PurchLine, IsHandled);
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
-                PurchLine.Validate("Direct Unit Cost", PurchOrderLine."Direct Unit Cost");
-                PurchLine.Validate("Line Discount %", PurchOrderLine."Line Discount %");
-                if PurchOrderLine.Quantity = 0 then
-                    PurchLine.Validate("Inv. Discount Amount", 0)
-                else
-                    PurchLine.Validate(
-                      "Inv. Discount Amount",
-                      Round(
-                        PurchOrderLine."Inv. Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
-                        Currency."Amount Rounding Precision"));
+
+                CopyPurchLineCostAndDiscountFromPurchOrderLine(PurchLine, PurchOrderLine);
             end;
             PurchLine."Attached to Line No." :=
               TransferOldExtLines.TransferExtendedText(
@@ -662,17 +654,39 @@ table 6651 "Return Shipment Line"
             PurchLine."Dimension Set ID" := PurchOrderLine."Dimension Set ID";
 
             IsHandled := false;
-            OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec, IsHandled);
-            if not IsHandled then
+            OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec, IsHandled, NextLineNo);
+            if not IsHandled then begin
                 PurchLine.Insert();
+                NextLineNo := NextLineNo + 10000;
+            end;
             OnAfterInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
 
-            NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
         until (Next = 0) or ("Attached to Line No." = 0);
+    end;
+
+    local procedure CopyPurchLineCostAndDiscountFromPurchOrderLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyPurchLineCostAndDiscountFromPurchOrderLine(PurchLine, PurchOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.Validate("Direct Unit Cost", PurchOrderLine."Direct Unit Cost");
+        PurchLine.Validate("Line Discount %", PurchOrderLine."Line Discount %");
+        if PurchOrderLine.Quantity = 0 then
+            PurchLine.Validate("Inv. Discount Amount", 0)
+        else
+            PurchLine.Validate(
+              "Inv. Discount Amount",
+              Round(
+                PurchOrderLine."Inv. Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
+                Currency."Amount Rounding Precision"));
     end;
 
     procedure GetPurchCrMemoLines(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary)
@@ -778,6 +792,11 @@ table 6651 "Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyPurchLineCostAndDiscountFromPurchOrderLine(var PurchaseLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFieldsFromReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -793,7 +812,7 @@ table 6651 "Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromRetShptLine(var PurchLine: Record "Purchase Line"; var PurchOrderLine: Record "Purchase Line"; var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertInvLineFromRetShptLine(var PurchLine: Record "Purchase Line"; var PurchOrderLine: Record "Purchase Line"; var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean; var NextLineNo: Integer)
     begin
     end;
 

@@ -1154,7 +1154,7 @@ codeunit 137309 "SCM Reports"
     procedure VerifyPickInstructionOptionForReportSelectionSales()
     var
         ReportSelections: Record "Report Selections";
-        UsageOptionForPage: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","S.Arch. Quote","S.Arch. Order","S. Arch. Return Order","Pick Instruction";
+        UsageOptionForPage: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","S.Arch. Quote","S.Arch. Order","S.Arch. Return","Pick Instruction";
     begin
         // Test to check that Pick Instruction option is present and working on page report Selection - Sales.
 
@@ -1169,7 +1169,7 @@ codeunit 137309 "SCM Reports"
     procedure VerifyNotPickInstructionOptionForReportSelectionSales()
     var
         ReportSelections: Record "Report Selections";
-        UsageOptionForPage: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","S.Arch. Quote","S.Arch. Order","S. Arch. Return Order","Pick Instruction";
+        UsageOptionForPage: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","S.Arch. Quote","S.Arch. Order","S.Arch. Return","Pick Instruction";
     begin
         // Test to check that when Pick Instruction option is not selected page report Selection - Sales shows correct reports.
 
@@ -1239,8 +1239,8 @@ codeunit 137309 "SCM Reports"
 
         // [THEN] Field "BOM" in the report line corresponding to item "I1" is "Yes", "BOM" in the line corresponding to "COMP" is "No"
         LibraryReportDataset.LoadDataSetFile;
-        VerifyAssemblyBOMComponent(ParentItem."No.", ComponentItem."No.", true);
-        VerifyAssemblyBOMComponent(ParentItem."No.", BOMComponent."No.", false);
+        VerifyAssemblyBOMComponent(ParentItem."No.", ComponentItem."No.", Format(true));
+        VerifyAssemblyBOMComponent(ParentItem."No.", BOMComponent."No.", Format(false));
     end;
 
     local procedure Initialize()
@@ -1256,7 +1256,7 @@ codeunit 137309 "SCM Reports"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateInventoryPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
 
         isInitialized := true;
         Commit();
@@ -2118,6 +2118,7 @@ codeunit 137309 "SCM Reports"
         GeneralLedgerSetup.Get();
         OldAllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
         GeneralLedgerSetup."Allow Posting From" := AllowPostingFrom;
+        GeneralLedgerSetup."Closed Period Entry Pos.Date" := AllowPostingFrom; // NAVCZ
         GeneralLedgerSetup.Modify(true);
         exit(OldAllowPostingFrom);
     end;
@@ -2153,11 +2154,11 @@ codeunit 137309 "SCM Reports"
         RoutingVersion.Modify(true);
     end;
 
-    local procedure VerifyAssemblyBOMComponent(ParentItemNo: Code[20]; ComponentItemNo: Code[20]; ExpectedValue: Boolean)
+    local procedure VerifyAssemblyBOMComponent(ParentItemNo: Code[20]; ComponentItemNo: Code[20]; ExpectedValue: Text)
     begin
         LibraryReportDataset.SetRange('No_Item', ParentItemNo);
         LibraryReportDataset.SetRange('No_BOMComp', ComponentItemNo);
-        LibraryReportDataset.AssertElementWithValueExists('AssemblyBOM_BOMComp', Format(ExpectedValue));
+        LibraryReportDataset.AssertElementWithValueExists('AssemblyBOM_BOMComp', ExpectedValue);
     end;
 
     local procedure VerifyCalculateInventoryValueReport(RowCaption: Text; RowValue: Variant; ColumnCaption: Text; ExpectedValue: Variant)

@@ -273,6 +273,8 @@ table 11710 "Issued Payment Order Header"
         BankAcc: Record "Bank Account";
         CodeunitID: Integer;
     begin
+        OnBeforeExportPmtOrd(Rec);
+        
         IssuedPmtOrdLn.SetRange("Payment Order No.", "No.");
         if IssuedPmtOrdLn.IsEmpty then
             Error(NothingToExportErr);
@@ -360,6 +362,11 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn.Modify();
             until IssuedPmtOrdLn.Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportPmtOrd(var IssuedPaymentOrderHeader: record "Issued Payment Order Header")
+    begin
     end;
 }
 

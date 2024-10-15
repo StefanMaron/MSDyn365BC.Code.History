@@ -75,6 +75,7 @@ report 11702 "Copy Payment Order"
                 BankStmtLn."Transit No." := IssuedPmtOrdLn."Transit No.";
                 BankStmtLn.IBAN := IssuedPmtOrdLn.IBAN;
                 BankStmtLn."SWIFT Code" := IssuedPmtOrdLn."SWIFT Code";
+                OnBeforeBankStatementLineInsert(BankStmtLn, IssuedPmtOrdLn);
                 BankStmtLn.Insert();
             until IssuedPmtOrdLn.Next = 0;
     end;
@@ -88,6 +89,11 @@ report 11702 "Copy Payment Order"
     procedure SetBankStmtHdr(NewBankStmtHdr: Record "Bank Statement Header")
     begin
         BankStmtHdr := NewBankStmtHdr;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankStatementLineInsert(var BankStmtLn: Record "Bank Statement Line"; IssuedPmtOrdLn: Record "Issued Payment Order Line")
+    begin
     end;
 }
 

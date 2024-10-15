@@ -27,6 +27,7 @@ page 7504 "Item Attribute Value List"
                         ItemAttributeValue: Record "Item Attribute Value";
                         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
                     begin
+                        OnBeforeCheckAttributeName(Rec, RelatedRecordCode);
                         if xRec."Attribute Name" <> '' then
                             DeleteItemAttributeValueMapping(xRec."Attribute ID");
 
@@ -102,7 +103,7 @@ page 7504 "Item Attribute Value List"
         CurrPage.Editable(true);
     end;
 
-    var
+    protected var
         RelatedRecordCode: Code[20];
 
     procedure LoadAttributes(ItemNo: Code[20])
@@ -118,6 +119,7 @@ page 7504 "Item Attribute Value List"
             repeat
                 ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID");
                 TempItemAttributeValue.TransferFields(ItemAttributeValue);
+                OnLoadAttributesOnBeforeTempItemAttributeValueInsert(TempItemAttributeValue, ItemAttributeValueMapping, RelatedRecordCode);
                 TempItemAttributeValue.Insert();
             until ItemAttributeValueMapping.Next = 0;
 
@@ -158,6 +160,16 @@ page 7504 "Item Attribute Value List"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemAttributeValueMappingModify(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; ItemAttributeValue: Record "Item Attribute Value"; RelatedRecordCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadAttributesOnBeforeTempItemAttributeValueInsert(var TempItemAttributeValue: Record "Item Attribute Value" temporary; ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; RelatedRecordCode: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAttributeName(var ItemAttributeValueSelection: Record "Item Attribute Value Selection"; RelatedRecordCode: Code[20]);
     begin
     end;
 }

@@ -619,9 +619,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
         RecordRef.Open(TableID);
         GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         ApplyFilters(RecordRef, VATProdPostingGroup, GenProdPostingGroup);
+        RecordRef.DeleteAll(false); // NAVCZ
         RecordRef.DeleteAll(true);
         GetGroupsAfter(VATProdPostingGroup, GenProdPostingGroup, TableID);
         ApplyFilters(RecordRef, VATProdPostingGroup, GenProdPostingGroup);
+        RecordRef.DeleteAll(false); // NAVCZ
         RecordRef.DeleteAll(true);
     end;
 

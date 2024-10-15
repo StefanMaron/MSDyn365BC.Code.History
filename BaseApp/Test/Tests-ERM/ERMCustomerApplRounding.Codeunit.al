@@ -171,7 +171,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Verify: Account Receivables amount should be -0.67, Correction amount should be 0.1
         VerifyCorrAmountGLEntries(Customer, GenJournalLine."Document No.", -0.67, 0.01);
         VerifyCorrAmountCustLedgEntries(GenJournalLine."Document No.", -0.66);
-        VerifyCorrAmountDtldCustLedgEntries(GenJournalLine."Document No.", 0.01);
+        VerifyCorrAmountDtldCustLedgEntries(GenJournalLine."Document No.", -0.01); // NAVCZ
     end;
 
     [Test]
@@ -381,7 +381,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Realized Gain"); // NAVCZ
         DetailedCustLedgEntry.FindFirst;
     end;
 

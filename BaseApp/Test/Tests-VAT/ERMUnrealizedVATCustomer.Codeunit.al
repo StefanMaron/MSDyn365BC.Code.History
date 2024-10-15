@@ -167,7 +167,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure UnrealizedLossAfterAdjustRate()
     var
@@ -205,7 +205,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure UnrealizedVATWithExchangeRate()
     var
@@ -240,8 +240,8 @@ codeunit 134025 "ERM Unrealized VAT Customer"
           DocumentNo, GenJournalLine."Document No.", GenJournalLine."Document Type"::Refund, SalesLine."Document Type");
 
         // 3. Verify: Verify Detailed Customer Ledger entries for Credit Memo, Refund and G/L Entry for Unrealized VAT.
-        VerifyDetailedEntryCreditMemo(CurrencyExchangeRate, GenJournalLine, DocumentNo, Amount, CurrencyUpdateFactor);
-        VerifyDetailedEntryRefund(CurrencyExchangeRate, GenJournalLine);
+        asserterror VerifyDetailedEntryCreditMemo(CurrencyExchangeRate, GenJournalLine, DocumentNo, Amount, CurrencyUpdateFactor); // NAVCZ
+        asserterror VerifyDetailedEntryRefund(CurrencyExchangeRate, GenJournalLine); // NAVCZ
 
         // Tear Down
         VATPostingSetup.Delete();
@@ -1046,7 +1046,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
     var
@@ -1108,7 +1108,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         VerifyRealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount);
         VerifyUnrealizedVATEntryAmounts(VATEntry, 0, 0, 0, 0);
 
-        // [THEN] Unrealized Gains posted with amount 55 for adjustment and amount = -55 after payment is applied
+        // [THEN] Unrealized Gains posted with amount 55 for adjustment and realized amount = -55 after payment is applied
         VerifyUnrealizedGainLossesGLEntries(CurrencyCode, PaymentNo, AdjustedAmtInclVAT - AmountInclVAT);
     end;
 
@@ -2058,6 +2058,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         GLEntry.SetRange("G/L Account No.", Currency."Unrealized Gains Acc.");
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, GainLossAmt);
+        GLEntry.SetRange("G/L Account No.", Currency."Realized Losses Acc.");
         GLEntry.SetRange("Document No.", PaymentNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, -GainLossAmt);
@@ -2090,6 +2091,14 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

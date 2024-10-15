@@ -665,6 +665,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure TestOneFCYSaleOneFCYPmtWithLateDueDatePmtDisc()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         TempBlobUTF8: Codeunit "Temp Blob";
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
@@ -680,10 +681,19 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, CustLedgEntry."Currency Code");
+        // NAVCZ
+        BankAccReconLine.FilterBankRecLines(BankAccRecon);
+        if BankAccReconLine.FindSet then
+            repeat
+                BankAccReconLine.Validate("Currency Code", CustLedgEntry."Currency Code");
+                BankAccReconLine.Modify();
+            until BankAccReconLine.Next = 0;
+        // NAVCZ
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(CustLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
+        BankAccRecon.CalcFields("Total Transaction Amount"); // NAVCZ
         PmtReconJnl.Post.Invoke;
 
         // Verify that all customers | gls | banks go to zero
@@ -837,6 +847,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure TestMappedGLAccountPayment()
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
         TextToAccountMapping: Record "Text-to-Account Mapping";
         GLAccount: Record "G/L Account";
         TempBlobUTF8: Codeunit "Temp Blob";
@@ -853,13 +864,16 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTStmtLine(OutStream, WorkDate, TransactionText, TransactionAmount, '');
         WriteCAMTFooter(OutStream);
-        TextToAccountMapping.Init();
-        TextToAccountMapping."Mapping Text" := TransactionText;
-        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
-        TextToAccountMapping.Insert();
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        BankAccount.Get(BankAccRecon."Bank Account No.");
+        TextToAccountMapping.Init();
+        TextToAccountMapping."Mapping Text" := TransactionText;
+        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
+        TextToAccountMapping."Text-to-Account Mapping Code" := BankAccount."Text-to-Account Mapping Code";
+        TextToAccountMapping."Bank Transaction Type" := TextToAccountMapping."Bank Transaction Type"::"+";
+        TextToAccountMapping.Insert();
         PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -3363,6 +3377,24 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure GetBankPmtApplRuleCode(): Code[10]
+    var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+    begin
+        // NAVCZ
+        LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
+        exit(BankPmtApplRuleCode.Code);
+    end;
+
+    local procedure GetAccountMappingCode(): Code[10]
+    var
+        TextToAccountMappingCode: Record "Text-to-Account Mapping Code";
+    begin
+        // NAVCZ
+        LibraryERM.CreateAccountMappingCode(TextToAccountMappingCode);
+        exit(TextToAccountMappingCode.Code);
+    end;
+
     local procedure VerifyPrePost(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
@@ -3859,6 +3891,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         BankAcc."Bank Branch No." := '123';
         BankAcc."Bank Statement Import Format" := BankStmtFormat;
         BankAcc.Validate("Currency Code", CurrencyCode);
+        // NAVCZ
+        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
+        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
+        // NAVCZ
         BankAcc.Modify(true);
     end;
 

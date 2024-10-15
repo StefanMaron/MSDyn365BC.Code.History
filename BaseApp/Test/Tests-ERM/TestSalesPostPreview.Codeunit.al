@@ -27,7 +27,7 @@ codeunit 134763 "Test Sales Post Preview"
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
-        AmountMustBePositiveErr: Label 'Amount must be positive';
+        AmountMustNotBeGreaterErr: Label 'The amount of the deduction of the advance must not be greater than the amount invoiced.';
         InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
 
     [Test]
@@ -197,11 +197,11 @@ codeunit 134763 "Test Sales Post Preview"
         PostingPreviewEventHandler.GetEntries(Database::"Cust. Ledger Entry", RecRef);
         Assert.RecordIsEmpty(RecRef);
         PostingPreviewEventHandler.GetEntries(Database::"G/L Entry", RecRef);
-        Assert.RecordCount(RecRef, 2);
-        // [THEN] Error message found: "Amount must be positive"
+        Assert.RecordIsEmpty(RecRef);
+        // [THEN] Error message found: "Amount must not be greater..."
         Assert.IsTrue(ErrorMessageMgt.IsActive(), 'ErroMsgMgt inactive');
         Assert.AreNotEqual(0, ErrorMessageMgt.GetLastError(ErrorMsg), 'Errors not found');
-        Assert.ExpectedMessage(AmountMustBePositiveErr, ErrorMsg);
+        Assert.ExpectedMessage(AmountMustNotBeGreaterErr, ErrorMsg);
         // Cleanup
         asserterror Error('');
     end;
@@ -455,63 +455,6 @@ codeunit 134763 "Test Sales Post Preview"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure SalesPrepmtInvoiceOpensPreview()
-    var
-        SalesHeader: Record "Sales Header";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
-
-        LibraryERMCountryData.CreateVATData;
-        CreateSalesOrderWithPrepayment(SalesHeader);
-
-        SalesOrder.Trap;
-        PAGE.Run(PAGE::"Sales Order", SalesHeader);
-
-        GLPostingPreview.Trap;
-        SalesOrder.PreviewPrepmtInvoicePosting.Invoke;
-
-        if not GLPostingPreview.First then
-            Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
-
-        // Cleanup
-        asserterror Error('');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesPrepmtCrMemoOpensPreview()
-    var
-        SalesHeader: Record "Sales Header";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
-
-        CreateSalesOrderWithPrepayment(SalesHeader);
-        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        Commit();
-
-        SalesOrder.Trap;
-        PAGE.Run(PAGE::"Sales Order", SalesHeader);
-
-        GLPostingPreview.Trap;
-        SalesOrder.PreviewPrepmtCrMemoPosting.Invoke;
-
-        if not GLPostingPreview.First then
-            Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
-
-        // Cleanup
-        asserterror Error('');
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestSalesInvoicePreviewWorksWithApprovals()
@@ -591,6 +534,7 @@ codeunit 134763 "Test Sales Post Preview"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestPartialSalesOrderPreview()
     var
@@ -926,22 +870,6 @@ codeunit 134763 "Test Sales Post Preview"
         RecordExportBuffer.RecordID := SalesHeader.RecordId;
         RecordExportBuffer.Insert();
 
-        Commit();
-    end;
-
-    local procedure CreateSalesOrderWithPrepayment(var SalesHeader: Record "Sales Header")
-    var
-        Customer: Record Customer;
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Prepayment %", LibraryRandom.RandInt(10));
-        Customer.Modify();
-
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", '', 1, '', 0D);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(500));
-        SalesLine.Modify(true);
         Commit();
     end;
 

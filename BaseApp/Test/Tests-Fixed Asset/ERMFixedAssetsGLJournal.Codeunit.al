@@ -31,6 +31,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         PeriodTxt: Label '12';
         OnlyOneDefaultDeprBookErr: Label 'Default FA Depreciation Book Only one fixed asset depreciation book can be marked as the default book';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
+        CheckFaErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
 
     [Test]
     [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
@@ -354,7 +355,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Post a line in FA G/L journals with FA Posting Type Custom 2.
         // 1. Setup: Create Fixed Asset, FA Depreciation Book with FA Posting Group and Put check marks on Integration Tab.
         Initialize;
-        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 2", -1, GenJournalLine);
+        FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 2", 1, GenJournalLine); // NAVCZ
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
         LibraryLowerPermissions.SetO365FAEdit;
@@ -680,7 +681,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryLowerPermissions.SetO365FAEdit;
         Amount := FAAmount / 2;
         NoOfMonth := LibraryRandom.RandInt(10);
-        RunCalculateDepeciation(FADepreciationBook, NoOfMonth);
+        RunCalculateDepeciation(FADepreciationBook, FADepreciationBook."FA No.", NoOfMonth);
         Amount := Round((Amount * FADepreciationBook."Declining-Balance %" / 100) * NoOfMonth / 12);
 
         // Verify: Verify FA Journal Line with Calculated Depreciation Amount.
@@ -690,6 +691,41 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Assert.AreNearlyEqual(
           -Amount, FAJournalLine.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, FAJournalLine.FieldCaption(Amount), -Amount, FAJournalLine.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure FAJournalWithCalcDepreciationBlankDocNoTwoFA()
+    var
+        FAJournalLine: Record "FA Journal Line";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Calculate Depreciation]
+        // [SCENARIO 352564] Run Calculate Depreciation for two fixed assets with blank Document No
+        Initialize;
+
+        // [GIVEN] Fixed assets "FA1","FA2" with aquisition cost
+        CreateFAWithAcquisitionCost(FADepreciationBook1);
+        CreateFAWithAcquisitionCost(FADepreciationBook2);
+
+        // [GIVEN] FA Journal Line has Document No "DeprDoc" after running Calculate Depreciation report for "FA1"
+        RunCalculateDepeciation(FADepreciationBook1, '', LibraryRandom.RandInt(10));
+        FAJournalLine.SetRange("FA No.", FADepreciationBook1."FA No.");
+        FAJournalLine.FindFirst;
+        DocumentNo := FAJournalLine."Document No.";
+
+        // [WHEN]  Run Calculate Depreciation report for "FA2"
+        RunCalculateDepeciation(FADepreciationBook2, '', LibraryRandom.RandInt(10));
+
+        // [THEN] FA Journal Line has Document No "DeprDoc" in the same journal for "FA2"
+        FAJournalLine.SetRange("Journal Template Name", FAJournalLine."Journal Template Name");
+        FAJournalLine.SetRange("Journal Batch Name", FAJournalLine."Journal Batch Name");
+        FAJournalLine.SetRange("FA No.", FADepreciationBook2."FA No.");
+        FAJournalLine.FindFirst;
+        FAJournalLine.TestField("Document No.", DocumentNo);
     end;
 
     local procedure CreateFAWithDecliningBalanceFADeprBook(var FADepreciationBook: Record "FA Depreciation Book")
@@ -902,7 +938,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure CalcDepreciationAfterReversingFADepreciation()
     var
@@ -912,7 +948,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FixedAsset: Record "Fixed Asset";
         FADepreciationBook: Record "FA Depreciation Book";
         FALedgerEntry: Record "FA Ledger Entry";
-        DocumentNo: Code[20];
     begin
         // [FEATURE] [Reverse] [Depreciation]
         // [SCENARIO 202489] Calculate depreciation after reversal
@@ -936,24 +971,14 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FindAndPostGenJournalLines(
           RunCalculateDepeciationWithBalAccount(FADepreciationBook, 1));
 
-        // [GIVEN] Reversed transaction of depreciation entry
+        // [WHEN] Reversed transaction of depreciation entry
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
         FALedgerEntry.FindFirst;
-        LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No.");
+        asserterror LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No.");
 
-        // [WHEN] Calculate Depreciation again on "DeprDate"
-        DocumentNo := RunCalculateDepeciationWithBalAccount(FADepreciationBook, 1);
-
-        // [THEN] Gen. Journal Line is created for Fixed Asset with Amount = -10 on "DeprDate"
-        GenJournalLine.Reset();
-        GenJournalLine.SetRange("Document No.", DocumentNo);
-        GenJournalLine.SetRange("Account No.", FixedAsset."No.");
-        GenJournalLine.FindFirst;
-        GenJournalLine.TestField("Posting Date", FALedgerEntry."Posting Date");
-        GenJournalLine.TestField(Amount, FALedgerEntry.Amount);
-        GenJournalLine.SetRange("Account No.");
-        GenJournalLine.DeleteAll();
+        // [THEN] Error appears 'Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.'
+        Assert.ExpectedError(CheckFaErr);
     end;
 
     [Test]
@@ -1363,6 +1388,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         DepreciationBook.Validate("G/L Integration - Disposal", true);
+        DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross); // NAVCZ
         DepreciationBook.Modify(true);
         exit(DepreciationBook.Code);
     end;
@@ -1412,7 +1438,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Custom 1",
           -Amount / 4, GLAccount);
         CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Custom 2",
-          -Amount / 4, GLAccount);
+          Amount / 4, GLAccount); // NAVCZ
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1450,6 +1476,16 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBookCode);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+    end;
+
+    local procedure CreateFAWithAcquisitionCost(var FADepreciationBook: Record "FA Depreciation Book")
+    var
+        FAJournalLine: Record "FA Journal Line";
+    begin
+        CreateFAWithDecliningBalanceFADeprBook(FADepreciationBook);
+        CreateAndPostFAJournalLine(
+          FADepreciationBook, LibraryRandom.RandDec(100, 2), FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        CreateFAJournalSetup(FADepreciationBook."Depreciation Book Code");
     end;
 
     local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
@@ -1697,9 +1733,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure RunCalculateDepeciation(FADepreciationBook: Record "FA Depreciation Book"; NoOfMonth: Integer)
+    local procedure RunCalculateDepeciation(FADepreciationBook: Record "FA Depreciation Book"; DocumentNo: Code[20]; NoOfMonth: Integer)
     begin
-        SetRequestOption(FADepreciationBook, FADepreciationBook."FA No.", NoOfMonth, false);
+        SetRequestOption(FADepreciationBook, DocumentNo, NoOfMonth, false);
     end;
 
     local procedure RunCalculateDepeciationWithBalAccount(FADepreciationBook: Record "FA Depreciation Book"; NoOfMonth: Integer) DocumentNo: Code[20]

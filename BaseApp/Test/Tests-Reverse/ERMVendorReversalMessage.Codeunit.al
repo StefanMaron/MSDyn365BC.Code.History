@@ -318,7 +318,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -370,7 +370,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
           GenJournalLine."Account No.", GenJournalLine.Amount);
 
         // Date Compress Vendor Ledger Batch Report as per the option selected and Reverse and Verify the Transaction.
-        DateCompressAndReverse(GenJournalLine);
+        asserterror DateCompressAndReverse(GenJournalLine); // NAVCZ
     end;
 
     [Test]
@@ -581,6 +581,14 @@ codeunit 134128 "ERM Vendor Reversal Message"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

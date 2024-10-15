@@ -34,7 +34,9 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     end;
 
     var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         GlobalCustLedgEntry: Record "Cust. Ledger Entry";
+        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -42,6 +44,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryCAMTFileMgt: Codeunit "Library - CAMT File Mgt.";
         LibraryCalcComplexity: Codeunit "Library - Calc. Complexity";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GlobalPmtReconJnl: TestPage "Payment Reconciliation Journal";
         Initialized: Boolean;
 
@@ -160,6 +163,10 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc."Bank Account No." := 'TEST';
         BankAcc."Bank Statement Import Format" := BankStmtFormat;
+        // NAVCZ
+        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
+        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
+        // NAVCZ
         BankAcc.Modify(true);
     end;
 
@@ -336,6 +343,8 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests Perf.");
+
         if Initialized then
             exit;
         Initialized := true;
@@ -384,6 +393,22 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
 
             OK.Invoke;
         end;
+    end;
+
+    local procedure GetBankPmtApplRuleCode(): Code[10]
+    begin
+        // NAVCZ
+        if BankPmtApplRuleCode.Code = '' then
+            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
+        exit(BankPmtApplRuleCode.Code);
+    end;
+
+    local procedure GetAccountMappingCode(): Code[10]
+    begin
+        // NAVCZ
+        if TextToAccMappingCode.Code = '' then
+            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
+        exit(TextToAccMappingCode.Code);
     end;
 }
 

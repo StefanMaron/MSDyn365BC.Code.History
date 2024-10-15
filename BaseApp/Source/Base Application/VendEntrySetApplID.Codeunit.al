@@ -12,8 +12,6 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     procedure SetApplId(var VendLedgEntry: Record "Vendor Ledger Entry"; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
     var
         TempVendLedgEntry: Record "Vendor Ledger Entry" temporary;
-        VendLedgEntryToUpdate: Record "Vendor Ledger Entry";
-        LinkedNotUsedAmt: Decimal;
     begin
         VendLedgEntry.LockTable();
         if VendLedgEntry.FindSet then begin
@@ -36,39 +34,61 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
 
         if TempVendLedgEntry.FindSet then
             repeat
-                VendLedgEntryToUpdate.Copy(TempVendLedgEntry);
-                VendLedgEntryToUpdate.TestField(Open, true);
-                VendLedgEntryToUpdate.TestField("Prepayment Type", ApplyingVendLedgEntry."Prepayment Type");  // NAVCZ
-                VendLedgEntryToUpdate."Applies-to ID" := VendEntryApplID;
-                if VendLedgEntryToUpdate."Applies-to ID" = '' then begin
-                    VendLedgEntryToUpdate."Accepted Pmt. Disc. Tolerance" := false;
-                    VendLedgEntryToUpdate."Accepted Payment Tolerance" := 0;
-                end;
+                UpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
+            until TempVendLedgEntry.Next = 0;
+    end;
 
-                if ((VendLedgEntryToUpdate."Amount to Apply" <> 0) and (VendEntryApplID = '')) or
-                   (VendEntryApplID = '')
-                then
-                    VendLedgEntryToUpdate."Amount to Apply" := 0
-                else
-                    if VendLedgEntryToUpdate."Amount to Apply" = 0 then begin
-                        VendLedgEntryToUpdate.CalcFields("Remaining Amount");
-                        VendLedgEntryToUpdate."Amount to Apply" := VendLedgEntryToUpdate."Remaining Amount";
+    local procedure UpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        LinkedNotUsedAmt: Decimal;
+    begin
+        OnBeforeUpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
 
-                        // NAVCZ
-                        if VendLedgEntryToUpdate."Document Type" = VendLedgEntryToUpdate."Document Type"::Payment then
-                            if VendLedgEntryToUpdate.Prepayment then begin
-                                LinkedNotUsedAmt := VendLedgEntryToUpdate.CalcLinkAdvAmount;
-                                VendLedgEntryToUpdate."Amount to Apply" := VendLedgEntryToUpdate."Amount to Apply" + LinkedNotUsedAmt;
-                            end;
+        VendorLedgerEntry.Copy(TempVendLedgEntry);
+        VendorLedgerEntry.TestField(Open, true);
+        VendorLedgerEntry.TestField("Prepayment Type", ApplyingVendLedgEntry."Prepayment Type");  // NAVCZ
+        VendorLedgerEntry."Applies-to ID" := VendEntryApplID;
+        if VendorLedgerEntry."Applies-to ID" = '' then begin
+            VendorLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
+            VendorLedgerEntry."Accepted Payment Tolerance" := 0;
+        end;
 
-                        VendLedgEntryToUpdate.TestAdvLink;
-                        // NAVCZ
+        if ((VendorLedgerEntry."Amount to Apply" <> 0) and (VendEntryApplID = '')) or
+           (VendEntryApplID = '')
+        then
+            VendorLedgerEntry."Amount to Apply" := 0
+        else
+            if VendorLedgerEntry."Amount to Apply" = 0 then begin
+                VendorLedgerEntry.CalcFields("Remaining Amount");
+                VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
+
+                // NAVCZ
+                if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Payment then
+                    if VendorLedgerEntry.Prepayment then begin
+                        LinkedNotUsedAmt := VendorLedgerEntry.CalcLinkAdvAmount;
+                        VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Amount to Apply" + LinkedNotUsedAmt;
                     end;
 
-                if VendLedgEntryToUpdate."Entry No." = ApplyingVendLedgEntry."Entry No." then
-                    VendLedgEntryToUpdate."Applying Entry" := ApplyingVendLedgEntry."Applying Entry";
-                VendLedgEntryToUpdate.Modify();
-            until TempVendLedgEntry.Next = 0;
+                VendorLedgerEntry.TestAdvLink;
+                // NAVCZ
+            end;
+
+        if VendorLedgerEntry."Entry No." = ApplyingVendLedgEntry."Entry No." then
+            VendorLedgerEntry."Applying Entry" := ApplyingVendLedgEntry."Applying Entry";
+        VendorLedgerEntry.Modify();
+
+        OnAfterUpdateVendLedgerEntry(VendorLedgerEntry, TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateVendLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    begin
     end;
 }
 

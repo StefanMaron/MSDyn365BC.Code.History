@@ -616,7 +616,13 @@ codeunit 136127 "Test Planning/Req.Wksh"
     var
         ItemRec: Record Item;
         CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
+        // NAVCZ
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Warnings" := SalesReceivablesSetup."Credit Warnings"::"No Warning";
+        SalesReceivablesSetup.Modify();
+        // NAVCZ
         Clear(CalculatePlanPlanWksh);
         CalculatePlanPlanWksh.SetTemplAndWorksheet(GetRequisitionWkshTemplate, GetRequisitionWkshBatch,
           CalcOption = CalcOption::PlanningRegenerate);

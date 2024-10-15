@@ -133,7 +133,6 @@ codeunit 136400 "Resource Employee"
     end;
 
     [Test]
-    [HandlerFunctions('Action62StrMenuHandler,Action62HyperlinkHandler')]
     [Scope('OnPrem')]
     procedure VerifySearchNameOnSaas()
     var
@@ -143,7 +142,7 @@ codeunit 136400 "Resource Employee"
         SearchNameCode: Code[250];
         EmployeeNo: Code[20];
     begin
-        // [SCENARIO] Create an employee, set first name, open the map, change the last name and verify the search name.
+        // [SCENARIO] Create an employee, set first name, change the last name and verify the search name.
         // 1. Setup: Create employee.
         Initialize;
         EmployeeNo := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
@@ -154,7 +153,6 @@ codeunit 136400 "Resource Employee"
         EmployeeCard."No.".SetValue(EmployeeNo);
         EmployeeCard."First Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
-        EmployeeCard.ShowMap.DrillDown;
         EmployeeCard.OK.Invoke;
 
         // 3. Verify: Check Search Name has correct value in Employee.
@@ -779,19 +777,6 @@ codeunit 136400 "Resource Employee"
     procedure SetValue(NewTextValue: Text[100])
     begin
         TextValue := NewTextValue;
-    end;
-
-    [StrMenuHandler]
-    [Scope('OnPrem')]
-    procedure Action62StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := 1;
-    end;
-
-    [HyperlinkHandler]
-    [Scope('OnPrem')]
-    procedure Action62HyperlinkHandler(Message: Text[1024])
-    begin
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5200, 'OnAfterUpdateResource', '', false, false)]

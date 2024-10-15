@@ -115,6 +115,16 @@ codeunit 131302 "Library - Fiscal Year"
         GeneralLedgerSetup.Modify();
     end;
 
+    [Scope('OnPrem')]
+    procedure UpdateDeleteCardWithEntriesOnGLSetup(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Delete Card with Entries" := NewValue;
+        GeneralLedgerSetup.Modify();
+    end;
+
     procedure IdentifyOpenAccountingPeriod(): Date
     var
         AccountingPeriod: Record "Accounting Period";

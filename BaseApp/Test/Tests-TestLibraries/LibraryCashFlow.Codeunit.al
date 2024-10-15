@@ -65,7 +65,7 @@ codeunit 131331 "Library - Cash Flow"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         SuggestWorksheetLines: Report "Suggest Worksheet Lines";
         ConsiderSource: array[16] of Boolean;
-        SourceType: Option ,Customer,Vendor,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Budgeted Fixed Asset","Sale of Fixed Asset","Service Order","G/L Budget",,,Jobs,Tax;
+        SourceType: Option ,Customer,Vendor,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Budgeted Fixed Asset","Sale of Fixed Asset","Service Order","G/L Budget","Sales Advance Letters","Purchase Advance Letters",Jobs,Tax;
     begin
         CFWorksheetLine.Init();
         ConsiderSource[SourceType::"Liquid Funds"] := CFFunds;

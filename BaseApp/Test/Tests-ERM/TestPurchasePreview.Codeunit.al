@@ -524,20 +524,19 @@ codeunit 134762 "Test Purchase Preview"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestPartialPurchaseOrderPreview()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Location: Record Location;
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
         GLPostingPreview: TestPage "G/L Posting Preview";
         ItemNo: Code[20];
     begin
         // [SCENARIO 263954] Preview action can be opened for Purchase Order with FIFO Item, if was before posted partially several times.
         Initialize;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         // [GIVEN] Inventory Setup: Automatic Cost Posting = TRUE, Expected Cost Posting = TRUE
         LibraryInventory.SetAutomaticCostPosting(true);

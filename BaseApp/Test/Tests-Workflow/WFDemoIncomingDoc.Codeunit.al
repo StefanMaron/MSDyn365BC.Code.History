@@ -40,8 +40,8 @@ codeunit 134178 "WF Demo Incoming Doc"
         WorkflowSetup.InitWorkflow;
 
         // Verify
-        Assert.AreEqual(28, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption));
-        Assert.AreEqual(451, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption));
+        Assert.AreEqual(33, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption)); // NAVCZ
+        Assert.AreEqual(552, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption)); // NAVCZ
 
         WorkflowStep.SetFilter(Argument, '<>%1', Guid);
         Assert.AreEqual(WorkflowStep.Count, WorkflowStepArgument.Count, 'There should not be more arguments than steps.');

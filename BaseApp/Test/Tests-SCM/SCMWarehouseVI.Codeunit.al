@@ -2182,33 +2182,6 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
-    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteRegisteredWhseDocsPickOK()
-    var
-        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
-        RegisteredWhsePicks: TestPage "Registered Whse. Picks";
-    begin
-        // [FEATURE] [Pick] [Delete Registered Whse. Docs] [UI]
-        // [SCENARIO 323185] Registered Warehouse Picks aren't deleted if you press OK in RPH.
-        Initialize;
-
-        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Pick'
-        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Pick);
-
-        // [WHEN] Invoke 'Delete Registered Picks' on RegisteredWhsePicks page, invoke OK on RPH
-        Commit();
-        RegisteredWhsePicks.OpenEdit;
-        RegisteredWhsePicks.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
-        RegisteredWhsePicks."Delete Registered Movements".Invoke;
-
-        // [THEN] "X" is deleted
-        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
-        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Pick);
-        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
-    end;
-
-    [Test]
     [HandlerFunctions('DeleteRegisteredWhseDocsCancelRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DeleteRegisteredWhseDocMovementCancel()
@@ -2236,33 +2209,6 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
-    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteRegisteredWhseDocsMovementOK()
-    var
-        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
-        RegisteredWhseMovements: TestPage "Registered Whse. Movements";
-    begin
-        // [FEATURE] [Movement] [Delete Registered Whse. Docs] [UI]
-        // [SCENARIO 323185] Registered Warehouse Movements are deleted if you press OK in RPH.
-        Initialize;
-
-        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Movement'
-        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Movement);
-
-        // [WHEN] Invoke 'Delete Registered Movements' on RegisteredWhseMovements page, invoke OK on RPH
-        Commit();
-        RegisteredWhseMovements.OpenEdit;
-        RegisteredWhseMovements.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
-        RegisteredWhseMovements."Delete Registered Movements".Invoke;
-
-        // [THEN] "X" is deleted
-        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
-        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Movement);
-        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
-    end;
-
-    [Test]
     [HandlerFunctions('DeleteRegisteredWhseDocsCancelRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DeleteRegisteredWhseDocPutAwayCancel()
@@ -2287,33 +2233,6 @@ codeunit 137408 "SCM Warehouse VI"
         RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
         RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::"Put-away");
         Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
-    end;
-
-    [Test]
-    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteRegisteredWhseDocsPutAwayOK()
-    var
-        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
-        RegisteredWhsePutaways: TestPage "Registered Whse. Put-aways";
-    begin
-        // [FEATURE] [Put-Away] [Delete Registered Whse. Docs] [UI]
-        // [SCENARIO 323185] Registered Warehouse Put-aways are deleted if you press OK in RPH.
-        Initialize;
-
-        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Put-away'
-        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::"Put-away");
-
-        // [WHEN] Invoke 'Delete Registered Put-aways' on RegisteredWhsePutaways page, invoke OK on RPH
-        Commit();
-        RegisteredWhsePutaways.OpenEdit;
-        RegisteredWhsePutaways.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
-        RegisteredWhsePutaways."Delete Registered Movements".Invoke;
-
-        // [THEN] "X" is deleted
-        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
-        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::"Put-away");
-        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
     end;
 
     [Test]
@@ -2436,6 +2355,79 @@ codeunit 137408 "SCM Warehouse VI"
         // Tear down.
         UnbindSubscription(SCMWarehouseVI);
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillOverReceiptCodeWhseRcptValidateOverReceiptQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        OverReceiptCode: Record "Over-Receipt Code";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Over-Receipt]
+        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Over-Receipt Quantity"
+        Initialize();
+
+        // [GIVEN] Warehouse receipt       
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, '', 100);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+
+        // [WHEN] Enter "Over-Receipt Quantity"
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 5);
+
+        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        OverReceiptCode.SetRange(Default, true);
+        OverReceiptCode.FindFirst();
+        Assert.IsTrue(WarehouseReceiptLine."Over-Receipt Code" = OverReceiptCode.Code, 'Wrong over-receipt code');
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillOverReceiptCodeWhseRcptValidateQtyToReceive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        OverReceiptCode: Record "Over-Receipt Code";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+    begin
+        // [FEATURE] [Over-Receipt] [UI]
+        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Qty. To Receive"
+        Initialize();
+
+        // [GIVEN] Warehouse receipt       
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, '', 100);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+
+        // [WHEN] Enter "Qty. To Receive"
+        WarehouseReceipt.OpenView();
+        WarehouseReceipt.GoToRecord(WarehouseReceiptHeader);
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(106);
+
+        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        OverReceiptCode.SetRange(Default, true);
+        OverReceiptCode.FindFirst();
+        Assert.IsTrue(WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".Value = OverReceiptCode.Code, 'Wrong over-receipt code');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -4514,14 +4506,20 @@ codeunit 137408 "SCM Warehouse VI"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
+    procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemAvailabilityByLocationHandler(var ItemAvailabilityByLocation: Page "Item Availability by Location"; var Response: Action)
+    procedure ItemAvailabilityByLocationHandler(var ItemAvailabilityByLocation: Page "Item Availability by Location";
+
+    var
+        Response: Action)
     begin
     end;
 
@@ -4583,13 +4581,6 @@ codeunit 137408 "SCM Warehouse VI"
     procedure DeleteRegisteredWhseDocsCancelRequestPageHandler(var DeleteRegisteredWhseDocs: TestRequestPage "Delete Registered Whse. Docs.")
     begin
         DeleteRegisteredWhseDocs.Cancel.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure DeleteRegisteredWhseDocsOKRequestPageHandler(var DeleteRegisteredWhseDocs: TestRequestPage "Delete Registered Whse. Docs.")
-    begin
-        DeleteRegisteredWhseDocs.OK.Invoke;
     end;
 }
 

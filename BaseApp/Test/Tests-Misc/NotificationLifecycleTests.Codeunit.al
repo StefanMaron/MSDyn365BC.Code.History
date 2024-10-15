@@ -12,6 +12,8 @@ codeunit 139480 "Notification Lifecycle Tests"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         NotificationMsg: Label 'Notification message.';
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        IsInitialized: Boolean;
 
     local procedure Cleanup()
     var
@@ -33,6 +35,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         AdditionalContextId: Guid;
     begin
         // [SCENARIO] Create a notification context with an additional context GUID, and check it is created correctly
+        Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
         NotificationId := CreateGuid;
@@ -74,6 +77,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationId: Guid;
     begin
         // [SCENARIO] Create a notification context without an additional context GUID, and check it is created correctly
+        Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
         NotificationId := CreateGuid;
@@ -112,6 +116,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         AdditionalContextId: Guid;
     begin
         // [SCENARIO] Create 2 notification contexts with and without an additional context GUID and without setting their GUID, and check they are created correctly
+        Initialize();
 
         // [GIVEN] 2 notifications with no GUID, a record that triggered the notifications and a context of the creation of one of the notifications (a cause)
         DummyNotification.Message := NotificationMsg;
@@ -149,6 +154,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         AdditionalContextId: Guid;
     begin
         // [SCENARIO] Create 2 notification contexts without an additional context GUID, and check they are removed correctly
+        Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -189,6 +195,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         AdditionalContextId: Guid;
     begin
         // [SCENARIO] Create 3 notification contexts without an additional context GUID: 2 with the same GUID, one with another GUID. Remove the 2 notification contexts with the same GUID, and check that the third one remains
+        Initialize();
 
         // [GIVEN] 3 notifications, a record that triggered the notifications and 2 different contexts of the creation of the notifications (2 different causes)
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -241,6 +248,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationId: Guid;
     begin
         // [SCENARIO] Create a notification context without an additional context GUID, then insert it again. No error expected.
+        Initialize();
 
         // [GIVEN] A notification, a record that triggered the notification and a context of the creation of the notification (a cause)
         NotificationId := CreateGuid; // Represents the notification
@@ -281,6 +289,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationToRecall2: Notification;
     begin
         // [SCENARIO] Create two notification contexts without an additional context GUID, remove the notifications, and check they are correctly removed
+        Initialize();
 
         // [GIVEN] Two notifications, a record that triggered the notification
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -318,6 +327,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationToKeep: Notification;
     begin
         // [SCENARIO] Create 3 notification contexts without an additional context GUID: 2 with the same, one with another GUID. Remove the 2 notification contexts, and check that the third one remains
+        Initialize();
 
         // [GIVEN] 3 notifications, 2 records that triggered the notifications
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the notification (on what?)
@@ -365,6 +375,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationToRecall4: Notification;
     begin
         // [SCENARIO] Create 4 notification contexts and remove them all. Check that they are gone.
+        Initialize();
 
         // [GIVEN] 4 notifications, 2 records that triggered the notifications
         LibrarySales.CreateCustomer(Customer); // Represents the cause object of the first 2 notifications
@@ -413,6 +424,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationToKeep: Notification;
     begin
         // [SCENARIO] Create 2 notification contexts without an additional context GUID. Update the record ID of one of them. Check the state is correct.
+        Initialize();
 
         // [GIVEN] 2 notifications, 3 records that triggered the notifications
         LibrarySales.CreateCustomer(InitialCustomer); // Represents the cause object of the notification (on what?)
@@ -471,6 +483,8 @@ codeunit 139480 "Notification Lifecycle Tests"
         AdditionalContextId: Guid;
     begin
         // [SCENARIO] Create objects with record IDs not existing in the database to simulate delayed insertion, and check these are handled correctly
+        Initialize();
+
         // [GIVEN] 2 records initialized to simulate the delayed insert issue: an incomplete record ID that does not correspond to any existing object
         UninitializedCustomerRecId := Customer.RecordId;
         UninitializedSalesHeaderRecId := SalesHeader.RecordId;
@@ -529,6 +543,8 @@ codeunit 139480 "Notification Lifecycle Tests"
         AssemblyQuote: TestPage "Assembly Quote";
         ItemJournalLines: TestPage "Item Journal Lines";
     begin
+        Initialize();
+
         LibraryLowerPermissions.SetO365BusFull;
 
         // [THEN] The Notification Licecycle Mgt framework is enabled, in case it was disabled and never enabled back (rare)
@@ -631,6 +647,17 @@ codeunit 139480 "Notification Lifecycle Tests"
         Assert.IsFalse(NotificationLifecycleMgt.AreSubscribersDisabled,
           'Notification Lifecycle Mgt should be enabled after opening item journal lines.');
         ItemJournalLines.Close;
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Notification Lifecycle Tests");
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
     end;
 
     [RecallNotificationHandler]

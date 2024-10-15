@@ -59,6 +59,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestManlVATOnSalesOrdWithFCY()
     begin
@@ -67,6 +68,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestManlVATOnPurchOrdWithFCY()
     begin
@@ -720,6 +722,14 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText);
         ServiceStatistics.GotoRecord(ServiceHeader); // Refresh
         ServiceStatistics."VAT Amount_General".AssertEquals(ServiceStatistics.SubForm."VAT Amount".AsDEcimal);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // NAVCZ
+        Reply := true;
     end;
 }
 

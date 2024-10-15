@@ -113,7 +113,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                         if DocumentNo = '' then
-                            DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
                         else
                             DocumentNo2 := DocumentNo;
                     end;
@@ -151,7 +154,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                         if DocumentNo = '' then
-                            DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
                         else
                             DocumentNo2 := DocumentNo;
                     end;
@@ -187,6 +193,7 @@ report 5692 "Calculate Depreciation"
                             OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount);
                         until TempGenJnlLine.Next = 0;
                 end;
+                OnAfterPostDataItem();
             end;
         }
     }
@@ -433,6 +440,11 @@ report 5692 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFAInsertGLAccGetBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlNextLineNo: Integer; var BalAccount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostDataItem()
     begin
     end;
 

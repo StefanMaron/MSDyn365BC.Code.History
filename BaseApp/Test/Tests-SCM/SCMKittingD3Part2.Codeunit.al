@@ -49,6 +49,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
@@ -613,7 +614,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUSTDParentAVGCompVariant()
     begin
@@ -621,7 +622,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUFIFOParentSTDCompVariant()
     begin
@@ -629,7 +630,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUAVGParentFIFOCompVariant()
     begin
@@ -637,7 +638,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUSTDParentAVGCompLocVar()
     begin
@@ -645,7 +646,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUFIFOParentSTDCompLoc()
     begin
@@ -653,7 +654,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure SKUAVGParentFIFOCompLocVar()
     begin
@@ -747,6 +748,14 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // NAVCZ
+        Reply := true;
     end;
 }
 

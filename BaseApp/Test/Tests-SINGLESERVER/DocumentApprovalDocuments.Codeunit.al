@@ -1271,6 +1271,8 @@ codeunit 134203 "Document Approval - Documents"
 
     local procedure Initialize()
     begin
+        LibraryERMCountryData.UpdatePrepaymentAccounts;
+
         if IsInitialized then
             exit;
 

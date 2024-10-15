@@ -11,6 +11,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     end;
 
     var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -629,7 +630,9 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
+        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", GetBankPmtApplRuleCode); // NAVCZ
         BankPmtApplRule.DeleteAll();
+        LibraryERM.InsertDefaultMatchingRulesW1(GetBankPmtApplRuleCode); // NAVCZ
         BankPmtApplRule.InsertDefaultMatchingRules;
     end;
 
@@ -665,7 +668,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         Score: Integer;
     begin
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode);
         Score := TempBankPmtApplRule.GetBestMatchScore(ExpectedBankPmtApplRule);
 
         TempBankStatementMatchingBuffer.Reset();
@@ -685,6 +688,14 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMsg);
         Assert.IsTrue(StrPos(Message, ExpectedMsg) > 0, Message);
+    end;
+
+    local procedure GetBankPmtApplRuleCode(): Code[10]
+    begin
+        // NAVCZ
+        if BankPmtApplRuleCode.Code = '' then
+            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
+        exit(BankPmtApplRuleCode.Code);
     end;
 }
 

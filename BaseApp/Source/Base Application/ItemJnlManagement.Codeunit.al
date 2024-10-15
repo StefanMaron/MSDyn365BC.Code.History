@@ -93,6 +93,8 @@ codeunit 240 ItemJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, ItemJnlLine);
+
         ItemJnlLine.CheckItemJournalLineUserRestriction; // NAVCZ
         CheckTemplateName(ItemJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         ItemJnlLine.FilterGroup := 2;
@@ -285,6 +287,11 @@ codeunit 240 ItemJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

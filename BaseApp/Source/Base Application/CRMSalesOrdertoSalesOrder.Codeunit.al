@@ -266,6 +266,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CopyCRMOptionFields(CRMSalesorder, SalesHeader);
         SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMSalesorder.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
+
+        OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(SalesHeader, CRMSalesorder);
         SalesHeader.Insert();
 
         // set company id and owner on CDS salesorder
@@ -559,6 +561,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
             CRMSalesorder.Modify(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder")
+    begin
     end;
 }
 

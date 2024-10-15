@@ -13,6 +13,7 @@ codeunit 134331 "ERM Purchase Payables"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
@@ -2119,6 +2120,7 @@ codeunit 134331 "ERM Purchase Payables"
         // [SCENARIO 264555] When Purchase Order has Prepayment Invoice and Credit Memo posted and then Purchase Order is copied to new Purchase Order,
         // [SCENARIO 264555] then new Purchase Order has <blank> Last Prepayment No. and Last Prepmt. Cr. Memo No.
         Initialize;
+        InitializeUpdateGeneralLedgerSetup(false);
 
         // [GIVEN] Prepayment Invoice and Prepayment Credit Memo were posted for Purchase Order "PO"
         PreparePurchOrderWithPrepaymentInvAndCrMemo(PurchaseHeader);
@@ -2148,6 +2150,7 @@ codeunit 134331 "ERM Purchase Payables"
         // [SCENARIO 264555] When Purchase Order has Prepayment Invoice and Credit Memo posted and then Purchase Order is archived and then Archived Purchase Order is copied to new Purchase Order,
         // [SCENARIO 264555] then new Purchase Order has <blank> Last Prepayment No. and Last Prepmt. Cr. Memo No.
         Initialize;
+        InitializeUpdateGeneralLedgerSetup(false);
 
         // [GIVEN] Prepayment Invoice and Prepayment Credit Memo were posted for Purchase Order "PO"
         PreparePurchOrderWithPrepaymentInvAndCrMemo(PurchaseHeader);
@@ -2389,6 +2392,30 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseLine.TestField("Direct Unit Cost", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TariffNumbersApplicationArea()
+    var
+        TariffNumbersPage: TestPage "Tariff Numbers";
+    begin
+        // [FEATURE] [UI] [Application Area]
+        // [SCENARIO 343372] Tariff Numbers controls are enabled in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        
+        // [WHEN] Open Tariff Numbers page
+        TariffNumbersPage.OpenNew();
+
+        // [THEN] "No.", Description, "Supplementary Units" controls are enabled
+        Assert.IsTrue(TariffNumbersPage."No.".Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage.Description.Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage."Supplementary Units".Enabled(), '');
+        TariffNumbersPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2406,6 +2433,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        InitializeUpdateGeneralLedgerSetup(true);
         IsInitialized := true;
         Commit();
 
@@ -2413,6 +2441,15 @@ codeunit 134331 "ERM Purchase Payables"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Payables");
+    end;
+
+    local procedure InitializeUpdateGeneralLedgerSetup(UseVATDate: Boolean)
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup."Use VAT Date" := UseVATDate;
+        GLSetup.Modify();
     end;
 
     local procedure PreparePurchOrderWithPrepaymentInvAndCrMemo(var PurchaseHeader: Record "Purchase Header")
@@ -2423,6 +2460,7 @@ codeunit 134331 "ERM Purchase Payables"
         ModifyPurchPrepaymentAccount(PurchaseLine);
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Prepayment Type", PurchaseHeader."Prepayment Type"::Prepayment);
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader);

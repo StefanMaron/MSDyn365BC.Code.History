@@ -561,6 +561,10 @@ table 11730 "Cash Document Header"
     {
     }
 
+    var
+        PaymentTxt: Label 'Payment %1', Comment = '%1=Document No.';
+        RefundTxt: Label 'Refund %1', Comment = '%1=Document No.';
+
     trigger OnDelete()
     var
         CashDocPost: Codeunit "Cash Document-Post";
@@ -1055,9 +1059,13 @@ table 11730 "Cash Document Header"
 
     [Scope('OnPrem')]
     procedure IsEETCashRegister(): Boolean
+    var
+        EETCashRegister: Boolean;
     begin
         CalcFields("EET Cash Register");
-        exit("EET Cash Register");
+        EETCashRegister := "EET Cash Register";
+        OnBeforeIsEETCashRegister(Rec, EETCashRegister);
+        exit(EETCashRegister);
     end;
 
     [Scope('OnPrem')]
@@ -1069,9 +1077,103 @@ table 11730 "Cash Document Header"
 
     [Scope('OnPrem')]
     procedure IsEETTransaction(): Boolean
+    var
+        EETTransaction: Boolean;
     begin
         CalcFields("EET Transaction");
-        exit("EET Transaction");
+        EETTransaction := "EET Transaction";
+        OnBeforeIsEETTransaction(Rec, EETTransaction);
+        exit(EETTransaction);
+    end;
+
+    procedure CopyFromSalesInvoiceHeader(SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        Validate("Posting Date", SalesInvoiceHeader."Posting Date");
+        Validate("Responsibility Center", SalesInvoiceHeader."Responsibility Center");
+        "Currency Factor" := SalesInvoiceHeader."Currency Factor";
+        "Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(PaymentTxt, SalesInvoiceHeader."No.");
+        "Partner Type" := "Partner Type"::Customer;
+        Validate("Partner No.", SalesInvoiceHeader."Bill-to Customer No.");
+
+        OnAfterCopyCashDocHeaderFromSalesInvHeader(SalesInvoiceHeader, Rec);
+    end;
+
+    procedure CopyFromSalesCrMemoHeader(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        Validate("Posting Date", SalesCrMemoHeader."Posting Date");
+        Validate("Responsibility Center", SalesCrMemoHeader."Responsibility Center");
+        "Currency Factor" := SalesCrMemoHeader."Currency Factor";
+        "Shortcut Dimension 1 Code" := SalesCrMemoHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := SalesCrMemoHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := SalesCrMemoHeader."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(RefundTxt, SalesCrMemoHeader."No.");
+        "Partner Type" := "Partner Type"::Customer;
+        Validate("Partner No.", SalesCrMemoHeader."Bill-to Customer No.");
+
+        OnAfterCopyCashDocHeaderFromSalesCrMemoHeader(SalesCrMemoHeader, Rec);
+    end;
+
+    procedure CopyFromPurchInvHeader(PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+        Validate("Posting Date", PurchInvHeader."Posting Date");
+        Validate("Responsibility Center", PurchInvHeader."Responsibility Center");
+        "Currency Factor" := PurchInvHeader."Currency Factor";
+        "Shortcut Dimension 1 Code" := PurchInvHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := PurchInvHeader."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(RefundTxt, PurchInvHeader."No.");
+        "Partner Type" := "Partner Type"::Vendor;
+        Validate("Partner No.", PurchInvHeader."Buy-from Vendor No.");
+
+        OnAfterCopyCashDocHeaderFromPurchInvHeader(PurchInvHeader, Rec);
+    end;
+
+    procedure CopyFromPurchCrMemoHeader(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+        Validate("Posting Date", PurchCrMemoHdr."Posting Date");
+        Validate("Responsibility Center", PurchCrMemoHdr."Responsibility Center");
+        "Currency Factor" := PurchCrMemoHdr."Currency Factor";
+        "Shortcut Dimension 1 Code" := PurchCrMemoHdr."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := PurchCrMemoHdr."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := PurchCrMemoHdr."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(PaymentTxt, PurchCrMemoHdr."No.");
+        "Partner Type" := "Partner Type"::Vendor;
+        Validate("Partner No.", PurchCrMemoHdr."Buy-from Vendor No.");
+
+        OnAfterCopyCashDocHeaderFromPurchCrMemoHdr(PurchCrMemoHdr, Rec);
+    end;
+
+    procedure CopyFromServiceInvoiceHeader(ServiceInvoiceHeader: Record "Service Invoice Header")
+    begin
+        Validate("Posting Date", ServiceInvoiceHeader."Posting Date");
+        Validate("Responsibility Center", ServiceInvoiceHeader."Responsibility Center");
+        "Currency Factor" := ServiceInvoiceHeader."Currency Factor";
+        "Shortcut Dimension 1 Code" := ServiceInvoiceHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := ServiceInvoiceHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := ServiceInvoiceHeader."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(PaymentTxt, ServiceInvoiceHeader."No.");
+        "Partner Type" := "Partner Type"::Customer;
+        Validate("Partner No.", ServiceInvoiceHeader."Bill-to Customer No.");
+
+        OnAfterCopyCashDocHeaderFromServiceInvoiceHeader(ServiceInvoiceHeader, Rec);
+    end;
+
+    procedure CopyFromServiceCrMemoHeader(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    begin
+        Validate("Posting Date", ServiceCrMemoHeader."Posting Date");
+        Validate("Responsibility Center", ServiceCrMemoHeader."Responsibility Center");
+        "Currency Factor" := ServiceCrMemoHeader."Currency Factor";
+        "Shortcut Dimension 1 Code" := ServiceCrMemoHeader."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := ServiceCrMemoHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := ServiceCrMemoHeader."Dimension Set ID";
+        "Payment Purpose" := StrSubstNo(RefundTxt, ServiceCrMemoHeader."No.");
+        "Partner Type" := "Partner Type"::Customer;
+        Validate("Partner No.", ServiceCrMemoHeader."Bill-to Customer No.");
+
+        OnAfterCopyCashDocHeaderFromServiceCrMemoHeader(ServiceCrMemoHeader, Rec);
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -1083,6 +1185,46 @@ table 11730 "Cash Document Header"
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
     procedure OnCheckCashDocPostRestrictions()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEETCashRegister(CashDocumentHeader: Record "Cash Document Header"; var EETCashRegister: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEETTransaction(CashDocumentHeader: Record "Cash Document Header"; var EETTransaction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromSalesInvHeader(SalesInvoiceHeader: Record "Sales Invoice Header"; var CashDocHeader: Record "Cash Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromSalesCrMemoHeader(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var CashDocHeader: Record "Cash Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromPurchInvHeader(PurchInvHeader: Record "Purch. Inv. Header"; var CashDocHeader: Record "Cash Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromPurchCrMemoHdr(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var CashDocHeader: Record "Cash Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromServiceInvoiceHeader(ServiceInvoiceHeader: Record "Service Invoice Header"; var CashDocHeader: Record "Cash Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCashDocHeaderFromServiceCrMemoHeader(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 }

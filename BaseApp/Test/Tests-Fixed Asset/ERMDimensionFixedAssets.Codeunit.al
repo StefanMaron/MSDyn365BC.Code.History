@@ -35,6 +35,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
         LibraryFiscalYear.CreateFiscalYear;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateFAPostingType; // NAVCZ
 
         isInitialized := true;
         Commit();
@@ -852,7 +853,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGLAccountWithDimension(DefaultDimension);
         CreateFixedAssetDepreciation(FADepreciationBook);
-        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Loss);
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::"Book Value (Loss)"); // NAVCZ
         UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
 
         CreateGenJournalBatch(GenJournalBatch);

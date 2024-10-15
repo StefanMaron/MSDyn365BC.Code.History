@@ -26,6 +26,7 @@ codeunit 137502 "SCM Dedicated Bins"
         CfmBinDedicated: Label 'The bin B1 is Dedicated.\Do you still want to use this bin?';
         VSTF190324Msg1: Label 'There is nothing to create.';
         MSG_INVT_PICK_CREATED: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
+        ChangeValueEntriesQst: Label 'Do you really want to change %1 although value entries exist?';
 
     [Normal]
     local procedure Initialize()
@@ -125,7 +126,12 @@ codeunit 137502 "SCM Dedicated Bins"
     [Scope('OnPrem')]
     procedure SetupDefaultBinsConfirmHndl(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, CfmRemoveAllBinCode) > 0, 'Incorrect confirm dialog: ' + Question);
+        // NAVCZ
+        Assert.IsTrue(
+          (StrPos(Question, CfmRemoveAllBinCode) > 0) or
+          (StrPos(Question, ChangeValueEntriesQst) > 0),
+          'Incorrect confirm dialog: ' + Question);
+        // NAVCZ
         Reply := true;
     end;
 
@@ -142,7 +148,12 @@ codeunit 137502 "SCM Dedicated Bins"
     [Scope('OnPrem')]
     procedure ConsumptionBinsConfirmHndl(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, AutomaticBinUpdate) > 0, 'Incorrect confirm dialog: ' + Question);
+        // NAVCZ
+        Assert.IsTrue(
+          (StrPos(Question, AutomaticBinUpdate) > 0) or
+          (StrPos(Question, ChangeValueEntriesQst) > 0),
+          'Incorrect confirm dialog: ' + Question);
+        // NAVCZ
         Reply := true;
     end;
 

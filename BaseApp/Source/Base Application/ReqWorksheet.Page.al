@@ -675,12 +675,8 @@ page 291 "Req. Worksheet"
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
-                    var
-                        PerformAction: Report "Carry Out Action Msg. - Req.";
                     begin
-                        PerformAction.SetReqWkshLine(Rec);
-                        PerformAction.RunModal;
-                        PerformAction.GetReqWkshLine(Rec);
+                        CarryOutActionMsg();
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
@@ -827,6 +823,21 @@ page 291 "Req. Worksheet"
         CurrPage.Update(false);
     end;
 
+    local procedure CarryOutActionMsg()
+    var
+        CarryOutActionMsgReq: Report "Carry Out Action Msg. - Req.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCarryOutActionMsg(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CarryOutActionMsgReq.SetReqWkshLine(Rec);
+        CarryOutActionMsgReq.RunModal;
+        CarryOutActionMsgReq.GetReqWkshLine(Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenReqWorksheet(var CUrrentJnlBatchName: Code[10])
     begin
@@ -834,6 +845,11 @@ page 291 "Req. Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTemplateSelection(var RequisitionLine: Record "Requisition Line"; CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCarryOutActionMsg(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
     begin
     end;
 }

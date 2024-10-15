@@ -119,6 +119,8 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         DisableWarningOnCloseUnpostedDoc;
         DisableWarningOnCloseUnreleasedDoc;
@@ -137,6 +139,14 @@ codeunit 130512 "Library - Purchase"
             PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
         SetCorrDocNoPurchase(PurchaseHeader);
         PurchaseHeader.Modify(true);
+
+        // NAVCZ
+        if not VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group") then begin
+            VATPostingSetup.Init();
+            VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
+            VATPostingSetup.Insert();
+        end;
+        // NAVCZ
     end;
 
     procedure CreatePurchHeaderWithDocNo(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20]; DocNo: Code[20])
@@ -381,6 +391,14 @@ codeunit 130512 "Library - Purchase"
         VendorPostingGroup.Validate("Debit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Insert(true);
+    end;
+
+    procedure CreateVendorTemplate(var VendorTemplate: Record "Vendor Template")
+    begin
+        // NAVCZ
+        VendorTemplate.Init();
+        VendorTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(VendorTemplate.FieldNo(Code), DATABASE::"Vendor Template"));
+        VendorTemplate.Insert(true);
     end;
 
     procedure CreateVendorWithLocationCode(var Vendor: Record Vendor; LocationCode: Code[10]): Code[20]

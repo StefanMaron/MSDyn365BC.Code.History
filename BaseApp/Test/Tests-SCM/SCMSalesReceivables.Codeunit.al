@@ -99,7 +99,6 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create Credit Memo using Copy Document of Sales Order.
         // 1. Setup.
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         CreateItemWithReserveAlways(Item);
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -134,7 +133,6 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with same UOM.
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);   // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -153,7 +151,6 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with different UOM.
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);  // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -172,7 +169,6 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with Blank UOM.
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);  // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -399,7 +395,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Month, LibraryUtility.GenerateGUID);
+          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Quarter, LibraryUtility.GenerateGUID); // NAVCZ
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         VerifyDimension(ItemBudgetEntry, 1, DimensionValue.Code, DimensionValue2.Code);  // Value is important for Test.
@@ -488,7 +484,6 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create a Sales Order with one line of BOM and verify Sales line.
         // 1. Setup: Create Child and Parent Item.
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
         LibraryInventory.CreateItem(Item);
@@ -916,7 +911,6 @@ codeunit 137062 "SCM Sales & Receivables"
         // [FEATURE] [Production BOM] [Extended Text]
         // [SCENARIO 377475] Parent Item's Auto Extended Text remains after Explode BOM on Sales Line
         Initialize;
-        LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Item "A" with "Description" = "A_Desc", "Automatic Ext. Texts" = TRUE, Extended Text = "A_ExtText"
         // [GIVEN] Item "B" with "Description" = "B_Desc", "Automatic Ext. Texts" = TRUE, Extended Text = "B_ExtText"
@@ -946,6 +940,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Sales & Receivables");
+        LibrarySales.SetStockoutWarning(false);
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         if Initialized then

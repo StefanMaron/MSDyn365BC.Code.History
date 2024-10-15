@@ -2438,6 +2438,7 @@ codeunit 137101 "SCM Kitting"
         NoSeriesSetup;
         LocationSetup;
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        UpdateGeneralLedgerSetup; // NAVCZ
 
         isInitialized := true;
         Commit();
@@ -4093,6 +4094,16 @@ codeunit 137101 "SCM Kitting"
         AsmAvailability.AssemblyLineAvail.ScheduledReceipt.AssertEquals(ScheduledReceipt);
         AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AssertEquals(ExpectedInventory);
         AsmAvailability.Yes.Invoke;
+    end;
+
+    local procedure UpdateGeneralLedgerSetup()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        // NAVCZ
+        GLSetup.Get();
+        GLSetup."Delete Card with Entries" := true;
+        GLSetup.Modify();
     end;
 }
 

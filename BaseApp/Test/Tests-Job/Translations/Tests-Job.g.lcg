@@ -212,141 +212,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Basic - NamedType IsInventoryTypeItemErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 1307817935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field name,%2=Table name,%3=Field name,%4=Field value,%5=Field name,%6=Field value,%7=Field name,%8=Field value]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType JobTaskBlankErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 2741550545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in Order %1, line no. %2 are invalid (Error: Select a %3 for the %4 %5 for Job %6.).]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field value,%2=Field value,%3=Field value,%4=Field name,%5=Field name,%6=Field name]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType CodeMandatoryDimensionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 907450254" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in Order %1, line no. %2 are invalid (Error: Select %3 %4 for the %5 %6 for Job %7.).]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field value,%2=Field value,%3=Field value,%4=Field value,%5=Field name,%6=Field name,%7=Field name]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType SameCodeDimensionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 3892807035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in Order %1, line no. %2 are invalid (Error: %3 %4 must not be mentioned for Job %5.).]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field value,%2=Field value,%3=Field value,%4=Field value,%5=Field name]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType NoCodeDimensionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 2513444124" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong Dim on Job Ledger entry %1! Expected ID: %2, Actual ID: %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType WrongDimJobLedgerEntryErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 3555830849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal  %2 in %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType FieldErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 3500813903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to 'Item'  in %2: %3=%4, %5=%6, %7=%8. Current value is 'Resource'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Type Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType TypeReservationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 2024077952" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Planning Date Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType PlanningDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 952499262" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType EmptyFieldErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 3861767210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in %3: %4=%5. Current value is '%6'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Field Caption1,%2: Field Value1,%3: Table Caption,%4: Field Caption2,%5: Field Value2,%6: Field Value3]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType JobStatusErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 4039883675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in %3: %4=%5, %6=%7, %8=%9. Current value is '%10'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Fieldname ,%2=FieldValue,%3=TableName,%4=FieldName,%5=FieldValue,%6=FieldName,%7=FieldValue,%8=FieldName,%9=FieldValue,%10=FieldValue]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType QtyPerUOMErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 1973263797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job No. must be equal to ''  in Purchase Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType JobNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 4043503158" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must equal to %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType ValueMustMatchErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 3745211309" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is empty in %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Purchase - NamedType EmptyValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1521217763 - NamedType 4042200169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Total cost amount must be 0 in Posted Purchase Receipt %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").]D;]A;(LookupHint=Codeunit Job Consumption Purchase - NamedType WrongTotalCostAmtErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4132516129 - NamedType 270244598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot undo consumption on the line because it has been already posted to Jobs.]]></Val>
@@ -1803,6 +1668,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Caption of field "Recognized Costs", %2 - Caption of value "Recognized Costs"::"Usage (Total Cost)"]D;]A;(LookupHint=Codeunit UT T Job WIP Method - NamedType Text003Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1301911645 - NamedType 3079716593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to set the %1 on every %2 of type %3?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = The WIP Method field name; %2 = The name of the Job Task table; %3 = The current job task's WIP Total type]D;]A;(LookupHint=Codeunit UT T Job WIP Method - NamedType WIPMethodQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 279663154 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -454,21 +454,28 @@ page 11716 "Payment Order"
     trigger OnAfterGetRecord()
     begin
         SetControlVisibility;
-        FilterGroup(2);
+        FilterGroup := 2;
         if not (GetFilter("Bank Account No.") <> '') then begin
             if "Bank Account No." <> '' then
                 SetRange("Bank Account No.", "Bank Account No.");
         end;
-        FilterGroup(0);
+        FilterGroup := 0;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        BankAccount: Record "Bank Account";
     begin
-        FilterGroup(2);
+        FilterGroup := 2;
         "Document Date" := WorkDate;
-        Validate("Bank Account No.", GetFilter("Bank Account No."));
+        "Bank Account No." := CopyStr(GetFilter("Bank Account No."), 1, MaxStrLen("Bank Account No."));
+        FilterGroup := 0;
         CurrPage.Lines.PAGE.SetParameters("Bank Account No.");
-        FilterGroup(0);
+
+        if BankAccount.Get("Bank Account No.") then
+            BankAccount.CheckCurrExchRateExist("Document Date");
+
+        Validate("Bank Account No.");
     end;
 
     trigger OnOpenPage()

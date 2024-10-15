@@ -91,7 +91,7 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Write-Down Account", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Appreciation Account", LibraryERM.CreateGLAccountWithPurchSetup);
         FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountWithPurchSetup);
         FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", LibraryERM.CreateGLAccountWithPurchSetup);
         FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Write-Down Acc. on Disposal", LibraryERM.CreateGLAccountNo);
@@ -117,7 +117,8 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Sales Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
-
+        FAPostingGroup.Validate("Acq. Cost Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Book Value Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Insert(true);
     end;
 

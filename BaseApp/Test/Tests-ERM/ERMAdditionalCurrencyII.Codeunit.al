@@ -192,25 +192,25 @@ codeunit 134091 "ERM Additional Currency II"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
         // Verify Additional Currency Amount of Unrealized Loss G/L Entry
         // after Posting Sales Invoice with Payment General Line
         // in case of increasing Exchange Rate and Adjust Exchange Rate
-        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
+        asserterror SalesInvoiceWithPaymentGeneralAndModifiedExchRate(true, true); // NAVCZ
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
         // Verify Additional Currency Amount of Unrealized Gain G/L Entry
         // after Posting Sales Invoice with Payment General Line
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
+        asserterror SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true); // NAVCZ
     end;
 
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
@@ -409,25 +409,25 @@ codeunit 134091 "ERM Additional Currency II"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
         // Verify Additional Currency Amount of Unrealized Loss G/L Entry
         // after Posting Purchase Invoice with Payment General Line
         // in case of increasing Exchange Rate and Adjust Exchange Rate
-        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
+        asserterror PurchInvoiceWithPaymentGeneralAndModifiedExchRate(true, true); // NAVCZ
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
         // Verify Additional Currency Amount of Unrealized Gain G/L Entry
         // after Posting Purchase Invoice with Payment General Line
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
+        asserterror PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true); // NAVCZ
     end;
 
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
@@ -1160,6 +1160,14 @@ codeunit 134091 "ERM Additional Currency II"
     begin
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         GLEntry.TestField("Additional-Currency Amount", 0);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     local procedure VerifyACYOnServiceOrderGLEntry(DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)

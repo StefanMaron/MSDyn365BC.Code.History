@@ -58,7 +58,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyInvoiceEMUCurrAdjExchRate()
     var
@@ -217,6 +217,14 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

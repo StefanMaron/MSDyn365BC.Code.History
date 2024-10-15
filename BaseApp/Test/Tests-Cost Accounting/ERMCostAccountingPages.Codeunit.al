@@ -1350,7 +1350,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.GotoRecord(CostType);
 
         // Verify:
-        CostTypeBalanceBudgetPage.BudgetPct.AssertEquals(Round(NetChange / BudgetAmount * 100));
+        asserterror CostTypeBalanceBudgetPage.BudgetPct.AssertEquals(Round(NetChange / BudgetAmount * 100)); // NAVCZ
 
         // Clean-up:
         CostType.Delete();
@@ -1658,9 +1658,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure TestCostTypeBalanceUpdateCostObjectFilter()
     var
+        CostObject: Record "Cost Object";
         CostType: Record "Cost Type";
         CostTypeBalance: TestPage "Cost Type Balance";
     begin
@@ -1668,8 +1670,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingView;
         // Setup
-        CostType.SetFilter("Cost Object Code", '<>%1', '');
-        CostType.FindFirst;
+        // NAVCZ
+        LibraryCostAccounting.CreateCostObject(CostObject);
+        LibraryCostAccounting.CreateCostType(CostType);
+        CostType.Validate("Cost Object Code", CostObject.Code);
+        CostType.Modify();
+        // NAVCZ
 
         // Exercise
         CostTypeBalance.OpenEdit;

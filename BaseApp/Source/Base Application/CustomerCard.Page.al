@@ -396,6 +396,11 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the customer in connection with electronic document sending.';
                 }
+                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
+                }
                 field("Copy Sell-to Addr. to Qte From"; "Copy Sell-to Addr. to Qte From")
                 {
                     ApplicationArea = Basic, Suite;
@@ -768,7 +773,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(PostedInvoicesMsg, Format(NoPostedInvoices));
-                        ShowCaption = false;
                         ToolTip = 'Specifies your sales to the customer in the current fiscal year based on posted sales invoices. The figure in parenthesis Specifies the number of posted sales invoices.';
 
                         trigger OnDrillDown()
@@ -780,7 +784,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(CreditMemosMsg, Format(NoPostedCrMemos));
-                        ShowCaption = false;
                         ToolTip = 'Specifies your expected refunds to the customer in the current fiscal year based on posted sales credit memos. The figure in parenthesis shows the number of posted sales credit memos.';
 
                         trigger OnDrillDown()
@@ -792,7 +795,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(OutstandingInvoicesMsg, Format(NoOutstandingInvoices));
-                        ShowCaption = false;
                         ToolTip = 'Specifies your expected sales to the customer in the current fiscal year based on ongoing sales invoices. The figure in parenthesis shows the number of ongoing sales invoices.';
 
                         trigger OnDrillDown()
@@ -804,7 +806,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(OutstandingCrMemosMsg, Format(NoOutstandingCrMemos));
-                        ShowCaption = false;
                         ToolTip = 'Specifies your refunds to the customer in the current fiscal year based on ongoing sales credit memos. The figure in parenthesis shows the number of ongoing sales credit memos.';
 
                         trigger OnDrillDown()
@@ -1370,22 +1371,34 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        SalesPrice: Record "Sales Price";
+                    begin
+                        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
+                        SalesPrice.SetRange("Sales Code", "No.");
+                        Page.Run(Page::"Sales Prices", SalesPrice);
+                    end;
                 }
                 action("Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        SalesLineDiscount: Record "Sales Line Discount";
+                    begin
+                        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Customer);
+                        SalesLineDiscount.SetRange("Sales Code", "No.");
+                        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                    end;
                 }
                 action("Prices and Discounts Overview")
                 {

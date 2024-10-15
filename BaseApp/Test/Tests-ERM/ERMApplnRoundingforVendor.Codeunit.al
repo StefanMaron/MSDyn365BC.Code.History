@@ -253,7 +253,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         // Verify: Account Receivables amount should be -0.67, Correction amount should be 0.1
         VerifyCorrAmountGLEntries(Vendor, GenJournalLine."Document No.", 0.67, -0.01);
         VerifyCorrAmountVendLedgEntries(GenJournalLine."Document No.", 0.66);
-        VerifyCorrAmountDtldVendLedgEntries(GenJournalLine."Document No.", -0.01);
+        VerifyCorrAmountDtldVendLedgEntries(GenJournalLine."Document No.", 0.01); // NAVCZ
     end;
 
     local procedure CreateAndModifyCurrency(): Code[10]

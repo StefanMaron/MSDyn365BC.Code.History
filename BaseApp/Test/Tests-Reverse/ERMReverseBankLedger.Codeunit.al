@@ -116,7 +116,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ReverseAdjustExchangeRate()
     var
@@ -1200,6 +1200,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Check.InitializeRequest(BankAccountNo, GetBankAccountLastCheckNo(BankAccountNo), true, false, false, false);
         Check.UseRequestPage(false);
         Check.SaveAsXml(LibraryReportDataset.GetParametersFileName);
+        GenJournalLine.ModifyAll("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account", false);
     end;
 
     local procedure VoidCheck(BankAccountNo: Code[20]; DocumentNo: Code[20]; NewVoidType: Option)
@@ -1306,6 +1307,14 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Visible);
         LibraryVariableStorage.Enqueue(SuggestBankAccReconLines.ExcludeReversedEntries.Enabled);
         SuggestBankAccReconLines.Cancel.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [EventSubscriber(ObjectType::Report, 1496, 'OnPreDataItemBankAccount', '', false, false)]

@@ -13,7 +13,8 @@ table 1296 "Posted Payment Recon. Line"
         field(2; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
-            TableRelation = "Bank Acc. Reconciliation"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+            TableRelation = "Posted Payment Recon. Hdr"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
+            ValidateTableRelation = false;
         }
         field(3; "Statement Line No."; Integer)
         {

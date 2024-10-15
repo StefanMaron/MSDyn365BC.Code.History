@@ -204,12 +204,13 @@ codeunit 131300 "Library - ERM"
         AccScheduleLine.Insert(true);
     end;
 
-    procedure CreateAccountMapping(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250])
+    procedure CreateAccountMapping(var TextToAccMapping: Record "Text-to-Account Mapping"; TextToAccMappingCode: Code[10]; MappingText: Text[250])
     var
         RecRef: RecordRef;
     begin
         with TextToAccMapping do begin
             Init;
+            "Text-to-Account Mapping Code" := TextToAccMappingCode; // NAVCZ
             RecRef.GetTable(TextToAccMapping);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
             Validate("Mapping Text", MappingText);
@@ -217,20 +218,32 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure CreateAccountMappingCustomer(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; SourceNo: Code[20])
+    procedure CreateAccountMappingCode(var TextToAccMappingCode: Record "Text-to-Account Mapping Code")
+    begin
+        // NAVCZ
+        with TextToAccMappingCode do begin
+            Init;
+            Validate(Code,
+              LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Text-to-Account Mapping Code"));
+            Validate(Description, Code);
+            Insert(true);
+        end;
+    end;
+
+    procedure CreateAccountMappingCustomer(var TextToAccMapping: Record "Text-to-Account Mapping"; TextToAccMappingCode: Code[10]; MappingText: Text[250]; SourceNo: Code[20])
     begin
         with TextToAccMapping do begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+            CreateAccountMapping(TextToAccMapping, TextToAccMappingCode, MappingText); // NAVCZ
             Validate("Bal. Source Type", "Bal. Source Type"::Customer);
             Validate("Bal. Source No.", SourceNo);
             Modify(true);
         end;
     end;
 
-    procedure CreateAccountMappingGLAccount(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; CreditNo: Code[20]; DebitNo: Code[20])
+    procedure CreateAccountMappingGLAccount(var TextToAccMapping: Record "Text-to-Account Mapping"; TextToAccMappingCode: Code[10]; MappingText: Text[250]; CreditNo: Code[20]; DebitNo: Code[20])
     begin
         with TextToAccMapping do begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+            CreateAccountMapping(TextToAccMapping, TextToAccMappingCode, MappingText); // NAVCZ
             Validate("Bal. Source Type", "Bal. Source Type"::"G/L Account");
             Validate("Debit Acc. No.", DebitNo);
             Validate("Credit Acc. No.", CreditNo);
@@ -238,10 +251,10 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure CreateAccountMappingVendor(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; SourceNo: Code[20])
+    procedure CreateAccountMappingVendor(var TextToAccMapping: Record "Text-to-Account Mapping"; TextToAccMappingCode: Code[10]; MappingText: Text[250]; SourceNo: Code[20])
     begin
         with TextToAccMapping do begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+            CreateAccountMapping(TextToAccMapping, TextToAccMappingCode, MappingText); // NAVCZ
             Validate("Bal. Source Type", "Bal. Source Type"::Vendor);
             Validate("Bal. Source No.", SourceNo);
             Modify(true);
@@ -251,6 +264,8 @@ codeunit 131300 "Library - ERM"
     procedure CreateBankAccount(var BankAccount: Record "Bank Account")
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         BankContUpdate: Codeunit "BankCont-Update";
     begin
         FindBankAccountPostingGroup(BankAccountPostingGroup);
@@ -259,6 +274,11 @@ codeunit 131300 "Library - ERM"
         BankAccount.Validate(Name, BankAccount."No.");  // Validating No. as Name because value is not important.
         BankAccount.Insert(true);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
+        CreateAccountMappingCode(TextToAccMappingCode);
+        BankAccount.Validate("Bank Pmt. Appl. Rule Code", BankPmtApplRuleCode.Code);
+        BankAccount.Validate("Text-to-Account Mapping Code", TextToAccMappingCode.Code);
+        BankAccount.VALIDATE("Copy VAT Setup to Jnl. Line", TRUE); // NAVCZ
         BankAccount.Modify(true);
         BankContUpdate.OnModify(BankAccount);
     end;
@@ -303,6 +323,19 @@ codeunit 131300 "Library - ERM"
           CopyStr(LibraryUtility.GenerateRandomCode(BankAccountPostingGroup.FieldNo(Code), DATABASE::"Bank Account Posting Group"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Bank Account Posting Group", BankAccountPostingGroup.FieldNo(Code))));
         BankAccountPostingGroup.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateBankPmtApplRuleCode(var BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code")
+    begin
+        // NAVCZ
+        BankPmtApplRuleCode.Init();
+        BankPmtApplRuleCode.Validate(Code,
+          LibraryUtility.GenerateRandomCode(BankPmtApplRuleCode.FieldNo(Code), DATABASE::"Bank Pmt. Appl. Rule Code"));
+        BankPmtApplRuleCode.Validate(Description, BankPmtApplRuleCode.Code);
+        BankPmtApplRuleCode.Insert(true);
+
+        InsertDefaultMatchingRulesW1(BankPmtApplRuleCode.Code);
     end;
 
     procedure CreateBusinessUnit(var BusinessUnit: Record "Business Unit")
@@ -1115,6 +1148,9 @@ codeunit 131300 "Library - ERM"
                 "Purchase VAT Account" := VATAccountNo
             else
                 "Sales VAT Account" := VATAccountNo;
+
+            "Sales Advance VAT Account" := CreateGLAccountNo;
+            "Purch. Advance VAT Account" := CreateGLAccountNo;
             Insert;
         end;
 
@@ -1415,6 +1451,50 @@ codeunit 131300 "Library - ERM"
         VATClause.Validate(Description, LibraryUtility.GenerateGUID);
         VATClause.Validate("Description 2", LibraryUtility.GenerateGUID);
         VATClause.Insert(true);
+    end;
+
+    procedure GenerateRegistrationNo(TableID: Integer): Text[20]
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        FieldNo: Integer;
+    begin
+        // NAVCZ
+        case TableID of
+            DATABASE::Customer:
+                FieldNo := Customer.FieldNo("Registration No.");
+            DATABASE::Vendor:
+                FieldNo := Vendor.FieldNo("Registration No.");
+            DATABASE::Contact:
+                FieldNo := Contact.FieldNo("Registration No.");
+        end;
+
+        exit(
+          CopyStr(LibraryUtility.GenerateRandomCode(FieldNo, TableID),
+            1, LibraryUtility.GetFieldLength(TableID, FieldNo)));
+    end;
+
+    procedure GenerateTaxRegistrationNo(TableID: Integer): Text[20]
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        FieldNo: Integer;
+    begin
+        // NAVCZ
+        case TableID of
+            DATABASE::Customer:
+                FieldNo := Customer.FieldNo("Tax Registration No.");
+            DATABASE::Vendor:
+                FieldNo := Vendor.FieldNo("Tax Registration No.");
+            DATABASE::Contact:
+                FieldNo := Contact.FieldNo("Tax Registration No.");
+        end;
+
+        exit(
+          CopyStr(LibraryUtility.GenerateRandomCode(FieldNo, TableID),
+            1, LibraryUtility.GetFieldLength(TableID, FieldNo)));
     end;
 
     procedure GenerateVATRegistrationNo(CountryRegionCode: Code[10]) VATRegNo: Text[20]
@@ -1750,6 +1830,7 @@ codeunit 131300 "Library - ERM"
     procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10])
     begin
         GenJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account"); // NAVCZ
         if not GenJournalBatch.FindFirst then
             CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
     end;
@@ -1980,6 +2061,7 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
+        VATPostingSetup.SetRange("Allow Non Deductible VAT", false); // NAVCZ
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -1993,6 +2075,7 @@ codeunit 131300 "Library - ERM"
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        VATPostingSetup.SetRange("Allow Non Deductible VAT", false);
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
@@ -2015,6 +2098,7 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("Unrealized VAT Type", UnrealizedVATType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
+        VATPostingSetup.SetRange("Allow Non Deductible VAT", false); // NAVCZ
         if not VATPostingSetup.FindFirst then begin
             VATPostingSetup.SetRange("Unrealized VAT Type");
             VATPostingSetup.FindFirst;
@@ -2279,7 +2363,8 @@ codeunit 131300 "Library - ERM"
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
+        AdjustExchangeRates.InitializeRequest2CZ(
+          StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, true, true, AdjGLAcc, false, true); // NAVCZ
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -2442,6 +2527,13 @@ codeunit 131300 "Library - ERM"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);
+    end;
+
+    procedure SetClosedPeriodEntryPosDate(ClosedPeriodEntryPosDate: Date)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Closed Period Entry Pos.Date" := ClosedPeriodEntryPosDate;
+        GeneralLedgerSetup.Modify();
     end;
 
     procedure SetGlobalDimensionCode(DimNo: Integer; DimCode: Code[20])
@@ -3004,6 +3096,240 @@ codeunit 131300 "Library - ERM"
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
+    end;
+
+    procedure InsertDefaultMatchingRulesW1(BankAccApplRuleCode: Code[10])
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        RulePriority: Integer;
+    begin
+        // NAVCZ
+        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccApplRuleCode);
+        if not BankPmtApplRule.IsEmpty then
+            exit;
+
+        // Insert High Confidence rules
+        RulePriority := 1;
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::"Not Considered",
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::Yes);
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::High, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        // Insert Medium Confidence rules
+        RulePriority := 1;
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        // Insert Low Confidence rules
+        RulePriority := 1;
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Low, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Fully,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Low, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Low, RulePriority,
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Low, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        InsertBankPaymentApplicationRule(
+          BankAccApplRuleCode,
+          BankPmtApplRule."Match Confidence"::Low, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+    end;
+
+    local procedure InsertBankPaymentApplicationRule(BankAccApplRuleCode: Code[10]; MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option)
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+    begin
+        // NAVCZ
+        BankPmtApplRule.Init();
+        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankAccApplRuleCode;
+        BankPmtApplRule."Match Confidence" := MatchConfidence;
+        BankPmtApplRule.Priority := RulePriority;
+        BankPmtApplRule."Related Party Matched" := RelatedPartyIdentification;
+        BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocumentMatch;
+        BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountMatch;
+        BankPmtApplRule."Direct Debit Collect. Matched" := DirectDebitCollectionMatch;
+        BankPmtApplRule.Insert(true);
+        RulePriority += 1;
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")

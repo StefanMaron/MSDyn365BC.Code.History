@@ -196,7 +196,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment")
+    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment CZ")
     begin
         SalesShipment.SetTableView(SalesShipmentHeader);
         SalesShipment.SaveAsPdf(FilePath);
@@ -204,7 +204,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Receipt")
+    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Reciept CZ")
     begin
         SalesReturnReceipt.SetTableView(ReturnReceiptHeader);
         SalesReturnReceipt.SaveAsPdf(FilePath);
@@ -212,18 +212,18 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesInvReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
+    procedure SalesInvReportHandler(var SalesInvoice: Report "Sales - Invoice CZ")
     begin
-        StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
-        StandardSalesInvoice.SaveAsPdf(FilePath);
+        SalesInvoice.SetTableView(SalesInvoiceHeader);
+        SalesInvoice.SaveAsPdf(FilePath);
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure CrMemoReportHandler(var StandardSalesCreditMemo: Report "Standard Sales - Credit Memo")
+    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Sales - Credit Memo CZ")
     begin
-        StandardSalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        StandardSalesCreditMemo.SaveAsPdf(FilePath);
+        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
+        SalesCreditMemo.SaveAsPdf(FilePath);
     end;
 }
 

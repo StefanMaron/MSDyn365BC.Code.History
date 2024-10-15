@@ -357,6 +357,8 @@ table 11706 "Issued Bank Statement Header"
     var
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
     begin
+        OnBeforeCreatePmtReconJnl(Rec);
+        
         IssuedBankStmtHdr.Copy(Rec);
         REPORT.RunModal(REPORT::"Create Payment Recon. Journal", ShowRequestForm, false, IssuedBankStmtHdr);
     end;
@@ -366,6 +368,11 @@ table 11706 "Issued Bank Statement Header"
     begin
         Validate("Payment Reconciliation Status", PaymentReconciliationStatus);
         Modify;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePmtReconJnl(var IssuedBankStatHeader: record "Issued Bank Statement Header")
+    begin
     end;
 }
 

@@ -21,12 +21,12 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        PostingDateErr: Label 'Enter the posting date.';
-        DocumentNoErr: Label 'Enter the document no.';
-        SettlementAccountErr: Label 'Enter the settlement account';
+        PostingDateError: Label 'Enter the posting date.';
+        DocumentNoError: Label 'Enter the document no.';
+        SettlementAccountError: Label 'Enter the settlement account';
         IsInitialized: Boolean;
-        SameAmountErr: Label 'Amount must be same.';
-        NoDataRowErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Comment = '%1 = Element Name, %2 = Element Value';
+        SameAmountError: Label 'Amount must be same.';
+        NoDataRowErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2';
         TooManyWorksheetsErr: Label 'Expected single worksheet';
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Posting Date not filled error appears.
-        Assert.ExpectedError(StrSubstNo(PostingDateErr));
+        Assert.ExpectedError(StrSubstNo(PostingDateError));
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Document No. not filled error appears.
-        Assert.ExpectedError(StrSubstNo(DocumentNoErr));
+        Assert.ExpectedError(StrSubstNo(DocumentNoError));
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror CalcAndPostVATSettlement.Run;
 
         // Verify: Verify that Settement Account No. not filled error appears.
-        Assert.ExpectedError(StrSubstNo(SettlementAccountErr));
+        Assert.ExpectedError(StrSubstNo(SettlementAccountError));
     end;
 
     [Test]
@@ -275,10 +275,10 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.SetRange('VATRegNo', Customer."VAT Registration No.");
         Assert.AreEqual(
           -CalculateBase(Customer."No.", 'Yes|No'), LibraryReportDataset.Sum('TotalValueofItemSupplies'),
-          SameAmountErr);
+          SameAmountError);
         Assert.AreEqual(
           -CalculateBase(Customer."No.", 'Yes'), LibraryReportDataset.Sum('EU3PartyItemTradeAmt'),
-          SameAmountErr);
+          SameAmountError);
     end;
 
     [Test]
@@ -702,7 +702,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Clear(VATStatement);
         VATStatementName.SetRange(Name, Name);
         VATStatement.SetTableView(VATStatementName);
-        VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false);
+        VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false, '', ''); // NAVCZ
         Commit();
         VATStatement.Run;
     end;
@@ -752,11 +752,11 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.LoadDataSetFile;
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATBaseAmount'), -VATEntry.Base,
-          SameAmountErr);
+          SameAmountError);
 
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATAmount'), -VATEntry.Amount,
-          SameAmountErr);
+          SameAmountError);
     end;
 
     [RequestPageHandler]

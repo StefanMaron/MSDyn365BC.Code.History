@@ -528,8 +528,14 @@ table 5600 "Fixed Asset"
         FADeprBook: Record "FA Depreciation Book";
         OldValue: Code[20];
         NewValue: Code[20];
+        IsHandled: Boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        OnBeforeChangeEntry(Rec, xRec, ChangeType, IsHandled);
+        if IsHandled then
+            exit;
+
         if Inactive then
             Error(Text1220001, "No.");
 
@@ -640,6 +646,11 @@ table 5600 "Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeEntry(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; ChangeType: Option Location,"Responsible Employee"; var IsHandled: Boolean)
     begin
     end;
 }

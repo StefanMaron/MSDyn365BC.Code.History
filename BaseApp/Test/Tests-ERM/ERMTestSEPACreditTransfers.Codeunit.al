@@ -1142,12 +1142,21 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         MessageID := Format(LibraryRandom.RandInt(1000));
         PaymentExportData.Init();
         PaymentExportData."Entry No." := EntryNo;
+        // NAVCZ
+        PaymentExportData."Specific Symbol" := Format(LibraryRandom.RandInt(1000));
+        PaymentExportData."Variable Symbol" := Format(LibraryRandom.RandInt(1000));
+        PaymentExportData."Constant Symbol" := Format(LibraryRandom.RandInt(1000));
+        // NAVCZ
         // [WHEN] PaymentExportData.SetCreditTransferIDs("Y")
         PaymentExportData.SetCreditTransferIDs(MessageID);
         // [THEN] "Message ID" = "Y"
         // [THEN] "Payment Information ID" = "Y/X"
         // [THEN] "End-to-End ID" = "Y/X"
-        PaymentInformationID := MessageID + '/' + Format(EntryNo);
+        // NAVCZ
+        PaymentInformationID :=
+          StrSubstNo('VS%1/SS%2/KS%3',
+            PaymentExportData."Variable Symbol", PaymentExportData."Specific Symbol", PaymentExportData."Constant Symbol");
+        // NAVCZ
         with PaymentExportData do begin
             Assert.AreEqual(MessageID, "Message ID", MessageIDErr);
             Assert.AreEqual(PaymentInformationID, "Payment Information ID", PaymentInformationIDErr);
@@ -1464,6 +1473,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccount."No.");
             Validate("Recipient Bank Account", RecipientBankAcc);
+            Validate("Posting Date", Today); // NAVCZ
             Modify;
         end;
     end;

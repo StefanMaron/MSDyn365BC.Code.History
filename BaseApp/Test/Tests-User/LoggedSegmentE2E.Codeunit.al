@@ -15,68 +15,20 @@ codeunit 135405 "Logged Segment E2E"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteLogSegmentAsTeamMember()
-    var
-        SegmentHeader: Record "Segment Header";
-        LoggedSegment: Record "Logged Segment";
-        Campaign: Record Campaign;
-        InteractionTemplate: Record "Interaction Template";
-        LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
-        DeleteLoggedSegments: Report "Delete Logged Segments";
-    begin
-        // [Scenario] Test permissions: Team Member cannot delete canceled Logged Segments
-
-        // [Given] Logged Segments are created and then canceled
-        Initialize();
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
-
-        LibraryMarketing.CreateCampaign(Campaign);
-        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-        CreateSegment(SegmentHeader, Campaign."No.", InteractionTemplate.Code);
-        RunLogSegment(SegmentHeader."No.", false);
-        LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        LoggedSegment.FindFirst();
-        LoggedSegment.ToggleCanceledCheckmark();
-
-        LibraryE2EPlanPermissions.SetTeamMemberPlan();
-
-        // [When] Team Member tries to run the report that deletes the canceled logged segments 
-        DeleteLoggedSegments.SetTableView(LoggedSegment);
-        DeleteLoggedSegments.UseRequestPage(false);
-
-        // [Then] A permission error occurs
-        asserterror DeleteLoggedSegments.RunModal();
-
-        Assert.ExpectedErrorCode('DB:ClientDeleteDenied');
-
-        // [Then] Logged segments have not been deleted
-        LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        LoggedSegment.SetRange(Canceled, true);
-
-        Assert.IsTrue(LoggedSegment.FindFirst(), 'Canceled logged segments should not have been deleted');
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure DeleteLogSegmentAsBusinessManager()
+    procedure DeleteLogSegment()
     var
         SegmentHeader: Record "Segment Header";
         LoggedSegment: Record "Logged Segment";
         Campaign: Record Campaign;
         InteractionTemplate: Record "Interaction Template";
-        LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
         DeleteLoggedSegments: Report "Delete Logged Segments";
     begin
-        // [Scenario] Test permissions: Business Manager can delete canceled Logged Segments
+        // [Scenario] Test permissions: User can delete canceled Logged Segments
 
         // [Given] Logged Segments are created and then canceled
         Initialize();
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -86,7 +38,7 @@ codeunit 135405 "Logged Segment E2E"
         LoggedSegment.FindFirst();
         LoggedSegment.ToggleCanceledCheckmark();
 
-        // [When] Business Manager tries to run the report that deletes the canceled logged segments 
+        // [When] User tries to run the report that deletes the canceled logged segments 
         DeleteLoggedSegments.SetTableView(LoggedSegment);
         DeleteLoggedSegments.UseRequestPage(false);
 

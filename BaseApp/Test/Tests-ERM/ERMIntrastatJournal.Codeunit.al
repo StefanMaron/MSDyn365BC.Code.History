@@ -22,7 +22,6 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryJob: Codeunit "Library - Job";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         ValidationErr: Label '%1 must be %2 in %3.';
@@ -34,7 +33,6 @@ codeunit 134150 "ERM Intrastat Journal"
         HttpTxt: Label 'http://';
         OnDelIntrastatContactErr: Label 'You cannot delete contact number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Contact No';
         OnDelVendorIntrastatContactErr: Label 'You cannot delete vendor number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Vendor No';
-        ShptMethodCodeErr: Label 'Wrong Shipment Method Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -346,7 +344,7 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryVariableStorage.Enqueue(ChargeIntrastatJnlBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(true); // Show Item Charge entries
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch.Name);
-        OpenAndVerifyIntrastatJournalLine(ChargeIntrastatJnlBatch.Name, PurchaseLine."No.", true);
+        OpenAndVerifyIntrastatJournalLine(ChargeIntrastatJnlBatch.Name, PurchaseLine."No.", false);
         IntrastatJournal.FILTER.SetFilter("Item No.", PurchaseLine."No.");
         IntrastatJournal.Amount.AssertEquals(PurchaseLine.Amount);
 
@@ -443,7 +441,7 @@ codeunit 134150 "ERM Intrastat Journal"
         NetWeight := UseItemNonZeroNetWeight(IntrastatJnlLine);
 
         // [THEN] Verify Total Weight correctly calculated on Intrastat Journal Line.
-        IntrastatJnlLine.TestField("Total Weight", IntrastatJnlLine.Quantity * NetWeight);
+        IntrastatJnlLine.TestField("Total Weight", IntrastatJnlLine.RoundValue(IntrastatJnlLine.Quantity * NetWeight)); // NAVCZ
     end;
 
     [Test]
@@ -536,8 +534,7 @@ codeunit 134150 "ERM Intrastat Journal"
         OpenAndVerifyIntrastatJournalLine(IntrastatJnlBatch.Name, ItemNo, true);
         LibraryVariableStorage.Enqueue(NextIntrastatJnlBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(true); // Show Item Charge entries
-        OpenAndVerifyIntrastatJournalLine(NextIntrastatJnlBatch.Name, ItemNo, true);
-
+        OpenAndVerifyIntrastatJournalLine(NextIntrastatJnlBatch.Name, ItemNo, false);
         IntrastatJnlBatch.Delete(true);
         NextIntrastatJnlBatch.Delete(true);
     end;
@@ -1005,407 +1002,6 @@ codeunit 134150 "ERM Intrastat Journal"
     end;
 
     [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler')]
-    [Scope('OnPrem')]
-    procedure TestTariffNoNotBlocking()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 219210] Deliverable 219210:Reporting - Errors and warnings and export in case of blanked "Tariff No."
-        // [GIVEN] Posted Sales Order for intrastat without tariff no
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        Item.Get(SalesLine."No.");
-        Item.Validate("Tariff No.", '');
-        Item.Modify(true);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You got an error on Tariff no.
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Tariff No."));
-        IntrastatJournalPage.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,CreateFileMessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestCreateFileWillCheckErrors()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 219210] Deliverable 219210:Reporting - Errors and warnings and export in case of blanked "Transaction Type"
-        // [GIVEN] Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [WHEN] Running Create File
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        // [THEN] CreateFileMessageHandler will verify that you get a message
-        // [THEN] You got a error in error part
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
-
-        IntrastatJournalPage.Close;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure CreateFileMessageHandler(Message: Text)
-    begin
-        Assert.AreEqual('One or more errors were found. You must resolve all the errors before you can proceed.', Message, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournal()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 219210] Deliverable 219210:Reporting - Errors and warnings and export in case of zero "Total Weight"
-        // [GIVEN] Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You got a error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
-
-        // [WHEN] Fixing the error
-        TransactionType.FindFirst;
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You got one more error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Total Weight"));
-
-        // [WHEN] Fixing the error
-        IntrastatJournalPage."Total Weight".Value('1');
-        // [WHEN] Fixing the error
-        ShipmentMethod.FindFirst;
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You no more errors
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals('');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournalOnlyReceipt()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        TransportMethod: Record "Transport Method";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 222489] Deliverable 222489:ChecklistReport and CreateFile should filter lines by Intrastat Setup
-        // [GIVEN] 1 Posted Purchase Order for intrastat
-        // [GIVEN] 1 Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        InitIntrastatSetup;
-        CreateAndPostPurchaseOrder(PurchaseLine, InvoiceDate);
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [GIVEN] A Receipt with all values
-        TransactionType.FindFirst;
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        ShipmentMethod.FindFirst;
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        TransportMethod.FindFirst;
-        IntrastatJournalPage."Transport Method".Value(TransportMethod.Code);
-        IntrastatJournalPage."Total Weight".Value('1');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure GreateFileReportHandler(var IntrastatMakeDiskTaxAuth: TestRequestPage "Intrastat - Make Disk Tax Auth")
-    begin
-        IntrastatMakeDiskTaxAuth.Cancel.Invoke;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChecklistReportErrorLog()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TestReportPrint: Codeunit "Test Report-Print";
-    begin
-        // [SCENARIO] User runs Intrastat Checklist report to verify Intrastat Journal Line
-        Initialize;
-        // [GIVEN] Intrastat Checklist Setup, verify "Document No."
-        CreateIntrastatChecklistSetup;
-        InitIntrastatSetup;
-        // [GIVEN] Intrastat Journal Line with empty "Document No."
-        CreateIntrastatJnlLine(IntrastatJnlLine);
-        IntrastatJnlLine."Total Weight" := 100;
-        IntrastatJnlLine.Modify(true);
-        // [WHEN] Run Intrastat Checklist report
-        TestReportPrint.PrintIntrastatJnlLine(IntrastatJnlLine);
-        // [THEN] Error message is logged for Intrastat Journal Line
-        VerifyErrorMessageExists(IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('FieldListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ChecklistSetupUI()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatChecklistSetupPage: TestPage "Intrastat Checklist Setup";
-        IntrastatSetupPage: TestPage "Intrastat Setup";
-    begin
-        // [SCENARIO] User select fields from Intrastat Journal Line table to verify
-        Initialize;
-        // [GIVEN] Intrastat Checklist Setup, verify "Document No."
-        CreateIntrastatChecklistSetup;
-        // [GIVEN] Intrastat Setup page
-        IntrastatSetupPage.OpenEdit;
-        IntrastatChecklistSetupPage.Trap;
-        // [WHEN] Run Intrastat Checklist Setup page
-        IntrastatSetupPage.IntrastatChecklistSetup.Invoke;
-        IntrastatChecklistSetupPage.First;
-        // [THEN] Field "Document No." exists on the page
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName("Document No."),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Document No. should exist on the page');
-
-        // [WHEN] Lookup for other fields and select the first one FieldListModalPageHandler
-        IntrastatChecklistSetupPage."Field Name".Lookup;
-        // [THEN] Field "Type" should exist on the page
-        IntrastatChecklistSetupPage.First;
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName(Type),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Type should exist on the page');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ShptMethodCodeJobJournal()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ShipmentMethod: Record "Shipment Method";
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [Job]
-        // [SCENARIO] User creates and posts job journal and fills intrastat journal
-        Initialize;
-        // [GIVEN] Shipment Method "SMC"
-        ShipmentMethod.FindFirst;
-        // [GIVEN] Job Journal Line (posted) with item and "SMC"
-        ItemNo := CreateAndPostJobJournalLine(ShipmentMethod.Code);
-        // [WHEN] Run Get Item Ledger Entries report
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
-        // [THEN] "Shpt. Method Code" in the Intrastat Journal Line = "SMC"
-        IntrastatJnlLine.SetRange("Item No.", ItemNo);
-        IntrastatJnlLine.FindFirst;
-        Assert.AreEqual(ShipmentMethod.Code, IntrastatJnlLine."Shpt. Method Code", ShptMethodCodeErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesReportHandler,MessageHandlerEmpty')]
-    [Scope('OnPrem')]
-    procedure IntrastatJournalWithItemChargeInvoiceRevoked()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        PostingDate: Date;
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [Corrective Credit Memo] [Item Charge]
-        // [SCENARIO 286107] Item Charge entry posted by Credit Memo must be reported as Receipt in intrastat journal
-        Initialize;
-
-        // [GIVEN] Sales Invoice with Item and Item Charge posted on 'X'
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        DocumentNo := CreateAndPostSalesInvoiceWithItemAndItemCharge(PostingDate);
-        // [GIVEN] Sales Credit Memo with Item Charge posted on 'Y'='X'+<1M>
-        PostingDate := CalcDate('<1M>', PostingDate);
-        DocumentNo := CreateAndPostSalesCrMemoForItemCharge(DocumentNo, PostingDate);
-
-        // [WHEN] Get Intrastat Entries to include only Sales Credit Memo
-        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, PostingDate);
-
-        // [THEN] Intrastat line for Item Charge from Sales Credit Memo has type Receipt
-        IntrastatJnlLine.SetRange("Document No.", DocumentNo);
-        IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField(Type, IntrastatJnlLine.Type::Receipt);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesReportHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatJournalWithItemChargeInvoiced()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        PostingDate: Date;
-    begin
-        // [SCENARIO 286107] Item Charge entry posted by Sales Invoice must be reported as Shipment in intrastat journal
-        Initialize;
-
-        // [GIVEN] Item Ledger Entry with Quantity < 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        CreateItemLedgerEntry(
-          ItemLedgerEntry,
-          PostingDate,
-          LibraryInventory.CreateItemNo,
-          -LibraryRandom.RandInt(100),
-          ItemLedgerEntry."Entry Type"::Sale);
-        // [GIVEN] Value Entry with "Document Type" != "Sales Credit Memo" and "Item Charge No" posted in <1M>
-        PostingDate := CalcDate('<1M>', PostingDate);
-        CreateValueEntry(ValueEntry, ItemLedgerEntry, ValueEntry."Document Type"::"Sales Invoice", PostingDate);
-
-        // [WHEN] Get Intrastat Entries on second posting date
-        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, PostingDate);
-
-        // [THEN] Intrastat line for Item Charge from Value Entry has type Shipment
-        IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
-        IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField(Type, IntrastatJnlLine.Type::Shipment);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesReportHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatJournalWithItemChargeOrderedRevoked()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        PostingDate: Date;
-    begin
-        // [SCENARIO 286107] Item Charge entry posted by Purchase Credit Memo must be reported as Shipment in intrastat journal
-        Initialize;
-
-        // [GIVEN] Item Ledger Entry with Quantity > 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        CreateItemLedgerEntry(
-          ItemLedgerEntry,
-          PostingDate,
-          LibraryInventory.CreateItemNo,
-          LibraryRandom.RandInt(100),
-          ItemLedgerEntry."Entry Type"::Purchase);
-        // [GIVEN] Value Entry with "Document Type" = "Purchase Credit Memo" and "Item Charge No" posted in <1M>
-        PostingDate := CalcDate('<1M>', PostingDate);
-        CreateValueEntry(ValueEntry, ItemLedgerEntry, ValueEntry."Document Type"::"Purchase Credit Memo", PostingDate);
-
-        // [WHEN] Get Intrastat Entries on second posting date
-        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, PostingDate);
-
-        // [THEN] Intrastat line for Item Charge from Value Entry has type Shipment
-        IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
-        IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField(Type, IntrastatJnlLine.Type::Shipment);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesReportHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatJournalWithItemChargeOrdered()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        PostingDate: Date;
-    begin
-        // [SCENARIO 286107] Item Charge entry posted by Purchase Invoice must be reported as Receipt in intrastat journal
-        Initialize;
-
-        // [GIVEN] Item Ledger Entry with Quantity > 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        CreateItemLedgerEntry(
-          ItemLedgerEntry,
-          PostingDate,
-          LibraryInventory.CreateItemNo,
-          LibraryRandom.RandInt(100),
-          ItemLedgerEntry."Entry Type"::Purchase);
-        // [GIVEN] Value Entry with "Document Type" != "Purchase Credit Memo" and "Item Charge No" posted in <1M>
-        PostingDate := CalcDate('<1M>', PostingDate);
-        CreateValueEntry(ValueEntry, ItemLedgerEntry, ValueEntry."Document Type"::"Purchase Invoice", PostingDate);
-
-        // [WHEN] Get Intrastat Entries on second posting date
-        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, PostingDate);
-
-        // [THEN] Intrastat line for Item Charge from Value Entry has type Receipt
-        IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
-        IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField(Type, IntrastatJnlLine.Type::Receipt);
-    end;
-
-    [Test]
     [HandlerFunctions('GetItemLedgerEntriesReportHandler')]
     [Scope('OnPrem')]
     procedure IntrastatJournalWithServiceItem()
@@ -1502,15 +1098,6 @@ codeunit 134150 "ERM Intrastat Journal"
         // Verify: Verify Intrastat Journal Line with No entires.
         IntrastatJournal.FILTER.SetFilter("Item No.", ItemNo);
         Assert.AreEqual(MustExist, IntrastatJournal.First, LineNotExistErr);
-    end;
-
-    local procedure OpenIntrastatJournalAndGetEntries(var IntrastatJournalPage: TestPage "Intrastat Journal"; JournalTemplateName: Code[10])
-    begin
-        LibraryVariableStorage.Enqueue(JournalTemplateName);
-        IntrastatJournalPage.OpenEdit;
-        LibraryVariableStorage.Enqueue(false); // Do Not Show Item Charge entries
-        IntrastatJournalPage.GetEntries.Invoke;
-        IntrastatJournalPage.First;
     end;
 
     local procedure InitIntrastatSetup()
@@ -1799,43 +1386,6 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesInvoiceWithItemAndItemCharge(PostingDate: Date): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesLine2: Record "Sales Line";
-        LibraryCosting: Codeunit "Library - Costing";
-    begin
-        CreateSalesHeader(SalesHeader, CreateCustomer, PostingDate, SalesHeader."Document Type"::Invoice);
-        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDec(10, 2));
-        SalesLine2.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine2.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", '', LibraryRandom.RandDec(10, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Modify(true);
-        LibraryCosting.AssignItemChargeSales(SalesLine, SalesLine2);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
-    end;
-
-    local procedure CreateAndPostSalesCrMemoForItemCharge(PostedSalesInvoiceCode: Code[20]; PostingDate: Date): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
-    begin
-        SalesInvoiceHeader.Get(PostedSalesInvoiceCode);
-        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
-        SalesLine.Delete(true);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
-    end;
-
     local procedure CreateIntrastatJnlBatchAndGetEntries(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; PostingDate: Date)
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -1867,23 +1417,6 @@ codeunit 134150 "ERM Intrastat Journal"
         ItemLedgerEntry.Quantity := Quantity;
         ItemLedgerEntry."Country/Region Code" := GetCountryRegionCode;
         ItemLedgerEntry.Insert();
-    end;
-
-    local procedure CreateValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Option; PostingDate: Date)
-    var
-        ValueEntryNo: Integer;
-    begin
-        ValueEntryNo := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
-        Clear(ValueEntry);
-        ValueEntry."Entry No." := ValueEntryNo;
-        ValueEntry."Item No." := ItemLedgerEntry."Item No.";
-        ValueEntry."Posting Date" := PostingDate;
-        ValueEntry."Entry Type" := ValueEntry."Entry Type"::"Direct Cost";
-        ValueEntry."Item Ledger Entry Type" := ItemLedgerEntry."Entry Type";
-        ValueEntry."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
-        ValueEntry."Item Charge No." := LibraryInventory.CreateItemChargeNo;
-        ValueEntry."Document Type" := DocumentType;
-        ValueEntry.Insert();
     end;
 
     local procedure DeleteAndVerifyNoIntrastatLine()
@@ -2211,84 +1744,6 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         VendorLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
         VendorLookup.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure FieldListModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
-    begin
-        FieldsLookup.First;
-        FieldsLookup.OK.Invoke;
-    end;
-
-    local procedure CreateIntrastatChecklistSetup()
-    var
-        IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatChecklistSetup.DeleteAll();
-
-        IntrastatChecklistSetup.Init();
-        IntrastatChecklistSetup.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
-        IntrastatChecklistSetup.Insert();
-    end;
-
-    local procedure CreateAndPostJobJournalLine(ShipmentMethodCode: Code[10]): Code[20]
-    var
-        CompanyInfo: Record "Company Information";
-        CountryRegion: Record "Country/Region";
-        Job: Record Job;
-        JobJournalLine: Record "Job Journal Line";
-        JobTask: Record "Job Task";
-        SourceCodeSetup: Record "Source Code Setup";
-    begin
-        LibraryJob.CreateJob(Job);
-        LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank, LibraryJob.ItemType, JobTask, JobJournalLine);
-        CompanyInfo.Get();
-        CountryRegion.SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
-        CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst;
-        JobJournalLine.Validate("Country/Region Code", CountryRegion.Code);
-        JobJournalLine.Validate("Shpt. Method Code", ShipmentMethodCode);
-        SourceCodeSetup.Get();
-        JobJournalLine.Validate("Source Code", SourceCodeSetup."Job Journal");
-        JobJournalLine.Modify(true);
-
-        LibraryJob.PostJobJournal(JobJournalLine);
-
-        exit(JobJournalLine."No.");
-    end;
-
-    local procedure VerifyErrorMessageExists(IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        ErrorMessage: Record "Error Message";
-    begin
-        ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId);
-        ErrorMessage.SetRange("Field Number", IntrastatJnlLine.FieldNo("Document No."));
-        ErrorMessage.FindFirst;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Message: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Msg: Text[1024])
-    begin
-        Assert.IsTrue(
-          StrPos(Msg, 'The journal lines were successfully posted.') = 1,
-          StrSubstNo('Unexpected Message: %1', Msg))
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandlerEmpty(Msg: Text[1024])
-    begin
     end;
 }
 

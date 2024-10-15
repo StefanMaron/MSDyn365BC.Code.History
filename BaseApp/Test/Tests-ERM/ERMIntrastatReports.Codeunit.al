@@ -90,10 +90,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), Quantity);
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
     end;
 
     [Test]
@@ -159,10 +159,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), Quantity);
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
     end;
 
     [Test]
@@ -254,10 +254,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), Quantity);
+        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
     end;
 
     [Test]
@@ -298,10 +298,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), Quantity);
+        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
     end;
 
     [Test]
@@ -430,6 +430,7 @@ codeunit 134063 "ERM Intrastat Reports"
         ItemJournalLine.Validate("Transaction Type", TransactionType);
         ItemJournalLine.Validate("Transport Method", TransportMethod);
         ItemJournalLine.Validate("Country/Region Code", CountryRegionCode);
+        ItemJournalLine.Validate("Intrastat Transaction", true); // NAVCZ
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;

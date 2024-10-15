@@ -814,6 +814,11 @@ codeunit 132207 "Library - Assembly"
         InventoryPostingSetup.Validate("Inventory Account (Interim)", InvtAccInterim);
         LibraryERM.CreateGLAccount(GLAccount);
         InventoryPostingSetup.Validate("WIP Account", GLAccount."No.");
+        // NAVCZ
+        InventoryPostingSetup.Validate("Consumption Account", GLAccount."No.");
+        InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", GLAccount."No.");
+        InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", GLAccount."No.");
+        // NAVCZ
         InventoryPostingSetup.Insert(true);
     end;
 

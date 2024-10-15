@@ -32,7 +32,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PickWorkSheetQtyError: Label '%1 in Pick Worksheet line did not match quantity in Prod. Order for Component %2.';
 
     [Test]
-    [HandlerFunctions('PickSelectionPageHandler')]
+    [HandlerFunctions('PickSelectionPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PickReqAvailableAfterPostConsumpJnl()
     var
@@ -944,6 +944,11 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         RefInventoryPostingSetup.SetFilter("Inventory Account", '<>%1', '');
         RefInventoryPostingSetup.SetFilter("WIP Account", '<>%1', '');
+        // NAVCZ
+        RefInventoryPostingSetup.SetFilter("Consumption Account", '<>%1', '');
+        RefInventoryPostingSetup.SetFilter("Change In Inv.Of WIP Acc.", '<>%1', '');
+        RefInventoryPostingSetup.SetFilter("Change In Inv.Of Product Acc.", '<>%1', '');
+        // NAVCZ
         RefInventoryPostingSetup.FindFirst;
         InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
@@ -951,6 +956,11 @@ codeunit 137297 "SCM Inventory Misc. V"
         if not InventoryPostingSetup.Insert(true) then;
         InventoryPostingSetup."Inventory Account" := RefInventoryPostingSetup."Inventory Account";
         InventoryPostingSetup."WIP Account" := RefInventoryPostingSetup."WIP Account";
+        // NAVCZ
+        InventoryPostingSetup.Validate("Consumption Account", RefInventoryPostingSetup."Consumption Account");
+        InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", RefInventoryPostingSetup."Change In Inv.Of WIP Acc.");
+        InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", RefInventoryPostingSetup."Change In Inv.Of Product Acc.");
+        // NAVCZ
         InventoryPostingSetup.Modify();
     end;
 

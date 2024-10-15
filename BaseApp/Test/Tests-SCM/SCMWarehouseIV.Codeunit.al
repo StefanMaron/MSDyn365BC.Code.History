@@ -43,6 +43,7 @@ codeunit 137407 "SCM Warehouse IV"
         ShouldBeTxt: Label '%1 should be %2', Comment = '%1 = Field, %2 = Expected availability';
         EnabledTxt: Label 'enabled';
         DisabledTxt: Label 'disabled';
+        DeleteRegWhseDocErr: Label 'Posted document cannot be deleted.';
         BinMandatoryTxt: Label 'Bin Mandatory must be equal to ''No''  in Location';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
 
@@ -769,11 +770,10 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Run Delete Registered Warehouse Document report.
-        RunDeleteRegisteredWarehouseDocumentReport(WarehouseActivityHeader."No.");
+        asserterror RunDeleteRegisteredWarehouseDocumentReport(WarehouseActivityHeader."No."); // NAVCZ
 
-        // [THEN] Verify that the Pick does not exist.
-        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
-        Assert.IsFalse(RegisteredWhseActivityHdr.FindFirst, StrSubstNo(PickMustBeDeletedError, WarehouseActivityHeader."No."));
+        // Verify:
+        Assert.ExpectedError(DeleteRegWhseDocErr); // NAVCZ
     end;
 
     [Test]

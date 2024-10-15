@@ -526,6 +526,7 @@ codeunit 132600 "Report Layout"
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear;
         if isInitialized then
@@ -535,6 +536,8 @@ codeunit 132600 "Report Layout"
         SalesSetup.Get();
         SalesSetup.Validate("Logo Position on Documents", SalesSetup."Logo Position on Documents"::Center);
         SalesSetup.Modify(true);
+
+        LibraryERMCountryData.CreateVATData; // NAVCZ
 
         isInitialized := true;
         Commit
@@ -861,7 +864,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
+        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(CalcDate('<CY+1D>', WorkDate))); // NAVCZ
         ClosingTrialBalance.AmtsInAddCurr.SetValue(false);
         ClosingTrialBalance.SaveAsPdf(FormatFileName(ClosingTrialBalance.Caption));
     end;

@@ -308,6 +308,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     var
         GenJournalLine: Record "Gen. Journal Line";
         Employee: Record Employee;
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         DummyGeneralJournal: TestPage "General Journal";
         ExpenseAccNo: Code[20];
     begin
@@ -325,6 +326,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         CreateGeneralJournalLine(GenJournalLine, 1, Employee."No.", GenJournalLine."Document Type"::Payment,
           -GetTotalAppliedAmount(Employee."No.", WorkDate));
         ModifyGenJournalLine(GenJournalLine);
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
         // Exercise: Apply Set Applies To ID and Amount Apply.
         LibraryLowerPermissions.SetO365HREdit;

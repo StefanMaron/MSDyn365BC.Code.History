@@ -19,10 +19,11 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ItemFilterIncorrectError: Label 'The value in Item Filter is incorrect.';
-        ResourceFilterIncorrectError: Label 'The value in Resource Filter is incorrect.';
-        AccountFilterIncorrectError: Label 'The value in Account Filter is incorrect.';
+        ItemFilterIncorrectErr: Label 'The value in Item Filter is incorrect.';
+        ResourceFilterIncorrectErr: Label 'The value in Resource Filter is incorrect.';
+        AccountFilterIncorrectErr: Label 'The value in Account Filter is incorrect.';
         FieldHideErr: Label 'The field should be hidden.';
         FieldShowErr: Label 'The field should be shown.';
         WrongVATUnrealizeVisibilityErr: Label 'Wrong value of UnrealizedVATVisible';
@@ -46,7 +47,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpItemFilter(Text);
 
         // Verify: Verify Item Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectError);
+        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectErr);
     end;
 
     [Test]
@@ -68,7 +69,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpResourceFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectError);
+        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectErr);
     end;
 
     [Test]
@@ -90,7 +91,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpGLAccountFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectError);
+        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectErr);
     end;
 
     [Test]
@@ -758,10 +759,12 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - UT");
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
         // Create VAT Rate Change setup if not created in the Database.
         VATRateChangeSetup.Reset();
         if not VATRateChangeSetup.Get then begin
@@ -775,6 +778,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
@@ -919,9 +923,9 @@ codeunit 134061 "ERM VAT Tool - UT"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemChargeHandler(var ItemCharge: TestPage "Item Charges")
+    procedure ItemChargeHandler(var ItemChargeCard: TestPage "Item Charge Card")
     begin
-        ItemCharge.OK.Invoke;
+        ItemChargeCard.OK.Invoke; // NAVCZ
     end;
 
     [ModalPageHandler]

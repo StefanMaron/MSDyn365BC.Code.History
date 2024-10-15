@@ -1533,6 +1533,7 @@ codeunit 31000 "Sales-Post Advances"
             SalesAdvanceLetterEntryNo += 1;
             TempSalesAdvanceLetterEntry."Entry No." := SalesAdvanceLetterEntryNo;
             TempSalesAdvanceLetterEntry."Entry Type" := TempSalesAdvanceLetterEntry."Entry Type"::"VAT Deduction";
+            TempSalesAdvanceLetterEntry."Deduction Line No." := 0;
             TempSalesAdvanceLetterEntry.Amount := 0;
             TempSalesAdvanceLetterEntry.Insert();
             FillVATFieldsOfDeductionEntry(SalesAdvanceLetterLine."VAT %");
@@ -3093,7 +3094,8 @@ codeunit 31000 "Sales-Post Advances"
         end;
         TempSalesAdvanceLetterEntry.SetRange("Entry Type");
         repeat
-            TempSalesAdvanceLetterEntry."Deduction Line No." := DeductionLineNo;
+            if TempSalesAdvanceLetterEntry."Deduction Line No." = 0 then
+                TempSalesAdvanceLetterEntry."Deduction Line No." := DeductionLineNo;
             TempSalesAdvanceLetterEntry.Modify();
         until TempSalesAdvanceLetterEntry.Next = 0;
     end;

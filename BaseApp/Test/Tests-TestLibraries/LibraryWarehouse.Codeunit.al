@@ -910,6 +910,18 @@ codeunit 132204 "Library - Warehouse"
         WhseSrcCreateDocument.GetResultMessage(WarehouseActivityHeader.Type::Movement);
     end;
 
+    procedure CreateWhseNetChangeTemplate(var WhseNetChangeTemplate: Record "Whse. Net Change Template"; GenBusPostingGroupCode: Code[20])
+    begin
+        // NAVCZ
+        WhseNetChangeTemplate.Init();
+        WhseNetChangeTemplate.Validate(
+          Name, CopyStr(LibraryUtility.GenerateRandomCode(WhseNetChangeTemplate.FieldNo(Name), DATABASE::"Whse. Net Change Template"), 1,
+            MaxStrLen(WhseNetChangeTemplate.Name)));
+        WhseNetChangeTemplate.Validate(Description, WhseNetChangeTemplate.Name);
+        WhseNetChangeTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        WhseNetChangeTemplate.Insert(true);
+    end;
+
     procedure CreateWhsePick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     var
         WarehouseShipmentLineRec: Record "Warehouse Shipment Line";

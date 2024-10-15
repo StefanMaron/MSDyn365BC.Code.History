@@ -372,6 +372,12 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Create User Setup, Resource and Time Sheet.
         Initialize;
+
+        // NAVCZ
+        TimeSheetHeader.Reset();
+        TimeSheetHeader.DeleteAll();
+        // NAVCZ
+
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
 

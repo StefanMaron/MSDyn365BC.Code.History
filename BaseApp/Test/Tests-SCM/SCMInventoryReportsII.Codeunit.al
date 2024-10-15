@@ -1554,6 +1554,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;

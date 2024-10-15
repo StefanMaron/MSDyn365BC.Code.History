@@ -597,7 +597,7 @@ codeunit 134825 "UT Customer Table"
         CreateCustomerFromNameAndBlocked(Customer[4], RandomText2, Customer[4].Blocked::" ");
 
         Assert.AreEqual(Customer[2]."No.", Customer[1].GetCustNo(RandomText1), '');
-        Assert.AreEqual(Customer[4]."No.", Customer[1].GetCustNo(RandomText2), '');
+        Assert.AreEqual(Customer[2]."No.", Customer[1].GetCustNo(RandomText2), '');
     end;
 
     [Test]

@@ -678,6 +678,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
         IsInitialized := true;
 
         Commit();

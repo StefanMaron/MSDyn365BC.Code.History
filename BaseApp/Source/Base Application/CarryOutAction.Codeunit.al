@@ -258,9 +258,10 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrderLine.Validate(Quantity, Quantity);
                 OnProdOrderChgAndResheduleOnAfterValidateQuantity(ProdOrderLine, ReqLine);
                 ProdOrderLine."Ending Time" := "Ending Time";
-                ProdOrderLine."Due Date" := "Due Date";
                 ProdOrderLine.Validate("Planning Flexibility", "Planning Flexibility");
                 ProdOrderLine.Validate("Ending Date", "Ending Date");
+                ProdOrderLine."Due Date" := "Due Date";
+                ProdOrderLine.Modify();
                 ReqLineReserve.TransferPlanningLineToPOLine(ReqLine, ProdOrderLine, 0, true);
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
                 ReservMgt.SetReservSource(ProdOrderLine);
@@ -1448,7 +1449,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; var HeaderExists: Boolean)
+    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrder: Record "Production Order"; var HeaderExists: Boolean)
     begin
     end;
 

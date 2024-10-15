@@ -83,7 +83,10 @@ codeunit 131352 "Library - Document Approvals"
         UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
         UserSetup."User ID" := UserID;
         UserSetup."Approver ID" := ApproverID;
-        UserSetup.Insert(true);
+        // NAVCZ
+        if not UserSetup.Insert(true) then
+            UserSetup.Modify(true);
+        // NAVCZ
     end;
 
     procedure DeleteUserSetup(var UserSetup: Record "User Setup"; WindowsUserName: Text[208])

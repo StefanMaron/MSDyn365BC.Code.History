@@ -218,7 +218,7 @@ report 8 Budget
                     CalcFields("Budgeted Amount");
                     if InThousands then
                         "Budgeted Amount" := "Budgeted Amount" / 1000;
-                    GLBudgetedAmount[i] := Round("Budgeted Amount", 1);
+                    GLBudgetedAmount[i] := MatrixMgt.RoundValue("Budgeted Amount", RndFactor);
                     TotalBudgetAmount += GLBudgetedAmount[i];
                 end;
                 SetRange("Date Filter", PeriodStartDate[1], PeriodStartDate[ArrayLen(PeriodStartDate)] - 1);
@@ -260,6 +260,13 @@ report 8 Budget
                         Caption = 'Amounts in whole 1000s';
                         ToolTip = 'Specifies if the amounts in the report are shown in whole 1000s.';
                     }
+                    field(RoundingFactor; RndFactor)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Rounding Factor';
+                        OptionCaption = 'None,1,1000,1000000';
+                        ToolTip = 'Specifies the factor that is used to round the amounts.';
+                    }
                 }
             }
         }
@@ -298,10 +305,11 @@ report 8 Budget
         // NAVCZ
 
         BudgetCaptionTxt := StrSubstNo(BudgetCaptionTok, Format(PeriodStartDate[1], 0, '<Year4>'));
-        StartingDateAsText := StrSubstNo(StartingDateTok,PeriodStartDate[1]);
+        StartingDateAsText := StrSubstNo(StartingDateTok, PeriodStartDate[1]);
     end;
 
     var
+        MatrixMgt: Codeunit "Matrix Management";
         InThousands: Boolean;
         GLFilter: Text;
         GLBudgetFilter: Text[250];
@@ -320,9 +328,10 @@ report 8 Budget
         GLAccNameCaptionLbl: Label 'Name';
         RowNumber: Integer;
         GLAccountTypePosting: Boolean;
+        RndFactor: Option "None","1","1000","1000000";
         TotalLbl: Label 'Total';
         StartingDateAsText: Text;
-        StartingDateTok: Label 'Starting Date: %1', Comment='%1 - date';
+        StartingDateTok: Label 'Starting Date: %1', Comment = '%1 - date';
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: Text[30]; NewInThousands: Boolean)
     begin
@@ -354,6 +363,11 @@ report 8 Budget
             GlobalLanguageCode := Language.GetLanguageCode(GlobalLanguage);
 
         exit(GlobalLanguageCode);
+    end;
+
+    procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        RndFactor := NewRoundingFactor;
     end;
 }
 

@@ -192,8 +192,15 @@ page 11714 "Issued Bank Statement List"
     var
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
     begin
+        OnBeforeCreatePaymentReconJournal(Rec, IssuedBankStmtHdr);
+        
         CurrPage.SetSelectionFilter(IssuedBankStmtHdr);
         IssuedBankStmtHdr.CreatePmtReconJnl(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePaymentReconJournal(IssuedBankStmtHdrOrig: record "Issued Bank Statement Header"; var IssuedBankStmtHdr: record "Issued Bank Statement Header")
+    begin
     end;
 }
 

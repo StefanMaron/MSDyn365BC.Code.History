@@ -11,6 +11,8 @@ codeunit 134269 "Matching on Payment Discounts"
     end;
 
     var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         ZeroVATPostingSetup: Record "VAT Posting Setup";
         PaymentTermsDiscount: Record "Payment Terms";
         PaymentTermsNoDiscount: Record "Payment Terms";
@@ -2015,6 +2017,7 @@ codeunit 134269 "Matching on Payment Discounts"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
+        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
     end;
@@ -2178,7 +2181,7 @@ codeunit 134269 "Matching on Payment Discounts"
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocNoMatched;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountInclToleranceMatched;
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
         BankPmtApplRule.Score := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
     end;
@@ -2267,6 +2270,30 @@ codeunit 134269 "Matching on Payment Discounts"
         // Verify No. of entries is correct
         Assert.AreEqual(ExpectedNoOfEntriesWithinRange, NoOfEntriesWithinRange, 'Wrong No. of Entries Within Range');
         Assert.AreEqual(ExpectedNoOfEntriesOutsideRange, NoOfEntriesOutsideRange, 'Wrong No. of Entries outside Range');
+    end;
+
+    local procedure GetBankPmtApplRuleCode(): Code[10]
+    begin
+        // NAVCZ
+        if BankPmtApplRuleCode.Code = '' then
+            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
+        exit(BankPmtApplRuleCode.Code);
+    end;
+
+    local procedure GetAccountMappingCode(): Code[10]
+    begin
+        // NAVCZ
+        if TextToAccMappingCode.Code = '' then
+            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
+        exit(TextToAccMappingCode.Code);
+    end;
+
+    local procedure UpdateBankAccount(BankAcc: Record "Bank Account")
+    begin
+        // NAVCZ
+        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
+        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
+        BankAcc.Modify();
     end;
 }
 

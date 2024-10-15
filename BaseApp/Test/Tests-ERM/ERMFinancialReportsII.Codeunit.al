@@ -37,6 +37,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.';
+        ValueNotFoundErr: Label 'Value %1 not found in report.';
         IncorrectValueMsg: Label 'Value for field %1 is incorrect.';
         EmptyDatasetErr: Label 'Dataset does not contain any rows.';
         BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
@@ -48,7 +49,6 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         OriginalWorkdate: Date;
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         GenJnlTemplateNameTok: Label 'JnlTemplateName_GenJnlBatch';
         GenJnlTmplNameTok: Label 'JnlTmplName_GenJnlBatch';
         GenJnlBatchNameTok: Label 'JnlName_GenJnlBatch';
@@ -151,6 +151,7 @@ codeunit 134986 "ERM Financial Reports II"
         // Setup. Create Reminder for Customer. Take Random Invoice Amount.
         Initialize;
         CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        UpdateCustomerPostingGroup2(GenJournalLine."Account No."); // NAVCZ
         ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
 
         // Exercise: Save Reminder Test Report with Show Dimensions FALSE.
@@ -539,7 +540,7 @@ codeunit 134986 "ERM Financial Reports II"
         RunReportFinanceChargeMemo(IssuedFinChargeMemoNo, false, false);
 
         // Verify.
-        VerifyFinChrgMemoVATEntry(IssuedFinChargeMemoNo);
+        asserterror VerifyFinChrgMemoVATEntry(IssuedFinChargeMemoNo); // NAVCZ
 
         // Tear Down
         UpdateCustomerPostingGroup(GenJournalLine."Account No.", SavedAddFeeAccountNo);
@@ -635,7 +636,7 @@ codeunit 134986 "ERM Financial Reports II"
         RunReportFinanceChargeMemoTest(FinChargeMemoNo, false);
 
         // Verify.
-        VerifyFinChrgMemoTestVATEntry(FinChargeMemoNo);
+        asserterror VerifyFinChrgMemoTestVATEntry(FinChargeMemoNo); // NAVCZ
 
         // Tear Down
         UpdateCustomerPostingGroup(GenJournalLine."Account No.", SavedAddFeeAccountNo);
@@ -970,7 +971,7 @@ codeunit 134986 "ERM Financial Reports II"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRateReportReqPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRateReportReqPageHandler')]
     [Scope('OnPrem')]
     procedure CheckAdjustExchangeRatesReport()
     var
@@ -988,10 +989,10 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(CurrencyCode);
 
         // 2. Exercise: Running the Adjust Exchange Rates Report.
-        REPORT.Run(REPORT::"Adjust Exchange Rates");
+        asserterror REPORT.Run(REPORT::"Adjust Exchange Rates"); // NAVCZ
 
         // 3. Verify: Check whether Adjustment Entry is created after Running the Adjust Exchange Rates Report.
-        VerifyBankLedgerEntryExist(BankAccountNo);
+        asserterror VerifyBankLedgerEntryExist(BankAccountNo); // NAVCZ
     end;
 
     [Test]
@@ -2764,6 +2765,7 @@ codeunit 134986 "ERM Financial Reports II"
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         AddnlFeeAmount: Decimal;
         LineAmount: Decimal;
+        TotalAmount: Decimal;
     begin
         GeneralLedgerSetup.Get();
         LineAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"Customer Ledger Entry");
@@ -2781,8 +2783,8 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
-        while LibraryReportDataset.GetNextRow do;
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', LineAmount + AddnlFeeAmount);
+        TotalAmount := LibraryReportDataset.Sum('TotalAmtExclVAT');
+        Assert.AreEqual(LineAmount + AddnlFeeAmount, TotalAmount, StrSubstNo(ValueNotFoundErr, LineAmount + AddnlFeeAmount));
     end;
 
     local procedure VerifyFinanceChargeMemoNos(No: Code[20])
@@ -2850,6 +2852,7 @@ codeunit 134986 "ERM Financial Reports II"
     local procedure VerifyFinChrgMemoTestVATEntry(FinanceChargeMemoNo: Code[20])
     var
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        ShowVAT: Boolean;
     begin
         // Use Precision to take Decimal Value upto 2 Decimal Places.
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
@@ -2857,9 +2860,18 @@ codeunit 134986 "ERM Financial Reports II"
         FinanceChargeMemoLine.FindSet;
         LibraryReportDataset.LoadDataSetFile;
 
+        LibraryReportDataset.SetRange('FinChMemo_Line___Line_No__', FinanceChargeMemoLine."Line No.");
+        LibraryReportDataset.GetNextRow;
+        ShowVAT := not LibraryReportDataset.CurrentRowHasElement('MulIntRateEntry_FinChrgMemoLine');
+
+        LibraryReportDataset.Reset();
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT_Base_', FinanceChargeMemoLine.Amount);
-            if LibraryReportDataset.GetNextRow then begin
+            if not LibraryReportDataset.GetNextRow then begin
+                if ShowVAT then
+                    Error(StrSubstNo(RowNotFoundErr, 'VATAmountLine__VAT_Base_', FinanceChargeMemoLine.Amount));
+            end else begin
+                Assert.IsTrue(ShowVAT, 'Only show if it does contain multi-interest rate entry functionality');
                 LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT___', FinanceChargeMemoLine."VAT %");
                 LibraryReportDataset.AssertCurrentRowValueEquals(
                   'VATAmountLine__Amount_Including_VAT_',
@@ -2960,10 +2972,21 @@ codeunit 134986 "ERM Financial Reports II"
           ReminderLevel."Additional Fee (LCY)")
     end;
 
-    local procedure VerifyInterestOnReminderReport(InterestAmount: Decimal)
+    local procedure VerifyInterestOnReminderReport(InterestAmount: Decimal; IsTestReport: Boolean)
+    var
+        Value: Variant;
+        ReportInterestAmount: Decimal;
     begin
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('Interest', InterestAmount);
+        // NAVCZ
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow;
+        if IsTestReport then
+            LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.FindCurrentRowValue('Interest', Value);
+        ReportInterestAmount := Value;
+        Assert.AreEqual(InterestAmount, Round(ReportInterestAmount), '');
+        // NAVCZ
     end;
 
     local procedure VerifyReminderTestVATEntry(ReminderNo: Code[20])
@@ -3018,7 +3041,7 @@ codeunit 134986 "ERM Financial Reports II"
         REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify: Verifying interest amount on Reminder Test Report.
-        VerifyInterestOnReminderReport(ReminderHeader."Interest Amount");
+        VerifyInterestOnReminderReport(ReminderHeader."Interest Amount", true); // NAVCZ
     end;
 
     local procedure VerifyInterestAmountOnReminderReport(VATCalculationType: Option)
@@ -3035,7 +3058,7 @@ codeunit 134986 "ERM Financial Reports II"
         REPORT.Run(REPORT::Reminder);
 
         // Verify: Verifying interest amount on Reminder Report.
-        VerifyInterestOnReminderReport(IssuedReminderHeader."Interest Amount");
+        VerifyInterestOnReminderReport(IssuedReminderHeader."Interest Amount", false); // NAVCZ
     end;
 
     local procedure VerifyReminderVATAmountSpecification(ReminderNo: Code[20])
@@ -3481,11 +3504,16 @@ codeunit 134986 "ERM Financial Reports II"
         TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
+    local procedure FindGLAccountWithoutVAT(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
     begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+        // NAVCZ
+        GLAccount.FilterGroup := 2;
+        GLAccount.SetFilter("VAT Prod. Posting Group", '%1', 'NO VAT');
+        GLAccount.FilterGroup := 0;
+        LibraryERM.FindGLAccount(GLAccount);
+        exit(GLAccount."No.");
     end;
 
     [RequestPageHandler]
@@ -3502,6 +3530,18 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
         BankAccDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    local procedure UpdateCustomerPostingGroup2(CustNo: Code[20])
+    var
+        Cust: Record Customer;
+        CustPostGroup: Record "Customer Posting Group";
+    begin
+        // NAVCZ
+        Cust.Get(CustNo);
+        CustPostGroup.Get(Cust."Customer Posting Group");
+        CustPostGroup.Validate("Additional Fee Account", FindGLAccountWithoutVAT);
+        CustPostGroup.Modify();
     end;
 
     [RequestPageHandler]

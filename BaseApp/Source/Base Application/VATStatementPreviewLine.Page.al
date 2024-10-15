@@ -209,21 +209,7 @@ page 475 "VAT Statement Preview Line"
 
     trigger OnAfterGetRecord()
     begin
-        // NAVCZ
-        if Type = Type::"VAT Entry Totaling" then
-            TestField("Amount Type");
-        // NAVCZ
-        VATStatement.CalcLineTotal(Rec, ColumnValue, 0);
-        // NAVCZ
-        case Show of
-            Show::"Zero If Negative":
-                if ColumnValue < 0 then
-                    ColumnValue := 0;
-            Show::"Zero If Positive":
-                if ColumnValue > 0 then
-                    ColumnValue := 0;
-        end;
-        // NAVCZ
+        CalcColumnValue(Rec, ColumnValue, 0);
         if "Print with" = "Print with"::"Opposite Sign" then
             ColumnValue := -ColumnValue;
         // NAVCZ
@@ -245,6 +231,32 @@ page 475 "VAT Statement Preview Line"
         [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
         CountryCodeFillFilter: Code[10];
 
+    local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; Level: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcColumnValue(VATStatementLine, ColumnValue, Level, IsHandled);
+        if IsHandled then
+            exit;
+
+        // NAVCZ
+        if Type = Type::"VAT Entry Totaling" then
+            TestField("Amount Type");
+        // NAVCZ
+        VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, Level);
+        // NAVCZ
+        case Show of
+            Show::"Zero If Negative":
+                if ColumnValue < 0 then
+                    ColumnValue := 0;
+            Show::"Zero If Positive":
+                if ColumnValue > 0 then
+                    ColumnValue := 0;
+        end;
+        // NAVCZ
+    end;
+
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
     begin
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
@@ -260,6 +272,11 @@ page 475 "VAT Statement Preview Line"
         CountryCodeFillFilter := CountryCodeFillFilter2;
 
         CurrPage.Update;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

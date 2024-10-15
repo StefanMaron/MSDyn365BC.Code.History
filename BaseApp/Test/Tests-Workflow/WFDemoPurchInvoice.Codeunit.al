@@ -19,6 +19,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         MissingRespnseOptionsErr: Label 'Response options are missing in one or more workflow steps.';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         UserIDIsNotRequiredErr: Label 'There is no step making Notification User ID mandatory.';
 
@@ -212,9 +213,11 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch. Invoice");
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch. Invoice");
         LibraryERMCountryData.InitializeCountry;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
@@ -223,6 +226,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
         BindSubscription(LibraryJobQueue);
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Purch. Invoice");
     end;
 
     local procedure ChangeDemoData(var Workflow: Record Workflow)

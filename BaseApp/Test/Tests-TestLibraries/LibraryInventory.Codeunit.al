@@ -453,7 +453,7 @@ codeunit 132201 "Library - Inventory"
         RecRef.GetTable(ItemChargeAssignmentSales);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentSales.FieldNo("Line No."));
         ItemChargeAssgntSales.InsertItemChargeAssgnt(ItemChargeAssignmentSales, DocType,
-          DocNo, DocLineNo, ItemNo, '', LineNo);
+          DocNo, DocLineNo, ItemNo, '', LineNo, false, false); // NAVCZ
 
         ItemChargeAssignmentSales.Get(SalesLine."Document Type", SalesLine."Document No.",
           SalesLine."Line No.", LineNo);
@@ -479,7 +479,7 @@ codeunit 132201 "Library - Inventory"
 
         RecRef.GetTable(ItemChargeAssignmentPurch);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
-        ItemChargeAssgntPurch.InsertItemChargeAssgnt(ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo);
+        ItemChargeAssgntPurch.InsertItemChargeAssgnt(ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo, false, false); // NAVCZ
 
         ItemChargeAssignmentPurch.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", LineNo);
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLine.Quantity);
@@ -1302,6 +1302,11 @@ codeunit 132201 "Library - Inventory"
                 InventoryPostingSetup.Validate("WIP Account", LibraryERM.CreateGLAccountNo);
                 InventoryPostingSetup.Validate("Material Variance Account", LibraryERM.CreateGLAccountNo);
                 InventoryPostingSetup.Validate("Capacity Variance Account", LibraryERM.CreateGLAccountNo);
+                // NAVCZ
+                InventoryPostingSetup.Validate("Consumption Account", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", LibraryERM.CreateGLAccountNo);
+                // NAVCZ
                 InventoryPostingSetup.Modify(true);
             until InventoryPostingGroup.Next = 0;
     end;
@@ -1358,6 +1363,21 @@ codeunit 132201 "Library - Inventory"
         ReservationEntry.FindFirst;
         ReservationEntry.TestField("Quantity (Base)", ExpectedQty);
         ReservationEntry.TestField("Lot No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateInventoryPostingSetupAll()
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        // NAVCZ
+        if InventoryPostingSetup.FindSet then
+            repeat
+                InventoryPostingSetup."Consumption Account" := LibraryERM.CreateGLAccountNo;
+                InventoryPostingSetup."Change In Inv.Of WIP Acc." := LibraryERM.CreateGLAccountNo;
+                InventoryPostingSetup."Change In Inv.Of Product Acc." := LibraryERM.CreateGLAccountNo;
+                InventoryPostingSetup.Modify(true);
+            until InventoryPostingSetup.Next = 0;
     end;
 
     [IntegrationEvent(false, false)]

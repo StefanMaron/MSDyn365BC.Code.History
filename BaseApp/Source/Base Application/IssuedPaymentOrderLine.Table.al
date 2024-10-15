@@ -229,6 +229,8 @@ table 11711 "Issued Payment Order Line"
         IssuedPaymentOrderLine.Find;
         IssuedPaymentOrderLine.Status := IssuedPaymentOrderLine.Status::Cancel;
         IssuedPaymentOrderLine.Modify();
+
+        OnAfterIssuedPaymentOrderLineCancel(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -244,6 +246,11 @@ table 11711 "Issued Payment Order Line"
             Type::"Bank Account":
                 exit(GenJnlLine."Account Type"::"Bank Account");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIssuedPaymentOrderLineCancel(IssuedPaymentOrderLine: record "Issued Payment Order Line")
+    begin
     end;
 }
 

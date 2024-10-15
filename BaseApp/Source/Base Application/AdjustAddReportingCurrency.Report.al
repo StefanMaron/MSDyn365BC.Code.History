@@ -223,6 +223,7 @@ report 86 "Adjust Add. Reporting Currency"
         }
         dataitem("Cost Entry"; "Cost Entry")
         {
+            DataItemTableView = SORTING("Entry No.");
 
             trigger OnAfterGetRecord()
             begin

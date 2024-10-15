@@ -3502,6 +3502,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         InventoryPostingSetup."Inventory Account" := AccNo;
         InventoryPostingSetup."WIP Account" := AccNo;
         InventoryPostingSetup.Modify();
+        LibraryInventory.UpdateInventoryPostingSetup(Location); // NAVCZ
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
         ManufacturingSetup.Get();
         ManufacturingSetup."Preset Output Quantity" := ManufacturingSetup."Preset Output Quantity"::"Zero on All Operations";

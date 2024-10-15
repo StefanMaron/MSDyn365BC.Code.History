@@ -707,27 +707,26 @@ page 31 "Item List"
                     ApplicationArea = Advanced;
                     Caption = 'Special Prices';
                     Image = Price;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category6;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    RunPageView = SORTING("Item No.");
                     Scope = Repeater;
                     ToolTip = 'Set up different prices for the selected item. An item price is automatically used on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowPrices();
+                    end;
                 }
                 action(Prices_LineDiscounts)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Special Discounts';
                     Image = LineDiscount;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category6;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = Type = CONST(Item),
-                                  Code = FIELD("No.");
-                    RunPageView = SORTING(Type, Code);
                     Scope = Repeater;
                     ToolTip = 'Set up different discounts for the selected item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowLineDiscounts();
+                    end;
                 }
                 action(PricesDiscountsOverview)
                 {
@@ -1791,21 +1790,24 @@ page 31 "Item List"
                     ApplicationArea = Suite;
                     Caption = 'Prices';
                     Image = Price;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    RunPageView = SORTING("Item No.");
                     ToolTip = 'View or set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowPrices();
+                    end;
                 }
                 action(Sales_LineDiscounts)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = Type = CONST(Item),
-                                  Code = FIELD("No.");
-                    RunPageView = SORTING(Type, Code);
                     ToolTip = 'View or set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowLineDiscounts();
+                    end;
                 }
                 action("Prepa&yment Percentages")
                 {
@@ -2271,6 +2273,25 @@ page 31 "Item List"
                 TempItemFilteredFromAttributes := TempItemFilteredFromPickItem;
                 TempItemFilteredFromAttributes.Insert();
             until TempItemFilteredFromPickItem.Next = 0;
+    end;
+
+    local procedure ShowLineDiscounts()
+    var
+        SalesLineDiscount: Record "Sales Line Discount";
+    begin
+        SalesLineDiscount.SetCurrentKey(Type, Code);
+        SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
+        SalesLineDiscount.SetRange(Code, "No.");
+        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+    end;
+
+    local procedure ShowPrices()
+    var
+        SalesPrice: Record "Sales Price";
+    begin
+        SalesPrice.SetCurrentKey("Item No.");
+        SalesPrice.SetRange("Item No.", "No.");
+        Page.Run(Page::"Sales Prices", SalesPrice);
     end;
 }
 

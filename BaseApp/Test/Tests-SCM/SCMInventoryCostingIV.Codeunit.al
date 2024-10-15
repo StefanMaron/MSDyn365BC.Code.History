@@ -1565,7 +1565,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [GIVEN] Created and posted Purchase Order with Service Item
         CreateServiceItem(Item, LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO);
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
+          PurchaseLine,PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
         PostPurchaseDocument(PurchaseLine, false);
 
         // [WHEN] Undo Purchase Receipt
@@ -2902,6 +2902,14 @@ codeunit 137289 "SCM Inventory Costing IV"
         Statement."Start Date".SetValue(Format(CalcDate('<+1Y>', WorkDate)));
         Statement."End Date".SetValue(Format(CalcDate('<+2Y>', WorkDate)));
         Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure NoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // NAVCZ
+        Reply := false;
     end;
 }
 

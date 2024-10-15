@@ -326,12 +326,14 @@ page 353 "Item Availability Lines"
     end;
 
     var
-        Item: Record Item;
         DateRec: Record Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        Item: Record Item;
 
     procedure Set(var NewItem: Record Item; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

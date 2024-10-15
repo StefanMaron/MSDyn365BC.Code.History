@@ -6,11 +6,12 @@ codeunit 134010 "ERM Application Customer"
 
     trigger OnRun()
     begin
-        // [FEATURE] [Sales]
+        // [FEATURE] [Sales] [Application]
     end;
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryERMCustomerWatch: Codeunit "Library - ERM Customer Watch";
@@ -225,7 +226,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGain()
     var
@@ -251,7 +252,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLoss()
     var
@@ -277,7 +278,7 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -411,6 +412,70 @@ codeunit 134010 "ERM Application Customer"
         VerifyUnappliedLedgerEntry(CustLedgerEntry2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in customer ledger entry when it is generated from general journal line applied to customer ledger entry
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        InvoiceAmount := LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+        CustLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        CustLedgerEntry.FindSet();
+        repeat
+            CustLedgerEntry.TestField(Open, false);
+        until CustLedgerEntry.Next() = 0;
+        Assert.RecordCount(CustLedgerEntry, 2);
+
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -424,6 +489,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
         CustomerAmount := -1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
         Commit();
@@ -505,7 +571,7 @@ codeunit 134010 "ERM Application Customer"
 
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        asserterror LibraryERMCustomerWatch.AssertCustomer; // NAVCZ
     end;
 
     local procedure CustomerPmtDiscVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
@@ -689,6 +755,8 @@ codeunit 134010 "ERM Application Customer"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
         Desc: Text[30];
     begin
         // Test with payment discount
@@ -697,6 +765,12 @@ codeunit 134010 "ERM Application Customer"
 
         // Create a currency code with magic exchange rate valid for Amount = 1000
         LibraryERM.CreateCurrency(Currency);
+        // NAVCZ
+        LibraryERM.CreateGLAccount(GLAccount);
+        Currency.Validate("Realized Gains Acc.", GLAccount."No.");
+        Currency.Validate("Realized Losses Acc.", GLAccount."No.");
+        Currency.Modify(true);
+        // NAVCZ
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 64.580459);  // Magic exchange rate
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
@@ -706,8 +780,17 @@ codeunit 134010 "ERM Application Customer"
 
         // Watch for "Correction of Remaining Amount" detailed ledger entries.
         LibraryERMCustomerWatch.Init();
-        LibraryERMCustomerWatch.DtldEntriesGreaterThan(
-          Customer."No.", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
+        if Stepwise then // NAVCZ
+            LibraryERMCustomerWatch.DtldEntriesGreaterThan(
+              Customer."No.", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
+        // NAVCZ
+        if InvType = GenJournalLine."Document Type"::"Credit Memo" then
+            LibraryERMCustomerWatch.DtldEntriesGreaterThan(
+              Customer."No.", DtldCustLedgEntry."Entry Type"::"Realized Gain", 0);
+        if PmtType = GenJournalLine."Document Type"::Payment then
+            LibraryERMCustomerWatch.DtldEntriesGreaterThan(
+              Customer."No.", DtldCustLedgEntry."Entry Type"::"Realized Loss", 0);
+        // NAVCZ
 
         // Generate a document that triggers "Correction of Remaining Amount" dtld. ledger entries.
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
@@ -1181,6 +1264,14 @@ codeunit 134010 "ERM Application Customer"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

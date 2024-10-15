@@ -105,8 +105,11 @@ codeunit 31121 "EET Entry Management"
     procedure IsEETCashRegister(CashDeskNo: Code[20]): Boolean
     var
         EETCashReg: Record "EET Cash Register";
+        EETCashRegister: Boolean;
     begin
-        exit(FindEETCashRegister(CashDeskNo, EETCashReg));
+        EETCashRegister := FindEETCashRegister(CashDeskNo, EETCashReg);
+        OnBeforeIsEETCashRegister(CashDeskNo, EETCashRegister);
+        exit(EETCashRegister);
     end;
 
     [Scope('OnPrem')]
@@ -750,6 +753,8 @@ codeunit 31121 "EET Entry Management"
         if not EETEntryOrig.Get(EETEntryNo) then
             exit;
 
+        OnBeforeCreateCancelEETEntry(EETEntryOrig);
+
         if GuiAllowed and WithConfirmation then begin
             if EETEntryOrig."Canceled By Entry No." = 0 then
                 if not Confirm(
@@ -866,6 +871,16 @@ codeunit 31121 "EET Entry Management"
                 "EET Status"::"Success with Warnings":
                     exit('Ambiguous');
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCancelEETEntry(OrigEETEntry: Record "EET Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEETCashRegister(CashDeskNo: Code[20]; var EETCashRegister: Boolean)
+    begin
     end;
 }
 

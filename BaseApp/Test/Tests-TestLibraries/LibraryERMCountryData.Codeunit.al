@@ -7,14 +7,29 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryInventory: Codeunit "Library - Inventory";
+
     procedure InitializeCountry()
     begin
         exit;
     end;
 
     procedure CreateVATData()
+    var
+        VATPeriod: Record "VAT Period";
+        StartingDate: Date;
     begin
-        exit;
+        // NAVCZ
+        StartingDate := CalcDate('<-2Y>', WorkDate);
+        if not VATPeriod.Get(StartingDate) then begin
+            VATPeriod.Init();
+            VATPeriod."Starting Date" := StartingDate;
+            VATPeriod.Insert();
+        end;
+        // NAVCZ
     end;
 
     procedure GetVATCalculationType(): Integer
@@ -52,9 +67,11 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Quote", REPORT::"Standard Sales - Quote");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Invoice", REPORT::"Standard Sales - Invoice");
+        LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Cr.Memo", REPORT::"Standard Sales - Credit Memo");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"SM.Invoice", REPORT::"Service - Invoice");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"SM.Credit Memo", REPORT::"Service - Credit Memo");
+        LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"P.Quote", Report::"Purchase - Quote");
     end;
 
     procedure UpdateAccountInCustomerPostingGroup()
@@ -84,12 +101,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        exit;
+        CreateUserSetup; // NAVCZ
     end;
 
     procedure UpdateInventoryPostingSetup()
     begin
-        exit;
+        LibraryInventory.UpdateInventoryPostingSetupAll; // NAVCZ
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -98,23 +115,111 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateGeneralLedgerSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        exit;
+        // NAVCZ
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Closed Period Entry Pos.Date" := LibraryFiscalYear.GetFirstPostingDate(false);
+        GeneralLedgerSetup."Delete Card with Entries" := true;
+        GeneralLedgerSetup.Modify();
+        // NAVCZ
+    end;
+
+    local procedure UpdateGenProdPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."Gen. Prod. Posting Group" = '' then begin
+                    GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+    end;
+
+    local procedure UpdateVATPostingSetupOnPrepAccount()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
+        GeneralPostingSetup.Reset();
+        GeneralPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
+        if GeneralPostingSetup.FindSet then
+            repeat
+                GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+                if GLAccount."VAT Prod. Posting Group" = '' then begin
+                    GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
+                    GLAccount.Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
+                    GLAccount.Modify(true);
+                end;
+            until GeneralPostingSetup.Next = 0;
     end;
 
     procedure UpdatePrepaymentAccounts()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        exit;
+        // NAVCZ
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Prepayment Type" := GeneralLedgerSetup."Prepayment Type"::Prepayments;
+        GeneralLedgerSetup.Modify();
+
+        UpdateVATPostingSetupOnPrepAccount;
+        UpdateGenProdPostingSetupOnPrepAccount;
+        // NAVCZ
     end;
 
     procedure UpdatePurchasesPayablesSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        exit;
+        // NAVCZ
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate);
+        PurchasesPayablesSetup."Default Orig. Doc. VAT Date" :=
+          PurchasesPayablesSetup."Default Orig. Doc. VAT Date"::"Posting Date";
+        PurchasesPayablesSetup.Modify();
+        // NAVCZ
     end;
 
     procedure UpdateSalesReceivablesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ReasonCode: Record "Reason Code";
     begin
-        exit;
+        // NAVCZ
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate);
+        SalesReceivablesSetup.Modify();
+        // NAVCZ
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -143,8 +248,10 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateFAPostingType()
+    var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin
-        exit;
+        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 
     procedure UpdateFAJnlTemplateName()
@@ -178,8 +285,12 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateLocalData()
+    var
+        FASetup: Record "FA Setup";
     begin
-        exit;
+        FASetup.Get();
+        FASetup.Validate("FA Acquisition As Custom 2", false);
+        FASetup.Modify(true);
     end;
 
     procedure CompanyInfoSetVATRegistrationNo()
@@ -202,6 +313,19 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure CreateUserSetup()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        // NAVCZ
+        UserSetup.Init();
+        UserSetup."User ID" := UserId;
+        UserSetup."Allow Item Unapply" := true;
+        UserSetup."Time Sheet Admin." := true;
+        if not UserSetup.Insert(true) then
+            UserSetup.Modify(true);
     end;
 }
 

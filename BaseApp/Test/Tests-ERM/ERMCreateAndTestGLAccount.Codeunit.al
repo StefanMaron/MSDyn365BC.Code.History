@@ -71,7 +71,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
 
         // Create a new GL Account. Find the Account No. by dividing sum of Begin-Total Account and next Account by two.
         GLAccount2.Init();
-        GLAccount2.Validate("No.", Format((GLAccountNo1 + GLAccountNo2) / 2, 20, 1));
+        GLAccount2.Validate("No.", Format((GLAccountNo1 + GLAccountNo2) / 2, 20, '<Integer,6><Filler Character,0>')); // NAVCZ
         // Using 20 for Length of No. field, 1 for seperator.
         GLAccount2.Insert(true);
         GLAccount2.Validate(Name, GLAccount2."No.");

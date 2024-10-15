@@ -318,7 +318,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -365,7 +365,7 @@ codeunit 134127 "ERM Customer Reversal Message"
           GenJournalLine."Account No.", GenJournalLine.Amount);
 
         // Run Date Compress Batch job and Verify Reversal Error.
-        DateCompressAndReverse(GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
+        asserterror DateCompressAndReverse(GenJournalLine."Account No.", GenJournalLine."Bal. Account No."); // NAVCZ
     end;
 
     [Test]
@@ -641,6 +641,14 @@ codeunit 134127 "ERM Customer Reversal Message"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

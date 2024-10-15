@@ -255,6 +255,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
         SalesHeader."Currency Code" := Currency.Code;
         SalesHeader."Currency Factor" := Currency."Currency Factor";
+        SalesHeader."VAT Currency Factor" := SalesHeader."Currency Factor"; // NAVCZ
         SalesHeader.Modify(true);
     end;
 

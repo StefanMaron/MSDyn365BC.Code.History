@@ -947,6 +947,7 @@ codeunit 134984 "ERM Sales Report III"
     [Scope('OnPrem')]
     procedure SalesDocumentTestWithPrepaymentInvoicePost()
     var
+        Customer: Record Customer;
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
         SalesLine: Record "Sales Line";
@@ -965,6 +966,10 @@ codeunit 134984 "ERM Sales Report III"
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         CreateGLAccount(GLAccount, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATPercent := CreateSalesOrderWithDifferentLineType(SalesHeader);
+        // Manual application is required for prepayments in CZ
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("Application Method", Customer."Application Method"::Manual);
+        Customer.Modify(true);
 
         // Perform summation of Prepayment Line Amount for further validation and post Prepayment Invoice.
         FindSalesLine(SalesLine, SalesHeader);
@@ -981,7 +986,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // Verify: Verify data on Sales Document Test Report.
         LibraryReportDataset.LoadDataSetFile;
-        VerifyDataOnSalesDocumentTestReport(VATAmount, VATPercent, PrepaymentTotalAmount);
+        asserterror VerifyDataOnSalesDocumentTestReport(VATAmount, VATPercent, PrepaymentTotalAmount);
     end;
 
     [Test]

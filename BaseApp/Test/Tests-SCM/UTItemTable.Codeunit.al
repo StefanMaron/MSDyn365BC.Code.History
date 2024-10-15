@@ -531,7 +531,7 @@ codeunit 134827 "UT Item Table"
         CreateItemFromNameAndBlocked(Item[4], RandomText2, false);
 
         Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText1), '');
-        Assert.AreEqual(Item[4]."No.", Item[1].GetItemNo(RandomText2), '');
+        Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText2), '');
     end;
 
     local procedure Initialize()

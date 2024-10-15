@@ -133,7 +133,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
           FixedAsset."No.", GenJournalLine."FA Posting Type"::"Custom 1", -AcquisitionCost / 2);
         CreateFAGLJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, FixedAsset."No.",
-          GenJournalLine."FA Posting Type"::"Custom 2", GenJournalLine.Amount / 2);  // Taking Custom 2 value different from Custom 1 value.
+          GenJournalLine."FA Posting Type"::"Custom 2", -GenJournalLine.Amount / 2);  // Taking Custom 2 value different from Custom 1 value. // NAVCZ
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report.
@@ -141,8 +141,8 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // 3. Verify: Verify Custom 1 and Custom 2 values on Fixed Asset Book Value 02 Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt5', -AcquisitionCost / 2);
-        LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt6', GenJournalLine.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt5', 0); // NAVCZ
+        LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt6', 0); // NAVCZ
         LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 

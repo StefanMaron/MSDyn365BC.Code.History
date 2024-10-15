@@ -66,11 +66,11 @@ codeunit 137390 "SCM Kitting -  Reports"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateInventoryPostingSetup;
         SalesReceivablesSetup.Get();
         SourceCodeSetup.Get();
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        LibraryERM.SetClosedPeriodEntryPosDate(WorkDate2); // NAVCZ
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting -  Reports");
     end;
@@ -2875,7 +2875,7 @@ codeunit 137390 "SCM Kitting -  Reports"
             CheckedValue:
                 begin
                     Assert.AreEqual(ExpAmount, -InventoryGLReconMatrix.Field1.AsDEcimal, StrSubstNo(ErrorGLRecon, ErrorMessage, ''));
-                    Assert.AreEqual(ExpAmount, -InventoryGLReconMatrix.Field4.AsDEcimal, StrSubstNo(ErrorGLRecon, ErrorMessage, ' - total '));
+                    Assert.AreEqual(ExpAmount, -InventoryGLReconMatrix.Field7.AsDEcimal, StrSubstNo(ErrorGLRecon, ErrorMessage, ' - total ')); // NAVCZ
                 end;
             InventoryReportEntry.FieldCaption(Total):
                 begin
@@ -2883,13 +2883,13 @@ codeunit 137390 "SCM Kitting -  Reports"
                         Assert.AreEqual(ExpTotalAmount, InventoryGLReconMatrix.Field1.AsDEcimal, StrSubstNo(ErrorGLRecon, '', ' - total '))
                     else
                         asserterror ExpAmount := InventoryGLReconMatrix.Field1.AsDEcimal;
-                    asserterror ExpAmount := InventoryGLReconMatrix.Field4.AsDEcimal;
+                    asserterror ExpAmount := InventoryGLReconMatrix.Field7.AsDEcimal; // NAVCZ
                 end;
             SkipValue1, SkipValue2, SkipValue3:
                 ;
             else begin
                     asserterror ExpAmount := InventoryGLReconMatrix.Field1.AsDEcimal;
-                    asserterror ExpAmount := InventoryGLReconMatrix.Field4.AsDEcimal;
+                    asserterror ExpAmount := InventoryGLReconMatrix.Field7.AsDEcimal; // NAVCZ
                 end;
         end;
     end;

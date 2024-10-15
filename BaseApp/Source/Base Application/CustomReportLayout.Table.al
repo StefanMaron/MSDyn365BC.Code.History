@@ -228,6 +228,8 @@ table 9650 "Custom Report Layout"
             if ReportLayoutSelection.HasCustomLayout(ReportID) = 1 then
                 CustomLayoutCode := ReportLayoutSelection."Custom Report Layout Code";
 
+        OnGetCustomRdlcOnAfterSelectCustomLayoutCode(ReportID, CustomLayoutCode);
+
         if (CustomLayoutCode <> '') and Get(CustomLayoutCode) then begin
             TestField(Type, Type::RDLC);
             if UpdateLayout(true, false) then
@@ -1035,6 +1037,11 @@ table 9650 "Custom Report Layout"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupLayoutOKOnBeforePageRun(var CustomReportLayout: Record "Custom Report Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustomRdlcOnAfterSelectCustomLayoutCode(ReportID: Integer; var CustomLayoutCode: Code[20])
     begin
     end;
 }

@@ -692,12 +692,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.IsFalse(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate, '', 1, ''),
           'Sales Price was not expected to have been created');
 
-        Assert.IsTrue(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number', true),
+        Assert.IsTrue(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number'),
           'Tariff Number was expected to have been created');
         TariffNumber.Get('TN');
         Assert.AreEqual('Tariff Number', TariffNumber.Description, 'A different description was expected');
-        Assert.IsTrue(TariffNumber."Supplementary Units", 'Supplementary units was expected to be true');
-        Assert.IsFalse(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number', true),
+        Assert.IsFalse(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number'),
           'Tariff Number was not expected to have been created');
 
         ItemDataMigrationFacade.CreateItemIfNeeded('ITEM2', 'Description', 'Description2', Item.Type::Inventory);

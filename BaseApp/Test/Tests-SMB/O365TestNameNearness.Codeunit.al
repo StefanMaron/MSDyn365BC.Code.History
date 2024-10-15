@@ -24,6 +24,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have customer named '<some guid>'
         LibrarySales.CreateCustomer(Customer);
         CreateNames(CorrectName, WrongName);
@@ -50,6 +52,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have item named '<some guid>'
         LibrarySales.CreateCustomer(Customer);
         BindSubscription(O365TestNameNearness);
@@ -85,6 +89,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have item named '<some guid>'
         LibrarySales.CreateCustomer(Customer);
         BindSubscription(O365TestNameNearness);
@@ -117,6 +123,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have item named '<some guid>'
         LibrarySales.CreateCustomer(Customer);
         BindSubscription(O365TestNameNearness);
@@ -148,6 +156,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have vendor named '<some guid>'
         LibraryPurchase.CreateVendor(Vendor);
         CreateNames(CorrectName, WrongName);
@@ -173,6 +183,8 @@ codeunit 138050 "O365 Test Name Nearness"
         CorrectName: Text[50];
         WrongName: Text[50];
     begin
+        Initialize();
+
         // [GIVEN] We have item named '<some guid>'
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
@@ -192,6 +204,13 @@ codeunit 138050 "O365 Test Name Nearness"
 
         // [THEN] The system returns the correct item no.
         Assert.AreEqual(Item."No.", PurchaseLine."No.", '');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Test Name Nearness");
     end;
 
     local procedure CreateNames(var CorrectName: Text[50]; var WrongName: Text[50])

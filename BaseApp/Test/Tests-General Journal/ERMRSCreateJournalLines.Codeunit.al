@@ -1360,6 +1360,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CheckGLAccTypePostingOnVendorPostingGroup()
     var

@@ -1920,6 +1920,7 @@ codeunit 8 AccSchedManagement
                 I := AccSchedLine."Line No.";
                 if I > AccSchedLineNo then begin
                     AccSchedLine.Delete();
+                    OnMoveAccSchedLinesOnAfterAccSchedLineDelete(AccSchedLine, Place);
                     AccSchedLine."Line No." := I + 10000 * Place;
                     AccSchedLine.Insert();
                     OnAfterAccSchedLineInsert(AccSchedLine);
@@ -2750,6 +2751,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertGLAccountsOnBeforeAccSchedLineInsert(var AccSchedLine: Record "Acc. Schedule Line"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveAccSchedLinesOnAfterAccSchedLineDelete(var AccSchedLine: Record "Acc. Schedule Line"; Place: Integer)
     begin
     end;
 }

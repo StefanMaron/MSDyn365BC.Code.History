@@ -30,6 +30,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ClearType: Option "Posting Group","Location Posting Setup","Posting Group Setup";
         ItemPostGrErr: Label 'Inventory Posting Group must have a value in Item: No.=%1. It cannot be zero or empty.';
         ResPostGrErr: Label 'Gen. Prod. Posting Group must have a value in Resource: No.=%1. It cannot be zero or empty.';
+        NoSeriesErr: Label 'You have insufficient quantity of Item';
         ZeroQtyErr: Label 'There is nothing to post.';
         AsmItemPostingErr: Label 'Gen. Prod. Posting Group must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
         isInitialized: Boolean;
@@ -44,7 +45,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         MsgUpdateDim: Label 'Do you want to update the Dimensions on the lines?';
         ErrorSelectDimValue: Label 'Select Dimension Value Code';
         ErrorInvalidDimensions: Label 'The dimensions that are used in Order ';
-        NoSeriesErr: Label 'You have insufficient quantity of Item';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
@@ -68,6 +68,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.

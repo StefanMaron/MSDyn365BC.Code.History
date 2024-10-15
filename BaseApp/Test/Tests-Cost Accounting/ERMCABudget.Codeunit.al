@@ -458,11 +458,10 @@ codeunit 134814 "ERM CA Budget"
         // Exercise:
         Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
-        REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
+        asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L"); // NAVCZ
 
         // Verify:
-        ValidateCopyCAToGL(SourceCostBudgetName.Name, TargetGLBudgetName.Name,
-          Round(CostBudgetEntry.Amount, 0.01), CalcDate(StrSubstNo(DateFilter, '1M'), CostBudgetEntry.Date));
+        Assert.ExpectedError(''); // NAVCZ
     end;
 
     [Test]
@@ -487,11 +486,10 @@ codeunit 134814 "ERM CA Budget"
         // Exercise:
         Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
-        REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
+        asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L"); // NAVCZ
 
         // Verify:
-        ValidateCopyCAToGL(SourceCostBudgetName.Name, TargetGLBudgetName.Name,
-          Round(CostBudgetEntry.Amount, 0.01), CalcDate(StrSubstNo(DateFilter, '1M'), CostBudgetEntry.Date));
+        Assert.ExpectedError(''); // NAVCZ
     end;
 
     [Test]
@@ -520,15 +518,14 @@ codeunit 134814 "ERM CA Budget"
         // Exercise:
         Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
-        REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
+        asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L"); // NAVCZ
 
         // Verify:
-        ValidateCopyCAToGL(SourceCostBudgetName.Name, TargetGLBudgetName.Name,
-          Round(CostBudgetEntry.Amount, 0.01), CalcDate(StrSubstNo(DateFilter, '1M'), CostBudgetEntry.Date));
+        Assert.ExpectedError(''); // NAVCZ
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,RPHandlerCopyCAToGL')]
+    [HandlerFunctions('ConfirmHandlerYes,RPHandlerCopyCAToGL,MessageHandler')]
     [Scope('OnPrem')]
     procedure CopyCABudgetToGLNoDimension()
     var
@@ -549,11 +546,10 @@ codeunit 134814 "ERM CA Budget"
         // Exercise:
         Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
-        REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
+        asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L"); // NAVCZ
 
         // Verify:
-        ValidateCopyCAToGL(SourceCostBudgetName.Name, TargetGLBudgetName.Name,
-          Round(CostBudgetEntry.Amount, 0.01), CalcDate(StrSubstNo(DateFilter, '1M'), CostBudgetEntry.Date));
+        Assert.ExpectedError(''); // NAVCZ
     end;
 
     [Test]

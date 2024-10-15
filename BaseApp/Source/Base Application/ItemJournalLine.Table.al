@@ -167,6 +167,7 @@ table 83 "Item Journal Line"
 
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     "Unit of Measure Code" := Item."Base Unit of Measure";
+                OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(Rec, Item, CurrFieldNo);
                 Validate("Unit of Measure Code");
                 if "Variant Code" <> '' then
                     Validate("Variant Code");
@@ -282,7 +283,14 @@ table 83 "Item Journal Line"
             TableRelation = Location;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLocationCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Entry Type" <= "Entry Type"::Transfer then
                     TestField("Item No.");
 
@@ -1535,6 +1543,7 @@ table 83 "Item Journal Line"
                 ItemLedgEntry: Record "Item Ledger Entry";
                 ItemTrackingLines: Page "Item Tracking Lines";
                 ManufSetup: Record "Manufacturing Setup";
+                IsHandled: Boolean;
             begin
                 if "Applies-from Entry" <> 0 then begin
                     TestField(Quantity);
@@ -1546,8 +1555,11 @@ table 83 "Item Journal Line"
                     end;
                     ItemLedgEntry.Get("Applies-from Entry");
                     ItemLedgEntry.TestField(Positive, false);
-                    if ItemLedgEntry.TrackingExists then
-                        Error(Text033, FieldCaption("Applies-from Entry"), ItemTrackingLines.Caption);
+
+                    OnValidateAppliesfromEntryOnBeforeCheckTrackingExistsError(Rec, ItemLedgEntry, IsHandled);
+                    if not IsHandled then
+                        if ItemLedgEntry.TrackingExists then
+                            Error(Text033, FieldCaption("Applies-from Entry"), ItemTrackingLines.Caption);
                     // NAVCZ
                     if "Entry Type" = "Entry Type"::Consumption then begin
                         ManufSetup.Get();
@@ -2456,7 +2468,7 @@ table 83 "Item Journal Line"
         Text031: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         Text032: Label 'When posting, the entry %1 will be opened first.';
         Text033: Label 'If the item carries serial or lot numbers, then you must use the %1 field in the %2 window.';
-        RevaluationPerEntryNotAllowedErr: Label 'This item ledger entry has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
+        RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         Text26500: Label '%1 is required for Item %2.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         MustBeIntegralNumberErr: Label 'must be integral number';
@@ -3452,7 +3464,7 @@ table 83 "Item Journal Line"
             else
                 UnitCost := Item."Unit Cost";
 
-        OnRetrieveCostsOnAfterSetUnitCost(Rec, UnitCost);
+        OnRetrieveCostsOnAfterSetUnitCost(Rec, UnitCost, Item);
 
         if "Entry Type" = "Entry Type"::Transfer then
             UnitCost := 0
@@ -4058,7 +4070,7 @@ table 83 "Item Journal Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure SetItemChargeDimensions(ItemChargeNo: Code[20]; ItemLedgShptEntryNo: Integer)
     var
         ItemCharge: Record "Item Charge";
@@ -4077,7 +4089,6 @@ table 83 "Item Journal Line"
                 "Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
             end;
         end;
-        // NAVCZ
     end;
 
     procedure CheckItemJournalLineRestriction()
@@ -4395,6 +4406,11 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliesfromEntryOnBeforeCheckTrackingExistsError(ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
@@ -4440,7 +4456,17 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRetrieveCostsOnAfterSetUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal)
+    local procedure OnRetrieveCostsOnAfterSetUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLocationCode(ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
     end;
 }

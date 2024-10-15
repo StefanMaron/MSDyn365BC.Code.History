@@ -383,7 +383,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Create Vendor from Contact.
-        Contact.CreateVendor;
+        Contact.CreateVendor(''); // NAVCZ
 
         // 3. Verify: Verify Contact Business Relation and Vendor successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);

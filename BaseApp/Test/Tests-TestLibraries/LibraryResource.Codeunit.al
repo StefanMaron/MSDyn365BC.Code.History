@@ -38,6 +38,8 @@ codeunit 130511 "Library - Resource"
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetRange("Allow Non Deductible VAT", false); // NAVCZ
+        VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', ''); // NAVCZ
         if VATPostingSetup.FindFirst then
             Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Resource.Modify(true);

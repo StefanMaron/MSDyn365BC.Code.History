@@ -47,7 +47,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // Setup.
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
-        LibraryERM.SetAllowPostingFromTo(WorkDate - 30, WorkDate);
+        SetAllowPostingFromTo(WorkDate - 30, WorkDate);
         SetupInventoryForReport(ParentItem, ChildItem, PurchaseHeader, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, true, Qty, QtyPer, WorkDate);
 
@@ -64,7 +64,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInv, true, true);
 
         // Exercise. Adjust and run Inventory Valuation - WIP report.
-        LibraryERM.SetAllowPostingFromTo(WorkDate + 1, WorkDate + 30);
+        SetAllowPostingFromTo(WorkDate + 1, WorkDate + 30);
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
         // Verify.
@@ -178,7 +178,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         ExecuteUIHandlers;
-        LibraryERM.SetAllowPostingFromTo(0D, 0D);
+        SetAllowPostingFromTo(0D, 0D);
         LibraryERM.SetUseLegacyGLEntryLocking(true);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
           InventorySetup."Automatic Cost Adjustment", InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period");
@@ -228,7 +228,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     begin
         // Also for SICILY 46166, 48268
         Initialize;
-        LibraryERM.SetAllowPostingFromTo(0D, 0D);
+        SetAllowPostingFromTo(0D, 0D);
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
         DirectUnitCost := LibraryRandom.RandDec(5, 2);
@@ -251,7 +251,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
         InvoiceDate := CalcDate('<+2M>', WorkDate);
         TempDate := CalcDate('<-CM>', InvoiceDate);
-        LibraryERM.SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
+        SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
         InvoiceDiffPurchaseCost(PurchaseHeader, InvoiceDate);
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
@@ -347,7 +347,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
         FinishDate := CalcDate('<+2M>', WorkDate);
         TempDate := CalcDate('<-CM>', FinishDate);
-        LibraryERM.SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
+        SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
         // Exercise. Verify Inventory Valuation - WIP report for the month before the production finishing.
@@ -433,7 +433,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // Setup. Set Allow posting from
         TempDate := CalcDate('<1D>', InvoiceDate);
-        LibraryERM.SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
+        SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
 
         // Setup. Finish the released production order
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
@@ -571,7 +571,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         OrigWorkDate := WorkDate;
         TempDate := CalcDate('<5W>', WorkDate);
         WorkDate := TempDate;
-        LibraryERM.SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
+        SetAllowPostingFromTo(TempDate, CalcDate('<CM>', TempDate));
 
         // Setup. Adjust cost
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
@@ -721,13 +721,13 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // Setup. Change G/L Setup
         TempDate := CalcDate('<CM+1D>', WorkDate);
-        LibraryERM.SetAllowPostingFromTo(TempDate, 0D);
+        SetAllowPostingFromTo(TempDate, 0D);
 
         // Setup. Adjust cost.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
         // Setup. Revert change in GL Setup
-        LibraryERM.SetAllowPostingFromTo(0D, 0D);
+        SetAllowPostingFromTo(0D, 0D);
 
         // Exercise. Verify Inventory Valuation - WIP report for the month containing the FirstOutputDate.
         TempDate := CalcDate('<-CM>', FirstOutputDate);
@@ -880,13 +880,13 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
 
         // Change G/L Setup.
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<CM+1D>', WorkDate), 0D); // Value Not important for test - but need to the different period of outputing the remaining output(Period 4).
+        SetAllowPostingFromTo(CalcDate('<CM+1D>', WorkDate), 0D); // Value Not important for test - but need to the different period of outputing the remaining output(Period 4).
 
         // Adjust cost.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
         // Revert change in GL Setup.
-        LibraryERM.SetAllowPostingFromTo(0D, 0D);
+        SetAllowPostingFromTo(0D, 0D);
 
         Output := -GetExpectedWIPCostAmount(ProductionOrder."No.", FirstOutputDate);
         Consumption := -GetExpectedWIPCostAmount(ProductionOrder."No.", ConsumptionDate);
@@ -1201,6 +1201,13 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     local procedure CalculateNetCost(BOP: Decimal; Consumption: Decimal; Output: Decimal; Capacity: Decimal): Decimal
     begin
         exit(BOP + Consumption + Output - Capacity);
+    end;
+
+    local procedure SetAllowPostingFromTo(FromDate: Date; ToDate: Date)
+    begin
+        LibraryERM.SetAllowPostingFromTo(FromDate, ToDate);
+        if FromDate <> 0D then
+            LibraryERM.SetClosedPeriodEntryPosDate(FromDate);
     end;
 
     [Normal]

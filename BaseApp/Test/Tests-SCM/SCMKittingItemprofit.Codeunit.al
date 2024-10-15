@@ -48,7 +48,6 @@ codeunit 137312 "SCM Kitting - Item profit"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateInventoryPostingSetup;
         SetupAssembly;
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         LibraryCosting.AdjustCostItemEntries('', '');

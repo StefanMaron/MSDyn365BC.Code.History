@@ -786,7 +786,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,RunAdjExchRateReportHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
     var
@@ -848,7 +848,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         VerifyRealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount);
         VerifyUnrealizedVATEntryAmounts(VATEntry, 0, 0, 0, 0);
 
-        // [THEN] Unrealized Losses posted with amount 55 for adjustment and amount = -55 after payment is applied
+        // [THEN] Unrealized Losses posted with amount 55 for adjustment and realized amount = -55 after payment is applied
         VerifyUnrealizedGainLossesGLEntries(CurrencyCode, PaymentNo, AdjustedAmtInclVAT - AmountInclVAT);
     end;
 
@@ -1546,6 +1546,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         GLEntry.SetRange("G/L Account No.", Currency."Unrealized Losses Acc.");
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, GainLossAmt);
+        GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
         GLEntry.SetRange("Document No.", PaymentNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, -GainLossAmt);
@@ -1584,6 +1585,13 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure RunAdjExchRateReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        AdjustExchangeRates.SaveAsXml('');
     end;
 }
 

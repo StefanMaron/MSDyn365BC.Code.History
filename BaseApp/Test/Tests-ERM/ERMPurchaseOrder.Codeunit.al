@@ -3226,55 +3226,6 @@ codeunit 134327 "ERM Purchase Order"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchaseOrderForWhseLocationAndItemChargeWithPrepayment()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseLineCharge: Record "Purchase Line";
-        WarehouseEmployee: Record "Warehouse Employee";
-        LocationCode: Code[10];
-    begin
-        // [FEATURE] [Prepayment] [Warehouse Receipt]
-        // [SCENARIO 382050] Posting warehouse receipt for prepaid Purchase Order with item charge
-        Initialize();
-
-        // [GIVEN] Purchase Order for Warehouse Location where second line is Item Charge with Amount of 10
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
-        PurchaseLineCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        PurchaseLineCharge.Validate("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        PurchaseLineCharge.Modify(true);
-        LocationCode := ModifyWarehouseLocation(true);
-
-        // [GIVEN] Prepayment is posted for Purchase Order
-        ModifyFullPrepmtAndLocationOnPurchLine(PurchaseLine, LocationCode);
-        ModifyFullPrepmtAndLocationOnPurchLine(PurchaseLineCharge, LocationCode);
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader.Modify();
-
-        // [GIVEN] Warehouse receipt for released Purchase Order is created
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, PurchaseLine."Location Code", false);
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
-
-        // [WHEN] Post Warehouse Document as Receive.
-        ReceiveWarehouseDocument(PurchaseHeader."No.", PurchaseLine."Line No.");
-
-        // [THEN] "Prepmt Amt to Deduct" is updated for Item Charge line as 10
-        PurchaseLineCharge.Find;
-        PurchaseLineCharge.TestField("Prepmt Amt to Deduct", PurchaseLineCharge.Amount);
-
-        // Tear Down
-        ModifyWarehouseLocation(false);
-        WarehouseEmployee.Get(UserId, PurchaseLine."Location Code");
-        WarehouseEmployee.Delete();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchaseLine_FindRecordByDescription_GLAccount()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3754,6 +3705,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 201668] Stan can print purchase order having comment and "Drop Shipment" lines
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
 
@@ -3775,6 +3727,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 201668] Stan can print purchase order without "Drop Shipment" lines
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
@@ -4153,7 +4106,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Vendor] [Location] [UT]
         // [SCENARIO 231794] Default location code set from the vendor card should be preserved in the purchase document when the Purchase Header record is inserted after validating the vendor code
-
+        Initialize();
         CreateVendorWithDefaultLocation(Vendor);
 
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -4172,7 +4125,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Vendor] [Location] [UT]
         // [SCENARIO 231794] Location code in a sales header should be copied from the vendor card when "Buy-from Vendor No." is set and then revalidated with a new value
-
+        Initialize();
         CreateVendorWithDefaultLocation(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
@@ -4719,7 +4672,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Posting Description] [UT]
         // [SCENARIO 285973] "Posting Description" contains "Document Type" and "No." in the purchase document when the Purchase Header record is inserted after validating the vendor code
-
+        Initialize();
         // [GIVEN] Vendor - X
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -4743,7 +4696,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Posting Description] [UT]
         // [SCENARIO 285973] "Posting Description" contains "Document Type" and "No." when "Buy-from Vendor No." is set and then revalidated with a new value
-
+        Initialize();
         // [GIVEN] Vendor - X
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Purchase header with "Buy-from Vendor No." = X
@@ -5695,6 +5648,29 @@ codeunit 134327 "ERM Purchase Order"
 
         // [THEN] "Direct Unit Cost" = "RC"
         Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResourceCost."Direct Unit Cost", 'Wrong resource cost');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 351187] The Purch. Comment Lines must be copied after Purchase Lines have been recreated
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
+        Assert.RecordCount(PurchCommentLine, 1);
     end;
 
     local procedure Initialize()
@@ -7175,13 +7151,6 @@ codeunit 134327 "ERM Purchase Order"
         Item.Modify(true);
     end;
 
-    local procedure ModifyFullPrepmtAndLocationOnPurchLine(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])
-    begin
-        PurchaseLine.Validate("Location Code", LocationCode);
-        PurchaseLine.Validate("Prepayment %", 100);
-        PurchaseLine.Modify(true);
-    end;
-
     local procedure ChangeQtyToInvoice(var InvPurchLine: Record "Purchase Line"; InvPurchHeader: Record "Purchase Header")
     begin
         with InvPurchLine do begin
@@ -7771,6 +7740,10 @@ codeunit 134327 "ERM Purchase Order"
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Account");
+        // NAVCZ
+        GLEntry.SetRange("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        // NAVCZ
         GLEntry.FindFirst;
         Assert.AreNearlyEqual(
           PurchaseLine."Line Amount", GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,

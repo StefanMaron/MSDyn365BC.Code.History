@@ -629,6 +629,47 @@ codeunit 137907 "SCM Assembly Order Functions"
         VerifyAssemblyLineQty(Item[3]."No.", QtyPerLine[1] * QtyPerLine[2], QtyPerLine[1] * QtyPerLine[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('AssemblyAvailabilityYesModalPageHandler,StubMessageHandler')]
+    [Scope('OnPrem')]
+    procedure DescriptionInAssemblyLineMatchingBOMComponent()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [FEATURE] [Assembly BOM] [Description]
+        // [SCENARIO 351774] Field "Description" in Assembly Line is copied from the BOM Component
+        Initialize;
+
+        // [GIVEN] Parent Assembly Item "A"
+        LibraryInventory.CreateItem(ParentItem);
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
+        ParentItem.Modify(true);
+
+        // [GIVEN] Item "B" with Description = "Initial"
+        LibraryInventory.CreateItem(ChildItem);
+        ChildItem.Validate(Description, LibraryUtility.GenerateRandomCode(ChildItem.FieldNo(Description), DATABASE::Item));
+        ChildItem.Modify(true);
+
+        // [GIVEN] Item "B" is an assembly component of "A", with Description = "Modified" on a BOM Component
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, '');
+        BOMComponent.Validate(Description, LibraryUtility.GenerateRandomCode(ChildItem.FieldNo(Description), DATABASE::"BOM Component"));
+        BOMComponent.Modify(true);
+
+        // [WHEN] Create Assembly Header for "A" and populate Quantity
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, ParentItem."No.", '', LibraryRandom.RandInt(10), '');
+
+        // [THEN] "Description" = "Modified" on the Assembly Line
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst;
+        AssemblyLine.TestField(Description, BOMComponent.Description)
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

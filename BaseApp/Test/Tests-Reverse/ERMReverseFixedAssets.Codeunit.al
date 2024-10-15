@@ -22,12 +22,11 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         LibraryJournals: Codeunit "Library - Journals";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2.';
-        ReverseErr: Label 'Book Value must not be negative or less than Salvage Value on %1 for Fixed Asset No. = %2 in Depreciation Book Code = %3.';
-        FAReverseErr: Label 'You cannot reverse the transaction because the %1 %2 = %3 in %4 %5 = %6 has been sold.';
         ReverseEntryErr: Label 'You can only reverse entries that were posted from a journal.';
+        ReverseFALedgEntryErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,ReverseEntriesModalPageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,ReverseEntriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ReverseFixedAsset()
     var
@@ -51,11 +50,12 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
         LibraryLowerPermissions.SetJournalsPost;
         LibraryLowerPermissions.AddO365FAEdit;
-        ReverseFALedgerEntry(GenJournalLine."Document No.", false);
+        asserterror ReverseFALedgerEntry(GenJournalLine."Document No.", false); // NAVCZ
 
-        VerifyGLRegister;
-        VerifyFALedgerEntry(
-          GenJournalLine."Document No.", -GenJournalLine."Debit Amount", GenJournalLine."Credit Amount", ExpectedDescription);
+        // NAVCZ
+        // Verify: Verify error message while Reversing FA Ledger Entry.
+        Assert.ExpectedError(StrSubstNo(ReverseFALedgEntryErr));
+        // NAVCZ
     end;
 
     [Test]
@@ -82,9 +82,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
         // Verify: Verify Reverse Error for Fixed Asset on Disposed.
-        Assert.ExpectedError(
-          StrSubstNo(FAReverseErr, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), GenJournalLine."Account No.",
-            DepreciationBook.TableCaption, DepreciationBook.FieldCaption(Code), GenJournalLine."Depreciation Book Code"));
+        Assert.ExpectedError(StrSubstNo(ReverseFALedgEntryErr)); // NAVCZ
     end;
 
     [Test]
@@ -109,8 +107,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
         // Verify: Verify Reverse Error for Deprecated Fixed Asset.
-        Assert.ExpectedError(
-          StrSubstNo(ReverseErr, GenJournalLine."Posting Date", GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code"));
+        Assert.ExpectedError(StrSubstNo(ReverseFALedgEntryErr)); // NAVCZ
     end;
 
     local procedure CreateFixedAssetWithJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option; FAPostingType2: Option) DocumentNo: Code[20]
@@ -120,6 +117,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     begin
         DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration;
         SetupGenJournalBatch(GenJournalBatch);
+        UpdateFAPostingTypeSetup(DepreciationBookCode); // NAVCZ
         CreateAndPostGenJournalLine(
           GenJournalLine, LibraryRandom.RandInt(100), FAPostingType, CreateFixedAssetWithFADepreciationBook(DepreciationBookCode),
           DepreciationBookCode, GenJournalBatch);
@@ -571,6 +569,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     begin
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        UpdateFAPostingTypeSetup(DepreciationBookCode); // NAVCZ
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBookCode);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Modify(true);
@@ -818,6 +817,15 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         while ReverseEntries.Next do
             ReverseEntries.Description.SetValue(NewDescription);
         ReverseEntries.Reverse.Invoke;
+    end;
+
+    local procedure UpdateFAPostingTypeSetup(DepreciationBookCode: Code[10])
+    var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+    begin
+        // NAVCZ
+        FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
+        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 }
 

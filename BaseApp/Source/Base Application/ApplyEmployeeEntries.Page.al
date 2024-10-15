@@ -524,23 +524,16 @@ page 234 "Apply Employee Entries"
 
     var
         TempApplyingEmplLedgEntry: Record "Employee Ledger Entry" temporary;
-        AppliedEmplLedgEntry: Record "Employee Ledger Entry";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
-        GenJnlLine2: Record "Gen. Journal Line";
         Empl: Record Employee;
-        EmplLedgEntry: Record "Employee Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         EmplEntrySetApplID: Codeunit "Empl. Entry-SetAppl.ID";
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         Navigate: Page Navigate;
         GenJnlLineApply: Boolean;
-        AppliedAmount: Decimal;
-        ApplyingAmount: Decimal;
-        PmtDiscAmount: Decimal;
         ApplnDate: Date;
-        ApplnCurrencyCode: Code[10];
         ApplnRoundingPrecision: Decimal;
         ApplnRounding: Decimal;
         ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID";
@@ -549,7 +542,6 @@ page 234 "Apply Employee Entries"
         EmplEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
-        DifferentCurrenciesInAppln: Boolean;
         MustSelectEntryErr: Label 'You must select an applying entry before you can post the application.';
         PostingInWrongContextErr: Label 'You must post the application from the window where you entered the applying entry.';
         CannotSetAppliesToIDErr: Label 'You cannot set Applies-to ID field while selecting Applies-to Doc. No field.';
@@ -564,6 +556,16 @@ page 234 "Apply Employee Entries"
         ApplicationDateErr: Label 'The posting date entered must not be before the posting date on the employee ledger entry.';
         ApplicationProcessCanceledErr: Label 'Post application process has been canceled.';
         IsOfficeAddin: Boolean;
+
+    protected var
+        AppliedEmplLedgEntry: Record "Employee Ledger Entry";
+        GenJnlLine2: Record "Gen. Journal Line";
+        EmplLedgEntry: Record "Employee Ledger Entry";
+        AppliedAmount: Decimal;
+        ApplyingAmount: Decimal;
+        PmtDiscAmount: Decimal;
+        ApplnCurrencyCode: Code[10];
+        DifferentCurrenciesInAppln: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line"; ApplnTypeSelect: Integer)
     begin

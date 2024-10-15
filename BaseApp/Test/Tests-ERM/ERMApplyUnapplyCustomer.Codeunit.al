@@ -727,6 +727,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         PostedDocumentNo: Code[20];
         Amount: Decimal;
     begin
@@ -741,6 +742,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
         GenJournalLine.Find;
         GenJournalLine.Validate(Amount, GenJournalLine.Amount + Amount);
@@ -1385,7 +1387,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     end;
 
     [Test]
-    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure UnapplyEntryWithLaterAdjustedExchRate()
     var
@@ -1441,6 +1443,61 @@ codeunit 134006 "ERM Apply Unapply Customer"
 
         // [THEN] This invoice is balanced to its adjusted exchange rate
         VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure RoundingACYWhenPaymentAppliedToInvoiceWithRevChargeVAT()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        PaymentDate: Date;
+        InvoiceNo: Code[20];
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount] [ACY]
+        // [SCENARIO 348963] Payment applied to the invoice with reverse charge VAT and payment discount gives zero Add.Curr Amount
+        Initialize;
+
+        // [GIVEN] Adjustment for Payment Discount is turned on
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+
+        // [GIVEN] Currency with specific exchange rates on 01.01 and 02.01, set as Additional Reporting Currency
+        PaymentDate := LibraryRandom.RandDate(3);
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate);
+        CreateExchangeRate(CurrencyCode, 1, 1.1208, PaymentDate);
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+
+        // [GIVEN] Posted invoice of amount 678 posted on 01.01 with Reverse Charge VAT setup with "Adjust For Payment Discount"
+        // [GIVEN] Payment Discount % = 3.5
+        InvoiceNo :=
+          CreatePostSalesInvWithReverseChargeVATAdjForPmtDiscSetValues(SalesLine, CurrencyCode, 1, 678, 3.5, 25);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        CustLedgerEntry.CalcFields(Amount);
+
+        // [GIVEN] Payment of amount 654,27 on 02.01
+        CreateGenJnlLineWithPostingGroups(
+          GenJournalLine, SalesLine."Sell-to Customer No.", GenJournalLine."Document Type"::Payment,
+          -CustLedgerEntry.Amount + CustLedgerEntry."Remaining Pmt. Disc. Possible", SalesLine);
+        GenJournalLine.Validate("Posting Date", PaymentDate);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Payment is applied to the invoice
+        ApplyAndPostCustomerEntry(
+          InvoiceNo, GenJournalLine."Document No.",
+          CustLedgerEntry.Amount - CustLedgerEntry."Remaining Pmt. Disc. Possible",
+          CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::Payment);
+
+        // [THEN] Amount and "Additional-Currency Amount" = 0 in reverse charge VAT Entry created for the payment
+        VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.FindLast;
+        VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.TestField(Amount, 0);
+        VATEntry.TestField("Additional-Currency Amount", 0);
     end;
 
     local procedure Initialize()
@@ -1609,24 +1666,36 @@ codeunit 134006 "ERM Apply Unapply Customer"
     end;
 
     local procedure CreatePostSalesInvWithReverseChargeVATAdjForPmtDisc(var SalesLine: Record "Sales Line"): Code[20]
+    begin
+        exit(
+          CreatePostSalesInvWithReverseChargeVATAdjForPmtDiscSetValues(
+            SalesLine, '', LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(10, 20), 0));
+    end;
+
+    local procedure CreatePostSalesInvWithReverseChargeVATAdjForPmtDiscSetValues(var SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; Quantity: Integer; UnitPrice: Decimal; VATPct: Decimal; DiscountPct: Decimal): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
         ItemNo: Code[20];
-        VendNo: Code[20];
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        UpdateGenPostSetupWithSalesPmtDiscAccount(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", VATPct);
         VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
-        VendNo :=
-          CreateCustomerWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Get(
+          CreateCustomerWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount(DiscountPct));
+        Customer.Modify(true);
         ItemNo :=
           CreateItemWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, VendNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -2052,6 +2121,12 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDocNo);
         GenJournalLine.Validate(Amount, Amount + LibraryRandom.RandDec(5, 2));  // Modify Amount using Random value.
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure UpdateGenPostSetupWithSalesPmtDiscAccount(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
@@ -2525,6 +2600,13 @@ codeunit 134006 "ERM Apply Unapply Customer"
           0, PageControlValue, ApplyCustomerEntries.ControlBalance.Caption);
 
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [PageHandler]

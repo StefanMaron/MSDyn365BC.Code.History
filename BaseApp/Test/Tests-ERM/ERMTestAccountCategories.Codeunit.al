@@ -15,17 +15,10 @@ codeunit 134444 "ERM Test Account Categories"
         ExpectedAccSchedName: Code[10];
 
     [Test]
-    [HandlerFunctions('AccSchedReportRequestPageHandler')]
+    [HandlerFunctions('BalanceSheetRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestBalanceSheet()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
-        // Init
-        GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Balance Sheet";
-
         // Execution
         REPORT.Run(REPORT::"Balance Sheet");
 
@@ -33,17 +26,10 @@ codeunit 134444 "ERM Test Account Categories"
     end;
 
     [Test]
-    [HandlerFunctions('AccSchedReportRequestPageHandler')]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestIncomeStatement()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
-        // Init
-        GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Income Stmt.";
-
         // Execution
         REPORT.Run(REPORT::"Income Statement");
 
@@ -157,6 +143,18 @@ codeunit 134444 "ERM Test Account Categories"
     procedure AccSchedReportRequestPageHandler(var AccountSchedule: TestRequestPage "Account Schedule")
     begin
         Assert.AreEqual(ExpectedAccSchedName, AccountSchedule.AccSchedNam.Value, '');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BalanceSheetRequestPageHandler(var BalanceSheet: TestRequestPage "Balance Sheet")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
+    begin
     end;
 }
 

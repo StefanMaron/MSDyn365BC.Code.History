@@ -18,7 +18,7 @@ codeunit 134626 "Person and Company Contacts"
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryERM: Codeunit "Library - ERM";
+        CreateVendorFromContactQst: Label 'Do you want to create contact as a vendor using a vendor template?';
         BusinessRelationsNotZeroErr: Label 'No. of Business Relations must be equal to ''0''  in Contact: No.=%1. Current value is ''1''.';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
 
@@ -64,6 +64,7 @@ codeunit 134626 "Person and Company Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesAtCreatingVendorFromContact,VendorTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure CreateVendorForPersonContactFails()
     var
@@ -73,6 +74,7 @@ codeunit 134626 "Person and Company Contacts"
 
         // Setup
         CreateContactUsingContactCard(Contact);
+        AddNewVendorTemplate;
 
         // Exercise
         asserterror CreateVendorFromContactUsingContactCard(Contact);
@@ -359,14 +361,11 @@ codeunit 134626 "Person and Company Contacts"
         PaymentTerms: Record "Payment Terms";
         CustomerTemplate: Record "Customer Template";
         MarketingSetup: Record "Marketing Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
     begin
         PaymentTerms.FindFirst;
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CustomerTemplate.SetRange("Contact Type", CustomerTemplate."Contact Type"::Person);
         CustomerTemplate.FindFirst;
         CustomerTemplate."Payment Terms Code" := PaymentTerms.Code;
-        CustomerTemplate."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         CustomerTemplate.Modify();
         MarketingSetup.Get();
         MarketingSetup."Cust. Template Person Code" := CustomerTemplate.Code;
@@ -475,6 +474,30 @@ codeunit 134626 "Person and Company Contacts"
         Customer: Record Customer;
     begin
         Assert.ExpectedMessage(StrSubstNo(RelatedRecordIsCreatedMsg, Customer.TableCaption), Message);
+    end;
+
+    local procedure AddNewVendorTemplate()
+    var
+        VendorTemplate: Record "Vendor Template";
+    begin
+        VendorTemplate.Init();
+        VendorTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(VendorTemplate.FieldNo(Code), DATABASE::"Vendor Template"));
+        VendorTemplate.Insert(true);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmYesAtCreatingVendorFromContact(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(CreateVendorFromContactQst, Question);
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorTemplateListModalPageHandler(var VendorTemplateList: TestPage "Vendor Template List")
+    begin
+        VendorTemplateList.OK.Invoke;
     end;
 
     local procedure AssertContactBusinessRelationExists(var ContactBusinessRelation: Record "Contact Business Relation"; ContactNo: Code[20])

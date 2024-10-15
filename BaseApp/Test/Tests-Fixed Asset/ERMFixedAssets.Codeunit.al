@@ -703,7 +703,7 @@ codeunit 134451 "ERM Fixed Assets"
         Initialize;
 
         // Post a Line in FA Journal with FA Posting Type Custom 2.
-        Amount := CreateFixedAssetWithoutIntegration(FAJournalLine."FA Posting Type"::"Custom 2", -1, FAJournalLine);
+        Amount := CreateFixedAssetWithoutIntegration(FAJournalLine."FA Posting Type"::"Custom 2", 1, FAJournalLine); // NAVCZ
         FANo := FAJournalLine."FA No.";
 
         // 2.Exercise: Post a Line in FA Journal.
@@ -2382,6 +2382,7 @@ codeunit 134451 "ERM Fixed Assets"
     begin
         CreateFixedAssetSetup(DepreciationBook);
         DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
+        DepreciationBook.Validate("G/L Integration - Custom 2", true); // NAVCZ
         DepreciationBook.Validate("Part of Duplication List", true);
         DepreciationBook.Modify(true);
     end;
@@ -2405,6 +2406,10 @@ codeunit 134451 "ERM Fixed Assets"
         FAJournalSetup: Record "FA Journal Setup";
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        // NAVCZ
+        DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross);
+        DepreciationBook.Modify(true);
+        // NAVCZ
         LibraryFixedAsset.CreateFAJournalSetup(FAJournalSetup, DepreciationBook.Code, '');
         UpdateFAJournalSetup(FAJournalSetup);
         UpdateFAPostingTypeSetup(DepreciationBook.Code);
@@ -2478,7 +2483,7 @@ codeunit 134451 "ERM Fixed Assets"
           FANo, DepreciationBookCode, -LibraryRandom.RandDec(100, 2));
         CreateFAJournalLine(
           FAJournalLine, FAJournalBatch, FAJournalLine."FA Posting Type"::"Custom 2",
-          FANo, DepreciationBookCode, -LibraryRandom.RandDec(100, 2));
+          FANo, DepreciationBookCode, LibraryRandom.RandDec(100, 2)); // NAVCZ
     end;
 
     local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Option; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)

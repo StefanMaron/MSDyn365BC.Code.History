@@ -1575,6 +1575,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Using Random Value for Quantity and Unit Price in Sales Line.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        // NAVCZ
+        SalesHeader.Validate("Prepayment Type", SalesHeader."Prepayment Type"::Prepayment);
+        SalesHeader.Modify(true);
+        // NAVCZ
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Validate("Line Discount %", 0);  // Keep Line Discount % Zero.
@@ -1603,6 +1607,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Using Random Value for Quantity and Direct Unit Cost in Purchase Line.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        // NAVCZ
+        PurchaseHeader.Validate("Prepayment Type", PurchaseHeader."Prepayment Type"::Prepayment);
+        PurchaseHeader.Modify(true);
+        // NAVCZ
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);

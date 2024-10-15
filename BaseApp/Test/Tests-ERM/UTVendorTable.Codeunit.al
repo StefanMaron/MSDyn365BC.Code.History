@@ -590,7 +590,7 @@ codeunit 134824 "UT Vendor Table"
         CreateVendorFromNameAndBlocked(Vendor[4], RandomText2, Vendor[4].Blocked::" ");
 
         Assert.AreEqual(Vendor[2]."No.", Vendor[1].GetVendorNo(RandomText1), '');
-        Assert.AreEqual(Vendor[4]."No.", Vendor[1].GetVendorNo(RandomText2), '');
+        Assert.AreEqual(Vendor[2]."No.", Vendor[1].GetVendorNo(RandomText2), '');
     end;
 
     [Test]

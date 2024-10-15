@@ -207,5 +207,26 @@ codeunit 131306 "Library - Journals"
         GeneralLedgerSetup.Validate("Post & Print with Job Queue", PostAndPrintWithJobQueue);
         GeneralLedgerSetup.Modify(true);
     end;
+
+    procedure SetUserJournalPreference(PageID: Integer; GenJournalBatchName: Code[10]);
+    var
+        JournalUserPreferences: Record "Journal User Preferences";
+    begin
+        // NAVCZ
+        with JournalUserPreferences do begin
+            SETFILTER("User ID", '%1', USERSECURITYID);
+            SETFILTER("Page ID", '%1', PageID);
+            IF FINDFIRST THEN BEGIN
+                "Journal Batch Name" := GenJournalBatchName;
+                MODIFY;
+            END else begin
+                INIT;
+                "User ID" := USERSECURITYID;
+                "Page ID" := PageID;
+                "Journal Batch Name" := GenJournalBatchName;
+                INSERT;
+            end;
+        end;
+    end;
 }
 

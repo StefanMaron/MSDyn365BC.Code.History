@@ -104,6 +104,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Setup: Update GL Setup, Create Sales Document with two different VAT Posting Setup Items.
         LibraryERM.SetVATRoundingType(VATRoundingDirection);
         CreateVATSalesDocument(SalesHeader, TempSalesLine, DocumentType, CurrencyCode);
+        UpdateCustPostingGroup(SalesHeader."Customer Posting Group"); // NAVCZ
 
         // Exercise: Post the Sales Document.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -223,6 +224,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Exercise: Create Purchase Document for two different VAT Posting Groups and Post the document.
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, DocumentType, CurrencyCode);
+        UpdateVendPostingGroup(PurchaseHeader."Vendor Posting Group"); // NAVCZ
         DocumentNo := PostPurchaseDocument(PurchaseHeader);
 
         // Verify: Verify VAT Amount On GL Entry.
@@ -594,6 +596,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
         InvoiceDiscountAmount := UpdatePurchaseLine(PurchaseHeader."No.");
         VATAmount := Round(InvoiceDiscountAmount * PurchaseLine."VAT %" / 100);
+        UpdateGenPostingSetup(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group"); // NAVCZ
 
         // Exercise: Post Purchase Order.
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1013,6 +1016,48 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     begin
         GeneralLedgerSetup.Get();
         exit(Round(VATAmount, GeneralLedgerSetup."Amount Rounding Precision", RoundingType));
+    end;
+
+    local procedure UpdateGenPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // NAVCZ
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        GeneralPostingSetup."Purch. Inv. Disc. Account" := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup.Modify();
+    end;
+
+    local procedure UpdateCustPostingGroup(CustPostingGroupCode: Code[20])
+    var
+        CustPostingGroup: Record "Customer Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // NAVCZ
+        FindVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.FindFirst;
+
+        CustPostingGroup.Get(CustPostingGroupCode);
+        CustPostingGroup."Invoice Rounding Account" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2);
+        CustPostingGroup.Modify();
+        // NAVCZ
+    end;
+
+    local procedure UpdateVendPostingGroup(VendPostingGroupCode: Code[20])
+    var
+        VendPostingGroup: Record "Vendor Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // NAVCZ
+        FindVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.FindFirst;
+
+        VendPostingGroup.Get(VendPostingGroupCode);
+        VendPostingGroup."Invoice Rounding Account" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2);
+        VendPostingGroup.Modify();
+        // NAVCZ
     end;
 
     local procedure UpdateSalesLines(DocumentNo: Code[20]) TotalAmount: Decimal

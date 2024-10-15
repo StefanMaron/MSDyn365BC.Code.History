@@ -36,6 +36,7 @@ codeunit 134812 "ERM CA GL Transfer"
 
         LibraryERMCountryData.UpdateLocalData;
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
+        LibraryFiscalYear.UpdateDeleteCardWithEntriesOnGLSetup(true);
 
         isInitialized := true;
         Commit();

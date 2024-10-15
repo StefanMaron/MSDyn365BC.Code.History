@@ -95,6 +95,7 @@ codeunit 393 "Reminder-Issue"
                     GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                     GenJnlLine2."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
                     GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
+                    OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
                     GenJnlPostLine.Run(GenJnlLine2);
                 until GenJnlLine.Next = 0;
 
@@ -377,6 +378,7 @@ codeunit 393 "Reminder-Issue"
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
+                OnInsertGenJnlLineForFeeOnBeforeGenJnlLineInsert(GenJnlLine, ReminderHeader, ReminderLine);
                 GenJnlLine.Insert();
             end;
     end;
@@ -403,7 +405,7 @@ codeunit 393 "Reminder-Issue"
             "Interest Posted" :=
               ("Interest Amount" <> 0) and ReminderHeader."Post Interest";
             "User ID" := UserId;
-            OnBeforeReminderEntryInsert(ReminderFinChargeEntry, ReminderHeader);
+            OnBeforeReminderEntryInsert(ReminderFinChargeEntry, ReminderHeader, ReminderLine);
             Insert;
         end;
         if ReminderLine."Line Type" <> ReminderLine."Line Type"::"Not Due" then
@@ -491,6 +493,7 @@ codeunit 393 "Reminder-Issue"
         CustLedgEntry.LockTable();
         CustLedgEntry.Get(ReminderFinChargeEntry."Customer Entry No.");
         CustLedgEntry."Last Issued Reminder Level" := ReminderFinChargeEntry."Reminder Level";
+        OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(CustLedgEntry);
         CustLedgEntry.Modify();
     end;
 
@@ -557,7 +560,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReminderEntryInsert(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; ReminderHeader: Record "Reminder Header")
+    local procedure OnBeforeReminderEntryInsert(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line")
     begin
     end;
 
@@ -572,6 +575,21 @@ codeunit 393 "Reminder-Issue"
 
         if Customer.Blocked = Customer.Blocked::All then
             Error(Text004, Customer.FieldCaption(Blocked), Customer.Blocked, Customer.TableCaption, CustomerNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGenJnlLineForFeeOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
     end;
 }
 

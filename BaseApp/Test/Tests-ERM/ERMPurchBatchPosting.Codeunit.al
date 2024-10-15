@@ -796,6 +796,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        UpdateGeneralLedgerSetup; // NAVCZ
         Commit();
         isInitialized := true;
 
@@ -922,6 +923,16 @@ codeunit 134337 "ERM Purch. Batch Posting"
         ReportSelections.Usage := ReportSelections.Usage::"P.Invoice";
         ReportSelections."Report ID" := REPORT::"Purchase - Invoice";
         If ReportSelections.Insert() Then;
+    end;
+
+    local procedure UpdateGeneralLedgerSetup()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        // NAVCZ
+        GLSetup.Get();
+        GLSetup."Use VAT Date" := true;
+        GLSetup.Modify();
     end;
 
     local procedure VerifyPostedPurchaseInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

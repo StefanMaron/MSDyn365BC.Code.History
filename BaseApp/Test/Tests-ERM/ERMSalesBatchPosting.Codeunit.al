@@ -802,6 +802,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        UpdateGeneralLedgerSetup; // NAVCZ
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Batch Posting");
@@ -860,6 +861,16 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := BachSessionID;
         BatchProcessingSessionMap.Insert();
+    end;
+
+    local procedure UpdateGeneralLedgerSetup()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        // NAVCZ
+        GLSetup.Get();
+        GLSetup."Use VAT Date" := true;
+        GLSetup.Modify();
     end;
 
     local procedure RunBatchPostSales(DocumentType: Option; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)

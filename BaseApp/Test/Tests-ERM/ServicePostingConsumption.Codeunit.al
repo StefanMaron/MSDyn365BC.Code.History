@@ -1508,12 +1508,20 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceCost: Record "Service Cost";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Test cost with Full VAT calculate type account can be entered in Service Line.
 
         // 1. Setup: Create a customer.
         Initialize;
         LibrarySales.CreateCustomer(Customer);
+
+        // NAVCZ
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.DeleteAll();
+        // NAVCZ
 
         // Create VAT Prod Posting Group, create VAT Posting Setup, create a G/L account combine Full VAT, create a Service Cost.
         CreateServiceCostWithAccountCombineFullVAT(ServiceCost, Customer."VAT Bus. Posting Group");

@@ -3284,7 +3284,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.FindFirst;
-        ValueEntry.TestField("Source No.", SourceCode);
+        ValueEntry.TESTFIELD("Source No. 2", SourceCode); // NAVCZ
     end;
 
     local procedure VerifyOrderItemLedgerEntry(ServiceLine: Record "Service Line")

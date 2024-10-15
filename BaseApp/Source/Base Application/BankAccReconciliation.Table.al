@@ -320,7 +320,7 @@ table 273 "Bank Acc. Reconciliation"
 
         // NAVCZ
         if BankOrIssuedBankStatemntHeaderExists() and (not "Created From Iss. Bank Stat.") then
-            Error(BankOrIssBankStatHeaderExistsErr, TableCaption(), "Bank Account No.");
+            Error(BankOrIssBankStatHeaderExistsErr, "Bank Account No.");
         // NAVCZ
 
         BankAcc.Modify();
@@ -347,7 +347,7 @@ table 273 "Bank Acc. Reconciliation"
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported.';
-        BankOrIssBankStatHeaderExistsErr: Label 'Cannot create %1 because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %2.', Comment = '%1=table caption;%2=number of bank account';
+        BankOrIssBankStatHeaderExistsErr: Label 'Cannot create Payment Reconciliation Journal because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %1.', Comment = '%1=number of bank account';
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -743,16 +743,16 @@ table 273 "Bank Acc. Reconciliation"
 
     local procedure BankOrIssuedBankStatemntHeaderExists(): Boolean
     var
-      BankStatementHeader: Record "Bank Statement Header";
-      IssuedBankStatementHeader: Record "Issued Bank Statement Header";
+        BankStatementHeader: Record "Bank Statement Header";
+        IssuedBankStatementHeader: Record "Issued Bank Statement Header";
     begin
-      // NAVCZ
-      BankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
-      if not BankStatementHeader.IsEmpty() then
-        exit(true);
-      IssuedBankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
-      if not IssuedBankStatementHeader.IsEmpty() then
-        exit(true);
+        // NAVCZ
+        BankStatementHeader.SetRange("Bank Account No.", "Bank Account No.");
+        if not BankStatementHeader.IsEmpty() then
+            exit(true);
+        IssuedBankStatementHeader.SetRange("Bank Account No.", "Bank Account No.");
+        if not IssuedBankStatementHeader.IsEmpty() then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

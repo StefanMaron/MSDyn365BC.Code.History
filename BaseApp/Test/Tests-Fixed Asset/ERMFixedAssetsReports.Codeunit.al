@@ -799,6 +799,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         AttachFAPostingGroup(FixedAsset2, FixedAsset."FA Posting Group");
@@ -849,6 +850,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         CreateFixedAssetClass(FAClass);
@@ -901,6 +903,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         LibraryFixedAsset.CreateFASubclass(FASubclass);
@@ -952,6 +955,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         CreateFixedAssetLocation(FALocation);
@@ -1006,6 +1010,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         UpdateGlobalDimension1Code(FixedAsset, DimensionValue.Code);
@@ -1059,6 +1064,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         UpdateGlobalDimension2Code(FixedAsset, DimensionValue.Code);
@@ -1110,6 +1116,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for first 2 Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset3);
@@ -1162,6 +1169,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Posting Type Acquisition cost, Depreciation and Disposal for Fixed Asset.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
@@ -1212,6 +1220,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Posting Type Acquisition cost, Depreciation and Disposal for Fixed Assets.
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", '', DepreciationBook.Code);
@@ -1926,6 +1935,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize;
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        UpdateFAPostingTypeSetup(LibraryFixedAsset.GetDefaultDeprBook); // NAVCZ
         UpdateGainAccOnDisposal(OldGainOnDisposalAcc, FixedAsset."FA Posting Group");
         LibraryVariableStorage.Enqueue(LibraryFixedAsset.GetDefaultDeprBook);
         AcquisitionCostAmount := LibraryRandom.RandDec(1000, 2);
@@ -2074,6 +2084,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAJournalSetup(FAJournalSetup, DepreciationBook.Code, '');
         UpdateFAJournalSetup(FAJournalSetup);
+        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
     end;
 
     local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; PostingDate: Date)
@@ -2516,6 +2527,16 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
         LibraryReportValidation.SetFileName(CreateGuid);
         FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    local procedure UpdateFAPostingTypeSetup(DepreciationBookCode: Code[10])
+    var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+    begin
+        // NAVCZ
+        FAPostingTypeSetup.SetCurrentKey("Depreciation Book Code", "FA Posting Type");
+        FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
+        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
     end;
 }
 

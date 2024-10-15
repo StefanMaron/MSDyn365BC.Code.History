@@ -47,6 +47,7 @@ codeunit 5051 SegManagement
         LoggedSegment."User ID" := UserId;
         OnBeforeLoggedSegmentInsert(LoggedSegment);
         LoggedSegment.Insert();
+        OnLogSegmentOnAfterLoggedSegmentInsert(LoggedSegment, SegmentHeader);
 
         SegmentLine.LockTable();
         SegmentLine.SetCurrentKey("Segment No.", "Campaign No.", Date);
@@ -89,6 +90,7 @@ codeunit 5051 SegManagement
                 end;
                 OnBeforeInteractLogEntryInsert(InteractLogEntry, SegmentLine);
                 InteractLogEntry.Insert();
+                OnLogSegmentOnAfterInteractLogEntryInsert(InteractLogEntry, SegmentLine);
                 Attachment.LockTable();
                 if Attachment.Get(SegmentLine."Attachment No.") and (not Attachment."Read Only") then begin
                     Attachment."Read Only" := true;
@@ -109,9 +111,10 @@ codeunit 5051 SegManagement
             Clear(SegmentHeader);
             SegmentHeader."Campaign No." := CampaignNo;
             SegmentHeader.Description := CopyStr(StrSubstNo(Text002, SegmentNo), 1, 50);
+            OnLogSegmentOnBeforeFollowupSegmentHeaderInsert(SegmentHeader, LoggedSegment);
             SegmentHeader.Insert(true);
             SegmentHeader.ReuseLogged(LoggedSegment."Entry No.");
-            OnAfterInsertFollowUpSegment(SegmentHeader);
+            OnAfterInsertFollowUpSegment(SegmentHeader, LoggedSegment);
         end;
 
         if Deliver then
@@ -593,7 +596,7 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertFollowUpSegment(var SegmentHeader: Record "Segment Header")
+    local procedure OnAfterInsertFollowUpSegment(var SegmentHeader: Record "Segment Header"; LoggedSegment: Record "Logged Segment")
     begin
     end;
 
@@ -679,6 +682,21 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(var SegmentLine: Record "Segment Line"; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnAfterLoggedSegmentInsert(var LoggedSegment: Record "Logged Segment"; SegmentHeader: Record "Segment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnAfterInteractLogEntryInsert(var InteractionLogEntry: Record "Interaction Log Entry"; SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnBeforeFollowupSegmentHeaderInsert(var SegmentHeader: Record "Segment Header"; LoggedSegment: Record "Logged Segment")
     begin
     end;
 }

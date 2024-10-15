@@ -22,6 +22,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -218,7 +219,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGain()
     var
@@ -242,7 +243,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLoss()
     var
@@ -266,7 +267,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -707,6 +708,70 @@ codeunit 134011 "ERM Application Vendor"
         Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in vendor ledger entry when it is generated from general journal line applied to vendor ledger entry
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        InvoiceAmount := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+
+        Clear(VendorLedgerEntry);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        VendorLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.TestField(Open, false);
+        until VendorLedgerEntry.Next() = 0;
+        Assert.RecordCount(VendorLedgerEntry, 2);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -836,7 +901,7 @@ codeunit 134011 "ERM Application Vendor"
 
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        asserterror LibraryERMVendorWatch.AssertVendor; // NAVCZ
     end;
 
     local procedure VendorPmtDiscVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
@@ -1019,6 +1084,8 @@ codeunit 134011 "ERM Application Vendor"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
         Desc: Text[30];
     begin
         // Test with payment discount
@@ -1027,6 +1094,12 @@ codeunit 134011 "ERM Application Vendor"
 
         // Create a currency code with magic exchange rate valid for Amount = 1000
         LibraryERM.CreateCurrency(Currency);
+        // NAVCZ
+        LibraryERM.CreateGLAccount(GLAccount);
+        Currency.Validate("Realized Gains Acc.", GLAccount."No.");
+        Currency.Validate("Realized Losses Acc.", GLAccount."No.");
+        Currency.Modify(true);
+        // NAVCZ
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 64.580459);  // Magic exchange rate
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
@@ -1036,7 +1109,16 @@ codeunit 134011 "ERM Application Vendor"
 
         // Watch for "Correction of Remaining Amount" detailed ledger entries.
         LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
+        if Stepwise then // NAVCZ
+            LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Correction of Remaining Amount", 0)
+        // NAVCZ
+        else begin
+            LibraryERMVendorWatch.DtldEntriesGreaterThan(
+              Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Realized Gain", 0);
+            LibraryERMVendorWatch.DtldEntriesGreaterThan(
+              Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Realized Loss", 0);
+        end;
+        // NAVCZ
 
         // Generate a document that triggers "Correction of Remaining Amount" dtld. ledger entries.
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
@@ -1595,6 +1677,14 @@ codeunit 134011 "ERM Application Vendor"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        // NAVCZ
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [ModalPageHandler]

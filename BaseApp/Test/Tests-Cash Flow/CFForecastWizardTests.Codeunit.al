@@ -189,7 +189,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Assert.RecordIsNotEmpty(CashFlowChartSetup);
 
         Assert.IsTrue(CashFlowForecast.Get(DefaultTxt), 'No DEFAULT Cash Flow Forecast exists');
-        Assert.RecordCount(CashFlowAccount, 12);
+        Assert.RecordCount(CashFlowAccount, 14);
 
         // [THEN] "No." = '4-CASH FLOW MANUAL E' of CF Account with "Source Type" = "Cash Flow Manual Expense"
         // OptionString: ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Orders,Purchase Orders,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax

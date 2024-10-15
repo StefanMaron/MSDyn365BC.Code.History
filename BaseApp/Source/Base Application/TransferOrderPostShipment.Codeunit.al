@@ -687,6 +687,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
         OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine);
         NewTransferLine.Insert();
+        OnAfterCopyTransLine(NewTransferLine, TransferLine);
     end;
 
     local procedure ReleaseDocument(var TransferHeader: Record "Transfer Header")
@@ -738,6 +739,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferShipmentHeader: Record "Transfer Shipment Header"; TransferShipmentLine: Record "Transfer Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTransLine(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line")
     begin
     end;
 

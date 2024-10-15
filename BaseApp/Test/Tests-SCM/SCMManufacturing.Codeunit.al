@@ -1213,6 +1213,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure DocumentNoOnItemLedgerEntry()
     var
@@ -1250,6 +1251,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure QuantityOnProductionOrderLine()
     var
@@ -1288,6 +1290,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure ExpectedQuantityOnProductionOrderComponenent()
     var
@@ -2122,7 +2125,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler2')]
+    [HandlerFunctions('MessageHandler2,YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure ProdOrderEndingDateBeforeComponentReceiptDateAllowedWithWarning()
     var
@@ -2153,6 +2156,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure ProdOrderCompDueDateBeforeComponentReceiptDateIsNotAllowed()
     var
@@ -5881,6 +5885,14 @@ codeunit 137404 "SCM Manufacturing"
                   DT2Time(ExpStartDateTime), DT2Time("Starting Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Starting Time")));
             until Next = 0;
         end;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure YesConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        // NAVCZ
+        Reply := true;
     end;
 }
 

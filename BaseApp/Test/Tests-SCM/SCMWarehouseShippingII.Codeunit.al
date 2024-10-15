@@ -1845,7 +1845,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerAsTrue')]
     [Scope('OnPrem')]
     procedure PostShipmentWithNotPickedAssembleToOrderItem()
     var
@@ -1916,6 +1916,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerAsTrue')]
     [Scope('OnPrem')]
     procedure UpdatePurchaseCodeWithDropShipmentAfterPostWarehouseShipment()
     begin
@@ -1924,6 +1925,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerAsTrue')]
     [Scope('OnPrem')]
     procedure UpdatePurchaseCodeWithSpecialOrderAfterPostWarehouseShipment()
     begin
@@ -1932,6 +1934,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerAsTrue')]
     [Scope('OnPrem')]
     procedure UpdateQuantityAndPurchaseCodeAfterPostWarehouseShipment()
     var

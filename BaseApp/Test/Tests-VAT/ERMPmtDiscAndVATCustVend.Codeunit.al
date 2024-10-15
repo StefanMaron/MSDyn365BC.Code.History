@@ -19,6 +19,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         AmountError: Label '%1 should be %2 in %3.';
 
@@ -607,10 +608,12 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -621,6 +624,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
     end;
 
     local procedure SetupPmtTolAndVATDifference(PmtTolPct: Decimal; MaxPmtTolAmount: Decimal; MaxVATDifferenceAllowed: Decimal)
@@ -739,6 +743,8 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
         GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
         GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
+        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
+        GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -799,6 +805,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.UpdateGLAccountWithPostingSetup(
           GLAccount, GLAccount."Gen. Posting Type"::Sale, GeneralPostingSetup, VATPostingSetup);
         GLAccountNo := GLAccount."No.";
+        UpdateCustInvRoundingAccount(CustomerNo, GLAccountNo);
     end;
 
     local procedure CreateGLAccount(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
@@ -1324,6 +1331,17 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
             Validate("Allow VAT Difference", AllowVATDifference);
             Modify(true);
         end;
+    end;
+
+    local procedure UpdateCustInvRoundingAccount(CustomerNo: Code[20]; GLAccountNo: Code[20])
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.Get(CustomerNo);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccountNo);
+        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)

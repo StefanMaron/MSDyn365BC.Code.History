@@ -49,6 +49,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        UpdateGeneralLedgerSetup; // NAVCZ
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -866,6 +867,16 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+
+    local procedure UpdateGeneralLedgerSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // NAVCZ
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Delete Card with Entries" := true;
+        GeneralLedgerSetup.Modify();
     end;
 }
 

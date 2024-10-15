@@ -30,7 +30,7 @@ codeunit 134600 "Report Layout Test"
         CopyOfTxt: Label 'Copy of %1', Comment = '%1 - custom report layout description';
         DeleteBuiltInLayoutErr: Label 'This is a built-in custom report layout, and it cannot be deleted.';
         IsInitialized: Boolean;
-        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">';
+        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">', Locked = true;
         FileNameIsBlankMsg: Label 'File name is blank.';
 
     local procedure Initialize()
@@ -309,16 +309,20 @@ codeunit 134600 "Report Layout Test"
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
         CustomReportLayout.Get(LayoutCode);
         DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+        LayoutDescription := LibraryUtility.GenerateGUID;
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
         CustomReportLayout.DeleteAll();
         CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout."File Extension" := 'docx';
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
         CustomReportLayout.Insert();
+
         LayoutCode := CustomReportLayout.Code;
+
         if not ReportLayout.Get(LayoutCode) then begin
             ReportLayout.Init();
             ReportLayout.Code := LayoutCode;
@@ -994,7 +998,7 @@ codeunit 134600 "Report Layout Test"
     end;
 
     [Test]
-    [HandlerFunctions('ReturnOrderConfirmation_RPH')]
+    [HandlerFunctions('ReturnOrderConfirmationCZ_RPH')]
     [Scope('OnPrem')]
     procedure SalesReturnOrder_Print()
     var
@@ -1191,7 +1195,7 @@ codeunit 134600 "Report Layout Test"
     begin
         with CustomReportLayout do begin
             Init;
-            "Report ID" := REPORT::"Standard Sales - Order Conf.";
+            "Report ID" := REPORT::"Order Confirmation";
             Insert(true);
             exit(Code);
         end;
@@ -1202,8 +1206,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportSelection: Record "Custom Report Selection";
     begin
         AddCustomerDocumentLayoutReport(
-          CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.",
-          AddOrderConfirmationToCustomReportLayout);
+          CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Order Confirmation", AddOrderConfirmationToCustomReportLayout);
     end;
 
     local procedure AddSalesInvoiceToCustomerDocumentLayout(CustomerNo: Code[20])
@@ -1443,13 +1446,13 @@ codeunit 134600 "Report Layout Test"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Standard Sales - Order Conf.")
+    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Order Confirmation")
     begin
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ReturnOrderConfirmation_RPH(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
+    procedure ReturnOrderConfirmationCZ_RPH(var ReturnOrderConfirmationCZ: TestRequestPage "Return Order Confirmation CZ")
     begin
     end;
 

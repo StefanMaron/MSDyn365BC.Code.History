@@ -15,6 +15,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         Assert: Codeunit Assert;
         ERMVATToolHelper: Codeunit "ERM VAT Tool - Helper";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -26,11 +27,13 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - Purch. Doc");
         ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
 
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - Purch. Doc");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -40,6 +43,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - Purch. Doc");
     end;
 
     [Test]
@@ -706,6 +710,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // SETUP: Create and Save data to update in a temporary table.
         ERMVATToolHelper.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ERMVATToolHelper.CreateVendor);
         PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Validate("Prepayment Type", PurchaseHeader."Prepayment Type"::Prepayment); // NAVCZ
         ERMVATToolHelper.CreatePurchaseLines(PurchaseHeader, '', GetLineCount(false));
         TempRecRef.Open(DATABASE::"Purchase Line", true);
         ERMVATToolHelper.CreateLinesRefPurchase(TempRecRef, PurchaseHeader);

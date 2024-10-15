@@ -88,7 +88,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // Check error on Recurring Journal Lines after posting with zero Amount.
 
         // Setup: Create Recurring General Journal Line with Zero Amount.
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         LibraryERM.FindGLAccount(GLAccount);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.");
 
@@ -115,7 +115,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [SCENARIO 363410] Recurring journal line with "Expiration Date" less than Posting Date should be posted on "Posting Date"
 
         // [GIVEN] Recurring Journal Line
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
@@ -148,7 +148,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [SCENARIO 363410] Recurring journal line with "Expiration Date" more than Posting Date should not be posted to G/L
 
         // [GIVEN] Recurring Journal Line
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
@@ -212,7 +212,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [SCENARIO 375144] Recurring Journal skip lines while posting if they are expired.
 
         // [GIVEN] General Journal Batch.
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
 
         // [GIVEN] Recurring Journal with 3 lines: "Posting Date" is more, less and equal to "Expiration Date"
         PostingDate := LibraryRandom.RandDate(-10);
@@ -254,15 +254,15 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", Amount, GLAccount."No.", DocumentNo);
 
         // [GIVEN] The 2nd Line of Batch having "Amount" = -100 and G/L Account
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", -Amount, GLAccount."No.", DocumentNo);
 
         // [GIVEN] The 3rd Line of Batch having "Amount" = 0 and G/L Account
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.", DocumentNo);
 
         // [GIVEN] "Amount <> 0" filter applied to Journal
@@ -316,15 +316,15 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", Amount, GLAccount."No.", DocumentNo);
 
         // [GIVEN] The 2nd Line of Batch having "Amount" = -100 and G/L Account
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", -Amount, GLAccount."No.", DocumentNo);
 
         // [GIVEN] The 3rd Line of Batch having "Amount" = 0 and G/L Account
-        CreateJournalLineWithSimilarDocNo(
+        CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.", DocumentNo);
 
         // [GIVEN] "Amount <> 0" filter applied to Journal
@@ -431,7 +431,7 @@ codeunit 134227 "ERM PostRecurringJournal"
           GenJournalLine."Account Type"::"G/L Account", GLAccountA."No.", LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Clear(GenJournalLine);
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"B  Balance", 0, GLAccountA."No.");
         GLAccountB.Copy(GLAccountA);
         GLAccountB."No." := LibraryUtility.GenerateGUID;
@@ -637,7 +637,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [SCENARIO 221154] Lines with posting date outside User Setup allowed posting period are not posted in Recurring Journal
 
         // [GIVEN] General Journal Batch.
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
 
         // [GIVEN] Date when posting is allowed "D"
         AllowedDate := LibraryRandom.RandDate(-10);
@@ -678,7 +678,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         // [GIVEN] General Journal Batch
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
 
         // [GIVEN] Date when posting is allowed "D"
         AllowedDate := LibraryRandom.RandDate(-10);
@@ -716,7 +716,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [FEATURE] [Print]
         // [SCENARIO 221154] Stan can post and print recurring journal
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         NameValueBuffer.DeleteAll();
 
         // [GIVEN] Balanced recurring journal
@@ -827,7 +827,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [GIVEN] Line "L1" with Recurring Method = B Balance and G/L Account, which had Balance 1000.0 at Posting Date
         // [GIVEN] Line "L2" with Recurring Method = RB Reversing Balance and G/L Account, which had Balance 800.0 at Posting Date
         // [GIVEN] Gen. Jnl. Allocations "A1" and "A2" for Lines "L1" and "L2" respectfully, each had Allocation % = 100.0
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         for Index := 1 to ArrayLen(GenJournalLine) do begin
             AllocAmt[Index] := LibraryRandom.RandDecInRange(1000, 2000, 2);
             CreateGeneralJournalLine(
@@ -861,7 +861,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
 
         // [GIVEN] Recurring journal line for sales Invoice with Amount = 100. The line is allocated by 100%.
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLineWithType(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -891,7 +891,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [FEATURE] [Gen. Jnl. Allocation]
         // [SCENARIO 332089] Posting gen. allocation lines must rely on negative "Copy VAT Setup on Jnl. Lines" of general journal batch
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalBatch.Modify(true);
 
@@ -920,7 +920,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [FEATURE] [Gen. Jnl. Allocation]
         // [SCENARIO 332089] Posting gen. allocation lines must rely on positive "Copy VAT Setup on Jnl. Lines" of general journal batch
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
         GenJournalBatch.Modify(true);
 
@@ -935,6 +935,150 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         Assert.RecordCount(VATEntry, VATEntryCount + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGenJournalLineCustomerWithAllocationLine_CopyVATSetup_TRUE()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
+        VATEntryCount: Integer;
+    begin
+        // [FEATURE] [Gen. Jnl. Allocation] [Customer]
+        // [SCENARIO 332089] Posting gen. allocation lines must rely on positive "Copy VAT Setup on Jnl. Lines" of general journal batch
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
+        GenJournalBatch.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        VATEntryCount := VATEntry.Count;
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Assert.RecordCount(VATEntry, VATEntryCount + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGenJournalLineVendorWithAllocationLine_CopyVATSetup_TRUE()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
+        VATEntryCount: Integer;
+    begin
+        // [FEATURE] [Gen. Jnl. Allocation] [Vendor]
+        // [SCENARIO 332089] Posting gen. allocation lines must rely on positive "Copy VAT Setup on Jnl. Lines" of general journal batch
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
+        GenJournalBatch.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        VATEntryCount := VATEntry.Count;
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Assert.RecordCount(VATEntry, VATEntryCount + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostRecurringGenJnlLinesNotSortedByDocNoWithForceDocBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: array[2] of Code[20];
+        Amount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Force Doc. Balance]
+        // [SCENARIO 345070] Post recurring Gen. Journal Lines, that are balanced by Document No, but not sorted in Document No order in case "Force Doc. Balance" and "Posting No. Series" are set.
+
+        // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
+
+        // [GIVEN] Four recurring Gen. Journal lines, balanced by Document No., but created with Document No. in order TEST1, TEST2, TEST1, TEST2.
+        DocumentNo[1] := LibraryUtility.GenerateGUID;
+        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          -Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          -Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+
+        // [WHEN] Post recurring Gen. Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Gen. Journal Lines were posted.
+        VerifyGLEntryExists(GenJournalBatch.Name, WorkDate());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostRecurringGenJnlLinesUnbalancedAndNotSortedByDocNoWithForceDocBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: array[2] of Code[20];
+        Amount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Force Doc. Balance]
+        // [SCENARIO 345070] Post recurring Gen. Journal Lines, that are not balanced by Document No and not sorted in Document No order in case "Force Doc. Balance" and "Posting No. Series" are set.
+
+        // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
+
+        // [GIVEN] Four recurring Gen. Journal lines, unbalanced by Document No. and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
+        DocumentNo[1] := LibraryUtility.GenerateGUID;
+        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          -Amount[1] * 2, LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+        CreateJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          -Amount[2] * 2, LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+
+        // [WHEN] Post recurring Gen. Journal Lines.
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Error "Document No. is out of balance" was thrown. General Journal Lines were not posted.
+        Assert.ExpectedError(StrSubstNo('Document No. %1 is out of balance', DocumentNo[1]));
+        Assert.ExpectedErrorCode('Dialog');
+        VerifyGLEntryNotExists(GenJournalBatch.Name);
     end;
 
     local procedure CreateGLAccountWithBalanceAtDate(PostingDate: Date; Balance: Decimal): Code[20]
@@ -958,12 +1102,12 @@ codeunit 134227 "ERM PostRecurringJournal"
         Counter: Integer;
     begin
         DocumentNo := LibraryUtility.GenerateGUID;
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccount);
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-            CreateJournalLineWithSimilarDocNo(
+            CreateJournalLineWithDocumentNo(
               GenJournalLine, GenJournalBatch, RecurringMethod, LibraryRandom.RandDec(100, 2), GLAccount."No.", DocumentNo);
-            CreateJournalLineWithSimilarDocNo(
+            CreateJournalLineWithDocumentNo(
               GenJournalLine, GenJournalBatch, RecurringMethod, -GenJournalLine.Amount, GLAccount."No.", DocumentNo);
         end;
         FindGeneralJournalLine(GenJournalLine);
@@ -991,7 +1135,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         FindGLAccount(GLAccount);
 
         // Create Recurring Journal Lines with Allocation and with random values.
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         for Counter := 1 to NoOfLines do begin
             CreateGeneralJournalLine(
               GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryRandom.RandDec(100, 2),
@@ -1075,14 +1219,14 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineWithSimilarDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; Amount: Decimal; AccountNo: Code[20]; DocumentNo: Code[20])
+    local procedure CreateJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; Amount: Decimal; AccountNo: Code[20]; DocumentNo: Code[20])
     begin
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, RecurringMethod, Amount, AccountNo);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure CreateRecurringGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1117,7 +1261,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        CreateTemplateAndBatch(GenJournalBatch);
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLineWithType(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", DocumentType, AccountType, AccountNo, Amount);
         CreateAllocationLine(GenJournalLine);
@@ -1130,6 +1274,21 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine."System-Created Entry" := IsSystemEntry;
         GenJournalLine."Allow Zero-Amount Posting" := AllowZeroPosting;
         GenJournalLine."Account Type" := AccountType;
+    end;
+
+    local procedure UpdateForceDocBalanceOnGenJnlTemplate(GenJnlTemplateName: Code[20]; ForceDocBalance: Boolean)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.Get(GenJnlTemplateName);
+        GenJournalTemplate.Validate("Force Doc. Balance", ForceDocBalance);
+        GenJournalTemplate.Modify(true);
+    end;
+
+    local procedure UpdatePostingNoSeriesOnGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch"; PostingNoSeries: Code[20])
+    begin
+        GenJournalBatch.Validate("Posting No. Series", PostingNoSeries);
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account")
@@ -1188,6 +1347,14 @@ codeunit 134227 "ERM PostRecurringJournal"
         DummyGLEntry.SetRange("Journal Batch Name", JournalBatchName);
         DummyGLEntry.SetRange("Posting Date", PostingDate);
         Assert.RecordIsNotEmpty(DummyGLEntry);
+    end;
+
+    local procedure VerifyGLEntryNotExists(JournalBatchName: Code[10])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Journal Batch Name", JournalBatchName);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyGLEntriesWithExpiredDate(DocumentNo: array[3] of Code[20])
