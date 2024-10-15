@@ -165,6 +165,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
         NewDimensionCode: Code[20];
+        OldDimensionCode: Code[20];
     begin
         // Test Rename the Global Dimension with new code.
 
@@ -172,6 +173,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
         GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
+        OldDimensionCode := Dimension.Code;
 
         // 2. Exercise: Rename the Global Dimension 1 Code.
         NewDimensionCode :=
@@ -184,6 +186,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         // 3. Verify: Verify the Global Dimension 1 code in General Ledger Setup with new created code.
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", NewDimensionCode);
+
+        // tear down
+        Dimension.Rename(OldDimensionCode);
     end;
 
     [Test]
@@ -193,6 +198,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
         NewDimensionCode: Code[20];
+        OldDimensionCode: Code[20];
     begin
         // Test Rename the Shortcut Dimension with new code.
 
@@ -200,6 +206,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
         GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
+        OldDimensionCode := Dimension.Code;
 
         // 2. Exercise: Rename the Shortcut Dimension 3 Code.
         NewDimensionCode :=
@@ -212,6 +219,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         // 3. Verify: Verify the Shortcut Dimension 3 code in General Ledger Setup with new created code.
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 3 Code", NewDimensionCode);
+
+        // tear down
+        Dimension.Rename(OldDimensionCode);
     end;
 
     [Test]
@@ -2563,7 +2573,6 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [FEATURE] [Analysis by Dimensions] [UI]
         // [SCENARIO 375411] Amount Decimal Places in General Ledger Setup affects Decimal Places displayed in Analysis by Dimension Matrix page when Rounding Factor = None.
         Initialize();
-        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         // [GIVEN] "Amount Decimal Places" is set to 5:5 in General Ledger Setup.
         DecimalPlaces := StrSubstNo('%1:%1', LibraryRandom.RandIntInRange(3, 5));
@@ -2586,7 +2595,6 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [THEN] Analysis By Dimension Matrix Amount displays 5 decimal places.
         Assert.AreEqual(Format(Amount, 0, StrSubstNo(FormatStrTxt, DecimalPlaces)), LibraryVariableStorage.DequeueText(), '');
-        LibrarySetupStorage.Restore();
     end;
 
     [Test]
@@ -2658,12 +2666,82 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Verification in GLBalanceDimMatrixPageHandler
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GLBalanceDimMatrixGlobalDim12ValueAsColumnPageHandler2')]
+    procedure GLBalancebyDimensionSaveGlobalDim1Dim2FilterOnReopen()
+    var
+        Dimension: Array[2] of Record Dimension;
+        DimensionValue: Array[4] of Record "Dimension Value";
+        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [GL Balance By Dimension] [UI]
+        // [SCENARIO 399208] G/L Balance by Dim should save Global Dimensions 1 and 2 filters after reopen
+        Initialize();
+
+        // [GIVEN] G/L Account "GL1"
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Global Dimension 1 'GL1' with Dimension Values 'GL1-1' and 'GL1-2'
+        LibraryDimension.CreateDimension(Dimension[1]);
+        LibraryERM.SetGlobalDimensionCode(1, Dimension[1].Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension[1].Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension[1].Code);
+
+        // [GIVEN] Global Dimension 2 'GL2' with Dimension Values 'GL2-1' and 'GL2-2'
+        LibraryDimension.CreateDimension(Dimension[2]);
+        LibraryERM.SetGlobalDimensionCode(2, Dimension[2].Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[3], Dimension[2].Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[4], Dimension[2].Code);
+
+        // [GIVEN] "Analysis by Dim. User Param." for current user and page 408 with G/L Account Filter = "GL1" and "Date Filter" = '01/01/2021..01/02/2021';
+        AnalysisByDimUserParam.Init();
+        AnalysisByDimUserParam."User ID" := UserId();
+        AnalysisByDimUserParam."Page ID" := Page::"G/L Balance by Dimension";
+        AnalysisByDimUserParam."Account Filter" := GLAccountNo;
+        AnalysisByDimUserParam.Insert();
+
+        // [GIVEN] G/L Balance by Dimension page with Show As Columns = 'GL2' and Global Dimension 2 filter = 'GL2-1'
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.LineDimCode.SetValue('');
+        GLBalancebyDimension.ColumnDimCode.SetValue(Dimension[2].Code);
+        GLBalancebyDimension.Dim1Filter.SetValue('');
+        GLBalancebyDimension.Dim2Filter.SetValue(DimensionValue[3].Code);
+        GLBalancebyDimension.Close();
+
+        // [WHEN] G/L Balance by Dimension page is reopended and G/L Balance by Dim. Matrix invoked
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.ShowMatrix.Invoke();
+        GLBalancebyDimension.Close();
+
+        // [THEN] G/L Balance by Dim. Matrix is showing only Field1(DimensionValue[3]). Field2(DimensionValue[4].Code) should not be shown
+        // Verification in GLBalanceDimMatrixGlobalDim12ValueAsColumnPageHandler2
+
+        // [GIVEN] G/L Balance by Dimension page with Show As Columns = 'GL1' and Global Dimension 1 filter = 'GL1-1'
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.ColumnDimCode.SetValue(Dimension[1].Code);
+        GLBalancebyDimension.Dim1Filter.SetValue(DimensionValue[1].Code);
+        GLBalancebyDimension.Dim2Filter.SetValue('');
+        GLBalancebyDimension.Close();
+
+        // [WHEN] G/L Balance by Dimension page is reopended and G/L Balance by Dim. Matrix invoked
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.ShowMatrix.Invoke();
+        GLBalancebyDimension.Close();
+
+        // [THEN] G/L Balance by Dim. Matrix is showing only Field1(DimensionValue[1]). Field2(DimensionValue[2].Code) should not be shown
+        // Verification in GLBalanceDimMatrixGlobalDim12ValueAsColumnPageHandler2
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension General Part 2");
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
         ClearAnalysisByDimUserParam();
         if isInitialized then
             exit;
@@ -2676,6 +2754,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         CostBudgetFilterControlId := 9;
 
         Commit();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
     end;
 
@@ -3836,6 +3915,14 @@ codeunit 134480 "ERM Dimension General Part 2"
         Assert.IsFalse(GLBalancebyDimMatrix.Field30.Visible(), FieldMustBeHiddenErr);
         Assert.IsFalse(GLBalancebyDimMatrix.Field31.Visible(), FieldMustBeHiddenErr);
         Assert.IsFalse(GLBalancebyDimMatrix.Field32.Visible(), FieldMustBeHiddenErr);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GLBalanceDimMatrixGlobalDim12ValueAsColumnPageHandler2(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
+    begin
+        Assert.IsTrue(GLBalancebyDimMatrix.Field1.Visible(), FieldMustBeVisibleErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field2.Visible(), FieldMustBeHiddenErr);
     end;
 
     [ModalPageHandler]

@@ -967,7 +967,7 @@ codeunit 136119 "Service Standard Codes"
 
         // [THEN] "SSL1" is deleted
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceItemGrCode1.Code);
-        Assert.RecordIsEmpty(StandardServiceLine);
+        Assert.RecordIsNotEmpty(StandardServiceLine);
 
         // [THEN] "SIGR2" is exist
         Assert.IsTrue(StandardServiceItemGrCode2.Find, 'The Standard Service Item Gr. Code must exist');

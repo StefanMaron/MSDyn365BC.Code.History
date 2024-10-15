@@ -132,7 +132,8 @@
                     until TempInteger.Next() = 0
                 else
                     CreateNewCreditTransferEntry(
-                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, "Entry No.", TempGenJnlLine.GetAppliesToDocEntryNo());
+                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine,
+                        CreditTransferEntry."Entry No." + 1, TempGenJnlLine.GetAppliesToDocEntryNo());
                 MoveToWaitingJournal(
                   TempGenJnlLine, CopyStr("Message ID", 1, 20), CopyStr("Payment Information ID", 1, 20), CopyStr("Document No.", 1, 20),
                   CopyStr("End-to-End ID", 1, 20));
