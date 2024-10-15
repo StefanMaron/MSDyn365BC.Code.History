@@ -70,37 +70,35 @@ report 743 "VAT Reconciliation Report"
             var
                 VATEntry: Record "VAT Entry";
             begin
-                VATEntry.SetCurrentKey("Transaction No.");
-                VATEntry.SetLoadFields(Amount, "VAT Calculation Type", Base, "Transaction No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group");
-
-                VATEntry.SetRange("Transaction No.", "Transaction No.");
-                VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-                VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-
                 ResetGlobalVariables();
 
-                if VATEntry.FindSet() then
-                    repeat
-                        if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
-                            BaseAmountRevCharges += VATEntry.Base;
-                            SalesVATRevCharges += VATEntry.Amount;
-                        end else
-                            if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
-                                BaseAmountSalesVAT -= VATEntry.Base;
-                                SalesVAT -= VATEntry.Amount;
-                            end else begin
-                                BaseAmountPurchVAT += VATEntry.Base;
-                                PurchVAT += VATEntry.Amount;
-                            end;
-                    until VATEntry.Next() = 0;
+                if (not ShowIndividualTransaction) and ((GLEntry."VAT Amount" = 0) and (not ShowTransactionWithoutVAT)) then
+                    CurrReport.Skip();
+
+                VATEntry.SetCurrentKey("Transaction No.");
+                VATEntry.SetLoadFields(Amount, "VAT Calculation Type", Base, "Transaction No.");
+                VATEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+                VATEntry.SetRange(Amount, GLEntry."VAT Amount");
+
+                if VATEntry.FindFirst() then
+                    if VATEntry."VAT Calculation Type" = Enum::"Tax Calculation Type"::"Reverse Charge VAT" then begin
+                        BaseAmountRevCharges := VATEntry.Base;
+                        SalesVATRevCharges := VATEntry.Amount;
+                    end else
+                        if GLEntry."Gen. Posting Type" = Enum::"General Posting Type"::Sale then begin
+                            BaseAmountSalesVAT := -VATEntry.Base;
+                            SalesVAT := -VATEntry.Amount;
+                        end else begin
+                            BaseAmountPurchVAT := VATEntry.Base;
+                            PurchVAT := VATEntry.Amount;
+                        end;
 
                 GLAccount.Get("G/L Account No.");
             end;
 
             trigger OnPreDataItem()
             begin
-                GLEntry.SetLoadFields("VAT Amount", "G/L Account No.", "Posting Date", "Document No.", "Transaction No.",
-                    "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Posting Type");
+                GLEntry.SetLoadFields("VAT Amount", "G/L Account No.", "Posting Date", "Document No.", "Transaction No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Posting Type");
 
                 GLAccount.SetLoadFields("No.", Name);
 

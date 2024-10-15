@@ -1570,6 +1570,7 @@ page 30 "Item Card"
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.UpdateItemFromTemplate(Rec);
+                        ItemReplenishmentSystem := Rec."Replenishment System";
                         EnableControls();
                         CurrPage.Update();
                     end;
@@ -3159,6 +3160,7 @@ page 30 "Item Card"
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Rec.Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
+            ItemReplenishmentSystem := Rec."Replenishment System";
             EnableControls();
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
