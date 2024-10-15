@@ -1,4 +1,4 @@
-table 5600 "Fixed Asset"
+﻿table 5600 "Fixed Asset"
 {
     Caption = 'Fixed Asset';
     DataCaptionFields = "No.", Description;
@@ -362,11 +362,7 @@ table 5600 "Fixed Asset"
 
     trigger OnInsert()
     begin
-        if "No." = '' then begin
-            FASetup.Get();
-            FASetup.TestField("Fixed Asset Nos.");
-            NoSeriesMgt.InitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series");
-        end;
+        InitFANo();
 
         "Main Asset/Component" := "Main Asset/Component"::" ";
         "Component of Main Asset" := '';
@@ -432,6 +428,22 @@ table 5600 "Fixed Asset"
                 Rec := FA;
                 exit(true);
             end;
+        end;
+    end;
+
+    local procedure InitFANo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitFANo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "No." = '' then begin
+            FASetup.Get();
+            FASetup.TestField("Fixed Asset Nos.");
+            NoSeriesMgt.InitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
     end;
 
@@ -513,6 +525,11 @@ table 5600 "Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var FASetup: Record "FA Setup"; var FixedAsset: Record "Fixed Asset"; var Rec: Record "Fixed Asset"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFANo(var FixedAsset: Record "Fixed Asset"; xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 

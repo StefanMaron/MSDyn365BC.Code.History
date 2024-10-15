@@ -11,6 +11,7 @@ page 1570 "Extended G/L Posting Preview"
         {
             group(General)
             {
+                Caption = 'General';
                 field(ShowHierarchicalViewControl; ShowHierarchicalView)
                 {
                     ApplicationArea = Basic, Suite;

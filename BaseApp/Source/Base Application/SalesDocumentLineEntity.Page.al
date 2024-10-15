@@ -696,32 +696,73 @@ page 6403 "Sales Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Originally Ordered Var. Code', Locked = true;
                 }
-#if not CLEAN17              
+#if not CLEAN19
                 field(crossReferenceNumber; "Cross-Reference No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference No.', Locked = true;
+                    ObsoleteReason = 'Replace by field Item Reference No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    Tooltip = 'Specifies cross reference number.';
                 }
                 field(unitOfMeasureCrossRef; "Unit of Measure (Cross Ref.)")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit of Measure (Cross Ref.)', Locked = true;
+                    ObsoleteReason = 'Replace by field Item Reference Unit of Measure';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    Tooltip = 'Specifies cross reference unit of measure code.';
                 }
                 field(crossReferenceType; "Cross-Reference Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type', Locked = true;
+                    ObsoleteReason = 'Replace by field Item Reference Type';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    Tooltip = 'Specifies cross reference type.';
                 }
                 field(crossReferenceTypeNumber; "Cross-Reference Type No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type No.', Locked = true;
+                    ObsoleteReason = 'Replace by field Item Reference Type No.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    Tooltip = 'Specifies cross reference type number.';
                 }
 #endif
+                field(itemReferenceNumber; "Item Reference No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Item Reference No.', Locked = true;
+                    Tooltip = 'Specifies item reference number.';
+                }
+                field(itemRefUnitOfMeasure; "Item Reference Unit of Measure")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Item Reference Unit of Measure', Locked = true;
+                    Tooltip = 'Specifies item reference unit of measure code.';
+                }
+                field(itemReferenceType; "Item Reference Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Item Reference Type', Locked = true;
+                    Tooltip = 'Specifies item reference type.';
+                }
+                field(itemReferenceTypeNumber; "Item Reference Type No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Item Reference Type No.', Locked = true;
+                    Tooltip = 'Specifies item reference type number.';
+                }
                 field(itemCategoryCode; "Item Category Code")
                 {
                     ApplicationArea = All;
                     Caption = 'Item Category Code', Locked = true;
+                    Tooltip = 'Specifies item category code.';
                 }
                 field(nonstock; Nonstock)
                 {

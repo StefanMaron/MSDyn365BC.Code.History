@@ -185,6 +185,7 @@
         field(22; "Total Weight"; Decimal)
         {
             Caption = 'Total Weight';
+            DecimalPlaces = 2 : 5;
             Editable = false;
         }
         field(23; "Supplementary Units"; Boolean)
@@ -574,7 +575,7 @@
     local procedure OnBeforeGetItemDescription(var IsHandled: Boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPartnerID(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var PartnerID: Text[50]; var IsHandled: Boolean)
     begin

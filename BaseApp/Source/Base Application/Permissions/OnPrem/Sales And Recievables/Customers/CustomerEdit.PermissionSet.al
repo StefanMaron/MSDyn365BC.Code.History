@@ -31,7 +31,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Customer Price Group" = R,
-                  tabledata "Customer Templ." = r,
+                  tabledata "Customer Templ." = rm,
 #if not CLEAN18
                   tabledata "Customer Template" = r,
 #endif

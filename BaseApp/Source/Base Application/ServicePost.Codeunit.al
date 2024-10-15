@@ -385,7 +385,7 @@ codeunit 5980 "Service-Post"
 
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
-            if GLEntry.Find('+') then;
+            if GLEntry.FindLast() then;
         end;
     end;
 
