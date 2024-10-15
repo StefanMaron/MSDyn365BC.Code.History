@@ -638,16 +638,19 @@ page 99000818 "Prod. Order Components"
     procedure ReserveComp()
     var
         Item: Record Item;
+        ShouldReserve: Boolean;
     begin
-        OnBeforeReserveComp(Rec, xRec);
+        ShouldReserve :=
+            (xRec."Remaining Qty. (Base)" <> "Remaining Qty. (Base)") or
+            (xRec."Item No." <> "Item No.") or
+            (xRec."Location Code" <> "Location Code");
 
-        if (xRec."Remaining Qty. (Base)" <> "Remaining Qty. (Base)") or
-           (xRec."Item No." <> "Item No.") or
-           (xRec."Location Code" <> "Location Code")
-        then
+        OnBeforeReserveComp(Rec, xRec, ShouldReserve);
+
+        if ShouldReserve then
             if Item.Get("Item No.") then
                 if Item.Reserve = Item.Reserve::Always then begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     AutoReserve();
                     CurrPage.Update(false);
                 end;
@@ -704,7 +707,7 @@ page 99000818 "Prod. Order Components"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReserveComp(var ProdOrderComp: Record "Prod. Order Component"; xProdOrderComp: Record "Prod. Order Component")
+    local procedure OnBeforeReserveComp(var ProdOrderComp: Record "Prod. Order Component"; xProdOrderComp: Record "Prod. Order Component"; var ShouldReserve: Boolean)
     begin
     end;
 }

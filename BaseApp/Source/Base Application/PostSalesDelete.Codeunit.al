@@ -110,6 +110,7 @@ codeunit 363 "PostSales-Delete"
         SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
         if SalesShptLine.Find('-') then
             repeat
+                OnDeleteSalesShptLinesOnBeforeSalesShptLineDelete(SalesShptLine);
                 SalesShptLine.TestField("Quantity Invoiced", SalesShptLine.Quantity);
                 SalesShptLine.Delete(true);
             until SalesShptLine.Next() = 0;
@@ -124,6 +125,7 @@ codeunit 363 "PostSales-Delete"
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
         if SalesInvLine.Find('-') then
             repeat
+                OnDeleteSalesInvLinesOnBeforeSalesInvLineDelete(SalesInvLine);
                 SalesInvLine.Delete();
                 ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1);
             until SalesInvLine.Next() = 0;
@@ -136,6 +138,7 @@ codeunit 363 "PostSales-Delete"
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         if SalesCrMemoLine.Find('-') then
             repeat
+                OnDeleteSalesCrMemoLinesOnBeforeSalesCrMemoLineDelete(SalesCrMemoLine);
                 SalesCrMemoLine.Delete();
             until SalesCrMemoLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
@@ -149,6 +152,7 @@ codeunit 363 "PostSales-Delete"
         SalesRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
         if SalesRcptLine.Find('-') then
             repeat
+                OnDeleteSalesRcptLinesOnBeforeSalesRcptLineDelete(SalesRcptLine);
                 SalesRcptLine.TestField("Quantity Invoiced", SalesRcptLine.Quantity);
                 SalesRcptLine.Delete();
             until SalesRcptLine.Next() = 0;
@@ -204,6 +208,7 @@ codeunit 363 "PostSales-Delete"
                 ("No. Series" = "Posting No. Series"))
             then begin
                 SalesCrMemoHeader.TransferFields(SalesHeader);
+                OnInitDeleteHeaderOnAfterSalesCrMemoHeaderTransferFields(SalesCrMemoHeader);
                 if "Posting No." <> '' then
                     SalesCrMemoHeader."No." := "Posting No.";
                 SalesCrMemoHeader."Pre-Assigned No. Series" := "No. Series";
@@ -290,6 +295,11 @@ codeunit 363 "PostSales-Delete"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitDeleteHeaderOnAfterSalesCrMemoHeaderTransferFields(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteHeader(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var SalesInvoiceHeaderPrepmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrepmt: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
@@ -301,6 +311,26 @@ codeunit 363 "PostSales-Delete"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitDeleteHeader(var SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var SalesInvHeaderPrePmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrePmt: Record "Sales Cr.Memo Header"; var SourceCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesShptLinesOnBeforeSalesShptLineDelete(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesInvLinesOnBeforeSalesInvLineDelete(var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesCrMemoLinesOnBeforeSalesCrMemoLineDelete(var SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesRcptLinesOnBeforeSalesRcptLineDelete(var SalesRcptLine: Record "Return Receipt Line")
     begin
     end;
 }

@@ -30,6 +30,11 @@ table 5478 "Purch. Inv. Line Aggregate"
                 UpdateItemId;
             end;
         }
+        field(7; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location where("Use As In-Transit" = const(false));
+        }
         field(10; "Expected Receipt Date"; Date)
         {
             Caption = 'Expected Receipt Date';
@@ -266,6 +271,16 @@ table 5478 "Purch. Inv. Line Aggregate"
                 TempTaxGroupBuffer.GetCodesFromTaxGroupId("Tax Id", "Tax Group Code", "VAT Prod. Posting Group");
             end;
         }
+        field(9070; "Location Id"; Guid)
+        {
+            Caption = 'Location Id';
+            TableRelation = Location.SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateLocationCode();
+            end;
+        }
     }
 
     keys
@@ -375,6 +390,7 @@ table 5478 "Purch. Inv. Line Aggregate"
         UpdateItemId;
         UpdateAccountId;
         UpdateUnitOfMeasureId();
+        UpdateLocationId();
     end;
 
     local procedure UpdateUnitOfMeasureId()
@@ -391,6 +407,20 @@ table 5478 "Purch. Inv. Line Aggregate"
         "Unit of Measure Id" := UnitOfMeasure.SystemId;
     end;
 
+    local procedure UpdateLocationId()
+    var
+        Location: Record Location;
+    begin
+        Clear("Location Id");
+        if "Location Code" = '' then
+            exit;
+
+        if not Location.Get("Location Code") then
+            exit;
+
+        "Location Id" := Location.SystemId;
+    end;
+
     local procedure UpdateUnitOfMeasureCode()
     var
         UnitOfMeasure: Record "Unit of Measure";
@@ -402,6 +432,19 @@ table 5478 "Purch. Inv. Line Aggregate"
 
         UnitOfMeasure.GetBySystemId("Unit of Measure Id");
         Validate("Unit of Measure Code", UnitOfMeasure.Code);
+    end;
+
+    local procedure UpdateLocationCode()
+    var
+        Location: Record Location;
+    begin
+        if IsNullGuid("Location Id") then begin
+            Validate("Location Code", '');
+            exit;
+        end;
+
+        Location.GetBySystemId("Location Id");
+        "Location Code" := Location.Code;
     end;
 }
 

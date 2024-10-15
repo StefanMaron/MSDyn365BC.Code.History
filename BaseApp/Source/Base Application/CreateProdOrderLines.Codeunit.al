@@ -134,6 +134,7 @@ codeunit 99000787 "Create Prod. Order Lines"
                         SalesPlanLine.Insert();
                     end;
             until SalesLine.Next() = 0;
+        OnCopyFromSalesOrderOnAfterSalesPlanLinesInsert(SalesHeader, SalesLine);
 
         SalesPlanLine.SetCurrentKey("Low-Level Code");
         if SalesPlanLine.FindSet then
@@ -629,7 +630,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderLine3: Record "Prod. Order Line"; InsertNew: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderLine3: Record "Prod. Order Line"; var InsertNew: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -680,6 +681,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesOrderOnAfterCalcQuantityBase(var ProdOrderLine: Record "Prod. Order Line"; SalesLineIsSet: Boolean; var SalesLine: Record "Sales Line"; var QuantityBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromSalesOrderOnAfterSalesPlanLinesInsert(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 

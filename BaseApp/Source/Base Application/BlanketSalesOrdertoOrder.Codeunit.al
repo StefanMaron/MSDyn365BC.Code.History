@@ -337,11 +337,23 @@ codeunit 87 "Blanket Sales Order to Order"
                         end;
                         if SalesLine.Reserve <> SalesLine.Reserve::Always then
                             if not HideValidationDialog then
-                                if ItemCheckAvail.SalesLineCheck(SalesLine) then
-                                    ItemCheckAvail.RaiseUpdateInterruptedError;
+                                CheckSalesLineItemAvailability();
                     end;
                 until Next() = 0;
         end;
+    end;
+
+    local procedure CheckSalesLineItemAvailability()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLineItemAvailability(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemCheckAvail.SalesLineCheck(SalesLine) then
+            ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
     local procedure IsSalesOrderLineToBeInserted(SalesOrderLine: Record "Sales Line"): Boolean
@@ -392,6 +404,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlanketOrderLineQuantity(var BlanketOrderSalesLine: Record "Sales Line"; QuantityOnOrders: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLineItemAvailability(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

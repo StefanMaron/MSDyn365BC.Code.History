@@ -32,9 +32,8 @@ codeunit 5636 "FA. Jnl.-Post"
             if FAJnlTemplate.Recurring and (GetFilter("FA Posting Date") <> '') then
                 FieldError("FA Posting Date", Text000);
 
-            if not PreviewMode then
-                if not Confirm(Text001, false) then
-                    exit;
+            if not ConfirmPost() then
+                exit;
 
             DeprBook.CompressingWarning;
             TempJnlBatchName := "Journal Batch Name";
@@ -65,6 +64,22 @@ codeunit 5636 "FA. Jnl.-Post"
         end;
     end;
 
+    local procedure ConfirmPost() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmPost(FAJnlLine, PreviewMode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not PreviewMode then
+            if not Confirm(Text001, false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     procedure Preview(var FAJournalLine: Record "FA Journal Line")
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -82,6 +97,11 @@ codeunit 5636 "FA. Jnl.-Post"
         FAJnlPost := Subscriber;
         PreviewMode := true;
         Result := FAJnlPost.Run(RecVar);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPost(var FAJnlLine: Record "FA Journal Line"; PreviewMode: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

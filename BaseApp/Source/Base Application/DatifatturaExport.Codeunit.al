@@ -805,6 +805,8 @@ codeunit 12182 "Datifattura Export"
         CountryRegion: Record "Country/Region";
         Intracommunity: Boolean;
     begin
+        if VATReportLine."Fattura Document Type" <> '' then
+            exit(VATReportLine."Fattura Document Type");
         if VATReportLine."Document Type" = VATReportLine."Document Type"::Invoice then begin
             if (VATReportLine.Type = VATReportLine.Type::Purchase) and CountryRegion.Get(VATReportLine."Country/Region Code") then begin
                 Intracommunity := (CountryRegion."EU Country/Region Code" <> '') and

@@ -513,6 +513,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
         // TFS 388373: Fiscal code of length 16 is allowed
+        // TFS 393032: VAT Registration no. is optional
         CreateCleanCustomer(Customer);
         ClearCompanyInformation;
         ClearFatturaPANoSeries;
@@ -1410,6 +1411,87 @@ codeunit 144200 "FatturaPA Test"
 
         // Tear down
         DeleteServerFile(ServerFileName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceWithNoVATRegistrationNoButFiscalCode()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        Customer: Record Customer;
+        DocumentRecRef: RecordRef;
+        DocumentNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 393032] Stan can export sales invoice with customer that only has fiscal code but no VAT registratio no.
+
+        Initialize();
+
+        // [GIVEN] A posted Sales Invoice with customer that has "VAT Registration No." = blank, "Fiscal Code" = "Y"
+        Customer.Get(CreateCustomer());
+        Customer."VAT Registration No." := '';
+        Customer.Modify(true);
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), Customer."No.");
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Exported file does not have IdFiscaleIVA xml block related to VAT registration no.
+        TempXMLBuffer.Load(ServerFileName);
+        AssertElementDoesNotExist(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/IdFiscaleIVA');
+        // [THEN] Exported file has CodiceFiscale = "Y"
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale',
+          Customer."Fiscal Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceWithForeignCustomer()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        Customer: Record Customer;
+        CurrCustomer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        DocumentRecRef: RecordRef;
+        DocumentNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 391793] CodiceFiscale xml node does not exist in the exported file for the sales invoice with foreign customer
+
+        Initialize();
+
+        // [GIVEN]  "Country/Region Code" code is "IT" in Company Information
+        // [GIVEN] A posted Sales Invoice with customer that has "Country/Region Code" = "GB" and "Fiscal Code" = "Y"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer.Get(CreateCustomer());
+        CurrCustomer := Customer;
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        // Values get blanked after the Country/Region code validation, returning them back
+        Customer.Validate("Post Code", CurrCustomer."Post Code");
+        Customer.Validate(City, CurrCustomer.City);
+        Customer.Validate(County, CurrCustomer.County);
+        Customer.Modify(true);
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), Customer."No.");
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Exported file does not have CodiceFiscale
+        TempXMLBuffer.Load(ServerFileName);
+        AssertElementDoesNotExist(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale');
     end;
 
     local procedure Initialize()
@@ -2661,8 +2743,6 @@ codeunit 144200 "FatturaPA Test"
         LibraryErrorMessage.AssertLogIfMessageExists(Customer, Customer.FieldNo(Address), ErrorMessage."Message Type"::Error);
         LibraryErrorMessage.AssertLogIfMessageExists(Customer, Customer.FieldNo("Post Code"), ErrorMessage."Message Type"::Error);
         LibraryErrorMessage.AssertLogIfMessageExists(Customer, Customer.FieldNo(City), ErrorMessage."Message Type"::Error);
-        LibraryErrorMessage.AssertLogIfMessageExists(
-          Customer, Customer.FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);
         LibraryErrorMessage.AssertLogIfMessageExists(Customer, Customer.FieldNo(Name), ErrorMessage."Message Type"::Error);
     end;
 
@@ -2688,6 +2768,13 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         Assert.AreEqual(ExpectedValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedValue, TempXMLBuffer.Value));
+    end;
+
+    local procedure AssertElementDoesNotExist(var TempXMLBuffer: Record "XML Buffer" temporary; XPath: Text)
+    begin
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
+        Assert.RecordCount(TempXMLBuffer, 0);
     end;
 
     local procedure CreateCleanTaxRepresentative(var TaxRepresentativeVendor: Record Vendor)

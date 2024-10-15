@@ -1,4 +1,4 @@
-table 751 "Standard General Journal Line"
+﻿table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
 
@@ -1045,28 +1045,33 @@ table 751 "Standard General Journal Line"
             TableRelation = "VAT Product Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then
                     TestField("VAT Prod. Posting Group", '');
 
                 "VAT %" := 0;
                 "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
-                    if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                        VATPostingSetup.Init();
-                    "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Normal VAT":
-                            "VAT %" := VATPostingSetup."VAT %";
-                        "VAT Calculation Type"::"Full VAT":
-                            case "Gen. Posting Type" of
-                                "Gen. Posting Type"::Sale:
-                                    TestField("Account No.", VATPostingSetup.GetSalesAccount(false));
-                                "Gen. Posting Type"::Purchase:
-                                    TestField("Account No.", VATPostingSetup.GetPurchAccount(false));
-                            end;
+                IsHandled := false;
+                OnValidateVATProdPostingGroupOnBeforeVATCalculationCheck(Rec, VATPostingSetup, IsHandled);
+                if not IsHandled then
+                    if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
+                        if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
+                            VATPostingSetup.Init();
+                        "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                        case "VAT Calculation Type" of
+                            "VAT Calculation Type"::"Normal VAT":
+                                "VAT %" := VATPostingSetup."VAT %";
+                            "VAT Calculation Type"::"Full VAT":
+                                case "Gen. Posting Type" of
+                                    "Gen. Posting Type"::Sale:
+                                        TestField("Account No.", VATPostingSetup.GetSalesAccount(false));
+                                    "Gen. Posting Type"::Purchase:
+                                        TestField("Account No.", VATPostingSetup.GetPurchAccount(false));
+                                end;
+                        end;
                     end;
-                end;
                 Validate("VAT %");
             end;
         }
@@ -1091,6 +1096,8 @@ table 751 "Standard General Journal Line"
             TableRelation = "VAT Product Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Bal. Account Type" in
                    ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Bank Account"]
@@ -1099,22 +1106,25 @@ table 751 "Standard General Journal Line"
 
                 "Bal. VAT %" := 0;
                 "Bal. VAT Calculation Type" := "Bal. VAT Calculation Type"::"Normal VAT";
-                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
-                    if not VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
-                        VATPostingSetup.Init();
-                    "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    case "Bal. VAT Calculation Type" of
-                        "Bal. VAT Calculation Type"::"Normal VAT":
-                            "Bal. VAT %" := VATPostingSetup."VAT %";
-                        "Bal. VAT Calculation Type"::"Full VAT":
-                            case "Bal. Gen. Posting Type" of
-                                "Bal. Gen. Posting Type"::Sale:
-                                    TestField("Bal. Account No.", VATPostingSetup.GetSalesAccount(false));
-                                "Bal. Gen. Posting Type"::Purchase:
-                                    TestField("Bal. Account No.", VATPostingSetup.GetPurchAccount(false));
-                            end;
+                IsHandled := false;
+                OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(Rec, VATPostingSetup, IsHandled);
+                if not IsHandled then
+                    if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
+                        if not VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
+                            VATPostingSetup.Init();
+                        "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                        case "Bal. VAT Calculation Type" of
+                            "Bal. VAT Calculation Type"::"Normal VAT":
+                                "Bal. VAT %" := VATPostingSetup."VAT %";
+                            "Bal. VAT Calculation Type"::"Full VAT":
+                                case "Bal. Gen. Posting Type" of
+                                    "Bal. Gen. Posting Type"::Sale:
+                                        TestField("Bal. Account No.", VATPostingSetup.GetSalesAccount(false));
+                                    "Bal. Gen. Posting Type"::Purchase:
+                                        TestField("Bal. Account No.", VATPostingSetup.GetPurchAccount(false));
+                                end;
+                        end;
                     end;
-                end;
                 Validate("Bal. VAT %");
             end;
         }
@@ -1452,6 +1462,8 @@ table 751 "Standard General Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     local procedure GetDefaultICPartnerGLAccNo(): Code[20]
@@ -1820,6 +1832,11 @@ table 751 "Standard General Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; CallingFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
@@ -1831,6 +1848,16 @@ table 751 "Standard General Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var StandardGenJournalLine: Record "Standard General Journal Line"; var xStandardGenJournalLine: Record "Standard General Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnBeforeVATCalculationCheck(var StandardGeneralJournalLine: Record "Standard General Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var StandardGeneralJournalLine: Record "Standard General Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 }

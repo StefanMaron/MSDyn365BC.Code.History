@@ -342,12 +342,13 @@ codeunit 12179 "Export FatturaPA Document"
         with TempXMLBuffer do begin
             AddGroupElement('CessionarioCommittente');
             AddGroupElement('DatiAnagrafici');
-            if not Customer."Individual Person" then begin
+            if (Customer."VAT Registration No." <> '') and (not Customer."Individual Person") then begin
                 AddGroupElement('IdFiscaleIVA');
                 AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
                 AddNonEmptyLastElement('IdCodice', Customer."VAT Registration No.");
             end;
-            AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
+            if CompanyInformation."Country/Region Code" = Customer."Country/Region Code" then
+                AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
 
             // 1.4.1.3 Anagrafica
             AddGroupElement('Anagrafica');
@@ -479,6 +480,7 @@ codeunit 12179 "Export FatturaPA Document"
     var
         OrderNo: Code[20];
         Finished: Boolean;
+        LineInfoExists: Boolean;
     begin
         // 2.1.2  DatiOrdineAcquisto
 
@@ -494,11 +496,25 @@ codeunit 12179 "Export FatturaPA Document"
                 repeat
                     if TempFatturaLine."Related Line No." <> 0 then
                         AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
+                    if TempFatturaLine."Customer Purchase Order No." <> '' then begin
+                        AddNonEmptyElement('IdDocumento', TempFatturaLine."Customer Purchase Order No.");
+                        LineInfoExists := true;
+                    end;
+                    if TempFatturaLine."Fattura Project Code" <> '' then begin
+                        AddNonEmptyElement('CodiceCUP', TempFatturaLine."Fattura Project Code");
+                        LineInfoExists := true;
+                    end;
+                    if TempFatturaLine."Fattura Tender Code" <> '' then begin
+                        AddNonEmptyElement('CodiceCIG', TempFatturaLine."Fattura Tender Code");
+                        LineInfoExists := true;
+                    end;
                     Finished := TempFatturaLine.Next() = 0;
                 until Finished or (OrderNo <> TempFatturaLine."Document No.");
-                AddNonEmptyElement('IdDocumento', TempFatturaHeader."Customer Purchase Order No.");
-                AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Fattura Project Code");
-                AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Fattura Tender Code");
+                if not LineInfoExists then begin
+                    AddNonEmptyElement('IdDocumento', TempFatturaHeader."Customer Purchase Order No.");
+                    AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Fattura Project Code");
+                    AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Fattura Tender Code");
+                end;
                 GetParent;
             until Finished;
         end;

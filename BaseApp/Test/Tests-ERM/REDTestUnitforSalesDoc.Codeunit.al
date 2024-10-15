@@ -218,6 +218,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127732] Deferral template does not default on Sales Quote
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -245,6 +246,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127732] Deferral template does not default on Sales Blanket Order
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -272,6 +274,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Document Type] [Line]
         // [SCENARIO 127732] Changing the Sales Line Type removes the deferral code
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 
@@ -304,6 +307,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Document Type] [Line]
         // [SCENARIO 127732] Changing Sales Line No. to an Item that does not have a default deferral code removes deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 
@@ -340,6 +344,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Deferral Code] [Line]
         // [SCENARIO 127732] Clearing the Deferral Code on a line removes the deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -367,6 +372,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Deferral Code] [Delete Line]
         // [SCENARIO 127732]Deleting a sales line removes the deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 

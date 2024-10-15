@@ -292,6 +292,7 @@
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange(Type, PurchLine.Type::"G/L Account");
+        OnCalculateWithholdingTaxOnAfterPurchLineSetFilters(PurchLine, PurchHeader);
 
         TotalAmount := 0;
         if PurchLine.FindSet then
@@ -701,6 +702,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateWithholdingTaxOnAfterPurchLineSetFilters(var PurchLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

@@ -118,8 +118,8 @@ codeunit 12184 "Fattura Doc. Helper"
 
         TempFatturaHeader."Fattura Stamp" := HeaderRecRef.Field(FatturaStampFieldNo).Value;
         TempFatturaHeader."Fattura Stamp Amount" := HeaderRecRef.Field(FatturaStampAmountFieldNo).Value;
-        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value;
-        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value;
+        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value;
+        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value;
         TempFatturaHeader."Transmission Type" := GetTransmissionType(Customer);
 
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo;
@@ -133,15 +133,15 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure CollectDocLinesInformation(var TempFatturaLine: Record "Fattura Line" temporary; var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary; PricesIncludingVAT: Boolean)
     var
-        TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary;
+        TempShptFatturaLine: Record "Fattura Line" temporary;
         TempVATEntry: Record "VAT Entry" temporary;
         TempVATPostingSetup: Record "VAT Posting Setup" temporary;
         IsSplitPayment: Boolean;
         DocLineNo: Integer;
     begin
-        CollectShipmentInfo(TempSalesShipmentBuffer, LineRecRef, TempFatturaHeader);
-        BuildOrderDataBuffer(TempFatturaLine, TempSalesShipmentBuffer, TempFatturaHeader);
-        BuildShipmentDataBuffer(TempFatturaLine, TempSalesShipmentBuffer);
+        CollectShipmentInfo(TempShptFatturaLine, LineRecRef, TempFatturaHeader);
+        BuildOrderDataBuffer(TempFatturaLine, TempShptFatturaLine, TempFatturaHeader);
+        BuildShipmentDataBuffer(TempFatturaLine, TempShptFatturaLine);
         LineRecRef.FindSet();
         repeat
             if not IsSplitPaymentLine(LineRecRef) then
@@ -415,11 +415,9 @@ codeunit 12184 "Fattura Doc. Helper"
             ErrorMessage.LogIfEmpty(
               Customer, Customer.FieldNo("First Name"), ErrorMessage."Message Type"::Error);
             ErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error);
-        end else begin
-            ErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);
+        end else
             ErrorMessage.LogIfEmpty(
               Customer, Customer.FieldNo(Name), ErrorMessage."Message Type"::Error);
-        end;
 
         if TaxRepresentativeVendor.Get(CompanyInformation."Tax Representative No.") then begin
             ErrorMessage.LogIfEmpty(
@@ -875,7 +873,7 @@ codeunit 12184 "Fattura Doc. Helper"
             Currency."Amount Rounding Precision"));
     end;
 
-    local procedure CollectShipmentInfo(var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary; var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary)
+    local procedure CollectShipmentInfo(var TempShptFatturaLine: Record "Fattura Line" temporary; var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary)
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
@@ -883,6 +881,9 @@ codeunit 12184 "Fattura Doc. Helper"
         ServiceShipmentLine: Record "Service Shipment Line";
         TempLineNumberBuffer: Record "Line Number Buffer" temporary;
         ShptNo: Code[20];
+        FatturaProjectCode: Code[15];
+        FatturaTenderCode: Code[15];
+        CustomerPurchOrderNo: Text[35];
         ShipmentDate: Date;
         i: Integer;
     begin
@@ -892,17 +893,30 @@ codeunit 12184 "Fattura Doc. Helper"
         if LineRecRef.FindSet then
             repeat
                 i += 1;
+                FatturaProjectCode := '';
+                FatturaTenderCode := '';
+                CustomerPurchOrderNo := '';
                 ShptNo := Format(LineRecRef.Field(ShipmentNoFieldNo).Value);
                 if (Format(LineRecRef.Field(LineTypeFieldNo).Value) = 'Item') and (ShptNo <> '') then begin
                     if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
                         SalesShipmentHeader.Get(ShptNo);
                         ShipmentDate := SalesShipmentHeader."Shipment Date";
+                        FatturaProjectCode := SalesShipmentHeader."Fattura Project Code";
+                        FatturaTenderCode := SalesShipmentHeader."Fattura Tender Code";
+                        CustomerPurchOrderNo := SalesShipmentHeader."Customer Purchase Order No.";
                     end else begin
                         ServiceShipmentHeader.Get(ShptNo);
                         ShipmentDate := ServiceShipmentHeader."Posting Date";
+                        FatturaProjectCode := ServiceShipmentHeader."Fattura Project Code";
+                        FatturaTenderCode := ServiceShipmentHeader."Fattura Tender Code";
+                        CustomerPurchOrderNo := ServiceShipmentHeader."Customer Purchase Order No.";
                     end;
-                    InsertShipmentBuffer(TempSalesShipmentBuffer, i, ShptNo, ShipmentDate, IsSplitPaymentLine(LineRecRef));
+                    InsertShipmentBuffer(
+                      TempShptFatturaLine, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
+                      CustomerPurchOrderNo, IsSplitPaymentLine(LineRecRef));
                 end;
+                if Format(LineRecRef.Field(LineTypeFieldNo).Value) = 'G/L Account' then
+                    InsertShipmentBuffer(TempShptFatturaLine, i, '', TempFatturaHeader."Posting Date", '', '', '', IsSplitPaymentLine(LineRecRef));
                 if TempFatturaHeader."Order No." <> '' then begin
                     TempLineNumberBuffer.Init();
                     Evaluate(TempLineNumberBuffer."Old Line Number", Format(LineRecRef.Field(LineNoFieldNo).Value));
@@ -919,8 +933,8 @@ codeunit 12184 "Fattura Doc. Helper"
                         i += 1;
                         TempLineNumberBuffer.Get(SalesShipmentLine."Order Line No.");
                         InsertShipmentBuffer(
-                          TempSalesShipmentBuffer, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
-                          SalesShipmentLine."Shipment Date", false);
+                          TempShptFatturaLine, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
+                          SalesShipmentLine."Shipment Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
                     until SalesShipmentLine.Next() = 0;
             end else begin
                 ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
@@ -930,8 +944,8 @@ codeunit 12184 "Fattura Doc. Helper"
                         i += 1;
                         TempLineNumberBuffer.Get(ServiceShipmentLine."Order Line No.");
                         InsertShipmentBuffer(
-                          TempSalesShipmentBuffer, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
-                          ServiceShipmentLine."Posting Date", false);
+                          TempShptFatturaLine, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
+                          ServiceShipmentLine."Posting Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
                     until ServiceShipmentLine.Next() = 0;
             end;
     end;
@@ -976,17 +990,18 @@ codeunit 12184 "Fattura Doc. Helper"
         TempVATPostingSetup.Insert();
     end;
 
-    local procedure BuildOrderDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
+    local procedure BuildOrderDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempShptFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
     var
         MultipleOrders: Boolean;
         Finished: Boolean;
+        LineNo: Integer;
     begin
-        TempSalesShipmentBuffer.Reset();
-        TempSalesShipmentBuffer.SetRange("Entry No.", 0); // only non-split lines affected
-        if not TempSalesShipmentBuffer.FindSet then
+        TempShptFatturaLine.Reset();
+        TempShptFatturaLine.SetRange("Split Line", false);
+        if not TempShptFatturaLine.FindSet() then
             exit;
 
-        MultipleOrders := HasMultipleOrders(TempSalesShipmentBuffer);
+        MultipleOrders := HasMultipleOrders(TempShptFatturaLine);
         if (not MultipleOrders) and
            (TempFatturaHeader."Customer Purchase Order No." = '') and
            (TempFatturaHeader."Fattura Project Code" = '') and
@@ -995,36 +1010,39 @@ codeunit 12184 "Fattura Doc. Helper"
             exit;
 
         Clear(TempFatturaLine);
-        TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Order;
         repeat
-            TempFatturaLine."Document No." := TempSalesShipmentBuffer."Document No.";
+            TempFatturaLine := TempShptFatturaLine;
+            TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Order;
+            TempFatturaLine."Document No." := TempShptFatturaLine."Document No.";
+            TempFatturaLine."Related Line No." := 0;
             repeat
+                LineNo += 1;
+                TempFatturaLine."Line No." += LineNo;
                 if MultipleOrders then
-                    TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
-                Finished := TempSalesShipmentBuffer.Next() = 0;
-                TempFatturaLine."Line No." += 1;
+                    TempFatturaLine."Related Line No." := TempShptFatturaLine."Related Line No.";
+                Finished := TempShptFatturaLine.Next() = 0;
                 TempFatturaLine.Insert();
-            until Finished or (TempFatturaLine."Document No." <> TempSalesShipmentBuffer."Document No.");
+            until Finished or (TempFatturaLine."Document No." <> TempShptFatturaLine."Document No.");
         until Finished;
     end;
 
-    local procedure BuildShipmentDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary)
+    local procedure BuildShipmentDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempShptFatturaLine: Record "Fattura Line" temporary)
     var
         MultipleOrders: Boolean;
     begin
-        TempSalesShipmentBuffer.Reset();
-        if TempSalesShipmentBuffer.FindSet then begin
-            MultipleOrders := TempSalesShipmentBuffer.Count > 1;
+        TempShptFatturaLine.Reset();
+        if TempShptFatturaLine.FindSet() then begin
+            MultipleOrders := TempShptFatturaLine.Count() > 1;
             Clear(TempFatturaLine);
             TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Shipment;
             repeat
                 TempFatturaLine."Line No." += 1;
-                TempFatturaLine."Document No." := TempSalesShipmentBuffer."Document No.";
-                TempFatturaLine."Posting Date" := TempSalesShipmentBuffer."Posting Date";
+                TempFatturaLine."Document No." := TempShptFatturaLine."Document No.";
+                TempFatturaLine."Posting Date" := TempShptFatturaLine."Posting Date";
                 if MultipleOrders then
-                    TempFatturaLine."Related Line No." := TempSalesShipmentBuffer."Line No.";
+                    TempFatturaLine."Related Line No." := TempShptFatturaLine."Related Line No.";
                 TempFatturaLine.Insert();
-            until TempSalesShipmentBuffer.Next() = 0;
+            until TempShptFatturaLine.Next() = 0;
         end;
     end;
 
@@ -1081,15 +1099,19 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine := OriginalFatturaLine;
     end;
 
-    local procedure InsertShipmentBuffer(var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; IsSplitLine: Boolean)
+    local procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
     begin
-        TempSalesShipmentBuffer.Init();
-        TempSalesShipmentBuffer."Document No." := ShipmentNo;
-        TempSalesShipmentBuffer."Line No." := LineNo;
-        TempSalesShipmentBuffer."Posting Date" := ShipmentDate;
-        if IsSplitLine then
-            TempSalesShipmentBuffer."Entry No." := LineNo; // Mark split line with non-empty "Line No."
-        TempSalesShipmentBuffer.Insert();
+        if TempShptFatturaLine.FindLast() then;
+        TempShptFatturaLine.Init();
+        TempShptFatturaLine."Document No." := ShipmentNo;
+        TempShptFatturaLine."Line No." := TempShptFatturaLine."Line No." + 10000;
+        TempShptFatturaLine."Related Line No." := LineNo;
+        TempShptFatturaLine."Posting Date" := ShipmentDate;
+        TempShptFatturaLine."Split Line" := IsSplitLine;
+        TempShptFatturaLine."Fattura Project Code" := FatturaProjectCode;
+        TempShptFatturaLine."Fattura Tender Code" := FatturaTenderCode;
+        TempShptFatturaLine."Customer Purchase Order No." := CustomerPurchOrderNo;
+        TempShptFatturaLine.Insert();
     end;
 
     local procedure InsertFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; var DocLineNo: Integer; TempFatturaHeader: Record "Fattura Header" temporary; LineRecRef: RecordRef; PricesIncludingVAT: Boolean)
@@ -1198,11 +1220,11 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine.Insert();
     end;
 
-    local procedure HasMultipleOrders(var TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary) HasMultipleOrders: Boolean
+    local procedure HasMultipleOrders(var TempShptFatturaLine: Record "Fattura Line" temporary) HasMultipleOrders: Boolean
     begin
-        TempSalesShipmentBuffer.SetFilter("Document No.", '<>%1', TempSalesShipmentBuffer."Document No.");
-        HasMultipleOrders := not TempSalesShipmentBuffer.IsEmpty;
-        TempSalesShipmentBuffer.SetRange("Document No.");
+        TempShptFatturaLine.SetFilter("Document No.", '<>%1', TempShptFatturaLine."Document No.");
+        HasMultipleOrders := not TempShptFatturaLine.IsEmpty();
+        TempShptFatturaLine.SetRange("Document No.");
         exit(HasMultipleOrders);
     end;
 
@@ -1484,6 +1506,17 @@ codeunit 12184 "Fattura Doc. Helper"
     local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
     begin
         SalesInvoiceHeader."Fattura Document Type" := QuoteSalesHeader."Fattura Document Type";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Correct Posted Sales Invoice", 'OnAfterCreateCopyDocument', '', false, false)]
+    local procedure AssignFatturaDocTypeForCorrectiveCreditMemo(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        CrMemoCode: Code[20];
+    begin
+        CrMemoCode := GetCrMemoCode();
+        if CrMemoCode = '' then
+            exit;
+        SalesHeader."Fattura Document Type" := CrMemoCode;
     end;
 }
 

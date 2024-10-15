@@ -1903,6 +1903,8 @@ table 246 "Requisition Line"
 
         SetActionMessage();
         UpdateDatetime();
+
+        OnAfterUpdateOrderReceiptDate(Rec, LeadTimeCalc);
     end;
 
     procedure LookupVendor(var Vend: Record Vendor; PreferItemVendorCatalog: Boolean): Boolean
@@ -1946,6 +1948,7 @@ table 246 "Requisition Line"
     begin
         Location.Code := "Transfer-from Code";
         Location.SetRange("Use As In-Transit", false);
+        OnLookupFromLocationOnAfterSetFilters(Rec, Location);
         exit(PAGE.RunModal(0, Location) = ACTION::LookupOK);
     end;
 
@@ -2253,6 +2256,8 @@ table 246 "Requisition Line"
             "Due Date" := "Ending Date";
 
         CheckDueDateToDemandDate;
+
+        OnAfterSetDueDate(Rec);
     end;
 
     procedure SetCurrFieldNo(NewCurrFieldNo: Integer)
@@ -2543,6 +2548,7 @@ table 246 "Requisition Line"
         "Ref. Order Type" := "Ref. Order Type"::Purchase;
         "Ref. Line No." := PurchLine."Line No.";
         "Vendor No." := PurchLine."Buy-from Vendor No.";
+        Validate("Currency Code", PurchLine."Currency Code");
 
         OnAfterTransferFromPurchaseLine(Rec, PurchLine);
 
@@ -2712,6 +2718,8 @@ table 246 "Requisition Line"
                     ReservEntry."Item No.", ReservEntry."Location Code", ReservEntry."Variant Code",
                     "Due Date", "Vendor No.", "Ref. Order Type");
         end;
+
+        OnAfterTransferFromActionMessage(Rec, ActionMessageEntry);
     end;
 
     procedure TransferToTrackingEntry(var TrkgReservEntry: Record "Reservation Entry"; PointerOnly: Boolean)
@@ -2826,7 +2834,7 @@ table 246 "Requisition Line"
 
     procedure CalcEndingDate(LeadTime: Code[20])
     begin
-        OnBeforeCalcEndingDate(Rec);
+        OnBeforeCalcEndingDate(Rec, LeadTime);
 
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
@@ -2854,7 +2862,7 @@ table 246 "Requisition Line"
 
     procedure CalcStartingDate(LeadTime: Code[20])
     begin
-        OnBeforeCalcStartingDate(Rec);
+        OnBeforeCalcStartingDate(Rec, LeadTime);
 
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
@@ -3608,7 +3616,7 @@ table 246 "Requisition Line"
         Validate("Transfer-from Code", StockkeepingUnit."Transfer-from Code");
         Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
-        OnAfterSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit);
+        OnAfterSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
     end;
 
     local procedure UpdateReplenishmentSystem()
@@ -3690,12 +3698,22 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDueDate(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReplenishmentSystemFromPurchase(var RequisitionLine: Record "Requisition Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReplenishmentSystemFromProdOrder(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromActionMessage(var RequisitionLine: Record "Requisition Line"; var ActionMessageEntry: Record "Action Message Entry")
     begin
     end;
 
@@ -3715,7 +3733,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetReplenishmentSystemFromTransfer(var RequisitionLine: Record "Requisition Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit")
+    local procedure OnAfterSetReplenishmentSystemFromTransfer(var RequisitionLine: Record "Requisition Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -3751,6 +3769,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferToTrackingEntry(var ReservationEntry: Record "Reservation Entry"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateOrderReceiptDate(var RequisitionLine: Record "Requisition Line"; LeadTimeCalc: DateFormula)
     begin
     end;
 
@@ -3905,12 +3928,12 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStartingDate(var RequisitionLine: Record "Requisition Line")
+    local procedure OnBeforeCalcStartingDate(var RequisitionLine: Record "Requisition Line"; var LeadTime: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcEndingDate(var RequisitionLine: Record "Requisition Line")
+    local procedure OnBeforeCalcEndingDate(var RequisitionLine: Record "Requisition Line"; var LeadTime: Code[20])
     begin
     end;
 
@@ -4001,6 +4024,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure(var RequisitionLine: Record "Requisition Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupFromLocationOnAfterSetFilters(RequisitionLine: Record "Requisition Line"; var Location: Record Location)
     begin
     end;
 }

@@ -183,6 +183,11 @@ table 741 "VAT Report Line"
             Caption = 'VAT Transaction Nature';
             TableRelation = "VAT Transaction Nature";
         }
+        field(12113; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys

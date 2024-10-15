@@ -27,6 +27,7 @@ permissionset 6427 "Resources - Edit"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purchase Line" = r,
                   tabledata "Res. Capacity Entry" = RmD,
                   tabledata "Res. Journal Line" = Rm,

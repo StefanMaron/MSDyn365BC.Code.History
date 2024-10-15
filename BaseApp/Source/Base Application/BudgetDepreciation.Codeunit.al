@@ -19,6 +19,7 @@ codeunit 5615 "Budget Depreciation"
         NumberOfDays: Integer;
         DummyEntryAmounts: array[4] of Decimal;
         CustomAmount: Decimal;
+        IsHandled: Boolean;
     begin
         DeprAmount1 := 0;
         DeprAmount2 := 0;
@@ -30,6 +31,12 @@ codeunit 5615 "Budget Depreciation"
                   Text000,
                   DeprBook.FieldCaption("Use Custom 1 Depreciation"), false, DeprBook.TableCaption);
         end;
+
+        IsHandled := false;
+        OnCalculateOnAfterCallNoCheck(FANo, EndingDate1, EndingDate2, DeprBookCode, DeprAmount1, DeprAmount2, IsHandled);
+        if IsHandled then
+            exit;
+
         with FADeprBook do begin
             if not Get(FANo, DeprBookCode) then
                 exit;
@@ -186,6 +193,11 @@ codeunit 5615 "Budget Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLBudgetEntryInsert(var GLBudgetEntry: Record "G/L Budget Entry"; var FALedgerEntry: Record "FA Ledger Entry"; var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var GLBudgetName: Record "G/L Budget Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterCallNoCheck(FANo: Code[20]; EndingDate1: Date; EndingDate2: Date; DeprBookCode: Code[10]; var DeprAmount1: Decimal; var DeprAmount2: Decimal; var IsHandled: Boolean);
     begin
     end;
 }

@@ -92,6 +92,11 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                     ToolTip = 'Specifies if the asset is for budgeting purposes.';
+
+                    trigger OnValidate()
+                    begin
+                        ShowAcquisitionNotification();
+                    end;
                 }
                 field("Source FA No."; "Source FA No.")
                 {
@@ -250,6 +255,27 @@ page 5600 "Fixed Asset Card"
                             SaveSimpleDepreciationBook(xRec."No.");
                             ShowAcquisitionNotification();
                         end;
+                    }
+                    field(FirstUserDefinedDeprDate; FADepreciationBook."First User-Defined Depr. Date")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'First User-Defined Depr. Date';
+                        ToolTip = 'Specifies the starting date for the user-defined depreciation table if you have entered a code in the Depreciation Table Code field. The date is then used to determine the exact time intervals from the period length you have specified for the table.';
+
+                        trigger OnValidate()
+                        begin
+                            LoadFADepreciationBooks();
+                            FADepreciationBook.Validate("First User-Defined Depr. Date");
+                            SaveSimpleDepreciationBook(xRec."No.");
+                            ShowAcquisitionNotification();
+                        end;
+                    }
+                    field(DisposedOf; FADepreciationBook."Disposal Date" > 0D)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Disposed of';
+                        Editable = false;
+                        ToolTip = 'Specifies whether the fixed asset has been disposed of.';
                     }
                 }
                 field(BookValue; BookValue)
@@ -708,7 +734,8 @@ page 5600 "Fixed Asset Card"
             exit;
 
         ShowNotification :=
-          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
+          (not Acquired) and (not "Budgeted Asset") and
+          FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
         if ShowNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
             Acquirable := true;
             ShowAcquireWizardNotification();

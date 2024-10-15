@@ -27,8 +27,14 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         LastErrorText: Text;
         HideDialogs: Boolean;
 
-    [CommitBehavior(CommitBehavior::Error)]
     procedure Preview(Subscriber: Variant; RecVar: Variant)
+    begin
+        OnBeforeRunPreview(Subscriber, RecVar);
+        PreviewStart(Subscriber, RecVar);
+    end;
+
+    [CommitBehavior(CommitBehavior::Error)]
+    local procedure PreviewStart(Subscriber: Variant; RecVar: Variant)
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageHandler: Codeunit "Error Message Handler";
@@ -135,6 +141,11 @@ codeunit 19 "Gen. Jnl.-Post Preview"
     begin
         OnBeforeThrowError;
         Error(PreviewModeErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPreview(Subscriber: Variant; RecVar: Variant)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

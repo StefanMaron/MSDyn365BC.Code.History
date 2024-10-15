@@ -115,6 +115,11 @@ page 741 "VAT Report Subform"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies operation nature. The specific reason why the vendor should not indicate tax in the invoice.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
+                }
             }
         }
     }

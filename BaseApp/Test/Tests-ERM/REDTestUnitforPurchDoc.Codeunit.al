@@ -215,6 +215,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127770] Deferral template does not default on Purchase Quote
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -242,6 +243,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127770] Deferral template does not default on Purchase Blanket Order
+        Initialize();
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -293,6 +295,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Document Type]
         // [SCENARIO 127770] Changing the Purchase Line Type removes the deferral code
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 
@@ -325,6 +328,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [No.]
         // [SCENARIO 127770] Changing Purchase Line No. to an Item that does not have a default deferral code removes deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 
@@ -361,6 +365,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127770] Clearing the Deferral Code on a line removes the deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
@@ -388,6 +393,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // [FEATURE] [Delete Line]
         // [SCENARIO 127770] Deleting a Purchase Line removes the deferral schedule
+        Initialize();
         // [GIVEN] User has created a GL Account and assigned a default deferral code to it
         CreateGLAccountWithDefaultDeferralCode(DeferralTemplateCode, AccNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
 

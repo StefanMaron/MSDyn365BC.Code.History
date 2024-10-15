@@ -51,6 +51,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
             ProdOrder."Ending Date" :=
               LeadTimeMgt.PlannedEndingDate(SalesLine."No.", SalesLine."Location Code", '', ProdOrder."Due Date", '', 2);
         end else begin
+            OnCreateProductionOrderOnBeforeItemOrder(ProdOrder, SalesLine);
             ProdOrder."Due Date" := SalesLine."Shipment Date";
             ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
             ProdOrder."Location Code" := SalesLine."Location Code";
@@ -97,7 +98,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                     end;
                     SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
                     UpdateSalesLineReserve(SalesLine, ProdOrderLine);
-                    OnCreateProductionOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine);
+                    OnCreateProductionOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, ProdOrder, SalesLineReserve);
                     ProdOrderLine.Modify();
                 end;
             end;
@@ -164,12 +165,17 @@ codeunit 99000792 "Create Prod. Order from Sale"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateProductionOrderOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var SalesLine: Record "Sales Line")
+    local procedure OnCreateProductionOrderOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var SalesLine: Record "Sales Line"; var ProdOrder: Record "Production Order"; var SalesLineReserve: Codeunit "Sales Line-Reserve")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderOnBeforeProcessItemSourceType(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProductionOrderOnBeforeItemOrder(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

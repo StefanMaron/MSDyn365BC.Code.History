@@ -967,8 +967,6 @@
     end;
 
     trigger OnInit()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
@@ -982,15 +980,9 @@
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         InitType();
-
-        // Default to Inventory for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText();
@@ -1010,6 +1002,7 @@
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AmountWithDiscountAllowed: Decimal;
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
@@ -1050,6 +1043,21 @@
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        // Set default type Item
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+            if xRec."Document No." = '' then
+                Type := Type::Item;
+    end;
+
     procedure CalcInvDisc()
     var
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
@@ -1066,7 +1074,7 @@
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
-        OnBeforeInsertExtendedText(Rec);
+        OnBeforeInsertExtendedText(Rec, xRec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
             Commit();
@@ -1250,7 +1258,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line")
+    local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

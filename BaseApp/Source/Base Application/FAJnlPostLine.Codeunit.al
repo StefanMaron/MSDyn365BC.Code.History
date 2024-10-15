@@ -153,6 +153,8 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAInsertLedgEntry.SetLastEntryNo(false);
         if PostBudget then
             PostBudgetAsset;
+
+        OnAfterPostFixedAsset(FA, FALedgEntry);
     end;
 
     local procedure PostMaintenance()
@@ -554,6 +556,11 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostFixedAsset(var FA: Record "Fixed Asset"; FALedgEntry: Record "FA Ledger Entry")
     begin
     end;
 

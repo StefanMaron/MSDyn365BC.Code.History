@@ -92,7 +92,7 @@ page 1351 "Posted Purch. Invoice - Update"
             ("Creditor No." <> xPurchInvHeader."Creditor No.") or
             ("Ship-to Code" <> xPurchInvHeader."Ship-to Code");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xRec, IsChanged, xPurchInvHeader);
     end;
 
     [Scope('OnPrem')]
@@ -103,7 +103,7 @@ page 1351 "Posted Purch. Invoice - Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean)
+    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean; xPurchInvHeaderGlobal: Record "Purch. Inv. Header")
     begin
     end;
 }

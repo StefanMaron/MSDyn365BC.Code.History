@@ -1137,7 +1137,10 @@ table 5409 "Prod. Order Routing Line"
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
         IsHandled: Boolean;
     begin
-        OnBeforeCalcStartingEndingDates(Rec, PlanningDirection);
+        IsHandled := false;
+        OnBeforeCalcStartingEndingDates(Rec, PlanningDirection, IsHandled);
+        if IsHandled then
+            exit;
 
         if "Routing Status" = "Routing Status"::Finished then
             FieldError("Routing Status");
@@ -1320,6 +1323,7 @@ table 5409 "Prod. Order Routing Line"
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin
+        OnBeforeAdjustComponents(ProdOrderComp);
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
@@ -1722,7 +1726,12 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward)
+    local procedure OnBeforeAdjustComponents(var ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; var IsHandled: Boolean)
     begin
     end;
 

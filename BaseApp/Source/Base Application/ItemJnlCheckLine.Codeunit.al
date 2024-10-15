@@ -352,7 +352,7 @@ codeunit 21 "Item Jnl.-Check Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBins(ItemJnlLine, IsHandled);
+        OnBeforeCheckBins(ItemJnlLine, IsHandled, CalledFromAdjustment);
         if IsHandled then
             exit;
 
@@ -376,27 +376,30 @@ codeunit 21 "Item Jnl.-Check Line"
             if ("Entry Type" = "Entry Type"::Output) and not LastOutputOperation(ItemJnlLine) then
                 exit;
 
-            if Quantity <> 0 then
-                case "Entry Type" of
-                    "Entry Type"::Purchase,
-                  "Entry Type"::"Positive Adjmt.",
-                  "Entry Type"::Output,
-                  "Entry Type"::"Assembly Output":
-                        WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity > 0);
-                    "Entry Type"::Sale,
-                  "Entry Type"::"Negative Adjmt.",
-                  "Entry Type"::Consumption,
-                  "Entry Type"::"Assembly Consumption":
-                        WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity < 0);
-                    "Entry Type"::Transfer:
-                        begin
-                            GetLocation("Location Code");
-                            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-                                WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity < 0);
-                            if ("New Location Code" <> '') and ("New Bin Code" <> '') then
-                                WMSManagement.CheckInbOutbBin("New Location Code", "New Bin Code", Quantity > 0);
-                        end;
-                end;
+            IsHandled := false;
+            OnCheckBinsOnBeforeCheckNonZeroQuantity(ItemJnlLine, CalledFromAdjustment, IsHandled);
+            if not IsHandled then
+                if Quantity <> 0 then
+                    case "Entry Type" of
+                        "Entry Type"::Purchase,
+                      "Entry Type"::"Positive Adjmt.",
+                      "Entry Type"::Output,
+                      "Entry Type"::"Assembly Output":
+                            WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity > 0);
+                        "Entry Type"::Sale,
+                      "Entry Type"::"Negative Adjmt.",
+                      "Entry Type"::Consumption,
+                      "Entry Type"::"Assembly Consumption":
+                            WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity < 0);
+                        "Entry Type"::Transfer:
+                            begin
+                                GetLocation("Location Code");
+                                if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                                    WMSManagement.CheckInbOutbBin("Location Code", "Bin Code", Quantity < 0);
+                                if ("New Location Code" <> '') and ("New Bin Code" <> '') then
+                                    WMSManagement.CheckInbOutbBin("New Location Code", "New Bin Code", Quantity > 0);
+                            end;
+                    end;
         end;
     end;
 
@@ -538,7 +541,7 @@ codeunit 21 "Item Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBins(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBins(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CalledFromAdjustment: Boolean)
     begin
     end;
 
@@ -574,6 +577,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinsOnBeforeCheckNonZeroQuantity(ItemJnlLine: Record "Item Journal Line"; var CalledFromAdjustment: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

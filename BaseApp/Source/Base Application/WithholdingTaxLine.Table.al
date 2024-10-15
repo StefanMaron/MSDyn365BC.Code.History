@@ -22,7 +22,7 @@ table 12210 "Withholding Tax Line"
         {
             Caption = 'Non-Taxable Income Type';
             NotBlank = true;
-            OptionMembers = " ","1","2","5","6","7","8","9","10","11";
+            OptionMembers = " ","1","2","5","6","7","8","9","10","11","12","13";
         }
     }
 

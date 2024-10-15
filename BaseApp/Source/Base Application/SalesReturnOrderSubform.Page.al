@@ -1080,11 +1080,8 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         InitType;
+        SetDefaultType();
 
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;
@@ -1143,6 +1140,21 @@
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
         DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        // Set default type Item
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+            if xRec."Document No." = '' then
+                Type := Type::Item;
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1417,6 +1429,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

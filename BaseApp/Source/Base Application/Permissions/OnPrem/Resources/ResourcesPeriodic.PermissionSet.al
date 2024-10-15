@@ -17,6 +17,7 @@ permissionset 9338 "Resources - Periodic"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Res. Ledger Entry" = Rid,
                   tabledata Resource = RM,
                   tabledata "Resource Group" = R,

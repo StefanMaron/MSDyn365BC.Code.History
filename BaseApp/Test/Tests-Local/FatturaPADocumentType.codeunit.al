@@ -560,6 +560,37 @@ codeunit 144210 "FatturaPA Document Type"
         ServiceInvoiceHeader.TestField("Fattura Document Type", ServiceHeader."Fattura Document Type");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCorrectiveCreditMemoHasTD04DocumentTypeByDefault()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo] [Corrective Documents]
+        // [SCENARIO 391665] A sales corrective credit memo has TD04 fattura document type by default
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoice
+        CreateSalesHeader(SalesHeader);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, True, True));
+        Clear(SalesHeader);
+
+        // [WHEN] Create corrective credit memo for the posted sales invoice
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
+
+        // [THEN] Corrective credit memo has "Fattura Document Type" = "TD04"
+        SalesHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"FatturaPA Document Type");

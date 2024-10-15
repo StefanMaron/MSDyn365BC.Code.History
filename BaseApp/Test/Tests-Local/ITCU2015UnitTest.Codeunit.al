@@ -1148,7 +1148,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Validate A-Record
         ValidateTextFileValue(1, 1, 1, 'A');
 
-        ValidateTextFileValue(1, 16, 5, 'CUR17');
+        ValidateTextFileValue(1, 16, 5, 'CUR21'); // TFS 390620
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             ValidateTextFileValue(1, 21, 2, '10');
@@ -1162,13 +1162,13 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateTextFileValue(2, 1, 1, 'B');
         ValidateTextFileValue(2, 2, 16, CompanyInformation."Fiscal Code");
 
-        ValidateTextFileValue(2, 309, 1, '1');
-        ValidateTextFileValue(2, 310, 16, SigningCompanyOfficials."Fiscal Code");
-        ValidateTextFileValue(2, 326, 2, SigningCompanyOfficials."Appointment Code");
-        ValidateTextFileValue(2, 328, 24, SigningCompanyOfficials."Last Name");
-        ValidateTextFileValue(2, 352, 20, SigningCompanyOfficials."First Name");
-        ValidateTextFileValue(2, 372, 11, FormatToLength(CompanyInformation."Fiscal Code", 11));
-        ValidateTextFileValue(2, 383, 19, '0000000000000000000');
+        ValidateTextFileValue(2, 309, 2, '1'); // TFS 390620
+        ValidateTextFileValue(2, 311, 16, SigningCompanyOfficials."Fiscal Code");
+        ValidateTextFileValue(2, 327, 2, SigningCompanyOfficials."Appointment Code");
+        ValidateTextFileValue(2, 329, 24, SigningCompanyOfficials."Last Name");
+        ValidateTextFileValue(2, 353, 20, SigningCompanyOfficials."First Name");
+        ValidateTextFileValue(2, 373, 11, FormatToLength(CompanyInformation."Fiscal Code", 11));
+        ValidateTextFileValue(2, 384, 18, '000000000000000000'); // TFS 390620
         ValidateTextFileValue(2, 402, 8, FormatToLength(CommunicationNumber, 8));
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then
             ValidateTextFileValue(2, 412, 16, VendorTaxRepresentative."Fiscal Code");

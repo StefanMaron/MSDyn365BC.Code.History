@@ -135,7 +135,13 @@
     local procedure UpdateItemReference()
     var
         ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemReference(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 if ("Vendor No." <> xRec."Vendor No.") or ("Item No." <> xRec."Item No.") or
@@ -247,5 +253,10 @@
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

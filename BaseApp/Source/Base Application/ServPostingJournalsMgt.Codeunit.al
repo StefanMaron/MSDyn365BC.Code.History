@@ -387,7 +387,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Cumulative Bank Receipts" := ServiceHeader."Cumulative Bank Receipts";
             "Payment Method Code" := ServiceHeader."Payment Method Code";
 
-            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY);
+            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
@@ -734,7 +734,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line")
+    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

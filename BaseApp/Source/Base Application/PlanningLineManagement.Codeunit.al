@@ -167,20 +167,20 @@ codeunit 99000809 "Planning Line Management"
                         PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
                         PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
                         PlanningRtngLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
-                        PlanningRtngLine2.FindFirst;
+                        PlanningRtngLine2.FindFirst();
                         ReqQty :=
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
                           (1 + PlanningRtngLine2."Scrap Factor % (Accumulated)") *
-                          LineQtyPerUOM /
-                          ItemQtyPerUOM +
+                          LineQtyPerUOM / ItemQtyPerUOM +
                           PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
                     end else
                         ReqQty :=
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                          LineQtyPerUOM /
-                          ItemQtyPerUOM;
+                          LineQtyPerUOM / ItemQtyPerUOM;
+
+                    OnTransferBOMOnAfterCalculateReqQty(ReqQty, ProdBOMLine[Level]);
                     case ProdBOMLine[Level].Type of
                         ProdBOMLine[Level].Type::Item:
                             begin
@@ -801,6 +801,7 @@ codeunit 99000809 "Planning Line Management"
         ReqLine2.SetRange("Ref. Order Status", ReqLine."Ref. Order Status");
         ReqLine2.SetRange("Ref. Order No.", ReqLine."Ref. Order No.");
         ReqLine2.SetFilter("Planning Level", '>%1', 0);
+        OnInsertPlanningLineOnAfterReqLine2SetFilters(ReqLine2, ReqLine);
 
         if ReqLine2.FindFirst then begin
             ReqLine2.BlockDynamicTracking(Blocked);
@@ -1059,12 +1060,22 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMOnAfterCalculateReqQty(var ReqQty: Decimal; ProductionBOMLine: Record "Production BOM Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferAsmBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var AsmBOMComponent: Record "BOM Component"; ReqLine: Record "Requisition Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMultiLevelStructureOnBeforeValidateQuantity(var RequisitionLine: Record "Requisition Line"; var PlanningComponent: Record "Planning Component");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPlanningLineOnAfterReqLine2SetFilters(var ReqLine2: Record "Requisition Line"; var ReqLine: Record "Requisition Line")
     begin
     end;
 }

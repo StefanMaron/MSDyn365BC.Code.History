@@ -280,6 +280,7 @@ page 99000914 "Change Production Order Status"
                         NewUpdateUnitCost: Boolean;
                         NoOfRecords: Integer;
                         POCount: Integer;
+                        IsHandled: Boolean;
                         LocalText000: Label 'Simulated,Planned,Firm Planned,Released,Finished';
                     begin
                         ChangeStatusForm.Set(Rec);
@@ -302,7 +303,10 @@ page 99000914 "Change Production Order Status"
                                 POCount := POCount + 1;
                                 Window.Update(1, "No.");
                                 Window.Update(2, Round(POCount / NoOfRecords * 10000, 1));
-                                ProdOrderStatusMgt.ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
+                                IsHandled := false;
+                                OnBeforeChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost, IsHandled);
+                                if not IsHandled then
+                                    ProdOrderStatusMgt.ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
                                 Commit();
                             until Next() = 0;
                     end;
@@ -355,6 +359,11 @@ page 99000914 "Change Production Order Status"
     local procedure EndingDateOnAfterValidate()
     begin
         BuildForm;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeProdOrderStatus(Rec: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

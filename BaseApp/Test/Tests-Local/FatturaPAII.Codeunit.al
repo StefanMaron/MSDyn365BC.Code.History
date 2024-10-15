@@ -1637,6 +1637,128 @@
         VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaProjectAndTenderCodesExportToDatiOrdineNodeForGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 392702] Fattura Project and Fattura Tender codes export under the DatiOrdine XML node for the line with G/L Account
+
+        Initialize();
+
+        // [GIVEN] Sales order with G/L Account and Fattura Project Code = "X", Fattura Tender Code = "Y"
+        PostSalesOrderWithGLAccountAndFatturaCodes(SalesHeader, LibraryITLocalization.CreateCustomer());
+
+        // [WHEN] The document is exported to FatturaPA.
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] DatiOrdineAcquisto node has two child nodes with values "X" and "Y"
+        VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName, SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDataExportsFromTheSalesInvoiceCombinedOfMultipleShipments()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        PostedInvNo: Code[20];
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Shipment]
+        // [SCENARIO 395112] Fattura Data takes from each shipped sales order to be exported for the sales invoice that combines these shipments
+
+        Initialize();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+
+        // [GIVEN] First shipped sales order with "Customer Purchase Order" = "X1", "Fattura Project Code" = "X2", "Fattura Tender Code" = "X3"
+        // [GIVEN] Second shipped sales order with "Customer Purchase Order" = "Y1", "Fattura Project Code" = "Y2", "Fattura Tender Code" = "Y3"
+        for i := 1 to ArrayLen(SalesHeader) do begin
+            CreateSalesHeader(SalesHeader[i], SalesHeader[i]."Document Type"::Order, CustomerNo);
+            SalesHeader[i].Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode());
+            SalesHeader[i].Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode());
+            SalesHeader[i].Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
+            SalesHeader[i].Modify(true);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader[i], SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+            SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+            SalesLine.Modify(true);
+            LibrarySales.PostSalesDocument(SalesHeader[i], true, false);
+        end;
+
+        // [GIVEN] Posted sales invoice combines from order shipments
+        PostedInvNo := CreateSalesInvFromShipment(CustomerNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        SalesInvoiceHeader.SetRange("No.", PostedInvNo);
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Two DatiOrderLineAcquisto xml nodes
+        // [THEN] The first one has all the data from the first shipped order (X1, X2, X3)
+        // [THEN] The second one has all the data from the second shipped order (Y1, Y2, Y3)
+        VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(ServerFileName, SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDataExportsFromTheServiceInvoiceCombinedOfMultipleShipments()
+    var
+        ServiceHeader: array[2] of Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceItem: Record "Service Item";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+        i: Integer;
+    begin
+        // [FEATURE] [Service] [Invoice] [Shipment]
+        // [SCENARIO 395112] Fattura Data takes from each shipped service order to be exported for the service invoice that combines these shipments
+
+        Initialize();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+
+        // [GIVEN] First shipped service order with "Customer Purchase Order" = "X1", "Fattura Project Code" = "X2", "Fattura Tender Code" = "X3"
+        // [GIVEN] Second shipped service order with "Customer Purchase Order" = "Y1", "Fattura Project Code" = "Y2", "Fattura Tender Code" = "Y3"
+        for i := 1 to ArrayLen(ServiceHeader) do begin
+            CreateServiceHeader(ServiceHeader[i], ServiceHeader[i]."Document Type"::Order, CustomerNo);
+            ServiceHeader[i].Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode());
+            ServiceHeader[i].Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode());
+            ServiceHeader[i].Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
+            ServiceHeader[i].Modify(true);
+            Clear(ServiceItem);
+            LibraryService.CreateServiceItem(ServiceItem, ServiceHeader[i]."Customer No.");
+            CreateServiceLineWithItem(ServiceLine, ServiceHeader[i], ServiceItem, '');
+            LibraryService.PostServiceOrder(ServiceHeader[i], true, false, false);
+        end;
+
+        // [GIVEN] Posted service invoice combines from order shipments
+        CreateServInvFromShipment(ServiceInvoiceHeader, CustomerNo);
+
+        // [WHEN] The document is exported to FatturaPA.
+        ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Two DatiOrderLineAcquisto xml nodes
+        // [THEN] The first one has all the data from the first shipped order (X1, X2, X3)
+        // [THEN] The second one has all the data from the second shipped order (Y1, Y2, Y3)
+        VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(ServerFileName, ServiceHeader);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2239,6 +2361,28 @@
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure PostSalesOrderWithGLAccountAndFatturaCodes(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode);
+        SalesHeader.Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode);
+        SalesHeader.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure FormatAmount(Amount: Decimal): Text[250]
     begin
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,9>'))
@@ -2523,6 +2667,55 @@
             VerifyDatiDDTData(
               TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date",
               ServiceShipmentLine."Order Line No." / 10000);
+        end;
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName: Text[250]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempResultElementXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
+        TempXMLBuffer.FindChildElements(TempResultElementXMLBuffer);
+        Assert.RecordCount(TempResultElementXMLBuffer, 2);
+        AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaProjectCode);
+        FindNextElement(TempResultElementXMLBuffer);
+        AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaTenderCode);
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(ServerFileName: Text[250]; SalesHeader: array[2] of Record "Sales Header")
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        i: Integer;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
+        for i := 1 to ArrayLen(SalesHeader) do begin
+            AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(i * 2));
+            AssertElementValue(TempXMLBuffer, 'IdDocumento', SalesHeader[i]."Customer Purchase Order No.");
+            AssertElementValue(TempXMLBuffer, 'CodiceCUP', SalesHeader[i]."Fattura Project Code");
+            AssertElementValue(TempXMLBuffer, 'CodiceCIG', SalesHeader[i]."Fattura Tender Code");
+            FindNextElement(TempXMLBuffer);
+        end;
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(ServerFileName: Text[250]; ServiceHeader: array[2] of Record "Service Header")
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        i: Integer;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
+        for i := 1 to ArrayLen(ServiceHeader) do begin
+            AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(i * 2));
+            AssertElementValue(TempXMLBuffer, 'IdDocumento', ServiceHeader[i]."Customer Purchase Order No.");
+            AssertElementValue(TempXMLBuffer, 'CodiceCUP', ServiceHeader[i]."Fattura Project Code");
+            AssertElementValue(TempXMLBuffer, 'CodiceCIG', ServiceHeader[i]."Fattura Tender Code");
+            FindNextElement(TempXMLBuffer);
         end;
         DeleteServerFile(ServerFileName);
     end;

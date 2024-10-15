@@ -181,6 +181,7 @@ report 12195 "Datifattura Suggest Lines"
 
         VATReportLine."VAT Transaction Nature" := GetVATTransactionNature(VATEntry);
         VATReportLine."Incl. in Report" := true;
+        VATReportLine."Fattura Document Type" := VATEntry."Fattura Document Type";
         VATReportLine.Insert();
     end;
 

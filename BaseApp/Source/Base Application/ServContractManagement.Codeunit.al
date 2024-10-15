@@ -173,6 +173,8 @@ codeunit 5940 ServContractManagement
                                (ServContractLine."Contract Expiration Date" <> 0D));
                         CountOfEntryLoop := NoOfPayments;
 
+                        OnCreateServiceLedgerEntryOnBeforeCheckServContractLineStartingDate(ServContractHeader, CountOfEntryLoop);
+
                         // Partial period ranged by "Starting Date" and end of month. Full period is shifted by one month
                         if ServContractLine."Starting Date" > InvFrom then begin
                             Days := CalcDate('<CM>', InvFrom) - ServContractLine."Starting Date";
@@ -290,13 +292,7 @@ codeunit 5940 ServContractManagement
                         OnCreateServiceLedgerEntryBeforeCountLineInvFrom(ServLedgEntry, ServContractLine);
                         LineInvFrom := CountLineInvFrom(SigningContract, ServContractLine, InvFrom);
                         if (LineInvFrom <> 0D) and (LineInvFrom <= InvTo) then begin
-                            SetServLedgEntryAmounts(
-                              ServLedgEntry, InvRoundedAmount,
-                              -CalcContractLineAmount(ServContractLine."Line Amount", LineInvFrom, InvTo),
-                              -CalcContractLineAmount(ServContractLine."Line Value", LineInvFrom, InvTo),
-                              CalcContractLineAmount(ServContractLine."Line Cost", LineInvFrom, InvTo),
-                              CalcContractLineAmount(ServContractLine."Line Discount Amount", LineInvFrom, InvTo),
-                              Currency."Amount Rounding Precision");
+                            UpdateServLedgEntryAmounts(ServContractLine, Currency, InvRoundedAmount, LineInvFrom, InvTo);
                             ServLedgEntry."Cost Amount" := ServLedgEntry."Unit Cost" * ServLedgEntry."Charged Qty.";
                             UpdateServLedgEntryAmount(ServLedgEntry, ServHeader2);
                             ServLedgEntry."Entry No." := NextEntry;
@@ -334,6 +330,24 @@ codeunit 5940 ServContractManagement
             UpdateServLedgEntryAmount(ServLedgEntry, ServHeader2);
             ServLedgEntry.Modify();
         end;
+    end;
+
+    local procedure UpdateServLedgEntryAmounts(var ServContractLine: Record "Service Contract Line"; var Currency: Record Currency; var InvRoundedAmount: array[4] of Decimal; LineInvFrom: Date; InvTo: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateServLedgEntryAmounts(ServContractLine, ServLedgEntry, InvRoundedAmount, LineInvFrom, InvTo, IsHandled);
+        if IsHandled then
+            exit;
+
+        SetServLedgEntryAmounts(
+          ServLedgEntry, InvRoundedAmount,
+          -CalcContractLineAmount(ServContractLine."Line Amount", LineInvFrom, InvTo),
+          -CalcContractLineAmount(ServContractLine."Line Value", LineInvFrom, InvTo),
+          CalcContractLineAmount(ServContractLine."Line Cost", LineInvFrom, InvTo),
+          CalcContractLineAmount(ServContractLine."Line Discount Amount", LineInvFrom, InvTo),
+          Currency."Amount Rounding Precision");
     end;
 
     local procedure CalcServLedgEntryDiscountPct(var ServiceLedgerEntry: Record "Service Ledger Entry")
@@ -1630,6 +1644,7 @@ codeunit 5940 ServContractManagement
         OldServItem: Record "Service Item";
         ServLogMgt: Codeunit ServLogManagement;
     begin
+        OnBeforeChangeCustNoOnServItem(ServItem, NewCustomertNo);
         OldServItem := ServItem;
         ServItem."Customer No." := NewCustomertNo;
         ServItem."Ship-to Code" := NewShipToCode;
@@ -1809,7 +1824,7 @@ codeunit 5940 ServContractManagement
         StdText: Record "Standard Text";
         IsHandled: Boolean;
     begin
-        OnBeforeServLedgEntryToServiceLine(TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, IsHandled, ServiceLedgerEntry);
+        OnBeforeServLedgEntryToServiceLine(TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, IsHandled, ServiceLedgerEntry, InvFrom, InvTo);
         if IsHandled then
             exit;
 
@@ -2139,7 +2154,14 @@ codeunit 5940 ServContractManagement
     end;
 
     local procedure CalcInvAmounts(var InvAmount: array[4] of Decimal; ServContractLine: Record "Service Contract Line"; InvFrom: Date; InvTo: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcInvAmounts(InvAmount, ServContractLine, InvFrom, InvTo, IsHandled);
+        if IsHandled then
+            exit;
+
         InvAmount[AmountType::Amount] +=
           CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, InvTo);
         InvAmount[AmountType::UnitPrice] +=
@@ -2261,6 +2283,16 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvAmounts(var InvAmount: array[4] of Decimal; var ServiceContractLine: Record "Service Contract Line"; InvFrom: Date; InvTo: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeCustNoOnServItem(var ServiceItem: Record "Service Item"; NewCustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServLineForNewContract(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; var ServLineNo: Integer)
     begin
     end;
@@ -2292,6 +2324,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServLineInsert(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServLedgEntryAmounts(var ServiceContractLine: Record "Service Contract Line"; var ServLedgEntry: Record "Service Ledger Entry"; InvRoundedAmount: array[4] of Decimal; LineInvoiceFrom: Date; InvoiceTo: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -2406,7 +2443,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry")
+    local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry"; InvFrom: Date; InvTo: Date)
     begin
     end;
 
@@ -2472,6 +2509,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgerEntryOnBeforeCheckServContractLineStartingDate(ServContractHeader: Record "Service Contract Header"; var CountOfEntryLoop: Integer)
     begin
     end;
 

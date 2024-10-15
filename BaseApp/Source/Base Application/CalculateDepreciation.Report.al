@@ -394,6 +394,7 @@ report 5692 "Calculate Depreciation"
     var
         PageGenJnlLine: Record "Gen. Journal Line";
         PageFAJnlLine: Record "FA Journal Line";
+        ConfirmMgt: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
         Window.Close;
@@ -406,7 +407,7 @@ report 5692 "Calculate Depreciation"
             IsHandled := false;
             OnPostReportOnBeforeConfirmShowFAJournalLines(DeprBook, FAJnlLine, FAJnlLineCreatedCount, IsHandled);
             if not IsHandled then
-                if Confirm(CompletionStatsFAJnlQst, true, FAJnlLineCreatedCount) then begin
+                if ConfirmMgt.GetResponse(StrSubstNo(CompletionStatsFAJnlQst, FAJnlLineCreatedCount), true) then begin
                     PageFAJnlLine.SetRange("Journal Template Name", FAJnlLine."Journal Template Name");
                     PageFAJnlLine.SetRange("Journal Batch Name", FAJnlLine."Journal Batch Name");
                     PageFAJnlLine.FindFirst;
@@ -418,7 +419,7 @@ report 5692 "Calculate Depreciation"
             IsHandled := false;
             OnPostReportOnBeforeConfirmShowGenJournalLines(DeprBook, GenJnlLine, GenJnlLineCreatedCount, IsHandled);
             if not IsHandled then
-                if Confirm(CompletionStatsGenJnlQst, true, GenJnlLineCreatedCount) then begin
+                if ConfirmMgt.GetResponse(StrSubstNo(CompletionStatsGenJnlQst, GenJnlLineCreatedCount), true) then begin
                     PageGenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                     PageGenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                     PageGenJnlLine.FindFirst;

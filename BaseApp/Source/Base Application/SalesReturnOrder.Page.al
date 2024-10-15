@@ -720,24 +720,28 @@ page 6630 "Sales Return Order"
             part(Control1903720907; "Sales Hist. Sell-to FactBox")
             {
                 ApplicationArea = SalesReturnOrder;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1907234507; "Sales Hist. Bill-to FactBox")
             {
                 ApplicationArea = SalesReturnOrder;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = SalesReturnOrder;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = SalesReturnOrder;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1906127307; "Sales Line FactBox")
             {
@@ -1541,7 +1545,7 @@ page 6630 "Sales Return Order"
     var
         SalesHeader: Record "Sales Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
-        IsHandled: Boolean;        
+        IsHandled: Boolean;
     begin
         SendToPosting(PostingCodeunitID);
 

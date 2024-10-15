@@ -91,6 +91,24 @@ table 12204 "Fattura Line"
         {
             Caption = 'Due Date';
         }
+        field(50; "Fattura Project Code"; Code[15])
+        {
+            Caption = 'Fattura Project Code';
+            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Project));
+        }
+        field(51; "Fattura Tender Code"; Code[15])
+        {
+            Caption = 'Fattura Tender Code';
+            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Tender));
+        }
+        field(52; "Customer Purchase Order No."; Text[35])
+        {
+            Caption = 'Customer Purchase Order No.';
+        }
+        field(90; "Split Line"; Boolean)
+        {
+            Caption = 'Split Line';
+        }
     }
 
     keys
