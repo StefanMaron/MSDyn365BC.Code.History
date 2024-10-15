@@ -80,8 +80,10 @@ codeunit 8888 "Email Dispatcher"
         else
             Email.OnAfterEmailSendFailed(Rec);
 #if not CLEAN20
+#pragma warning disable AL0432
         if (ClientTypeManagement.GetCurrentClientType() = ClientType::Background) then
             Email.OnAfterSendEmail(Rec."Message Id", Success);
+#pragma warning restore AL0432
 #endif
     end;
 
