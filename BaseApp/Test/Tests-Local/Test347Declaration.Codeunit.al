@@ -875,6 +875,30 @@ codeunit 147316 "Test 347 Declaration"
         CompanyInfo.TestField(Name, FormattedName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatTextNameClearDigits();
+    var
+        Make347Declaration: Report "Make 347 Declaration";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 423222] "Make 347 Declaration".FormatTextName(...) must replace digits to spaces if ClearNumerico = true
+
+        Assert.AreEqual('   ', Make347Declaration.FormatTextName('123', true), 'Wrong formatted string.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatTextNameNotClearDigits();
+    var
+        Make347Declaration: Report "Make 347 Declaration";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 423222] "Make 347 Declaration".FormatTextName(...) must not replace digits to spaces if ClearNumerico = false
+
+        Assert.AreEqual('123', Make347Declaration.FormatTextName('123', false), 'Wrong formatted string.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

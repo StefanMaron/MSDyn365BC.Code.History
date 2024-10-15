@@ -18,6 +18,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryMarketing: Codeunit "Library - Marketing";
         WrongLogEntryOnPageErr: Label 'Unexpected entry in VAT Registration Log page.';
         NamespaceTxt: Label 'urn:ec.europa.eu:taxud:vies:services:checkVat:types', Locked = true;
         VATTxt: Label 'vat';
@@ -1312,6 +1313,129 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         CustomerCard."VAT Registration No.".DrillDown;
 
         // [THEN] On opened page selected line has VAT Registration No. = "B".
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VATRegLogCreationDuplicateVATRegNoCustomer()
+    var
+        Customer: Array[2] of Record Customer;
+        VATRegistrationLog: Record "VAT Registration Log";
+        CustomerCard: TestPage "Customer Card";
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 423250] VAT Registration Log entry should be created even if duplicate VAT Registration No. was detected (Customer)
+        Initialize;
+
+        // [GIVEN] Customer "C1" with VAT Registration No. = "A".
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(Customer[1]."Country/Region Code");
+        LibrarySales.CreateCustomer(Customer[1]);
+        Customer[1].Validate("Country/Region Code", CreateCountryCodeWithEUCode);
+        Customer[1].Validate("VAT Registration No.", VATRegistrationNo);
+        Customer[1].Modify();
+
+        // [GIVEN] Customer "C2"
+        LibrarySales.CreateCustomer(Customer[2]);
+        Customer[2].Validate("Country/Region Code", Customer[1]."Country/Region Code");
+        Customer[2].Modify();
+
+        // [GIVEN] Customer Card page opened for Customer "C2"
+        CustomerCard.OpenEdit;
+        CustomerCard.FILTER.SetFilter("No.", Customer[2]."No.");
+
+        // [WHEN] VAT Registration No. value set to "A"
+        // [THEN] Message stating that the VAT Registration No. already used for another customer appears ['MessageHandler']
+        CustomerCard."VAT Registration No.".SetValue(VATRegistrationNo);
+        CustomerCard.Close();
+
+        // [THEN] VAT Registration Log Entry for Customer "2" created
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Customer);
+        VATRegistrationLog.SetRange("Account No.", Customer[2]."No.");
+        VATRegistrationLog.SetRange("VAT Registration No.", VATRegistrationNo);
+        Assert.RecordCount(VATRegistrationLog, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VATRegLogCreationDuplicateVATRegNoVendor()
+    var
+        Vendor: Array[2] of Record Vendor;
+        VATRegistrationLog: Record "VAT Registration Log";
+        VendorCard: TestPage "Vendor Card";
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 423250] VAT Registration Log entry should be created even if duplicate VAT Registration No. was detected (Vendor)
+        Initialize;
+
+        // [GIVEN] Vendor "C1" with VAT Registration No. = "A".
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(Vendor[1]."Country/Region Code");
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        Vendor[1].Validate("Country/Region Code", CreateCountryCodeWithEUCode);
+        Vendor[1].Validate("VAT Registration No.", VATRegistrationNo);
+        Vendor[1].Modify();
+
+        // [GIVEN] Vendor "C2"
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        Vendor[2].Validate("Country/Region Code", Vendor[1]."Country/Region Code");
+        Vendor[2].Modify();
+
+        // [GIVEN] Vendor Card page opened for Vendor "C2"
+        VendorCard.OpenEdit;
+        VendorCard.FILTER.SetFilter("No.", Vendor[2]."No.");
+
+        // [WHEN] VAT Registration No. value set to "A"
+        // [THEN] Message stating that the VAT Registration No. already used for another vendor appears ['MessageHandler']
+        VendorCard."VAT Registration No.".SetValue(VATRegistrationNo);
+        VendorCard.Close();
+
+        // [THEN] VAT Registration Log Entry for Vendor "2" created
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Vendor);
+        VATRegistrationLog.SetRange("Account No.", Vendor[2]."No.");
+        VATRegistrationLog.SetRange("VAT Registration No.", VATRegistrationNo);
+        Assert.RecordCount(VATRegistrationLog, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VATRegLogCreationDuplicateVATRegNoContact()
+    var
+        Contact: Array[2] of Record Contact;
+        VATRegistrationLog: Record "VAT Registration Log";
+        ContactCard: TestPage "Contact Card";
+        VATRegistrationNo: Text[20];
+    begin
+        // [SCENARIO 423250] VAT Registration Log entry should be created even if duplicate VAT Registration No. was detected (Contact)
+        Initialize;
+
+        // [GIVEN] Contact "C1" with VAT Registration No. = "A".
+        VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(Contact[1]."Country/Region Code");
+        LibraryMarketing.CreateCompanyContact(Contact[1]);
+        Contact[1].Validate("Country/Region Code", CreateCountryCodeWithEUCode);
+        Contact[1].Validate("VAT Registration No.", VATRegistrationNo);
+        Contact[1].Modify();
+
+        // [GIVEN] Contact "C2"
+        LibraryMarketing.CreateCompanyContact(Contact[2]);
+        Contact[2].Validate("Country/Region Code", Contact[1]."Country/Region Code");
+        Contact[2].Modify();
+
+        // [GIVEN] Contact Card page opened for Contact "C2"
+        ContactCard.OpenEdit;
+        ContactCard.FILTER.SetFilter("No.", Contact[2]."No.");
+
+        // [WHEN] VAT Registration No. value set to "A"
+        // [THEN] Message stating that the VAT Registration No. already used for another contact appears ['MessageHandler']
+        ContactCard."VAT Registration No.".SetValue(VATRegistrationNo);
+        ContactCard.Close();
+
+        // [THEN] VAT Registration Log Entry for Contact "2" created
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Contact);
+        VATRegistrationLog.SetRange("Account No.", Contact[2]."No.");
+        VATRegistrationLog.SetRange("VAT Registration No.", VATRegistrationNo);
+        Assert.RecordCount(VATRegistrationLog, 1);
     end;
 
     local procedure Initialize()
