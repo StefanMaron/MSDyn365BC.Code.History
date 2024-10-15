@@ -3396,7 +3396,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Item.SetFilter("Unit Price", '<>%1', 0);
         Item.SetFilter(Reserve, '<>%1', Item.Reserve::Always);
         Item.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        Item.FindSet;
+        Item.FindSet();
     end;
 
     local procedure FindMaxVATPostingDate(MaxPostingDate: Date; VATEntry: Record "VAT Entry"): Date

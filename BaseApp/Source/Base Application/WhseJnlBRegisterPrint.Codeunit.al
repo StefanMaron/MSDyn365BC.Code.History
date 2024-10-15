@@ -48,7 +48,7 @@ codeunit 7300 "Whse. Jnl.-B.Register+Print"
                     Mark(true);
                     JnlWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JnlWithErrors then
                 Message(Text001)

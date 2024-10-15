@@ -31,13 +31,13 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
             repeat
                 TempCustLedgEntry := CustLedgEntry;
                 TempCustLedgEntry.Insert();
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
         end;
 
         if TempCustLedgEntry.FindSet then
             repeat
                 UpdateCustLedgerEntry(TempCustLedgEntry, ApplyingCustLedgEntry, AppliesToID);
-            until TempCustLedgEntry.Next = 0;
+            until TempCustLedgEntry.Next() = 0;
     end;
 
     local procedure UpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])

@@ -99,7 +99,7 @@ page 10704 "Transference Format"
 
     local procedure VATStmtCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

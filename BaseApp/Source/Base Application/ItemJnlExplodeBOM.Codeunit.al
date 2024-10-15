@@ -56,7 +56,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
                 if ToItemJnlLine.Quantity > 0 then
                     if ItemCheckAvail.ItemJnlCheckLine(ToItemJnlLine) then
                         ItemCheckAvail.RaiseUpdateInterruptedError;
-            until FromBOMComp.Next = 0;
+            until FromBOMComp.Next() = 0;
 
         ToItemJnlLine := Rec;
         ToItemJnlLine.Init();
@@ -99,7 +99,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
                 ToItemJnlLine."Dimension Set ID" := "Dimension Set ID";
                 ToItemJnlLine.Modify();
             end;
-        until FromBOMComp.Next = 0;
+        until FromBOMComp.Next() = 0;
     end;
 
     var

@@ -115,7 +115,7 @@ page 130415 "Semi-Manual Test Wizard"
                             OutStream.Write('[' + Format(SemiManualExecutionLog."Time stamp") + '] ');
                             OutStream.WriteText(SemiManualExecutionLog.GetMessage);
                             OutStream.WriteText;
-                        until SemiManualExecutionLog.Next = 0;
+                        until SemiManualExecutionLog.Next() = 0;
                     File.Close;
                     FileManagement.DownloadTempFile(ServerFileName);
                 end;
@@ -214,7 +214,7 @@ page 130415 "Semi-Manual Test Wizard"
         TestExecuting := true;
         SemiManualExecutionLog.Log(StrSubstNo('Loaded codeunit %1. Total steps = %2.',
             CodeunitId, "Total steps"));
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure OnNextStep()
@@ -228,7 +228,7 @@ page 130415 "Semi-Manual Test Wizard"
                 TestExecuting := false;
                 Message(TestSuccessfulMsg);
             end;
-            CurrPage.Update;
+            CurrPage.Update();
             if "Skip current step" then
                 SemiManualExecutionLog.Log('The automation post process step skipped.')
             else

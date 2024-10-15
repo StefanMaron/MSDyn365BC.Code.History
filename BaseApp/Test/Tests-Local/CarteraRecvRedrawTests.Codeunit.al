@@ -730,7 +730,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
 
         CarteraDoc.SetRange("Document No.", PostedInvDocNo);
-        CarteraDoc.FindSet;
+        CarteraDoc.FindSet();
         // The first line carries the entire VAT Amount
         CarteraDoc."Remaining Amount" -= (SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount);
 
@@ -757,7 +757,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedrawInClosedCarteraDoc(InvoiceNo);
 
         BankAccountLedgerEntry.SetRange("Bank Account No.", BillGroup."Bank Account No.");
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         repeat
             TotalChargedAmount += BankAccountLedgerEntry.Amount;
         until BankAccountLedgerEntry.Next = 0;

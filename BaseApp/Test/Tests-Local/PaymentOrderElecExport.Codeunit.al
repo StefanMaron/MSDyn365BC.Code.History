@@ -286,7 +286,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindSet;
+        CarteraDoc.FindSet();
         repeat
             CarteraDoc.TestField("Elect. Pmts Exported", Exported);
         until CarteraDoc.Next = 0;

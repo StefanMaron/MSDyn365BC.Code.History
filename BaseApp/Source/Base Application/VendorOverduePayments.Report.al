@@ -276,7 +276,7 @@ report 10748 "Vendor - Overdue Payments"
                             if not AppldVendLedgEntryTmp.FindSet then
                                 CurrReport.Break();
                         end else
-                            if AppldVendLedgEntryTmp.Next = 0 then
+                            if AppldVendLedgEntryTmp.Next() = 0 then
                                 CurrReport.Break();
                         TempDetailedVendorLedgEntry.Get(AppldVendLedgEntryTmp."Entry No.");
 
@@ -481,7 +481,7 @@ report 10748 "Vendor - Overdue Payments"
                     FindAppPaymToInv(DtldVendLedgEntry."Applied Vend. Ledger Entry No.", InvVendLedgEntry)
                 else
                     FindAppInvToPaym(DtldVendLedgEntry, InvVendLedgEntry);
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure FindAppPaymToInv(AppliedVendLedgEntryNo: Integer; InvVendLedgEntry: Record "Vendor Ledger Entry")
@@ -516,7 +516,7 @@ report 10748 "Vendor - Overdue Payments"
                             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

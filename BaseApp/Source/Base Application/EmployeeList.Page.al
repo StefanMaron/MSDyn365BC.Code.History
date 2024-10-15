@@ -347,6 +347,23 @@ page 5201 "Employee List"
                               "Applies-to ID" = FILTER('');
                 ToolTip = 'View employee ledger entries for the selected record with remaining amount that have not been paid yet.';
             }
+            action(ApplyTemplate)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Apply Template';
+                Ellipsis = true;
+                Image = ApplyTemplate;
+                ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
+
+                trigger OnAction()
+                var
+                    Employee: Record Employee;
+                    EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+                begin
+                    CurrPage.SetSelectionFilter(Employee);
+                    EmployeeTemplMgt.UpdateEmployeesFromTemplate(Employee);
+                end;
+            }
         }
     }
 }

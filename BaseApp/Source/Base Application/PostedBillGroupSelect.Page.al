@@ -331,7 +331,7 @@ page 7000064 "Posted Bill Group Select."
             repeat
                 CalcFields("Remaining Amount (LCY)");
                 CurrTotalAmount := CurrTotalAmount + "Remaining Amount (LCY)";
-            until Next = 0;
+            until Next() = 0;
         end;
         ShowCurrent := (CurrTotalAmount <> 0);
     end;

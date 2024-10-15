@@ -161,15 +161,15 @@ codeunit 139525 "Library - VAT Group"
 
         WebServices.OpenView();
         i := 1;
-        while (WebServices.ODataUrl.Value() = '') and (i < 10) do begin
+        while (WebServices.ODataV4Url.Value() = '') and (i < 10) do begin
             WebServices.Next();
             i += 1;
         end;
-        Temp := WebServices.ODataUrl.Value();
+        Temp := WebServices.ODataV4Url.Value();
         if Temp = '' then
             Error(NoODataWebServiceErr);
         WebServices.Close();
-        RepresentativeURL := CopyStr(Temp, 1, StrPos(UpperCase(Temp), '/ODATA/') - 1);
+        RepresentativeURL := CopyStr(Temp, 1, StrPos(UpperCase(Temp), '/ODATAV4/') - 1);
 
         exit(RepresentativeURL);
     end;

@@ -211,13 +211,13 @@ report 10743 "Make 340 Declaration"
                             VATEntryTemporary.SetCurrentKey("VAT %", "EC %");
                             VATEntryTemporary.SetRange("VAT %", VATBuffer."VAT %");
                             VATEntryTemporary.SetRange("EC %", VATBuffer."EC %");
-                            VATEntryTemporary.FindSet;
+                            VATEntryTemporary.FindSet();
                             repeat
                                 VATDeductAmt := CheckDeductibleVAT(VATEntryTemporary);
                                 RecordTypePurchase(VATEntryTemporary);
-                            until VATEntryTemporary.Next = 0;
+                            until VATEntryTemporary.Next() = 0;
                         end;
-                        Fin := VATBuffer.Next = 0;
+                        Fin := VATBuffer.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -240,7 +240,7 @@ report 10743 "Make 340 Declaration"
                     TempVATEntry.SetRange("Document Type", "Document Type");
                     TempVATEntry.SetRange("Bill-to/Pay-to No.", "Bill-to/Pay-to No.");
                     TempVATEntry.SetRange("Transaction No.", "Transaction No.");
-                    if not TempVATEntry.IsEmpty then
+                    if not TempVATEntry.IsEmpty() then
                         CurrReport.Skip();
 
                     case Type of
@@ -498,7 +498,7 @@ report 10743 "Make 340 Declaration"
                 TempDeclarationLines.SetRange("Operation Code", 'R');
                 TempDeclarationLines.SetRange("Property Location", TempDeclarationLines."Property Location"::" ");
                 TempDeclarationLines.SetRange(Type, TempDeclarationLines.Type::Sale);
-                if not TempDeclarationLines.IsEmpty then
+                if not TempDeclarationLines.IsEmpty() then
                     exit;
                 TempDeclarationLines.Reset();
                 CreateFileHeader;
@@ -700,7 +700,7 @@ report 10743 "Make 340 Declaration"
                     end;
                     PrevVATEntry := VATEntries;
                 end;
-            until VATEntries.Next = 0;
+            until VATEntries.Next() = 0;
     end;
 
     local procedure CheckVATOnUnrealVATEntries(VATEntryRec: Record "VAT Entry"): Boolean
@@ -716,7 +716,7 @@ report 10743 "Make 340 Declaration"
                    (UnrealVATEntry."EC %" <> VATEntryRec."EC %")
                 then
                     exit(true);
-            until UnrealVATEntry.Next = 0;
+            until UnrealVATEntry.Next() = 0;
         exit(false);
     end;
 
@@ -1056,7 +1056,7 @@ report 10743 "Make 340 Declaration"
 
                     if AddVATAmount then
                         Amt += VATEntries.Amount;
-                until VATEntries.Next = 0;
+                until VATEntries.Next() = 0;
         end;
         exit(Amt);
     end;
@@ -1160,8 +1160,8 @@ report 10743 "Make 340 Declaration"
                                 if PurchRcptHeader.Get(PurchRcptLine."Document No.") then
                                     if (OperationDate = 0D) or (ItemLedgEntry."Posting Date" < OperationDate) then
                                         OperationDate := ItemLedgEntry."Posting Date";
-                    until ValueEntry.Next = 0;
-            until PurchInvLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure CalcTotals()
@@ -1198,7 +1198,7 @@ report 10743 "Make 340 Declaration"
                         VATEntryTemporary.Next;
                     end;
                 end;
-            until VATEntry6.Next = 0;
+            until VATEntry6.Next() = 0;
 
         VATEntryTemporary.Reset();
         if VATEntryTypeFilter <> '' then
@@ -1244,14 +1244,14 @@ report 10743 "Make 340 Declaration"
                         VATBuffer.Delete();
                         TempSalesPurchBookVATBuffer.Delete();
                     end;
-                until VATEntry7.Next = 0;
-                if not VATBuffer.IsEmpty then
+                until VATEntry7.Next() = 0;
+                if not VATBuffer.IsEmpty() then
                     NoofRecords += VATBuffer.Count();
                 if IsVATEntryIncludedInTotals(VATEntryTemporary) then begin
                     UpdateTotals(VATBuffer, TotalBaseAmount, TotalVATAmount, TotalInvoiceAmount);
                     UpdateTotals(TempSalesPurchBookVATBuffer, TotalBaseAmount, TotalVATAmount, TotalInvoiceAmount);
                 end;
-            until VATEntryTemporary.Next = 0;
+            until VATEntryTemporary.Next() = 0;
     end;
 
     local procedure IsEmptyVATBuffer(SalesPurchBookVATBuffer: Record "Sales/Purch. Book VAT Buffer"): Boolean
@@ -1290,7 +1290,7 @@ report 10743 "Make 340 Declaration"
                     TotalBaseAmount += Base;
                     TotalVATAmount += Amount - Round("EC Amount");
                     TotalInvoiceAmount += Base + Amount;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure IsVATEntryIncludedInTotals(var VATEntry: Record "VAT Entry"): Boolean
@@ -1328,8 +1328,8 @@ report 10743 "Make 340 Declaration"
                                 if SalesShipmentHeader.Get(SalesShipmentLine."Document No.") then
                                     if (OperationDate = 0D) or (ItemLedgEntry."Posting Date" < OperationDate) then
                                         OperationDate := ItemLedgEntry."Posting Date";
-                    until ValueEntry.Next = 0;
-            until SalesInvLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until SalesInvLine.Next() = 0;
     end;
 
     local procedure GetSalesReturnReciptDate(DocumentNo: Code[20]) OperationDate: Date
@@ -1359,8 +1359,8 @@ report 10743 "Make 340 Declaration"
                                 if SalesReturnRcptHeader.Get(SalesReturnRcptLine."Document No.") then
                                     if (OperationDate = 0D) or (ItemLedgEntry."Posting Date" < OperationDate) then
                                         OperationDate := ItemLedgEntry."Posting Date";
-                    until ValueEntry.Next = 0;
-            until SalesCrMemoLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure GetPurchReturnShipmentDate(DocumentNo: Code[20]) OperationDate: Date
@@ -1390,8 +1390,8 @@ report 10743 "Make 340 Declaration"
                                 if purchReturnShipmentHeader.Get(PurchReturnShipmentLine."Document No.") then
                                     if (OperationDate = 0D) or (ItemLedgEntry."Posting Date" < OperationDate) then
                                         OperationDate := ItemLedgEntry."Posting Date";
-                    until ValueEntry.Next = 0;
-            until PurchCrMemoLine.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure WriteDeclarationLinesToText(var DeclarationLine: Record "340 Declaration Line")
@@ -1419,7 +1419,7 @@ report 10743 "Make 340 Declaration"
 
                     Outstr.WriteText;
                     Outstr.WriteText(txt);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1459,7 +1459,7 @@ report 10743 "Make 340 Declaration"
                     Outstr.WriteText;
                     Outstr.WriteText(txt);
                 end;
-            until CustomerCashBuffer.Next = 0;
+            until CustomerCashBuffer.Next() = 0;
     end;
 
     local procedure GetPropertyLocation(PropertyLocation: Option): Text[1]
@@ -1587,7 +1587,7 @@ report 10743 "Make 340 Declaration"
             repeat
                 if IsCashAccount(GLEntryLoc."G/L Account No.") then
                     exit(true);
-            until GLEntryLoc.Next = 0;
+            until GLEntryLoc.Next() = 0;
         exit(false);
     end;
 
@@ -1622,7 +1622,7 @@ report 10743 "Make 340 Declaration"
                 repeat
                     if CheckCustomerPayment(Customer."No.") then
                         ExecuteCustomerPayments(Customer."No.");
-                until Customer.Next = 0;
+                until Customer.Next() = 0;
         end;
 
         if CustomerCashBuffer.FindSet then
@@ -1632,7 +1632,7 @@ report 10743 "Make 340 Declaration"
                 Evaluate(OperationYear, CustomerCashBuffer."Operation Year");
                 if OperationYear <> NumFiscalYear then
                     GetAffectedYearInvoiceAndBill(Customer."No.", OperationYear);
-            until CustomerCashBuffer.Next = 0;
+            until CustomerCashBuffer.Next() = 0;
 
         CustomerCashBuffer.Reset();
         CustomerCashBuffer.SetFilter("Operation Amount", '>=%1', MinPaymentAmount);
@@ -1716,7 +1716,7 @@ report 10743 "Make 340 Declaration"
                 repeat
                     if CheckCustLedgEntryExists(CustLedgerEntry) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1733,7 +1733,7 @@ report 10743 "Make 340 Declaration"
                 repeat
                     if CheckCustLedgEntryExists(CustLedgerEntry) then
                         FillBufferFromPaymentCustLE(CustLedgerEntry, 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1768,7 +1768,7 @@ report 10743 "Make 340 Declaration"
                     if CustLedgerEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.") then
                         UpdateCustomerCashBuffer(
                           CustomerNo, Date2DMY(CustLedgerEntry."Document Date", 3), -DtldCustLedgEntry."Amount (LCY)");
-            until DtldCustLedgEntry.Next = 0
+            until DtldCustLedgEntry.Next() = 0
         else begin
             DtldCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", PaymentEntryNo);
@@ -1778,7 +1778,7 @@ report 10743 "Make 340 Declaration"
                     if CustLedgerEntry.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.") then
                         UpdateCustomerCashBuffer(
                           CustomerNo, Date2DMY(CustLedgerEntry."Document Date", 3), DtldCustLedgEntry."Amount (LCY)");
-                until DtldCustLedgEntry.Next = 0;
+                until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1794,7 +1794,7 @@ report 10743 "Make 340 Declaration"
         if CustLedgerEntry.FindSet then
             repeat
                 GetAppliedPaymentsFromInvBill(CustLedgerEntry."Entry No.");
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure GetAppliedPaymentsFromInvBill(InvoiceEntryNo: Integer)
@@ -1811,7 +1811,7 @@ report 10743 "Make 340 Declaration"
                 if DtldCustLedgEntry."Cust. Ledger Entry No." <> DtldCustLedgEntry."Applied Cust. Ledger Entry No." then
                     if CustLedgerEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.") then
                         FillBufferFromPaymentCustLE(CustLedgerEntry, InvoiceEntryNo);
-            until DtldCustLedgEntry.Next = 0
+            until DtldCustLedgEntry.Next() = 0
         else begin
             DtldCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", InvoiceEntryNo);
@@ -1820,7 +1820,7 @@ report 10743 "Make 340 Declaration"
                     if DtldCustLedgEntry."Cust. Ledger Entry No." <> DtldCustLedgEntry."Applied Cust. Ledger Entry No." then
                         if CustLedgerEntry.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.") then
                             FillBufferFromPaymentCustLE(CustLedgerEntry, InvoiceEntryNo);
-                until DtldCustLedgEntry.Next = 0;
+                until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -2106,10 +2106,10 @@ report 10743 "Make 340 Declaration"
         UnrealizedVendLedgEntry: Integer;
     begin
         FilterVendLedgerEntryByVATEntry(VendorLedgerEntry, VATEntry);
-        RecordFound := VendorLedgerEntry.FindSet;
+        RecordFound := VendorLedgerEntry.FindSet();
         if (not RecordFound) and (VATEntry."Unrealized VAT Entry No." <> 0) then begin
             VendorLedgerEntry.SetFilter("Transaction No.", '%1..', VATEntry."Transaction No.");
-            RecordFound := VendorLedgerEntry.FindSet;
+            RecordFound := VendorLedgerEntry.FindSet();
         end;
         if RecordFound then
             repeat
@@ -2132,7 +2132,7 @@ report 10743 "Make 340 Declaration"
                             InsertTempDtldVLE(DtldVendLedgEntry."Vendor Ledger Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                             exit(true);
                         end;
-                    until DtldVendLedgEntry.Next = 0
+                    until DtldVendLedgEntry.Next() = 0
                 else begin
                     DtldVendLedgEntry.SetRange("Applied Vend. Ledger Entry No.");
                     DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
@@ -2147,9 +2147,9 @@ report 10743 "Make 340 Declaration"
                                 InsertTempDtldVLE(DtldVendLedgEntry."Applied Vend. Ledger Entry No.", DtldVendLedgEntry."Vendor Ledger Entry No.");
                                 exit(true);
                             end;
-                        until DtldVendLedgEntry.Next = 0;
+                        until DtldVendLedgEntry.Next() = 0;
                 end;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
 
         exit(true);
     end;
@@ -2262,7 +2262,7 @@ report 10743 "Make 340 Declaration"
                   '000000000000000001', FormatTextAmt(0, false) + PadStr('', 16, ' '), 0,
                   GetDocumentTransactionNo(GLEntry."Document Type"::Invoice, PurchInvHeader."No.", PurchInvHeader."Posting Date"),
                   PurchInvHeader."Posting Date", false);
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure CreateTempDeclarationLineForPurchCrMemoNoTaxVAT()
@@ -2290,7 +2290,7 @@ report 10743 "Make 340 Declaration"
                   '000000000000000001', FormatTextAmt(0, false) + PadStr('', 16, ' '), 0,
                   GetDocumentTransactionNo(GLEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date"),
                   PurchCrMemoHdr."Posting Date", false);
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure CreateTempDeclarationLineForSalesInvNoTaxVAT()
@@ -2317,7 +2317,7 @@ report 10743 "Make 340 Declaration"
                   '00000001', '', 0,
                   GetDocumentTransactionNo(GLEntry."Document Type"::Invoice, SalesInvHeader."No.", SalesInvHeader."Posting Date"),
                   SalesInvHeader."Posting Date", false);
-            until SalesInvLine.Next = 0;
+            until SalesInvLine.Next() = 0;
     end;
 
     local procedure CreateTempDeclarationLineForSalesCrMemoNoTaxVAT()
@@ -2345,7 +2345,7 @@ report 10743 "Make 340 Declaration"
                   '00000001', '', 0,
                   GetDocumentTransactionNo(GLEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date"),
                   SalesCrMemoHeader."Posting Date", false);
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure InitNoTaxDeclarationInfo(Type: Enum "General Posting Type"; PostingDate: Date; DocNo: Code[20]; NewBookTypeCode: Code[1]; Amount: Decimal)

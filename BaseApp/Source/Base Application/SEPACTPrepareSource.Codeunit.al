@@ -20,7 +20,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             repeat
                 TempGenJnlLine := FromGenJnlLine;
                 TempGenJnlLine.Insert();
-            until FromGenJnlLine.Next = 0
+            until FromGenJnlLine.Next() = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;
@@ -65,7 +65,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     Amount := CarteraDoc."Remaining Amount";
                     Insert;
                 end;
-            until CarteraDoc.Next = 0;
+            until CarteraDoc.Next() = 0;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;

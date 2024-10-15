@@ -105,7 +105,7 @@ codeunit 5303 "Outlook Synch. Deletion Mgt."
                     else
                         Error(Text101, OSynchEntityElement."Synch. Entity Code", OSynchEntityElement."Outlook Collection");
                 end;
-        until CollectionElementsBuffer.Next = 0;
+        until CollectionElementsBuffer.Next() = 0;
     end;
 
     local procedure ProcessTaskLinks(var CollectionElementRecRef: RecordRef)

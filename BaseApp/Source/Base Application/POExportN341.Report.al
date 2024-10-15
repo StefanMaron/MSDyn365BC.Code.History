@@ -536,7 +536,7 @@ report 7000060 "PO - Export N34.1"
         if CarteraDoc.Find('-') then
             repeat
                 ExportAmount := ExportAmount + CarteraDoc."Remaining Amount";
-            until CarteraDoc.Next = 0;
+            until CarteraDoc.Next() = 0;
     end;
 
     [Scope('OnPrem')]

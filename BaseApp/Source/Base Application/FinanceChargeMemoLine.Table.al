@@ -636,7 +636,7 @@ table 303 "Finance Charge Memo Line"
                     ClosedatDate := CustLedgEntry2."Document Date"
                 else
                     ClosedatDate := CustLedgEntry."Closed at Date";
-            until CustLedgEntry2.Next = 0;
+            until CustLedgEntry2.Next() = 0;
     end;
 
     procedure SetCheckingMode(DoChecking: Boolean)
@@ -731,7 +731,7 @@ table 303 "Finance Charge Memo Line"
                     InterestStartDate := InterestCalcDate;
                 if InterestStartDate < UseCalcDate then
                     CumAmount := CumAmount + (DetailedCustLedgEntry.Amount * (UseCalcDate - InterestStartDate));
-            until DetailedCustLedgEntry.Next = 0;
+            until DetailedCustLedgEntry.Next() = 0;
 
         if not FinChrgTerms."Add. Line Fee in Interest" then
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
@@ -795,7 +795,7 @@ table 303 "Finance Charge Memo Line"
                             NrOfLinesToInsert := NrOfLinesToInsert + 1
                     end else
                         LastRateFound := true;
-                until LastRateFound or (FinanceChargeInterestRate.Next = 0);
+                until LastRateFound or (FinanceChargeInterestRate.Next() = 0);
             if UseCalcDate = 0D then begin
                 FinanceChargeInterestRate.Next(-1);
                 UseCalcDate := FinanceChargeInterestRate."Start Date";

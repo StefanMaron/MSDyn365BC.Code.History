@@ -172,7 +172,7 @@ report 7000080 "Post Payment Order"
                         end;
 
                         GroupAmount := GroupAmount + BGPOPostBuffer.Amount;
-                    until BGPOPostBuffer.Next = 0;
+                    until BGPOPostBuffer.Next() = 0;
 
                     if PmtOrd."Currency Code" <> '' then begin
                         Currency.SetFilter(Code, PmtOrd."Currency Code");
@@ -402,7 +402,7 @@ report 7000080 "Post Payment Order"
             VendLedgEntry."Document Status" := PostedDoc.Status + 1;
             OnUpdateTablesOnBeforeVendLedgEntryModify(VendLedgEntry, PostedDoc, PmtOrd);
             VendLedgEntry.Modify();
-        until PostedDocBuffer.Next = 0;
+        until PostedDocBuffer.Next() = 0;
 
         PmtOrd.CalcFields(Amount);
         PostedPmtOrd.TransferFields(PmtOrd);

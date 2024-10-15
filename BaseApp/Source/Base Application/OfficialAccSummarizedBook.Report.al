@@ -489,7 +489,7 @@ report 10716 "Official Acc.Summarized Book"
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Net Change");
                 end;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -518,7 +518,7 @@ report 10716 "Official Acc.Summarized Book"
                         DebitAmt := DebitAmt + GLAcc."Net Change";
                 end;
 
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     [Scope('OnPrem')]

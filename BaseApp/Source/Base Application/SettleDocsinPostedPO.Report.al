@@ -160,7 +160,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                           "Global Dimension 2 Code",
                                           "Dimension Set ID");
                                     end;
-                                    until NoRealVATBuffer.Next = 0;
+                                    until NoRealVATBuffer.Next() = 0;
                                     NoRealVATBuffer.DeleteAll();
                                 end;
 
@@ -219,7 +219,7 @@ report 7000082 "Settle Docs. in Posted PO"
 
                             SumLCYAmt := SumLCYAmt + "Amount (LCY)";
                         end;
-                    until BankAccPostBuffer.Next = 0;
+                    until BankAccPostBuffer.Next() = 0;
 
                 if PostedPmtOrd."Currency Code" <> '' then begin
                     if SumLCYAmt <> 0 then begin

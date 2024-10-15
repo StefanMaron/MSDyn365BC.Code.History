@@ -490,6 +490,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         FileMgt: Codeunit "File Management";
         SystemIOFile: DotNet File;
+        Instream: Instream;
+        File: File;
         FileName: Text;
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocumentNo);
@@ -497,8 +499,10 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         FileName := FileMgt.ServerTempFileName('.jpg');
 
         SystemIOFile.WriteAllText(FileName, '.jpg');
+        File.Open(Filename);
+        File.CreateInStream(Instream);
 
-        ImportAttachmentIncDoc.ProcessAndUploadPicture(FileName, IncomingDocumentAttachment);
+        ImportAttachmentIncDoc.ProcessAndUploadPicture(InStream, IncomingDocumentAttachment);
     end;
 
     [Scope('OnPrem')]
@@ -531,6 +535,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         FileMgt: Codeunit "File Management";
         SystemIOFile: DotNet File;
+        Instream: Instream;
+        File: File;
         FileName: Text;
     begin
         IncomingDocumentAttachment.SetRange("Document No.", DocumentNo);
@@ -539,8 +545,10 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         FileName := FileMgt.ServerTempFileName('.jpg');
 
         SystemIOFile.WriteAllText(FileName, '.jpg');
+        File.Open(Filename);
+        File.CreateInStream(Instream);
 
-        ImportAttachmentIncDoc.ProcessAndUploadPicture(FileName, IncomingDocumentAttachment);
+        ImportAttachmentIncDoc.ProcessAndUploadPicture(Instream, IncomingDocumentAttachment);
     end;
 
     local procedure InitForDraftInvoice(var O365SalesInvoiceTestPage: TestPage "O365 Sales Invoice"; var SalesHeader: Record "Sales Header")

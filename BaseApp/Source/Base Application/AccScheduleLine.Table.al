@@ -113,11 +113,9 @@ table 85 "Acc. Schedule Line"
             FieldClass = FlowFilter;
             TableRelation = "Business Unit";
         }
-        field(16; Show; Option)
+        field(16; Show; Enum "Acc. Schedule Line Show")
         {
             Caption = 'Show';
-            OptionCaption = 'Yes,No,If Any Column Not Zero,When Positive Balance,When Negative Balance';
-            OptionMembers = Yes,No,"If Any Column Not Zero","When Positive Balance","When Negative Balance";
         }
         field(17; "Dimension 3 Filter"; Code[20])
         {
@@ -265,11 +263,9 @@ table 85 "Acc. Schedule Line"
             OptionCaption = 'Net Change,Balance at Date,Beginning Balance';
             OptionMembers = "Net Change","Balance at Date","Beginning Balance";
         }
-        field(28; "Amount Type"; Option)
+        field(28; "Amount Type"; Enum "Account Schedule Amount Type")
         {
             Caption = 'Amount Type';
-            OptionCaption = 'Net Amount,Debit Amount,Credit Amount';
-            OptionMembers = "Net Amount","Debit Amount","Credit Amount";
         }
         field(30; "Double Underline"; Boolean)
         {

@@ -165,7 +165,7 @@ page 7605 "Customized Cal. Entries Subfm"
     begin
         CalendarMgmt.SetSource(CustomizedCalendarEntry, CurrCalendarChange);
 
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure UpdateCusomizedCalendarChanges()
@@ -208,7 +208,7 @@ page 7605 "Customized Cal. Entries Subfm"
                    (Date2DMY(BaseCalendarChange.Date, 1) = Date2DMY(Date, 1))
                 then
                     exit(BaseCalendarChange.Nonworking = Nonworking);
-            until BaseCalendarChange.Next = 0;
+            until BaseCalendarChange.Next() = 0;
 
         exit(not CurrCalendarChange.Nonworking);
     end;

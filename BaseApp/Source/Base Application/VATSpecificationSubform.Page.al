@@ -205,7 +205,7 @@ page 576 "VAT Specification Subform"
                     "EC %" := 0;
                 end;
                 Insert;
-            until NewVATAmountLine.Next = 0;
+            until NewVATAmountLine.Next() = 0;
         CurrPage.Update(false);
     end;
 
@@ -220,7 +220,7 @@ page 576 "VAT Specification Subform"
                     NewVATAmountLine."EC %" := 0;
                 end;
                 NewVATAmountLine.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
@@ -256,7 +256,7 @@ page 576 "VAT Specification Subform"
             repeat
                 TotalVATDifference := TotalVATDifference + Abs("VAT Difference");
                 TotalECDifference := TotalECDifference + Abs("EC Difference");
-            until Next = 0;
+            until Next() = 0;
         Rec := VATAmountLine2;
         if TotalVATDifference > Currency."Max. VAT Difference Allowed" then
             Error(

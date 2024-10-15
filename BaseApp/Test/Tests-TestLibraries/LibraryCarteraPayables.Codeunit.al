@@ -267,7 +267,7 @@ codeunit 143010 "Library - Cartera Payables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindSet;
+        CarteraDoc.FindSet();
     end;
 
     procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -284,7 +284,7 @@ codeunit 143010 "Library - Cartera Payables"
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Situation", DocumentSituation);
         VendorLedgerEntry.SetRange("Document Status", VendorLedgerEntry."Document Status"::Open);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
     end;
 
     procedure GetCountryCode(): Code[10]

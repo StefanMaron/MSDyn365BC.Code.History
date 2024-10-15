@@ -148,6 +148,12 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
                 }
+                field("Allow Editing Active Price"; "Allow Editing Active Price")
+                {
+                    Visible = ExtendedPriceEnabled;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active sales price line can be modified or removed, or a new price line can be added to the active price list.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -187,11 +193,17 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies how often the job must run that automatically updates the status of orders that are pending prepayment.';
                 }
-                field("Archive Quotes and Orders"; "Archive Quotes and Orders")
+                field("Archive Quotes and Orders"; '')
                 {
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to automatically archive sales quotes and sales orders when a sales quote/order is deleted.';
+                    Caption = 'Archive Quotes and Orders';
+                    Visible = false;
+                    Enabled = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The "Archive Quotes and Orders field was removed."';
+                    ObsoleteTag = '18.0';
                 }
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {

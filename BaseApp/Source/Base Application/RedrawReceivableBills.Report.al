@@ -750,7 +750,7 @@ report 7000096 "Redraw Receivable Bills"
                     end;
                 end;
             end;
-            until TempCVLedgEntryBuf.Next = 0;
+            until TempCVLedgEntryBuf.Next() = 0;
     end;
 
     [Scope('OnPrem')]

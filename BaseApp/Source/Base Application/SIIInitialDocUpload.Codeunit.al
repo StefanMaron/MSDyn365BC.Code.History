@@ -1,4 +1,4 @@
-﻿codeunit 10755 "SII Initial Doc. Upload"
+codeunit 10755 "SII Initial Doc. Upload"
 {
 
     trigger OnRun()
@@ -40,7 +40,7 @@
                       CustLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
                       CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."External Document No.",
                       CustLedgerEntry."Posting Date");
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
         end;
     end;
 
@@ -60,7 +60,7 @@
                       VendorLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(),
                       VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.",
                       VendorLedgerEntry."Posting Date");
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
         end;
     end;
 

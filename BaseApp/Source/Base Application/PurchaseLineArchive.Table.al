@@ -558,12 +558,10 @@ table 5110 "Purchase Line Archive"
             Editable = false;
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
         }
-        field(1002; "Job Line Type"; Option)
+        field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1003; "Job Unit Price"; Decimal)
         {
@@ -778,8 +776,18 @@ table 5110 "Purchase Line Archive"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -1047,7 +1055,7 @@ table 5110 "Purchase Line Archive"
         PurchCommentLineArch.SetRange("Document Line No.", "Line No.");
         PurchCommentLineArch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         PurchCommentLineArch.SetRange("Version No.", "Version No.");
-        if not PurchCommentLineArch.IsEmpty then
+        if not PurchCommentLineArch.IsEmpty() then
             PurchCommentLineArch.DeleteAll();
 
         if "Deferral Code" <> '' then

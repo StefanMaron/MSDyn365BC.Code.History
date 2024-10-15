@@ -1282,7 +1282,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
 
         GLEntry.SetRange("G/L Account No.", VendPostingGr."Bills Account");
         Assert.AreEqual(2, GLEntry.Count, IncorrectCountErr);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         GLEntry.TestField(Amount);
         GLAmount := GLAmount * (GLEntry.Amount / Abs(GLEntry.Amount));
         GLEntry.Next;
@@ -1326,7 +1326,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         SuggestBankAccReconLines.Cancel.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Report, 1496, 'OnPreDataItemBankAccount', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Suggest Bank Acc. Recon. Lines", 'OnPreDataItemBankAccount', '', false, false)]
     local procedure SuggestBankAccRecLinesOnPreDataItem(var ExcludeReversedEntries: Boolean)
     begin
         ExcludeReversedEntries := true;

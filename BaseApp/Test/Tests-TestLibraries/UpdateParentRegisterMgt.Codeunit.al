@@ -84,7 +84,7 @@ codeunit 139141 "Update Parent Register Mgt"
     procedure EnumeratorReset()
     begin
         TempUpdateParentRegisterLine.Reset();
-        TempUpdateParentRegisterLine.FindSet;
+        TempUpdateParentRegisterLine.FindSet();
         CurrentLineNo := 0;
         CurrEnumeratorDone := false;
     end;

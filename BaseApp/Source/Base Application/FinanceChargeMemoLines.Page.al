@@ -71,7 +71,7 @@ page 447 "Finance Charge Memo Lines"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         LookupDocNo;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnValidate()
@@ -175,7 +175,7 @@ page 447 "Finance Charge Memo Lines"
             TransferExtendedText.InsertFinChrgMemoExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure FormUpdateAttachedLines()
@@ -206,7 +206,7 @@ page 447 "Finance Charge Memo Lines"
     local procedure DocumentNoOnAfterValidate()
     begin
         FormUpdateAttachedLines;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DescriptionOnFormat()

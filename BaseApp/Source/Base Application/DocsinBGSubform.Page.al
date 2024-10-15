@@ -271,7 +271,7 @@ page 7000004 "Docs. in BG Subform"
             repeat
                 CustLedgEntry.Get(Doc."Entry No.");
                 CustLedgEntry.Mark(true);
-            until Doc.Next = 0;
+            until Doc.Next() = 0;
 
             CustLedgEntry.MarkedOnly(true);
             CustLedgEntry.PrintBill(true);
@@ -280,7 +280,7 @@ page 7000004 "Docs. in BG Subform"
             repeat
                 SalesInvHeader.Get(Doc."Document No.");
                 SalesInvHeader.Mark(true);
-            until Doc.Next = 0;
+            until Doc.Next() = 0;
 
             SalesInvHeader.MarkedOnly(true);
             SalesInvHeader.PrintRecords(true);

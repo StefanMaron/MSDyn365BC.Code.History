@@ -14,9 +14,10 @@ codeunit 1800 "Assisted Company Setup"
         ExtendedTxt: Label 'Extended', Locked = true;
         CreatingCompanyMsg: Label 'Creating company...';
         NoPermissionsErr: Label 'You do not have permissions to create a new company. Contact your system administrator.';
-        InitialCompanySetupTxt: Label 'Set up my company';
+        InitialCompanySetupTxt: Label 'Enter company details';
+        InitialCompanySetupShortTitleTxt: Label 'Company details';
         InitialCompanySetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115383', Locked = true;
-        InitialCompanySetupDescTxt: Label 'Tell us some basic information about your business so you can start work.';
+        InitialCompanySetupDescTxt: Label 'Provide your company''s name, address, logo, and other basic information.';
 
     local procedure EnableAssistedCompanySetup(SetupCompanyName: Text[30]; AssistedSetupEnabled: Boolean)
     var
@@ -25,17 +26,18 @@ codeunit 1800 "Assisted Company Setup"
     begin
         if AssistedSetupEnabled then begin
             GLEntry.ChangeCompany(SetupCompanyName);
-            if not GLEntry.IsEmpty then
+            if not GLEntry.IsEmpty() then
                 Error(EnableWizardErr);
-            if ConfigurationPackageFile.IsEmpty then
+            if ConfigurationPackageFile.IsEmpty() then
                 Message(NoConfigPackageFileMsg);
         end;
     end;
 
     local procedure RunAssistedCompanySetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         EnvInfoProxy: Codeunit "Env. Info Proxy";
+        GuidedExperienceType: Enum "Guided Experience Type";
     begin
         if GetExecutionContext() <> ExecutionContext::Normal then
             exit;
@@ -52,12 +54,12 @@ codeunit 1800 "Assisted Company Setup"
         if not AssistedSetupEnabled then
             exit;
 
-        if AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard") then
+        if GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard") then
             exit;
 
         Commit(); // Make sure all data is committed before we run the wizard
 
-        AssistedSetup.Run(PAGE::"Assisted Company Setup Wizard");
+        GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, PAGE::"Assisted Company Setup Wizard");
     end;
 
     procedure ApplyUserInput(var TempConfigSetup: Record "Config. Setup" temporary; var BankAccount: Record "Bank Account"; AccountingPeriodStartDate: Date; SkipSetupCompanyInfo: Boolean)
@@ -221,7 +223,7 @@ codeunit 1800 "Assisted Company Setup"
         end;
         ConfigurationPackageFile.SetRange("Setup Type", ConfigurationPackageFile."Setup Type"::Company);
         ConfigurationPackageFile.SetRange("Language ID", GlobalLanguage);
-        if ConfigurationPackageFile.IsEmpty then
+        if ConfigurationPackageFile.IsEmpty() then
             ConfigurationPackageFile.SetRange("Language ID");
         exit(true);
     end;
@@ -284,9 +286,14 @@ codeunit 1800 "Assisted Company Setup"
     procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data")
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        Enabled: Boolean;
     begin
         SetApplicationArea(NewCompanyName);
-        AssistedCompanySetupStatus.SetEnabled(NewCompanyName, NewCompanyData = NewCompanyData::"Standard Data", false);
+
+        if not (NewCompanyData in [NewCompanyData::"Evaluation Data", NewCompanyData::"Standard Data", NewCompanyData::None, NewCompanyData::"Extended Data", NewCompanyData::"Full No Data"]) then
+            Enabled := true;
+
+        AssistedCompanySetupStatus.SetEnabled(NewCompanyName, Enabled, false);
 
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             FillCompanyData(NewCompanyName, NewCompanyData)
@@ -342,11 +349,12 @@ codeunit 1800 "Assisted Company Setup"
 
     procedure AddAssistedCompanySetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         Info: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
         if GetExecutionContext() <> ExecutionContext::Normal then
@@ -354,11 +362,23 @@ codeunit 1800 "Assisted Company Setup"
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"Assisted Company Setup Wizard", InitialCompanySetupTxt, AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, InitialCompanySetupHelpTxt, InitialCompanySetupDescTxt);
+        GuidedExperience.InsertAssistedSetup(InitialCompanySetupTxt, CopyStr(InitialCompanySetupShortTitleTxt, 1, 50), InitialCompanySetupDescTxt, 3,
+            ObjectType::Page, Page::"Assisted Company Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, InitialCompanySetupHelpTxt);
+
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
 
-        AssistedSetup.AddTranslation(PAGE::"Assisted Company Setup Wizard", Language.GetDefaultApplicationLanguageId(), InitialCompanySetupTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Assisted Company Setup Wizard", Language.GetDefaultApplicationLanguageId(), InitialCompanySetupTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
+    end;
+
+    local procedure AssistedCompanySetupIsVisible(): Boolean
+    var
+        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+    begin
+        IF AssistedCompanySetupStatus.Get(CompanyName) then
+            exit(AssistedCompanySetupStatus.Enabled);
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]
@@ -366,61 +386,62 @@ codeunit 1800 "Assisted Company Setup"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure OnCompanyInitialize()
     begin
-        AddAssistedCompanySetup();
+        if AssistedCompanySetupIsVisible() then
+            AddAssistedCompanySetup();
     end;
 
-    [EventSubscriber(ObjectType::Table, 1802, 'OnEnabled', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnEnabled', '', false, false)]
     local procedure OnEnableAssistedCompanySetup(SetupCompanyName: Text[30]; AssistedSetupEnabled: Boolean)
     begin
         EnableAssistedCompanySetup(SetupCompanyName, AssistedSetupEnabled);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', false, false)]
     local procedure OnAfterCompanyOpenRunAssistedCompanySetup()
     begin
         RunAssistedCompanySetup();
     end;
 
-    [EventSubscriber(ObjectType::Page, 9177, 'OnBeforeActionEvent', 'Create New Company', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Allowed Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
     local procedure OnBeforeCreateNewCompanyActionOpenCompanyCreationWizard(var Rec: Record Company)
     begin
         PAGE.RunModal(PAGE::"Company Creation Wizard");
     end;
 
-    [EventSubscriber(ObjectType::Page, 357, 'OnBeforeActionEvent', 'Create New Company', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
     local procedure OnBeforeCreateNewCompanyActionOnCompanyPageOpenCompanyCreationWizard(var Rec: Record Company)
     begin
         PAGE.RunModal(PAGE::"Company Creation Wizard");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1802, 'OnAfterValidateEvent', 'Package Imported', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnAfterValidateEvent', 'Package Imported', false, false)]
     local procedure OnAfterPackageImportedValidate(var Rec: Record "Assisted Company Setup Status"; var xRec: Record "Assisted Company Setup Status"; CurrFieldNo: Integer)
     begin
         // Send global notification that the new company is ready for use
     end;
 
-    [EventSubscriber(ObjectType::Table, 1802, 'OnAfterValidateEvent', 'Import Failed', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnAfterValidateEvent', 'Import Failed', false, false)]
     local procedure OnAfterImportFailedValidate(var Rec: Record "Assisted Company Setup Status"; var xRec: Record "Assisted Company Setup Status"; CurrFieldNo: Integer)
     begin
         // Send global notification that the company set up failed
     end;
 
-    [EventSubscriber(ObjectType::Page, 9176, 'OnCompanyChange', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Settings", 'OnCompanyChange', '', false, false)]
     local procedure OnCompanyChangeCheckForSetupCompletion(NewCompanyName: Text; var IsSetupInProgress: Boolean)
     begin
         IsSetupInProgress := IsCompanySetupInProgress(NewCompanyName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1802, 'OnGetCompanySetupStatus', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnGetCompanySetupStatus', '', false, false)]
     local procedure OnGetIsCompanySetupInProgress(Name: Text[30]; var SetupStatus: Integer)
     begin
         SetupStatus := GetCompanySetupStatus(Name);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1802, 'OnSetupStatusDrillDown', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnSetupStatusDrillDown', '', false, false)]
     local procedure OnSetupStatusDrillDown(Name: Text[30])
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";

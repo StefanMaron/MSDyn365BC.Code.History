@@ -230,7 +230,7 @@ report 417 "Arch.Purch. Return Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
                     }
                     dataitem("Purchase Line Archive"; "Purchase Line Archive")
@@ -420,7 +420,7 @@ report 417 "Arch.Purch. Return Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -782,7 +782,7 @@ report 417 "Arch.Purch. Return Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until PrepmtDimSetEntry.Next = 0;
+                                until PrepmtDimSetEntry.Next() = 0;
                             end;
                         }
 
@@ -792,7 +792,7 @@ report 417 "Arch.Purch. Return Order"
                                 if not PrepmtInvBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next = 0 then
+                                if PrepmtInvBuf.Next() = 0 then
                                     CurrReport.Break();
 
                             if ShowInternalInfo then
@@ -869,7 +869,7 @@ report 417 "Arch.Purch. Return Order"
                         repeat
                             PurchLineArch := PurchLineArchive;
                             PurchLineArch.Insert();
-                        until PurchLineArchive.Next = 0;
+                        until PurchLineArchive.Next() = 0;
                     VATAmountLine.DeleteAll();
 
                     if Number > 1 then

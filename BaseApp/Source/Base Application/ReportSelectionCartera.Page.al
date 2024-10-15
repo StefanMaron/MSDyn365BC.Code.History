@@ -15,7 +15,6 @@ page 7000045 "Report Selection - Cartera"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Bill Group,Posted Bill Group,Closed Bill Group,Bill,Bill Group - Test,Payment Order,Posted Payment Order,Payment Order - Test,Closed Payment Order';
                 ToolTip = 'Specifies the business purpose of the report.';
 
                 trigger OnValidate()
@@ -32,13 +31,13 @@ page 7000045 "Report Selection - Cartera"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the order number or the sequence in which you want to print this report.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the report to be printed.';
                 }
-                field("Report Name"; "Report Name")
+                field("Report Name"; Rec."Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -59,48 +58,47 @@ page 7000045 "Report Selection - Cartera"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
     begin
-        SetUsageFilter;
+        SetUsageFilter();
     end;
 
     var
         ObjTransl: Record "Object Translation";
-        ReportUsage2: Option "Bill Group","Posted Bill Group","Closed Bill Group",Bill,"Bill Group - Test","Payment Order","Posted Payment Order","Payment Order - Test","Closed Payment Order";
+        ReportUsage2: Enum "Report Selection Usage Cartera";
 
     local procedure SetUsageFilter()
     begin
-
-        FilterGroup(2);
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::"Bill Group":
+            "Report Selection Usage Cartera"::"Bill Group":
                 SetRange(Usage, Usage::"Bill Group");
-            ReportUsage2::"Posted Bill Group":
+            "Report Selection Usage Cartera"::"Posted Bill Group":
                 SetRange(Usage, Usage::"Posted Bill Group");
-            ReportUsage2::"Closed Bill Group":
+            "Report Selection Usage Cartera"::"Closed Bill Group":
                 SetRange(Usage, Usage::"Closed Bill Group");
-            ReportUsage2::Bill:
+            "Report Selection Usage Cartera"::Bill:
                 SetRange(Usage, Usage::Bill);
-            ReportUsage2::"Bill Group - Test":
+            "Report Selection Usage Cartera"::"Bill Group - Test":
                 SetRange(Usage, Usage::"Bill Group - Test");
-            ReportUsage2::"Payment Order":
+            "Report Selection Usage Cartera"::"Payment Order":
                 SetRange(Usage, Usage::"Payment Order");
-            ReportUsage2::"Posted Payment Order":
+            "Report Selection Usage Cartera"::"Posted Payment Order":
                 SetRange(Usage, Usage::"Posted Payment Order");
-            ReportUsage2::"Payment Order - Test":
+            "Report Selection Usage Cartera"::"Payment Order - Test":
                 SetRange(Usage, Usage::"Payment Order - Test");
-            ReportUsage2::"Closed Payment Order":
+            "Report Selection Usage Cartera"::"Closed Payment Order":
                 SetRange(Usage, Usage::"Closed Payment Order");
         end;
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

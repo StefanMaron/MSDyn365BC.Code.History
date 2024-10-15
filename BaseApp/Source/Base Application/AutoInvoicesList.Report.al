@@ -313,7 +313,7 @@ report 10714 "AutoInvoices List"
                     if Fin then
                         CurrReport.Break();
                     VATBuffer2 := VATBuffer;
-                    Fin := VATBuffer.Next = 0;
+                    Fin := VATBuffer.Next() = 0;
 
                     if VATBuffer2.Amount = 0 then begin
                         VATBuffer2."VAT %" := 0;

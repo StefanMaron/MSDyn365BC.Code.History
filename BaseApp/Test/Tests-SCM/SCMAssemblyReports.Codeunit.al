@@ -277,7 +277,7 @@ codeunit 137307 "SCM Assembly Reports"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         Assert.AreEqual(2, AssemblyLine.Count, 'Wrong number of assembly lines for sales order line.');
-        AssemblyLine.FindSet;
+        AssemblyLine.FindSet();
         for i := 1 to 2 do begin
             SN := IncStr(SN);
             InsertAssemblyLineTrackingInfo(AssemblyLine, SN, '');

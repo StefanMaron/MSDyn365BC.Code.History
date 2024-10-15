@@ -8,6 +8,9 @@ page 5507 "Sales Credit Memo Entity"
     ODataKeyFields = Id;
     PageType = API;
     SourceTable = "Sales Cr. Memo Entity Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -276,7 +276,7 @@ page 8905 "Purchasing Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Long Term Purchase Invoices';
-                       RunObject = report 10741;
+                       RunObject = report "Long Term Purchase Invoices";
                     }
                 }
             }

@@ -487,7 +487,7 @@ page 7000067 "Posted Bills"
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until PostedDoc.Next = 0;
+        until PostedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         CustLedgEntry.PrintBill(true);
@@ -512,7 +512,7 @@ page 7000067 "Posted Bills"
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until PostedDoc.Next = 0;
+        until PostedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Reject Docs.", true, false, CustLedgEntry);
@@ -541,7 +541,7 @@ page 7000067 "Posted Bills"
             repeat
                 CustLedgEntry.Get(PostedDoc."Entry No.");
                 CustLedgEntry.Mark(true);
-            until PostedDoc.Next = 0;
+            until PostedDoc.Next() = 0;
 
             CustLedgEntry.MarkedOnly(true);
             REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);
@@ -550,7 +550,7 @@ page 7000067 "Posted Bills"
             repeat
                 VendLedgEntry.Get(PostedDoc."Entry No.");
                 VendLedgEntry.Mark(true);
-            until PostedDoc.Next = 0;
+            until PostedDoc.Next() = 0;
 
             VendLedgEntry.MarkedOnly(true);
             REPORT.RunModal(REPORT::"Redraw Payable Bills", true, false, VendLedgEntry);
@@ -577,7 +577,7 @@ page 7000067 "Posted Bills"
         else
             SetRange(Status, StatusFilter);
         UpdateStatistics;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AfterGetCurrentRecord()

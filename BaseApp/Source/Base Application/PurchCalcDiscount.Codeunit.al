@@ -66,7 +66,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     PurchLine2.Modify();
                     TempServiceChargeLine := PurchLine2;
                     TempServiceChargeLine.Insert();
-                until PurchLine2.Next = 0;
+                until PurchLine2.Next() = 0;
 
             PurchLine2.Reset();
             PurchLine2.SetRange("Document Type", "Document Type");
@@ -99,7 +99,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 Currency.Initialize(PurchHeader."Currency Code");
                 if not UpdateHeader then
                     PurchLine2.SetPurchHeader(PurchHeader);
-                if not TempServiceChargeLine.IsEmpty then begin
+                if not TempServiceChargeLine.IsEmpty() then begin
                     TempServiceChargeLine.FindLast;
                     PurchLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     if PurchHeader."Prices Including VAT" then
@@ -149,7 +149,7 @@ codeunit 70 "Purch.-Calc.Discount"
                             PurchLine2 := TempServiceChargeLine;
                             PurchLine2.Delete(true);
                         end;
-                    until TempServiceChargeLine.Next = 0;
+                    until TempServiceChargeLine.Next() = 0;
 
             GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
@@ -227,7 +227,7 @@ codeunit 70 "Purch.-Calc.Discount"
                         PurchLine2."Recalculate Invoice Disc." := false;
                         PurchLine2.Modify();
                     end;
-                until PurchLine2.Next = 0;
+                until PurchLine2.Next() = 0;
             PurchLine2 := PurchLine;
 
             if VendInvDiscRecExists(PurchHeader."Invoice Disc. Code") then begin
@@ -324,7 +324,7 @@ codeunit 70 "Purch.-Calc.Discount"
                             "Prepmt. Line Amount" := Amount;
                             Modify;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 

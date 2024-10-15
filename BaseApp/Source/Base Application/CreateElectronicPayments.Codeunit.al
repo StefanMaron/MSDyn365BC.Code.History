@@ -8,7 +8,7 @@ codeunit 10721 "Create Electronic Payments"
     begin
         GenJnlLine.CopyFilters(Rec);
         GenJnlLine.LockTable();
-        if GenJnlLine.IsEmpty then
+        if GenJnlLine.IsEmpty() then
             Error(ExportPaymentErr);
         Commit();
         REPORT.RunModal(REPORT::"Export Electronic Payments", true, false, GenJnlLine);

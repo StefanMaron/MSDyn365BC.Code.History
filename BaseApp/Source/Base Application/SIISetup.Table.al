@@ -1,4 +1,4 @@
-﻿table 10751 "SII Setup"
+table 10751 "SII Setup"
 {
     Caption = 'SII VAT Setup';
     LookupPageID = "SII Setup";

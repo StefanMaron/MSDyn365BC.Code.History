@@ -462,7 +462,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         InvCustLedgerEntry.SetRange("Posting Date", PostingDate);
         InvCustLedgerEntry.SetRange("Document Type", DocumentType);
         InvCustLedgerEntry.SetRange("Document No.", DocumentNo);
-        InvCustLedgerEntry.FindSet;
+        InvCustLedgerEntry.FindSet();
     end;
 
     local procedure FindPaymentMethod(var PaymentMethod: Record "Payment Method")

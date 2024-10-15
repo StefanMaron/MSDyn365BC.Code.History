@@ -141,7 +141,7 @@ report 7000085 "Partial Settl. - Payable"
                                           NoRealVATBuffer."Balance Account",
                                           -NoRealVATBuffer.Amount);
                                     end;
-                                    until NoRealVATBuffer.Next = 0;
+                                    until NoRealVATBuffer.Next() = 0;
                             end;
 
                             if AppliedAmt = "Remaining Amount" then begin

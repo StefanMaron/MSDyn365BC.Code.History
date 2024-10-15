@@ -747,7 +747,7 @@ table 124 "Purch. Cr. Memo Hdr."
             ReportSelection.Find('-');
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchCrMemoHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

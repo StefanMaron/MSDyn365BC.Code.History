@@ -215,7 +215,7 @@ codeunit 5950 "Service-Calc. Discount"
                         ServiceLine2.Validate("Inv. Discount Amount");
                         ServiceLine2.Modify();
                     end;
-                until ServiceLine2.Next = 0;
+                until ServiceLine2.Next() = 0;
             end;
 
             if CustInvDiscRecExists(ServHeader."Invoice Disc. Code") then begin

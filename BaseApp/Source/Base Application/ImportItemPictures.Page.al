@@ -60,7 +60,7 @@ page 348 "Import Item Pictures"
                         SetRange("Picture Already Exists");
 
                         UpdateCounters;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -204,7 +204,7 @@ page 348 "Import Item Pictures"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         SetRange("Import Status", "Import Status"::Pending);
-        if not IsEmpty then
+        if not IsEmpty() then
             if not Confirm(ImportIncompleteQst, false) then begin
                 SetRange("Import Status");
                 exit(false);

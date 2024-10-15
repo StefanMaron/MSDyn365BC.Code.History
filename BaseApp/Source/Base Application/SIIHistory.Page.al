@@ -304,7 +304,7 @@ page 10752 "SII History"
                     SIIManagement: Codeunit "SII Management";
                 begin
                     SIIManagement.Run347DeclarationToGenerateCollectionsInCash;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Mark As Accepted")
@@ -516,7 +516,7 @@ page 10752 "SII History"
                 repeat
                     CreateNewRequestPerDocument(
                       TempSIIDocUploadState, SIIHistory, "Upload Type", RetryAccepted or (Status = Status::"Accepted With Errors"));
-                until Next = 0;
+                until Next() = 0;
         end;
         SIIDocUploadManagement.UploadManualDocument;
     end;
@@ -544,7 +544,7 @@ page 10752 "SII History"
                             SIIDocUploadState."Is Manual" := true;
                             SIIDocUploadState.Modify();
                         end;
-            until SIIDocUploadState.Next = 0;
+            until SIIDocUploadState.Next() = 0;
         end;
         SIIDocUploadManagement.UploadManualDocument
     end;

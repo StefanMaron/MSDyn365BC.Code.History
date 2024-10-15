@@ -154,7 +154,7 @@ table 5644 "FA Posting Type"
                         Delete;
                         InsertRec(12, FADeprBook.FieldNo("Book Value on Disposal"), FADeprBook.FieldCaption("Book Value on Disposal"));
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

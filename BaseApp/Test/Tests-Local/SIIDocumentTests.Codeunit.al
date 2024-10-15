@@ -1490,7 +1490,7 @@ codeunit 147520 SIIDocumentTests
         VATEntry.SetCurrentKey("VAT %", "EC %");
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             LibrarySII.VerifyOneNodeWithValueByXPath(
               XMLDoc, XPathPurchBaseImponibleTok, '/sii:CuotaSoportada', SIIXMLCreator.FormatNumber(VATEntry.Amount));

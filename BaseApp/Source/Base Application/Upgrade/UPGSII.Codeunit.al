@@ -27,7 +27,7 @@ codeunit 104100 "UPG SII"
         REPEAT
             Employee.UpdateNamesFromOldFields;
             Employee.Modify();
-        UNTIL Employee.NEXT = 0;
+        UNTIL Employee.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag);
     end;

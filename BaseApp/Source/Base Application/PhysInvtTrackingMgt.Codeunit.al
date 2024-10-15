@@ -109,7 +109,7 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
                     ItemJnlLine."Qty. per Unit of Measure",
                     ReservEntry,
                     Qty);
-            until (ReservEntry.Next = 0) or (Qty = 0);
+            until (ReservEntry.Next() = 0) or (Qty = 0);
     end;
 
     [IntegrationEvent(false, false)]

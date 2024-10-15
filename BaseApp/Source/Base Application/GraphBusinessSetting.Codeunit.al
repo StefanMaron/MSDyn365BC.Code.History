@@ -26,7 +26,7 @@ codeunit 5444 "Graph Business Setting"
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
-        if GraphBusinessSetting.IsEmpty then
+        if GraphBusinessSetting.IsEmpty() then
             Session.LogMessage('00001WE', StrSubstNo(NoGraphAccessTxt, GetLastErrorText), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
 
         MSPayData := GetMSPayData(GraphBusinessSetting);
@@ -66,7 +66,7 @@ codeunit 5444 "Graph Business Setting"
                     MSPayData := GraphBusinessSetting.GetDataString;
                     exit;
                 end
-            until GraphBusinessSetting.Next = 0;
+            until GraphBusinessSetting.Next() = 0;
     end;
 }
 

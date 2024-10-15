@@ -107,7 +107,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                                   NoRealVATBuffer."Balance Account",
                                   -NoRealVATBuffer.Amount);
                             end;
-                            until NoRealVATBuffer.Next = 0;
+                            until NoRealVATBuffer.Next() = 0;
                             NoRealVATBuffer.DeleteAll();
                         end;
                     end;

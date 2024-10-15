@@ -40,7 +40,7 @@ codeunit 51 "BOM-Explode BOM"
             ToBOMComp."Installed in Line No." := "Installed in Line No.";
             ToBOMComp."Installed in Item No." := "Installed in Item No.";
             ToBOMComp.Insert();
-        until FromBOMComp.Next = 0;
+        until FromBOMComp.Next() = 0;
 
         Delete;
     end;

@@ -517,7 +517,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         with CarteraDoc do begin
             SetRange(Type, Type::Receivable);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 "Bill Gr./Pmt. Order No." := NewBillGroupNo;
                 Modify;

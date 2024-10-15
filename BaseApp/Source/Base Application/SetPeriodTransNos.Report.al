@@ -23,14 +23,14 @@ report 10700 "Set Period Trans. Nos."
                             ModifyAll("Period Trans. No.", CurrPeriodTransNo, false);
                             SetFilter("Transaction No.", '>%1', "Transaction No.");
                             CurrPeriodTransNo += 1;
-                        until Next = 0;
+                        until Next() = 0;
 
                         SetRange("Transaction No.");
                         if "Posting Date" = NormalDate(CurrToDate) then
                             SetRange("Posting Date", CurrToDate, CurrToDate)
                         else
                             SetRange("Posting Date", CalcDate('<1D>', "Posting Date"), CurrToDate);
-                    until Next = 0;
+                    until Next() = 0;
                 end;
 
                 trigger OnPostDataItem()

@@ -23,7 +23,7 @@ page 6630 "Sales Return Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -37,7 +37,7 @@ page 6630 "Sales Return Order"
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -55,7 +55,7 @@ page 6630 "Sales Return Order"
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -1561,6 +1561,7 @@ page 6630 "Sales Return Order"
     var
         SalesHeader: Record "Sales Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;        
     begin
         SendToPosting(PostingCodeunitID);
 
@@ -1569,6 +1570,11 @@ page 6630 "Sales Return Order"
         if "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting" then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
@@ -1608,7 +1614,7 @@ page 6630 "Sales Return Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()
@@ -1656,6 +1662,11 @@ page 6630 "Sales Return Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

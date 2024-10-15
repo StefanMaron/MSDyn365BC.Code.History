@@ -17,12 +17,10 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Caption = 'CV Ledger Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(3; "Entry Type"; Option)
+        field(3; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ',Initial Entry,Application,Unrealized Loss,Unrealized Gain,Realized Loss,Realized Gain,Payment Discount,Payment Discount (VAT Excl.),Payment Discount (VAT Adjustment),Appln. Rounding,Correction of Remaining Amount,Payment Tolerance,Payment Discount Tolerance,Payment Tolerance (VAT Excl.),Payment Tolerance (VAT Adjustment),Payment Discount Tolerance (VAT Excl.),Payment Discount Tolerance (VAT Adjustment),,,,Rejection,Redrawal,Expenses';
-            OptionMembers = ,"Initial Entry",Application,"Unrealized Loss","Unrealized Gain","Realized Loss","Realized Gain","Payment Discount","Payment Discount (VAT Excl.)","Payment Discount (VAT Adjustment)","Appln. Rounding","Correction of Remaining Amount","Payment Tolerance","Payment Discount Tolerance","Payment Tolerance (VAT Excl.)","Payment Tolerance (VAT Adjustment)","Payment Discount Tolerance (VAT Excl.)","Payment Discount Tolerance (VAT Adjustment)",,,,Rejection,Redrawal,Expenses;
         }
         field(4; "Posting Date"; Date)
         {
@@ -466,7 +464,17 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         OnAfterCopyFromCVLedgEntryBuf(Rec, CVLedgEntryBuf);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by InitDetailedCVLedgEntryBuf().', '18.0')]
     procedure InitDtldCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Option; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
+    begin
+        InitDetailedCVLedgEntryBuf(
+            GenJnlLine, CVLedgEntryBuf, DtldCVLedgEntryBuf, "Detailed CV Ledger Entry Type".FromInteger(EntryType), 
+            AmountFCY, AmountLCY, AmountAddCurr, AppliedEntryNo, RemainingPmtDiscPossible, MaxPaymentTolerance);
+    end;
+#endif
+
+    procedure InitDetailedCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
     begin
         with DtldCVLedgEntryBuf do begin
             InitFromGenJnlLine(GenJnlLine);

@@ -14,7 +14,7 @@ codeunit 5342 "CRM Synch. Helper"
         CRMProductName: Codeunit "CRM Product Name";
         CRMBaseCurrencyNotFoundInNAVErr: Label 'The currency with the ISO code ''%1'' cannot be found. Therefore, the exchange rate between ''%2'' and ''%3'' cannot be calculated.', Comment = '%1,%2,%3=the ISO code of a currency (example: DKK);';
         DynamicsCRMTransactionCurrencyRecordNotFoundErr: Label 'Cannot find the currency with the value ''%1'' in Dataverse.', Comment = '%1=the currency code';
-        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any units of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = Dataverse service name';
+        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any unit of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = Dataverse service name';
         DynamicsCRMUoMFoundMultipleInGroupErr: Label 'Multiple units of measure were found in the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = Dataverse service name';
         IncorrectCRMUoMNameErr: Label 'The unit of measure in the unit group ''%1'' has an incorrect name: expected name ''%2'', found name ''%3''.', Comment = '%1=Unit Group name (ex: NAV PIECE), %2=Expected name (ex: PIECE), %3=Actual name (ex: BOX)';
         IncorrectCRMUoMQuantityErr: Label 'The quantity on the unit of measure ''%1'' should be 1.', Comment = '%1=unit of measure name (ex: PIECE).';
@@ -24,7 +24,7 @@ codeunit 5342 "CRM Synch. Helper"
         NavTxt: Label 'NAV', Locked = true;
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
         RecordNotFoundErr: Label '%1 could not be found in %2.', Comment = '%1=value;%2=table name in which the value was searched';
-        CanOnlyUseSystemUserOwnerTypeErr: Label 'You can only map %1 owners of the SystemUser type to salespeople.', Comment = 'Dataverse entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = Dataverse service name';
+        CanOnlyUseSystemUserOwnerTypeErr: Label 'Only %1 Owner of Type SystemUser can be mapped to Salespeople.', Comment = 'Dataverse entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = Dataverse service name';
         DefaultNAVPriceListNameTxt: Label '%1 Default Price List', Comment = '%1 - product name';
         BaseCurrencyIsNullErr: Label 'The base currency is not defined. Disable and enable CRM connection to initialize setup properly.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
@@ -51,12 +51,6 @@ codeunit 5342 "CRM Synch. Helper"
         TempCRMUomschedule.Reset();
         TempCRMUomschedule.DeleteAll();
         Clear(TempCRMUomschedule);
-    end;
-
-    [Obsolete('Use GetDefaultPriceListName instead', '15.2')]
-    procedure GetDefaultNAVPriceListName(): Text[50]
-    begin
-        exit(StrSubstNo(DefaultNAVPriceListNameTxt, PRODUCTNAME.Short()));
     end;
 
     procedure GetDefaultPriceListName(): Text[100]
@@ -850,18 +844,32 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+    internal procedure FindOpportunityRelatedCustomer(SourceRecordRef: RecordRef; var ContactBusinessRelation: Record "Contact Business Relation"): Boolean
+    var
+        Opportunity: Record Opportunity;
+        ContactCompanyNo: Code[20];
+    begin
+        ContactCompanyNo := SourceRecordRef.Field(Opportunity.FieldNo("Contact Company No.")).Value();
+        exit(FindContactCompanyRelatedCustomer(ContactCompanyNo, ContactBusinessRelation));
+    end;
+
     procedure FindContactRelatedCustomer(SourceRecordRef: RecordRef; var ContactBusinessRelation: Record "Contact Business Relation"): Boolean
     var
         Contact: Record Contact;
-        MarketingSetup: Record "Marketing Setup";
-        CompanyNoFieldRef: FieldRef;
+        ContactCompanyNo: Code[20];
     begin
-        // Tranfer the parent company id to the ParentCustomerId
-        CompanyNoFieldRef := SourceRecordRef.Field(Contact.FieldNo("Company No."));
-        if not Contact.Get(CompanyNoFieldRef.Value()) then
+        ContactCompanyNo := SourceRecordRef.Field(Contact.FieldNo("Company No.")).Value();
+        exit(FindContactCompanyRelatedCustomer(ContactCompanyNo, ContactBusinessRelation));
+    end;
+
+    local procedure FindContactCompanyRelatedCustomer(ContactCompanyNo: Code[20]; var ContactBusinessRelation: Record "Contact Business Relation"): Boolean
+    var
+        Contact: Record Contact;
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        if not Contact.Get(ContactCompanyNo) then
             exit(false);
 
-        //Contact.Type::Person
         MarketingSetup.Get();
         ContactBusinessRelation.SetFilter("Business Relation Code", MarketingSetup."Bus. Rel. Code for Customers");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
@@ -1341,6 +1349,7 @@ codeunit 5342 "CRM Synch. Helper"
     var
         CRMOptionMapping: Record "CRM Option Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
         RecID: RecordID;
     begin
         TableIsMapped := false;
@@ -1352,13 +1361,24 @@ codeunit 5342 "CRM Synch. Helper"
                 if CRMOptionMapping.FindFirst() then begin
                     OptionValue := CRMOptionMapping."Option Value";
                     if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                        CRMIntegrationRecord."Option Mapping Failure" := false;
-                        CRMIntegrationRecord.Modify();
+                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                        CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
+                        if CDSFailedOptionMapping.FindFirst() then
+                            CDSFailedOptionMapping.Delete();
                     end;
                 end else
                     if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                        CRMIntegrationRecord."Option Mapping Failure" := true;
-                        CRMIntegrationRecord.Modify();
+                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                        CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
+                        if CDSFailedOptionMapping.IsEmpty() then begin
+                            CDSFailedOptionMapping.Init();
+                            CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
+                            CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
+                            CDSFailedOptionMapping."Field No." := SourceFieldRef.Number();
+                            CDSFailedOptionMapping.Insert();
+                        end;
                     end;
             end;
         end;
@@ -1369,6 +1389,7 @@ codeunit 5342 "CRM Synch. Helper"
     var
         CRMOptionMapping: Record "CRM Option Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
         RecID: RecordID;
         PrimaryKey: Variant;
     begin
@@ -1381,15 +1402,26 @@ codeunit 5342 "CRM Synch. Helper"
             if CRMOptionMapping.FindFirst() then begin
                 FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
                 Evaluate(TableValue, PrimaryKey);
-                if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                    CRMIntegrationRecord."Option Mapping Failure" := false;
-                    CRMIntegrationRecord.Modify();
+                if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
+                    CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                    CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                    CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
+                    if CDSFailedOptionMapping.FindFirst() then
+                        CDSFailedOptionMapping.Delete();
                 end;
             end else begin
                 TableValue := DestinationFieldRef.Value();
-                if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                    CRMIntegrationRecord."Option Mapping Failure" := true;
-                    CRMIntegrationRecord.Modify();
+                if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
+                    CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                    CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                    CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
+                    if CDSFailedOptionMapping.IsEmpty() then begin
+                        CDSFailedOptionMapping.Init();
+                        CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
+                        CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
+                        CDSFailedOptionMapping."Field No." := DestinationFieldRef.Number();
+                        CDSFailedOptionMapping.Insert();
+                    end;
                 end;
             end;
         end;

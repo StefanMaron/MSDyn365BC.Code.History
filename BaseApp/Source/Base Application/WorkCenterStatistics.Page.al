@@ -304,7 +304,7 @@ page 99000756 "Work Center Statistics"
                       WorkCtrActNeed[i] +
                       CapLedgEntry."Setup Time" + CapLedgEntry."Run Time" + CapLedgEntry."Stop Time";
                     WorkCtrActCost[i] := WorkCtrActCost[i] + CapLedgEntry."Direct Cost" + CapLedgEntry."Overhead Cost";
-                until CapLedgEntry.Next = 0;
+                until CapLedgEntry.Next() = 0;
             WorkCtrCapacity[i] := WorkCenter2."Capacity (Total)";
             WorkCtrEffCapacity[i] := WorkCenter2."Capacity (Effective)";
             WorkCtrExpEfficiency[i] := CalcPercentage(WorkCtrEffCapacity[i], WorkCtrCapacity[i]);

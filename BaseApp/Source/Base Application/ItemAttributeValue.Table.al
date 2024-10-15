@@ -227,7 +227,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValue.SetRange("Attribute ID", "Attribute ID");
         ItemAttributeValue.SetFilter(ID, '<>%1', ItemAttributeValue.ID);
         ItemAttributeValue.SetRange(Value, NameToCheck);
-        if not ItemAttributeValue.IsEmpty then
+        if not ItemAttributeValue.IsEmpty() then
             Error(NameAlreadyExistsErr, NameToCheck);
     end;
 
@@ -238,7 +238,7 @@ table 7501 "Item Attribute Value"
         if (ItemAttributeValue.Value <> '') and (ItemAttributeValue.Value <> NameToCheck) then begin
             ItemAttrValueTranslation.SetRange("Attribute ID", "Attribute ID");
             ItemAttrValueTranslation.SetRange(ID, ID);
-            if not ItemAttrValueTranslation.IsEmpty then
+            if not ItemAttrValueTranslation.IsEmpty() then
                 if not Confirm(StrSubstNo(ReuseValueTranslationsQst, ItemAttributeValue.Value, NameToCheck)) then
                     ItemAttrValueTranslation.DeleteAll();
         end;
@@ -312,7 +312,7 @@ table 7501 "Item Attribute Value"
                     OnLoadItemAttributesFactBoxDataOnBeforeInsert(ItemAttributeValueMapping, Rec);
                     Insert;
                 end
-            until ItemAttributeValueMapping.Next = 0;
+            until ItemAttributeValueMapping.Next() = 0;
     end;
 
     procedure LoadCategoryAttributesFactBoxData(CategoryCode: Code[20])
@@ -336,7 +336,7 @@ table 7501 "Item Attribute Value"
                             OnLoadItemAttributesFactBoxDataOnBeforeInsert(ItemAttributeValueMapping, Rec);
                             Insert;
                         end;
-                until ItemAttributeValueMapping.Next = 0;
+                until ItemAttributeValueMapping.Next() = 0;
             if ItemCategory.Get(CategoryCode) then
                 CategoryCode := ItemCategory."Parent Category"
             else

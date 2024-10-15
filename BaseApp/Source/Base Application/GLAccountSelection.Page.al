@@ -46,7 +46,7 @@ page 10734 "G/L Account Selection"
             repeat
                 TheGLAccSelectionBuf := Rec;
                 TheGLAccSelectionBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]

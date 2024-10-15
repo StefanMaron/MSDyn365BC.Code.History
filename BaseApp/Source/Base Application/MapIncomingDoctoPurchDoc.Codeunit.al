@@ -80,7 +80,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                     if not IsFieldProcessed(TempProcessedHdrFldId, "Field ID") then
                         if Value <> '' then
                             ProcessField(TempProcessedHdrFldId, RecRef, "Field ID", Value);
-            until Next = 0;
+            until Next() = 0;
 
             // process the last rec in DB
             if CurrRecordNo <> -1 then begin
@@ -121,7 +121,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                     if not IsFieldProcessed(TempProcessedLineFldId, "Field ID") then
                         if Value <> '' then
                             ProcessField(TempProcessedLineFldId, RecRef, "Field ID", Value);
-            until Next = 0;
+            until Next() = 0;
 
             // Save the last rec
             if CurrRecordNo <> -1 then
@@ -166,7 +166,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                         LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."),
                           ErrorMessage."Message Type"::Warning, StrSubstNo(UnableToApplyDiscountErr, InvoiceDiscountAmount));
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -193,7 +193,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                 InvoiceChargeReason := GetInvoiceChargeReason(IntermediateDataImport);
                 GetRelatedPurchaseHeader(PurchaseHeader, "Record No.");
                 CreateInvoiceChargePurchaseLine(DataExch."Entry No.", "Record No.", PurchaseHeader, InvoiceChargeReason, InvoiceChargeAmount);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -255,7 +255,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                               ErrorMessage."Message Type"::Warning, ProcessingMsg);
                     end;
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -284,7 +284,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                     LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."), ErrorMessage."Message Type"::Warning,
                       StrSubstNo(VATMismatchErr, PurchaseLine.Type, PurchaseLine."No.", PurchaseLine."Line No.",
                         PurchaseLine.FieldCaption("VAT %"), PurchaseLine."VAT %", VATPctFromFile));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

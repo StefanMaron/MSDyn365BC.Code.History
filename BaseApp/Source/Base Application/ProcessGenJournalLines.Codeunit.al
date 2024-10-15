@@ -112,7 +112,7 @@ codeunit 1247 "Process Gen. Journal  Lines"
                 GenJournalLine.Validate("Document No.", DocNo);
                 GenJournalLine.Modify(true);
                 DocNo := IncStr(DocNo);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         end;
     end;
 

@@ -164,7 +164,7 @@ report 7000099 "Post Bill Group"
                             end;
                         end;
                         GroupAmount := GroupAmount + TempBGPOPostBuffer.Amount;
-                    until TempBGPOPostBuffer.Next = 0;
+                    until TempBGPOPostBuffer.Next() = 0;
 
                     if (BillGr.Factoring <> BillGr.Factoring::" ") and
                        (BillGr."Dealing Type" <> BillGr."Dealing Type"::Collection)
@@ -250,7 +250,7 @@ report 7000099 "Post Bill Group"
                                 GenJnlLine."Account Type"::"Bank Account", BillGr."Bank Account No.", TempBankAccPostBuffer.Amount,
                                 BillGr."Posting Description", CustLedgEntry2, 0);
                             SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                        until TempBankAccPostBuffer.Next = 0;
+                        until TempBankAccPostBuffer.Next() = 0;
 
                     if BillGr."Currency Code" <> '' then begin
                         Currency.SetFilter(Code, BillGr."Currency Code");
@@ -501,7 +501,7 @@ report 7000099 "Post Bill Group"
             CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Posted BG/PO";
             CustLedgEntry."Document Status" := PostedDoc.Status + 1;
             CustLedgEntry.Modify();
-        until TempPostedDocBuffer.Next = 0;
+        until TempPostedDocBuffer.Next() = 0;
 
         BillGr.CalcFields(Amount);
         PostedBillGr.TransferFields(BillGr);
@@ -678,7 +678,7 @@ report 7000099 "Post Bill Group"
                 CalcBankAccount(BillGr."Bank Account No.", DisctedAmt, CustLedgEntry2."Entry No.");
                 TotalDisctedAmt := TotalDisctedAmt + DisctedAmt;
                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

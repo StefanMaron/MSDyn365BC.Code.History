@@ -19,55 +19,40 @@ codeunit 7000003 "BG/PO-Post and Print"
         Text1100004: Label 'Do you want to post the Payment Order?';
         CarteraReportSelection: Record "Cartera Report Selections";
 
-    [Scope('OnPrem')]
     procedure ReceivablePostOnly(BillGr: Record "Bill Group")
     begin
         if BillGr."No. Printed" = 0 then begin
-            if not
-               Confirm(
-                 Text1100000)
-            then
+            if not Confirm(Text1100000) then
                 Error(Text1100001);
         end else
-            if not
-               Confirm(
-                 Text1100002, false)
-            then
+            if not Confirm(Text1100002, false) then
                 Error(Text1100001);
 
-        BillGr.SetRecFilter;
-        REPORT.RunModal(REPORT::"Post Bill Group",
-          BillGr."Dealing Type" = BillGr."Dealing Type"::Discount,
-          false,
-          BillGr);
+        BillGr.SetRecFilter();
+        REPORT.RunModal(REPORT::"Post Bill Group", BillGr."Dealing Type" = BillGr."Dealing Type"::Discount, false, BillGr);
     end;
 
-    [Scope('OnPrem')]
     procedure ReceivablePostAndPrint(BillGr: Record "Bill Group")
     var
         PostedBillGr: Record "Posted Bill Group";
     begin
-        BillGr.SetRecFilter;
-        REPORT.RunModal(REPORT::"Post Bill Group",
-          BillGr."Dealing Type" = BillGr."Dealing Type"::Discount,
-          false,
-          BillGr);
+        BillGr.SetRecFilter();
+        REPORT.RunModal(REPORT::"Post Bill Group", BillGr."Dealing Type" = BillGr."Dealing Type"::Discount, false, BillGr);
 
         Commit();
 
         if PostedBillGr.Get(BillGr."No.") then begin
-            PostedBillGr.SetRecFilter;
+            PostedBillGr.SetRecFilter();
             CarteraReportSelection.Reset();
             CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Bill Group");
             CarteraReportSelection.Find('-');
             repeat
                 CarteraReportSelection.TestField("Report ID");
                 REPORT.Run(CarteraReportSelection."Report ID", false, false, PostedBillGr);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure PayablePostOnly(PmtOrd: Record "Payment Order")
     var
         IsHandled: Boolean;
@@ -75,47 +60,39 @@ codeunit 7000003 "BG/PO-Post and Print"
         OnBeforePayablePostOnly(PmtOrd, IsHandled);
         if not IsHandled then
             if PmtOrd."No. Printed" = 0 then begin
-                if not
-                   Confirm(
-                     Text1100003)
-                then
+                if not Confirm(Text1100003) then
                     Error(Text1100001);
             end else
-                if not
-                   Confirm(
-                     Text1100004, false)
-                then
+                if not Confirm(Text1100004, false) then
                     Error(Text1100001);
 
-        PmtOrd.SetRecFilter;
+        PmtOrd.SetRecFilter();
         REPORT.RunModal(REPORT::"Post Payment Order", false, false, PmtOrd);
 
         OnAfterPayablePostOnly(PmtOrd);
     end;
 
-    [Scope('OnPrem')]
     procedure PayablePostAndPrint(PmtOrd: Record "Payment Order")
     var
         PostedPmtOrd: Record "Posted Payment Order";
     begin
-        PmtOrd.SetRecFilter;
+        PmtOrd.SetRecFilter();
         REPORT.RunModal(REPORT::"Post Payment Order", false, false, PmtOrd);
 
         Commit();
 
         if PostedPmtOrd.Get(PmtOrd."No.") then begin
-            PostedPmtOrd.SetRecFilter;
+            PostedPmtOrd.SetRecFilter();
             CarteraReportSelection.Reset();
             CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
             CarteraReportSelection.Find('-');
             repeat
                 CarteraReportSelection.TestField("Report ID");
                 REPORT.Run(CarteraReportSelection."Report ID", false, false, PostedPmtOrd);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure PrintCounter("Table": Integer; Number: Code[20])
     var
         PostedBillGr: Record "Posted Bill Group";

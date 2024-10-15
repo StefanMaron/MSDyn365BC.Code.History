@@ -1732,7 +1732,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         with PurchInvLine do begin
             SetRange("Document No.", PostedDocNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
             until Next = 0;
@@ -1745,7 +1745,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         with PurchaseLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
             until Next = 0;
@@ -1758,7 +1758,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         with SalesInvoiceLine do begin
             SetRange("Document No.", PostedDocNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
             until Next = 0;
@@ -1771,7 +1771,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         with SalesLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
             until Next = 0;
@@ -2186,7 +2186,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Finding GLAccount of length 3 with Account Type heading to run the report - 10716 Official Acc.Summarized Book, otherwise skips the report.
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Heading);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         repeat
             GLAccount.Next;
         until StrLen(GLAccount."No.") = 3;
@@ -2474,7 +2474,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLEntry.SetRange("Source Code", SourceCode);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         Assert.AreEqual(2, GLEntry.Count, IncorrectCountErr);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         GLEntry.TestField(Amount);
         GLAmount := GLEntry.Amount;
         GLEntry.Next;

@@ -1402,6 +1402,7 @@ codeunit 137163 "SCM Orders VI"
         Assert.ExpectedError(MissingMandatoryLocationTxt);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidateRequisitionLineVendorNo()
@@ -1429,6 +1430,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         RequisitionLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1458,6 +1460,7 @@ codeunit 137163 "SCM Orders VI"
         RequisitionLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidatePurchaseLineCrossReferenceFields()
@@ -1491,6 +1494,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1526,6 +1530,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidateSalesLineCrossReferenceFields()
@@ -1558,6 +1563,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         SalesLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1592,6 +1598,7 @@ codeunit 137163 "SCM Orders VI"
         SalesLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
     [Scope('OnPrem')]
@@ -1626,6 +1633,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] Purchase line "L" is created and "L"."Description 2" = "R"."Description 2"
         PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
@@ -1662,6 +1670,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidatePurchaseLineNo()
@@ -1691,6 +1700,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1722,6 +1732,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidateSalesLineNo()
@@ -1751,6 +1762,7 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         SalesLine.TestField("Description 2", ItemCrossReference."Description 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1797,8 +1809,7 @@ codeunit 137163 "SCM Orders VI"
         // [SCENARIO 257873] Description and "Description 2" in "Item Cross Reference" must stay empty when "Item Vendor" is created
         Initialize(false);
 
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
+        Language.Get(LibraryERM.GetAnyLanguageDifferentFromCurrent());
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Vendor "V" with language code
@@ -1835,8 +1846,7 @@ codeunit 137163 "SCM Orders VI"
         // [SCENARIO 257873] Description and "Description 2" in "Item Reference" must stay empty when "Item Vendor" is created
         Initialize(true);
 
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
+        Language.Get(LibraryERM.GetAnyLanguageDifferentFromCurrent());
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Vendor "V" with language code
@@ -2841,7 +2851,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));  // Post as Ship.
     end;
 
@@ -3006,7 +3016,7 @@ codeunit 137163 "SCM Orders VI"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", Type, VendorNo, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchDocumentWithCurrencyCodeAndInvoiceDiscount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
+    local procedure CreatePurchDocumentWithCurrencyCodeAndInvoiceDiscount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
     var
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
     begin
@@ -3249,7 +3259,7 @@ codeunit 137163 "SCM Orders VI"
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
     end;
 
-    local procedure CreateSalesDocumentWithCurrencyCodeAndInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
+    local procedure CreateSalesDocumentWithCurrencyCodeAndInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
     var
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
     begin
@@ -3371,6 +3381,7 @@ codeunit 137163 "SCM Orders VI"
         ItemTranslation.Insert(true);
     end;
 
+#if not CLEAN16
     local procedure CreateItemCrossReferenceForVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
         LibraryInventory.CreateItemCrossReference(ItemCrossReference, ItemNo, ItemCrossReference."Cross-Reference Type"::Vendor, VendorNo);
@@ -3383,6 +3394,7 @@ codeunit 137163 "SCM Orders VI"
           ItemCrossReference, ItemNo, ItemCrossReference."Cross-Reference Type"::Customer, CustomerNo);
         UpdateItemCrossReferenceDescriptions(ItemCrossReference);
     end;
+#endif
 
     local procedure CreateItemReferenceForVendor(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
@@ -3530,7 +3542,7 @@ codeunit 137163 "SCM Orders VI"
     local procedure FilterPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentNo: Code[20])
     begin
         PurchRcptLine.SetRange("Document No.", DocumentNo);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
     end;
 
     local procedure FindPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line") ExpdTotalDisAmt: Decimal
@@ -4231,7 +4243,7 @@ codeunit 137163 "SCM Orders VI"
         "Count": Integer;
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeaderNo);
-        PurchRcptHeader.FindSet;
+        PurchRcptHeader.FindSet();
         PostedPurchaseReceipts.Last;
         repeat
             Count += 1;  // Used to count No. Of Lines on the Posted Purchase Receipts Page.
@@ -4257,7 +4269,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         ReturnShipmentLine.SetRange("Document No.", PostedDocumentNo);
         ReturnShipmentLine.SetRange("No.", ItemNo);
-        ReturnShipmentLine.FindSet;
+        ReturnShipmentLine.FindSet();
         if Next then
             ReturnShipmentLine.Next;
         ReturnShipmentLine.TestField(Quantity, Quantity);
@@ -4280,7 +4292,7 @@ codeunit 137163 "SCM Orders VI"
         ActualTotalDisAmt: Decimal;
     begin
         ValueEntry.SetRange("Document No.", PostedDocNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ActualTotalDisAmt := ActualTotalDisAmt + Abs(ValueEntry."Discount Amount");
         until ValueEntry.Next = 0;
@@ -4295,7 +4307,7 @@ codeunit 137163 "SCM Orders VI"
         with GLEntry do begin
             SetRange("Document No.", PostedDocNo);
             SetFilter("G/L Account No.", '%1|%2', LineDiscAccount, InvDiscAccount);
-            FindSet;
+            FindSet();
             repeat
                 TotalAMount += Amount;
             until Next = 0;

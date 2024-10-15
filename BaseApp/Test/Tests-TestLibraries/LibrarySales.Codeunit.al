@@ -381,6 +381,9 @@ codeunit 130509 "Library - Sales"
             SalesLine.Type::"Charge (Item)":
                 if No = '' then
                     No := LibraryInventory.CreateItemChargeNo;
+            SalesLine.Type::"G/L Account":
+                if No = '' then
+                    No := LibraryERM.CreateGLAccountWithSalesSetup;
         end;
         SalesLine.Validate("No.", No);
         SalesLine.Validate("Shipment Date", ShipmentDate);
@@ -462,6 +465,27 @@ codeunit 130509 "Library - Sales"
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+    end;
+
+    procedure CreateSalesOrderWithLocation(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify();
+    end;
+
+    procedure CreateSalesReturnOrderWithLocation(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify();
+    end;
+
+    procedure CreateSalesLineWithUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
+    begin
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify();
     end;
 
     procedure CreateSalesperson(var SalespersonPurchaser: Record "Salesperson/Purchaser")
@@ -738,7 +762,7 @@ codeunit 130509 "Library - Sales"
         Item.SetFilter("Unit Price", '<>0');
         Item.SetFilter(Reserve, '<>%1', Item.Reserve::Always);
 
-        Item.FindSet;
+        Item.FindSet();
     end;
 
     procedure GetInvRoundingAccountOfCustPostGroup(CustPostingGroupCode: Code[20]): Code[20]

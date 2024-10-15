@@ -204,7 +204,7 @@ codeunit 144054 "ERM ES Income Statement"
 
     local procedure VerifyGLAccountIncomeStmtBalAccNumber(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         repeat
             Assert.AreEqual(Format(IncomeStatementBalanceAccTxt), GLAccount."Income Stmt. Bal. Acc.", ValueMustBeSameMsg);
         until GLAccount.Next = 0;

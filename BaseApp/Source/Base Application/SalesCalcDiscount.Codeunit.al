@@ -66,7 +66,7 @@ codeunit 60 "Sales-Calc. Discount"
                     SalesLine2.Modify();
                     TempServiceChargeLine := SalesLine2;
                     TempServiceChargeLine.Insert();
-                until SalesLine2.Next = 0;
+                until SalesLine2.Next() = 0;
 
             SalesLine2.Reset();
             SalesLine2.SetRange("Document Type", "Document Type");
@@ -99,7 +99,7 @@ codeunit 60 "Sales-Calc. Discount"
                 Currency.Initialize(SalesHeader."Currency Code");
                 if not UpdateHeader then
                     SalesLine2.SetSalesHeader(SalesHeader);
-                if not TempServiceChargeLine.IsEmpty then begin
+                if not TempServiceChargeLine.IsEmpty() then begin
                     TempServiceChargeLine.FindLast;
                     SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
@@ -138,7 +138,7 @@ codeunit 60 "Sales-Calc. Discount"
                             SalesLine2 := TempServiceChargeLine;
                             SalesLine2.Delete(true);
                         end;
-                    until TempServiceChargeLine.Next = 0;
+                    until TempServiceChargeLine.Next() = 0;
 
             GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines"
@@ -220,7 +220,7 @@ codeunit 60 "Sales-Calc. Discount"
                         SalesLine2."Recalculate Invoice Disc." := false;
                         SalesLine2.Modify();
                     end;
-                until SalesLine2.Next = 0;
+                until SalesLine2.Next() = 0;
             end;
 
             IsHandled := false;

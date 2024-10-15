@@ -169,7 +169,7 @@ codeunit 147507 "Cartera Payable Prepayment"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 }
 

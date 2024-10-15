@@ -256,7 +256,7 @@ table 5744 "Transfer Shipment Header"
         if TransShptLine.Find('-') then
             repeat
                 TransShptLine.Delete();
-            until TransShptLine.Next = 0;
+            until TransShptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Shipment");
         InvtCommentLine.SetRange("No.", "No.");

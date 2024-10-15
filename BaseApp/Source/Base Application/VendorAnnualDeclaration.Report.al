@@ -122,8 +122,8 @@ report 10703 "Vendor - Annual Declaration"
                                 Account.Get(GLEntries."G/L Account No.");
                                 if Account."Ignore in 347 Report" then
                                     IgnoreAmt := IgnoreAmt + GLEntries.Amount + GLEntries."VAT Amount";
-                            until GLEntries.Next = 0;
-                    until VendEntries.Next = 0;
+                            until GLEntries.Next() = 0;
+                    until VendEntries.Next() = 0;
                 PurchaseAmt := InvoiceAmt - CrMemoAmt;
                 if PurchaseAmt <= MinAmount then
                     CurrReport.Skip();

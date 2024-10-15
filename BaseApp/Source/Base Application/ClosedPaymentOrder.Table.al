@@ -155,7 +155,7 @@ table 7000022 "Closed Payment Order"
             CarteraReportSelection.Find('-');
             repeat
                 REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, ClosedPmtOrd);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 

@@ -142,7 +142,7 @@ report 10707 "Make 347 Declaration"
                                         // Increase RecordCount
                                         Acum := Acum + 1;
                                     end;
-                                until CustomerCashBuffer.Next = 0;
+                                until CustomerCashBuffer.Next() = 0;
                         end;
 
                         PrevVATRegNo := Customer."VAT Registration No.";
@@ -225,7 +225,7 @@ report 10707 "Make 347 Declaration"
                             else
                                 VATRegistrationNo := CustomerLoc."VAT Registration No.";
                             IdentifyCashPayments(CustomerLoc."No.", VATRegistrationNo);
-                        until CustomerLoc.Next = 0;
+                        until CustomerLoc.Next() = 0;
                 end;
             end;
         }
@@ -969,12 +969,12 @@ report 10707 "Make 347 Declaration"
                         else
                             CheckVatEntryNotIn347(VATEntry3, 1);
                         UpdateSalesAmountsAndFlagsForCustomer(Amt, CustomerAmount, CustLedgEntry, VATEntry3, AmountType::SameVATNo);
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 if CustomerMaxAmount < CustomerAmount then begin
                     CustomerMaxAmount := CustomerAmount;
                     Name347 := Customer2.Name;
                 end;
-            until Customer2.Next = 0;
+            until Customer2.Next() = 0;
         Name347 := PadStr(FormatTextName(Name347), 40, ' ');
 
         exit(Amt);
@@ -1017,12 +1017,12 @@ report 10707 "Make 347 Declaration"
                             CheckVatEntryNotIn347(VATEntry3, OperationTypeIdx);
                         end;
                         UpdatePurchAmountsAndFlagsForVendor(Amt, ISPAmt, VendorAmount, VendorLedgerEntry, VATEntry3, AmountType::SameVATNo);
-                    until VendorLedgerEntry.Next = 0;
+                    until VendorLedgerEntry.Next() = 0;
                 if VendorMaxAmount < VendorAmount then begin
                     VendorMaxAmount := VendorAmount;
                     Name347 := Vendor2.Name;
                 end;
-            until Vendor2.Next = 0;
+            until Vendor2.Next() = 0;
         Name347 := PadStr(FormatTextName(Name347), 40, ' ');
     end;
 
@@ -1040,7 +1040,7 @@ report 10707 "Make 347 Declaration"
                     DocumentPostingDate := GetPaymentDocumentPostingDate(CustLedgerEntry);
                     if CheckCashTotalsPossibility(CustLedgerEntry, DocumentPostingDate) then
                         CreateCashTotals("Entry No.", VATRegistrationNo, DocumentPostingDate);
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -1072,13 +1072,13 @@ report 10707 "Make 347 Declaration"
                                     UpdateCustomerCashBuffer(VATRegistrationNo,
                                       Date2DMY(DocumentPostingDate, 3), -DtldCustLedgEntry2."Amount (LCY)");
                             end;
-                        until DtldCustLedgEntry2.Next = 0;
+                        until DtldCustLedgEntry2.Next() = 0;
                 end else begin
                     if CustLedgerEntry.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.") then
                         UpdateCustomerCashBuffer(VATRegistrationNo,
                           Date2DMY(DocumentPostingDate, 3), DtldCustLedgEntry."Amount (LCY)");
                 end;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure IsCashAccount(GLAccountNo: Text[20]): Boolean
@@ -1125,7 +1125,7 @@ report 10707 "Make 347 Declaration"
             repeat
                 if IsCashAccount(GLEntryLoc."G/L Account No.") then
                     exit(true);
-            until GLEntryLoc.Next = 0;
+            until GLEntryLoc.Next() = 0;
         exit(false);
     end;
 
@@ -1219,11 +1219,11 @@ report 10707 "Make 347 Declaration"
                 if GLEntry.FindSet then
                     repeat
                         UpdateNotIn347Amount(GLEntry, idx);
-                    until GLEntry.Next = 0;
+                    until GLEntry.Next() = 0;
                 TempInteger.Number := VATEntry."Transaction No.";
                 TempInteger.Insert();
             end;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; IsCustomer: Boolean)
@@ -1405,7 +1405,7 @@ report 10707 "Make 347 Declaration"
                             if TempCustLedgerEntry.Insert() then;
                         end;
                     end;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure ProcessPaidVATCashSalesInvoicesOutOfPeriod(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
@@ -1420,7 +1420,7 @@ report 10707 "Make 347 Declaration"
                 TempCustLedgerEntry.SetFilter("Date Filter", '%1..%2', FromDate, ToDate);
                 TempCustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                 AnnualAmountVATCashRegime -= TempCustLedgerEntry."Remaining Amt. (LCY)";
-            until TempCustLedgerEntry.Next = 0;
+            until TempCustLedgerEntry.Next() = 0;
     end;
 
     local procedure GetPaidVATCashPurchInvoicesOutOfPeriod(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; VendNo: Code[20])
@@ -1447,7 +1447,7 @@ report 10707 "Make 347 Declaration"
                             if TempVendorLedgerEntry.Insert() then;
                         end;
                     end;
-            until DtldVendorLedgEntry.Next = 0;
+            until DtldVendorLedgEntry.Next() = 0;
     end;
 
     local procedure ProcessPaidVATCashPurchInvoicesOutOfPeriod(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
@@ -1462,7 +1462,7 @@ report 10707 "Make 347 Declaration"
                 TempVendorLedgerEntry.SetFilter("Date Filter", '%1..%2', FromDate, ToDate);
                 TempVendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                 AnnualAmountVATCashRegime += TempVendorLedgerEntry."Remaining Amt. (LCY)";
-            until TempVendorLedgerEntry.Next = 0;
+            until TempVendorLedgerEntry.Next() = 0;
     end;
 
     local procedure UpdateSalesAmountsAndFlagsForCustomer(var SalesAmt: Decimal; var CustAmt: Decimal; var CustLedgerEntry: Record "Cust. Ledger Entry"; VATEntry: Record "VAT Entry"; QuarterAmtType: Option Sales,Purchase,SameVATNo,NotIn347Report): Boolean
@@ -1527,7 +1527,7 @@ report 10707 "Make 347 Declaration"
         if CountryRegion.FindSet then
             repeat
                 CountryRegionFilter += StrSubstNo('|%1', CountryRegion.Code);
-            until CountryRegion.Next = 0;
+            until CountryRegion.Next() = 0;
     end;
 
     local procedure IsCountryCodeInSpainOrOutsideEU(CountryCode: Code[10]): Boolean

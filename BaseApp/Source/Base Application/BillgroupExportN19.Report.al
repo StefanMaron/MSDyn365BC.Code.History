@@ -456,7 +456,7 @@ report 7000092 "Bill group - Export N19"
         repeat
             if Datemax < Doc2."Due Date" then
                 Datemax := Doc2."Due Date";
-        until Doc2.Next = 0;
+        until Doc2.Next() = 0;
         Doc2.Reset();
         exit(Datemax);
     end;

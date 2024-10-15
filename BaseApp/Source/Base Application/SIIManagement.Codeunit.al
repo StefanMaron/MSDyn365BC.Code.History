@@ -15,25 +15,25 @@ codeunit 10756 "SII Management"
         YesTxt: Label 'Yes';
         NoSIIStateErr: Label 'The document has not been transmitted and hence has no status.';
 
-    [EventSubscriber(ObjectType::Page, 43, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnOpenPageEvent', '', false, false)]
     local procedure OnSalesInvoicePageOpen(var Rec: Record "Sales Header")
     begin
         CreateSetupNotification;
     end;
 
-    [EventSubscriber(ObjectType::Page, 51, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnOpenPageEvent', '', false, false)]
     local procedure OnPurchInvoicePageOpen(var Rec: Record "Purchase Header")
     begin
         CreateSetupNotification;
     end;
 
-    [EventSubscriber(ObjectType::Page, 44, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnOpenPageEvent', '', false, false)]
     local procedure OnSalesCreditMemoPageOpen(var Rec: Record "Sales Header")
     begin
         CreateSetupNotification;
     end;
 
-    [EventSubscriber(ObjectType::Page, 52, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Credit Memo", 'OnOpenPageEvent', '', false, false)]
     local procedure OnPurchCreditMemoPageOpen(var Rec: Record "Purchase Header")
     begin
         CreateSetupNotification;
@@ -98,7 +98,7 @@ codeunit 10756 "SII Management"
         exit('C36C1441-6711-4878-9EB4-B8C8EAECD925');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1875, 'OnRegisterManualSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Manual Setup", 'OnRegisterManualSetup', '', false, false)]
     local procedure HandleRegisterBusinessSetup(var Sender: Codeunit "Manual Setup")
     var
         SIISetup: Record "SII Setup";
@@ -296,7 +296,7 @@ codeunit 10756 "SII Management"
         repeat
             if not IsVATEntryCashFlowBased(VATEntry) then
                 exit(false);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
 
         exit(true);
     end;

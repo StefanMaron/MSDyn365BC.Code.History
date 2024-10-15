@@ -123,8 +123,8 @@ report 10702 "Customer - Annual Declaration"
                                 Account.Get(GLEntries."G/L Account No.");
                                 if Account."Ignore in 347 Report" then
                                     IgnoreAmt := IgnoreAmt + GLEntries.Amount + GLEntries."VAT Amount";
-                            until GLEntries.Next = 0;
-                    until CustEntries.Next = 0;
+                            until GLEntries.Next() = 0;
+                    until CustEntries.Next() = 0;
                 SalesAmt := InvoiceAmt - CrMemoAmt;
                 if SalesAmt <= MinAmount then
                     CurrReport.Skip();

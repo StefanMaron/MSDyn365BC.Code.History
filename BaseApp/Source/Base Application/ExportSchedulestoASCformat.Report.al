@@ -605,7 +605,7 @@ report 10720 "Export Schedules to ASC format"
                     NoZero := GetValues(ColumnValue, Saldo, Signo, b);
                     if NoZero = true then
                         ok := NoZero;
-                until ColumnLayout.Next = 0;
+                until ColumnLayout.Next() = 0;
             if ok then
                 if (AccScheduleLine."Row No." <> '') or (AccScheduleLine.Totaling <> '') then begin
                     case AccScheduleLine.Type of

@@ -194,7 +194,7 @@ page 7000077 "Docs. in Closed PO Subform"
         repeat
             VendLedgEntry.Get(ClosedDoc."Entry No.");
             VendLedgEntry.Mark(true);
-        until ClosedDoc.Next = 0;
+        until ClosedDoc.Next() = 0;
 
         VendLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Payable Bills", true, false, VendLedgEntry);

@@ -579,7 +579,7 @@ codeunit 7000006 "Document-Post"
                     CustLedgEntry.Get(ClosedCarteraDoc."Entry No.");
                     CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed BG/PO";
                     CustLedgEntry.Modify();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
                 ClosedBillGroup.TransferFields(PostedBillGroup);
                 ClosedBillGroup."Closing Date" := PostingDate;
@@ -611,7 +611,7 @@ codeunit 7000006 "Document-Post"
                     VendLedgEntry.Get(ClosedCarteraDoc."Entry No.");
                     VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed BG/PO";
                     VendLedgEntry.Modify();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
                 ClosedPmtOrd.TransferFields(PostedPmtOrd);
                 ClosedPmtOrd."Closing Date" := PostingDate;
@@ -762,7 +762,7 @@ codeunit 7000006 "Document-Post"
                 GenJournalLineToPost := GenJournalLine;
                 GenJnlPostLine.SetFromSettlement(true);
                 GenJnlPostLine.Run(GenJournalLineToPost);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         UpdateAnalysisView.UpdateAll(0, true);
     end;
 
@@ -780,7 +780,7 @@ codeunit 7000006 "Document-Post"
                 GenJnlPostLine.Run(GenJournalLineToPost);
                 if PostedPmtOrder.Get(GenJournalLine."Document No.") then
                     ClosePmtOrdIfEmpty(PostedPmtOrder, PostingDate);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         UpdateAnalysisView.UpdateAll(0, true);
     end;
 
@@ -798,7 +798,7 @@ codeunit 7000006 "Document-Post"
                 GenJnlPostLine.Run(GenJournalLineToPost);
                 if PostedBillGroup.Get(GenJournalLine."Document No.") then
                     CloseBillGroupIfEmpty(PostedBillGroup, PostingDate);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         UpdateAnalysisView.UpdateAll(0, true);
     end;
 
@@ -1039,7 +1039,7 @@ codeunit 7000006 "Document-Post"
                             repeat
                                 if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Rejection then
                                     IsRejection := true;
-                            until DtldCustLedgEntry.Next = 0;
+                            until DtldCustLedgEntry.Next() = 0;
 
                         if Open then
                             if (IsRejection = true) and ("Remaining Amount" <> 0) then begin

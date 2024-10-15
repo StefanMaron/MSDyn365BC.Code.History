@@ -83,7 +83,7 @@ table 289 "Payment Method"
                             TempDataExchLineDef.Name := DataExchLineDef.Name;
                             if TempDataExchLineDef.Insert() then;
                         end;
-                    until DataExchLineDef.Next = 0;
+                    until DataExchLineDef.Next() = 0;
                     if PAGE.RunModal(PAGE::"Pmt. Export Line Definitions", TempDataExchLineDef) = ACTION::LookupOK then
                         "Pmt. Export Line Definition" := TempDataExchLineDef.Code;
                 end;

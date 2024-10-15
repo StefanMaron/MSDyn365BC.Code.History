@@ -31,13 +31,13 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
             repeat
                 TempVendLedgEntry := VendLedgEntry;
                 TempVendLedgEntry.Insert();
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
         end;
 
         if TempVendLedgEntry.FindSet then
             repeat
                 UpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
-            until TempVendLedgEntry.Next = 0;
+            until TempVendLedgEntry.Next() = 0;
     end;
 
     local procedure UpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])

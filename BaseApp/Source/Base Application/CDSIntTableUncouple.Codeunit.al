@@ -105,18 +105,22 @@ codeunit 5337 "CDS Int. Table Uncouple"
         IntegrationRecordRef: RecordRef;
         LocalRecordFound: Boolean;
         IntegrationRecordFound: Boolean;
+        TableId: Integer;
     begin
         if TempCRMIntegrationRecord.FindSet() then
             repeat
-                Clear(LocalRecordRef);
-                LocalRecordRef.Open(TempCRMIntegrationRecord."Table ID");
-                LocalRecordFound := LocalRecordRef.GetBySystemId(TempCRMIntegrationRecord."Integration ID");
-                if not LocalRecordFound then begin
-                    IntegrationRecordRef.Open(IntegrationTableMapping."Integration Table ID");
-                    IntegrationRecordFound := IntegrationTableMapping.GetRecordRef(TempCRMIntegrationRecord."CRM ID", IntegrationRecordRef);
+                TableId := TempCRMIntegrationRecord."Table ID";
+                if TableId <> 0 then begin
+                    Clear(LocalRecordRef);
+                    LocalRecordRef.Open(TableId);
+                    LocalRecordFound := LocalRecordRef.GetBySystemId(TempCRMIntegrationRecord."Integration ID");
+                    if not LocalRecordFound then begin
+                        IntegrationRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+                        IntegrationRecordFound := IntegrationTableMapping.GetRecordRef(TempCRMIntegrationRecord."CRM ID", IntegrationRecordRef);
+                    end;
+                    if LocalRecordFound or IntegrationRecordFound then
+                        IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
                 end;
-                if LocalRecordFound or IntegrationRecordFound then
-                    IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
             until TempCRMIntegrationRecord.Next() = 0;
     end;
 

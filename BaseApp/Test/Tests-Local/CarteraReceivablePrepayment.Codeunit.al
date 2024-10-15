@@ -165,7 +165,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 }
 

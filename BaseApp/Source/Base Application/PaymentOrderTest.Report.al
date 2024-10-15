@@ -461,7 +461,7 @@ report 7000009 "Payment Order - Test"
                                   "Currency Code",
                                   Amount,
                                   "Entry No.");
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                 }
             }

@@ -18540,6 +18540,24 @@
         <Field Name="ShowMIRLines">
           <DataField>ShowMIRLines</DataField>
         </Field>
+        <Field Name="ContactPhoneNoLbl">
+          <DataField>ContactPhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNoLbl">
+          <DataField>ContactMobilePhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactEmailLbl">
+          <DataField>ContactEmailLbl</DataField>
+        </Field>
+        <Field Name="ContactPhoneNo">
+          <DataField>ContactPhoneNo</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNo">
+          <DataField>ContactMobilePhoneNo</DataField>
+        </Field>
+        <Field Name="ContactEmail">
+          <DataField>ContactEmail</DataField>
+        </Field>
         <Field Name="Issued_Reminder_Header___Due_Date_">
           <DataField>Issued_Reminder_Header___Due_Date_</DataField>
         </Field>

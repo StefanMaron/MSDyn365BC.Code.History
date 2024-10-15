@@ -314,7 +314,7 @@ page 7000076 "Docs. in Posted PO Subform"
         repeat
             VendLedgEntry.Get(PostedDoc."Entry No.");
             VendLedgEntry.Mark(true);
-        until PostedDoc.Next = 0;
+        until PostedDoc.Next() = 0;
 
         VendLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Payable Bills", true, false, VendLedgEntry);

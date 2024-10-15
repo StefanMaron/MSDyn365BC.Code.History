@@ -217,7 +217,7 @@ table 7000021 "Posted Payment Order"
             CarteraReportSelection.Find('-');
             repeat
                 REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PostedPmtOrd);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 

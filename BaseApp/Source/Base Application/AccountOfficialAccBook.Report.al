@@ -184,7 +184,7 @@ report 10706 "Account - Official Acc. Book"
                 begin
                     NextAccPeriod.CopyFilters(AccPeriod);
                     NextAccPeriod := AccPeriod;
-                    if NextAccPeriod.Next = 0 then
+                    if NextAccPeriod.Next() = 0 then
                         LoopEnd := true;
                 end;
 
@@ -447,7 +447,7 @@ report 10706 "Account - Official Acc. Book"
                     OpenClosePerTransNo := CurrTransNo + 1;
                     FirstReg := false;
 
-                    if AccPeriod.Next = 0 then begin
+                    if AccPeriod.Next() = 0 then begin
                         if TableEnd then
                             LoopEnd := true
                         else
@@ -564,7 +564,7 @@ report 10706 "Account - Official Acc. Book"
                         TotalDebitAmt := TotalDebitAmt + GLEntry."Add.-Currency Debit Amount";
                         TotalCreditAmt := TotalCreditAmt + GLEntry."Add.-Currency Credit Amount";
                     end;
-                until GLEntry.Next = 0;
+                until GLEntry.Next() = 0;
         end;
         GLEntry.SetRange("Posting Date");
         if "G/L Entry Group".GetFilter("Period Trans. No.") <> '' then begin
@@ -599,7 +599,7 @@ report 10706 "Account - Official Acc. Book"
             FirstPage := FirstPage - 1;
 
         GLEntry.SetFilter("Posting Date", '<%1', FromDate);
-        if GLEntry.IsEmpty then
+        if GLEntry.IsEmpty() then
             FirstReg := true
         else
             FirstReg := false;

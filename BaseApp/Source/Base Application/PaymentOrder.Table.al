@@ -350,7 +350,7 @@ table 7000020 "Payment Order"
             CarteraReportSelection.Find('-');
             repeat
                 REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PmtOrd);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 

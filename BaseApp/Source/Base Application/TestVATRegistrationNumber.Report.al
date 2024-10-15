@@ -75,7 +75,7 @@ report 10742 "Test VAT Registration Number"
                                     CheckVATRegistrationNo := true;
                                 if VATRegistrationNoFormat.Compare(Customer."VAT Registration No.", VATRegistrationNoFormat.Format) then
                                     Check := true;
-                            until VATRegistrationNoFormat.Next = 0;
+                            until VATRegistrationNoFormat.Next() = 0;
 
                         if Check = false then
                             ErrorText := Text1100001
@@ -147,7 +147,7 @@ report 10742 "Test VAT Registration Number"
                                     CheckVATRegistrationNo := true;
                                 if VATRegistrationNoFormat.Compare(Vendor."VAT Registration No.", VATRegistrationNoFormat.Format) then
                                     Check := true;
-                            until VATRegistrationNoFormat.Next = 0;
+                            until VATRegistrationNoFormat.Next() = 0;
 
                         if Check = false then
                             ErrorText := Text1100001
@@ -219,7 +219,7 @@ report 10742 "Test VAT Registration Number"
                                     CheckVATRegistrationNo := true;
                                 if VATRegistrationNoFormat.Compare(Contact."VAT Registration No.", VATRegistrationNoFormat.Format) then
                                     Check := true;
-                            until VATRegistrationNoFormat.Next = 0;
+                            until VATRegistrationNoFormat.Next() = 0;
 
                         if Check = false then
                             ErrorText := Text1100001

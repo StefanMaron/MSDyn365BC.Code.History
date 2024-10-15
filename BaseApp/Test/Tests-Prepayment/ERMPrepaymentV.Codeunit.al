@@ -1,4 +1,4 @@
-codeunit 134106 "ERM Prepayment V"
+﻿codeunit 134106 "ERM Prepayment V"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3898,7 +3898,7 @@ codeunit 134106 "ERM Prepayment V"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Ship", Quantity / 2);
                 Modify;
@@ -3914,7 +3914,7 @@ codeunit 134106 "ERM Prepayment V"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Receive", Quantity / 2);
                 Modify;

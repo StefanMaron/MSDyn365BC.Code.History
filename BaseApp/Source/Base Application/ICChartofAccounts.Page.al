@@ -96,7 +96,7 @@ page 605 "IC Chart of Accounts"
                         if ICGLAcc.Find('-') and ConfirmManagement.GetResponseOrDefault(Text000, true) then
                             repeat
                                 ICMapping.MapAccounts(ICGLAcc);
-                            until ICGLAcc.Next = 0;
+                            until ICGLAcc.Next() = 0;
                     end;
                 }
                 action("Copy from Chart of Accounts")
@@ -222,7 +222,7 @@ page 605 "IC Chart of Accounts"
                 PrevIndentation := GLAcc.Indentation;
                 if GLAcc."Account Type" = 3 then
                     PrevIndentation := PrevIndentation + 1;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     local procedure ImportFromXML()

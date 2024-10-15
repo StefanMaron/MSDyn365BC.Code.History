@@ -1491,7 +1491,7 @@ codeunit 147310 "ERM Apply Unapply"
             SetRange("Document Type", ApplDocType);
             SetRange("Customer No.", CustLedgerEntry."Customer No.");
             SetRange(Open, true);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", -AmountToApply);
@@ -1514,7 +1514,7 @@ codeunit 147310 "ERM Apply Unapply"
             SetRange("Document Type", ApplDocType);
             SetRange("Vendor No.", VendLedgerEntry."Vendor No.");
             SetRange(Open, true);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", -AmountToApply);
@@ -2205,7 +2205,7 @@ codeunit 147310 "ERM Apply Unapply"
         GLEntry.SetRange("Source Code", SourceCode);
 
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         GLEntry.TestField(Amount);
         GLAmount := GLAmount * (GLEntry.Amount / Abs(GLEntry.Amount));
 
@@ -2260,7 +2260,7 @@ codeunit 147310 "ERM Apply Unapply"
         DetailedCustLedgEntry.FindFirst;
 
         GLEntry.SetRange("Transaction No.", DetailedCustLedgEntry."Transaction No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             if GLEntry.Amount > 0 then
                 GLEntry.TestField("Additional-Currency Amount", AddCurrAmount)

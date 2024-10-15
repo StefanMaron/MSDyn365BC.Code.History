@@ -421,7 +421,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         while NoOfDocuments > 0 do begin
             DocumentNo := LibraryVariableStorage.DequeueText;
             CustomerVendorWarning349.SetRange("Document No.", DocumentNo);
-            CustomerVendorWarning349.FindSet;
+            CustomerVendorWarning349.FindSet();
             AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean);
             CustomerVendorWarning349.Next;
             AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean);

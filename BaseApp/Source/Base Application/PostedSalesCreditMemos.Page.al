@@ -580,7 +580,7 @@ page 144 "Posted Sales Credit Memos"
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
         if HasFilters and not Find() then
-            if FindFirst() then;
+            if FindFirst then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         SIIStateVisible := SIISetup.IsEnabled;

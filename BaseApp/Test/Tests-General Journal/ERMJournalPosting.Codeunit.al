@@ -303,9 +303,8 @@ codeunit 134420 "ERM Journal Posting"
         GLAccount.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 13, 'OnBeforeCode', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean; CommitIsSuppressed: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Batch", 'OnBeforeCode', '', false, false)]
+    local procedure OnBeforeCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean; CommitIsSuppressed: Boolean)
     begin
         // Verify auto calc field is reset
         GenJournalLine.TestField("Has Payment Export Error", true);

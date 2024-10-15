@@ -33,7 +33,7 @@ codeunit 10840 "No Taxable - Generate Entries"
             if FindSet then
                 repeat
                     NoTaxableMgt.UpdateNoTaxableEntryFromVendorLedgerEntry(VendorLedgerEntry);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -47,7 +47,7 @@ codeunit 10840 "No Taxable - Generate Entries"
             if FindSet then
                 repeat
                     NoTaxableMgt.UpdateNoTaxableEntryFromCustomerLedgerEntry(CustLedgerEntry);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -61,9 +61,9 @@ codeunit 10840 "No Taxable - Generate Entries"
             repeat
                 VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                if not VATEntry.IsEmpty then
+                if not VATEntry.IsEmpty() then
                     VATEntry.ModifyAll("No Taxable Type", VATPostingSetup."No Taxable Type");
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
     end;
 }
 

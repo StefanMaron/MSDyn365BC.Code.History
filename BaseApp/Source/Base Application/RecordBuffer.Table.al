@@ -47,7 +47,7 @@ table 6529 "Record Buffer"
         }
         field(9; "Primary Key Field 1 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 1 No.")));
             Caption = 'Primary Key Field 1 Name';
             FieldClass = FlowField;
@@ -65,7 +65,7 @@ table 6529 "Record Buffer"
         }
         field(12; "Primary Key Field 2 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 2 No.")));
             Caption = 'Primary Key Field 2 Name';
             FieldClass = FlowField;
@@ -83,7 +83,7 @@ table 6529 "Record Buffer"
         }
         field(15; "Primary Key Field 3 Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Primary Key Field 3 No.")));
             Caption = 'Primary Key Field 3 Name';
             FieldClass = FlowField;
@@ -130,6 +130,16 @@ table 6529 "Record Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            DataClassification = SystemMetadata;
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
     }
 
     keys
@@ -153,5 +163,31 @@ table 6529 "Record Buffer"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
+
+    procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := ItemTrackingSetup."Serial No.";
+        "Lot No." := ItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var RecordBuffer: Record "Record Buffer"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var RecordBuffer: Record "Record Buffer"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
 }
 

@@ -20,7 +20,7 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calc. Inv. and Pmt. Discount';
-                    ToolTip = 'Specifies if the invoice discount amount is automatically calculated with purchase documents. If this check box is selected, then the invoice discount amount is calculated automatically when you do either of the following on a sales document: View statistics, View a test report, Print, Post.';
+                    ToolTip = 'Specifies if the invoice discount amount is automatically calculated with purchase documents. If this check box is selected, then the invoice discount amount is calculated automatically, based on purchase lines where the Allow Invoice Disc. field is selected.';
                 }
                 field("Calc. Inv. Disc. per VAT ID"; "Calc. Inv. Disc. per VAT ID")
                 {
@@ -94,6 +94,12 @@ page 460 "Purchases & Payables Setup"
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for purchase transactions.';
+                }
+                field("Allow Editing Active Price"; "Allow Editing Active Price")
+                {
+                    Visible = ExtendedPriceEnabled;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active purchase price line can be modified or removed, or a new price line can be added to the active price list.';
                 }
                 field("Appln. between Currencies"; "Appln. between Currencies")
                 {

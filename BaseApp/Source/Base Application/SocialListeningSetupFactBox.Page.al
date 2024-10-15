@@ -32,7 +32,7 @@ page 876 "Social Listening Setup FactBox"
                         Validate("Search Topic", TempSocialListeningSearchTopic."Search Topic");
                         if not Modify then
                             Insert;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end else
                         if Delete then
                             Init;

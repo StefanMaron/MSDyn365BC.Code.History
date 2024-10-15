@@ -3791,7 +3791,7 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [THEN] Resulting Item Ledger entry has Country/Region code.
         FindItemLedgerEntry(
-          ItemLedgerEntry, SalesLine."No.", ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt");
+          ItemLedgerEntry, SalesLine."No.", "Item Ledger Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt");
         ItemLedgerEntry.TestField("Country/Region Code", CountryRegion.Code);
     end;
 
@@ -3818,7 +3818,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCustomerCreditLimitNotExceeded', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCustomerCreditLimitNotExceeded', '', false, false)]
     local procedure ChangeSalesHeaderOnCustomerCreditLimitNotExceeded(var Sender: Record "Sales Header")
     begin
         Sender."Ship-to Address" := ShipToAdressTestValueTxt;
@@ -4779,7 +4779,7 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Modify(true);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesLineNo: Code[20]; EntryType: Option; DocumentType: Option)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesLineNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; DocumentType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Item No.", SalesLineNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);

@@ -33,7 +33,7 @@ report 10715 "Telematic VAT Declaration"
                                 if Type = Type::Description then
                                     Evaluate(TotalAmount, Description);
                                 LoadValue(TransferenceFormat, TotalAmount);
-                            until (TransferenceFormat.Next = 0);
+                            until (TransferenceFormat.Next() = 0);
                     end;
                 end;
 
@@ -47,7 +47,7 @@ report 10715 "Telematic VAT Declaration"
                         if TransferenceFormat.Box = '' then
                             TransferenceFormat.Box := '**';
                         TransferenceFormat.Insert();
-                    until TemplateTransfFormat.Next = 0;
+                    until TemplateTransfFormat.Next() = 0;
                 end;
             }
 
@@ -126,7 +126,7 @@ report 10715 "Telematic VAT Declaration"
         repeat
             if (TransferenceFormat.Value = '') and (TransferenceFormat.Type = TransferenceFormat.Type::Numerical) then
                 LoadValue(TransferenceFormat, 0);
-        until TransferenceFormat.Next = 0;
+        until TransferenceFormat.Next() = 0;
 
         TransferenceFormat.SetRange(Type, TransferenceFormat.Type::Ask);
         PAGE.RunModal(10704, TransferenceFormat);
@@ -137,7 +137,7 @@ report 10715 "Telematic VAT Declaration"
                 TransferenceFormat.Value := Text1100003;
                 TransferenceFormat.Modify
             end;
-        until TransferenceFormat.Next = 0;
+        until TransferenceFormat.Next() = 0;
 
         TemplateTransfFormat.Reset();
         TemplateTransfFormat.SetRange("VAT Statement Name", "VAT Declaration Line"."Statement Name");
@@ -150,8 +150,8 @@ report 10715 "Telematic VAT Declaration"
                             TemplateTransfFormat.Value := TransferenceFormat.Value;
                             TemplateTransfFormat.Modify();
                         end;
-                    until TransferenceFormat.Next = 0;
-            until TemplateTransfFormat.Next = 0;
+                    until TransferenceFormat.Next() = 0;
+            until TemplateTransfFormat.Next() = 0;
 
         TransferenceFormat.Modify();
         FileGeneration(TransferenceFormat);
@@ -242,7 +242,7 @@ report 10715 "Telematic VAT Declaration"
                         repeat
                             GLAccount.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAccount."Net Change", GLAccount."Additional-Currency Net Change");
-                        until GLAccount.Next = 0;
+                        until GLAccount.Next() = 0;
                     CalcTotAmount(VATStatementLine2, TotalAmount);
                 end;
             VATStatementLine2.Type::"VAT Entry Totaling":
@@ -346,7 +346,7 @@ report 10715 "Telematic VAT Declaration"
                                 TextError := TextError + '...';
                                 VATStatementLine2.FieldError("Row No.", TextError);
                             end;
-                        until VATStatementLine2.Next = 0;
+                        until VATStatementLine2.Next() = 0;
                 end;
             VATStatementLine2.Type::Description:
                 ;
@@ -523,16 +523,16 @@ report 10715 "Telematic VAT Declaration"
         File.CreateOutStream(OutStream);
 
         Acum := 0;
-        TransFormat.FindSet;
+        TransFormat.FindSet();
         repeat
             if (TransFormat.Position + TransFormat.Length) > Acum then
                 Acum := TransFormat.Position + TransFormat.Length;
-        until TransFormat.Next = 0;
+        until TransFormat.Next() = 0;
         Acum := Acum - 1;
 
         CM := PadStr(CM, Acum, ' ');
 
-        TransFormat.FindSet;
+        TransFormat.FindSet();
         repeat
             Position := TransFormat.Position;
             Counter := TransFormat.Length - StrLen(TransFormat.Value);
@@ -587,8 +587,8 @@ report 10715 "Telematic VAT Declaration"
                         Position := Position + 1;
                     end;
             end;
-        until TransFormat.Next = 0;
-        TransFormat.FindSet;
+        until TransFormat.Next() = 0;
+        TransFormat.FindSet();
 
         LineLen := Acum;
         i := 0;

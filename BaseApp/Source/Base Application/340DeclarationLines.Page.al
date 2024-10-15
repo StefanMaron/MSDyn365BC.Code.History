@@ -133,7 +133,7 @@ page 10744 "340 Declaration Lines"
             SetRange("Operation Code", 'R');
             SetRange("Property Location", "Property Location"::" ");
             SetRange(Type, Type::Sale);
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 Reset;
                 Error(Text001);
             end;

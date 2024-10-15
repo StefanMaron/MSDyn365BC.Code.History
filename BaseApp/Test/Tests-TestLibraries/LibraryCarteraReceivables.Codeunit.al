@@ -28,7 +28,7 @@ codeunit 143020 "Library - Cartera Receivables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindSet;
+        CarteraDoc.FindSet();
 
         with CarteraDoc do
             repeat
@@ -276,7 +276,7 @@ codeunit 143020 "Library - Cartera Receivables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindSet;
+        CarteraDoc.FindSet();
     end;
 
     procedure FindCarteraGLEntries(var GLEntry: Record "G/L Entry"; BillGroupNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -310,7 +310,7 @@ codeunit 143020 "Library - Cartera Receivables"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Document Situation", DocumentSituation);
         CustLedgerEntry.SetRange("Document Status", CustLedgerEntry."Document Status"::Open);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
     end;
 
     procedure GenerateCustomerPmtAddress(CustomerNo: Code[20]; var CustomerPmtAddress: Record "Customer Pmt. Address")

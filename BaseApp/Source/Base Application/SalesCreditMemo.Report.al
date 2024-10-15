@@ -234,7 +234,7 @@ report 207 "Sales - Credit Memo"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -413,7 +413,7 @@ report 207 "Sales - Credit Memo"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -838,7 +838,7 @@ report 207 "Sales - Credit Memo"
                           6, "Sales Cr.Memo Header"."No.", 0, 0, DATABASE::Customer, "Sales Cr.Memo Header"."Sell-to Customer No.",
                           "Sales Cr.Memo Header"."Salesperson Code", "Sales Cr.Memo Header"."Campaign No.",
                           "Sales Cr.Memo Header"."Posting Description", '');
-                until "Sales Cr.Memo Header".Next = 0;
+                until "Sales Cr.Memo Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -961,7 +961,7 @@ report 207 "Sales - Credit Memo"
             repeat
                 if VATEntry."VAT Cash Regime" then
                     CACCaptionLbl := CACTxt;
-            until (VATEntry.Next = 0) or (CACCaptionLbl <> '');
+            until (VATEntry.Next() = 0) or (CACCaptionLbl <> '');
         exit(CACCaptionLbl);
     end;
 

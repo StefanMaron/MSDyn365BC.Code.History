@@ -21,7 +21,7 @@ page 7000009 "Bill Groups"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Bank Account No."; "Bank Account No.")

@@ -23,7 +23,7 @@ codeunit 5055 "CustVendBank-Update"
                     else
                         OnRunCustVendBankUpdateCaseElse(Rec, ContBusRel);
                 end;
-            until ContBusRel.Next = 0;
+            until ContBusRel.Next() = 0;
     end;
 
     var
@@ -161,6 +161,31 @@ codeunit 5055 "CustVendBank-Update"
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEmployee(var Employee: Record Employee; Contact: Record Contact)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
+    begin
+        Rec.UpdateContactBusinessRelation();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterDeleteContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
+    begin
+        Rec.UpdateContactBusinessRelation();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyContBusRelation(var Rec: Record "Contact Business Relation"; RunTrigger: Boolean);
+    begin
+        Rec.UpdateContactBusinessRelation();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Contact Business Relation", 'OnAfterRenameEvent', '', false, false)]
+    local procedure OnAfterRenameContBusRelation(var Rec: Record "Contact Business Relation"; var xRec: Record "Contact Business Relation"; RunTrigger: Boolean);
+    begin
+        xRec.UpdateContactBusinessRelation();
+        Rec.UpdateContactBusinessRelation();
     end;
 }
 

@@ -1065,7 +1065,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Prepayment Invoice", true);
-            FindSet;
+            FindSet();
             repeat
                 Result += GetPrepaymentInvoiceAmt("No.");
             until Next = 0;
@@ -1078,7 +1078,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         with SalesInvoiceLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Amount Including VAT";
             until Next = 0;

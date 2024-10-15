@@ -30,7 +30,7 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
                 LineNo += 1;
                 Window.Update(1, LineNo);
                 PreparePosPayDetail(CheckLedgerEntry, DataExchangeEntryNo, LineNo);
-            until CheckLedgerEntry.Next = 0;
+            until CheckLedgerEntry.Next() = 0;
             Window.Close;
         end;
     end;

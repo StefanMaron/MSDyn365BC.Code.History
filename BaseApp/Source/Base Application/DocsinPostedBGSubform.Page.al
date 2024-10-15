@@ -347,7 +347,7 @@ page 7000005 "Docs. in Posted BG Subform"
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until PostedDoc.Next = 0;
+        until PostedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Reject Docs.", true, false, CustLedgEntry);
@@ -377,7 +377,7 @@ page 7000005 "Docs. in Posted BG Subform"
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until PostedDoc.Next = 0;
+        until PostedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);
@@ -396,7 +396,7 @@ page 7000005 "Docs. in Posted BG Subform"
             repeat
                 CustLedgEntry.Get(PostedDoc."Entry No.");
                 CustLedgEntry.Mark(true);
-            until PostedDoc.Next = 0;
+            until PostedDoc.Next() = 0;
             CustLedgEntry.MarkedOnly(true);
             CurrPage.Update(false);
             REPORT.RunModal(REPORT::"Receivable Bill", true, false, CustLedgEntry);
@@ -405,7 +405,7 @@ page 7000005 "Docs. in Posted BG Subform"
             repeat
                 SalesInvHeader.Get(PostedDoc."Document No.");
                 SalesInvHeader.Mark(true);
-            until PostedDoc.Next = 0;
+            until PostedDoc.Next() = 0;
             SalesInvHeader.MarkedOnly(true);
             CurrPage.Update(false);
             REPORT.RunModal(REPORT::"Sales - Invoice", true, false, SalesInvHeader);

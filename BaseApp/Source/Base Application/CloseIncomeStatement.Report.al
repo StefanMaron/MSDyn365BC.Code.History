@@ -55,7 +55,7 @@ report 94 "Close Income Statement"
                                     TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                                     TempDimBuf2.Insert();
                                 end;
-                            until TempSelectedDim.Next = 0;
+                            until TempSelectedDim.Next() = 0;
 
                         DimensionBufferID := DimBufMgt.GetDimensionId(TempDimBuf2);
 
@@ -129,7 +129,7 @@ report 94 "Close Income Statement"
                                 HandleGenJnlLine;
                                 UpdateBalAcc;
                             end;
-                        until EntryNoAmountBuf.Next = 0;
+                        until EntryNoAmountBuf.Next() = 0;
 
                     EntryNoAmountBuf.DeleteAll();
                 end;
@@ -382,7 +382,7 @@ report 94 "Close Income Statement"
             LineCount := LineCount + 1;
             Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
             GenJnlPostLine.Run(GenJnlLine2);
-        until GenJnlLine.Next = 0;
+        until GenJnlLine.Next() = 0;
         UpdateAnalysisView.UpdateAll(0, true);
     end;
 
@@ -437,7 +437,7 @@ report 94 "Close Income Statement"
                    (TempSelectedDim."Dimension Code" <> GLSetup."Global Dimension 2 Code")
                 then
                     ClosePerGlobalDimOnly := false;
-            until TempSelectedDim.Next = 0;
+            until TempSelectedDim.Next() = 0;
         Clear(GenJnlPostLine);
     end;
 
@@ -597,7 +597,7 @@ report 94 "Close Income Statement"
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 DimBuf.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure CheckDimPostingRules(var SelectedDim: Record "Selected Dimension"): Text[1024]
@@ -631,7 +631,7 @@ report 94 "Close Income Statement"
                     end;
                 end;
                 SelectedDim.SetRange("Dimension Code");
-            until (DefaultDim.Next = 0) or (StrLen(ErrorText) > MaxStrLen(ErrorText) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
+            until (DefaultDim.Next() = 0) or (StrLen(ErrorText) > MaxStrLen(ErrorText) - MaxStrLen(DefaultDim."No.") - StrLen(Text021) - 1);
         if ErrorText <> '' then
             ErrorText := CopyStr(ErrorText + Text021 + DimText, 1, MaxStrLen(ErrorText));
         exit(ErrorText);
@@ -720,7 +720,7 @@ report 94 "Close Income Statement"
                 GenJnlLine."System-Created Entry" := true;
                 OnInsBalLinesOnBeforeGenJnlLineInsert(GenJnlLine, BalLineBuffer);
                 GenJnlLine.Insert();
-            until BalLineBuffer.Next = 0;
+            until BalLineBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

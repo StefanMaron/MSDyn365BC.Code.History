@@ -614,7 +614,7 @@ codeunit 7000005 "Invoice-Split Payment"
                                 ExistsVATNoReal := true;
                     end;
             end;
-        until SalesLine2.Next = 0;
+        until SalesLine2.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -657,7 +657,7 @@ codeunit 7000005 "Invoice-Split Payment"
                                 ExistsVATNoReal := true;
                     end;
             end;
-        until PurchLine2.Next = 0;
+        until PurchLine2.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -926,7 +926,7 @@ codeunit 7000005 "Invoice-Split Payment"
                                 ExistsVATNoReal := true;
                     end;
             end;
-        until ServiceLine2.Next = 0;
+        until ServiceLine2.Next() = 0;
     end;
 
     local procedure CalculateDate(DateFormulaText: Code[20]; DueDate: Date): Date

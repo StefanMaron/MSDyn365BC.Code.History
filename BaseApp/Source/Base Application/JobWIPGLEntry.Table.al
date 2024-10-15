@@ -1,4 +1,4 @@
-﻿table 1005 "Job WIP G/L Entry"
+table 1005 "Job WIP G/L Entry"
 {
     Caption = 'Job WIP G/L Entry';
     DrillDownPageID = "Job WIP G/L Entries";
@@ -37,11 +37,9 @@
             Caption = 'Job Posting Group';
             TableRelation = "Job Posting Group";
         }
-        field(8; Type; Option)
+        field(8; Type; Enum "Job WIP Buffer Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Applied Costs,Applied Sales,Recognized Costs,Recognized Sales,Accrued Costs,Accrued Sales';
-            OptionMembers = "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales";
         }
         field(9; "G/L Bal. Account No."; Code[20])
         {

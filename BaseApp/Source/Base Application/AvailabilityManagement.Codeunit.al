@@ -46,7 +46,7 @@ codeunit 99000889 AvailabilityManagement
                     SalesLine.CalcFields("Reserved Qty. (Base)");
                     InsertPromisingLine(OrderPromisingLine, SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure SetServHeader(var OrderPromisingLine: Record "Order Promising Line"; var ServHeader: Record "Service Header")
@@ -63,7 +63,7 @@ codeunit 99000889 AvailabilityManagement
                 OrderPromisingLine.TransferFromServLine(ServLine);
                 ServLine.CalcFields("Reserved Qty. (Base)");
                 InsertPromisingLine(OrderPromisingLine, ServLine."Outstanding Qty. (Base)" - ServLine."Reserved Qty. (Base)");
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
     end;
 
     procedure SetJob(var OrderPromisingLine: Record "Order Promising Line"; var Job: Record Job)
@@ -82,7 +82,7 @@ codeunit 99000889 AvailabilityManagement
                     JobPlanningLine.CalcFields("Reserved Qty. (Base)");
                     InsertPromisingLine(OrderPromisingLine, JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure InsertPromisingLine(var OrderPromisingLine: Record "Order Promising Line"; UnavailableQty: Decimal)
@@ -234,7 +234,7 @@ codeunit 99000889 AvailabilityManagement
                     OnAfterCaseCalcCapableToPromise(OrderPromisingLine, CompanyInfo, OrderPromisingID, LastValidLine);
                     Modify;
                     CreateReservations(OrderPromisingLine);
-                until Next = 0;
+                until Next() = 0;
 
             CapableToPromise.ReassignRefOrderNos(OrderPromisingID);
         end;
@@ -250,7 +250,7 @@ codeunit 99000889 AvailabilityManagement
                     Clear("Earliest Shipment Date");
                     Clear("Planned Delivery Date");
                     CalcAvailableToPromiseLine(OrderPromisingLine);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -343,7 +343,7 @@ codeunit 99000889 AvailabilityManagement
         if OrderPromisingLine.Find('-') then
             repeat
                 UpdateSourceLine(OrderPromisingLine);
-            until OrderPromisingLine.Next = 0;
+            until OrderPromisingLine.Next() = 0;
     end;
 
     local procedure UpdateSourceLine(var OrderPromisingLine2: Record "Order Promising Line")
@@ -442,6 +442,7 @@ codeunit 99000889 AvailabilityManagement
         ServLineReserve: Codeunit "Service Line-Reserve";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ReservMgt: Codeunit "Reservation Management";
+        SourceRecRef: RecordRef;
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
         NeededQty: Decimal;
@@ -507,7 +508,8 @@ codeunit 99000889 AvailabilityManagement
 
                         SalesLine2.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
                         if SalesLine2.Quantity <> SalesLine2."Reserved Quantity" then begin
-                            ReservMgt.SetSalesLine(SalesLine2);
+                            SourceRecRef.GetTable(SalesLine2);
+                            ReservMgt.SetReservSource(SourceRecRef);
                             ReservMgt.AutoReserve(
                               FullAutoReservation, '', SalesLine2."Shipment Date",
                               SalesLine2.Quantity - SalesLine2."Reserved Quantity",

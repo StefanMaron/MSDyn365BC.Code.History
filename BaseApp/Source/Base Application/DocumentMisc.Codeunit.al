@@ -244,14 +244,14 @@ codeunit 7000007 "Document-Misc"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 86, 'OnAfterInsertAllSalesOrderLines', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", 'OnAfterInsertAllSalesOrderLines', '', false, false)]
     local procedure RecalculateDiscountOnAfterInsertAllSalesOrderLines(var SalesOrderLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header")
     begin
         if SalesQuoteHeader."Payment Discount %" <> 0 then
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesOrderLine);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 96, 'OnAfterInsertAllPurchOrderLines', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Quote to Order", 'OnAfterInsertAllPurchOrderLines', '', false, false)]
     local procedure RecalculateDiscountOnAfterInsertAllPurchOrderLines(var PurchOrderLine: Record "Purchase Line"; PurchQuoteHeader: Record "Purchase Header")
     begin
         if PurchQuoteHeader."Payment Discount %" <> 0 then

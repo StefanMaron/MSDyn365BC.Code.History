@@ -199,14 +199,13 @@
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ShowEmployeeFromContactCardRelatedInformation()
+    procedure ShowEmployeeFromContactCard()
     var
         Contact: Record Contact;
         ContactCard: TestPage "Contact Card";
         EmployeeCard: TestPage "Employee Card";
     begin
-        // [SCENARIO 353436] Linked with contact employee card is shown through the "Navigate->Related Information->Customer/Vendor/Bank Acc./Employee" menu
+        // [SCENARIO 383899] Linked with contact employee card is shown through the "Navigate->Employee" menu
         Initialize();
 
         // [GIVEN] Contact with linked employee
@@ -214,25 +213,57 @@
         Contact.SetHideValidationDialog(true);
         Contact.CreateEmployee();
 
-        // [WHEN] Invoke "Navigate->Related Information->Customer/Vendor/Bank Acc./Employee"
+        // [WHEN] Invoke "Navigate->Employee"
         ContactCard.OpenView();
         ContactCard.GoToRecord(Contact);
         EmployeeCard.Trap();
-        ContactCard."C&ustomer/Vendor/Bank Acc.".Invoke();
+        Assert.IsTrue(ContactCard.RelatedEmployee.Enabled(), 'RelatedEmployee. not Enabled');
+        ContactCard.RelatedEmployee.Invoke();
 
+        // [THEN] "Business Relation" is 'Employee'
+        ContactCard."Business Relation".AssertEquals(Format("Contact Business Relation Link To Table"::Employee));
+#if not CLEAN18
+        // [THEN] C&ustomer/Vendor/Bank Acc. action is not visible
+        Assert.IsFalse(ContactCard."C&ustomer/Vendor/Bank Acc.".Visible(), 'C&ustomer/Vendor/Bank Acc. visible');
+#endif
         // [THEN] Linked employee card is opened
         Assert.IsTrue(EmployeeCard.Name.Value.Contains(Contact."First Name"), ShownEmployeeCardErr);
     end;
 
     [Test]
+    procedure EmployeeNotEnabledOnContactCardIfNoLinkedEmployee()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 383899] "Navigate->Employee" action is not enabled if the contact is not linked with the employee.
+        Initialize();
+
+        // [GIVEN] Contact has a business relation, but not linked with employee by code 'EMPL'
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateEmployee();
+        ReplaceBusRelationCode(Contact."No.");
+
+        // [WHEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.GoToRecord(Contact);
+
+        // [THEN] "Business Relation" is 'Other'
+        ContactCard."Business Relation".AssertEquals('Other');
+        // [THEN] "Employee" action is not enabled
+        Assert.IsFalse(ContactCard.RelatedEmployee.Enabled(), 'RelatedEmployee.Enabled');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
-    procedure ShowEmployeeFromContactListRelatedInformation()
+    procedure ShowEmployeeFromContactList()
     var
         Contact: Record Contact;
         ContactList: TestPage "Contact List";
         EmployeeCard: TestPage "Employee Card";
     begin
-        // [SCENARIO 353436] Linked with contact employee card is shown through the "Navigate->Related Information->Customer/Vendor/Bank Acc./Employee" menu
+        // [SCENARIO 383899] Linked with contact employee card is shown through the "Navigate->Employee" menu
         Initialize();
 
         // [GIVEN] Contact with linked employee
@@ -240,14 +271,42 @@
         Contact.SetHideValidationDialog(true);
         Contact.CreateEmployee();
 
-        // [WHEN] Invoke "Navigate->Related Information->Customer/Vendor/Bank Acc./Employee"
+        // [WHEN] Invoke "Navigate->Employee"
         ContactList.OpenView();
         ContactList.GoToRecord(Contact);
         EmployeeCard.Trap();
-        ContactList."C&ustomer/Vendor/Bank Acc.".Invoke();
+        Assert.IsTrue(ContactList.RelatedEmployee.Enabled(), 'RelatedEmployee. not Enabled');
+        ContactList.RelatedEmployee.Invoke();
 
+#if not CLEAN18
+        // [THEN] C&ustomer/Vendor/Bank Acc. action is not visible
+        Assert.IsFalse(ContactList."C&ustomer/Vendor/Bank Acc.".Visible(), 'C&ustomer/Vendor/Bank Acc. visible');
+#endif
         // [THEN] Linked employee card is opened
         Assert.IsTrue(EmployeeCard.Name.Value.Contains(Contact."First Name"), ShownEmployeeCardErr);
+    end;
+
+    [Test]
+    procedure EmployeeNotEnabledOnContactListIfNoLinkedEmployee()
+    var
+        Contact: Record Contact;
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO 383899] "Navigate->Employee" action is not enabled if the contact is not linked with the employee.
+        Initialize();
+
+        // [GIVEN] Contact has a business relation, but not linked with employee by code 'EMPL'
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateEmployee();
+        ReplaceBusRelationCode(Contact."No.");
+
+        // [WHEN] Open Contact List
+        ContactList.OpenView();
+        ContactList.GoToRecord(Contact);
+
+        // [THEN] "Employee" action is not enabled
+        Assert.IsFalse(ContactList.RelatedEmployee.Enabled(), 'RelatedEmployee.Enabled');
     end;
 
     [Test]
@@ -323,6 +382,19 @@
 
         IsInitialized := true;
         Commit();
+    end;
+
+    local procedure ReplaceBusRelationCode(ContactNo: Code[20])
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        BusinessRelation: Record "Business Relation";
+    begin
+        ContactBusinessRelation.SetRange("Contact No.", ContactNo);
+        ContactBusinessRelation.FindFirst();
+        ContactBusinessRelation.Delete();
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
+        ContactBusinessRelation.Insert();
     end;
 
     local procedure VerifyEmployeeUT(Contact: Record Contact)

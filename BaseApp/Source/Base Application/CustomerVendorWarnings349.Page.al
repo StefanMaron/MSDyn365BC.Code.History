@@ -139,7 +139,7 @@ page 10736 "Customer/Vendor Warnings 349"
                                (("Original Declaration FY" = PrevFiscalYear) and ("Original Declaration Period" > PrevPeriod))
                             then
                                 PreviousFYorPeriod := true;
-                        until Next = 0;
+                        until Next() = 0;
                         if PreviousFYorPeriod then
                             Error(Text1100006);
                     end;
@@ -266,7 +266,7 @@ page 10736 "Customer/Vendor Warnings 349"
                       NormalAmount, AmountOpTri, AmountEUService, VATEntry.Type::Sale, Cust2."No.", FromDate, ToDate,
                       StartDateFormula, EndDateFormula);
                     NoTaxableMgt.CalcNoTaxableAmountCustomerSimple(NormalAmount, AmountEUService, AmountOpTri, Cust2."No.", FromDate, ToDate, '');
-                until Cust2.Next = 0;
+                until Cust2.Next() = 0;
         end else begin
             TempPurchCrMemoHdr.DeleteAll();
             Vendor.Get("Customer/Vendor No.");
@@ -277,7 +277,7 @@ page 10736 "Customer/Vendor Warnings 349"
                       NormalAmount, AmountOpTri, AmountEUService, VATEntry.Type::Purchase, Vendor2."No.", FromDate, ToDate,
                       StartDateFormula, EndDateFormula);
                     NoTaxableMgt.CalcNoTaxableAmountVendor(NormalAmount, AmountEUService, Vendor2."No.", FromDate, ToDate, '');
-                until Vendor2.Next = 0;
+                until Vendor2.Next() = 0;
         end;
         if "EU Service" then
             "Previous Declared Amount" := AmountEUService
@@ -310,7 +310,7 @@ page 10736 "Customer/Vendor Warnings 349"
                             "EU Service":
                                 AmountEUService += Base + GetAppliedCorrCrMemosAmtFromDiffPeriod(VATEntry, FromDate, ToDate);
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -344,7 +344,7 @@ page 10736 "Customer/Vendor Warnings 349"
                                   GetVATBaseFromCrMemoVATEntry(SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date",
                                     SalesCrMemoHeader."Bill-to Customer No.");
                             end;
-                        until SalesCrMemoHeader.Next = 0;
+                        until SalesCrMemoHeader.Next() = 0;
                 end;
             VATEntry.Type::Purchase:
                 begin
@@ -361,7 +361,7 @@ page 10736 "Customer/Vendor Warnings 349"
                                   GetVATBaseFromCrMemoVATEntry(PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date",
                                     PurchCrMemoHdr."Pay-to Vendor No.");
                             end;
-                        until PurchCrMemoHdr.Next = 0;
+                        until PurchCrMemoHdr.Next() = 0;
                 end;
         end;
     end;

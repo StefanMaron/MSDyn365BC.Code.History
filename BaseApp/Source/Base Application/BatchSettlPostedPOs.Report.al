@@ -146,7 +146,7 @@ report 7000087 "Batch Settl. Posted POs"
                                               NoRealVATBuffer."Balance Account",
                                               -NoRealVATBuffer.Amount);
                                         end;
-                                        until NoRealVATBuffer.Next = 0;
+                                        until NoRealVATBuffer.Next() = 0;
                                         NoRealVATBuffer.DeleteAll();
                                     end;
                                 end;

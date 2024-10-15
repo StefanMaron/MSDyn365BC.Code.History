@@ -1137,7 +1137,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Prepayment Invoice", true);
-            FindSet;
+            FindSet();
             repeat
                 Result += GetPrepaymentInvoiceAmt("No.");
             until Next = 0;
@@ -1150,7 +1150,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         with PurchInvLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Result += "Amount Including VAT";
             until Next = 0;

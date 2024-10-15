@@ -97,7 +97,7 @@ codeunit 6705 "Booking Service Sync."
                     TempItem.Insert();
                     TempBookingServiceMapping.Map(TempItem."No.", BookingService."Service ID", BookingSync."Booking Mailbox Address");
                 end;
-            until BookingService.Next = 0;
+            until BookingService.Next() = 0;
 
         Clear(BookingService);
     end;
@@ -162,7 +162,7 @@ codeunit 6705 "Booking Service Sync."
                             BookingServiceMapping.Map(Item."No.", BookingService."Service ID", BookingSync."Booking Mailbox Address");
                         end;
                     end;
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     local procedure ProcessBookingServiceRecordSet(var LocalItem: Record Item; var BookingSync: Record "Booking Sync")
@@ -197,7 +197,7 @@ codeunit 6705 "Booking Service Sync."
                         end;
                         BookingServiceMapping.Map(Item."No.", TempBookingServiceMapping."Service ID", BookingSync."Booking Mailbox Address");
                     end;
-            until (LocalItem.Next = 0)
+            until (LocalItem.Next() = 0)
         end;
     end;
 

@@ -436,7 +436,7 @@ page 7000018 "Bank Account Selection"
 
     local procedure CurrBillGrDealingTypeOnAfterVa()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrBillGrAmountLCYOnAfterVali()

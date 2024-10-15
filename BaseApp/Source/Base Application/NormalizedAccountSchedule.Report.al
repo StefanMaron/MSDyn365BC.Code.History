@@ -573,7 +573,7 @@ report 10717 "Normalized Account Schedule"
                               AccSchedManagement.FormatCellAsText(ColLayoutTmp, ColumnValuesDisplayed[i], PrintAmountsInAddCurrency);
                         end;
                     end;
-                until (i >= MaxColumnsDisplayed) or (Next = 0);
+                until (i >= MaxColumnsDisplayed) or (Next() = 0);
         end;
         exit(NonZero);
     end;

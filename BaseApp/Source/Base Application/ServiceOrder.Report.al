@@ -177,7 +177,7 @@ report 5900 "Service Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -449,7 +449,7 @@ report 5900 "Service Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -692,7 +692,7 @@ report 5900 "Service Order"
                 if VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
                     if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then
                         CACCaptionLbl := CACTxt;
-            until (ServiceLine.Next = 0) or (CACCaptionLbl <> '');
+            until (ServiceLine.Next() = 0) or (CACCaptionLbl <> '');
         exit(CACCaptionLbl);
     end;
 }

@@ -281,7 +281,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
 
         repeat
             if GenJournalLine.Amount = 0 then
@@ -370,7 +370,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-B.Post", GenJnlBatch);
 
         // [THEN] G/L Entry is created with "Posting Date" = "X"
-        GenJnlBatch.FindSet;
+        GenJnlBatch.FindSet();
         for i := 1 to 2 do begin
             VerifyGLEntryExists(GenJnlBatch.Name, WorkDate);
             GenJnlBatch.Next;
@@ -1301,7 +1301,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20])
@@ -1335,7 +1335,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GLEntry.SetRange("Journal Batch Name", JournalBatchName);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter("Document Date", '<>%1', GLEntry."Posting Date");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(
               StrSubstNo(DocumentDateErr, GLEntry.FieldCaption("Document Date"), GLEntry.FieldCaption("Posting Date"), GLEntry.TableCaption));
     end;

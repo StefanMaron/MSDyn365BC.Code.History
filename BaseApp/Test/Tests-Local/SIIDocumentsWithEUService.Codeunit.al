@@ -1542,7 +1542,7 @@ codeunit 147523 "SII Documents With EU Service"
         VATEntry.SetCurrentKey("VAT %", "EC %");
         VATEntry.SetRange(Type, Type);
         VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure PostServDocWithVAT(DocType: Enum "Service Document Type"; EUService: Boolean): Code[20]

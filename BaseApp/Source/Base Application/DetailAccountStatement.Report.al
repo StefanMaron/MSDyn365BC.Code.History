@@ -214,7 +214,7 @@ report 10711 "Detail Account Statement"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                 end;
-                            until GLAccount.Next = 0;
+                            until GLAccount.Next() = 0;
 
 
                         GLBalance := TotalDebit - TotalCredit;
@@ -419,7 +419,7 @@ report 10711 "Detail Account Statement"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                     end;
-                                until GLAccount.Next = 0;
+                                until GLAccount.Next() = 0;
 
                             if GLBalance = 0 then begin
                                 TotalDebit := 0;
@@ -570,7 +570,7 @@ report 10711 "Detail Account Statement"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                 end;
-                            until GLAccount.Next = 0;
+                            until GLAccount.Next() = 0;
 
                         if GLBalance = 0 then begin
                             TotalDebit := 0;
@@ -663,7 +663,7 @@ report 10711 "Detail Account Statement"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                     end;
-                                until GLAccount.Next = 0;
+                                until GLAccount.Next() = 0;
 
                             TFTotalDebitAmt := TFTotalDebitAmt + TotalCredit;
                             TFTotalCreditAmt := TFTotalCreditAmt + TotalDebit;

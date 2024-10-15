@@ -174,7 +174,7 @@ page 425 "Vendor Bank Account Card"
 
     local procedure UseForElectronicPaymentsOnPush()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

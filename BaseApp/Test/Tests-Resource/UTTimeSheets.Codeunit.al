@@ -128,7 +128,7 @@ codeunit 136500 "UT Time Sheets"
         Assert.IsTrue(ToTimeSheetLine.FindSet, 'Lines have not been copied.');
 
         FromTimeSheetLine.SetRange("Time Sheet No.", FromTimeSheetHeader."No.");
-        FromTimeSheetLine.FindSet;
+        FromTimeSheetLine.FindSet();
 
         // verify that all needed fields were copied
         repeat

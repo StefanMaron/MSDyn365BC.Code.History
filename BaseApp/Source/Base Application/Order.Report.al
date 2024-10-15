@@ -264,7 +264,7 @@ report 405 "Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -451,7 +451,7 @@ report 405 "Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -476,8 +476,10 @@ report 405 "Order"
                             then
                                 PurchLine."Line Amount" := 0;
 
+#if not CLEAN16
                             if ("Purchase Line"."Cross-Reference No." <> '') and (not ShowInternalInfo) then
                                 "Purchase Line"."No." := "Purchase Line"."Cross-Reference No.";
+#endif                                
                             if (PurchLine.Type = PurchLine.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line"."No." := '';
                             AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");
@@ -836,7 +838,7 @@ report 405 "Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until PrepmtDimSetEntry.Next = 0;
+                                until PrepmtDimSetEntry.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -854,7 +856,7 @@ report 405 "Order"
                                 if not PrepmtInvBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next = 0 then
+                                if PrepmtInvBuf.Next() = 0 then
                                     CurrReport.Break();
 
                             if "Purchase Header"."Prices Including VAT" then
@@ -967,9 +969,9 @@ report 405 "Order"
 
                     PrepmtInvBuf.DeleteAll();
                     PurchPostPrepmt.GetPurchLines("Purchase Header", 0, PrepmtPurchLine);
-                    if not PrepmtPurchLine.IsEmpty then begin
+                    if not PrepmtPurchLine.IsEmpty() then begin
                         PurchPostPrepmt.GetPurchLinesToDeduct("Purchase Header", TempPurchLine);
-                        if not TempPurchLine.IsEmpty then
+                        if not TempPurchLine.IsEmpty() then
                             PurchPostPrepmt.CalcVATAmountLines("Purchase Header", TempPurchLine, PrePmtVATAmountLineDeduct, 1);
                     end;
                     PurchPostPrepmt.CalcVATAmountLines("Purchase Header", PrepmtPurchLine, PrepmtVATAmountLine, 0);
@@ -1122,7 +1124,7 @@ report 405 "Order"
                     SegManagement.LogDocument(13, "Purchase Header"."No.", "Purchase Header"."Doc. No. Occurrence",
                       "Purchase Header"."No. of Archived Versions", DATABASE::Vendor, "Purchase Header"."Buy-from Vendor No.",
                       "Purchase Header"."Purchaser Code", '', "Purchase Header"."Posting Description", '');
-                until "Purchase Header".Next = 0;
+                until "Purchase Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -1315,7 +1317,7 @@ report 405 "Order"
                 if VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then
                     if VATPostingSetup."VAT Cash Regime" then
                         CACCaptionLbl := CACTxt;
-            until (PurchaseLine.Next = 0) or (CACCaptionLbl <> '');
+            until (PurchaseLine.Next() = 0) or (CACCaptionLbl <> '');
         exit(CACCaptionLbl);
     end;
 

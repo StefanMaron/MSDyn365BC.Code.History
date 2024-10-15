@@ -17,11 +17,9 @@ table 379 "Detailed Cust. Ledg. Entry"
             Caption = 'Cust. Ledger Entry No.';
             TableRelation = "Cust. Ledger Entry";
         }
-        field(3; "Entry Type"; Option)
+        field(3; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = ',Initial Entry,Application,Unrealized Loss,Unrealized Gain,Realized Loss,Realized Gain,Payment Discount,Payment Discount (VAT Excl.),Payment Discount (VAT Adjustment),Appln. Rounding,Correction of Remaining Amount,Payment Tolerance,Payment Discount Tolerance,Payment Tolerance (VAT Excl.),Payment Tolerance (VAT Adjustment),Payment Discount Tolerance (VAT Excl.),Payment Discount Tolerance (VAT Adjustment),,,,Rejection,Redrawal,Expenses';
-            OptionMembers = ,"Initial Entry",Application,"Unrealized Loss","Unrealized Gain","Realized Loss","Realized Gain","Payment Discount","Payment Discount (VAT Excl.)","Payment Discount (VAT Adjustment)","Appln. Rounding","Correction of Remaining Amount","Payment Tolerance","Payment Discount Tolerance","Payment Tolerance (VAT Excl.)","Payment Tolerance (VAT Adjustment)","Payment Discount Tolerance (VAT Excl.)","Payment Discount Tolerance (VAT Adjustment)",,,,Rejection,Redrawal,Expenses;
         }
         field(4; "Posting Date"; Date)
         {
@@ -240,12 +238,15 @@ table 379 "Detailed Cust. Ledg. Entry"
         }
         key(Key3; "Cust. Ledger Entry No.", "Entry Type", "Posting Date")
         {
-            SumIndexFields = Amount, "Amount (LCY)";
         }
         key(Key4; "Ledger Entry Amount", "Cust. Ledger Entry No.", "Posting Date", "Excluded from calculation")
         {
             MaintainSQLIndex = false;
+            MaintainSiftIndex = false;
             SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with "Key17" for better peformance.';
+            ObsoleteTag = '18.0';
         }
         key(Key5; "Initial Document Type", "Entry Type", "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Posting Date")
         {
@@ -254,6 +255,11 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key6; "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
+            MaintainSQLIndex = false;
+            MaintainSiftIndex = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with "Key15" for better peformance.';
+            ObsoleteTag = '18.0';
         }
         key(Key7; "Document No.", "Document Type", "Posting Date")
         {
@@ -282,6 +288,15 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key14; "Customer No.", "Initial Entry Due Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
+        }
+        key(Key15; "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date", "Excluded from calculation")
+        {
+            SumIndexFields = Amount, "Amount (LCY)";
+        }
+        key(Key17; "Cust. Ledger Entry No.", "Posting Date", "Ledger Entry Amount", "Excluded from calculation")
+        {
+            MaintainSQLIndex = false;
+            SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
         }
     }
 
@@ -334,7 +349,7 @@ table 379 "Detailed Cust. Ledg. Entry"
                 DtldCustLedgEntry."Transaction No." := 0;
                 DtldCustLedgEntry."Application No." := ApplicationNo;
                 DtldCustLedgEntry.Modify();
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 

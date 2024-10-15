@@ -1,4 +1,4 @@
-﻿codeunit 3 "G/L Account-Indent"
+codeunit 3 "G/L Account-Indent"
 {
 
     trigger OnRun()
@@ -107,7 +107,7 @@
                         Modify;
                         LineCounter := LineCounter + 1;
                         Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
 
@@ -194,7 +194,7 @@
                         Modify;
                         LineCounter := LineCounter + 1;
                         Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
         Window.Close;

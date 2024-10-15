@@ -8,6 +8,9 @@ page 5472 "Vendor Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Vendor;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -249,7 +252,7 @@ page 5472 "Vendor Entity"
         RecRef: RecordRef;
     begin
         Vendor.SetRange("No.", "No.");
-        if not Vendor.IsEmpty then
+        if not Vendor.IsEmpty() then
             Insert;
 
         Insert(true);

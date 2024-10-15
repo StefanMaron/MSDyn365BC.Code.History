@@ -197,7 +197,7 @@ page 7000008 "Docs. in Closed BG Subform"
         repeat
             CustLedgEntry.Get(ClosedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until ClosedDoc.Next = 0;
+        until ClosedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);

@@ -1,4 +1,4 @@
-﻿page 160 "Sales Statistics"
+page 160 "Sales Statistics"
 {
     Caption = 'Sales Statistics';
     DeleteAllowed = false;

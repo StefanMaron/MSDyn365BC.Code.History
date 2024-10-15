@@ -628,7 +628,7 @@ report 6 "Trial Balance"
                     else
                         CloseDebitAmt := CloseDebitAmt + Abs(GLAcc."Net Change");
                 end;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
         end;
     end;
 
@@ -663,7 +663,7 @@ report 6 "Trial Balance"
                         else
                             OpenCreditAmtEnd := OpenCreditAmtEnd + Abs(GLAcc."Net Change");
                     end;
-                until GLAcc.Next = 0;
+                until GLAcc.Next() = 0;
             end;
             if IsOpenDate then begin
                 OpenDebitAmt := OpenDebitAmtEnd;

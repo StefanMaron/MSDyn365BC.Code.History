@@ -45,7 +45,7 @@ page 10738 "Rev. Chg. Post. Selection 340"
             repeat
                 TheGPPGSelectionBuf := Rec;
                 TheGPPGSelectionBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]

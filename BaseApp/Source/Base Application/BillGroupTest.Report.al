@@ -817,7 +817,7 @@ report 7000008 "Bill Group - Test"
                                       NoOfDays,
                                       Amount,
                                       "Entry No.");
-                                until Next = 0;
+                                until Next() = 0;
                         end else begin
                             FeeRange.InitCollExpenses("Operation Fees Code", "Currency Code");
                             with DocPostBuffer do
@@ -827,7 +827,7 @@ report 7000008 "Bill Group - Test"
                                       "Currency Code",
                                       Amount,
                                       "Entry No.");
-                                until Next = 0;
+                                until Next() = 0;
                         end;
                     end;
                 }

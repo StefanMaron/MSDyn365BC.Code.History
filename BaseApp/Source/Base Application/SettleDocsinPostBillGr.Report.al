@@ -120,7 +120,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                               "Global Dimension 2 Code",
                               "Dimension Set ID");
                         end;
-                        until NoRealVATBuffer.Next = 0;
+                        until NoRealVATBuffer.Next() = 0;
                         NoRealVATBuffer.DeleteAll();
                     end;
                     "Currency Code" := TempCurrCode;
@@ -202,7 +202,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                             end;
                         end; // ELSE
                              // FactBankAccounting;
-                    until BankAccPostBuffer.Next = 0;
+                    until BankAccPostBuffer.Next() = 0;
 
                 if PostedBillGr.Factoring <> PostedBillGr.Factoring::" " then
                     FactBankAccounting;
@@ -464,7 +464,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                                 Insert;
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
                             end;
-                        until BankAccPostBuffer.Next = 0;
+                        until BankAccPostBuffer.Next() = 0;
                 end;
             else begin
                     if BankAccPostBuffer.Find('-') then
@@ -495,7 +495,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                                 Insert;
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
                             end;
-                        until BankAccPostBuffer.Next = 0;
+                        until BankAccPostBuffer.Next() = 0;
                 end;
         end;
     end;

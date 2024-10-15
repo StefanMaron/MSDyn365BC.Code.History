@@ -10,7 +10,7 @@ page 6303 "Power BI Report Spinner Part"
             group(control28)
             {
                 ShowCaption = false;
-                Visible = OptInVisible;
+                Visible = PageState = PageState::GetStarted;
 
                 field(OptInGettingStarted; GettingStartedTxt)
                 {
@@ -22,25 +22,58 @@ page 6303 "Power BI Report Spinner Part"
                     ToolTipML = ENU = 'Specifies whether the Power BI functionality is enabled.';
 
                     trigger OnDrillDown()
+                    var
+                        PowerBIUserConfiguration: Record "Power BI User Configuration";
+                        PowerBIEmbedSetupWizard: Page "Power BI Embed Setup Wizard";
                     begin
-                        UserOptedIn := true;
-                        OptInVisible := false;
                         Session.LogMessage('0000B72', PowerBiOptInTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
-                        HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions(); // check if user has all table permissions necessary for Power BI usage
-                        RefreshPart();
+
+                        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+                        Commit();
+                        LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
+
+                        if not PowerBISessionManager.GetHasPowerBILicense() then begin
+                            PowerBIEmbedSetupWizard.SetContext(Context);
+                            if PowerBIEmbedSetupWizard.RunModal() = Action::Cancel then
+                                exit;
+                        end else
+                            StartAutoDeployment();
+
+                        OpenPageOrRefresh(false); // The control add-in will load reports when ready
                     end;
                 }
                 field(OptInImageField; MediaResources."Media Reference")
                 {
                     CaptionML = ENU = '';
                     ApplicationArea = All;
-                    Editable = FALSE;
+                    Editable = false;
+                }
+            }
+            group(DeployReportsGroup)
+            {
+                ShowCaption = false;
+                Visible = PageState = PageState::ShouldDeploy;
+
+                field(DeployReportsLink; DeployReportsTxt)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = TRUE;
+                    ToolTipML = ENU = 'Specifies that the user can upload one or more demo reports for this page.';
+
+                    trigger OnDrillDown()
+                    begin
+                        StartAutoDeployment();
+                        Message(ReportsDeployingMsg);
+                    end;
                 }
             }
             group(Control11)
             {
                 ShowCaption = false;
-                Visible = not IsGettingStartedVisible and not IsErrorMessageVisible and HasReports and not OptInVisible and HasPowerBIPermissions;
+                Visible = PageState = PageState::ReportVisible;
 
                 usercontrol(WebReportViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
                 {
@@ -49,13 +82,13 @@ page 6303 "Power BI Report Spinner Part"
                     trigger ControlAddInReady(callbackUrl: Text)
                     begin
                         AddInReady := true;
-                        if not TempPowerBiReportBuffer.IsEmpty then
-                            SetReport;
+                        if not TempPowerBiReportBuffer.IsEmpty() then
+                            SetReport();
                     end;
 
                     trigger DocumentReady()
                     begin
-                        if not TempPowerBiReportBuffer.IsEmpty then
+                        if not TempPowerBiReportBuffer.IsEmpty() then
                             CurrPage.WebReportViewer.PostMessage(PowerBiEmbedHelper.GetLoadReportMessage(), PowerBiEmbedHelper.TargetOrigin(), false);
                     end;
 
@@ -65,8 +98,8 @@ page 6303 "Power BI Report Spinner Part"
 
                     trigger Refresh(callbackUrl: Text)
                     begin
-                        if AddInReady and not TempPowerBiReportBuffer.IsEmpty then
-                            SetReport;
+                        if AddInReady and not TempPowerBiReportBuffer.IsEmpty() then
+                            SetReport();
                     end;
                 }
             }
@@ -77,12 +110,15 @@ page 6303 "Power BI Report Spinner Part"
 
                 group(Control13)
                 {
-                    Visible = not OptInVisible;
                     ShowCaption = false;
+#if not CLEAN18
                     group(Control7)
                     {
                         ShowCaption = false;
-                        Visible = IsGettingStartedVisible and not IsErrorMessageVisible;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control has been merged with OptInGettingStarted';
+                        ObsoleteTag = '18.0';
 
                         field(GettingStarted; GettingStartedTxt)
                         {
@@ -91,23 +127,18 @@ page 6303 "Power BI Report Spinner Part"
                             ShowCaption = false;
                             Style = StrongAccent;
                             StyleExpr = TRUE;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control has been merged with OptInGettingStarted';
                             ToolTip = 'Specifies that the Azure AD setup window opens. ';
-
-                            trigger OnDrillDown()
-                            begin
-                                if not TryAzureAdMgtGetAccessToken then
-                                    ShowErrorMessage(GetLastErrorText);
-
-                                HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions(); // check if user has all table permissions necessary for Power BI usage
-                                PowerBiServiceMgt.SelectDefaultReports;
-                                LoadContent;
-                            end;
+                            ObsoleteTag = '18.0';
                         }
                     }
+#endif
                     group(Control10)
                     {
                         ShowCaption = false;
-                        Visible = IsErrorMessageVisible;
+                        Visible = PageState = PageState::ErrorVisible;
 
                         field(ErrorMessageText; ErrorMessageText)
                         {
@@ -116,19 +147,26 @@ page 6303 "Power BI Report Spinner Part"
                             ShowCaption = false;
                             ToolTip = 'Specifies the error message from Power BI.';
                         }
-                        field(ErrorUrlText; PowerBiServiceMgt.GetPowerBIUrl)
+#if not CLEAN18
+                        field(ErrorUrlText; PowerBiServiceMgt.GetPowerBIUrl())
                         {
                             ApplicationArea = All;
                             Editable = false;
                             ExtendedDatatype = URL;
                             ShowCaption = false;
                             ToolTip = 'Specifies the link that generated the error.';
-                            Visible = IsUrlFieldVisible;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality to display a URL here in case of error is deprecated.';
+                            ObsoleteTag = '18.0';
                         }
                         group(Control17)
                         {
                             ShowCaption = false;
-                            Visible = IsGetReportsVisible;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality to open a page to select reports in case of error is deprecated';
+                            ObsoleteTag = '18.0';
 
                             field(GetReportsLink; GetReportsTxt)
                             {
@@ -138,33 +176,102 @@ page 6303 "Power BI Report Spinner Part"
                                 Style = StrongAccent;
                                 StyleExpr = TRUE;
                                 ToolTip = 'Specifies the reports.';
+                                Visible = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Functionality to open a page to select reports in case of error is deprecated';
+                                ObsoleteTag = '18.0';
 
                                 trigger OnDrillDown()
                                 begin
-                                    SelectReports;
+                                    SelectReports();
                                 end;
                             }
                         }
+#endif
                     }
                     group(Control12)
                     {
                         ShowCaption = false;
-                        Visible = not IsGettingStartedVisible and not IsErrorMessageVisible and not HasReports and not IsDeployingReports and not IsLicenseTimerActive and not CheckingLicenseInBackground;
+                        Visible = PageState = PageState::NoReport;
 
                         label(EmptyMessage)
                         {
                             ApplicationArea = All;
-                            Caption = 'There are no enabled reports. Choose Select Report to see a list of reports that you can display.';
+                            Caption = 'There are no enabled reports.';
                             Editable = false;
                             ShowCaption = false;
-                            ToolTip = 'Specifies that the user needs to select Power BI reports.';
-                            Visible = not IsDeployingReports;
+                        }
+                        field(SelectReportsLink; SelectReportsTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can select the reports to show from here.';
+
+                            trigger OnDrillDown()
+                            begin
+                                SelectReports();
+                            end;
                         }
                     }
+                    group(DeployingReports)
+                    {
+                        ShowCaption = false;
+                        Visible = PageState = PageState::NoReportButDeploying;
+
+                        label(EmptyMessage2)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'There are no enabled reports.';
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        label(NoReportsMessage2)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'If you just started the upload of new reports from Business Central, choose Refresh to see if they''ve completed.';
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field(SelectReportsLink2; SelectReportsTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can select the reports to show from here.';
+
+                            trigger OnDrillDown()
+                            begin
+                                SelectReports();
+                            end;
+                        }
+                        field(RefreshPartLink; RefreshPartTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can refresh the page part. If reports have been deployed in the background, refreshing the page part will make them visible.';
+
+                            trigger OnDrillDown()
+                            begin
+                                OpenPageOrRefresh(true);
+                            end;
+                        }
+                    }
+#if not CLEAN18
                     group(Control24)
                     {
                         ShowCaption = false;
-                        Visible = not IsDeploymentUnavailable and IsDeployingReports and not HasReports and not CheckingLicenseInBackground;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
 
                         label(InProgressMessage)
                         {
@@ -172,13 +279,20 @@ page 6303 "Power BI Report Spinner Part"
                             Caption = 'Power BI report deployment is in progress.';
                             Editable = false;
                             ShowCaption = false;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
                             ToolTip = 'Specifies that the page is deploying reports to Power BI.';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control31)
                     {
                         ShowCaption = false;
-                        Visible = IsLicenseTimerActive or CheckingLicenseInBackground and not IsDeployingReports and not IsErrorMessageVisible;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
 
                         label(CheckLicenseMessage)
                         {
@@ -186,81 +300,49 @@ page 6303 "Power BI Report Spinner Part"
                             Caption = 'Verifying your Power BI license.';
                             Editable = false;
                             ShowCaption = false;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
                             ToolTip = 'Specifies that the page is checking for Power BI license.';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control30)
                     {
                         ShowCaption = false;
-                        Visible = IsDeploymentUnavailable and not IsDeployingReports and not HasReports;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control has been merged with ErrorMessageText';
+                        ObsoleteTag = '18.0';
 
                         label(ServiceUnavailableMessage)
                         {
                             ApplicationArea = All;
                             Caption = 'Power BI report deployment is currently unavailable.';
                             ToolTip = 'Specifies that the page cannot currently deploy reports to Power BI.';
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control has been merged with ErrorMessageText';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control20)
                     {
                         ShowCaption = false;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is now done in the page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
 
+                        // UserControls do not support Obsolete properties
+                        // Bug 380401: UserControl elements in a page do not support Obsolete* properties, but app fails to build if they are removed.
                         usercontrol(DeployTimer; "Microsoft.Dynamics.Nav.Client.PowerBIManagement")
                         {
                             ApplicationArea = All;
-                            Visible = HasPowerBIPermissions;
-
-                            trigger AddInReady()
-                            begin
-                                // Timer for refreshing the page during OOB report deployment - usually deployment will
-                                // start on page load before the add-in is ready.
-                                IsTimerReady := true;
-                                StartLicenseTimer;
-                                if not CheckingLicenseInBackground and IsDeployingReports and not IsErrorMessageVisible and HasPowerBIPermissions then
-                                    StartDeploymentTimer;
-                            end;
-
-                            trigger Pong()
-                            var
-                                HasPowerBILicense: Boolean;
-                            begin
-                                // Select default reports and refresh the page, or possibly wait and check again later
-                                // if it looks like uploading hasn't finished yet.
-                                HasPowerBILicense := PowerBiServiceMgt.CheckForPowerBILicense;
-                                IsLicenseTimerActive := not HasPowerBILicense;
-                                CheckingLicenseInBackground := not HasPowerBILicense;
-
-                                if HasPowerBILicense and HasPowerBIPermissions then begin
-                                    RefreshPart;
-                                    if IsTimerActive and not IsLicenseTimerActive and not CheckingLicenseInBackground
-                                    then begin
-                                        PowerBiServiceMgt.SelectDefaultReports;
-                                        DeployDefaultReports;
-
-                                        IsDeployingReports := PowerBiServiceMgt.GetIsDeployingReports;
-
-                                        CurrentTimerCount := CurrentTimerCount + 1;
-                                        IsTimerActive := IsDeployingReports and (CurrentTimerCount < MaxTimerCount) and not IsErrorMessageVisible;
-
-                                        if IsTimerActive then
-                                            CurrPage.DeployTimer.Ping(TimerDelay)
-                                        else begin
-                                            PowerBiServiceMgt.SetIsDeployingReports(false);
-                                            IsDeployingReports := false;
-                                            CurrPage.DeployTimer.Stop;
-                                            CurrPage.Update;
-                                        end;
-                                    end;
-                                end else begin
-                                    ShowErrorMessage(PowerBiServiceMgt.GetUnauthorizedErrorText);
-                                    CurrPage.DeployTimer.Stop;
-                                end;
-
-                                if not IsDeployingReports and HasReports then
-                                    CurrPage.DeployTimer.Stop;
-                            end;
+                            Visible = false;
                         }
                     }
+#endif
                 }
             }
         }
@@ -274,20 +356,20 @@ page 6303 "Power BI Report Spinner Part"
             {
                 ApplicationArea = All;
                 Caption = 'Select Report';
-                Enabled = not IsGettingStartedVisible and not IsErrorMessageVisible and HasPowerBIPermissions;
+                Enabled = (PageState = PageState::ReportVisible) or (PageState = PageState::NoReport) or (PageState = PageState::NoReportButDeploying) or (PageState = PageState::ShouldDeploy);
                 Image = SelectChart;
                 ToolTip = 'Select the report.';
 
                 trigger OnAction()
                 begin
-                    SelectReports;
+                    SelectReports();
                 end;
             }
             action("Expand Report")
             {
                 ApplicationArea = All;
                 Caption = 'Expand Report';
-                Enabled = HasReports and not IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = View;
                 ToolTip = 'View all information in the report.';
 
@@ -295,16 +377,16 @@ page 6303 "Power BI Report Spinner Part"
                 var
                     PowerBiReportDialog: Page "Power BI Report Dialog";
                 begin
-                    PowerBiReportDialog.SetUrl(GetEmbedUrlWithNavigation, PowerBiEmbedHelper.GetLoadReportMessage());
+                    PowerBiReportDialog.SetReportUrl(GetEmbedUrlWithNavigation());
                     PowerBiReportDialog.Caption(TempPowerBiReportBuffer.ReportName);
-                    PowerBiReportDialog.Run;
+                    PowerBiReportDialog.Run();
                 end;
             }
             action("Previous Report")
             {
                 ApplicationArea = All;
                 Caption = 'Previous Report';
-                Enabled = HasReports and not IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = PreviousSet;
                 ToolTip = 'Go to the previous report.';
 
@@ -312,19 +394,19 @@ page 6303 "Power BI Report Spinner Part"
                 begin
                     // need to reset filters or it would load the LastLoadedReport otherwise
                     TempPowerBiReportBuffer.Reset();
-                    TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
+                    TempPowerBiReportBuffer.SetRange(Enabled, true);
                     if TempPowerBiReportBuffer.Next(-1) = 0 then
-                        TempPowerBiReportBuffer.FindLast;
+                        TempPowerBiReportBuffer.FindLast();
 
                     if AddInReady then
-                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
                 end;
             }
             action("Next Report")
             {
                 ApplicationArea = All;
                 Caption = 'Next Report';
-                Enabled = HasReports and not IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = NextSet;
                 ToolTip = 'Go to the next report.';
 
@@ -332,19 +414,19 @@ page 6303 "Power BI Report Spinner Part"
                 begin
                     // need to reset filters or it would load the LastLoadedReport otherwise
                     TempPowerBiReportBuffer.Reset();
-                    TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
-                    if TempPowerBiReportBuffer.Next = 0 then
-                        TempPowerBiReportBuffer.FindFirst;
+                    TempPowerBiReportBuffer.SetRange(Enabled, true);
+                    if TempPowerBiReportBuffer.Next() = 0 then
+                        TempPowerBiReportBuffer.FindFirst();
 
                     if AddInReady then
-                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
                 end;
             }
             action("Manage Report")
             {
                 ApplicationArea = All;
                 Caption = 'Manage Report';
-                Enabled = HasReports and not IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = PowerBI;
                 ToolTip = 'Opens current selected report for edits.';
                 Visible = IsSaaSUser;
@@ -353,24 +435,24 @@ page 6303 "Power BI Report Spinner Part"
                 var
                     PowerBIManagement: Page "Power BI Management";
                 begin
-                    PowerBIManagement.SetTargetReport(LastOpenedReportID, GetEmbedUrl);
+                    PowerBIManagement.SetTargetReport(LastOpenedReportID, GetEmbedUrl());
                     PowerBIManagement.LookupMode(true);
-                    PowerBIManagement.RunModal;
+                    PowerBIManagement.Run();
 
-                    RefreshPart;
+                    OpenPageOrRefresh(false);
                 end;
             }
             action(Refresh)
             {
                 ApplicationArea = All;
                 Caption = 'Refresh Page';
-                Enabled = not IsGettingStartedVisible and HasPowerBIPermissions;
+                Enabled = PageState <> PageState::GetStarted;
                 Image = Refresh;
                 ToolTip = 'Refresh the visible content.';
 
                 trigger OnAction()
                 begin
-                    RefreshPart;
+                    OpenPageOrRefresh(true);
                 end;
             }
             action("Upload Report")
@@ -379,12 +461,13 @@ page 6303 "Power BI Report Spinner Part"
                 Caption = 'Upload Report';
                 Image = Add;
                 ToolTip = 'Uploads a report from a PBIX file.';
-                Visible = IsSaaSUser and not IsErrorMessageVisible and HasPowerBIPermissions;
+                Visible = IsSaaSUser and HasPowerBIPermissions;
+                Enabled = (PageState = PageState::ReportVisible) or (PageState = PageState::NoReport) or (PageState = PageState::NoReportButDeploying) or (PageState = PageState::ShouldDeploy);
 
                 trigger OnAction()
                 begin
                     PAGE.RunModal(PAGE::"Upload Power BI Report");
-                    RefreshPart;
+                    OpenPageOrRefresh(false);
                 end;
             }
             action("Reset All Reports")
@@ -393,26 +476,41 @@ page 6303 "Power BI Report Spinner Part"
                 Caption = 'Reset All Reports';
                 Image = Reuse;
                 ToolTip = 'Resets all Power BI setup in Business Central, for all users. Reports in your Power BI workspaces are not affected and need to be removed manually.';
-                Visible = IsPBIAdmin and IsSaaSUser and HasPowerBIPermissions and not IsGettingStartedVisible;
+                Visible = IsPBIAdmin and HasPowerBIPermissions;
 
                 trigger OnAction()
                 var
                     PowerBIReportUploads: Record "Power BI Report Uploads";
                     PowerBIReportConfiguration: Record "Power BI Report Configuration";
+#if not CLEAN18
                     PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
+#endif
                     PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
                     PowerBIUserConfiguration: Record "Power BI User Configuration";
                     PowerBICustomerReports: Record "Power BI Customer Reports";
+                    PowerBIUserLicense: Record "Power BI User License";
+                    ChosenOption: Integer;
                 begin
-                    if Confirm(ResetReportsQst, false) then begin
-                        PowerBIReportUploads.DeleteAll;
-                        PowerBIReportConfiguration.DeleteAll;
-                        PowerBIOngoingDeployments.DeleteAll;
-                        PowerBIServiceStatusSetup.DeleteAll;
-                        PowerBICustomerReports.DeleteAll;
-                        PowerBIUserConfiguration.DeleteAll;
-                        Commit;
-                        Session.LogMessage('0000DE8', ReportsResetTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());                    
+                    ChosenOption := StrMenu(ResetReportsOptionsTxt, 1, ResetReportsQst);
+
+                    if ChosenOption in [2, 3] then begin // Delete reports only or delete all
+                        PowerBIReportUploads.DeleteAll();
+                        PowerBIReportConfiguration.DeleteAll();
+#if not CLEAN18
+                        PowerBIOngoingDeployments.DeleteAll();
+#endif
+                        PowerBIServiceStatusSetup.DeleteAll();
+                        PowerBIUserConfiguration.DeleteAll();
+                        PowerBICustomerReports.DeleteAll();
+
+                        if ChosenOption = 3 then begin // Delete all
+                            PowerBIUserLicense.DeleteAll();
+                            PowerBISessionManager.ClearState();
+                        end;
+
+                        Commit();
+                        Session.LogMessage('0000DE8', ReportsResetTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+                        OpenPageOrRefresh(false);
                     end;
                 end;
             }
@@ -420,92 +518,143 @@ page 6303 "Power BI Report Spinner Part"
     }
 
     trigger OnInit()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        // Variables used by PingPong timer when deploying default PBI reports.
-        TimerDelay := 30000; // 30 seconds
-        MaxTimerCount := (60000 / TimerDelay) * 5; // 5 minutes
+        HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions(); // check if user has all table permissions necessary for Power BI usage
+        IsPBIAdmin := PowerBiServiceMgt.IsUserAdminForPowerBI(UserSecurityId());
+        IsSaaSUser := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnOpenPage()
-    var
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        UpdateContext;
-        IsPBIAdmin := PowerBiServiceMgt.IsUserAdminForPowerBI(UserSecurityId());
-        IsSaaSUser := EnvironmentInfo.IsSaaS();
-        HasUploads := PowerBiServiceMgt.HasUploads;
-        UserOptedIn := PowerBISessionManager.GetHasPowerBILicense and (HasUploads or not PowerBIReportConfiguration.IsEmpty);
-        HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions();
-
-        if IsSaaSUser and PowerBiServiceMgt.CanHandleServiceCalls then
-            if not UserOptedIn then begin
-                OptInVisible := true;
-                LoadOptInImage
-            end;
-
-        RefreshPart;
+        OpenPageOrRefresh(false);
     end;
 
     var
-        NoReportsAvailableErr: Label 'There are no reports available from Power BI.';
-        ResetReportsQst: Label 'This action will remove all Power BI reports in the database for all users. Reports in your Power BI workspace need to be removed manually. Continue?';
-        PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
-        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
-        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup', Locked = true;
-        PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
-        NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
-        GettingStartedTxt: Label 'Get started with Power BI';
-        GetReportsTxt: Label 'Get reports';
         TempPowerBiReportBuffer: Record "Power BI Report Buffer" temporary;
-        PowerBIUserConfiguration: Record "Power BI User Configuration";
         MediaResources: Record "Media Resources";
         PowerBISessionManager: Codeunit "Power BI Session Manager";
         SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
         PowerBiServiceMgt: Codeunit "Power BI Service Mgt.";
-        AzureAdMgt: Codeunit "Azure AD Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         PowerBiEmbedHelper: Codeunit "Power BI Embed Helper";
+        ResetReportsQst: Label 'This action will clear some or all of of the Power BI report setup for all users in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.';
+        ResetReportsOptionsTxt: Label 'Cancel (no action),Reset the Power BI reports enabled on all pages,Reset the entire Power BI report setup', Comment = 'A comma-separated list of options';
+        PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
+        GettingStartedTxt: Label 'Get started with Power BI';
+        DeployReportsTxt: Label 'Upload demo reports for this page';
+        ReportsDeployingMsg: Label 'We are uploading a demo report to Power BI in the background for you. Once the upload finishes, choose Refresh to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Refresh again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        RefreshPartTxt: Label 'Refresh';
+        SelectReportsTxt: Label 'Select reports';
+        PageState: Option GetStarted,ShouldDeploy,NoReport,NoReportButDeploying,ReportVisible,ErrorVisible;
         LastOpenedReportID: Guid;
         Context: Text[30];
         NameFilter: Text;
-        IsGettingStartedVisible: Boolean;
         HasReports: Boolean;
         AddInReady: Boolean;
-        IsErrorMessageVisible: Boolean;
         ErrorMessageText: Text;
-        IsUrlFieldVisible: Boolean;
-        IsGetReportsVisible: Boolean;
-        IsDeployingReports: Boolean;
-        IsDeploymentUnavailable: Boolean;
-        IsTimerReady: Boolean;
-        IsTimerActive: Boolean;
-        ExceptionMessage: Text;
-        ExceptionDetails: Text;
-        TimerDelay: Integer;
-        MaxTimerCount: Integer;
-        CurrentTimerCount: Integer;
         IsSaaSUser: Boolean;
         IsPBIAdmin: Boolean;
-        HasUploads: Boolean;
-        IsLicenseTimerActive: Boolean;
-        CheckingLicenseInBackground: Boolean;
-        UserOptedIn: Boolean;
-        OptInVisible: Boolean;
         HasPowerBIPermissions: Boolean;
+        // Telemetry labels
+        NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
+        PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
+        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
+        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup', Locked = true;
+
+#if not CLEAN18
+        GetReportsTxt: Label 'Get reports';
+#endif
+
+    local procedure OpenPageOrRefresh(ShowMessages: Boolean)
+    var
+        PreviousPageState: Option;
+    begin
+        PreviousPageState := PageState;
+
+        UpdateContext();
+        SetInitialPageState();
+
+        CurrPage.Update();
+
+        if ShowMessages then
+            if (PageState = PageState::NoReportButDeploying) and (PreviousPageState = PageState::NoReportButDeploying) then
+                Message(StillDeployingMsg);
+    end;
+
+    local procedure SetInitialPageState()
+    var
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
+        ExceptionMessage: Text;
+        ExceptionDetails: Text;
+    begin
+        // No license has been verified yet
+        if not PowerBISessionManager.GetHasPowerBILicense() then begin
+            LoadOptInImage();
+            PageState := PageState::GetStarted;
+            exit;
+        end;
+
+        if not PowerBiServiceMgt.IsUserSynchronizingReports() then
+            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
+                LoadOptInImage();
+                PageState := PageState::ShouldDeploy;
+                exit;
+            end;
+
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+        LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
+        RefreshTempReportBuffer(ExceptionMessage, ExceptionDetails); // Also points the record to last opened report id
+
+        if ExceptionMessage <> '' then begin
+            ShowErrorMessage(ExceptionMessage);
+            exit;
+        end;
+
+        if TempPowerBiReportBuffer.IsEmpty() then begin
+            if PowerBiServiceMgt.IsUserSynchronizingReports() then
+                PageState := PageState::NoReportButDeploying
+            else
+                PageState := PageState::NoReport;
+
+            exit;
+        end;
+
+        PageState := PageState::ReportVisible;
+
+        if AddInReady then
+            SetReport();
+    end;
+
+    local procedure StartAutoDeployment()
+    var
+        DummyPowerBIUserConfiguration: Record "Power BI User Configuration";
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
+    begin
+        // Ensure user config for context before deployment
+        if Context = '' then
+            exit;
+
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(DummyPowerBIUserConfiguration, Context);
+        PowerBIReportSynchronizer.SelectDefaultReports();
+        PowerBiServiceMgt.SynchronizeReportsInBackground();
+    end;
 
     local procedure GetEmbedUrl(): Text
     begin
-        if TempPowerBiReportBuffer.IsEmpty then begin
+        if TempPowerBiReportBuffer.IsEmpty() then begin
             // Clear out last opened report if there are no reports to display.
             Clear(LastOpenedReportID);
             SetLastOpenedReportID(LastOpenedReportID);
         end else begin
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
-            // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
 
             Session.LogMessage('0000C35', PowerBIReportLoadTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
             exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
     end;
@@ -518,75 +667,32 @@ page 6303 "Power BI Report Spinner Part"
         exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false');
     end;
 
-    local procedure LoadContent()
+    local procedure RefreshTempReportBuffer(var ExceptionMessage: Text; var ExceptionDetails: Text)
+    var
+        NullGuid: Guid;
     begin
-        // The end to end process for loading reports onscreen, or defaulting to an error state if that fails,
-        // including deploying default reports in case they haven't been loaded yet. Called when first logging
-        // into Power BI or any time the part has reloaded from scratch.
-        if not TryLoadPart then
-            ShowErrorMessage(GetLastErrorText);
+        TempPowerBiReportBuffer.Reset();
+        TempPowerBiReportBuffer.DeleteAll();
 
-        // Always call this after TryLoadPart. Since we can't modify record from TryFunction.
+        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
+        if ExceptionMessage <> '' then
+            exit;
+
         PowerBiServiceMgt.UpdateEmbedUrlCache(TempPowerBiReportBuffer, Context);
 
-        // Always call this function after calling TryLoadPart to log exceptions to ActivityLog table
-        if ExceptionMessage <> '' then begin
-            Session.LogMessage('0000B73', ExceptionMessage + ' : ' + ExceptionDetails, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
-
-            ExceptionMessage := '';
-            ExceptionDetails := '';
-            ClearLastError();
-        end;
-
-        if not IsGettingStartedVisible and not OptInVisible and HasPowerBIPermissions then
-            CheckPowerBILicense;
-
-        CurrPage.Update;
-
-        DeployDefaultReports;
-    end;
-
-    local procedure RefreshAvailableReports()
-    begin
-        // Filters the report buffer to show the user's selected report onscreen if possible, otherwise defaulting
-        // to other enabled reports.
-        // (The updated selection will automatically get saved on render - can't save to database here without
-        // triggering errors about calling MODIFY during a TryFunction.)
         TempPowerBiReportBuffer.Reset();
         TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
         if not IsNullGuid(LastOpenedReportID) then begin
-            TempPowerBiReportBuffer.SetFilter(ReportID, '%1', LastOpenedReportID);
+            TempPowerBiReportBuffer.SetRange(ReportID, LastOpenedReportID);
 
-            if TempPowerBiReportBuffer.IsEmpty then begin
+            if TempPowerBiReportBuffer.IsEmpty() then begin
                 // If last selection is invalid, clear it and default to showing the first enabled report.
-                Clear(LastOpenedReportID);
-                RefreshAvailableReports;
+                SetLastOpenedReportID(NullGuid);
+                TempPowerBiReportBuffer.SetRange(ReportID);
             end;
         end;
 
-        HasReports := TempPowerBiReportBuffer.FindFirst;
-    end;
-
-    local procedure RefreshPart()
-    begin
-        // Refreshes content by re-rendering the whole page part - removes any current error message text, and tries to
-        // reload the user's list of reports, as if the page just loaded. Used by the Refresh button or when closing the
-        // Select Reports page, to make sure we have the most up to date list of reports and aren't stuck in an error state.
-        IsErrorMessageVisible := false;
-        IsUrlFieldVisible := false;
-        IsGetReportsVisible := false;
-
-        IsDeployingReports := PowerBiServiceMgt.GetIsDeployingReports;
-
-        IsDeploymentUnavailable := not PowerBiServiceMgt.IsPBIServiceAvailable;
-
-        PowerBiServiceMgt.SelectDefaultReports;
-
-        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, LastOpenedReportID, Context);
-        LoadContent;
-
-        if AddInReady then
-            CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+        HasReports := TempPowerBiReportBuffer.FindFirst();
     end;
 
     procedure SetContext(ParentContext: Text[30])
@@ -601,7 +707,7 @@ page 6303 "Power BI Report Spinner Part"
         // Automatically sets the parent page ID based on the user's selected role center (role centers can't
         // have codebehind, so they have no other way to set the context for their reports).
         if Context = '' then
-            SetContext(PowerBiServiceMgt.GetEnglishContext);
+            SetContext(PowerBiServiceMgt.GetEnglishContext());
     end;
 
     procedure SetNameFilter(ParentFilter: Text)
@@ -613,78 +719,31 @@ page 6303 "Power BI Report Spinner Part"
 
     local procedure ShowErrorMessage(TextToShow: Text)
     begin
-        // this condition checks if we caught the authorization error that contains a link to Power BI
-        // the function divide the error message into simple text and url part
-        if TextToShow = PowerBiServiceMgt.GetUnauthorizedErrorText then begin
-            IsUrlFieldVisible := true;
-            // this message is required to have ':' at the end, but it has '.' instead due to C/AL Localizability requirement
-            TextToShow := DelStr(PowerBiServiceMgt.GetUnauthorizedErrorText, StrLen(PowerBiServiceMgt.GetUnauthorizedErrorText), 1) + ':';
-        end;
+        PageState := PageState::ErrorVisible;
 
-        IsGetReportsVisible := (TextToShow = NoReportsAvailableErr);
-
-        IsErrorMessageVisible := true;
-        IsGettingStartedVisible := false;
-        TempPowerBiReportBuffer.DeleteAll(); // Required to avoid one INSERT after another (that will lead to an error)
         if TextToShow = '' then
-            TextToShow := PowerBiServiceMgt.GetGenericError;
+            TextToShow := PowerBiServiceMgt.GetGenericError();
         ErrorMessageText := TextToShow;
-        TempPowerBiReportBuffer.Insert(); // Hack to show the field with the text
-        CurrPage.Update;
-    end;
-
-    [TryFunction]
-    local procedure TryLoadPart()
-    begin
-        IsGettingStartedVisible := not PowerBiServiceMgt.IsUserReadyForPowerBI and not OptInVisible and not IsSaaSUser;
-
-        TempPowerBiReportBuffer.Reset();
-        TempPowerBiReportBuffer.DeleteAll();
-        if IsGettingStartedVisible then begin
-            if IsSaaSUser then
-                Error(PowerBiServiceMgt.GetGenericError);
-
-            TempPowerBiReportBuffer.Insert // Hack to display Get Started link.
-        end else begin
-            PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
-            RefreshAvailableReports;
-        end;
-    end;
-
-    [TryFunction]
-    local procedure TryAzureAdMgtGetAccessToken()
-    var
-        AccessToken: Text;
-    begin
-        AccessToken := AzureAdMgt.GetAccessToken(PowerBiServiceMgt.GetPowerBIResourceUrl, PowerBiServiceMgt.GetPowerBiResourceName, true);
-
-        if AccessToken = '' then
-            Error(PowerBiServiceMgt.GetUnauthorizedErrorText());
+        CurrPage.Update();
     end;
 
     local procedure SetReport()
     begin
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
-            CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetReportPageSize);
+            CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetReportPageSize());
 
-        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
     end;
 
     procedure SetLastOpenedReportID(LastOpenedReportIDInputValue: Guid)
+    var
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
     begin
-        LastOpenedReportID := LastOpenedReportIDInputValue;
-        // filter to find the proper record
-        PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetFilter("Page ID", '%1', Context);
-        PowerBIUserConfiguration.SetFilter("Profile ID", '%1', PowerBiServiceMgt.GetEnglishContext);
-        PowerBIUserConfiguration.SetFilter("User Security ID", '%1', UserSecurityId);
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+        PowerBIUserConfiguration."Selected Report ID" := LastOpenedReportIDInputValue;
+        PowerBIUserConfiguration.Modify();
 
-        // update the last loaded report field (the record at this point should already exist bacause it was created OnOpenPage)
-        if not PowerBIUserConfiguration.IsEmpty then begin
-            PowerBIUserConfiguration."Selected Report ID" := LastOpenedReportID;
-            PowerBIUserConfiguration.Modify();
-            Commit();
-        end;
+        LastOpenedReportID := LastOpenedReportIDInputValue;
     end;
 
     local procedure SelectReports()
@@ -697,93 +756,16 @@ page 6303 "Power BI Report Spinner Part"
         PowerBIReportSelection.SetNameFilter(NameFilter);
         PowerBIReportSelection.LookupMode(true);
 
-        PowerBIReportSelection.RunModal;
-        if PowerBIReportSelection.IsPageClosedOkay then begin
+        PowerBIReportSelection.RunModal();
+        if PowerBIReportSelection.IsPageClosedOkay() then begin
             PowerBIReportSelection.GetRecord(TempPowerBiReportBuffer);
             if TempPowerBiReportBuffer.Enabled then begin
                 LastOpenedReportID := TempPowerBiReportBuffer.ReportID; // RefreshAvailableReports handles fallback logic on invalid selection.
                 SetLastOpenedReportID(LastOpenedReportID); // Resolves bug to set last selected report
             end;
 
-            RefreshPart;
+            OpenPageOrRefresh(false);
             // At this point, NAV will load the web page viewer since HasReports should be true. WebReportViewer::ControlAddInReady will then fire, calling Navigate()
-        end;
-    end;
-
-    local procedure DeployDefaultReports()
-    begin
-        if not PowerBiServiceMgt.IsPowerBIDeploymentEnabled then
-            exit;
-
-        // Checks if there are any default reports the user needs to upload, select, or delete and automatically begins
-        // those processes. The page will refresh when the timer control runs later.
-        if CheckingLicenseInBackground then
-            exit;
-
-        if IsErrorMessageVisible or IsGettingStartedVisible or OptInVisible then
-            exit;
-
-        if not IsSaaSUser then
-            exit;
-
-        DeleteMarkedReports;
-        FinishPartialUploads;
-
-        if PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.UploadDefaultReportInBackground;
-            StartDeploymentTimer;
-        end;
-    end;
-
-    local procedure FinishPartialUploads()
-    begin
-        // Checks if there are any default reports whose uploads only partially completed, and begins a
-        // background process for those reports. The page will refresh when the timer control runs later.
-        if PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.RetryUnfinishedReportsInBackground;
-            StartDeploymentTimer;
-        end;
-    end;
-
-    local procedure DeleteMarkedReports()
-    begin
-        // Checks if there are any default reports that have been marked to be deleted on page 6321, and begins
-        // a background process for those reports. The page will refresh when the timer control runs later.
-        if PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.DeleteDefaultReportsInBackground;
-            StartDeploymentTimer;
-            // TODO: Make same changes on factbox page.
-        end;
-    end;
-
-    local procedure StartDeploymentTimer()
-    begin
-        // Resets the timer for refreshing the page during OOB report deployment, if the add-in is
-        // ready to go and the timer isn't already going.
-        if IsTimerReady and not IsTimerActive and not IsLicenseTimerActive then begin
-            CurrentTimerCount := 0;
-            IsTimerActive := true;
-            CurrPage.DeployTimer.Ping(TimerDelay);
-        end;
-    end;
-
-    local procedure StartLicenseTimer()
-    begin
-        if CheckingLicenseInBackground and IsTimerReady and not IsLicenseTimerActive and not IsTimerActive then begin
-            CurrentTimerCount := 0;
-            IsLicenseTimerActive := true;
-            CurrPage.DeployTimer.Ping(TimerDelay);
-        end;
-    end;
-
-    local procedure CheckPowerBILicense()
-    begin
-        if HasPowerBIPermissions and not PowerBiServiceMgt.CheckForPowerBILicense then begin
-            CheckingLicenseInBackground := true;
-            StartLicenseTimer;
         end;
     end;
 
@@ -792,12 +774,18 @@ page 6303 "Power BI Report Spinner Part"
         MediaRepository: Record "Media Repository";
     begin
         if not MediaResources."Media Reference".HasValue() then begin
-            if MediaRepository.Get(PowerBiOptInImageNameLbl, Format(ClientTypeManagement.GetCurrentClientType)) then
+            if MediaRepository.Get(PowerBiOptInImageNameLbl, Format(ClientTypeManagement.GetCurrentClientType())) then
                 if MediaResources.Get(MediaRepository."Media Resources Ref") then
                     exit;
 
-            Session.LogMessage('0000BKH', StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            // Very old tenants might not have this image: let's not spam telemetry with warnings
+            Session.LogMessage('0000BKH', StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
         end;
     end;
-}
 
+    [Scope('OnPrem')]
+    procedure GetOptinImageName(): Text[250]
+    begin
+        exit(PowerBiOptInImageNameLbl);
+    end;
+}

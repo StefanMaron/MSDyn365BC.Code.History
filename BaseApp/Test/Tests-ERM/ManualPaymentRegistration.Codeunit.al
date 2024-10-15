@@ -1286,7 +1286,7 @@ codeunit 134710 "Manual Payment Registration"
         LibraryERM.CreateGLAccount(GLAccount);
         SetupBalAccount(PaymentRegistrationSetup."Bal. Account Type"::"G/L Account", GLAccount."No.", DummyUserNameTxt);
 
-        PaymentRegistrationSetup.FindSet;
+        PaymentRegistrationSetup.FindSet();
         repeat
             TempPaymentRegistrationSetup.Copy(PaymentRegistrationSetup);
             TempPaymentRegistrationSetup.Insert();

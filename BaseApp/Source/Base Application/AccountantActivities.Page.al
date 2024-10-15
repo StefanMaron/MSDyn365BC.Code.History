@@ -9,11 +9,14 @@ page 9037 "Accountant Activities"
     {
         area(content)
         {
+#if not CLEAN18
             cuegroup("Intelligent Cloud")
             {
                 Caption = 'Intelligent Cloud';
-                Visible = ShowIntelligentCloud;
-
+                Visible = false;
+                ObsoleteReason = 'Intelligent Cloud Insights is discontinued';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
                 actions
                 {
                     action("Learn More")
@@ -23,6 +26,10 @@ page 9037 "Accountant Activities"
                         Image = TileInfo;
                         RunPageMode = View;
                         ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
+                        Visible = false;
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '18.0';
 
                         trigger OnAction()
                         var
@@ -38,6 +45,10 @@ page 9037 "Accountant Activities"
                         Image = TileCloud;
                         RunPageMode = View;
                         ToolTip = 'View your Intelligent Cloud insights.';
+                        Visible = false;
+                        ObsoleteTag = '18.0';
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                        ObsoleteState = Pending;
 
                         trigger OnAction()
                         var
@@ -48,6 +59,7 @@ page 9037 "Accountant Activities"
                     }
                 }
             }
+#endif
             cuegroup(Control36)
             {
                 CueGroupLayout = Wide;

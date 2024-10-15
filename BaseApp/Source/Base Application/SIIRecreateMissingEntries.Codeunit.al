@@ -58,7 +58,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 VendorLedgerEntry := TempVendLedgerEntry;
                 SIIJobUploadPendingDocs.CreateSIIRequestForVendLedgEntry(VendorLedgerEntry);
-            until TempVendLedgerEntry.Next = 0;
+            until TempVendLedgerEntry.Next() = 0;
             CloseWindow;
             LastEntryNo := TempVendLedgerEntry."Entry No.";
         end;
@@ -77,7 +77,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 DetailedVendorLedgEntry := TempDetailedVendorLedgEntry;
                 SIIJobUploadPendingDocs.CreateSIIRequestForDtldVendLedgEntry(DetailedVendorLedgEntry);
-            until TempDetailedVendorLedgEntry.Next = 0;
+            until TempDetailedVendorLedgEntry.Next() = 0;
             CloseWindow;
             LastEntryNo := TempDetailedVendorLedgEntry."Entry No.";
         end;
@@ -96,7 +96,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 CustLedgerEntry := TempCustLedgerEntry;
                 SIIJobUploadPendingDocs.CreateSIIRequestForCustLedgEntry(CustLedgerEntry);
-            until TempCustLedgerEntry.Next = 0;
+            until TempCustLedgerEntry.Next() = 0;
             CloseWindow;
             LastEntryNo := TempCustLedgerEntry."Entry No.";
         end;
@@ -115,7 +115,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                 UpdateWindowProgress(RecNo, TotalRecNo);
                 DetailedCustLedgEntry := TempDetailedCustLedgEntry;
                 SIIJobUploadPendingDocs.CreateSIIRequestForDtldCustLedgEntry(DetailedCustLedgEntry);
-            until TempDetailedCustLedgEntry.Next = 0;
+            until TempDetailedCustLedgEntry.Next() = 0;
             CloseWindow;
             LastEntryNo := TempDetailedCustLedgEntry."Entry No.";
         end;
@@ -174,7 +174,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                     TempVendLedgerEntry := VendLedgerEntry;
                     TempVendLedgerEntry.Insert();
                 end;
-            until VendLedgerEntry.Next = 0;
+            until VendLedgerEntry.Next() = 0;
             LastEntryNo := VendLedgerEntry."Entry No.";
             CloseWindow;
         end;
@@ -216,7 +216,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                         TempDetailedVendorLedgEntry := DetailedVendorLedgEntry;
                         TempDetailedVendorLedgEntry.Insert();
                     end;
-            until DetailedVendorLedgEntry.Next = 0;
+            until DetailedVendorLedgEntry.Next() = 0;
             LastEntryNo := DetailedVendorLedgEntry."Entry No.";
             CloseWindow;
         end;
@@ -250,7 +250,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                     TempCustLedgerEntry := CustLedgerEntry;
                     TempCustLedgerEntry.Insert();
                 end;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
             LastEntryNo := CustLedgerEntry."Entry No.";
             CloseWindow;
         end;
@@ -292,7 +292,7 @@ codeunit 10757 "SII Recreate Missing Entries"
                         TempDetailedCustLedgEntry := DetailedCustLedgEntry;
                         TempDetailedCustLedgEntry.Insert();
                     end;
-            until DetailedCustLedgEntry.Next = 0;
+            until DetailedCustLedgEntry.Next() = 0;
             LastEntryNo := DetailedCustLedgEntry."Entry No.";
             CloseWindow;
         end;

@@ -208,7 +208,7 @@ codeunit 7000000 CarteraManagement
                     SelectedAmount := 0;
                     repeat
                         SelectedAmount := SelectedAmount + "Remaining Amt. (LCY)";
-                    until Next = 0;
+                    until Next() = 0;
                     BillGr.CalcFields(Amount);
                     BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
                     if BillGr.Amount + SelectedAmount + BankAcc."Posted Receiv. Bills Rmg. Amt." > BankAcc."Credit Limit for Discount"
@@ -246,7 +246,7 @@ codeunit 7000000 CarteraManagement
                     "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
                 end;
                 OnAfterInsertReceivableDocs(CarteraDoc, BillGr);
-            until Next = 0;
+            until Next() = 0;
 
             BillGr."No. Printed" := 0;
             BillGr.Modify();
@@ -323,7 +323,7 @@ codeunit 7000000 CarteraManagement
                     VendLedgEntry.Modify();
                 end;
                 OnAfterInsertPayableDocs(CarteraDoc, PmtOrd);
-            until Next = 0;
+            until Next() = 0;
 
             PmtOrd."No. Printed" := 0;
             PmtOrd.Modify();
@@ -351,7 +351,7 @@ codeunit 7000000 CarteraManagement
                         CustLedgEntry.Modify();
                     end;
                     OnAfterRemoveReceivableDocs(CarteraDoc2, BillGr);
-                until Next = 0;
+                until Next() = 0;
                 BillGr.Modify();
             end;
     end;
@@ -377,7 +377,7 @@ codeunit 7000000 CarteraManagement
                         VendLedgEntry.Modify();
                     end;
                     OnAfterRemovePayableDocs(CarteraDoc2, PaymentOrder);
-                until Next = 0;
+                until Next() = 0;
                 PaymentOrder.Modify();
             end;
     end;
@@ -746,7 +746,7 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until VATEntry2.Next = 0;
+            until VATEntry2.Next() = 0;
         end;
     end;
 
@@ -957,7 +957,7 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until VATEntry2.Next = 0;
+            until VATEntry2.Next() = 0;
         end;
     end;
 

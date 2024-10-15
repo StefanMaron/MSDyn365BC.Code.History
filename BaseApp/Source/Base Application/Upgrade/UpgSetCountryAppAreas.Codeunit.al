@@ -45,7 +45,7 @@ codeunit 104010 "UPG Set Country App Areas"
             REPEAT
                 BankAccountPostingGroup."G/L Account No." := BankAccountPostingGroup."G/L Bank Account No.";
                 BankAccountPostingGroup.Modify();
-            UNTIL BankAccountPostingGroup.NEXT = 0;
+            UNTIL BankAccountPostingGroup.Next() = 0;
         END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag);

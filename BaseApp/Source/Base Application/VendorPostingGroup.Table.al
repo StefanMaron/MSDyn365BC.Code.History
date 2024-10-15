@@ -333,11 +333,11 @@ table 93 "Vendor Posting Group"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         Vendor.SetRange("Vendor Posting Group", Code);
-        if not Vendor.IsEmpty then
+        if not Vendor.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         VendorLedgerEntry.SetRange("Vendor Posting Group", Code);
-        if not VendorLedgerEntry.IsEmpty then
+        if not VendorLedgerEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 

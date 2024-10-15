@@ -707,7 +707,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                         LastLineRetrieved := true
                     else begin
                         BiggestLineNo := MAX(BiggestLineNo, OldServLine."Line No.");
-                        LastLineRetrieved := OldServLine.Next = 0;
+                        LastLineRetrieved := OldServLine.Next() = 0;
                         if LastLineRetrieved and SalesSetup."Invoice Rounding" then
                             InvoiceRounding(ServHeader, ServLine, TotalServiceLine,
                               LastLineRetrieved, true, BiggestLineNo);

@@ -41,7 +41,7 @@ table 10745 "Operation Code"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         GenProductPostingGroup.SetRange("Operation Code", Code);
-        if not GenProductPostingGroup.IsEmpty then
+        if not GenProductPostingGroup.IsEmpty() then
             Error(Text002, Code);
     end;
 

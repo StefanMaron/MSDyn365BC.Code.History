@@ -135,9 +135,9 @@ codeunit 147304 "Make 349 Declaration"
 
     local procedure GetTempFilePath(): Text
     var
-        SystemIOPath: DotNet Path;
+        FileMgt: Codeunit "File Management";
     begin
-        exit(SystemIOPath.GetTempPath);
+        exit(DelChr(FileMgt.ServerCreateTempSubDirectory(), '>', '\') + '\');
     end;
 
     [RequestPageHandler]

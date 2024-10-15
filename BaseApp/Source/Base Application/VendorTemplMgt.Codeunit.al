@@ -1,4 +1,4 @@
-﻿codeunit 1385 "Vendor Templ. Mgt."
+codeunit 1385 "Vendor Templ. Mgt."
 {
     EventSubscriberInstance = StaticAutomatic;
 
@@ -20,6 +20,7 @@
 
         Vendor.SetInsertFromTemplate(true);
         Vendor.Init();
+        InitVendorNo(Vendor, VendorTempl);
         Vendor.Insert(true);
         Vendor.SetInsertFromTemplate(false);
 
@@ -61,7 +62,7 @@
         Vendor."Country/Region Code" := VendorTempl."Country/Region Code";
         Vendor."Pay-to Vendor No." := VendorTempl."Pay-to Vendor No.";
         Vendor."Payment Method Code" := VendorTempl."Payment Method Code";
-        Vendor."Application Method" := VendorTempl."Application Method".AsInteger();
+        Vendor."Application Method" := VendorTempl."Application Method";
         Vendor."Prices Including VAT" := VendorTempl."Prices Including VAT";
         Vendor."Gen. Bus. Posting Group" := VendorTempl."Gen. Bus. Posting Group";
         Vendor."Post Code" := VendorTempl."Post Code";
@@ -299,6 +300,16 @@
 
         IsHandled := true;
         Page.Run(Page::"Vendor Templ. List");
+    end;
+
+    local procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if VendorTempl."No. Series" = '' then
+            exit;
+
+        NoSeriesManagement.InitSeries(VendorTempl."No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
     end;
 
     [IntegrationEvent(false, false)]

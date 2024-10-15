@@ -4961,6 +4961,24 @@ End Function</Code>
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
+        <Field Name="ContactPhoneNoLbl">
+          <DataField>ContactPhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNoLbl">
+          <DataField>ContactMobilePhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactEmailLbl">
+          <DataField>ContactEmailLbl</DataField>
+        </Field>
+        <Field Name="ContactPhoneNo">
+          <DataField>ContactPhoneNo</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNo">
+          <DataField>ContactMobilePhoneNo</DataField>
+        </Field>
+        <Field Name="ContactEmail">
+          <DataField>ContactEmail</DataField>
+        </Field>
         <Field Name="TODAY">
           <DataField>TODAY</DataField>
         </Field>

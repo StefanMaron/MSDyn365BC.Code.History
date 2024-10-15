@@ -194,12 +194,12 @@ report 7000005 "Bank - Risk"
                         repeat
                             BillGr.CalcFields("Amount (LCY)");
                             NonPostedDiscAmtLCY := NonPostedDiscAmtLCY + BillGr."Amount (LCY)";
-                        until BillGr.Next = 0
+                        until BillGr.Next() = 0
                     else
                         repeat
                             BillGr.CalcFields(Amount);
                             NonPostedDiscAmt := NonPostedDiscAmt + BillGr.Amount;
-                        until BillGr.Next = 0;
+                        until BillGr.Next() = 0;
             end;
 
             trigger OnPreDataItem()

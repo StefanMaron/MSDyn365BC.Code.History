@@ -7,7 +7,7 @@ codeunit 7000060 "PO - Export N34.1"
         PaymentOrder: Record "Payment Order";
     begin
         PaymentOrder.SetRange("No.", GetFilter("Document No."));
-        if PaymentOrder.IsEmpty then
+        if PaymentOrder.IsEmpty() then
             Error(ExportPaymentErr);
         Commit();
         REPORT.Run(REPORT::"PO - Export N34.1", true, false, PaymentOrder);

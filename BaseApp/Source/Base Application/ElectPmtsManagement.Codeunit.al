@@ -279,7 +279,7 @@ codeunit 10701 "Elect. Pmts Management"
                 CheckLedgEntry2."Original Entry Status" := CheckLedgEntry2."Original Entry Status"::Exported;
                 CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Voided;
                 CheckLedgEntry2.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

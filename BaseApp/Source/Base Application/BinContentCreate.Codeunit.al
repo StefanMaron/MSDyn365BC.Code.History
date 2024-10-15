@@ -33,7 +33,7 @@ codeunit 7319 "Bin Content Create"
                 BinCreateLine.TestField("Bin Code");
                 BinCreateLine.TestField("Item No.");
                 BinCreate(BinCreateLine);
-            until BinCreateLine.Next = 0;
+            until BinCreateLine.Next() = 0;
             BinCreateLine.DeleteAll();
         end else
             Message(Text001);

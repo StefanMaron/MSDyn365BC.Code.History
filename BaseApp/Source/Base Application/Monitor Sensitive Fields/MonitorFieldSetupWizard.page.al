@@ -347,14 +347,14 @@ page 1368 "Monitor Field Setup Wizard"
 
     local procedure ValidateAndFinishSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         MonitorSensitiveField.SetSetupTable(MonitorUserId, EmailAccountId, EmailAccountName, EmailConnector);
 
         MonitorSensitiveField.ImportFieldsBySensitivity(ImportSensitiveFields, ImportPersonalFields, ImportCompanyConfidentialFields);
         MonitorSensitiveField.EnableMonitor(false);
 
-        AssistedSetup.Complete(page::"Monitor Field Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, page::"Monitor Field Setup Wizard");
         if OpenMonitorWorksheetPage then
             Page.Run(Page::"Monitored Fields Worksheet");
     end;

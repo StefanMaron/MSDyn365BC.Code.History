@@ -1,4 +1,4 @@
-﻿report 840 "Suggest Worksheet Lines"
+report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -30,7 +30,7 @@
                             Window.Update(2, Text004);
                             Window.Update(3, TempGLAccount."No.");
                             InsertCFLineForGLAccount(TempGLAccount);
-                        until TempGLAccount.Next = 0;
+                        until TempGLAccount.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()
@@ -274,8 +274,8 @@
                             if GLBudgEntry.FindSet() then
                                 repeat
                                     InsertCFLineForGLBudget(GLAcc);
-                                until GLBudgEntry.Next = 0;
-                        until GLAcc.Next = 0;
+                                until GLBudgEntry.Next() = 0;
+                        until GLAcc.Next() = 0;
                 end;
 
                 trigger OnPreDataItem()
@@ -810,7 +810,7 @@
                     TempCashFlowForecast.Insert();
                     LastCFForecastNo := CFWorksheetLine."Cash Flow Forecast No.";
                 end;
-            until TempCFWorksheetLine.Next = 0;
+            until TempCFWorksheetLine.Next() = 0;
 
         TempCFWorksheetLine.DeleteAll();
     end;
@@ -826,7 +826,7 @@
             repeat
                 CFForecastEntry.SetRange("Cash Flow Forecast No.", TempCashFlowForecast."No.");
                 CFForecastEntry.DeleteAll();
-            until TempCashFlowForecast.Next = 0;
+            until TempCashFlowForecast.Next() = 0;
         end;
         TempCashFlowForecast.DeleteAll();
     end;
@@ -1505,7 +1505,7 @@
                         GetSubPostingGLAccounts(SubGLAccount, TempGLAccount);
                     end;
             end;
-        until GLAccount.Next = 0;
+        until GLAccount.Next() = 0;
     end;
 
     local procedure SetCashFlowDate(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowDate: Date)
@@ -2000,6 +2000,7 @@
                 DocumentDate := "VAT Entry"."Document Date";
         end;
 
+        OnGetTaxPayableDateFromSourceOnBeforeExit(SourceTableNum, "Sales Header", "Purchase Header", "VAT Entry", DocumentDate);
         exit(CashFlowSetup.GetTaxPaymentDueDate(DocumentDate));
     end;
 
@@ -2064,6 +2065,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCFAccountForBudgetOnAfterGetRecordOnAfterGLBudgEntrySetFilters(var GLBudgEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTaxPayableDateFromSourceOnBeforeExit(SourceTableNum: Integer; SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header"; VATEntry: Record "VAT Entry"; var DocumentDate: Date)
     begin
     end;
 }

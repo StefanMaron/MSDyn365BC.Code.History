@@ -30,7 +30,7 @@ page 111 "Vendor Posting Groups"
                         end else
                             SetAccountVisibility(PmtToleranceVisible, PmtDiscountVisible, InvRoundingVisible, ApplnRoundingVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

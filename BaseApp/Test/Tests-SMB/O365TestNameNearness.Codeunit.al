@@ -236,7 +236,7 @@ codeunit 138050 "O365 Test Name Nearness"
         Assert.AreEqual(Description, SalesLine.Description, 'Wrong Description');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure DoNotScheduleTasks(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;

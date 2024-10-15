@@ -124,19 +124,5 @@ page 558 "Analysis View Entries"
             }
         }
     }
-
-    actions
-    {
-    }
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        if "Analysis View Code" <> xRec."Analysis View Code" then;
-    end;
-
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        if "Analysis View Code" <> xRec."Analysis View Code" then;
-    end;
 }
 

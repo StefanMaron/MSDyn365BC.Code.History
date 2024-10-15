@@ -102,7 +102,7 @@ report 7000084 "Partial Settl.- Receivable"
                               NoRealVATBuffer."Balance Account",
                               NoRealVATBuffer.Amount);
                         end;
-                        until NoRealVATBuffer.Next = 0;
+                        until NoRealVATBuffer.Next() = 0;
                 end;
 
                 if AppliedAmt = RemainingAmt then begin

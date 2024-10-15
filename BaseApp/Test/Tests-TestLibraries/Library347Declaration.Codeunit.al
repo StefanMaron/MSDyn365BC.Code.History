@@ -734,7 +734,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("VAT Registration No.", FindVATRegistrationNo(CustOrVendNo, false));
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             Amount += VATEntry.Base + VATEntry.Amount;
         until VATEntry.Next = 0;

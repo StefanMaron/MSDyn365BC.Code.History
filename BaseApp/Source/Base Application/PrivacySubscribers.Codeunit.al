@@ -12,7 +12,7 @@ codeunit 1755 "Privacy Subscribers"
         ResourceFilterTxt: Label 'WHERE(Type=FILTER(Person))', Locked = true;
         DataSubjectBlockedMsg: Label 'This data subject is already marked as blocked due to privacy. You can export the related data.';
 
-    [EventSubscriber(ObjectType::Codeunit, 1750, 'OnCreateEvaluationData', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnCreateEvaluationData', '', false, false)]
     local procedure CreateEvaluationData()
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
@@ -20,7 +20,7 @@ codeunit 1755 "Privacy Subscribers"
         DataClassificationEvalData.CreateEvaluationData;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1750, 'OnGetDataPrivacyEntities', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnGetDataPrivacyEntities', '', false, false)]
     local procedure OnGetDataPrivacyEntitiesSubscriber(var DataPrivacyEntities: Record "Data Privacy Entities")
     var
         DummyCustomer: Record Customer;
@@ -49,7 +49,7 @@ codeunit 1755 "Privacy Subscribers"
           DummyResource.FieldNo("No."), ResourceFilterTxt, DummyResource.FieldNo("Privacy Blocked"));
     end;
 
-    [EventSubscriber(ObjectType::Page, 2501, 'OnAfterActionEvent', 'Install', true, true)]
+    [EventSubscriber(ObjectType::Page, Page::"Extension Details", 'OnAfterActionEvent', 'Install', true, true)]
     local procedure AfterExtensionIsInstalled(var Rec: Record "Published Application")
     var
         DataSensitivity: Record "Data Sensitivity";
@@ -79,14 +79,14 @@ codeunit 1755 "Privacy Subscribers"
                     if not DataSensitivity.Get(CompanyName, Field.TableNo, Field."No.") then
                         DataClassificationMgt.InsertDataSensitivityForField(Field.TableNo, Field."No.",
                           DataSensitivity."Data Sensitivity"::Unclassified);
-                until Field.Next = 0;
+                until Field.Next() = 0;
 
                 DataClassNotificationMgt.ShowNotificationIfThereAreUnclassifiedFields;
             end;
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, 2501, 'OnAfterActionEvent', 'Uninstall', true, true)]
+    [EventSubscriber(ObjectType::Page, Page::"Extension Details", 'OnAfterActionEvent', 'Uninstall', true, true)]
     local procedure AfterExtensionIsUninstalled(var Rec: Record "Published Application")
     var
         DataSensitivity: Record "Data Sensitivity";

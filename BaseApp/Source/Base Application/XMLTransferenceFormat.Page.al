@@ -121,7 +121,7 @@ page 10710 "XML Transference Format"
 
     local procedure VATStmtCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DescriptionOnFormat()

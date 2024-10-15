@@ -66,7 +66,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Item Tracking functionality on Purchase Order without Expiration Date.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create and post Purchase Order without Expiration Date.
         asserterror CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, 0D);
@@ -82,19 +82,21 @@ codeunit 137405 "SCM Item Tracking"
     var
         PurchaseLine: Record "Purchase Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
     begin
         // Test Item Tracking functionality on Purchase Order with Expiration Date.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create and post Purchase Order with Expiration Date.
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
 
         // Verify: Verify Expiration Date on ItemTrackingEntries Handler.
-        ItemTrackingDocManagement.ShowItemTrackingForMasterData(
-          ItemLedgerEntry."Source Type"::Vendor, PurchaseLine."Buy-from Vendor No.", '', '', '', '', '');  // Verification is done in ItemTrackingEntries Handler.
+        ItemTrackingDocManagement.ShowItemTrackingForEntity(
+          ItemLedgerEntry."Source Type"::Vendor.AsInteger(), PurchaseLine."Buy-from Vendor No.", '', '', '',
+          DummyItemTrackingSetup);  // Verification is done in ItemTrackingEntries Handler.
     end;
 
     [Test]
@@ -108,7 +110,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Item Tracking functionality on Sales Order with Posting Date as after Expiration Date.
 
         // Setup: Create and post Purchase Order with Expiration Date and find Item Ledger Entry.
-        Initialize;
+        Initialize();
         ItemLedgerEntry.SetRange("Document No.", CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate));
         ItemLedgerEntry.FindFirst;
 
@@ -132,7 +134,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Item Tracking functionality on Sales Order with Posting Date as Expiration Date.
 
         // Setup: Create and post Purchase Order with Expiration Date.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
 
         // Exercise: Create and post Sales Order with Posting Date as Expiration Date.
@@ -154,7 +156,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Item Tracking functionality for Service Order.
 
         // Setup: Create and post Purchase Order for new Item. Create a Service Order for the same Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithLotNoInItemTracking(PurchaseLine);
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Order, PurchaseLine."No.", PurchaseLine.Quantity);
         AssignLotNo := false;  // Use AssignLotNo as global variable for Handler. It is set to False as new Lot No was created as it was set to True while creating Purchase Order.
@@ -179,7 +181,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test posting of Service Order with Item Tracking functionality.
 
         // Setup: Create and post Purchase Order for new Item. Create a Service Order for the same Item. Select Item Tracking Lines for Lot No..
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithLotNoInItemTracking(PurchaseLine);
         CreateServiceDocument(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Order, PurchaseLine."No.", PurchaseLine.Quantity);
         AssignLotNo := false;  // Use AssignLotNo as global variable for Handler. It is set to False as new Lot No was created as it was set to True while creating Purchase Order.
@@ -205,7 +207,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Item Tracking functionality for Service Credit Memo.
 
         // Setup: Create an Item with Lot specific code. Create a Service Credit Memo for the same Item.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeLotSpecific(false), '', LibraryUtility.GetGlobalNoSeriesCode);
         CreateServiceDocument(
           ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo", Item."No.", LibraryRandom.RandInt(10));  // Taking Random Quantity.
@@ -230,7 +232,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test posting of Service Credit Memo with Item Tracking functionality.
 
         // Setup: Create an Item with Lot specific code. Create a Service Credit Memo for the same Item. Assign Lot No on Item Tracking Lines.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeLotSpecific(false), '', LibraryUtility.GetGlobalNoSeriesCode);
         CreateServiceDocument(
           ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo", Item."No.", LibraryRandom.RandInt(10));  // Taking Random Quantity.
@@ -448,7 +450,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // Verify that there's no error during the partial post of Sales Order
         // in case of reservation from PO and ILE and assigning one Item Tracking Serial No.
-        Initialize;
+        Initialize();
 
         CreateSOWithPOAndILEReservationAndOneItemTracking(SalesHeader, SalesLine);
 
@@ -468,7 +470,7 @@ codeunit 137405 "SCM Item Tracking"
         // Verify that quantity to handle in inbound and outbound reservation entries is correct
         // after quantity to handle in tracking specification is changed
 
-        Initialize;
+        Initialize();
         SetupTransferOrderTracking(TransferOrderPage, LotNo, ItemQty);
 
         SetTrackingSpecification(TransferOrderPage, LotNo, QtyToUpdate::"Quantity to Handle", ItemQty div 2);
@@ -489,7 +491,7 @@ codeunit 137405 "SCM Item Tracking"
         // Verify that quantity to handle in inbound and outbound reservation entries is correct
         // after quantity in tracking specification is changed
 
-        Initialize;
+        Initialize();
         SetupTransferOrderTracking(TransferOrderPage, LotNo, ItemQty);
 
         SetTrackingSpecification(TransferOrderPage, LotNo, QtyToUpdate::Quantity, ItemQty + LibraryRandom.RandInt(ItemQty));
@@ -529,7 +531,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test undoing Purchase Receipt is allowed when Expiration Date on Item Tracking Line is earlier than WORKDATE.
 
         // Setup: Create and post Purchase Order with Expiration Date. The Expiration Date is earlier than WORKDATE.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate - LibraryRandom.RandInt(10));
         FindPurchRcptLine(PurchRcptLine, PurchaseLine);
 
@@ -595,7 +597,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Job]
         // [SCENARIO 171749] Reservation entries after posting partial receipt on a purchase order with multiple lines, each having job task and lot no. assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with lot tracking
         // [GIVEN] Purchase order with 2 lines. Item "I" with lot no. and  job task assigned to each line.
@@ -622,7 +624,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Job] [Undo Receipt]
         // [SCENARIO 171749] Reservation entries after posting partial receipt and undo recipt on a purchase order with multiple lines, each having job task and lot no. assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with lot tracking
         // [GIVEN] Purchase order with 2 lines. Item "I" with lot no. and  job task assigned to each line.
@@ -654,7 +656,7 @@ codeunit 137405 "SCM Item Tracking"
         // Test Job No. can be filled on Purchase Line with Item Tracking assigned.
 
         // Setup: Create Purchase Order, assign Lot Item Tracking on Purchase Line. Create Job.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithLotNoInItemTracking(PurchaseLine);
         CreateJobWithJobTask(JobTask);
 
@@ -675,7 +677,7 @@ codeunit 137405 "SCM Item Tracking"
         WhseShipmentLine: Record "Warehouse Shipment Line";
     begin
         // [SCENARIO 360214] "Qty. to Handle (Base)" is not correctly maintained after a modifying reserved and assigned Item Tracking in a Warehouse Shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Purchase Order then Create and Release Sales Order For Item With Item Tracking
         PostPurchaseOrderAndCreateReleasedSalesOrder(SalesHeader, SalesLine);
@@ -701,10 +703,10 @@ codeunit 137405 "SCM Item Tracking"
         NewExpirationDate: Date;
     begin
         // [SCENARIO 361348] After a lot expiration date is changed via reclassification journal, new expiration date is used for all inbounds with the same lot no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with lot no. tracking and expiration date
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         Qty := LibraryRandom.RandInt(100);
         CreateItem(Item, CreateItemTrackingCodeLotSpecific(true), '', LibraryUtility.GetGlobalNoSeriesCode);
 
@@ -739,13 +741,13 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Partial Shipment for an Item with free entry tracking can be posted with tracking after a Shipment without tracking.
 
         // [GIVEN] Item with free entry Item Tracking.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(50, 100));
 
         // [GIVEN] Post the partial Shipment without assigning Lot No.
         PostSalesOrderPartialShip(SalesHeader, SalesLine);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
 
         // [GIVEN] Assign Lot No in Sales Line.
@@ -773,14 +775,14 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Partial Receipt for an Item with free entry tracking can be posted with tracking after a Receipt without tracking (Sales Return).
 
         // [GIVEN] Item with free entry Item Tracking.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Item."No.", LibraryRandom.RandIntInRange(50, 100));
 
         // [GIVEN] Post the partial Receipt without assigning Lot No.
         PostSalesReturnOrderPartialRcpt(SalesHeader, SalesLine);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
 
         // [GIVEN] Assign Lot No in Sales Line.
@@ -808,7 +810,7 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Partial Receipt for an Item with free entry tracking can be posted with tracking after a Receipt without tracking.
 
         // [GIVEN] Item with free entry Item Tracking.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.",
@@ -816,7 +818,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [GIVEN] Post the partial Receipt without assigning Lot No.
         PostPurchaseOrderPartialRcpt(PurchaseHeader, PurchaseLine);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
 
         // [GIVEN] Assign Lot No in Purchase Line.
@@ -844,9 +846,9 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Partial Shipment for an Item with free entry tracking can be posted with tracking after a Shipment without tracking (Purchase Return).
 
         // [GIVEN] Item with free entry Item Tracking.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order",
           Item."No.", LibraryRandom.RandIntInRange(50, 100));
@@ -880,11 +882,11 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Verify partial Item Tracking posting error for free entry tracked Item, Sales Order, when Quantity <> tracked Quantity.
 
         // [GIVEN] Item with free entry Item Tracking, partially shipped Sales Order. Assign Lot No in Sales Line.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(50, 100));
         PostSalesOrderPartialShip(SalesHeader, SalesLine);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
         SalesLine.OpenItemTrackingLines();
 
@@ -918,13 +920,13 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 122002] Verify partial Item Tracking posting error for free entry tracked Item, Purchase Order, when Quantity <> tracked Quantity.
 
         // [GIVEN] Item with free entry Item Tracking, partially received Purchase Order. Assign Lot No in Purchase Line.
-        Initialize;
+        Initialize();
         CreateItem(Item, CreateItemTrackingCodeFreeEntry, LibraryUtility.GetGlobalNoSeriesCode, '');
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.",
           LibraryRandom.RandIntInRange(50, 100));
         PostPurchaseOrderPartialRcpt(PurchaseHeader, PurchaseLine);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
         PurchaseLine.OpenItemTrackingLines();
 
@@ -955,10 +957,10 @@ codeunit 137405 "SCM Item Tracking"
         ExpirationDate: Date;
     begin
         // [FEATURE] [Undo Purchase Receipt] [Item Tracking] [Expiration Date]
-        // [SCENARIO 130271] Item Ledger Entry for undo of Purchase Receipt with "Expiration Date" should contain "Expiration Date".
+        // [SCENARIO 363849] Item Ledger Entry for undo of Purchase Receipt with "Expiration Date" should contain "Expiration Date".
 
         // [GIVEN] Post Purchase Order where "Expiration Date" = "D"
-        Initialize;
+        Initialize();
         ExpirationDate := WorkDate + LibraryRandom.RandInt(10);
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, ExpirationDate);
         FindPurchRcptLine(PurchRcptLine, PurchaseLine);
@@ -981,7 +983,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Item Tracking]
         // [SCENARIO 378978] Error message with current "Line No." is shown when post Item Journal Line without "Lot No." assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with "Lot Specific Tracking"
         CreateItemWithTrackingCode(Item, true, false);
@@ -1004,7 +1006,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Item Tracking]
         // [SCENARIO 378978] Error message with current "Line No." is shown when post Item Journal Line without "Serial No." assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with "SN Specific Tracking"
         CreateItemWithTrackingCode(Item, false, true);
@@ -1028,7 +1030,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Item Tracking] [Purchase]
         // [SCENARIO 378978] Error message "Lot No. required" is shown when post Purchase Order without "Lot No." assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with "Lot Specific Tracking"
         CreateItemWithTrackingCode(Item, true, false);
@@ -1055,7 +1057,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Item Tracking] [Purchase]
         // [SCENARIO 378978] Error message "Serial No. required" is shown when post Purchase Order without "Lot No." assigned
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with "SN Specific Tracking"
         CreateItemWithTrackingCode(Item, false, true);
@@ -1085,7 +1087,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Job] [Job Journal]
         // [SCENARIO 380627] Item Tracking should be copied from Job Planning Line to Job Journal Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item with "Reordering Policy" = Order.
         // [GIVEN] Job Planning Line for Item.
@@ -1115,7 +1117,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Job] [Job Journal]
         // [SCENARIO 380627] Item Ledger Entry which is created by posting of Job Journal Line with inherited Item Tracking contains Lot No. from Job Planning Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked Item "I" with "Reordering Policy" = Order.
         // [GIVEN] Job Planning Line for Item.
@@ -1239,7 +1241,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Return Order] [Expiration Date]
         // [SCENARIO 209105] It should be possible to post a purchase return order with an expired item without item ledger application
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase item "I" with expiration date 01.03.YY
         LibraryVariableStorage.Enqueue(TrackingOptionStr::AssignSerialNo);
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
@@ -1267,7 +1269,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Credit Memo] [Expiration Date]
         // [SCENARIO 209105] It should be possible to post a purchase credit memo for an expired item
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase item "I" with expiration date 01.03.YY
         LibraryVariableStorage.Enqueue(TrackingOptionStr::AssignSerialNo);
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
@@ -1296,7 +1298,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Return Order] [Expiration Date]
         // [SCENARIO 209105] It should be possible to post a purchase return order with an expired item with item ledger application
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase item "I" with expiration date 01.03.YY
         LibraryVariableStorage.Enqueue(TrackingOptionStr::AssignSerialNo);
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
@@ -1308,7 +1310,7 @@ codeunit 137405 "SCM Item Tracking"
         CreatePurchaseHeaderWithPostingDate(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine."Buy-from Vendor No.", WorkDate + 1);
         // [GIVEN] Run "Get Posted Document Lines to Reverse" to retrive lines from the posted purchase receipt
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [WHEN] Post the purchase return order
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1328,7 +1330,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 213204] Selected Quantity should neither be visible nor editable on Item Entry Summary page when it is invoked from Item Tracking of inbound document line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order with a serial no. tracked item "X".
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
@@ -1366,7 +1368,7 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Transfer] [Expiration Date]
         // [SCENARIO 233962] It should be possible to post transfer shipment with expiration date when item is tracked by Lot No. and SN simultaniosly and lot is split into several parts
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" tracked by both serial and lot nos.
         CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
@@ -1377,12 +1379,12 @@ codeunit 137405 "SCM Item Tracking"
 
         // [GIVEN] Post item stock for 1 pc of item "I", serial no. "S1", lot no. "L1", expiration date 01.01.2019
         // [GIVEN] Post item stock for 1 pc of item "I", serial no. "S2", lot no. "L1", expiration date 01.01.2019
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         ExpirationDate := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
 
         Qty := LibraryRandom.RandIntInRange(2, 6);
         for I := 1 to Qty do begin
-            SerialNos[I] := LibraryUtility.GenerateGUID;
+            SerialNos[I] := LibraryUtility.GenerateGUID();
             PostItemJnlLineWithLotSerialExpDate(Item."No.", Location[1].Code, Bin.Code, LotNo, SerialNos[I], ExpirationDate);
         end;
 
@@ -1419,9 +1421,9 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 253101] The error occurs when decrease quantity in lot tracked purchase invoice line.
-        Initialize;
+        Initialize();
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         CreateItemWithTrackingCode(Item, true, false);
 
         // [GIVEN] Purchase invoice with lot tracked item
@@ -1446,9 +1448,9 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 253101] The error occurs when decrease quantity in lot tracked sales invoice line.
-        Initialize;
+        Initialize();
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         CreateItemWithTrackingCode(Item, true, false);
 
         CreateLotTrackedItemInventory(Item."No.", LibraryRandom.RandIntInRange(21, 30), LotNo);
@@ -1483,12 +1485,12 @@ codeunit 137405 "SCM Item Tracking"
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 269088] Function RetrieveDocumentItemTracking in codeunit "Item Tracking Doc. Management" can retrieve item tracking specification from posted purchase receipts
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two lot tracked items: "I1" and "I2"
         for I := 1 to ArrayLen(Item) do
             for J := 1 to ArrayLen(LotNos[I]) do begin
-                LotNos[I, J] := LibraryUtility.GenerateGUID;
+                LotNos[I, J] := LibraryUtility.GenerateGUID();
                 LotQtys[I, J] := LibraryRandom.RandDec(100, 2);
                 TotalQty[I] += LotQtys[I, J];
             end;
@@ -1538,7 +1540,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 283200] Function ItemTrackingExistsOnDocumentLine in Codeunit 6500 checks if Item Tracking Lines exist on new sales line.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLineSimple(SalesLine[1], SalesHeader);
@@ -1568,7 +1570,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 283200] Function ItemTrackingExistsOnDocumentLine in Codeunit 6500 checks if Item Tracking Lines exist on shipped sales line.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLineSimple(SalesLine[1], SalesHeader);
@@ -1599,7 +1601,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 283200] Function CalcQtyToHandleForTrackedQtyOnDocumentLine in codeunit 6500 calculates "Qty. to Handle" in item tracking lines for a given document line.
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
@@ -1633,14 +1635,14 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Tracking Specification] [Item Tracking]
         // [SCENARIO 281757] "Qty. to Handle" must be distributed evenly when Item Tracking Lines page is closed for Transfer Orders, case when "Qty. to Handle" = Quantity in the end
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create single-line Transfer Order
         CreateTransferOrderOnNewItem(TransferHeader, TransferLine, LibraryRandom.RandIntInRange(50, 100));
 
         // [GIVEN] Create 2 lot ID's
-        LotNo1 := LibraryUtility.GenerateGUID;
-        LotNo2 := LibraryUtility.GenerateGUID;
+        LotNo1 := LibraryUtility.GenerateGUID();
+        LotNo2 := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Create 2 quantities
         Qty1 := LibraryRandom.RandInt(5);
@@ -1690,14 +1692,14 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Tracking Specification] [Item Tracking]
         // [SCENARIO 281757] "Qty. to Handle" must be distributed evenly when Item Tracking Lines page is closed for Transfer Orders, case when "Qty. to Handle" < Quantity in the end
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create single-line Transfer Order
         CreateTransferOrderOnNewItem(TransferHeader, TransferLine, LibraryRandom.RandIntInRange(50, 100));
 
         // [GIVEN] Create 2 lot ID's
-        LotNo1 := LibraryUtility.GenerateGUID;
-        LotNo2 := LibraryUtility.GenerateGUID;
+        LotNo1 := LibraryUtility.GenerateGUID();
+        LotNo2 := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Create 2 quantities
         Qty1 := LibraryRandom.RandInt(5);
@@ -1750,8 +1752,8 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Transfer] [Item Tracking Lines]
         // [SCENARIO 284534] Reservation Entry has correct entries when two posted Shipments are followed by Receipt and when Lot Tracking is specified
-        Initialize;
-        LotNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
         ItemStock := 2 * 3 * 4 * 5 * LibraryRandom.RandIntInRange(10, 20);
         QtyToShip1 := ItemStock / 5;
         QtyToShip2 := ItemStock / 4;
@@ -1790,7 +1792,7 @@ codeunit 137405 "SCM Item Tracking"
         Assert.RecordCount(ReservationEntry, 4);
 
         // [THEN] Receipt with Quantity = Qty. to Handle (Base) = 100
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         VerifyReservationEntrySubtypeAndQty(ReservationEntry, 1, QtyToShip1, QtyToShip1);
 
         // [THEN] Receipt with Quantity = 200 and Qty. to Handle (Base) = 150
@@ -1818,48 +1820,66 @@ codeunit 137405 "SCM Item Tracking"
         SalesLine: Record "Sales Line";
         TotalQty: Integer;
         QtyToReserve: Integer;
+        QtyPackage1: Integer;
+        QtyPackage2: Integer;
         LotNo: Code[50];
         SerialNo: Code[50];
+        Package1: Code[50];
+        Package2: Code[50];
         ItemTrackingCode: Code[10];
+        LocationCode: Code[10];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 290182] Item Tracking Summary shows correct qtys when Stan reopens page Item Tracking Lines from Sales Line
-        // [SCENARIO 290182] and drills down to "Availability, Lot No." in case both Lot and Serial tracking is used.
-        Initialize;
+        // [SCENARIO 290182] and drills down to "Availability, Lot No." in case Lot, SN and Package Specific tracking is used.
+        Initialize();
+        QtyPackage1 := 2;
+        QtyPackage2 := 1;
         QtyToReserve := 1;
-        TotalQty := 2;
-        LotNo := LibraryUtility.GenerateGUID;
-        SerialNo := LibraryUtility.GenerateGUID;
+        TotalQty := QtyPackage1 + QtyPackage2;
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
+        Package1 := LibraryUtility.GenerateGUID();
+        Package2 := LibraryUtility.GenerateGUID();
 
-        // [GIVEN] Item Tracking Code with both Lot Specific Tracking and SN Specific Tracking enabled
-        CreateItemTrackingCodeWithLotSN(ItemTrackingCode);
+        // [GIVEN] Item Tracking Code with Lot, SN and Package Specific Tracking enabled
+        CreateItemTrackingCodeWithLotSerialPackage(ItemTrackingCode, LocationCode);
 
-        // [GIVEN] Posted Positive Adj. for Item with Qty = 2 with Item Tracking Lines specified as follows:
-        // [GIVEN] Line 1 and Line 2 have Serial Nos "S1" and "S2"; Lot No = "L1" is the same for both
+        // [GIVEN] Posted Positive Adj. for Item with Qty = 3 with Item Tracking Lines specified as follows:
+        // [GIVEN] Line 1, Line 2 and Line 3 have Serial Nos "S1","S2" and "S3" respectfully; Lot No = "L1" is same for all
+        // [GIVEN] Line 1 and Line 2 have Package = "Package1", Line 3 has Package = "Package2"
         LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, CreateItemNo(ItemTrackingCode, '', ''), '', '', TotalQty);
-        MockReservEntryForItemJournalLine(ItemJournalLine, SerialNo, LotNo, QtyToReserve);
-        MockReservEntryForItemJournalLine(ItemJournalLine, LibraryUtility.GenerateGUID, LotNo, TotalQty - QtyToReserve);
+          ItemJournalLine, CreateItemNo(ItemTrackingCode, '', ''), LocationCode, '', TotalQty);
+        MockReservEntryForItemJournalLine(ItemJournalLine, SerialNo, LotNo, Package1, QtyToReserve);
+        MockReservEntryForItemJournalLine(ItemJournalLine, LibraryUtility.GenerateGUID, LotNo, Package1, QtyPackage1 - QtyToReserve);
+        MockReservEntryForItemJournalLine(ItemJournalLine, LibraryUtility.GenerateGUID, LotNo, Package2, QtyPackage2);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Sales Order with Item; Qty = 1
         CreateSalesOrder(SalesHeader, SalesLine, ItemJournalLine."Item No.", QtyToReserve);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
 
-        // [GIVEN] Stan opened page "Item Tracking Lines", specified Serial No "S1", Lot No "L1", Quantity(Base) = 1 and closed page
-        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, QtyToReserve);
+        // [GIVEN] Stan opened page "Item Tracking Lines", specified Serial No "S1", Lot No "L1", CD No "CD1", Quantity(Base) = 1 and closed page
+        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, Package1, QtyToReserve);
         SalesLine.OpenItemTrackingLines();
-        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, TotalQty, 0, QtyToReserve, TotalQty - QtyToReserve);
+        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, Package1, QtyPackage1, 0, QtyToReserve, QtyPackage1 - QtyToReserve);
+        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, Package2, QtyPackage2, 0, 0, QtyPackage2);
 
         // [GIVEN] Stan reopened the page "Item Tracking Lines"
-        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, QtyToReserve);
+        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, Package1, QtyToReserve);
         SalesLine.OpenItemTrackingLines();
 
         // [WHEN] Stan drills down to "Availability, Lot No." on page "Item Tracking Lines"
         // done in ItemTrackingLinesLotSNTwoLinesModalPageHandler
 
-        // [THEN] Page "Item Tracking Summary" opens for Lot "L1" with Total Quantity = 2, Total Requested Quantity = 1
-        // [THEN] Current Pending Quantity = 0 and Total Available Quantity = 1
-        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, TotalQty, QtyToReserve, 0, TotalQty - QtyToReserve);
+        // [THEN] Page "Item Tracking Summary" opens showing 2 lines for Lot "L1":
+        // [THEN] First Line has Package = "Package1" with Total Quantity = 2, Total Requested Quantity = 1
+        // [THEN] First Line has Current Pending Quantity = 0 and Total Available Quantity = 1
+        // [THEN] Second Line has Package = "Package2" with Total Quantity = 1, Total Requested Quantity = 0
+        // [THEN] Second Line has Current Pending Quantity = 0 and Total Available Quantity = 1
+        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, Package1, QtyPackage1, QtyToReserve, 0, QtyPackage1 - QtyToReserve);
+        VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo, Package2, QtyPackage2, 0, 0, QtyPackage2);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1890,7 +1910,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Reservation] [Transfer]
         // [SCENARIO 307331] Reservation Entry when patially post two Inventory Picks created from Transfer Order with two similar lines
-        Initialize;
+        Initialize();
         StockQty := LibraryRandom.RandIntInRange(100, 200);
         for Index := 1 to ArrayLen(Pick1Qty) do begin
             ;
@@ -1898,7 +1918,7 @@ codeunit 137405 "SCM Item Tracking"
             Pick2Qty[Index] := LibraryRandom.RandIntInRange(10, 20);
             DemandQty[Index] := Pick1Qty[Index] + Pick2Qty[Index];
         end;
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Location SILVER had Require Pick enabled
         CreateTransitLocations(FromLocation, ToLocation, InTransitLocation);
@@ -1909,7 +1929,7 @@ codeunit 137405 "SCM Item Tracking"
         // [GIVEN] Item had stock of 100 PCS at location SILVER, all in same Bin and with same Lot "L1" (Item Ledger Entry was created)
         ItemNo := CreateItemWithLotWarehouseTracking;
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, FromLocation.Code, '', StockQty);
-        EnqueueSNLotNoAndQtyToReserve('', LotNo, StockQty);
+        EnqueueSNLotNoAndQtyToReserve('', LotNo, '', StockQty);
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
@@ -1937,7 +1957,7 @@ codeunit 137405 "SCM Item Tracking"
         CreateInvtPickOutboundTransfer(WarehouseActivityHeader, TransferHeader."No.");
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityHeader."Source Document");
         WarehouseActivityLine.SetRange("Source No.", TransferHeader."No.");
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         Clear(Index);
         repeat
             Index += 1;
@@ -1946,7 +1966,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
 
         // [GIVEN] Updated Inventory Pick: specified to handle 5 PCS in the 1st Line and 9 PCS in the 2nd Line
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         Clear(Index);
         repeat
             Index += 1;
@@ -1990,16 +2010,16 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UI] [Item Tracking Lines]
         // [SCENARIO 315298] When Stan sets Serial No for Item with LotSN Tracking then Lot is populated on Item Tracking Lines page
-        Initialize;
+        Initialize();
         StockQty := 1;
-        SerialNo := LibraryUtility.GenerateGUID;
-        LotNo := LibraryUtility.GenerateGUID;
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Item had stock of 1 PCS with Lot "L" and Serial No "S" assigned
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateItemWithTrackingCode(Item, true, true);
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', StockQty);
-        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, StockQty);
+        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, '', StockQty);
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryVariableStorage.DequeueText;
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -2009,7 +2029,7 @@ codeunit 137405 "SCM Item Tracking"
         SalesHeader.Validate("Location Code", Location.Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", StockQty);
-        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, StockQty);
+        EnqueueSNLotNoAndQtyToReserve(SerialNo, LotNo, '', StockQty);
         SalesLine.OpenItemTrackingLines();
 
         // [WHEN] Stan sets Serial No = "S" on Item Tracking Lines page
@@ -2028,7 +2048,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UI] [UT] [Item Tracking Code]
         // [SCENARIO 316838] SN Warehouse Tracking field presents on the Item Tracking Code Card page for the Essential User Experience.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Essential experience was enabled
         LibraryApplicationArea.EnableEssentialSetup;
@@ -2049,7 +2069,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [UI] [UT] [Item Tracking Code]
         // [SCENARIO 316838] SN Warehouse Tracking field does not present on the Item Tracking Code Card page for the Basic User Experience.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Basic experience was enabled
         LibraryApplicationArea.EnableBasicSetup;
@@ -2080,7 +2100,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] When a user first sets expiration date on an item tracking line, this sets the same date on other tracking lines with the same lot.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2117,7 +2137,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] When a user updates expiration date on an item tracking line, this updates the date on other tracking lines with the same lot.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2155,7 +2175,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] When a user updates expiration date on an item tracking line, this does not update the date on other tracking lines with different lot.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2193,7 +2213,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] When a user clears expiration date on an item tracking line, this clears out the date on other tracking lines with the same lot.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2231,7 +2251,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] When a user validates lot no. on an item tracking line, the program pulls expiration date from other tracking lines with the same lot.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2272,7 +2292,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Lot] [Expiration Date] [UT]
         // [SCENARIO 330377] A user cannot change expiration date on an item tracking line, if the lot has been posted with another expiration date.
-        Initialize;
+        Initialize();
         MockItemTracking(SerialNos, LotNos);
         NewDate := LibraryRandom.RandDate(10);
 
@@ -2308,7 +2328,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         // [FEATURE] [Inventory Put-Away] [Expiration Date]
         // [SCENARIO 340313] Posting Warehouse Activity Line with Expiration Date before the Posting Date fails
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Serial Number Item Tracking Code with "Strict Expiration Posting" and "SN Warehouse Tracking"
         CreateItem(
@@ -2721,7 +2741,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         with ReservEntry do begin
             SetRange("Lot No.", LotNo);
-            FindSet;
+            FindSet();
             repeat
                 Qty += "Qty. to Handle (Base)";
             until Next = 0;
@@ -2767,7 +2787,7 @@ codeunit 137405 "SCM Item Tracking"
         LotCount := ArrayLen(LotQty);
 
         for iLot := 1 to LotCount do begin
-            LotNo[iLot] := LibraryUtility.GenerateGUID;
+            LotNo[iLot] := LibraryUtility.GenerateGUID();
             LotQty[iLot] := LibraryRandom.RandInt(10);
             TempQty += LotQty[iLot]; // LotQty[3] > SUM(LotQty[1 .. LotQty - 1])
         end;
@@ -3092,9 +3112,19 @@ codeunit 137405 "SCM Item Tracking"
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure CreateItemTrackingCodeWithLotSN(var ItemTrCode: Code[10])
+    local procedure CreateItemTrackingCodeWithLotSerialPackage(var ItemTrCode: Code[10]; var LocationCode: Code[10])
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
     begin
-        ItemTrCode := CreateItemTrackingCodeLotSerial;
+        ItemTrackingCode.Get(CreateItemTrackingCodeLotSerial);
+        ItemTrackingCode.Validate("Package Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        ItemTrCode := ItemTrackingCode.Code;
+        LocationCode := Location.Code;
     end;
 
     local procedure CreateLocationWithBins(var Location: Record Location; var Bin: Record Bin)
@@ -3200,10 +3230,11 @@ codeunit 137405 "SCM Item Tracking"
         LibraryVariableStorage.Enqueue(ItemQty); // for OpenItemTrackingHandler
     end;
 
-    local procedure EnqueueSNLotNoAndQtyToReserve(SerialNo: Code[50]; LotNo: Code[50]; QtyToReserve: Integer)
+    local procedure EnqueueSNLotNoAndQtyToReserve(SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; QtyToReserve: Integer)
     begin
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PackageNo);
         LibraryVariableStorage.Enqueue(QtyToReserve);
     end;
 
@@ -3329,12 +3360,12 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingCode: Code[10];
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // create item, make positive adjustment to FromLocation
         ItemTrackingCode := CreateItemTrackingCodeTransferLotTracking;
         CreateItem(Item, ItemTrackingCode, '', '');
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         CreateTransitLocations(FromLocation, ToLocation, InTransitLocation);
 
@@ -3556,10 +3587,10 @@ codeunit 137405 "SCM Item Tracking"
         i: Integer;
     begin
         for i := 1 to ArrayLen(SerialNos) do
-            SerialNos[i] := LibraryUtility.GenerateGUID;
+            SerialNos[i] := LibraryUtility.GenerateGUID();
 
         for i := 1 to ArrayLen(LotNos) do
-            LotNos[i] := LibraryUtility.GenerateGUID;
+            LotNos[i] := LibraryUtility.GenerateGUID();
     end;
 
     local procedure MockTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; EntryNo: Integer; LotNo: Code[20]; SerialNo: Code[20]; ExpirationDate: Date)
@@ -3616,7 +3647,7 @@ codeunit 137405 "SCM Item Tracking"
         end;
     end;
 
-    local procedure MockReservEntryForItemJournalLine(ItemJournalLine: Record "Item Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; Qty: Decimal)
+    local procedure MockReservEntryForItemJournalLine(ItemJournalLine: Record "Item Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
         RecRef: RecordRef;
@@ -3632,6 +3663,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry."Item No." := ItemJournalLine."Item No.";
         ReservationEntry."Serial No." := SerialNo;
         ReservationEntry."Lot No." := LotNo;
+        ReservationEntry."Package No." := PackageNo;
         ReservationEntry."Quantity (Base)" := Qty;
         ReservationEntry."Qty. per Unit of Measure" := Qty;
         ReservationEntry.Quantity := Qty;
@@ -3712,7 +3744,7 @@ codeunit 137405 "SCM Item Tracking"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Purchase Order/Return Order, create Purchase Line with Job No., assign Item Tracking Lot No.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithJobAndLotTracking(PurchaseLine, DocumentType);
 
         // Exercise: Post partial receive for Purchase Order./Post partial return shipment for Purchase Return Order
@@ -3729,7 +3761,7 @@ codeunit 137405 "SCM Item Tracking"
         QtyToHandle: array[2] of Decimal;
     begin
         // Setup: Create Purchase Order/Return Order, create Purchase Line with Job No., assign multiple Item Tracking Lot No.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithMultipleLotNoInItemTracking(PurchaseLine, DocumentType, QuantityBase, QtyToHandle);
 
         // Exercise: Post partial receive for Purchase Order./Post partial return shipment for Purchase Return Order
@@ -3883,7 +3915,7 @@ codeunit 137405 "SCM Item Tracking"
         TransferOrderPage.OpenEdit;
         TransferOrderPage.GotoKey(TransferHeader."No.");
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         SetTrackingSpecification(TransferOrderPage, LotNo, QtyToUpdate::Quantity, Qty);
     end;
 
@@ -3918,7 +3950,7 @@ codeunit 137405 "SCM Item Tracking"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Receive", LibraryRandom.RandInt("Qty. to Receive" - 1));
                 Modify(true);
@@ -4160,7 +4192,7 @@ codeunit 137405 "SCM Item Tracking"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 VerifyQuantityOnItemTrackingLines(PurchaseLine);
             until Next = 0;
@@ -4214,9 +4246,10 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry.TestField("Qty. to Handle (Base)", QtyToHandle);
     end;
 
-    local procedure VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo: Code[50]; TotalQty: Integer; TotalRequestedQty: Integer; CurrentPendingQty: Integer; TotalAvailableQty: Integer)
+    local procedure VerifyValuesReceivedFromItemTrackingSummaryLine(LotNo: Code[50]; PackageNo: Code[50]; TotalQty: Integer; TotalRequestedQty: Integer; CurrentPendingQty: Integer; TotalAvailableQty: Integer)
     begin
         Assert.AreEqual(LotNo, LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(PackageNo, LibraryVariableStorage.DequeueText, '');
         Assert.AreEqual(TotalQty, LibraryVariableStorage.DequeueInteger, '');
         Assert.AreEqual(TotalRequestedQty, LibraryVariableStorage.DequeueInteger, '');
         Assert.AreEqual(CurrentPendingQty, LibraryVariableStorage.DequeueInteger, '');
@@ -4228,7 +4261,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservationEntry.SetRange("Source Ref. No.", SourceRefNoSales);
         ReservationEntry.SetRange("Source Prod. Order Line", 0);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         VerifyReservationEntryQuantities(ReservationEntry, -Qty2);
         ReservationEntry.Next;
         VerifyReservationEntryQuantities(ReservationEntry, -Qty1);
@@ -4236,7 +4269,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry.SetRange("Source Type", DATABASE::"Transfer Line");
         ReservationEntry.SetRange("Source Ref. No.");
         ReservationEntry.SetRange("Source Prod. Order Line", SourceProdOrderLineTransfer);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         VerifyReservationEntryQuantities(ReservationEntry, Qty2);
         ReservationEntry.Next;
         VerifyReservationEntryQuantities(ReservationEntry, Qty1);
@@ -4349,6 +4382,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
         ItemTrackingLines.OK.Invoke;
     end;
@@ -4359,6 +4393,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
         ItemTrackingLines.AvailabilityLotNo.DrillDown;
         ItemTrackingLines.OK.Invoke;
@@ -4370,14 +4405,17 @@ codeunit 137405 "SCM Item Tracking"
     var
         SerialNo: Text;
         LotNo: Text;
+        PackageNo: Text;
         Qty: Decimal;
     begin
         SerialNo := LibraryVariableStorage.DequeueText;
         LotNo := LibraryVariableStorage.DequeueText;
+        PackageNo := LibraryVariableStorage.DequeueText;
         Qty := LibraryVariableStorage.DequeueDecimal;
         ItemTrackingLines."Serial No.".SetValue(SerialNo);
         LibraryVariableStorage.Enqueue(Format(ItemTrackingLines."Lot No."));
         ItemTrackingLines."Lot No.".SetValue(LotNo);
+        ItemTrackingLines."Package No.".SETVALUE(PackageNo);
         ItemTrackingLines."Quantity (Base)".SetValue(Qty);
         ItemTrackingLines.OK.Invoke;
     end;
@@ -4422,6 +4460,7 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingSummary.First;
         repeat
             LibraryVariableStorage.Enqueue(Format(ItemTrackingSummary."Lot No."));
+            LibraryVariableStorage.Enqueue(Format(ItemTrackingSummary."Package No."));
             LibraryVariableStorage.Enqueue(ItemTrackingSummary."Total Quantity".AsInteger);
             LibraryVariableStorage.Enqueue(ItemTrackingSummary."Total Requested Quantity".AsInteger);
             LibraryVariableStorage.Enqueue(ItemTrackingSummary."Current Pending Quantity".AsInteger);

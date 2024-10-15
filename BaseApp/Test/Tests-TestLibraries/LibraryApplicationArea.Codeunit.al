@@ -16,7 +16,7 @@ codeunit 131102 "Library - Application Area"
     begin
         ApplicationAreaCache.ClearCache()
     end;
-    
+
     procedure EnableFoundationSetup()
     begin
         DisableApplicationAreaSetup();
@@ -202,12 +202,6 @@ codeunit 131102 "Library - Application Area"
     begin
         DisableApplicationAreaSetup();
         EnableItemBudgetSetupForCurrentCompany();
-    end;
-
-    procedure EnableInvoicingSetup()
-    begin
-        DisableApplicationAreaSetup();
-        EnableInvoicingSetupForCurrentCompany();
     end;
 
     procedure EnableJobsSetupForCurrentCompany()
@@ -411,15 +405,6 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateReturnOrderSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea();
-    end;
-
-    procedure EnableInvoicingSetupForCurrentCompany()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        CreateInvoicingSetupForCurrentCompany(ApplicationAreaSetup);
         ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
@@ -629,13 +614,6 @@ codeunit 131102 "Library - Application Area"
     begin
         ApplicationAreaSetup.Validate("Company Name", CompanyName);
         ApplicationAreaSetup.Validate(BasicHR, true);
-        ApplicationAreaSetup.Insert(true);
-    end;
-
-    procedure CreateInvoicingSetupForCurrentCompany(var ApplicationAreaSetup: Record "Application Area Setup")
-    begin
-        ApplicationAreaSetup.Validate("Company Name", CompanyName);
-        ApplicationAreaSetup.Validate(Invoicing, true);
         ApplicationAreaSetup.Insert(true);
     end;
 

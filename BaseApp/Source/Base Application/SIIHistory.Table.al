@@ -91,7 +91,6 @@ table 10750 "SII History"
         MarkAsNotAcceptedErr: Label 'Marked as not accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
         MarkAsAcceptedErr: Label 'Marked as accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
 
-    [Scope('OnPrem')]
     procedure CreateNewRequest(DocUploadId: Integer; UploadType: Option; RetriesLeft: Integer; IsManual: Boolean; IsAcceptedWithErrorRetry: Boolean): Integer
     var
         Customer: Record Customer;

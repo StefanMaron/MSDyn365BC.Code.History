@@ -183,7 +183,7 @@ page 7000044 "Closed Documents Analysis"
                 repeat
                     RedrawnAmt += "Original Amount";
                     RedrawnAmtLCY += "Original Amount (LCY)";
-                until Next = 0;
+                until Next() = 0;
             NoRedrawn := Count;
 
             SetRange(Redrawn, false);
@@ -193,7 +193,7 @@ page 7000044 "Closed Documents Analysis"
                 repeat
                     HonoredAmt += "Original Amount";
                     HonoredAmtLCY += "Original Amount (LCY)";
-                until Next = 0;
+                until Next() = 0;
             NoHonored := Count;
             SetRange(Redrawn);
 
@@ -204,7 +204,7 @@ page 7000044 "Closed Documents Analysis"
                 repeat
                     RejectedAmt += "Original Amount";
                     RejectedAmtLCY += "Original Amount (LCY)";
-                until Next = 0;
+                until Next() = 0;
 
             NoRejected := Count;
             SetRange(Status);

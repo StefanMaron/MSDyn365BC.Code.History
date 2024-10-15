@@ -1,4 +1,4 @@
-﻿codeunit 5988 "Serv-Documents Mgt."
+codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -330,7 +330,7 @@
                         LastLineRetrieved := true
                     else begin
                         BiggestLineNo := ServAmountsMgt.MAX(ServAmountsMgt.GetLastLineNo(ServLine), "Line No.");
-                        LastLineRetrieved := Next = 0; // ServLine
+                        LastLineRetrieved := Next() = 0; // ServLine
                         if LastLineRetrieved and SalesSetup."Invoice Rounding" then
                             ServAmountsMgt.InvoiceRounding(ServHeader, ServLine, TotalServiceLine,
                               LastLineRetrieved, false, BiggestLineNo);
@@ -546,7 +546,7 @@
                 repeat
                     ServLine.Copy(PassedServLine);
                     ServLine.Insert(); // temptable
-                until PassedServLine.Next = 0;
+                until PassedServLine.Next() = 0;
                 ServLinesPassed := true; // indicate either we collect passed or all SLs.
             end else begin
                 // collect persistent lines related to ServHeader
@@ -642,7 +642,7 @@
                                 ServOrderMgt.CalcContractDates(ServHeader, ServItemLine);
                         end;
                         ServOrderMgt.CalcServItemDates(ServHeader, ServItemLine."Service Item No.");
-                    until ServItemLine.Next = 0
+                    until ServItemLine.Next() = 0
                 else begin
                     ServShptItemLine.Init();
                     ServShptItemLine."No." := ServShptHeader."No.";
@@ -915,7 +915,7 @@
                             PServLine.Copy(ServLine);
                             PServLine.Insert();
                         end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
         ServLine.Reset();
         ServLine.DeleteAll(); // just temp records
     end;
@@ -932,7 +932,7 @@
                     PServItemLine.Copy(ServItemLine);
                     PServItemLine.Modify();
                 end;
-            until ServItemLine.Next = 0;
+            until ServItemLine.Next() = 0;
         ServItemLine.DeleteAll(); // just temp records
     end;
 
@@ -994,7 +994,7 @@
                 PServShptItemLine.Init();
                 PServShptItemLine.Copy(ServShptItemLine);
                 PServShptItemLine.Insert();
-            until ServShptItemLine.Next = 0;
+            until ServShptItemLine.Next() = 0;
         ServShptItemLine.DeleteAll();
 
         ServShptLine.Reset();
@@ -1003,7 +1003,7 @@
                 PServShptLine.Init();
                 PServShptLine.Copy(ServShptLine);
                 PServShptLine.Insert();
-            until ServShptLine.Next = 0;
+            until ServShptLine.Next() = 0;
         ServShptLine.DeleteAll();
 
         OnAfterFinalizeShipmentDocument(ServShptHeader, ServHeader);
@@ -1030,7 +1030,7 @@
                 PServInvLine.Init();
                 PServInvLine.Copy(ServInvLine);
                 PServInvLine.Insert();
-            until ServInvLine.Next = 0;
+            until ServInvLine.Next() = 0;
         ServInvLine.DeleteAll();
 
         OnAfterFinalizeInvoiceDocument(ServInvHeader, ServHeader);
@@ -1057,7 +1057,7 @@
                 PServCrMemoLine.Init();
                 PServCrMemoLine.Copy(ServCrMemoLine);
                 PServCrMemoLine.Insert();
-            until ServCrMemoLine.Next = 0;
+            until ServCrMemoLine.Next() = 0;
         ServCrMemoLine.DeleteAll();
 
         OnAfterFinalizeCrMemoDocument(ServCrMemoHeader, ServHeader);
@@ -1081,7 +1081,7 @@
                 ServLine.SetRange("Document No.", "No.");
                 ServLine.SetFilter("Qty. to Ship", '<>0');
                 ServLine.SetRange("Shipment No.", '');
-                if not ServLine.IsEmpty then
+                if not ServLine.IsEmpty() then
                     Cust.CheckBlockedCustOnDocs(Cust, "Document Type", true, true);
             end else
                 Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, true);
@@ -1111,7 +1111,7 @@
                     ServLine.SetRange("Document Type", "Document Type");
                     ServLine.SetRange("Document No.", "No.");
                     ServLine.SetFilter("Qty. to Ship", '<>0');
-                    if not ServLine.IsEmpty then
+                    if not ServLine.IsEmpty() then
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", true, true);
                 end else
                     Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, true);
@@ -1152,7 +1152,7 @@
                     CheckDimComb(ServLine);
                     CheckDimValuePosting(ServLine);
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
         ServLine.Reset();
     end;
 
@@ -1224,7 +1224,7 @@
                     else
                         if "Appl.-to Service Entry" < ApplServLedgEntryNo then
                             ApplServLedgEntryNo := "Appl.-to Service Entry";
-            until Next = 0;
+            until Next() = 0;
         exit(ApplServLedgEntryNo);
     end;
 
@@ -1308,7 +1308,7 @@
                     repeat
                         PassedConsume :=
                           (ServLine."Quantity Shipped" - ServLine."Quantity Invoiced" - ServLine."Quantity Consumed" <> 0);
-                    until PassedConsume or (ServLine.Next = 0);
+                    until PassedConsume or (ServLine.Next() = 0);
                 end;
             end;
             if PassedInvoice then begin
@@ -1323,7 +1323,7 @@
                     repeat
                         PassedInvoice :=
                           (ServLine."Quantity Shipped" - ServLine."Quantity Invoiced" - ServLine."Quantity Consumed" <> 0);
-                    until PassedInvoice or (ServLine.Next = 0);
+                    until PassedInvoice or (ServLine.Next() = 0);
                 end;
             end;
             if PassedShip then begin
@@ -1415,7 +1415,7 @@
                     Modify;
                 end;
 
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
     end;
 
     local procedure CheckCloseCondition(Qty: Decimal; QtytoInv: Decimal; QtyToCsm: Decimal; QtyInvd: Decimal; QtyCsmd: Decimal): Boolean
@@ -1439,7 +1439,7 @@
                 ServiceLineTemp.SetRange("Service Item No.", ServiceItemLineTemp."Service Item No.");
                 if not ServiceLineTemp.FindFirst then
                     ServiceItemClosedCondition := false
-            until (ServiceItemLineTemp.Next = 0) or (not ServiceItemClosedCondition);
+            until (ServiceItemLineTemp.Next() = 0) or (not ServiceItemClosedCondition);
         exit(QtyClosedCondition and ServiceItemClosedCondition);
     end;
 
@@ -1467,7 +1467,7 @@
                                 Error(Text023);
                             exit;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
     end;
 
     procedure CheckAdjustedLines()
@@ -1555,7 +1555,9 @@
 
     local procedure SetGenJnlLineDocNos(DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     begin
+#if not CLEAN16
         OnBeforeSetGenJnlLineDocNosHandler(ServHeader, DocType, DocNo, ExtDocNo);
+#endif
         OnBeforeSetGenJnlLineDocNumbers(ServHeader, DocType, DocNo, ExtDocNo);
 
         GenJnlLineDocType := DocType;
@@ -1564,6 +1566,7 @@
         ServPostingJnlsMgt.SetGenJnlLineDocNos(GenJnlLineDocNo, GenJnlLineExtDocNo);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by OnBeforeSetGenJnlLineDocNumbers', '16.0')]
     local procedure OnBeforeSetGenJnlLineDocNosHandler(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[35])
     var
@@ -1574,6 +1577,7 @@
         if ShortExtDocNo <> CopyStr(ExtDocNo, 1, MaxStrLen(ShortExtDocNo)) then
             ExtDocNo := ShortExtDocNo;
     end;
+#endif
 
     local procedure UpdateRcptLinesOnInv()
     begin
@@ -1727,10 +1731,10 @@
                     end;
 
                     if TrackingSpecificationExists then
-                        EndLoop := (TempInvoicingSpecification.Next = 0)
+                        EndLoop := (TempInvoicingSpecification.Next() = 0)
                     else
                         EndLoop :=
-                          (ServiceShptLine.Next = 0) or
+                          (ServiceShptLine.Next() = 0) or
                           ((Invoice and (Abs(RemQtyToBeInvoiced) <= Abs(ServiceLine."Qty. to Ship"))) or
                            (Consume and (Abs(RemQtyToBeConsumed) <= Abs(ServiceLine."Qty. to Ship"))));
                 until EndLoop;
@@ -1800,7 +1804,7 @@
 
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             if Find('-') then
                 if SalesSetup."Calc. Inv. Discount" or CalcInvDiscAmt then begin
@@ -1832,7 +1836,7 @@
                         Modify;
                     end;
 
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
         ServITRMgt.InsertTrackingSpecification(ServHeader, TempTrackingSpecification);
         ServLine.SetRange("Shipment No.");
     end;
@@ -1856,7 +1860,7 @@
                         then
                             exit(false);
                 end;
-            until ServLine2.Next = 0;
+            until ServLine2.Next() = 0;
         exit(true);
     end;
 
@@ -1869,13 +1873,13 @@
         if ServLine.FindFirst then begin
             ServLine2.SetRange("Document Type", ServHeader."Document Type");
             ServLine2.SetRange("Document No.", ServHeader."No.");
-            ServLine2.FindSet;
+            ServLine2.FindSet();
             if ServLine.Count <> ServLine2.Count then
                 repeat
                     if not ServLine.Get(ServLine2."Document Type", ServLine2."Document No.", ServLine2."Line No.") then
                         if ServLine2.Quantity <> ServLine2."Quantity Invoiced" + ServLine2."Quantity Consumed" then
                             CloseCondition := false;
-                until (ServLine2.Next = 0) or (not CloseCondition);
+                until (ServLine2.Next() = 0) or (not CloseCondition);
         end;
         // Remove ServLines that do not meet the posting conditions from the selected to post lines
         with ServLine do
@@ -1906,7 +1910,7 @@
                             DeleteWithAttachedLines;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure FinalizeDeleteComments(TableSubType: Enum "Service Document Type")
@@ -1959,7 +1963,7 @@
                                 (CustLedgEntry."Document Status" = CustLedgEntry."Document Status"::Rejected))
                         then
                             ShowError := true;
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
 
             if ShowError then
                 Error(Text1100000 +
@@ -1980,7 +1984,7 @@
         WarrantyLedgerEntry.Reset();
         WarrantyLedgerEntry.SetCurrentKey("Service Order No.", "Posting Date", "Document No.");
         WarrantyLedgerEntry.SetRange("Service Order No.", ServiceHeader."No.");
-        if WarrantyLedgerEntry.IsEmpty then
+        if WarrantyLedgerEntry.IsEmpty() then
             exit;
         if CloseCondition then begin
             WarrantyLedgerEntry.ModifyAll(Open, false);
@@ -1993,7 +1997,7 @@
             ServLineInvoicedConsumedQty := ServLine."Quantity Invoiced" + ServLine."Quantity Consumed";
             UpdateTempWarrantyLedgerEntry;
             UpdWarrantyLedgEntriesFromTemp;
-        until ServLine.Next = 0;
+        until ServLine.Next() = 0;
     end;
 
     local procedure FillTempWarrantyLedgerEntry(TempServiceLineParam: Record "Service Line" temporary; var WarrantyLedgerEntryPar: Record "Warranty Ledger Entry")
@@ -2005,7 +2009,7 @@
                 TempWarrantyLedgerEntry := WarrantyLedgerEntryPar;
                 TempWarrantyLedgerEntry.Insert();
             end;
-        until WarrantyLedgerEntryPar.Next = 0;
+        until WarrantyLedgerEntryPar.Next() = 0;
     end;
 
     local procedure UpdateTempWarrantyLedgerEntry()
@@ -2019,12 +2023,12 @@
             ServLineInvoicedConsumedQty -= Reduction;
             TempWarrantyLedgerEntry.Quantity -= Reduction;
             TempWarrantyLedgerEntry.Modify();
-        until (TempWarrantyLedgerEntry.Next = 0) or (ServLineInvoicedConsumedQty <= 0);
+        until (TempWarrantyLedgerEntry.Next() = 0) or (ServLineInvoicedConsumedQty <= 0);
         TempWarrantyLedgerEntry.Find('-');
         repeat
             TempWarrantyLedgerEntry.Open := TempWarrantyLedgerEntry.Quantity > 0;
             TempWarrantyLedgerEntry.Modify();
-        until (TempWarrantyLedgerEntry.Next = 0);
+        until (TempWarrantyLedgerEntry.Next() = 0);
     end;
 
     local procedure FindMinimumNumber(DecimalNumber1: Decimal; DecimalNumber2: Decimal): Decimal
@@ -2036,12 +2040,11 @@
 
     local procedure SortLines(var ServLine: Record "Service Line")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
         OnBeforeSortLines(ServLine);
 
-        GLSetup.Get();
-        if GLSetup.OptimGLEntLockForMultiuserEnv then
+        if InvSetup.OptimGLEntLockForMultiuserEnv() then
             ServLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
             ServLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
@@ -2068,7 +2071,7 @@
                 WarrantyLedgerEntryLocal.Open := false;
                 WarrantyLedgerEntryLocal.Modify();
             end;
-        until TempWarrantyLedgerEntry.Next = 0;
+        until TempWarrantyLedgerEntry.Next() = 0;
         TempWarrantyLedgerEntry.DeleteAll();
     end;
 
@@ -2102,7 +2105,7 @@
             repeat
                 TempTargetTrackingSpecification := TempTrackingSpecification;
                 TempTargetTrackingSpecification.Insert();
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
     end;
 
     local procedure PostResourceUsage(TempServLine: Record "Service Line" temporary)
@@ -2295,11 +2298,13 @@
     begin
     end;
 
+#if not CLEAN16
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by OnBeforeSetGenJnlLineDocNumbers', '16.0')]
     local procedure OnBeforeSetGenJnlLineDocNos(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJnlLineDocNumbers(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[35])

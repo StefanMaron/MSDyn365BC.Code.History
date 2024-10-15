@@ -240,7 +240,7 @@ report 10747 "Customer - Overdue Payments"
                             if not AppldCustLedgEntryTmp.FindSet then
                                 CurrReport.Break();
                         end else
-                            if AppldCustLedgEntryTmp.Next = 0 then
+                            if AppldCustLedgEntryTmp.Next() = 0 then
                                 CurrReport.Break();
 
                         if AppldCustLedgEntryTmp."Posting Date" > AppldCustLedgEntryTmp."Initial Entry Due Date" then begin
@@ -404,7 +404,7 @@ report 10747 "Customer - Overdue Payments"
                     FindAppPaymToInv(DtldCustLedgEntry."Applied Cust. Ledger Entry No.", InvCustLedgEntry)
                 else
                     FindAppInvToPaym(DtldCustLedgEntry, InvCustLedgEntry);
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure FindAppPaymToInv(AppliedCustLedgEntryNo: Integer; InvCustLedgEntry: Record "Cust. Ledger Entry")
@@ -438,7 +438,7 @@ report 10747 "Customer - Overdue Payments"
                             if AppldCustLedgEntryTmp.Insert() then;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

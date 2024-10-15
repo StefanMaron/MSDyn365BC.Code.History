@@ -4858,7 +4858,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         ReturnReceiptLine.SetRange("Document No.", PostedDocumentNo);
         ReturnReceiptLine.SetRange("No.", ItemNo);
-        ReturnReceiptLine.FindSet;
+        ReturnReceiptLine.FindSet();
         if Next then
             ReturnReceiptLine.Next;
         ReturnReceiptLine.TestField(Quantity, Quantity);
@@ -4870,7 +4870,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         if Next then
             SalesShipmentLine.Next;
         SalesShipmentLine.TestField(Quantity, Quantity);
@@ -4882,7 +4882,7 @@ codeunit 137156 "SCM Orders IV"
         ActualTotalDisAmt: Decimal;
     begin
         ValueEntry.SetRange("Document No.", PostedDocNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ActualTotalDisAmt := ActualTotalDisAmt + Abs(ValueEntry."Discount Amount");
         until ValueEntry.Next = 0;
@@ -4897,7 +4897,7 @@ codeunit 137156 "SCM Orders IV"
         with GLEntry do begin
             SetRange("Document No.", PostedDocNo);
             SetFilter("G/L Account No.", '%1|%2', LineDiscAccount, InvDiscAccount);
-            FindSet;
+            FindSet();
             repeat
                 TotalAMount += Amount;
             until Next = 0;

@@ -222,7 +222,7 @@ page 9401 "VAT Amount Lines"
                     TempVATAmountLine."EC %" := 0;
                 end;
                 TempVATAmountLine.Insert();
-            until NewVATAmountLine.Next = 0;
+            until NewVATAmountLine.Next() = 0;
     end;
 
     procedure GetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
@@ -232,7 +232,7 @@ page 9401 "VAT Amount Lines"
             repeat
                 NewVATAmountLine.Copy(TempVATAmountLine);
                 NewVATAmountLine.Insert();
-            until TempVATAmountLine.Next = 0;
+            until TempVATAmountLine.Next() = 0;
     end;
 
     procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
@@ -265,7 +265,7 @@ page 9401 "VAT Amount Lines"
             repeat
                 TotalVATDifference := TotalVATDifference + Abs(TempVATAmountLine."VAT Difference");
                 TotalECDifference := TotalECDifference + Abs(TempVATAmountLine."EC Difference");
-            until TempVATAmountLine.Next = 0;
+            until TempVATAmountLine.Next() = 0;
         TempVATAmountLine := VATAmountLine2;
         if TotalVATDifference > Currency."Max. VAT Difference Allowed" then
             Error(

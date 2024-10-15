@@ -127,7 +127,7 @@ codeunit 139090 "Test Postcode Service Manager"
         Clear(LibraryVariableStorage);
         Clear(TempEnteredAutocompleteAddressNameValueBuffer);
         // On first initialization
-        if PostcodeServiceConfig.IsEmpty then begin
+        if PostcodeServiceConfig.IsEmpty() then begin
             BindSubscription(PostcodeDummyService);
 
             PostcodeServiceConfig.Init();

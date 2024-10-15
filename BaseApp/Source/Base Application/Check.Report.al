@@ -193,7 +193,7 @@
                                                 BalancingType::Customer:
                                                     begin
                                                         CustUpdateAmounts(CustLedgEntry, RemainingAmount);
-                                                        FoundLast := (CustLedgEntry.Next = 0) or (RemainingAmount <= 0);
+                                                        FoundLast := (CustLedgEntry.Next() = 0) or (RemainingAmount <= 0);
                                                         AddedRemainingAmount := not (FoundLast and (RemainingAmount > 0));
                                                         if FoundLast and not FoundNegative then begin
                                                             CustLedgEntry.SetRange(Positive, false);
@@ -204,7 +204,7 @@
                                                 BalancingType::Vendor:
                                                     begin
                                                         VendUpdateAmounts(VendLedgEntry, RemainingAmount);
-                                                        FoundLast := (VendLedgEntry.Next = 0) or (RemainingAmount <= 0);
+                                                        FoundLast := (VendLedgEntry.Next() = 0) or (RemainingAmount <= 0);
                                                         AddedRemainingAmount := not (FoundLast and (RemainingAmount > 0));
                                                         if FoundLast and not FoundNegative then begin
                                                             VendLedgEntry.SetRange(Positive, false);
@@ -294,7 +294,7 @@
                                                             LineAmount := CurrentLineAmount;
                                                         end;
                                                 end;
-                                            FoundLast := GenJnlLine2.Next = 0;
+                                            FoundLast := GenJnlLine2.Next() = 0;
                                         end;
                                 end;
 
@@ -579,7 +579,7 @@
                                     GenJnlLine3."Check Printed" := true;
                                     GenJnlLine3.Validate(Amount);
                                     GenJnlLine3.Modify();
-                                until GenJnlLine2.Next = 0;
+                                until GenJnlLine2.Next() = 0;
                             end;
 
                             GenJnlLine3.Reset();
@@ -587,12 +587,12 @@
                             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                             GenJnlLine3."Line No." := HighestLineNo;
-                            if GenJnlLine3.Next = 0 then
+                            if GenJnlLine3.Next() = 0 then
                                 GenJnlLine3."Line No." := HighestLineNo + 10000
                             else begin
                                 while GenJnlLine3."Line No." = HighestLineNo + 1 do begin
                                     HighestLineNo := GenJnlLine3."Line No.";
-                                    if GenJnlLine3.Next = 0 then
+                                    if GenJnlLine3.Next() = 0 then
                                         GenJnlLine3."Line No." := HighestLineNo + 20000;
                                 end;
                                 GenJnlLine3."Line No." := (GenJnlLine3."Line No." + HighestLineNo) div 2;
@@ -1602,7 +1602,7 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecordId);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
         ApprovalEntry.SetRange("Related to Change", false);
-        if ApprovalEntry.IsEmpty then
+        if ApprovalEntry.IsEmpty() then
             exit(false);
         exit(not ApprovalsMgmt.HasOpenOrPendingApprovalEntries(RecordId));
     end;

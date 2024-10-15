@@ -497,7 +497,7 @@ codeunit 143305 "Library - 340 347 Declaration"
         if UseVATCashRegime and not UseUnrealizedVAT then
             Error(IncorrectVATSetupErr);
 
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             // The order matters
             if UseUnrealizedVAT then begin

@@ -1,4 +1,4 @@
-﻿codeunit 980 "Payment Registration Mgt."
+codeunit 980 "Payment Registration Mgt."
 {
     EventSubscriberInstance = Manual;
     TableNo = "Payment Registration Buffer";
@@ -83,7 +83,8 @@
         if GenJournalLine.FindLast then
             GenJournalLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
 
-        TempPaymentRegistrationBuffer.FindSet;
+        PaymentToleranceManagement.SetSuppressCommit(PreviewMode);
+        TempPaymentRegistrationBuffer.FindSet();
         repeat
             if TempPaymentRegistrationBuffer."Date Received" = 0D then
                 Error(EmptyDateReceivedErr, TempPaymentRegistrationBuffer."Document No.");
@@ -91,6 +92,8 @@
                 UpdatePmtDiscountDateOnCustLedgerEntry(TempPaymentRegistrationBuffer);
             with GenJournalLine do begin
                 Init;
+                GenJournalLine.SetSuppressCommit(PreviewMode);
+
                 "Journal Template Name" := PaymentRegistrationSetup."Journal Template Name";
                 "Journal Batch Name" := PaymentRegistrationSetup."Journal Batch Name";
                 "Line No." += 10000;
@@ -130,7 +133,7 @@
                 OnBeforeGenJnlLineInsert(GenJournalLine, TempPaymentRegistrationBuffer);
                 Insert(true);
             end;
-        until TempPaymentRegistrationBuffer.Next = 0;
+        until TempPaymentRegistrationBuffer.Next() = 0;
 
         if not PreviewMode then begin
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
@@ -144,7 +147,7 @@
         with PaymentRegistrationBuffer do begin
             Reset;
             SetRange("Payment Made", true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit(Confirm(StrSubstNo(CloseQst, FieldCaption("Payment Made"))));
         end;
 
@@ -198,7 +201,7 @@
                     if IsWithinTolerance(SalesHeader."Amount Including VAT", AmountFilter, AmountTolerancePerc) then
                         InsertDocSearchResult(TempDocumentSearchResult, SalesHeader."No.", SalesHeader."Document Type".AsInteger(), DATABASE::"Sales Header",
                           GetSalesHeaderDescription(SalesHeader), SalesHeader."Amount Including VAT");
-                until SalesHeader.Next = 0;
+                until SalesHeader.Next() = 0;
         end;
     end;
 
@@ -220,7 +223,7 @@
                         InsertDocSearchResult(
                           TempDocumentSearchResult, ServiceHeader."No.", ServiceHeader."Document Type".AsInteger(), DATABASE::"Service Header",
                           GetServiceHeaderDescription(ServiceHeader), ServiceLine."Amount Including VAT");
-                until ServiceHeader.Next = 0;
+                until ServiceHeader.Next() = 0;
         end;
     end;
 
@@ -239,7 +242,7 @@
                     then
                         InsertDocSearchResult(TempDocumentSearchResult, ReminderHeader."No.", 0, DATABASE::"Reminder Header",
                           ReminderTxt, ReminderHeader."Remaining Amount");
-                until ReminderHeader.Next = 0;
+                until ReminderHeader.Next() = 0;
         end;
     end;
 
@@ -258,7 +261,7 @@
                     then
                         InsertDocSearchResult(TempDocumentSearchResult, FinChargeMemoHeader."No.", 0, DATABASE::"Finance Charge Memo Header",
                           FinChrgMemoTxt, FinChargeMemoHeader."Remaining Amount");
-                until FinChargeMemoHeader.Next = 0;
+                until FinChargeMemoHeader.Next() = 0;
         end;
     end;
 
@@ -347,7 +350,7 @@
                 repeat
                     TempPaymentRegistrationBuffer := SourcePaymentRegistrationBuffer;
                     TempPaymentRegistrationBuffer.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with TempPaymentRegistrationBuffer do begin
@@ -482,7 +485,7 @@
                 CustLedgerEntry."Applies-to ID" := '';
                 CustLedgerEntry."Amount to Apply" := 0;
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
-            until TempPaymentRegistrationBuffer.Next = 0;
+            until TempPaymentRegistrationBuffer.Next() = 0;
     end;
 
     local procedure CreateLumpPayment(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
@@ -496,7 +499,7 @@
                 UpdatePmtDiscountDateOnCustLedgerEntry(PaymentRegistrationBuffer);
                 UpdateApplicationFieldsOnCustLedgerEntry(PaymentRegistrationBuffer);
                 AmountReceived += PaymentRegistrationBuffer."Amount Received";
-            until PaymentRegistrationBuffer.Next = 0;
+            until PaymentRegistrationBuffer.Next() = 0;
 
         PaymentRegistrationBuffer."Amount Received" := AmountReceived;
     end;
@@ -504,7 +507,7 @@
     local procedure CheckDistinctSourceNo(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     begin
         PaymentRegistrationBuffer.SetFilter("Source No.", '<>%1', PaymentRegistrationBuffer."Source No.");
-        if not PaymentRegistrationBuffer.IsEmpty then
+        if not PaymentRegistrationBuffer.IsEmpty() then
             Error(DistinctCustomerErr, PaymentRegistrationBuffer.FieldCaption("Payment Made"));
 
         PaymentRegistrationBuffer.SetRange("Source No.");
@@ -513,7 +516,7 @@
     local procedure CheckDistinctDateReceived(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     begin
         PaymentRegistrationBuffer.SetFilter("Date Received", '<>%1', PaymentRegistrationBuffer."Date Received");
-        if not PaymentRegistrationBuffer.IsEmpty then
+        if not PaymentRegistrationBuffer.IsEmpty() then
             Error(DistinctDateReceivedErr, PaymentRegistrationBuffer.FieldCaption("Date Received"),
               PaymentRegistrationBuffer.FieldCaption("Payment Made"));
 
@@ -539,7 +542,7 @@
             CustLedgerEntry.SetRange("Entry No.", TempPaymentRegistrationBuffer."Ledger Entry No.");
 
         CustLedgerEntry.SetFilter("Currency Code", '<>%1', GenJnlLine."Currency Code");
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             Error(ForeignCurrNotSuportedErr, TempPaymentRegistrationBuffer."Document Type", TempPaymentRegistrationBuffer.Description,
               PaymentRegistrationSetup.TableCaption);
     end;
@@ -610,7 +613,7 @@
         repeat
             TempPaymentRegistrationBuffer := PaymentRegistrationBuffer;
             TempPaymentRegistrationBuffer.Insert();
-        until PaymentRegistrationBuffer.Next = 0;
+        until PaymentRegistrationBuffer.Next() = 0;
 
         if AsLump then
             ConfirmPostLumpPayment(PaymentRegistrationBuffer)
@@ -630,7 +633,7 @@
                 PaymentRegistrationBuffer := TempPaymentRegistrationBuffer;
                 PaymentRegistrationBuffer.Insert();
             end;
-        until TempPaymentRegistrationBuffer.Next = 0;
+        until TempPaymentRegistrationBuffer.Next() = 0;
     end;
 
     procedure SetPreviewContext(AsLump: Boolean)
@@ -638,7 +641,7 @@
         AsLumpPreviewContext := AsLump;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";

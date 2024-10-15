@@ -1595,7 +1595,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         TotalChargedAmount: Decimal;
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
 
         repeat
             TotalChargedAmount := TotalChargedAmount + BankAccountLedgerEntry.Amount;

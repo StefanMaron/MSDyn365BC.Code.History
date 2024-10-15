@@ -378,7 +378,7 @@ table 1208 "Direct Debit Collection Entry"
                    (DirectDebitCollectionEntry."Entry No." <> "Entry No.")
                 then
                     AmountAlreadyInCollection += DirectDebitCollectionEntry."Transfer Amount";
-            until DirectDebitCollectionEntry.Next = 0;
+            until DirectDebitCollectionEntry.Next() = 0;
         exit(AmountAlreadyInCollection);
     end;
 

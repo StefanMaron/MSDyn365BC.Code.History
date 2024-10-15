@@ -45,7 +45,7 @@ page 10735 "Gen. Prod. Post. Gr. Selection"
             repeat
                 TheGPPGSelectionBuf := Rec;
                 TheGPPGSelectionBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -762,7 +762,7 @@ table 122 "Purch. Inv. Header"
             ReportSelection.Find('-');
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchInvHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

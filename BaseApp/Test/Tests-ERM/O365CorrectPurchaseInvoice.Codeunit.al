@@ -887,7 +887,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         // VERIFY: It should not be possible to correct a posted invoice when the Purchase income statements accounts are blocked
         // or Dimensions are mandatory
-        TempGLAcc.FindSet;
+        TempGLAcc.FindSet();
         repeat
             VerifyCorrectionFailsOnBlockedGLAcc(TempGLAcc, PayToVendor, PurchInvHeader);
             VerifyCorrectionFailsOnMandatoryDimGLAcc(TempGLAcc, PayToVendor, PurchInvHeader);
@@ -1775,7 +1775,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
     local procedure CopyGLAccToGLAcc(var FromGLAcc: Record "G/L Account"; var ToGLAcc: Record "G/L Account")
     begin
-        FromGLAcc.FindSet;
+        FromGLAcc.FindSet();
         repeat
             ToGLAcc := FromGLAcc;
             if ToGLAcc.Insert() then;
@@ -1952,7 +1952,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
         ValueEntry.SetRange("Source No.", Vendor."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
@@ -1966,7 +1966,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntry."Entry No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";

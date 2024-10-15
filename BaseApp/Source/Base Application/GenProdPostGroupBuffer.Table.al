@@ -63,7 +63,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
                 GPPGSelectionMultiple.InsertGPPGSelBuf(
                   SelectedGPPG.Get(GenProdPostGroup.Code),
                   GenProdPostGroup.Code, GenProdPostGroup.Description);
-            until GenProdPostGroup.Next = 0;
+            until GenProdPostGroup.Next() = 0;
 
         GPPGSelectionMultiple.LookupMode := true;
         if GPPGSelectionMultiple.RunModal = ACTION::LookupOK then begin
@@ -83,7 +83,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
                 SelectedGPPG.Description := GPPGSelectionBuf.Description;
                 SelectedGPPG.Insert();
                 AddGPPGCodeToText(SelectedGPPG.Code, SelectedGPPGText, FilterString);
-            until GPPGSelectionBuf.Next = 0;
+            until GPPGSelectionBuf.Next() = 0;
     end;
 
     local procedure AddGPPGCodeToText(GPPGCode: Code[20]; var Text: Text[1024]; var FilterString: Text[1024])
@@ -112,7 +112,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
                 GPPGNonDeductSelectMul340.InsertGPPGSelBuf(
                   NonDeductGPPG340.Get(GenProdPostGroup.Code),
                   GenProdPostGroup.Code, GenProdPostGroup.Description);
-            until GenProdPostGroup.Next = 0;
+            until GenProdPostGroup.Next() = 0;
 
         GPPGNonDeductSelectMul340.LookupMode := true;
         if GPPGNonDeductSelectMul340.RunModal = ACTION::LookupOK then begin
@@ -132,7 +132,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
                 NonDeductGPPG340.Description := GPPGSelectionBuf.Description;
                 NonDeductGPPG340.Insert();
                 AddGPPGCodeToText(NonDeductGPPG340.Code, SelectedGPPGText, FilterString);
-            until GPPGSelectionBuf.Next = 0;
+            until GPPGSelectionBuf.Next() = 0;
     end;
 }
 

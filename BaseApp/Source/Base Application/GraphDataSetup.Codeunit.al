@@ -70,7 +70,7 @@ codeunit 5455 "Graph Data Setup"
                 FieldRef := EntityRecRef.Field(IntegrationFieldMapping."Field No.");
                 EmptyFieldRef := EmptyRecordRef.Field(IntegrationFieldMapping."Field No.");
                 CanSync := FieldRef.Value <> EmptyFieldRef.Value;
-            until (IntegrationFieldMapping.Next = 0) or CanSync;
+            until (IntegrationFieldMapping.Next() = 0) or CanSync;
     end;
 
     procedure ClearIntegrationMapping(MappingCode: Code[20])

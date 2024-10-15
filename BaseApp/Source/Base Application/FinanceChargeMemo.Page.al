@@ -22,7 +22,7 @@ page 446 "Finance Charge Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Customer No."; "Customer No.")
@@ -31,6 +31,11 @@ page 446 "Finance Charge Memo"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the customer you want to create a finance charge memo for.';
+
+                    trigger OnValidate()
+                    begin
+                        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+                    end;
                 }
                 field(Name; Name)
                 {
@@ -70,6 +75,33 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
+                }
+                field(ContactPhoneNo; PrimaryContact."Phone No.")
+                {
+                    Caption = 'Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactEmail; PrimaryContact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -388,7 +420,14 @@ page 446 "Finance Charge Memo"
         SetDocNoVisible;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+    end;
+
     var
+        PrimaryContact: Record Contact;
+        Customer: Record Customer;
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";

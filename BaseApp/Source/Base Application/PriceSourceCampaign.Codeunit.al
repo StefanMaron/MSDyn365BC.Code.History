@@ -57,6 +57,7 @@ codeunit 7039 "Price Source - Campaign" implements "Price Source"
 
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
+        PriceSource.Description := Campaign.Description;
         PriceSource."Starting Date" := Campaign."Starting Date";
         PriceSource."Ending Date" := Campaign."Ending Date";
     end;

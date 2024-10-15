@@ -297,7 +297,7 @@ table 10740 "No Taxable Entry"
         NewNoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntry(EntryType, SourceNo, DocumentType, DocumentNo, PostingDate, false);
-        if NoTaxableEntry.IsEmpty then
+        if NoTaxableEntry.IsEmpty() then
             exit;
 
         NoTaxableEntry.FindSet(true);
@@ -318,7 +318,7 @@ table 10740 "No Taxable Entry"
             NoTaxableEntry.Reversed := true;
             NoTaxableEntry."Reversed by Entry No." := NewNoTaxableEntry."Entry No.";
             NoTaxableEntry.Modify();
-        until NoTaxableEntry.Next = 0;
+        until NoTaxableEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

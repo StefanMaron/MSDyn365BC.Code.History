@@ -494,6 +494,7 @@ report 1305 "Standard Sales - Order Conf."
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                 }
+#if not CLEAN16
                 column(CrossReferenceNo; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -506,6 +507,7 @@ report 1305 "Standard Sales - Order Conf."
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo; "Item Reference No.")
                 {
                 }
@@ -1036,7 +1038,7 @@ report 1305 "Standard Sales - Order Conf."
                           Header."No. of Archived Versions", DATABASE::Customer, Header."Bill-to Customer No.",
                           Header."Salesperson Code", Header."Campaign No.", Header."Posting Description", Header."Opportunity No.");
 
-                until Header.Next = 0;
+                until Header.Next() = 0;
     end;
 
     trigger OnPreReport()

@@ -1,4 +1,4 @@
-﻿codeunit 10752 "SII Doc. Upload Management"
+codeunit 10752 "SII Doc. Upload Management"
 {
 
     trigger OnRun()
@@ -161,7 +161,7 @@
             PreExecutePendingRequests(SIISession, IsInvokeSoapRequest, BatchSubmissions);
             ExecutePendingRequestsPerDocument(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsInvokeSoapRequest, SIISession.Id);
             PostExecutePendingRequests(SIIDocUploadState, TempSIIHistoryBuffer, SIISession, XMLDoc, IsInvokeSoapRequest, BatchSubmissions);
-        until SIIDocUploadState.Next = 0;
+        until SIIDocUploadState.Next() = 0;
         PostExecutePendingRequests(SIIDocUploadState, TempSIIHistoryBuffer, SIISession, XMLDoc, IsInvokeSoapRequest, not BatchSubmissions);
     end;
 
@@ -192,7 +192,7 @@
                     end else
                         IsInvokeSoapRequest := true or IsInvokeSoapRequest;
                 TempSIIHistoryBuffer.Modify();
-            until TempSIIHistoryBuffer.Next = 0;
+            until TempSIIHistoryBuffer.Next() = 0;
         OnAfterExecutePendingRequestsPerDocument(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsInvokeSoapRequest, SIISessionId);
     end;
 
@@ -242,10 +242,9 @@
         UploadDocuments(false);
     end;
 
-    [Scope('OnPrem')]
     procedure UploadManualDocument()
     begin
-        if not GetAndCheckSetup then
+        if not GetAndCheckSetup() then
             exit;
 
         // Process only manually-created documents
@@ -259,7 +258,7 @@
     begin
         with SIIDocUploadState do begin
             SetDocStateFilters(SIIDocUploadState, IsManual);
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 CreateHistoryPendingBuffer(TempSIIHistoryBuffer, IsManual);
 
                 // Customer Invoice
@@ -316,7 +315,7 @@
         with SIIDocUploadState do begin
             SetRange("Transaction Type", TransactionType);
             SetRange("Retry Accepted", RetryAccepted);
-            if not IsEmpty then
+            if not IsEmpty() then
                 ExecutePendingRequests(
                   SIIDocUploadState, TempSIIHistoryBuffer, SIISetup."Enable Batch Submissions");
         end;
@@ -417,7 +416,7 @@
                 repeat
                     TempSIIHistoryBuffer := SIIHistory;
                     TempSIIHistoryBuffer.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -432,7 +431,7 @@
                 repeat
                     SIIHistory := TempSIIHistoryBuffer;
                     SIIHistory.Modify();
-                until (SIIHistory.Next = 0) or (TempSIIHistoryBuffer.Next = 0);
+                until (SIIHistory.Next() = 0) or (TempSIIHistoryBuffer.Next() = 0);
         end;
     end;
 
@@ -462,7 +461,7 @@
         if TempSIIHistoryBuffer.FindSet then
             repeat
                 TempSIIHistoryBuffer.ProcessResponseCommunicationError(ErrorMessage);
-            until TempSIIHistoryBuffer.Next = 0;
+            until TempSIIHistoryBuffer.Next() = 0;
     end;
 
     local procedure ProcessBatchResponse(var TempSIIHistoryBuffer: Record "SII History" temporary)
@@ -470,7 +469,7 @@
         if TempSIIHistoryBuffer.FindSet then
             repeat
                 TempSIIHistoryBuffer.ProcessResponse;
-            until TempSIIHistoryBuffer.Next = 0;
+            until TempSIIHistoryBuffer.Next() = 0;
     end;
 
     local procedure ParseBatchResponse(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; ResponseText: Text)
@@ -486,7 +485,7 @@
                     ProcessResponseCollectionInCash(SIIDocUploadState, TempSIIHistoryBuffer, TempXMLBuffer[2], TempXMLBuffer[1]."Entry No.")
                 else
                     ProcessResponseDocNo(SIIDocUploadState, TempSIIHistoryBuffer, TempXMLBuffer[2], TempXMLBuffer[1]."Entry No.");
-            until TempXMLBuffer[1].Next = 0
+            until TempXMLBuffer[1].Next() = 0
         else begin
             XMLParseErrorCode(TempXMLBuffer[2], TempSIIHistory);
             TempSIIHistoryBuffer.ModifyAll("Error Message", TempSIIHistory."Error Message");
@@ -498,7 +497,7 @@
 
         // update remaining Pending (not matched within XML)
         TempSIIHistoryBuffer.SetRange(Status, TempSIIHistory.Status::Pending);
-        if not TempSIIHistoryBuffer.IsEmpty then begin
+        if not TempSIIHistoryBuffer.IsEmpty() then begin
             TempSIIHistoryBuffer.ModifyAll("Error Message", ParseMatchDocumentErr);
             TempSIIHistoryBuffer.ModifyAll(Status, TempSIIHistory.Status::Failed);
             ProcessBatchResponse(TempSIIHistoryBuffer);
@@ -670,7 +669,7 @@
         exit(SIISetup.Enabled);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1262, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Isolated Certificate", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure OnBeforeDeleteCertificate(var Rec: Record "Isolated Certificate"; RunTrigger: Boolean)
     var
         ConfirmManagement: Codeunit "Confirm Management";

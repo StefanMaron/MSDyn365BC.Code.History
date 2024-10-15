@@ -1,4 +1,4 @@
-codeunit 144055 "ERM ES Intrastat"
+﻿codeunit 144055 "ERM ES Intrastat"
 {
     // // [FEATURE] [Intrastat]
     // 

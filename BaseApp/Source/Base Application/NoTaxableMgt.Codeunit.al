@@ -414,7 +414,7 @@ codeunit 10740 "No Taxable Mgt."
                       GenBusPostGroup, GenProdPostGroup);
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntriesFromSalesLines(var PostedLineRecRef: RecordRef; NoTaxableEntry: Record "No Taxable Entry"; Sign: Integer)
@@ -467,7 +467,7 @@ codeunit 10740 "No Taxable Mgt."
                       GenBusPostGroup, GenProdPostGroup);
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; TransactionNo: Integer; Sign: Integer)
@@ -529,7 +529,7 @@ codeunit 10740 "No Taxable Mgt."
         GLEntry.SetRange("Posting Date", NoTaxableEntry."Posting Date");
         GLEntry.SetRange(Reversed, false);
 
-        if GLEntry.IsEmpty then
+        if GLEntry.IsEmpty() then
             exit;
         GLEntry.FindFirst;
         if not VATPostingSetup.Get(GLEntry."VAT Bus. Posting Group", GLEntry."VAT Prod. Posting Group") then
@@ -604,7 +604,7 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
           "General Posting Type"::Sale.AsInteger(), CustomerNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
-        if NoTaxableEntry.IsEmpty then
+        if NoTaxableEntry.IsEmpty() then
             exit;
 
         NoTaxableEntry.SetRange("EU Service", true);
@@ -625,7 +625,7 @@ codeunit 10740 "No Taxable Mgt."
                 repeat
                     NoTaxableNormalAmountSales[MapDeliveryOperationCode(NoTaxableEntry."Delivery Operation Code")] +=
                       Abs(NoTaxableEntry.Amount);
-                until NoTaxableEntry.Next = 0;
+                until NoTaxableEntry.Next() = 0;
         end;
     end;
 
@@ -637,7 +637,7 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
           "General Posting Type"::Purchase.AsInteger(), VendorNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
-        if NoTaxableEntry.IsEmpty then
+        if NoTaxableEntry.IsEmpty() then
             exit;
 
         with NoTaxableEntry do begin
@@ -745,7 +745,7 @@ codeunit 10740 "No Taxable Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterPostVend', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterPostVend', '', false, false)]
     local procedure InsertNoTaxableEntryOnPostVend(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
         if not (GenJournalLine."Document Type" in
@@ -761,7 +761,7 @@ codeunit 10740 "No Taxable Mgt."
         InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine, TempGLEntryBuf."Transaction No.", 1);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterPostCust', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterPostCust', '', false, false)]
     local procedure InsertNoTaxableEntryOnPostCust(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
         if not (GenJournalLine."Document Type" in
@@ -777,14 +777,14 @@ codeunit 10740 "No Taxable Mgt."
         InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine, TempGLEntryBuf."Transaction No.", -1);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5980, 'OnAfterPostServiceDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostServiceDoc', '', false, false)]
     local procedure InsertNoTaxableEntryOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; ServShipmentNo: Code[20]; ServInvoiceNo: Code[20]; ServCrMemoNo: Code[20])
     begin
         if not CreateNoTaxableEntriesServiceInvoice(ServiceHeader, ServInvoiceNo) then
             CreateNoTaxableEntriesServiceCreditMemo(ServiceHeader, ServCrMemoNo);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 17, 'OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Reverse", 'OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry', '', false, false)]
     local procedure ReverseNoTaxableEntryVend(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
     var
         DummyNoTaxableEntry: Record "No Taxable Entry";
@@ -794,7 +794,7 @@ codeunit 10740 "No Taxable Mgt."
           VendLedgEntry."Document Type".AsInteger(), VendLedgEntry."Document No.", VendLedgEntry."Posting Date");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 17, 'OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Reverse", 'OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry', '', false, false)]
     local procedure ReverseNoTaxableEntryCust(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         DummyNoTaxableEntry: Record "No Taxable Entry";

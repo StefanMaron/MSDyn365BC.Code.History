@@ -3268,7 +3268,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.TestField("Payment Terms Code", PaymentTermsCode);
         until VendorLedgerEntry.Next = 0;
@@ -3279,7 +3279,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Payment Terms Code", PaymentTermsCode);
         until CustLedgerEntry.Next = 0;

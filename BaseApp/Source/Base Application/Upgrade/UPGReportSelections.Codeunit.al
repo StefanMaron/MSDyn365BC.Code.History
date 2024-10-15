@@ -34,14 +34,14 @@ codeunit 104107 "Upg Report Selections"
                         TempReportSelections.Usage := "Report Selection Usage".FromInteger(101);
                 end;
                 TempReportSelections.Insert();
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
 
         TempReportSelections.Reset();
         if TempReportSelections.FindSet then begin
             repeat
                 ReportSelections := TempReportSelections;
                 ReportSelections.Insert();
-            until TempReportSelections.Next = 0;
+            until TempReportSelections.Next() = 0;
 
             ReportSelections.SetRange(Usage, 58, 59);
             ReportSelections.DeleteAll();

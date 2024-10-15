@@ -34,7 +34,7 @@ report 10718 "XML VAT Declaration"
                                     Evaluate(TotalAmount, Description);
                                 LoadValue(TempAEATTransFormatXML, TotalAmount);
                                 TempAEATTransFormatXML.Modify();
-                            until TempAEATTransFormatXML.Next = 0;
+                            until TempAEATTransFormatXML.Next() = 0;
                     end;
                 end;
 
@@ -46,7 +46,7 @@ report 10718 "XML VAT Declaration"
                         repeat
                             TempAEATTransFormatXML := AEATTransFormatXML;
                             TempAEATTransFormatXML.Insert();
-                        until AEATTransFormatXML.Next = 0;
+                        until AEATTransFormatXML.Next() = 0;
                 end;
             }
 
@@ -197,7 +197,7 @@ report 10718 "XML VAT Declaration"
                         repeat
                             GLAccount.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAccount."Net Change", GLAccount."Additional-Currency Net Change");
-                        until GLAccount.Next = 0;
+                        until GLAccount.Next() = 0;
                     CalcTotalAmount(VATStatementLine2, TotalAmount);
                 end;
             VATStatementLine2.Type::"VAT Entry Totaling":
@@ -287,7 +287,7 @@ report 10718 "XML VAT Declaration"
                                 TextError := TextError + '...';
                                 VATStatementLine2.FieldError("Row No.", TextError);
                             end;
-                        until VATStatementLine2.Next = 0;
+                        until VATStatementLine2.Next() = 0;
                 end;
             VATStatementLine2.Type::Description:
                 ;
@@ -460,7 +460,7 @@ report 10718 "XML VAT Declaration"
                         if AEATTransFormatXML.FindSet then
                             repeat
                                 AppendVATStatementLine(NewXMLNode, AEATTransFormatXML, false);
-                            until AEATTransFormatXML.Next = 0;
+                            until AEATTransFormatXML.Next() = 0;
                     end;
                 AEATTransFormatXML."Line Type"::Attribute:
                     XMLDOMMgt.AddAttribute(ParentXMLNode, AEATTransFormatXML.Description, AEATTransFormatXML.Value);

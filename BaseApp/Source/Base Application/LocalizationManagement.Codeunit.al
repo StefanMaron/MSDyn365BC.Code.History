@@ -18,7 +18,7 @@ codeunit 10760 "Localization Management"
         VendorLedgerEntry.SetRange("Document Date", CalcDate('<-CY>', DocumentDate), CalcDate('<CY>', DocumentDate));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1312, 'OnAfterSetFilterForExternalDocNo', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Mgt.", 'OnAfterSetFilterForExternalDocNo', '', false, false)]
     local procedure OnAfterSetFilterForExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentDate: Date)
     begin
         if not IsSameExtDocNoInDiffFY then

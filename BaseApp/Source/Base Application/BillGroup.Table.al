@@ -401,7 +401,7 @@ table 7000005 "Bill Group"
             CarteraReportSelection.Find('-');
             repeat
                 REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, BillGr);
-            until CarteraReportSelection.Next = 0;
+            until CarteraReportSelection.Next() = 0;
         end;
     end;
 
@@ -428,7 +428,7 @@ table 7000005 "Bill Group"
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         BankAccount: Record "Bank Account";
     begin
-        DirectDebitCollection.CreateNew("No.", "Bank Account No.", "Partner Type");
+        DirectDebitCollection.CreateRecord("No.", "Bank Account No.", "Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
         DirectDebitCollection.Modify();
         CheckSEPADirectDebitFormat(DirectDebitCollection);

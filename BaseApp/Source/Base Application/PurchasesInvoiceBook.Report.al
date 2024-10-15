@@ -445,7 +445,7 @@ report 10705 "Purchases Invoice Book"
                             if Fin then
                                 CurrReport.Break();
                             VATBuffer4 := VATBuffer3;
-                            Fin := VATBuffer3.Next = 0;
+                            Fin := VATBuffer3.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -494,7 +494,7 @@ report 10705 "Purchases Invoice Book"
                                 VatEntryTemporary.Copy(VATEntry6);
                                 VatEntryTemporary.Insert();
                                 VatEntryTemporary.Next;
-                            until Next = 0;
+                            until Next() = 0;
                             if Find('-') then;
                             i := 0;
                         end;
@@ -694,7 +694,7 @@ report 10705 "Purchases Invoice Book"
                         if Fin then
                             CurrReport.Break();
                         VATBuffer2 := VATBuffer;
-                        Fin := VATBuffer.Next = 0;
+                        Fin := VATBuffer.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -984,7 +984,7 @@ report 10705 "Purchases Invoice Book"
                         if Fin then
                             CurrReport.Break();
                         VATBuffer2 := VATBuffer;
-                        Fin := VATBuffer.Next = 0;
+                        Fin := VATBuffer.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()

@@ -158,7 +158,7 @@ report 7000083 "Redraw Payable Bills"
                     repeat
                         GenJnlLine2 := GenJnlLine;
                         GenJnlPostLine.Run(GenJnlLine2);
-                    until GenJnlLine.Next = 0;
+                    until GenJnlLine.Next() = 0;
 
                 Commit();
 

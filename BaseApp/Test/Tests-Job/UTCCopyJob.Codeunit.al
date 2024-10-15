@@ -819,7 +819,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         JobTaskDimension.SetRange("Job No.", SourceJobNo);
         JobTaskDimension.SetRange("Job Task No.", TaskNo);
-        JobTaskDimension.FindSet;
+        JobTaskDimension.FindSet();
         repeat
             VerifyJobTaskDimension(TargetJobNo, TaskNo, JobTaskDimension."Dimension Code", JobTaskDimension."Dimension Value Code");
             Count += 1;

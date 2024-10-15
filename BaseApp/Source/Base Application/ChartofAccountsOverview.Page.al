@@ -143,7 +143,7 @@ page 634 "Chart of Accounts Overview"
                 if GLAcc."Account Type" = 3 then
                     Totaling := GetEndTotal(GLAcc);
                 Insert;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
 
         if FindFirst then;
     end;

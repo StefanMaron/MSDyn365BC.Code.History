@@ -141,7 +141,7 @@ report 7000097 "Reject Docs."
                               "Dimension Set ID");
                             FindInClosedBills := false;
                         end;
-                        until NoRealVATBuffer.Next = 0;
+                        until NoRealVATBuffer.Next() = 0;
 
                     "Currency Code" := TempCurrCode;
                 end;
@@ -188,9 +188,9 @@ report 7000097 "Reject Docs."
                                 repeat
                                     PostedBillGr.Get(PostedDoc2."Bill Gr./Pmt. Order No.");
                                     DocPost.CloseBillGroupIfEmpty(PostedBillGr, PostingDate);
-                                until PostedDoc2.Next = 0;
+                                until PostedDoc2.Next() = 0;
                         end;
-                    until GenJnlLine.Next = 0;
+                    until GenJnlLine.Next() = 0;
 
                 PostGenJournal;
                 if ExistVATEntry then begin
@@ -660,7 +660,7 @@ report 7000097 "Reject Docs."
                 GenJnlLine2."Line No." := GenJnlLine2."Line No." + LastLineNo;
                 GenJnlLine2."Transaction No." := TransactionNo;
                 GenJnlLine2.Insert();
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
             Commit();
             GenJnlLine2.Reset();
             GenJnlTemplate.Get(TemplName);
@@ -677,7 +677,7 @@ report 7000097 "Reject Docs."
             repeat
                 GenJnlLine2 := GenJnlLine;
                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

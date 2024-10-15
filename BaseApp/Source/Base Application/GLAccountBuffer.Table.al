@@ -51,7 +51,7 @@ table 10726 "G/L Account Buffer"
                 GLAccSelectionMultiple.InsertGLAccSelBuf(
                   SelectedGLAcc.Get(GLAccount."No."),
                   GLAccount."No.", GLAccount.Name);
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
 
         GLAccSelectionMultiple.LookupMode := true;
         if GLAccSelectionMultiple.RunModal = ACTION::LookupOK then begin
@@ -72,7 +72,7 @@ table 10726 "G/L Account Buffer"
                 SelectedGLAcc.Name := GLAccSelectionBuf.Name;
                 SelectedGLAcc.Insert();
                 AddGLAccNoToText(SelectedGLAcc."No.", SelectedGLAccText, FilterString);
-            until GLAccSelectionBuf.Next = 0;
+            until GLAccSelectionBuf.Next() = 0;
     end;
 
     procedure AddGLAccNoToText(GLAccNo: Code[20]; var Text: Text[250]; var FilterString: Text[250])
@@ -98,7 +98,7 @@ table 10726 "G/L Account Buffer"
             if Find('-') then
                 repeat
                     AddGLAccNoToText("No.", SelectedGLAccText, SelectedGLAccText);
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(SelectedGLAccText);
     end;

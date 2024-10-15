@@ -349,7 +349,7 @@ codeunit 144047 "ERM Equivalent Charge"
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst;
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             DebitAmount += GLEntry."Debit Amount";
         until GLEntry.Next = 0;

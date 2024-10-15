@@ -66,7 +66,7 @@ codeunit 10700 "Due Date-Adjust"
 
         repeat
             InitialDate := DueDate;
-            if not NonPaymentPeriod.IsEmpty then begin
+            if not NonPaymentPeriod.IsEmpty() then begin
                 if ForwardCalculation then begin
                     DueDate := AdjustToNonPaymentPeriod(NonPaymentPeriod, DueDate, ForwardCalculation);
                     if DueDateIsGreaterMaxAvailDate(DueDate, MinDate, MaxDate) then
@@ -75,7 +75,7 @@ codeunit 10700 "Due Date-Adjust"
                 if not ForwardCalculation then
                     DueDate := AdjustToNonPaymentPeriod(NonPaymentPeriod, InitialDate, ForwardCalculation);
             end;
-            if not PaymentDay.IsEmpty then begin
+            if not PaymentDay.IsEmpty() then begin
                 if ForwardCalculation then begin
                     DueDate := AdjustToPaymentDay(PaymentDay, DueDate, '>', '-', '+');
                     if DueDateIsGreaterMaxAvailDate(DueDate, MinDate, MaxDate) then
@@ -148,7 +148,7 @@ codeunit 10700 "Due Date-Adjust"
 
     local procedure PaymentDayInNonPaymentPeriod(var NonPaymentPeriod: Record "Non-Payment Period"; PaymentDay: Record "Payment Day"; PaymentDate: Date): Boolean
     begin
-        if not NonPaymentPeriod.IsEmpty and not PaymentDay.IsEmpty then begin
+        if not NonPaymentPeriod.IsEmpty and not PaymentDay.IsEmpty() then begin
             if (PaymentDate >= NonPaymentPeriod."From Date") and (PaymentDate <= NonPaymentPeriod."To Date") then
                 exit(true);
 

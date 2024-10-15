@@ -29,7 +29,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GLAccountBlockError: Label '%1 must be equal to ''No''  in %2: %3=%4. Current value is ''Yes''.';
         NoSeriesError: Label 'Only the %1 field can be filled in on recurring journals.';
         FAPostingDateError: Label '%1 is not within your range of allowed posting dates in %2 %3=''%4'',%5=''%6'',%7=''%8''.';
-        FADisposalError: Label 'Disposal must not be negative on %1 for Fixed Asset No. = %2 in %3 = %4.';
+        FADisposalError: Label 'Disposal must not be positive on %1 for Fixed Asset No. = %2 in %3 = %4.';
         FAAcquisitionError: Label '%1 Acquisition Cost must be posted in the FA journal in %2 %3=''%4'',%5=''%6'',Line No.=''%7''.';
         ReversalError: Label 'Maintenance Ledger Entry was not reversed properly.';
         DepreciationMethodError: Label '%1 must not be %2 in %3 %4=''%5'',%6=''%7''.';
@@ -1562,7 +1562,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify the Disposal Amount in FA Ledger Entry.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.SetRange(Amount, -GenJournalLine.Amount);
+        FALedgerEntry.SetRange(Amount, GenJournalLine.Amount);
         FALedgerEntry.FindFirst;
     end;
 
@@ -1729,7 +1729,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify Amount in FA Ledger Entry.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.SetRange(Amount, -GenJournalLine.Amount);
+        FALedgerEntry.SetRange(Amount, GenJournalLine.Amount);
         FALedgerEntry.FindFirst;
     end;
 
@@ -1844,6 +1844,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 2. Exercise: Update No of Depreciation Years.
         LibraryLowerPermissions.SetO365FASetup;
+        LibraryLowerPermissions.AddO365FAEdit();
         UpdateDepreciationYear(FADepreciationBook);
 
         // 3. Verify: Check that No of Depreciation Months updated correctly.
@@ -3533,7 +3534,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesLine."Document No.");
         SalesInvoiceHeader.FindFirst;
         FALedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        FALedgerEntry.SetRange(Amount, SalesLine."Line Amount");
+        FALedgerEntry.SetRange(Amount, -SalesLine."Line Amount");
         FALedgerEntry.FindFirst;
     end;
 

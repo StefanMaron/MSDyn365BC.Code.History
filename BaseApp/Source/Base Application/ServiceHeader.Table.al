@@ -451,7 +451,7 @@
                                 Error(
                                   Text027, FieldCaption("Order Date"),
                                   ServItemLine.FieldCaption("Starting Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
@@ -461,7 +461,7 @@
                             ServItemLine.CheckWarranty("Order Date");
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
                             ServItemLine.Modify();
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                     UpdateServLinesByFieldNo(FieldNo("Order Date"), false);
                 end;
             end;
@@ -495,7 +495,7 @@
                             ServLine."Posting Date" := "Posting Date";
                             ServLine.Modify();
                         end;
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -724,7 +724,7 @@
                             ServLine."VAT Base Amount" := 0;
                             ServLine.InitOutstandingAmount;
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     ServLine.SetRange(Type);
                     ServLine.SetRange(Quantity);
 
@@ -777,7 +777,7 @@
                                     end;
                                 end;
                             ServLine.Modify();
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     end;
                 end;
             end;
@@ -1395,7 +1395,7 @@
                                 ServLine.UpdateAmounts;
                                 ServLine.Modify();
                             end;
-                        until ServLine.Next = 0;
+                        until ServLine.Next() = 0;
                     end;
                 end;
             end;
@@ -1427,7 +1427,7 @@
                                   FieldCaption(Status), Format(Status), TableCaption, "No.", ServItemLine.FieldCaption("Repair Status Code"),
                                   ServItemLine."Repair Status Code", ServItemLine.TableCaption, ServItemLine."Line No.")
                         end;
-                    until ServItemLine.Next = 0
+                    until ServItemLine.Next() = 0
                 else
                     LinesExist := false;
 
@@ -1579,7 +1579,7 @@
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Contact No." = '') and ("Customer No." = '') then begin
-                            if not ServLine.IsEmpty then
+                            if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Contact No."));
                             InitRecordFromContact;
                             exit;
@@ -1648,7 +1648,7 @@
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Bill-to Contact No." = '') and ("Bill-to Customer No." = '') then begin
-                            if not ServLine.IsEmpty then
+                            if not ServLine.IsEmpty() then
                                 Error(Text050, FieldCaption("Bill-to Contact No."));
                             InitRecordFromContact;
                             exit;
@@ -1700,7 +1700,7 @@
                     repeat
                         ServItemLine.Validate("Responsibility Center", "Responsibility Center");
                         ServItemLine.Modify(true);
-                    until ServItemLine.Next = 0;
+                    until ServItemLine.Next() = 0;
 
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateServLines(FieldCaption("Responsibility Center"));
@@ -1885,7 +1885,7 @@
                         repeat
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
                             ServItemLine.Modify();
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                 end;
             end;
         }
@@ -1942,7 +1942,7 @@
                         repeat
                             if ServItemLine."Starting Date" < "Starting Date" then
                                 Error(Text024, FieldCaption("Starting Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     if Time < "Order Time" then
                         Validate("Starting Time", "Order Time")
@@ -2038,7 +2038,7 @@
                         repeat
                             if ServItemLine."Finishing Date" > "Finishing Date" then
                                 Error(Text025, FieldCaption("Finishing Date"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
                 end else begin
                     "Finishing Time" := 0T;
                     "Service Time (Hours)" := 0;
@@ -2078,7 +2078,7 @@
                                (ServItemLine."Finishing Time" > "Finishing Time")
                             then
                                 Error(Text025, FieldCaption("Finishing Time"));
-                        until ServItemLine.Next = 0;
+                        until ServItemLine.Next() = 0;
 
                     CalcFields("Contract Serv. Hours Exist");
                     "Service Time (Hours)" :=
@@ -2543,7 +2543,7 @@
             ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
             ServLine.SetRange("Document No.", "No.");
             ServLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
-            if not ServLine.IsEmpty then
+            if not ServLine.IsEmpty() then
                 Error(Text046, "No.");
         end;
 
@@ -2603,7 +2603,7 @@
                     LoanerEntry.SetRange("Document No.", "No.");
                     LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
-                    if not LoanerEntry.IsEmpty then
+                    if not LoanerEntry.IsEmpty() then
                         Error(
                           Text040,
                           TableCaption,
@@ -2619,7 +2619,7 @@
                 Clear(ServLogMgt);
                 ServLogMgt.ServItemOffServOrder(ServItemLine);
                 ServItemLine.Delete();
-            until ServItemLine.Next = 0;
+            until ServItemLine.Next() = 0;
 
         ServDocLog.Reset();
         ServDocLog.SetRange("Document Type", "Document Type");
@@ -2766,7 +2766,6 @@
         SIIInvoiceTypeNotSupportedMsg: Label '%1 is not supported. Please contact your partner to add support.', Comment = '%1 = Invoice Type, e.g. R1 Corrected Invoice';
         FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
     var
         ServHeader2: Record "Service Header";
@@ -2874,7 +2873,7 @@
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
                     ServLine.Modify();
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
 
         ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
@@ -2890,7 +2889,7 @@
                       ServItemLine."Dimension Set ID", ServItemLine."Shortcut Dimension 1 Code", ServItemLine."Shortcut Dimension 2 Code");
                     ServItemLine.Modify();
                 end;
-            until ServItemLine.Next = 0;
+            until ServItemLine.Next() = 0;
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -2984,7 +2983,7 @@
                 until ServLine.Next() = 0;
 
                 if "Location Code" <> xRec."Location Code" then
-                    if not TempReservEntry.IsEmpty then
+                    if not TempReservEntry.IsEmpty() then
                         Error(Text047, FieldCaption("Location Code"));
 
                 if "Document Type" = "Document Type"::Invoice then begin
@@ -3060,7 +3059,7 @@
             "Currency Factor" := xRec."Currency Factor";
     end;
 
-    local procedure UpdateServLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
+    procedure UpdateServLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -3111,7 +3110,7 @@
                                     repeat
                                         ServItemLine.Validate("Responsibility Center", "Responsibility Center");
                                         ServItemLine.Modify(true);
-                                    until ServItemLine.Next = 0;
+                                    until ServItemLine.Next() = 0;
                             end;
                         FieldNo("Order Date"):
                             begin
@@ -3161,7 +3160,7 @@
                         else
                             OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption");
                     end;
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
         end;
     end;
 
@@ -3216,7 +3215,7 @@
                     if PassedServLine."Job No." <> '' then
                         PassedServLine.TestField("Qty. to Consume", PassedServLine."Qty. to Ship");
                 end;
-            until PassedServLine.Next = 0
+            until PassedServLine.Next() = 0
         else
             if ServLine.Find('-') then
                 repeat
@@ -3251,7 +3250,7 @@
                         if ServLine."Job No." <> '' then
                             ServLine.TestField("Qty. to Consume", ServLine."Qty. to Ship");
                     end;
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
     end;
 
     procedure UpdateResponseDateTime()
@@ -3352,7 +3351,7 @@
                     ServItemLine.Validate("Service Price Group Code");
                     ServItemLine.Modify();
                 end;
-            until ServItemLine.Next = 0
+            until ServItemLine.Next() = 0
         end;
     end;
 
@@ -3563,7 +3562,6 @@
             Error(Text039, Cont."No.", Cont.Name);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCreditMaxBeforeInsert(HideCreditCheckDialogue: Boolean)
     var
         ServHeader: Record "Service Header";
@@ -3811,7 +3809,7 @@
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         ReservEntry.DeleteAll();
     end;
 
@@ -3825,7 +3823,7 @@
                 ReservEntry := TempReservEntry;
                 ReservEntry."Source Ref. No." := NewSourceRefNo;
                 if not ReservEntry.Insert() then;
-            until TempReservEntry.Next = 0;
+            until TempReservEntry.Next() = 0;
         TempReservEntry.DeleteAll();
     end;
 
@@ -3881,9 +3879,9 @@
                                     if ItemLedgEntry.FindSet then
                                         repeat
                                             CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
-                                        until ItemLedgEntry.Next = 0;
-                                until ServiceShptLine.Next = 0;
-                        until ServiceLine.Next = 0;
+                                        until ItemLedgEntry.Next() = 0;
+                                until ServiceShptLine.Next() = 0;
+                        until ServiceLine.Next() = 0;
                 end;
         end;
         PAGE.RunModal(0, TempValueEntry);
@@ -3901,7 +3899,7 @@
                     TempValueEntry := ValueEntry;
                     if TempValueEntry.Insert() then;
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure CalcInvDiscForHeader()
@@ -3948,7 +3946,7 @@
                 if ServItemLine.Find('-') then
                     repeat
                         ServItemLine.TestField("Fault Reason Code");
-                    until ServItemLine.Next = 0;
+                    until ServItemLine.Next() = 0;
             end;
         end;
     end;
@@ -4003,10 +4001,13 @@
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
 
+#if not CLEAN17
+    [Obsolete('Replaced by WhsePickConflict().', '18.0')]
     procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     begin
         exit(WhsePickConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
     end;
+#endif
 
     procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -4019,12 +4020,12 @@
         WarehouseActivityLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseActivityLine.SetRange("Source Subtype", DocType);
         WarehouseActivityLine.SetRange("Source No.", DocNo);
-        if WarehouseActivityLine.IsEmpty then
+        if WarehouseActivityLine.IsEmpty() then
             exit(false);
         ServiceLine.SetRange("Document Type", DocType);
         ServiceLine.SetRange("Document No.", DocNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        if ServiceLine.IsEmpty then
+        if ServiceLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
@@ -4034,10 +4035,13 @@
         exit(StrSubstNo(Text062, TableCaption, FieldCaption("Shipping Advice"), Format("Shipping Advice")));
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by WhseShipmentConflict().', '18.0')]
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     begin
         exit(WhseShipmentConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
     end;
+#endif
 
     procedure WhseShipmentConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -4049,7 +4053,7 @@
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseShipmentLine.SetRange("Source Subtype", DocType);
         WarehouseShipmentLine.SetRange("Source No.", DocNo);
-        if WarehouseShipmentLine.IsEmpty then
+        if WarehouseShipmentLine.IsEmpty() then
             exit(false);
         exit(true);
     end;
@@ -4189,7 +4193,7 @@
                     ExtendedTextAdded := true;
                 end;
             CopyReservEntryFromTemp(TempServLine, ServLine."Line No.");
-        until TempServLine.Next = 0;
+        until TempServLine.Next() = 0;
     end;
 
     procedure SetCustomerFromFilter()

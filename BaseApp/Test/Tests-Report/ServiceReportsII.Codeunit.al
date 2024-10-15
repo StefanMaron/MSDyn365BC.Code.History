@@ -1081,7 +1081,7 @@ codeunit 136905 "Service Reports - II"
             SetRange("Document Type", "Document Type"::Shipment);
             SetRange("Document No.", FindServiceShipmentHeader(OrderNo));
             SetRange("Entry Type", "Entry Type"::Consume);
-            FindSet;
+            FindSet();
         end;
     end;
 

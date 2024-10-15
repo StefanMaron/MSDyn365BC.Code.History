@@ -1,4 +1,4 @@
-﻿table 10752 "SII Doc. Upload State"
+table 10752 "SII Doc. Upload State"
 {
     Caption = 'SII Doc. Upload States';
 
@@ -322,7 +322,7 @@
                 // Create additional request to handle one more partial payment if no such request in state Pending
                 SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                 SIIHistory.SetRange(Status, SIIHistory.Status::Pending);
-                if SIIHistory.IsEmpty then
+                if SIIHistory.IsEmpty() then
                     SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type"::Regular, 4, false, true);
             end;
             exit;
@@ -366,7 +366,7 @@
                 SIIHistory.SetRange("Upload Type", SIIHistory."Upload Type"::Regular);
                 // If the latest doc is in "CommunicationError" state, we issue a retry.
                 CreateCommunicationErrorRetryRequest(SIIHistory);
-            until SIIDocUploadState.Next = 0;
+            until SIIDocUploadState.Next() = 0;
         end;
     end;
 

@@ -219,7 +219,7 @@ page 7000007 "Closed Cartera Documents"
         repeat
             CustLedgEntry.Get(ClosedDoc."Entry No.");
             CustLedgEntry.Mark(true);
-        until ClosedDoc.Next = 0;
+        until ClosedDoc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);

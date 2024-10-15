@@ -8154,6 +8154,9 @@ End Function
         <Field Name="VATClause_Lbl">
           <DataField>VATClause_Lbl</DataField>
         </Field>
+        <Field Name="CorrectedInvoiceNo">
+          <DataField>CorrectedInvoiceNo</DataField>
+        </Field>
         <Field Name="LineNo_Line">
           <DataField>LineNo_Line</DataField>
         </Field>

@@ -369,7 +369,7 @@ page 7000003 "Cartera Documents"
                 repeat
                     CustLedgEntry.Get(Doc."Entry No.");
                     CustLedgEntry.Mark(true);
-                until Doc.Next = 0;
+                until Doc.Next() = 0;
 
                 CustLedgEntry.MarkedOnly(true);
                 CustLedgEntry.PrintBill(true);
@@ -378,7 +378,7 @@ page 7000003 "Cartera Documents"
                 repeat
                     SalesInvHeader.Get(Doc."Document No.");
                     SalesInvHeader.Mark(true);
-                until Doc.Next = 0;
+                until Doc.Next() = 0;
 
                 SalesInvHeader.MarkedOnly(true);
                 SalesInvHeader.PrintRecords(true);
@@ -388,7 +388,7 @@ page 7000003 "Cartera Documents"
             repeat
                 PurchInvHeader.Get(Doc."Document No.");
                 PurchInvHeader.Mark(true);
-            until Doc.Next = 0;
+            until Doc.Next() = 0;
 
             PurchInvHeader.MarkedOnly(true);
             PurchInvHeader.PrintRecords(true);
@@ -410,7 +410,7 @@ page 7000003 "Cartera Documents"
         repeat
             CustLedgEntry.Get(Doc."Entry No.");
             CustLedgEntry.Mark(true);
-        until Doc.Next = 0;
+        until Doc.Next() = 0;
 
         CustLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Reject Docs.", true, false, CustLedgEntry);

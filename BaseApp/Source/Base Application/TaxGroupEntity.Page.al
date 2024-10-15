@@ -7,6 +7,9 @@ page 5481 "Tax Group Entity"
     PageType = API;
     SourceTable = "Tax Group Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -135,7 +135,7 @@
         end;
     end;
 
-    procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; AnalysisColumnTemplate: Code[10])
+    procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Enum "Analysis Area Type"; AnalysisColumnTemplate: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -936,7 +936,7 @@
         VendorInvoiceDisc.Insert(true);
     end;
 
-    procedure CreateItemAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Option)
+    procedure CreateItemAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Enum "Analysis Area Type")
     begin
         ItemAnalysisView.Init();
         ItemAnalysisView.Validate("Analysis Area", AnalysisArea);
@@ -946,13 +946,15 @@
         ItemAnalysisView.Insert(true);
     end;
 
-    [Scope('OnPrem')]
-    procedure CreateLanguage(): Code[10]
+    procedure GetAnyLanguageDifferentFromCurrent(): Code[10]
     var
         Language: Record Language;
+        LibraryRandom: Codeunit "Library - Random";
     begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
+        Language.SetFilter("Windows Language ID", '<>%1', GlobalLanguage());
+        Language.SetFilter(Code, 'CSY|DAN|DEU|ESP|FRA|FRC|ENU|ITA|NOR|SVE');
+        Language.FindFirst();
+        Language.Next(LibraryRandom.RandIntInRange(1, Language.Count));
         exit(Language.Code);
     end;
 
@@ -1038,7 +1040,7 @@
     begin
         PaymentMethodTranslation.Init();
         PaymentMethodTranslation.Validate("Payment Method Code", PaymentMethodCode);
-        PaymentMethodTranslation.Validate("Language Code", CreateLanguage);
+        PaymentMethodTranslation.Validate("Language Code", GetAnyLanguageDifferentFromCurrent());
         PaymentMethodTranslation.Validate(Description, LibraryUtility.GenerateGUID);
         PaymentMethodTranslation.Insert(true);
         exit(PaymentMethodTranslation."Language Code");
@@ -1635,7 +1637,7 @@
         end;
     end;
 
-    procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; AnalysisArea: Option)
+    procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; AnalysisArea: Enum "Analysis Area Type")
     begin
         ItemBudgetName.Init();
         ItemBudgetName.Validate("Analysis Area", AnalysisArea);
@@ -1758,7 +1760,7 @@
     begin
         SetGLAccountDirectPostingFilter(GLAccount);
         SetGLAccountNotBlankGroupsFilter(GLAccount);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
     end;
 
     procedure FindDirectPostingGLAccount(var GLAccount: Record "G/L Account"): Code[20]
@@ -2214,7 +2216,7 @@
         PostedDeferralLine: Record "Posted Deferral Line";
     begin
         PostedDeferralLine.SetRange("Document No.", DocNo);
-        PostedDeferralLine.FindSet;
+        PostedDeferralLine.FindSet();
         repeat
             TempPostedDeferralLine.SetRange("Document No.", DocNo);
             TempPostedDeferralLine.SetRange("Posting Date", PostedDeferralLine."Posting Date");
@@ -2422,7 +2424,7 @@
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         GLAccount.Next(0); // Needed to trick preCAL
 
         Currency.Validate("Realized Losses Acc.", PopGLAccount(GLAccount));
@@ -2482,7 +2484,7 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
-    procedure SetBillToSellToVATCalc(BillToSellToVATCalc: Option)
+    procedure SetBillToSellToVATCalc(BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
@@ -2792,7 +2794,7 @@
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
@@ -2865,12 +2867,15 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN18
+    [Obsolete('Legacy G/L Locking is no longer supported.', '18.0')]
     procedure SetUseLegacyGLEntryLocking(UseLegacyGLEntryLocking: Boolean)
     begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Use Legacy G/L Entry Locking" := UseLegacyGLEntryLocking;
-        GeneralLedgerSetup.Modify(true);
+        // GeneralLedgerSetup.Get();
+        // GeneralLedgerSetup."Use Legacy G/L Entry Locking" := UseLegacyGLEntryLocking;
+        // GeneralLedgerSetup.Modify(true);
     end;
+#endif
 
     procedure SetVATRoundingType(Direction: Text[1])
     begin

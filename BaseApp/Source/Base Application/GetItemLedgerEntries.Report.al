@@ -37,7 +37,7 @@
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
-                                until ItemLedgEntry.Next = 0;
+                                until ItemLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -505,7 +505,7 @@
                                     Location.Get(ItemLedgEntry2."Location Code");
                                     if Location."Use As In-Transit" then
                                         Include := true;
-                                until Include or (ItemLedgEntry2.Next = 0);
+                                until Include or (ItemLedgEntry2.Next() = 0);
                             if not Include then
                                 exit(false);
                         end;
@@ -679,7 +679,7 @@
                             end;
                         end;
                     end;
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if Quantity <> TotalInvoicedQty then begin
                 TotalAmt := TotalAmt + TotalAmtExpected;

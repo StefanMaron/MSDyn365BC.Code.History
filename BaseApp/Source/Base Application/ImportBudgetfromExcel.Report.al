@@ -33,7 +33,7 @@ report 81 "Import Budget from Excel"
                         SetBudgetDimFilter(DimCode[7], "Dimension Value Code 7", GLBudgetEntry);
                     if DimCode[8] <> '' then
                         SetBudgetDimFilter(DimCode[8], "Dimension Value Code 8", GLBudgetEntry);
-                    if not GLBudgetEntry.IsEmpty then
+                    if not GLBudgetEntry.IsEmpty() then
                         GLBudgetEntry.DeleteAll(true);
                 end;
 
@@ -50,7 +50,7 @@ report 81 "Import Budget from Excel"
                 GLBudgetEntry.Description := Description;
 
                 // Clear any entries in the temporary dimension set entry table
-                if not TempDimSetEntry.IsEmpty then
+                if not TempDimSetEntry.IsEmpty() then
                     TempDimSetEntry.DeleteAll(true);
 
                 if "Dimension Value Code 1" <> '' then
@@ -85,7 +85,7 @@ report 81 "Import Budget from Excel"
                         repeat
                             AnalysisView.AnalysisviewBudgetReset;
                             AnalysisView.Modify();
-                        until AnalysisView.Next = 0;
+                        until AnalysisView.Next() = 0;
                 end;
             end;
 
@@ -209,7 +209,7 @@ report 81 "Import Budget from Excel"
                 TempDim := Dim;
                 TempDim."Code Caption" := UpperCase(TempDim."Code Caption");
                 TempDim.Insert();
-            until Dim.Next = 0;
+            until Dim.Next() = 0;
         end;
 
         if GLAcc.Find('-') then begin
@@ -217,7 +217,7 @@ report 81 "Import Budget from Excel"
                 TempGLAcc.Init();
                 TempGLAcc := GLAcc;
                 TempGLAcc.Insert();
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
         end;
 
         ExcelBuf.LockTable();
@@ -480,7 +480,7 @@ report 81 "Import Budget from Excel"
                                 end;
                         end;
                 end;
-            until ExcelBuf.Next = 0;
+            until ExcelBuf.Next() = 0;
         end;
 
         TempDim.SetRange("Code Caption");

@@ -1191,7 +1191,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine: Record "VAT Statement Line";
     begin
         VATStatementLine.SetRange("Statement Name", StatementName);
-        VATStatementLine.FindSet;
+        VATStatementLine.FindSet();
         VATStatement.First;
 
         repeat
@@ -1234,7 +1234,7 @@ codeunit 147590 "Test VAT Statement"
         AEATTransferenceFormat.SetRange("VAT Statement Name", StatementName);
         if AskMode then
             AEATTransferenceFormat.SetRange(Type, AEATTransferenceFormat.Type::Ask);
-        AEATTransferenceFormat.FindSet;
+        AEATTransferenceFormat.FindSet();
         TransferenceFormat.First;
 
         repeat
@@ -1274,7 +1274,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         AEATTransferenceFormatXML.SetRange("VAT Statement Name", StatementName);
         AEATTransferenceFormatXML.SetRange(Ask, AskMode);
-        AEATTransferenceFormatXML.FindSet;
+        AEATTransferenceFormatXML.FindSet();
         XMLTransferenceFormat.First;
 
         repeat

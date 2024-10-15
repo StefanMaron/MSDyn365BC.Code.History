@@ -162,9 +162,9 @@ codeunit 420 "XBRL Management"
                                             Amount := Amount + "Credit Amount";
                                         end;
                                 end;
-                            until Next = 0;
+                            until Next() = 0;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(Amount);
     end;
@@ -191,7 +191,7 @@ codeunit 420 "XBRL Management"
                         XBRLTaxonomyLine2."Source Type"::Rollup:
                             TotalAmount := TotalAmount + Weight * CalcRollup(XBRLTaxonomyLine2);
                     end;
-                until Next = 0;
+                until Next() = 0;
         exit(TotalAmount);
     end;
 

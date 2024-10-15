@@ -143,7 +143,7 @@ report 10725 "Detail Acc. Stat.- C&O Entries"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                 end;
-                            until GLAccount.Next = 0;
+                            until GLAccount.Next() = 0;
 
                         GLBalance := TotalDebit - TotalCredit;
                         if GLBalance = 0 then begin
@@ -323,7 +323,7 @@ report 10725 "Detail Acc. Stat.- C&O Entries"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                     end;
-                                until GLAccount.Next = 0;
+                                until GLAccount.Next() = 0;
 
                             if GLBalance = 0 then begin
                                 TotalDebit := 0;
@@ -478,7 +478,7 @@ report 10725 "Detail Acc. Stat.- C&O Entries"
                                     else
                                         TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                 end;
-                            until GLAccount.Next = 0;
+                            until GLAccount.Next() = 0;
 
                         if GLBalance = 0 then begin
                             TotalDebit := 0;
@@ -556,7 +556,7 @@ report 10725 "Detail Acc. Stat.- C&O Entries"
                                         else
                                             TotalCredit := TotalCredit + Abs(GLAccount."Net Change");
                                     end;
-                                until GLAccount.Next = 0;
+                                until GLAccount.Next() = 0;
 
                             TFTotalDebitAmt := TFTotalDebitAmt + TotalCredit;
                             TFTotalCreditAmt := TFTotalCreditAmt + TotalDebit;

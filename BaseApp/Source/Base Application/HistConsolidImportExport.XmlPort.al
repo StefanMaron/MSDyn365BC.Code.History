@@ -236,7 +236,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 "Historic G/L Account" := TempHistoricGLAccount;
                 "Historic G/L Account".Insert();
-            until TempHistoricGLAccount.Next = 0;
+            until TempHistoricGLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -249,7 +249,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 TempHistoricGLAccount := "Historic G/L Account";
                 TempHistoricGLAccount.Insert();
-            until "Historic G/L Account".Next = 0;
+            until "Historic G/L Account".Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -261,7 +261,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 "G/L Entry" := TempGLEntry;
                 "G/L Entry".Insert();
-            until TempGLEntry.Next = 0;
+            until TempGLEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -274,7 +274,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 TempGLEntry := "G/L Entry";
                 TempGLEntry.Insert();
-            until "G/L Entry".Next = 0;
+            until "G/L Entry".Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -286,7 +286,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 "Dimension Set Entry" := DimSetEntry;
                 "Dimension Set Entry".Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -299,7 +299,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 TempDimSetEntry := "Dimension Set Entry";
                 TempDimSetEntry.Insert();
-            until "Dimension Set Entry".Next = 0;
+            until "Dimension Set Entry".Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -311,7 +311,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 "Currency Exchange Rate" := TempExchRate;
                 "Currency Exchange Rate".Insert();
-            until TempExchRate.Next = 0;
+            until TempExchRate.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -324,7 +324,7 @@ xmlport 10700 "Hist. Consolid. Import/Export"
             repeat
                 TempExchRate := "Currency Exchange Rate";
                 TempExchRate.Insert();
-            until "Currency Exchange Rate".Next = 0;
+            until "Currency Exchange Rate".Next() = 0;
     end;
 
     local procedure DateToXMLText(Date: Date) XMLText: Text[30]
