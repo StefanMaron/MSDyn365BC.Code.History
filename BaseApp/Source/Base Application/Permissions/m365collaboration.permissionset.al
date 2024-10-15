@@ -27,6 +27,7 @@ permissionset 4785 "M365 COLLABORATION"
                   tabledata "Fixed Asset" = R,
                   tabledata "G/L Account" = R,
                   tabledata "General Ledger Setup" = R,
+                  tabledata "VAT Setup" = R,
                   tabledata "Incoming Document" = R,
                   tabledata "Inventory Setup" = R,
                   tabledata Item = R,

@@ -159,6 +159,7 @@
                         end;
                     BankAccount."Export Format"::MX:
                         begin
+                            ExportEFTCecoban.PopulateACHCecobanHeaderWithEFTExportWorkset(TempEFTExportWorkset, DataExch."Entry No.");
                             if HdrCount = 1 then
                                 ExportEFTCecoban.StartExportFile(BankAccount."No.")
                             else
