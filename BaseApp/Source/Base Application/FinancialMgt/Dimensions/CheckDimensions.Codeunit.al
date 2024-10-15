@@ -419,7 +419,7 @@ codeunit 481 "Check Dimensions"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Error Messages", 'OnDrillDownSource', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnDrillDownSource', '', false, false)]
     local procedure OnErrorMessageDrillDown(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
         if not IsHandled then

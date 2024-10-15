@@ -779,6 +779,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType EndingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 473930558 - NamedType 207101178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item inserted with wrong data]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType InsertedItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 473930558 - NamedType 381946694" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[New]]></Val>

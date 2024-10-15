@@ -39,6 +39,11 @@ table 5964 "Service Contract Line"
                 ServiceItemNoIsNotEmpty: Boolean;
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnValidateServiceItemNoOnBeforeOnValidate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 GetServContractHeader();
                 if ServContractHeader."Last Invoice Date" <> 0D then begin
@@ -50,10 +55,12 @@ table 5964 "Service Contract Line"
                     then
                         Error(Text025, ServiceItemLine.TableCaption(), ServContractHeader.FieldCaption("Expiration Date"));
                 end;
-                if (ServContractHeader.Status = ServContractHeader.Status::Signed) and
-                   (not "New Line")
-                then
-                    Error(Text013, FieldCaption("Service Item No."));
+
+                IsHandled := false;
+                OnValidateServiceItemNoOnBeforeCheckServContractHeaderStatus(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if (ServContractHeader.Status = ServContractHeader.Status::Signed) and (not "New Line") then
+                        Error(Text013, FieldCaption("Service Item No."));
 
                 ServiceItemNoIsNotEmpty := "Service Item No." <> '';
                 OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(Rec, ServiceItemNoIsNotEmpty, xRec, HideDialog);
@@ -719,7 +726,14 @@ table 5964 "Service Contract Line"
         Text025: Label 'You cannot add a new %1 because the service contract has expired. Renew the %2 on the service contract.', Comment = 'You cannot add a new Service Item Line because the service contract has expired. Renew the Expiration Date on the service contract.';
 
     procedure SetupNewLine()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetupNewLine(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ServContractHeader.Get("Contract Type", "Contract No.") then
             exit;
         "Customer No." := ServContractHeader."Customer No.";
@@ -753,7 +767,14 @@ table 5964 "Service Contract Line"
     end;
 
     procedure CalculateNextServiceVisit()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateNextServiceVisit(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ServMgtSetup.Get();
         if (Format("Service Period") <> '') and
            ("Next Planned Service Date" <> 0D)
@@ -1113,6 +1134,26 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateServiceItemNoOnAfterInit(var ServContractLineRec: Record "Service Contract Line"; ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateServiceItemNoOnBeforeOnValidate(var ServiceContractLine: Record "Service Contract Line"; xServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateServiceItemNoOnBeforeCheckServContractHeaderStatus(var ServiceContractLine: Record "Service Contract Line"; xServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupNewLine(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateNextServiceVisit(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
     begin
     end;
 }

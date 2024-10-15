@@ -170,6 +170,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
         PurchLine: Record "Purchase Line";
     begin
         PurchLine.SetLoadFields("Recalculate Invoice Disc.");  // ModifyAll may result in a FindSet loop.
+        OnResetRecalculateInvoiceDiscOnAfterSetLoadFields(PurchLine);
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange("Recalculate Invoice Disc.", true);
@@ -229,6 +230,11 @@ codeunit 66 "Purch - Calc Disc. By Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShouldRedistributeInvoiceDiscountAmount(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetRecalculateInvoiceDiscOnAfterSetLoadFields(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

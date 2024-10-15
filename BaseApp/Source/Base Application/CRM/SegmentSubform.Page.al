@@ -127,7 +127,7 @@ page 5092 "Segment Subform"
                     ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
                     Visible = false;
                 }
-                field(AttachmentText; AttachmentText())
+                field(AttachmentText; Rec.AttachmentText())
                 {
                     ApplicationArea = RelationshipMgmt;
                     AssistEdit = true;
@@ -138,7 +138,7 @@ page 5092 "Segment Subform"
                     trigger OnAssistEdit()
                     begin
                         CurrPage.SaveRecord();
-                        MaintainSegLineAttachment();
+                        Rec.MaintainSegLineAttachment();
                         CurrPage.Update(false);
                     end;
                 }
@@ -199,8 +199,8 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            OpenSegLineAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.OpenSegLineAttachment();
                         end;
                     }
                     action(Create)
@@ -212,7 +212,7 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            CreateSegLineAttachment();
+                            Rec.CreateSegLineAttachment();
                         end;
                     }
                     action(Import)
@@ -224,8 +224,8 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            ImportSegLineAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.ImportSegLineAttachment();
                         end;
                     }
                     action(Export)
@@ -237,8 +237,8 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            ExportSegLineAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.ExportSegLineAttachment();
                         end;
                     }
                     action(Remove)
@@ -250,8 +250,8 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            RemoveAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.RemoveAttachment();
                         end;
                     }
                 }
@@ -269,7 +269,7 @@ page 5092 "Segment Subform"
 
                     trigger OnAction()
                     begin
-                        CreatePhoneCall();
+                        Rec.CreatePhoneCall();
                     end;
                 }
             }
@@ -278,36 +278,36 @@ page 5092 "Segment Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if "Contact No." <> '' then begin
-            SegCriteriaManagement.DeleteContact("Segment No.", "Contact No.");
-            SegmentHistoryMgt.DeleteLine("Segment No.", "Contact No.", "Line No.");
+        if Rec."Contact No." <> '' then begin
+            SegCriteriaManagement.DeleteContact(Rec."Segment No.", Rec."Contact No.");
+            SegHistoryManagement.DeleteLine(Rec."Segment No.", Rec."Contact No.", Rec."Line No.");
         end;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Contact No." <> '' then begin
-            SegCriteriaManagement.InsertContact("Segment No.", "Contact No.");
-            SegmentHistoryMgt.InsertLine("Segment No.", "Contact No.", "Line No.");
+        if Rec."Contact No." <> '' then begin
+            SegCriteriaManagement.InsertContact(Rec."Segment No.", Rec."Contact No.");
+            SegHistoryManagement.InsertLine(Rec."Segment No.", Rec."Contact No.", Rec."Line No.");
         end;
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        if "Contact No." <> xRec."Contact No." then begin
+        if Rec."Contact No." <> xRec."Contact No." then begin
             if xRec."Contact No." <> '' then begin
-                SegCriteriaManagement.DeleteContact("Segment No.", xRec."Contact No.");
-                SegmentHistoryMgt.DeleteLine("Segment No.", xRec."Contact No.", "Line No.");
+                SegCriteriaManagement.DeleteContact(Rec."Segment No.", xRec."Contact No.");
+                SegHistoryManagement.DeleteLine(Rec."Segment No.", xRec."Contact No.", Rec."Line No.");
             end;
-            if "Contact No." <> '' then begin
-                SegCriteriaManagement.InsertContact("Segment No.", "Contact No.");
-                SegmentHistoryMgt.InsertLine("Segment No.", "Contact No.", "Line No.");
+            if Rec."Contact No." <> '' then begin
+                SegCriteriaManagement.InsertContact(Rec."Segment No.", Rec."Contact No.");
+                SegHistoryManagement.InsertLine(Rec."Segment No.", Rec."Contact No.", Rec."Line No.");
             end;
         end;
     end;
 
     var
-        SegmentHistoryMgt: Codeunit SegHistoryManagement;
+        SegHistoryManagement: Codeunit SegHistoryManagement;
         SegCriteriaManagement: Codeunit SegCriteriaManagement;
 
     procedure UpdateForm()
