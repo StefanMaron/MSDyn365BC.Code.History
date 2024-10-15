@@ -1340,6 +1340,8 @@
     procedure PrintExternalDocNoOnDraftSalesInvoiceReport()
     var
         SalesHeader: Record "Sales Header";
+        ExtDocNoRowNo: Integer;
+        ExtDocColNo: Integer;
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 257521] External Document Number is printed in report "Standard Sales - Draft Invoice".
@@ -1357,7 +1359,8 @@
 
         // [THEN] Saved Excel file contains "External Doc No.".
         LibraryReportValidation.OpenExcelFile();
-        LibraryReportValidation.VerifyCellValue(22, 17, SalesHeader."External Document No.");
+        LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet('External Document No.', 1, ExtDocNoRowNo, ExtDocColNo);
+        LibraryReportValidation.VerifyCellValue(ExtDocNoRowNo, ExtDocColNo + 4, SalesHeader."External Document No.");
     end;
 
     [Test]
@@ -4783,11 +4786,8 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-	    MoveToRow(RowCount() - 1);
-        end;
-
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.RowCount() - 1);
         VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1);
     end;
 

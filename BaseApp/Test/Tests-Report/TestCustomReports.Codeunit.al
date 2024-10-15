@@ -1153,6 +1153,43 @@ codeunit 134761 "Test Custom Reports"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestCustomerStandardStatementWithFixedRequest()
+    var
+        Customer: Record Customer;
+        CustomerStatementSubscr: Codeunit "Customer Statement Subscr";
+        TempBlob: Codeunit "Temp Blob";
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        RecRef: RecordRef;
+        OutStream: OutStream;
+        LineAmount: Decimal;
+        LastUsedParameters: Text;
+    begin
+        // [SCENARIO C4F integration] Standard Statement with predefined Request PAge .
+        Initialize();
+
+        // [GIVEN] Customer "CUS".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.SetRecFilter();
+        RecRef.GetTable(Customer);
+
+        LineAmount := LibraryRandom.RandDec(99, 2);
+
+        // [GIVEN] Two Customer Ledger Entries for "CUS" where each has "Amount", "PostingDate" and "DueDate".
+        // [GIVEN] Entry1 "PostingDate" = 08/01/2017, "DueDate" = 22/01/2017, is overdue.
+        // [GIVEN] Entry2 "PostingDate" = 22/01/2017, "DueDate" = 22/02/2017, is NOT overdue.
+        CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
+
+        // Then the Statement report should be generated without errors
+        TempBlob.CreateOutStream(OutStream);
+        LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(Report::"Standard Statement");
+
+        BindSubscription(CustomerStatementSubscr);
+        Report.SaveAs(Report::"Standard Statement", LastUsedParameters, ReportFormat::Pdf, OutStream, Recref);
+        UnbindSubscription(CustomerStatementSubscr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestCustomerStandardStatementAgingTotalsByDueDate()
     var
         Customer: Record Customer;

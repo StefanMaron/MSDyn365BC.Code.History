@@ -16,8 +16,9 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using System;
 using System.IO;
-using System.Xml;
+using System.Telemetry;
 using System.Utilities;
+using System.Xml;
 
 report 13403 "Export SEPA Payment File"
 {
@@ -127,7 +128,13 @@ report 13403 "Export SEPA Payment File"
     end;
 
     trigger OnPreReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
     begin
+        FeatureTelemetry.LogUptake('0000N2J', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N2K', SEPACTExportFile.FeatureName(), 'Report (FI) Export SEPA Payment File');
+
         if FileName = '' then
             Error(Text13407);
 

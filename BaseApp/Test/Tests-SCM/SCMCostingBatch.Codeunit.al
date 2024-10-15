@@ -984,6 +984,42 @@ codeunit 137402 "SCM Costing Batch"
         VerifyProdOrderCostPostedToGL(ProductionOrder."No.", WorkCenter."Unit Cost");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SuggestCapacityStandardCostPageHandler')]
+    procedure SuggestCapacityStdCostRprtCreatesWorkCenterStdCostWorksheetsWhenWorkCenterFilterIsApplied()
+    var
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
+        MachineCenter: Record "Machine Center";
+        WorkCenter: Record "Work Center";
+        StandardCostWorksheetName: Code[10];
+    begin
+        // [SCENARIO 537875] Suggest Capacity Standard Cost Report creates Standard Cost Worksheets of only Work Centers when Work Center option is selected in Source field of Request Page.
+
+        // [GIVEN] Create Work Center.
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Create Machine Center.
+        CreateMachineCenter(MachineCenter);
+
+        // [GIVEN] Create Standard Cost WorkSheet.
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
+
+        // [GIVEN] Run Suggest Capacity Standard Cost Report Using Use random value for Standard Cost Adjustment Factor.
+        RunSuggestCapacityStandardCostReport(
+            WorkCenter,
+            MachineCenter,
+            StandardCostWorksheetName,
+            LibraryRandom.RandInt(5),
+            '');
+
+        // [WHEN] Find Standard Cost WorkSheet.
+        StandardCostWorksheet.SetRange("Standard Cost Worksheet Name", StandardCostWorksheetName);
+
+        // [THEN] Only one Standard Cost Worksheet must be found.
+        Assert.RecordCount(StandardCostWorksheet, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1722,6 +1758,19 @@ codeunit 137402 "SCM Costing Batch"
         RollUpStandardCost.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestCapacityStandardCostPageHandler(var SuggestCapacityStandardCostPage: TestRequestPage "Suggest Capacity Standard Cost")
+    var
+        WorkSheetSource: Option All,"Work Center","Machine Center",Resource;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            WorkSheetSource::"Work Center":
+                SuggestCapacityStandardCostPage.Source.SetValue(WorkSheetSource::"Work Center");
+        end;
+        SuggestCapacityStandardCostPage.OK().Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AverageCostCalcOverviewHandler(var AverageCostCalcOverview: TestPage "Average Cost Calc. Overview")
@@ -1774,6 +1823,38 @@ codeunit 137402 "SCM Costing Batch"
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
+    end;
+
+    local procedure RunSuggestCapacityStandardCostReport(var WorkCenter: Record "Work Center"; var MachineCenter: Record "Machine Center"; StandardCostWorksheetName: Code[10]; StandardCostAdjustmentFactor: Integer; StandardCostRoundingMethod: Code[10])
+    var
+        TmpWorkCenter: Record "Work Center";
+        TmpMachineCenter: Record "Machine Center";
+        SuggestCapacityStandardCostReport: Report "Suggest Capacity Standard Cost";
+        WorkSheetSource: Option All,"Work Center","Machine Center",Resource;
+    begin
+        Clear(SuggestCapacityStandardCostReport);
+        SuggestCapacityStandardCostReport.Initialize(
+          StandardCostWorksheetName, StandardCostAdjustmentFactor, 0, 0, StandardCostRoundingMethod, '', '');
+        if WorkCenter.HasFilter then
+            TmpWorkCenter.CopyFilters(WorkCenter)
+        else begin
+            WorkCenter.Get(WorkCenter."No.");
+            TmpWorkCenter.SetRange("No.", WorkCenter."No.");
+        end;
+        SuggestCapacityStandardCostReport.SetTableView(TmpWorkCenter);
+
+        if MachineCenter.HasFilter then
+            TmpMachineCenter.CopyFilters(MachineCenter)
+        else begin
+            MachineCenter.Get(MachineCenter."No.");
+            TmpMachineCenter.SetRange("No.", MachineCenter."No.");
+        end;
+        SuggestCapacityStandardCostReport.SetTableView(TmpMachineCenter);
+        SuggestCapacityStandardCostReport.UseRequestPage(true);
+
+        Commit();
+        LibraryVariableStorage.Enqueue(WorkSheetSource::"Work Center");
+        SuggestCapacityStandardCostReport.Run();
     end;
 }
 

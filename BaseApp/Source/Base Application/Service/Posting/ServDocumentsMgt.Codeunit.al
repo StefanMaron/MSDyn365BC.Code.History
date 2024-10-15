@@ -11,6 +11,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.EServices.EDocument;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -1199,6 +1200,7 @@ codeunit 5988 "Serv-Documents Mgt."
             if ServShptItemLine.Find('-') then
                 repeat
                     ServiceShipmentItemLine2.Init();
+                    OnFinalizeShipmentDocumentOnBeforeCopyServiceShipmentItemLine(ServShptItemLine);
                     ServiceShipmentItemLine2.Copy(ServShptItemLine);
                     ServiceShipmentItemLine2.Insert();
                 until ServShptItemLine.Next() = 0;
@@ -1398,6 +1400,13 @@ codeunit 5988 "Serv-Documents Mgt."
     procedure InsertValueEntryRelation()
     begin
         ServITRMgt.InsertValueEntryRelation(TempValueEntryRelation);
+    end;
+
+    procedure UpdateIncomingDocument(IncomingDocNo: Integer; PostingDate: Date; PostedDocNo: Code[20])
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocNo, PostingDate, PostedDocNo);
     end;
 
     local procedure CheckIfServDuplicateLine(var CurrentServLine: Record "Service Line")
@@ -2929,6 +2938,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeShipmentDocumentOnAfterInserServiceShipmentLine(var ServiceShipmentLine2: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeShipmentDocumentOnBeforeCopyServiceShipmentItemLine(var ServiceShipmentItemLine: Record "Service Shipment Item Line")
     begin
     end;
 }

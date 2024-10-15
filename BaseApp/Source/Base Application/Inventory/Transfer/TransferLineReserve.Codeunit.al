@@ -79,7 +79,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         end;
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(TransferLine, Quantity, QuantityBase, ForReservationEntry, Direction, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(TransferLine, Quantity, QuantityBase, ForReservationEntry, Direction, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 Database::"Transfer Line", Direction.AsInteger(), TransferLine."Document No.", '',
@@ -616,6 +616,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if Direction = Direction::Outbound then begin
             ReservationEntry2.Copy(ReservationEntry);
             ReservationEntry2.SetRange("Source Subtype", Direction::Inbound);
+            OnBeforeUpdateItemTrackingAfterPosting(ReservationEntry2, ReservationEntry);
             CreateReservEntry.UpdateItemTrackingAfterPosting(ReservationEntry2);
         end;
     end;
@@ -815,6 +816,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if MatchThisTable(ForReservEntry."Source Type") then begin
             CreateReservationSetFrom(TrackingSpecification);
             SourceRecRef.SetTable(TransferLine);
+            OnCreateReservationOnBeforeCreateReservation(TransferLine, TrackingSpecification, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
             CreateReservation(
                 TransferLine, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry, ForReservEntry.GetTransferDirection());
         end;
@@ -995,7 +997,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var TransLine: Record "Transfer Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var Direction: Enum "Transfer Direction"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var TransLine: Record "Transfer Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var Direction: Enum "Transfer Direction"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; var Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 
@@ -1011,6 +1013,16 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateReservation(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemTrackingAfterPosting(var ReservationEntry2: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservation(var TransferLine: Record "Transfer Line"; var TrackingSpecification: Record "Tracking Specification"; var Description: Text[100]; var ExpectedDate: Date; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

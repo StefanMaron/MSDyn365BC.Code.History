@@ -72,7 +72,7 @@ page 659 "Posted Approval Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation(Rec."Sender ID");
+                        UserMgt.DisplayUserInformation(Rec."Approver ID");
                     end;
                 }
                 field(Status; Rec.Status)
