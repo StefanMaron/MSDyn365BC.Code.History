@@ -176,6 +176,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         EntryNoBeforeApplication := FindLastApplDtldVendLedgEntry();
 
         GenJnlPostLine.SetIDBillSettlement(BeAppliedToBill(VendLedgEntry));
+        GenJnlPostLine.SetIDInvoiceSettlement(BeAppliedToInvoice(VendLedgEntry));
 
         OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine, ApplyUnapplyParameters);
         GenJnlPostLine.VendPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry);
@@ -588,6 +589,22 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 exit(true);
             exit(false);
         end;
+    end;
+
+    local procedure BeAppliedToInvoice(VendLedgEntry2: Record "Vendor Ledger Entry"): Boolean
+    var
+        VendLedgEntry3: Record "Vendor Ledger Entry";
+    begin
+        if VendLedgEntry2."Applies-to ID" = '' then
+            exit(false);
+
+        VendLedgEntry3.SetCurrentKey("Applies-to ID", "Document Type");
+        VendLedgEntry3.SetRange("Applies-to ID", VendLedgEntry2."Applies-to ID");
+        VendLedgEntry3.SetRange("Document Type", VendLedgEntry2."Document Type"::Invoice);
+        if not VendLedgEntry3.IsEmpty() then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure PreviewApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")

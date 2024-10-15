@@ -307,7 +307,8 @@ report 20 "Calc. and Post VAT Settlement"
                         VATEntry.CalcSums(
                           Base, Amount,
                           "Additional-Currency Base", "Additional-Currency Amount",
-                          "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                          "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY",
+                          "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
 
                         ReversingEntry := false;
                         // Balancing entries to VAT accounts

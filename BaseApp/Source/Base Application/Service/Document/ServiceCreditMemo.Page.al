@@ -6,6 +6,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Contract;
@@ -13,7 +14,6 @@ using Microsoft.Service.History;
 using Microsoft.Service.Posting;
 using Microsoft.Utilities;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 page 5935 "Service Credit Memo"
 {
@@ -667,6 +667,12 @@ page 5935 "Service Credit Memo"
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -1011,6 +1017,7 @@ page 5935 "Service Credit Memo"
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;

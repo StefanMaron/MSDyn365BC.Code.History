@@ -408,6 +408,7 @@ codeunit 7000006 "Document-Post"
         PostedCarteraDoc2: Record "Posted Cartera Doc.";
         ClosedCarteraDoc2: Record "Closed Cartera Doc.";
         Currency: Record Currency;
+        MultiplePostingGroups: Boolean;
     begin
         with VendLedgEntry do begin
             if not DocLock then begin
@@ -442,7 +443,15 @@ codeunit 7000006 "Document-Post"
                         AppliedAmountLCY := Round(AppliedAmountLCY);
                         if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
                             DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
-                        CarteraDoc.ResetNoPrinted();
+    
+                    MultiplePostingGroups := CheckVendMultiplePostingGroups(VendLedgEntry);
+
+                    if (CarteraDoc."Document Type" = CarteraDoc."Document Type"::Invoice) and
+                        (MultiplePostingGroups)
+                    then
+                        DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
+
+                    CarteraDoc.ResetNoPrinted();
                         if Open then begin
                             OnUpdatePayableDocBeforeCarteraDocModify(CarteraDoc, VendLedgEntry);
                             CarteraDoc.Modify();
@@ -1192,6 +1201,24 @@ codeunit 7000006 "Document-Post"
                     end;
             end;
         end;
+    end;
+
+    local procedure CheckVendMultiplePostingGroups(VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
+    var
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        PostingGroup: Code[20];
+    begin
+        PostingGroup := '';
+        VendorLedgerEntry2.SetCurrentKey("Applies-to ID");
+        VendorLedgerEntry2.SetRange("Applies-to ID", VendorLedgerEntry."Applies-to ID");
+        if VendorLedgerEntry2.FindSet() then
+            repeat
+                if (PostingGroup <> '') and (PostingGroup <> VendorLedgerEntry2."Vendor Posting Group") then
+                    exit(true);
+                PostingGroup := VendorLedgerEntry2."Vendor Posting Group";
+            until VendorLedgerEntry2.Next() = 0;
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

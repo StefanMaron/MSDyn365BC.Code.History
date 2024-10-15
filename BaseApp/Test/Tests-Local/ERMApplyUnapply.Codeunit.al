@@ -52,6 +52,7 @@ codeunit 147310 "ERM Apply Unapply"
         IsInitialized: Boolean;
         UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
         UnAppliedErr: Label 'Entries are  still applied.';
+        GLEntryMustBeFound: Label 'GL Entry must be found.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1568,6 +1569,194 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [VERIFY] Verify the Invoice Employee Ledger Entry has successfully unapplied and remaining amount equal to Invoice Amount
         Assert.AreEqual(-InvoiceAmount, EmployeeLedgerEntry."Remaining Amount", UnAppliedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPaymentWithInvToCarteraVLEUsingAllowMultiPostingGrpsCreatesGLEntries()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PaymentMethod: Record "Payment Method";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        VendorPostingGroup: array[2] of Record "Vendor Posting Group";
+        GLEntry: Record "G/L Entry";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 539768] When Apply Payment Vendor Ledger Entry with Invoice to Cartera Vendor Ledger Entry then GL Entries are created with 
+        // "GL Account No." of "Payables Account" of Vendor Posting Groups when "Allow Multiple Posting Groups" is true in Purchases & Payables Setup.
+        Initialize();
+
+        // [GIVEN] Set Allow Multiple Posting Groups as true in Purchases & Payables Setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Multiple Posting Groups" := true;
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Create two Vendor Posting Groups.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[1]);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[2]);
+
+        // [GIVEN] Create Alternate Vendor Posting Group.
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
+
+        // [GIVEN] Create Vendor and Validate Allow Multiple Groups and Vendor Posting Group.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Find Payment Method and Validate Invoices to Cartera.
+        PaymentMethod.Get(Vendor."Payment Method Code");
+        PaymentMethod.Validate("Invoices to Cartera", true);
+        PaymentMethod.Modify(true);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Header and Validate Prices Including VAT.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1000));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Generate and sav Amount in a Variable.
+        Amount := PurchaseLine."Direct Unit Cost";
+
+        // [GIVEN] Post Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Create General Journal Line and Validate Posting Group and Debit Amount.
+        CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandIntInRange(1000, 1000));
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup[2].Code);
+        GenJournalLine.Validate("Debit Amount", LibraryRandom.RandIntInRange(1000, 1000));
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Apply Payment Vendor Ledger Entry with Invoice Vendor Ledger Entry.
+        ApplyPurchDocuments(
+            VendLedgEntry."Document Type"::Payment,
+            GenJournalLine."Document No.",
+            VendLedgEntry."Document Type"::Invoice,
+            LibraryRandom.RandIntInRange(1000, 1000));
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup[2]."Payables Account");
+        GLEntry.SetRange(Amount, -Amount);
+
+        // [THEN] GL Entry is found.
+        Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustBeFound);
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup[1]."Payables Account");
+        GLEntry.SetRange(Amount, Amount);
+
+        // [THEN] GL Entry is found.
+        Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustBeFound);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPaymentWithBillVLEUsingAllowMultiPostingGrpsCreatesGLEntries()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PaymentMethod: Record "Payment Method";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        VendorPostingGroup: array[2] of Record "Vendor Posting Group";
+        GLEntry: Record "G/L Entry";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 539772] When Apply Payment Vendor Ledger Entry with Bill Vendor Ledger Entry then GL Entries are created with 
+        // "GL Account No." of "Payables Account" of Vendor Posting Groups when "Allow Multiple Posting Groups" is true in Purchases & Payables Setup.
+        Initialize();
+
+        // [GIVEN] Set Allow Multiple Posting Groups as true in Purchases & Payables Setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Multiple Posting Groups" := true;
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Create two Vendor Posting Groups.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[1]);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[2]);
+
+        // [GIVEN] Create Alternate Vendor Posting Group.
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
+
+        // [GIVEN] Create Vendor and Validate Allow Multiple Groups and Vendor Posting Group.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Find Payment Method and Validate Create Bills.
+        PaymentMethod.Get(Vendor."Payment Method Code");
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Modify(true);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Header and Validate Prices Including VAT.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line and Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1000));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Generate and sav Amount in a Variable.
+        Amount := PurchaseLine."Direct Unit Cost";
+
+        // [GIVEN] Post Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandIntInRange(1000, 1000));
+        GenJournalLine.Validate("Applies-to Bill No.", PurchaseHeader."No.");
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup[2].Code);
+        GenJournalLine.Validate("Debit Amount", LibraryRandom.RandIntInRange(1000, 1000));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Apply Payment Vendor Ledger Entry with Bill Vendor Ledger Entry.
+        ApplyPurchDocuments(
+            VendLedgEntry."Document Type"::Payment,
+            GenJournalLine."Document No.",
+            VendLedgEntry."Document Type"::Bill,
+            LibraryRandom.RandIntInRange(1000, 1000));
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup[2]."Payables Account");
+        GLEntry.SetRange(Amount, -Amount);
+
+        // [THEN] GL Entry is found.
+        Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustBeFound);
+
+        // [WHEN] Find GL Entry.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup[1]."Bills Account");
+        GLEntry.SetRange(Amount, Amount);
+
+        // [THEN] GL Entry is found.
+        Assert.IsFalse(GLEntry.IsEmpty(), GLEntryMustBeFound);
     end;
 
     local procedure Initialize()

@@ -6,6 +6,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Inventory.Availability;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Sales.Customer;
@@ -19,7 +20,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using System.Security.User;
-using Microsoft.EServices.EDocument;
 
 page 5900 "Service Order"
 {
@@ -827,6 +827,12 @@ page 5900 "Service Order"
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
@@ -1379,6 +1385,7 @@ page 5900 "Service Order"
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;
@@ -1423,6 +1430,7 @@ page 5900 "Service Order"
         SellToContact.GetOrClear(Rec."Contact No.");
         UpdateDocHasRegimeCode();
         ActivateFields();
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

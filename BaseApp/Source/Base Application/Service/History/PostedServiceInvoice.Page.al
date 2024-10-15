@@ -584,6 +584,12 @@ page 5978 "Posted Service Invoice"
         }
         area(factboxes)
         {
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -829,7 +835,7 @@ page 5978 "Posted Service Invoice"
     begin
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         DocExchStatusVisible := Rec."Document Exchange Status" <> Rec."Document Exchange Status"::"Not Sent";
-
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;

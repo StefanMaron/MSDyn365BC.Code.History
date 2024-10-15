@@ -156,6 +156,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DeltaAmountLCY: Decimal;
         IDBillSettlement: Boolean;
         BillFromJournal: Boolean;
+        IDInvoiceSettlement: Boolean;
         CustLedgEntryInserted2: Boolean;
         VendLedgEntryInserted2: Boolean;
         DocPost: Codeunit "Document-Post";
@@ -4864,7 +4865,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
             ExistDtldCVLedgEntryBuf := not DetailedCVLedgEntryBuffer.IsEmpty();
             DtldLedgEntryInserted := not DetailedCVLedgEntryBuffer.IsEmpty();
-            DetailedCVLedgEntryBuffer.DeleteAll();
 
             AccNo := GetVendCarteraAccountNo(GenJournalLine, VendPostingGr);
 
@@ -4899,7 +4899,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
-        PostPayableDocs(GenJournalLine, VendPostingGr);
+        if (IDInvoiceSettlement or IDBillSettlement) and (MultiplePostingGroups) and (DocAmountLCY <> 0) then
+            PostPayableDocsForMultiplePostingGroups(GenJournalLine, DetailedCVLedgEntryBuffer)
+        else
+            PostPayableDocs(GenJournalLine, VendPostingGr);
 
         DetailedCVLedgEntryBuffer.DeleteAll();
     end;
@@ -7594,6 +7597,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BillFromJournal := BillFromJournal2;
     end;
 
+    procedure SetIDInvoiceSettlement(IDInvoiceSettlement2: Boolean)
+    begin
+        IDInvoiceSettlement := IDInvoiceSettlement2;
+    end;
+
     [Scope('OnPrem')]
     procedure UpdateCustLedgEntryStats(CustLedgEntryNo: Integer)
     var
@@ -7809,6 +7817,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
         if (DocAmountLCY = 0) or ((DocAmountLCY <> 0) and (CollDocAmountLCY <> 0)) then
             exit(VendPostingGr.GetBillsInPmtOrderAccount());
+
+        if (IDInvoiceSettlement) and (not IDBillSettlement) and (MultiplePostingGroups) then
+            if DocAmountLCY <> 0 then
+                exit(VendPostingGr.GetPayablesAccount());
+
         exit(VendPostingGr.GetBillsAccount());
     end;
 
@@ -8830,6 +8843,28 @@ codeunit 12 "Gen. Jnl.-Post Line"
     procedure SetTempGLEntryBufEntryNo(NewTempGLEntryBufEntryNo: Integer)
     begin
         TempGLEntryBuf."Entry No." := NewTempGLEntryBufEntryNo;
+    end;
+
+    local procedure PostPayableDocsForMultiplePostingGroups(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        TempDocAmountLCY: Decimal;
+    begin
+        TempDocAmountLCY := DocAmountLCY;
+        DetailedCVLedgEntryBuffer.Reset();
+        if DetailedCVLedgEntryBuffer.FindSet() then
+            repeat
+                if VendorLedgerEntry.Get(DetailedCVLedgEntryBuffer."CV Ledger Entry No.") and
+                   (VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Bill])
+                then begin
+                    VendorPostingGroup.Get(VendorLedgerEntry."Vendor Posting Group");
+                    DocAmountLCY := Abs(DetailedCVLedgEntryBuffer.Amount);
+                    PostPayableDocs(GenJournalLine, VendorPostingGroup);
+                end;
+            until DetailedCVLedgEntryBuffer.Next() = 0;
+
+        DocAmountLCY := TempDocAmountLCY;
     end;
 
     [IntegrationEvent(true, false)]
