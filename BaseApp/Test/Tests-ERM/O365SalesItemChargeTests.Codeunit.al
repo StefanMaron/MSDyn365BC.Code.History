@@ -1,4 +1,4 @@
-codeunit 135301 "O365 Sales Item Charge Tests"
+﻿codeunit 135301 "O365 Sales Item Charge Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -225,6 +225,14 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TestRemovePostedShipmentWithChargeItemAssigned()
+    begin
+        // [FEATURE] [Item Charge]
+        // [SCENARIO 438887] System should not allow remove of posted shipment if any shipment lines applied to sales order lines as item charge
+        // Not used for CA
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -367,7 +375,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.AreEqual(SalesLine.Quantity, SalesLine."Qty. to Assign", IncorrectCreditMemoQtyAssignmentErr);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -384,7 +392,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.IsTrue(SalesLine."Qty. to Assign" = 0, IncorrectCreditMemoQtyAssignmentErr);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesAmountOnValueEntries(var Item: array[4] of Record Item; SalesLine: Record "Sales Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type"; Sign: Integer)

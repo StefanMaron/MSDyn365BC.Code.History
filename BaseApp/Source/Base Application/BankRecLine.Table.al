@@ -992,7 +992,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeExpandLine(var BankRecLineRec: Record "Bank Rec. Line"; var DepositBankRecLine: Record "Bank Rec. Line"; IsHandled: Boolean);
+    local procedure OnBeforeExpandLine(var BankRecLineRec: Record "Bank Rec. Line"; var DepositBankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean);
     begin
     end;
 

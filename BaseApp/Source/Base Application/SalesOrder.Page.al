@@ -334,6 +334,11 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
                 }
+                field("CFDI Period"; Rec."CFDI Period") 
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the period to use when reporting for general public customers';
+                }
                 group("Work Description")
                 {
                     Caption = 'Work Description';
@@ -1697,6 +1702,8 @@
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action(MoveNegativeLines)

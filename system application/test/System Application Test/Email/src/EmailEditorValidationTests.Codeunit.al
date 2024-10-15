@@ -383,6 +383,74 @@ codeunit 134696 "Email Editor Validation Tests"
 
     end;
 
+    [Test]
+    [HandlerFunctions('ValidateDraftDefaultOptionEmailEditorHandler')]
+    procedure EmailEditorCloseDefaultDraft()
+    var
+        EmailAccount: Record "Email Account";
+        EmailOutbox: Record "Email Outbox";
+        Email: Codeunit Email;
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailMessage: Codeunit "Email Message";
+        EmailMessageImpl: Codeunit "Email Message Impl.";
+        EmailEditorValues: Codeunit "Email Editor Values";
+        EmailEditorTest: TestPage "Email Editor";
+    begin
+        // [GIVEN] All outbox records are deleted, connector is installed and an account is added.
+        EmailOutbox.DeleteAll();
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(EmailAccount);
+
+        // [GIVEN] Default exit parameter is draft (1)
+        EmailEditorValues.SetDefaultExitOption(1);
+
+        // [WHEN] A email is created and opened in the editor
+        EmailMessage.Create(Any.Email(), Any.UnicodeText(50), Any.UnicodeText(250), true);
+        EmailMessageImpl.Get(EmailMessage.GetId());
+        EmailEditorTest.Trap();
+        Email.OpenInEditor(EmailMessage, EmailAccount);
+
+        // [WHEN] Editor is closed, the email is discarded
+        EmailEditorTest.Close();
+
+        // [THEN] There should be no drafts saved
+        Assert.AreEqual(1, EmailOutbox.Count(), 'There is more or less than the expected number of drafts.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ValidateDiscardDefaultOptionEmailEditorHandler')]
+    procedure EmailEditorCloseDefaultDiscard()
+    var
+        EmailAccount: Record "Email Account";
+        EmailOutbox: Record "Email Outbox";
+        Email: Codeunit Email;
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailMessage: Codeunit "Email Message";
+        EmailMessageImpl: Codeunit "Email Message Impl.";
+        EmailEditorValues: Codeunit "Email Editor Values";
+        EmailEditorTest: TestPage "Email Editor";
+    begin
+        // [GIVEN] All outbox records are deleted, connector is installed and an account is added.
+        EmailOutbox.DeleteAll();
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(EmailAccount);
+
+        // [GIVEN] Default exit parameter is discard (2)
+        EmailEditorValues.SetDefaultExitOption(2);
+
+        // [WHEN] A email is created and opened in the editor
+        EmailMessage.Create(Any.Email(), Any.UnicodeText(50), Any.UnicodeText(250), true);
+        EmailMessageImpl.Get(EmailMessage.GetId());
+        EmailEditorTest.Trap();
+        Email.OpenInEditor(EmailMessage, EmailAccount);
+
+        // [WHEN] Editor is closed, the email is discarded
+        EmailEditorTest.Close();
+
+        // [THEN] There should be no drafts saved
+        Assert.AreEqual(0, EmailOutbox.Count(), 'There should be no drafts');
+    end;
+
     local procedure GiveUserViewAllPolicy()
     var
         EmailViewPolicy: Record "Email View Policy";
@@ -451,5 +519,19 @@ codeunit 134696 "Email Editor Validation Tests"
     procedure SaveAsDraftOnCloseHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := 1;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure ValidateDraftDefaultOptionEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Assert.AreEqual(1, Choice, 'The default option is not draft.');
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure ValidateDiscardDefaultOptionEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Assert.AreEqual(2, Choice, 'The default option is not discard.');
     end;
 }

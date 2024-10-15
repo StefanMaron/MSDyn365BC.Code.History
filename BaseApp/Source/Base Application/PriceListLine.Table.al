@@ -570,6 +570,9 @@ table 7001 "Price List Line"
         key(Key4; Status, "Price Type", "Amount Type", "Currency Code", "Unit of Measure Code", "Source Type", "Parent Source No.", "Source No.", "Asset Type", "Asset No.", "Work Type Code", "Starting Date", "Ending Date", "Minimum Quantity")
         {
         }
+        key(Key5; "Product No.", "Asset No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1010,12 +1013,15 @@ table 7001 "Price List Line"
             TestField("Source No.", '');
     end;
 
-    procedure UseCustomizedLookup() Result: Boolean
+    procedure UseCustomizedLookup(): Boolean
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceListManagement: Codeunit "Price List Management";
     begin
+        if not PriceListManagement.IsPriceListLineSynchronized() then
+            exit(true);
         SalesReceivablesSetup.Get();
-        Result := SalesReceivablesSetup."Use Customized Lookup";
+        exit(SalesReceivablesSetup."Use Customized Lookup");
     end;
 
     [IntegrationEvent(true, false)]

@@ -127,7 +127,7 @@ report 10022 "Trial Balance"
                 column(DescriptionLine1; DescriptionLine1)
                 {
                 }
-                column(IntegerBody1Condition; (((LineType = LineType::"9-Point") or (LineType = LineType::"9-Point Rounded")) and (DescriptionLine1 <> '') and not PrintToExcel))
+                column(IntegerBody1Condition; (((LineType = LineType::"9-Point") or (LineType = LineType::"9-Point Rounded")) and (DescriptionLine1 <> '') and not PrintToExcel and NumbersToPrint()))
                 {
                 }
                 column(DescriptionLine2; DescriptionLine2)
