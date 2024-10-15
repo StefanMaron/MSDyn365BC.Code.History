@@ -233,7 +233,7 @@
             Window.Update(4, 1);
             PostCustomerEntry(
               SalesHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription,
-              GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDiscOnCrMemos);
+              GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDiscOnCrMemos, SalesInvHeader);
 
             UpdatePostedSalesDocument(DocumentType, GenJnlLineDocNo);
 
@@ -1175,7 +1175,7 @@
         end;
     end;
 
-    local procedure PostCustomerEntry(SalesHeader: Record "Sales Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean)
+    local procedure PostCustomerEntry(SalesHeader: Record "Sales Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean; SalesInvHeader: Record "Sales Invoice Header")
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1194,6 +1194,7 @@
             "Amount (LCY)" := -TotalPrepmtInvLineBufferLCY."Amount Incl. VAT";
             "Sales/Purch. (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
             "Profit (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
+            "Reference No." := SalesInvHeader."Reference No.";
 
             Correction := (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
 
@@ -1461,7 +1462,7 @@
             SalesInvHeader."Prepayment Invoice" := true;
             SalesInvHeader."Prepayment Order No." := "No.";
             SalesInvHeader."No. Series" := PostingNoSeriesCode;
-            SalesInvHeader."Reference No." := CreateReference.CreateSalesInvReference("No.", "Bill-to Customer No.");
+            SalesInvHeader."Reference No." := CreateReference.CreateSalesInvReference(SalesInvHeader."No.", "Bill-to Customer No.");
             OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit, GenJnlLineDocNo);
             SalesInvHeader.Insert();
             CopyHeaderCommentLines("No.", DATABASE::"Sales Invoice Header", GenJnlLineDocNo);
