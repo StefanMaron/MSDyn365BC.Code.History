@@ -174,6 +174,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             "Line No." := LineNo;
             if PaymentMethod.Get(CustLedgerEntry."Payment Method Code") then
                 "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
+            OnPreparePaymentExportDataCLEOnBeforeTempPaymentExportDataInsert(TempPaymentExportData, CustLedgerEntry, GeneralLedgerSetup);
             Insert(true);
         end;
     end;
@@ -210,6 +211,11 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeCreateCustLedgerDataExchLine(DataExch: Record "Data Exch."; CustLedgerEntry: Record "Cust. Ledger Entry"; LineNo: Integer; var LineAmount: Decimal; var TotalAmount: Decimal; var TransferDate: Date; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreparePaymentExportDataCLEOnBeforeTempPaymentExportDataInsert(var TempPaymentExportData: Record "Payment Export Data" temporary; CustLedgerEntry: Record "Cust. Ledger Entry"; GeneralLedgerSetup: Record "General Ledger Setup")
     begin
     end;
 }

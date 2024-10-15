@@ -1,4 +1,4 @@
-codeunit 1521 "Workflow Response Handling"
+﻿codeunit 1521 "Workflow Response Handling"
 {
     Permissions = TableData "Sales Header" = rm,
                   TableData "Purchase Header" = rm,
@@ -887,8 +887,21 @@ codeunit 1521 "Workflow Response Handling"
                     RecordRestrictionMgt.AllowFAJournalBatchUsage(FAJournalBatch);
                 end
             else
-                RecordRestrictionMgt.AllowRecordUsage(Variant);
+                AllowRecordUsageDefault(Variant);
         end;
+    end;
+
+    local procedure AllowRecordUsageDefault(Variant: Variant)
+    var
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAllowRecordUsageDefault(Variant, IsHandled);
+        if IsHandled then
+            exit;
+
+        RecordRestrictionMgt.AllowRecordUsage(Variant);
     end;
 
     procedure AddResponseToLibrary(FunctionName: Code[128]; TableID: Integer; Description: Text[250]; ResponseOptionGroup: Code[20])
@@ -896,6 +909,8 @@ codeunit 1521 "Workflow Response Handling"
         WorkflowResponse: Record "Workflow Response";
         SystemInitialization: Codeunit "System Initialization";
     begin
+        OnBeforeAddResponseToLibrary(FunctionName, Description);
+
         if WorkflowResponse.Get(FunctionName) then
             exit;
 
@@ -1136,6 +1151,16 @@ codeunit 1521 "Workflow Response Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetWorkflowResponseDescription(var WorkflowResponse: Record "Workflow Response"; var WorkflowStepArgument: Record "Workflow Step Argument"; var WorkflowDescription: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddResponseToLibrary(FunctionName: Code[128]; Description: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllowRecordUsageDefault(var Variant: Variant; var Handled: Boolean)
     begin
     end;
 

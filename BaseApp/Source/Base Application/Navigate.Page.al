@@ -1016,6 +1016,7 @@
 
     local procedure FindDeliveryReminderEntries()
     begin
+        OnBeforeFindDeliveryReminderEntries();
         if DelivReminLedgerEntries.ReadPermission then begin
             DelivReminLedgerEntries.Reset();
             DelivReminLedgerEntries.SetCurrentKey("Reminder No.", "Posting Date");
@@ -1429,6 +1430,8 @@
                 IssuedDeliveryReminderHeader."Posting Date", Format("Table Name"), IssuedDeliveryReminderHeader."No.",
                 2, IssuedDeliveryReminderHeader."Vendor No.");
         end;
+
+        OnAfterSetSourceForPurchase();
     end;
 
     local procedure SetSourceForSales()
@@ -2064,7 +2067,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
     begin
     end;
@@ -2084,13 +2087,18 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetRec(NewSourceRecVar: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetSourceForPurchase()
     begin
     end;
 
@@ -2106,6 +2114,11 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeUpdateFormAfterFindRecords()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindDeliveryReminderEntries()
     begin
     end;
 

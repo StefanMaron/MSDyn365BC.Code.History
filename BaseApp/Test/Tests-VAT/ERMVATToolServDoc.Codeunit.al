@@ -21,6 +21,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
 
     [Test]
@@ -30,7 +31,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO] Run VAT Rate Change with Perform Conversion = FALSE for Service Order, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -61,7 +62,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO] Run VAT Rate Change with Perform Conversion = FALSE for Posted Service Order, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -168,7 +169,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LineCount: Integer;
     begin
         // Service Order with multiple lines, update one line only.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -261,7 +262,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine: Record "Service Line";
     begin
         // [SCENARIO] Service Order with one partially shipped and consumed and invoiced line, update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -360,7 +361,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         TempRecRef: RecordRef;
     begin
         // [SCENARIO] Service Invoice with one line, related to a Shipment Line, update both groups. No update expected.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -388,7 +389,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     [Scope('OnPrem')]
     procedure VATToolServiceOrderReserve()
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -415,7 +416,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     procedure VATToolServOrderItemTracking()
     begin
         // [SCENARIO] Service Order with one line with Item Tracking with Serial No., update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -445,7 +446,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // [SCENARIO] Service Order with one partially shipped line with Dimensions assigned, update both groups.
         // Verify that dimensions are copied to the new line.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -481,7 +482,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LineCount: Integer;
     begin
         // [SCENARIO] Service Order with two lines, first partially shipped, no line number available between them. Update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -521,7 +522,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         // [SCENARIO] Check Description field value when out standing quantity is zero on service order.
 
         // Setup: Create posting groups to update and save them in VAT Change Tool Conversion table.
-        Initialize;
+        Initialize();
         ERMVATToolHelper.UpdateVatRateChangeSetup(VATRateChangeSetup);
         SetupToolService(VATRateChangeSetup."Update Service Docs."::"VAT Prod. Posting Group", true, false);
         CreateServiceOrder(ServiceHeader, LibraryRandom.RandInt(5));
@@ -543,7 +544,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 255529] When Stan sets an "Ignore Status on Service Docs." checkbox of "VAT Rate Change Setup" page, field "Ignore Status on Service Docs." of "VAT Rate Change Setup" table is set to TRUE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ignore Status on Service Docs." has its initial state FALSE.
         SetFieldStateIgnoreStatusOnServiceDocs(false);
@@ -564,7 +565,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 255529] When Stan clears an "Ignore Status on Service Docs." checkbox of "VAT Rate Change Setup" page, field "Ignore Status on Service Docs." of "VAT Rate Change Setup" table is set to FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ignore Status on Service Docs." has its initial state TRUE.
         SetFieldStateIgnoreStatusOnServiceDocs(true);
@@ -584,7 +585,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO 255529] Conversion for Sales Order with release status "Released To Ship" is allowed, if "Ignore Status on Service Docs." checkbox is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Change Tool Conversion" table is set up.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -614,7 +615,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO 255529] Conversion for Sales Order with release status "Released To Ship" is not allowed, if "Ignore Status on Service Docs." checkbox is cleared.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Change Tool Conversion" table is set up.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -747,19 +748,25 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM VAT Tool - Serv. Doc");
+
+        ERMVATToolHelper.ResetToolSetup();  // This resets the setup table for all test cases.
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        ERMVATToolHelper.SetupItemNos;
-        ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM VAT Tool - Serv. Doc");
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        ERMVATToolHelper.SetupItemNos();
+        ERMVATToolHelper.ResetToolSetup();  // This resets setup table for the first test case after database is restored.
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.SaveSalesSetup();
         isInitialized := true;
         Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM VAT Tool - Serv. Doc");
     end;
 
     local procedure SetupToolService(FieldOption: Option; PerformConversion: Boolean; IgnoreStatus: Boolean)
@@ -777,7 +784,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         TempRecRef: RecordRef;
         Update: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -817,7 +824,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
     begin
         // Service Order with one partially shipped and released line, update VAT group and ignore header status. Verify Amount.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -857,7 +864,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(AutoInsertDefault);
@@ -889,7 +896,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader: Record "Service Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);

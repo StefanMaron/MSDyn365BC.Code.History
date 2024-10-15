@@ -7,6 +7,7 @@
         Cust: Record Customer;
         SalesInvoiceLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
+        ArchiveManagement: Codeunit ArchiveManagement;
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
         OnBeforeOnRun(Rec);
@@ -36,6 +37,8 @@
         OnAfterInsertAllSalesInvLines(SalesInvoiceLine, Rec);
 
         SalesSetup.Get();
+        ArchiveManagement.AutoArchiveSalesDocument(Rec);
+
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesInvoiceHeader."Posting Date" := 0D;
             SalesInvoiceHeader.Modify();

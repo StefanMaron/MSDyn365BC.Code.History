@@ -1086,7 +1086,6 @@ page 27 "Vendor List"
 
     trigger OnInit()
     begin
-        SetVendorNoVisibilityOnFactBoxes;
         CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
     end;
 
@@ -1133,14 +1132,6 @@ page 27 "Vendor List"
     procedure SetSelection(var Vend: Record Vendor)
     begin
         CurrPage.SetSelectionFilter(Vend);
-    end;
-
-    local procedure SetVendorNoVisibilityOnFactBoxes()
-    begin
-        CurrPage.VendorDetailsFactBox.PAGE.SetVendorNoVisibility(false);
-        CurrPage.VendorHistBuyFromFactBox.PAGE.SetVendorNoVisibility(false);
-        CurrPage.VendorHistPayToFactBox.PAGE.SetVendorNoVisibility(false);
-        CurrPage.VendorStatisticsFactBox.PAGE.SetVendorNoVisibility(false);
     end;
 }
 

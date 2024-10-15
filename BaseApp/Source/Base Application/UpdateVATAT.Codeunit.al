@@ -16,6 +16,8 @@ codeunit 11110 "Update VAT-AT"
         VATStatementLine: Record "VAT Statement Line";
         LineNo: Integer;
         VATStatementNameTxt: Label 'DEFAULT', Comment = 'VAT Statement Name';
+        KZ0009Txt: Label '  5% Base Amount for revenue for Par.28 Sec.52 N.1', Comment = 'Must be up to 50 characters in total with 2 leading spaces. Paragraph 28 Section 52 Number 1.';
+        KZ1009Txt: Label '  5% Tax Amount for revenue for Par.28 Sec.52 N.1', Comment = 'Must be up to 50 characters in total with 2 leading spaces. Paragraph 28 Section 52 Number 1.';
 
     [Scope('OnPrem')]
     procedure UpdateVATStatementTemplate(TemplateName: Code[10]; TemplateDescription: Text[80]; AgricultureVATProdPostingGroups: Text)
@@ -71,6 +73,8 @@ codeunit 11110 "Update VAT-AT"
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BU', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 13,
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('BU', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 5,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BU', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0,
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
 
@@ -93,6 +97,8 @@ codeunit 11110 "Update VAT-AT"
         CreateVATStatementLines('UST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10,
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('UST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 13,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('UST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 5,
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('UST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0,
           VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
@@ -117,6 +123,8 @@ codeunit 11110 "Update VAT-AT"
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BV', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 13,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('BV', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 5,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BV', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
 
@@ -134,6 +142,8 @@ codeunit 11110 "Update VAT-AT"
         CreateVATStatementLines('VST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('VST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 13,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('VST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 5,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('VST', VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
@@ -153,6 +163,8 @@ codeunit 11110 "Update VAT-AT"
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 13,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('BES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 5,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('BES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 0,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, false, AgricultureVATProdPostingGroups);
 
@@ -170,6 +182,8 @@ codeunit 11110 "Update VAT-AT"
         CreateVATStatementLines('ES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 10,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('ES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 13,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
+        CreateVATStatementLines('ES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 5,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
         CreateVATStatementLines('ES', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 0,
           VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, false, AgricultureVATProdPostingGroups);
@@ -206,7 +220,8 @@ codeunit 11110 "Update VAT-AT"
         InsertData('', '  UST Beträgebeginnen mit 1xxx', 3, 0, 0, '', false, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Lieferungen, sonstige Leist. und Eigenverbrauch:', 3, 0, 0, '', false, false);
-        InsertData('1000', '  BMG für Lief. und Leist. inkl. Anzahlungen', 2, 0, 0, 'BU20|BU10|BU13|BU19|BULW10|BULW7|BU0', true, false);
+        InsertData(
+          '1000', '  BMG für Lief. und Leist. inkl. Anzahlungen', 2, 0, 0, 'BU20|BU10|BU13|BU19|BULW10|BULW7|BU0|BU5|EULIEF', true, false);
         InsertData('1001', '  zuzüglich Eigenverbrauch', 2, 0, 0, '', true, false);
         InsertData('1021', '  abzüglich Umsätze Art. 19', 2, 0, 0, '', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
@@ -214,7 +229,7 @@ codeunit 11110 "Update VAT-AT"
         InsertData('1011', '  Art. 6 Ausfuhrlieferungen', 2, 0, 0, 'BU0', true, false);
         InsertData('1012', '  Art. 6 Lohnveredelung', 2, 0, 0, '', true, false);
         InsertData('1015', '  Art. 6 Seeschifffahrt usw.', 2, 0, 0, '', true, false);
-        InsertData('1017', '  Art. 6 innerg. Lieferungen', 2, 0, 0, '', true, false);
+        InsertData('1017', '  Art. 6 innerg. Lieferungen', 2, 0, 0, 'EULIEF', true, false);
         InsertData('1018', '  Art. 6 Fahrzeuge ohne UID', 2, 0, 0, '', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Davon steuerfrei OHNE Vorsteuerabzug gemäß', 3, 0, 0, '', false, false);
@@ -235,6 +250,8 @@ codeunit 11110 "Update VAT-AT"
         InsertData('1052', '  10% UST pauschalierte LW', 2, 0, 0, 'USLWT10', true, false);
         InsertData('0007', '  7% BMG pauschalierte LW', 2, 0, 0, 'BULW7', true, false);
         InsertData('1007', '  7% UST pauschalierte LW', 2, 0, 0, 'USLWT7', true, false);
+        InsertData('0009', CopyStr(KZ0009Txt, 1, 50), 2, 0, 0, 'BU5', true, false);
+        InsertData('1009', CopyStr(KZ1009Txt, 1, 50), 2, 0, 0, 'UST5', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Weiters zu versteuern:', 3, 0, 0, '', false, false);
         InsertData('1056', '  Steuerschuld Art. 11', 2, 0, 0, '', true, false);
@@ -244,7 +261,7 @@ codeunit 11110 "Update VAT-AT"
         InsertData('1032', '  Steuerschuld Art. 19 (Schrott und Abfall)', 2, 0, 0, '', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Innergemeinschaftliche Erwerbe:', 3, 0, 0, '', false, false);
-        InsertData('0070', '  BMG Innerg. Erwerbe', 2, 0, 0, 'BES20|BES10|BES13|BES19|BES0', true, false);
+        InsertData('0070', '  BMG Innerg. Erwerbe', 2, 0, 0, 'BES20|BES10|BES13|BES19|BES0|BES5', true, false);
         InsertData('0071', '  Davon steuerfrei gem. Art.6 Abs. 2', 2, 0, 0, 'BES0', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Davon sind zu versteuern mit:', 3, 0, 0, '', false, false);
@@ -256,16 +273,18 @@ codeunit 11110 "Update VAT-AT"
         InsertData('1008', '  13% UST ermäßigter Steuersatz', 2, 0, 0, 'ES13', true, false);
         InsertData('0088', '  19% BMG für Jungholz und Mittelberg', 2, 0, 0, 'BES19', true, false);
         InsertData('1088', '  19% UST für Jungholz und Mittelberg', 2, 0, 0, 'ES19', true, false);
+        InsertData('0010', CopyStr(KZ0009Txt, 1, 50), 2, 0, 0, 'BES5', true, false);
+        InsertData('1010', CopyStr(KZ1009Txt, 1, 50), 2, 0, 0, 'ES5', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Nicht zu versteuernde Erwerbe:', 3, 0, 0, '', false, false);
         InsertData('0076', '  Erwerbe Art.3 Abs.8 (1)', 2, 0, 0, '', true, false);
         InsertData('0077', '  Erwerbe Art.3 Abs.8 (2)', 2, 0, 0, '', true, false);
         InsertData('', '', 3, 0, 0, '', false, false);
         InsertData('', 'Berechnung der abziehbaren Vorsteuer:', 3, 0, 0, '', false, false);
-        InsertData('1060', '  Gesamtbetrag der Vorsteuern', 2, 0, 0, 'VST20|VST10|VST13|VST19', true, false);
+        InsertData('1060', '  Gesamtbetrag der Vorsteuern', 2, 0, 0, 'VST20|VST10|VST13|VST19|VST5', true, false);
         InsertData('1061', '  Einfuhrumsatzsteuer', 2, 0, 0, '', true, false);
         InsertData('1083', '  Vorsteuern Art. 12 Abs.1 Z 2 lit.b', 2, 0, 0, '', true, false);
-        InsertData('1065', '  Vorsteuern aus dem Innerg. Erwerb', 2, 0, 0, 'ES20|ES10|ES13|ES19', true, false);
+        InsertData('1065', '  Vorsteuern aus dem Innerg. Erwerb', 2, 0, 0, 'ES20|ES10|ES13|ES19|ES5', true, false);
         InsertData('1066', '  Vorsteuern Art. 19', 2, 0, 0, '', true, false);
         InsertData('1082', '  Vorsteuern Art. 19 (Bauleistungen)', 2, 0, 0, '', true, false);
         InsertData('1087', '  Vorsteuern Art. 19 (Sicherungseigentum)', 2, 0, 0, '', true, false);
