@@ -1,4 +1,4 @@
-﻿report 840 "Suggest Worksheet Lines"
+report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -1038,7 +1038,10 @@
                 SetCashFlowDate(CFWorksheetLine2, SalesHeader."Due Date");
                 "Document No." := "Sales Line"."Document No.";
                 "VAT Base Amount" := CalculateVATBaseAmtForSalesLine(SalesHeader, "Sales Line");
-                "Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
+                if SalesHeader."Prepayment %" = 100 then
+                    "Amount (LCY)" := GetSalesOrderPrepaymentAmt("Sales Line")
+                else
+                    "Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
 
                 if Summarized and MultiSalesLines then begin
                     "VAT Base Amount" := "VAT Base Amount" + TotalVATBaseAmt;
@@ -1863,6 +1866,23 @@
     procedure GetSummarized(): Boolean
     begin
         exit(Summarized);
+    end;
+
+    local procedure GetSalesOrderPrepaymentAmt(SalesLine: Record "Sales Line"): Decimal
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        RemainingAmount: Decimal;
+    begin
+        SalesInvoiceHeader.SetLoadFields("Prepayment Order No.");
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", SalesLine."Document No.");
+        SalesInvoiceHeader.SetFilter("Remaining Amount", '<>%1', 0);
+        if SalesInvoiceHeader.FindSet() then
+            repeat
+                SalesInvoiceHeader.CalcFields("Remaining Amount");
+                RemainingAmount += SalesInvoiceHeader."Remaining Amount";
+            until SalesInvoiceHeader.Next() = 0;
+
+        exit(RemainingAmount);
     end;
 
     [IntegrationEvent(false, false)]

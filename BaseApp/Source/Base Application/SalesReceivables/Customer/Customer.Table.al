@@ -2685,7 +2685,6 @@
 
         Customer.Reset();
         Customer.Ascending(false); // most likely to search for newest customers
-        Customer.SetRange(Blocked, Customer.Blocked::" ");
         OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
         if Customer.FindSet() then
             repeat

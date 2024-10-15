@@ -67,6 +67,7 @@ codeunit 134378 "ERM Sales Order"
         CompletelyShippedErr: Label 'Completely Shipped should be yes';
         AdjustedCostChangedMsg: Label 'Adjusted Cost (LCY) has changed.';
         DimensionSetIdHasChangedMsg: Label 'Dimension Set ID has changed on Sales Order';
+        CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
 
     [Test]
     [Scope('OnPrem')]
@@ -5073,6 +5074,35 @@ codeunit 134378 "ERM Sales Order"
 
         // [VERIFY] Verify Sales Order Quantities are updated in the sales line.
         Assert.Equal(SalesLine.Quantity, SalesLine."Outstanding Qty. (Base)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorMessageOnSellToCustomerNameWhenCustomerIsBlock()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 488777] Error message occurs when sell to customer name validate instead of new customer create drop-down open.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Blocked the customer.
+        Customer.Validate(Name, LibraryRandom.RandText(40));
+        Customer.Validate(Blocked, Customer.Blocked::All);
+        Customer.Modify(true);
+
+        // [GIVEN] Create a sales Order.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+
+        // [VERIFY] Verify that error occurs when Sell to customer name validate instead of this customer is not registered drop down.
+        asserterror SalesHeader.Validate("Sell-to Customer Name", Customer.Name);
+    
+        // [VERIFY] Verify error message when "Sell-to Customer Name" field Validate on Sales Order.
+        Assert.ExpectedError(StrSubstNo(CustomerBlockedErr, Customer."No.", Customer.Blocked));
     end;
 
     local procedure Initialize()
