@@ -625,8 +625,8 @@ page 99000823 "Output Journal"
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
-        ProdOrderDescription: Text[50];
-        OperationName: Text[50];
+        ProdOrderDescription: Text[100];
+        OperationName: Text[100];
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;

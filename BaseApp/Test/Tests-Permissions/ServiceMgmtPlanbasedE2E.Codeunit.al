@@ -946,13 +946,38 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     local procedure CreateCustomer() CustomerNo: Code[20]
     var
         Customer: Record Customer;
+        TempCustomerDetails: Record Customer temporary;
         CustomerCard: TestPage "Customer Card";
     begin
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+
         CustomerCard.OpenNew;
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
+        CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
+        CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
+        CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
         Commit();
+    end;
+
+    local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
+    begin
+        TempCustomerDetails.Init();
+        FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
+        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
+    end;
+
+    local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        GenBusPostingGroup := GeneralPostingSetup."Gen. Bus. Posting Group";
+
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        VATBusPostingGroup := VATPostingSetup."VAT Bus. Posting Group";
     end;
 
     local procedure CreateServiceItemGroup() ServiceItemGroupCode: Code[10]

@@ -1219,7 +1219,7 @@ table 5902 "Service Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -2142,6 +2142,7 @@ table 5902 "Service Line"
             trigger OnValidate()
             begin
                 UpdateDiscountsAmounts;
+		        UpdateUnitPrice(FieldNo(Warranty));
             end;
         }
         field(5936; "Contract No."; Code[20])
@@ -3092,7 +3093,7 @@ table 5902 "Service Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          SalesSetup.RecordId, "Gen. Bus. Posting Group",
+          SalesSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
@@ -3304,7 +3305,7 @@ table 5902 "Service Line"
             if (not FullAutoReservation) and (not ServiceMgtSetup."Skip Manual Reservation") then begin
                 Commit();
                 if ConfirmManagement.GetResponse(ManualReserveQst, true) then begin
-                    ShowReservation;
+                    ShowReservation();
                     Find;
                 end;
             end;
@@ -3603,7 +3604,13 @@ table 5902 "Service Line"
     procedure ShowItemSub()
     var
         ItemSubstMgt: Codeunit "Item Subst.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemSub(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemSubstMgt.ItemServiceSubstGet(Rec);
     end;
 
@@ -5070,7 +5077,14 @@ table 5902 "Service Line"
     end;
 
     local procedure CheckIfCanBeModified()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIfCanBeModified(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Appl.-to Service Entry" > 0) and ("Contract No." <> '') then
             Error(Text053);
     end;
@@ -5461,6 +5475,16 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAssignItemVariant(var ServiceLine: Record "Service Line"; ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfCanBeModified(ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemSub(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

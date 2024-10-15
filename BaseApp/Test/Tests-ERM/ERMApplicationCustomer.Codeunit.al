@@ -6,11 +6,12 @@ codeunit 134010 "ERM Application Customer"
 
     trigger OnRun()
     begin
-        // [FEATURE] [Sales]
+        // [FEATURE] [Sales] [Application]
     end;
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryERMCustomerWatch: Codeunit "Library - ERM Customer Watch";
@@ -409,6 +410,70 @@ codeunit 134010 "ERM Application Customer"
 
         VerifyUnappliedLedgerEntry(CustLedgerEntry);
         VerifyUnappliedLedgerEntry(CustLedgerEntry2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in customer ledger entry when it is generated from general journal line applied to customer ledger entry
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        InvoiceAmount := LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+        CustLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        CustLedgerEntry.FindSet();
+        repeat
+            CustLedgerEntry.TestField(Open, false);
+        until CustLedgerEntry.Next() = 0;
+        Assert.RecordCount(CustLedgerEntry, 2);
+
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustLedgerEntry.TestField("Applies-to ID", '');
     end;
 
     local procedure Initialize()

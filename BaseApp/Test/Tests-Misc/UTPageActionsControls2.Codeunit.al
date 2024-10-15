@@ -15,8 +15,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPermissions: Codeunit "Library - Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         PageFieldVisibleErr: Label '%1 must be visible.';
         PageFieldEditableErr: Label '%1 must be editable.';
@@ -745,8 +747,245 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         PurchaseQuotes.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UI] [Quote] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Quote's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote);
+        SalesQuote.OpenEdit();
+        SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.SalesLines.New();
+        SalesQuote.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesQuote.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        SalesQuote.Control1906127307.ItemNo.AssertEquals(SalesQuote.SalesLines."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Order] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Order's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.New();
+        SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        SalesOrder.Control1906127307.ItemNo.AssertEquals(SalesOrder.SalesLines."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI] [Invoice] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Invoice's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines.New();
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror SalesInvoice.Control1906127307.ItemNo.AssertEquals(SalesInvoice.SalesLines."No.");
+        Assert.ExpectedError('The part with ID = 1255971699 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [UI] [Credit Memo] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Credit Memo's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemo.SalesLines.New();
+        SalesCreditMemo.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesCreditMemo.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror SalesCreditMemo.Control1906127307.ItemNo.AssertEquals(SalesCreditMemo.SalesLines."No.");
+        Assert.ExpectedError('The part with ID = 1528634028 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesBlanketOrderSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [FEATURE] [UI] [Blanket Order] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Blanket Order's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrder.SalesLines.New();
+        BlanketSalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        BlanketSalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror BlanketSalesOrder.Control1906127307.ItemNo.AssertEquals(BlanketSalesOrder.SalesLines."No.");
+        Assert.ExpectedError('The part with ID = 1073894834 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderSalesLineFactboxNewLineItemNoEntered()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [UI] [Return Order] [Sales]
+        // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Return Order's line
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesReturnOrder.SalesLines.New();
+        SalesReturnOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesReturnOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror SalesReturnOrder.Control1906127307.ItemNo.AssertEquals(SalesReturnOrder.SalesLines."No.");
+        Assert.ExpectedError('The part with ID = 250218575 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseQuotePurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [FEATURE] [UI] [Quote] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Quote's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuote.PurchLines.New();
+        PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseQuote.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseQuote.Control5."No.".AssertEquals(PurchaseQuote.PurchLines."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Order] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Order's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines.New();
+        PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseOrder.Control3."No.".AssertEquals(PurchaseOrder.PurchLines."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoicePurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI] [Invoice] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Invoice's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines.New();
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror PurchaseInvoice.Control3."No.".AssertEquals(PurchaseInvoice.PurchLines."No.");
+        Assert.ExpectedError('The part with ID = 1331326981 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoPurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [FEATURE] [UI] [Credit Memo] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Credit Memo's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemo.PurchLines.New();
+        PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseCreditMemo.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror PurchaseCreditMemo.Control5."No.".AssertEquals(PurchaseCreditMemo.PurchLines."No.");
+        Assert.ExpectedError('The part with ID = 2115167912 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseBlanketOrderPurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [FEATURE] [UI] [Blanket Order] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Blanket Order's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
+        BlanketPurchaseOrder.OpenEdit();
+        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        BlanketPurchaseOrder.PurchLines.New();
+        BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        BlanketPurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        asserterror BlanketPurchaseOrder.Control3."No.".AssertEquals(BlanketPurchaseOrder.PurchLines."No.");
+        Assert.ExpectedError('The part with ID = 109000829 was not found on the page.'); // VISIBLE FALSE
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseReturnOrderPurchaseLineFactboxNewLineItemNoEntered()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [FEATURE] [UI] [Return Order] [Purchase]
+        // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Return Order's line
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseReturnOrder.PurchLines.New();
+        PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseReturnOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseReturnOrder.Control3."No.".AssertEquals(PurchaseReturnOrder.PurchLines."No.");
+    end;
+
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"UT Page Actions & Controls - 2");
+
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -763,25 +1002,37 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibrarySetupStorage.SavePurchasesSetup();
     end;
 
-    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
+        Commit();
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Purchase Document Type")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
+        Commit();
+    end;
+
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDecInRange(100, 200, 2));
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDecInRange(100, 200, 2));
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDecInRange(100, 200, 2));
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandDecInRange(100, 200, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -803,7 +1054,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
+        SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
         SalesReceivablesSetup.Modify();
     end;
 
@@ -812,7 +1063,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
+        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
         PurchasesPayablesSetup.Modify();
     end;
 }

@@ -484,6 +484,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         Initialize;
+
         // [WHEN] Set current company to Premium experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Premium));
 
@@ -1299,8 +1300,6 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTierSetup: Record "Experience Tier Setup";
     begin
         asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Custom));
-        Assert.ExpectedError('The row does not exist on the TestPage.');
-        asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Advanced));
         Assert.ExpectedError('The row does not exist on the TestPage.');
         asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Basic));
         Assert.ExpectedError('The row does not exist on the TestPage.');

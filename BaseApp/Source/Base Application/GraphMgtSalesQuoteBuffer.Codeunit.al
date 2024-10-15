@@ -434,6 +434,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesInvoiceLineAggregate.SetDiscountValue;
         SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
         UpdateLineAmountsFromSalesLine(SalesInvoiceLineAggregate, SalesLine);
+        SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesLine."No.", SalesLine."Variant Code");
     end;
 
     procedure PropagateInsertLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)

@@ -13,6 +13,9 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         NoPermissionOnCountryRegionInsertErr: Label 'You do not have the following permissions on TableData 9: Insert';
         IsInitialized: Boolean;
 
@@ -51,22 +54,29 @@ codeunit 135404 "Sales Document Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderBusinessManager()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as business manager
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
+
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
         // [GIVEN] A sales order
-        CreateSalesOrder(SalesOrder);
+        CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
+        LibraryVariableStorage.AssertEmpty;
 
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -75,19 +85,24 @@ codeunit 135404 "Sales Document Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderTeamMember()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as team member
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
 
         // [GIVEN] The user has the team member plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [WHEN] User tries to create a sales order
-        asserterror CreateSalesOrder(SalesOrder);
+        asserterror CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         asserterror CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
     end;
 
@@ -96,47 +111,60 @@ codeunit 135404 "Sales Document Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderExternalAccountant()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as external accountant
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
+
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
         // [GIVEN] A sales order
-        CreateSalesOrder(SalesOrder);
+        CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
-
+        LibraryVariableStorage.AssertEmpty;
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderEssentialISVEmbUser()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as Essential ISV Emb User
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
+
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         // [GIVEN] A sales order
-        CreateSalesOrder(SalesOrder);
+        CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
+        LibraryVariableStorage.AssertEmpty;
 
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -145,43 +173,55 @@ codeunit 135404 "Sales Document Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderTeamMemberISVEmb()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as team member ISV Emb
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
 
-        // [GIVEN] The user has the team member plan
+        // [GIVEN] The user has the team member ISV plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
         // [WHEN] User tries to create a sales order
-        asserterror CreateSalesOrder(SalesOrder);
+        asserterror CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         asserterror CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderDeviceISVEmbUser()
     var
+        TempCustomerDetails: Record Customer temporary;
+        TempVendorDetails: Record Vendor temporary;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesOrder: TestPage "Sales Order";
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as Device ISV Emb User
         Initialize;
+        FindCustomerPostingAndVATSetup(TempCustomerDetails);
+        FindVendorPostingAndVATSetup(TempVendorDetails);
+
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
         // [GIVEN] A sales order
-        CreateSalesOrder(SalesOrder);
+        CreateSalesOrder(SalesOrder, TempCustomerDetails);
 
         // [WHEN] A purchase order is created from the sales order
+        EnqueueVendorDetails(TempVendorDetails);
         CreatePurchaseOrderFromSalesOrder(SalesOrder, PurchaseOrder);
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
+        LibraryVariableStorage.AssertEmpty;
 
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -197,6 +237,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryVariableStorage.Clear;
+
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         RoutingLine.DeleteAll();
@@ -221,12 +263,12 @@ codeunit 135404 "Sales Document Plan-based E2E"
         SalesOrder.CreatePurchaseOrder.Invoke;
     end;
 
-    local procedure CreateSalesOrder(var SalesOrder: TestPage "Sales Order")
+    local procedure CreateSalesOrder(var SalesOrder: TestPage "Sales Order"; TempCustomerDetails: Record Customer temporary)
     var
         SalesLine: Record "Sales Line";
     begin
         SalesOrder.OpenNew;
-        SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer);
+        SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer(TempCustomerDetails));
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesOrder.SalesLines."No.".SetValue(CreateItem);
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
@@ -244,28 +286,60 @@ codeunit 135404 "Sales Document Plan-based E2E"
         Commit();
     end;
 
-    local procedure CreateVendor() VendorNo: Code[20]
+    local procedure CreateVendor(TempVendorDetails: Record Vendor temporary) VendorNo: Code[20]
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
     begin
         VendorCard.OpenNew;
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
+        VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
+        VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
+        VendorCard."Vendor Posting Group".SetValue(TempVendorDetails."Vendor Posting Group");
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
         Commit();
     end;
 
-    local procedure CreateCustomer() CustomerNo: Code[20]
+    local procedure CreateCustomer(TempCustomerDetails: Record Customer temporary) CustomerNo: Code[20]
     var
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
         CustomerCard.OpenNew;
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
+        CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
+        CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
+        CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
         Commit();
+    end;
+
+    local procedure FindVendorPostingAndVATSetup(var TempVendorDetails: Record Vendor temporary)
+    begin
+        TempVendorDetails.Init();
+        FindBusPostingGroups(TempVendorDetails."Gen. Bus. Posting Group", TempVendorDetails."VAT Bus. Posting Group");
+        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup;
+    end;
+
+    local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
+    begin
+        TempCustomerDetails.Init();
+        FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
+        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
+    end;
+
+    local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        GenBusPostingGroup := GeneralPostingSetup."Gen. Bus. Posting Group";
+
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        VATBusPostingGroup := VATPostingSetup."VAT Bus. Posting Group";
     end;
 
     local procedure VerifyPurchaseOrderCreatedFromSalesOrder(var SalesOrder: TestPage "Sales Order"; var PurchaseOrder: TestPage "Purchase Order")
@@ -296,12 +370,29 @@ codeunit 135404 "Sales Document Plan-based E2E"
     begin
     end;
 
+    local procedure EnqueueVendorDetails(TempVendorDetails: Record Vendor temporary)
+    begin
+        LibraryVariableStorage.Enqueue(TempVendorDetails."Gen. Bus. Posting Group");
+        LibraryVariableStorage.Enqueue(TempVendorDetails."VAT Bus. Posting Group");
+        LibraryVariableStorage.Enqueue(TempVendorDetails."Vendor Posting Group");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    var
+        TempVendorDetails: Record Vendor temporary;
     begin
+        TempVendorDetails.Init();
+        TempVendorDetails."Gen. Bus. Posting Group" :=
+          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."Gen. Bus. Posting Group"));
+        TempVendorDetails."VAT Bus. Posting Group" :=
+          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."VAT Bus. Posting Group"));
+        TempVendorDetails."Vendor Posting Group" :=
+          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."Vendor Posting Group"));
+
         PurchOrderFromSalesOrder.First;
-        PurchOrderFromSalesOrder.Vendor.SetValue(CreateVendor);
+        PurchOrderFromSalesOrder.Vendor.SetValue(CreateVendor(TempVendorDetails));
         PurchOrderFromSalesOrder.OK.Invoke;
     end;
 

@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.70718cm</Width>
+                  <Width>18.55097cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -3972,7 +3972,7 @@
                               <RepeatRowHeaders>true</RepeatRowHeaders>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>6.07677cm</Top>
-                              <Height>3.76703cm</Height>
+                              <Height>3.63447cm</Height>
                               <Width>18.5cm</Width>
                               <ZIndex>1</ZIndex>
                               <Style>
@@ -6928,7 +6928,7 @@
                               <Top>10.24373cm</Top>
                               <Left>0.21398cm</Left>
                               <Height>1.4636cm</Height>
-                              <Width>10cm</Width>
+                              <Width>3.3782cm</Width>
                               <ZIndex>8</ZIndex>
                               <Style>
                                 <Border>
@@ -7091,7 +7091,7 @@
             <DataSetName>DataSet_Result</DataSetName>
             <Top>0.22049cm</Top>
             <Height>21.78252cm</Height>
-            <Width>18.70718cm</Width>
+            <Width>18.55097cm</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -7102,7 +7102,7 @@
         <Height>22.1353cm</Height>
         <Style />
       </Body>
-      <Width>18.81301cm</Width>
+      <Width>18.55097cm</Width>
       <Page>
         <PageHeader>
           <Height>3.8cm</Height>
@@ -7805,6 +7805,12 @@ End Function
         </Field>
         <Field Name="ItemNo_Line_Lbl">
           <DataField>ItemNo_Line_Lbl</DataField>
+        </Field>
+        <Field Name="CrossReferenceNo_Line">
+          <DataField>CrossReferenceNo_Line</DataField>
+        </Field>
+        <Field Name="CrossReferenceNo_Line_Lbl">
+          <DataField>CrossReferenceNo_Line_Lbl</DataField>
         </Field>
         <Field Name="ShipmentDate_Line">
           <DataField>ShipmentDate_Line</DataField>

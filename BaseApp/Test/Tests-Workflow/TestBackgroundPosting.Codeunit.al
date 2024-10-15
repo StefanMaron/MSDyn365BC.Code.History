@@ -43,6 +43,7 @@ codeunit 139027 "Test Background Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         PostTimeoutErr: Label 'Document exceeded timeout when posting: Header %1 still present and JobQueueStatus is %2.';
@@ -53,14 +54,17 @@ codeunit 139027 "Test Background Posting"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Background Posting");
         // These steps are executed once per test.
         DeleteAllJobQueueEntries;
 
         // These steps are executed only once per codeunit.
         if isInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Background Posting");
         SalesAndPurchSetup;
         isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Background Posting");
     end;
 
     local procedure SalesAndPurchSetup()

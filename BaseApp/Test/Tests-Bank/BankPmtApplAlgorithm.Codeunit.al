@@ -708,8 +708,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -1145,8 +1146,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -1180,8 +1182,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          CustomerBankAccount."Bank Branch No." + CustomerBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -3356,8 +3359,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -3793,8 +3797,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -3828,8 +3833,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
-        UpdateBankReconciliationLine(BankAccReconciliationLine, BankAccReconciliation."Bank Account No.", '', '', '');
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", BankAccReconciliation."Bank Account No.");
+        UpdateBankReconciliationLine(BankAccReconciliationLine,
+          VendorBankAccount."Bank Branch No." + VendorBankAccount."Bank Account No.", '', '', '');
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -5758,6 +5764,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
         CustomerBankAccount.IBAN := '';
         CustomerBankAccount."Bank Account No." := BankAccountNo;
+        CustomerBankAccount."Bank Branch No." := BankAccountNo;
         CustomerBankAccount.Modify(true);
     end;
 
@@ -5766,6 +5773,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
         VendorBankAccount.IBAN := '';
         VendorBankAccount."Bank Account No." := BankAccountNo;
+        VendorBankAccount."Bank Branch No." := BankAccountNo;
         VendorBankAccount.Modify(true);
     end;
 

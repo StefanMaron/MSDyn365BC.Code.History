@@ -7,6 +7,11 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        LibraryERM: Codeunit "Library - ERM";
+        PCS: Label 'PCS';
+        BOX: Label 'BOX';
+
     procedure InitializeCountry()
     begin
         exit;
@@ -84,7 +89,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        exit;
+        UpdateAccountsInGeneralPostingSetup;
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -128,8 +133,13 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure CreateUnitsOfMeasure()
+    var
+        UnitofMeasure: Record "Unit of Measure";
     begin
-        exit;
+        if not UnitofMeasure.Get(PCS) then
+            CreateUnitOfMeasure(PCS);
+        if not UnitofMeasure.Get(BOX) then
+            CreateUnitOfMeasure(BOX);
     end;
 
     procedure CreateTransportMethodTableData()
@@ -202,6 +212,42 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure UpdateAccountsInGeneralPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        if GeneralPostingSetup.FindSet then
+            repeat
+                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                if GeneralPostingSetup."Overhead Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount);
+                if GeneralPostingSetup."COGS Account" = '' then
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next = 0;
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateUnitOfMeasure("Code": Text)
+    var
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        UnitofMeasure.Init();
+        UnitofMeasure.Code := Code;
+        UnitofMeasure.Description := Code;
+        UnitofMeasure.Insert();
     end;
 }
 

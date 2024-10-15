@@ -184,6 +184,7 @@ codeunit 392 "Reminder-Make"
                 NextLineNo := ReminderLine."Line No.";
                 GetOpenEntriesNotDueOnHoldTranslated("Language Code", OpenEntriesNotDueTranslated, OpenEntriesOnHoldTranslated);
                 CustLedgEntry.SetRange("Last Issued Reminder Level");
+                OnMakeReminderOnBeforeCustLedgEntryFindSet(CustLedgEntry, Cust, ReminderHeader, MaxReminderLevel, OverdueEntriesOnly);
                 if CustLedgEntry.FindSet then
                     repeat
                         if (not OverdueEntriesOnly) or
@@ -245,7 +246,16 @@ codeunit 392 "Reminder-Make"
         ReminderDueDate: Date;
         LineLevel: Integer;
         MarkEntry: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnBeforeFindAndMarkReminderCandidates(
+            ReminderLevel, ReminderHeaderReq, ReminderTerms, ReminderEntry,
+            CustLedgEntry, CustLedgEntryOnHoldTEMP, CustLedgEntryLastIssuedReminderLevelFilter, CustAmount,
+            MakeDoc, MaxReminderLevel, MaxLineLevel, OverdueEntriesOnly, IncludeEntriesOnHold, IsHandled);
+        if IsHandled then
+            exit;
+
         repeat
             FilterCustLedgEntries(ReminderLevel);
             if CustLedgEntry.FindSet then
@@ -529,6 +539,11 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnBeforeFindAndMarkReminderCandidates(var ReminderLevel: Record "Reminder Level"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; var ReminderEntry: Record "Reminder/Fin. Charge Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var TempCustLedgEntryOnHold: Record "Cust. Ledger Entry"; var CustLedgEntryLastIssuedReminderLevelFilter: Text; var CustAmount: Decimal; var MakeDoc: Boolean; var MaxReminderLevel: Integer; var MaxLineLevel: Integer; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReminderHeaderFind(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
     begin
     end;
@@ -545,6 +560,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnBeforeCustLedgEntryFindSet(var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; ReminderHeader: Record "Reminder Header"; MaxReminderLevel: Integer; var OverDueEntriesOnly: Boolean)
     begin
     end;
 }

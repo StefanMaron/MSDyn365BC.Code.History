@@ -1827,22 +1827,26 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowTableRelation: Record "Workflow - Table Relation";
     begin
+        if WorkflowTableRelation.Get(TableId, FieldId, RelatedTableId, RelatedFieldId) then
+            exit;
         WorkflowTableRelation.Init();
         WorkflowTableRelation."Table ID" := TableId;
         WorkflowTableRelation."Field ID" := FieldId;
         WorkflowTableRelation."Related Table ID" := RelatedTableId;
         WorkflowTableRelation."Related Field ID" := RelatedFieldId;
-        if WorkflowTableRelation.Insert() then;
+        WorkflowTableRelation.Insert();
     end;
 
     procedure InsertWorkflowCategory("Code": Code[20]; Description: Text[100])
     var
         WorkflowCategory: Record "Workflow Category";
     begin
+        if WorkflowCategory.Get(Code) then
+            exit;
         WorkflowCategory.Init();
         WorkflowCategory.Code := Code;
         WorkflowCategory.Description := Description;
-        if WorkflowCategory.Insert() then;
+        WorkflowCategory.Insert();
     end;
 
     procedure InsertEventArgument(WorkflowStepID: Integer; EventConditions: Text)

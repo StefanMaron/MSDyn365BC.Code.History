@@ -553,7 +553,13 @@ codeunit 99000787 "Create Prod. Order Lines"
     var
         SKU: Record "Stockkeeping Unit";
         Item: Record Item;
+        IsHandled: Boolean;
+        ReplanSystemProdOrder: Boolean;
     begin
+        OnBeforeIsReplSystemProdOrder(SalesLine, ReplanSystemProdOrder, IsHandled);
+        if IsHandled then
+            exit(ReplanSystemProdOrder);
+
         if SKU.Get(LocationCode, ItemNo, VariantCode) then
             exit(SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order");
 
@@ -683,6 +689,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyOnProdOrderSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsReplSystemProdOrder(SalesLine: Record "Sales Line"; var ReplanSystemProdOrder: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

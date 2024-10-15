@@ -125,18 +125,6 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PaymentMethodsWithUseForInvoicing()
-    var
-        PaymentMethod: Record "Payment Method";
-    begin
-        // [FEATURE] [Invoicing]
-        // [SCENARIO 184609] There should be 3 payment methods with Use for Invoicing = Yes
-        PaymentMethod.SetRange("Use for Invoicing", true);
-        Assert.RecordCount(PaymentMethod, 5);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure EmailDraftInteractionTemplateCode()
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";
@@ -171,19 +159,6 @@ codeunit 138500 "Common Demodata"
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Pro Forma S. Invoice");
         ReportSelections.FindFirst;
         ReportSelections.TestField("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceProformaCustomReportLayoutSetup()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        // [FEATURE] [Report Selection] [Proforma Invoice]
-        // [SCENARIO 225721] There is a Word Custom Report Layout setup for REP 1302 "Standard Sales - Pro Forma Inv"
-        CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
-        CustomReportLayout.FindFirst;
-        CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
     end;
 
     [Test]

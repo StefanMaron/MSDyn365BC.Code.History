@@ -118,12 +118,14 @@ page 99000892 "Work Center Group Load Lines"
     end;
 
     var
-        WorkCenterGroup: Record "Work Center Group";
         MfgSetup: Record "Manufacturing Setup";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        WorkCenterGroup: Record "Work Center Group";
         CapacityUoM: Code[10];
 
     procedure Set(var NewWorkCenterGroup: Record "Work Center Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date"; NewCapUoM: Code[10])
@@ -188,11 +190,11 @@ page 99000892 "Work Center Group Load Lines"
         else
             Load := 0;
 
-        OnAfterCalcLine(WorkCenterGroup, Rec);
+        OnAfterCalcLine(WorkCenterGroup, Rec, CapacityUoM);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcLine(var WorkCenterGroup: Record "Work Center Group"; var LoadBuffer: Record "Load Buffer")
+    local procedure OnAfterCalcLine(var WorkCenterGroup: Record "Work Center Group"; var LoadBuffer: Record "Load Buffer"; CapacityUoM: Code[10])
     begin
     end;
 }

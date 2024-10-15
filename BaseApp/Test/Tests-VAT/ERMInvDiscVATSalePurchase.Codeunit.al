@@ -931,13 +931,13 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         QtyType: Option General,Invoicing,Shipping;
         VATAmount: Decimal;
         VATAmount2: Decimal;
-        VATPct: Decimal;
+        VATId: Code[20];
     begin
         // Setup: Create Sales Order/Credit Memo for two different VAT Posting Groups and Calculate VAT Amount.
         // Take 1 Fix for Creating 1 Sales Line.
         CreateSalesDocument(SalesHeader, SalesLine, 1, DocumentType);
         VATAmount := SalesLine."Line Amount" * SalesLine."VAT %" / 100;
-        VATPct := SalesLine."VAT %";
+        VATId := SalesLine."VAT Prod. Posting Group";
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
@@ -947,8 +947,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
 
         // Verify: Verify VAT Amount field on Sales Order/Credit Memo Statistics (VAT Amount Line Table).
-        VerifyVATOnStatistics(VATPct, VATAmount);
-        VerifyVATOnStatistics(SalesLine."VAT %", VATAmount2);
+        VerifyVATOnStatistics(VATAmount, VATId);
+        VerifyVATOnStatistics(VATAmount2, SalesLine."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -958,19 +958,19 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         SalesHeader: Record "Sales Header";
         AmountIncludingVAT: Decimal;
         AmountIncludingVAT2: Decimal;
-        VATPct: Decimal;
-        VATPct2: Decimal;
+        VATId: Code[20];
+        VATId2: Code[20];
         DocumentNo: Code[20];
     begin
         // Verify VAT Amount on Posted Sales Invoice for different VAT Posting Groups.
 
         // Setup: Create Sales Order for two different VAT Posting Groups and Calculate VAT Amount.
         Initialize;
-        DocumentNo := VATAmountOnPstdSalesDoc(AmountIncludingVAT, AmountIncludingVAT2, VATPct, VATPct2, SalesHeader."Document Type"::Order);
+        DocumentNo := VATAmountOnPstdSalesDoc(AmountIncludingVAT, AmountIncludingVAT2, VATId, VATId2, SalesHeader."Document Type"::Order);
 
         // Verify: Verify Amount Including VAT field on Posted Sales Invoice.
-        VerifyVATOnPstdSalesInvoice(DocumentNo, VATPct, AmountIncludingVAT);
-        VerifyVATOnPstdSalesInvoice(DocumentNo, VATPct2, AmountIncludingVAT2);
+        VerifyVATOnPstdSalesInvoice(DocumentNo, VATId, AmountIncludingVAT);
+        VerifyVATOnPstdSalesInvoice(DocumentNo, VATId2, AmountIncludingVAT2);
     end;
 
     [Test]
@@ -980,8 +980,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         SalesHeader: Record "Sales Header";
         AmountIncludingVAT: Decimal;
         AmountIncludingVAT2: Decimal;
-        VATPct: Decimal;
-        VATPct2: Decimal;
+        VATId: Code[20];
+        VATId2: Code[20];
         DocumentNo: Code[20];
     begin
         // Verify VAT Amount on Posted Sales Credit Memo for different VAT Posting Groups.
@@ -989,14 +989,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Setup: Create Sales Credit Memo for two different VAT Posting Groups and Calculate VAT Amount.
         Initialize;
         DocumentNo :=
-          VATAmountOnPstdSalesDoc(AmountIncludingVAT, AmountIncludingVAT2, VATPct, VATPct2, SalesHeader."Document Type"::"Credit Memo");
+          VATAmountOnPstdSalesDoc(AmountIncludingVAT, AmountIncludingVAT2, VATId, VATId2, SalesHeader."Document Type"::"Credit Memo");
 
         // Verify: Verify Amount Including VAT field on Posted Sales Credit Memo.
-        VerifyVATOnPstdSalesCrMemo(DocumentNo, VATPct, AmountIncludingVAT);
-        VerifyVATOnPstdSalesCrMemo(DocumentNo, VATPct2, AmountIncludingVAT2);
+        VerifyVATOnPstdSalesCrMemo(DocumentNo, VATId, AmountIncludingVAT);
+        VerifyVATOnPstdSalesCrMemo(DocumentNo, VATId2, AmountIncludingVAT2);
     end;
 
-    local procedure VATAmountOnPstdSalesDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Option): Code[20]
+    local procedure VATAmountOnPstdSalesDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATId: Code[20]; var VATId2: Code[20]; DocumentType: Option): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1007,12 +1007,12 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Take 1 Fix for Creating 1 Sales Line.
         CreateSalesDocument(SalesHeader, SalesLine, 1, DocumentType);
         AmountIncludingVAT := SalesLine."Line Amount" * SalesLine."VAT %" / 100 + SalesLine."Line Amount";
-        VATPct := SalesLine."VAT %";
+        VATId := SalesLine."VAT Prod. Posting Group";
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := SalesLine."Line Amount" * SalesLine."VAT %" / 100 + SalesLine."Line Amount";
-        VATPct2 := SalesLine."VAT %";
+        VATId2 := SalesLine."VAT Prod. Posting Group";
 
         // Exercise: Post Sales Order.
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1048,13 +1048,13 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         QtyType: Option General,Invoicing,Shipping;
         VATAmount: Decimal;
         VATAmount2: Decimal;
-        VATPct: Decimal;
+        VATId: Code[20];
     begin
         // Setup: Create Purchase Order for two different VAT Posting Groups and Calculate VAT Amount.
         // Take 1 Fix for Creating 1 Purchase Line.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, 1, DocumentType);
         VATAmount := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100;
-        VATPct := PurchaseLine."VAT %";
+        VATId := PurchaseLine."VAT Prod. Posting Group";
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
@@ -1065,8 +1065,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // Verify: Verify VAT Amount field on Purchase Order Statistics (VAT Amount Line Table).
-        VerifyVATOnStatistics(VATPct, VATAmount);
-        VerifyVATOnStatistics(PurchaseLine."VAT %", VATAmount2);
+        VerifyVATOnStatistics(VATAmount, VATId);
+        VerifyVATOnStatistics(VATAmount2, PurchaseLine."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -1076,18 +1076,18 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         PurchaseHeader: Record "Purchase Header";
         AmountIncludingVAT: Decimal;
         AmountIncludingVAT2: Decimal;
-        VATPct: Decimal;
-        VATPct2: Decimal;
+        VATId: Code[20];
+        VATId2: Code[20];
         DocumentNo: Code[20];
     begin
         // Verify VAT Amount on Posted Purchase Invoice for different VAT Posting Groups.
         Initialize;
         DocumentNo :=
-          VATAmountOnPstdPurchDoc(AmountIncludingVAT, AmountIncludingVAT2, VATPct, VATPct2, PurchaseHeader."Document Type"::Order);
+          VATAmountOnPstdPurchDoc(AmountIncludingVAT, AmountIncludingVAT2, VATId, VATId2, PurchaseHeader."Document Type"::Order);
 
         // Verify: Verify VAT Amount field on Posted Purchase Invoice.
-        VerifyVATOnPstdPurchInvoice(DocumentNo, VATPct, AmountIncludingVAT);
-        VerifyVATOnPstdPurchInvoice(DocumentNo, VATPct2, AmountIncludingVAT2);
+        VerifyVATOnPstdPurchInvoice(DocumentNo, VATId, AmountIncludingVAT);
+        VerifyVATOnPstdPurchInvoice(DocumentNo, VATId2, AmountIncludingVAT2);
     end;
 
     [Test]
@@ -1097,21 +1097,21 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         PurchaseHeader: Record "Purchase Header";
         AmountIncludingVAT: Decimal;
         AmountIncludingVAT2: Decimal;
-        VATPct: Decimal;
-        VATPct2: Decimal;
+        VATId: Code[20];
+        VATId2: Code[20];
         DocumentNo: Code[20];
     begin
         // Verify VAT Amount on Posted Purchase Credit Memo for different VAT Posting Groups.
         Initialize;
         DocumentNo :=
-          VATAmountOnPstdPurchDoc(AmountIncludingVAT, AmountIncludingVAT2, VATPct, VATPct2, PurchaseHeader."Document Type"::"Credit Memo");
+          VATAmountOnPstdPurchDoc(AmountIncludingVAT, AmountIncludingVAT2, VATId, VATId2, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Verify: Verify VAT Amount field on Posted Purchase Credit Memo.
-        VerifyVATOnPstdPurchCrMemo(DocumentNo, VATPct, AmountIncludingVAT);
-        VerifyVATOnPstdPurchCrMemo(DocumentNo, VATPct2, AmountIncludingVAT2);
+        VerifyVATOnPstdPurchCrMemo(DocumentNo, VATId, AmountIncludingVAT);
+        VerifyVATOnPstdPurchCrMemo(DocumentNo, VATId2, AmountIncludingVAT2);
     end;
 
-    local procedure VATAmountOnPstdPurchDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Option): Code[20]
+    local procedure VATAmountOnPstdPurchDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATId: Code[20]; var VATId2: Code[20]; DocumentType: Option): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1120,13 +1120,13 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Take 1 Fix for Creating 1 Purchase Line.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, 1, DocumentType);
         AmountIncludingVAT := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100 + PurchaseLine."Line Amount";
-        VATPct := PurchaseLine."VAT %";
+        VATId := PurchaseLine."VAT Prod. Posting Group";
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100 + PurchaseLine."Line Amount";
-        VATPct2 := PurchaseLine."VAT %";
+        VATId2 := PurchaseLine."VAT Prod. Posting Group";
 
         // Exercise: Post Purchase Order/Credit Memo.
         exit(PostPurchDocument(PurchaseHeader));
@@ -2318,27 +2318,27 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             AmountError, VATAmountLine.FieldCaption("Invoice Discount Amount"), InvoiceDiscountAmount, VATAmountLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnStatistics(VATPct: Decimal; VATAmount: Decimal)
+    local procedure VerifyVATOnStatistics(VATAmount: Decimal; VatIdentifier: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
         GeneralLedgerSetup.Get();
-        VATAmountLine.SetRange("VAT %", VATPct);
+        VATAmountLine.SetRange("VAT Identifier", VatIdentifier);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnPstdSalesInvoice(DocumentNo: Code[20]; VATPct: Decimal; AmountIncludingVAT: Decimal)
+    local procedure VerifyVATOnPstdSalesInvoice(DocumentNo: Code[20]; VATId: Code[20]; AmountIncludingVAT: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.SetRange("VAT %", VATPct);
+        SalesInvoiceLine.SetRange("VAT Identifier", VATId);
         SalesInvoiceLine.FindFirst;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, SalesInvoiceLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",
@@ -2346,14 +2346,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             AmountError, SalesInvoiceLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesInvoiceLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnPstdSalesCrMemo(DocumentNo: Code[20]; VATPct: Decimal; AmountIncludingVAT: Decimal)
+    local procedure VerifyVATOnPstdSalesCrMemo(DocumentNo: Code[20]; VATId: Code[20]; AmountIncludingVAT: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-        SalesCrMemoLine.SetRange("VAT %", VATPct);
+        SalesCrMemoLine.SetRange("VAT Prod. Posting Group", VATId);
         SalesCrMemoLine.FindFirst;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, SalesCrMemoLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",
@@ -2361,14 +2361,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             AmountError, SalesCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesCrMemoLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnPstdPurchInvoice(DocumentNo: Code[20]; VATPct: Decimal; AmountIncludingVAT: Decimal)
+    local procedure VerifyVATOnPstdPurchInvoice(DocumentNo: Code[20]; VATId: Code[20]; AmountIncludingVAT: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.SetRange("VAT %", VATPct);
+        PurchInvLine.SetRange("VAT Identifier", VATId);
         PurchInvLine.FindFirst;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, PurchInvLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",
@@ -2376,14 +2376,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             AmountError, PurchInvLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchInvLine.TableCaption));
     end;
 
-    local procedure VerifyVATOnPstdPurchCrMemo(DocumentNo: Code[20]; VATPct: Decimal; AmountIncludingVAT: Decimal)
+    local procedure VerifyVATOnPstdPurchCrMemo(DocumentNo: Code[20]; VATId: Code[20]; AmountIncludingVAT: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         GeneralLedgerSetup.Get();
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.SetRange("VAT %", VATPct);
+        PurchCrMemoLine.SetRange("VAT Identifier", VATId);
         PurchCrMemoLine.FindFirst;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, PurchCrMemoLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",

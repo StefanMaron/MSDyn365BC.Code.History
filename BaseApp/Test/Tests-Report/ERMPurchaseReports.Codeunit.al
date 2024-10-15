@@ -1633,7 +1633,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader.Modify(true);
 
         CreateVATPurchaseLine(PurchaseHeader, TempPurchaseLine, LibraryInventory.CreateItemNo);
-        CreateVATPurchaseLine(PurchaseHeader, TempPurchaseLine, FindItem(TempPurchaseLine."VAT %"));
+        CreateVATPurchaseLine(PurchaseHeader, TempPurchaseLine, FindItem(TempPurchaseLine."VAT Prod. Posting Group"));
         CreateVATPurchaseLine(PurchaseHeader, TempPurchaseLine, CreateItemWithZeroVAT);
     end;
 
@@ -1707,14 +1707,14 @@ codeunit 134983 "ERM Purchase Reports"
         REPORT.Run(REPORT::"Vendor - List", true, false, Vendor);
     end;
 
-    local procedure FindItem(VATPct: Decimal): Code[20]
+    local procedure FindItem(VATProdId: Code[20]): Code[20]
     var
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Not using Library Item Finder method to make this funtion World ready.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetFilter("VAT %", '>0&<>%1', VATPct);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdId);
         VATPostingSetup.FindFirst;
         Item.SetRange(Blocked, false);
         Item.FindFirst;

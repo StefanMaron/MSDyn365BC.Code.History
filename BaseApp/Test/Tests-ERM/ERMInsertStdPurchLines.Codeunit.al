@@ -519,6 +519,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure AutoInsertStdPurchLinesWhenCreateNewPurchaseOrderFromVendorList()
     var
         Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
         VendorList: TestPage "Vendor List";
         PurchaseOrder: TestPage "Purchase Order";
     begin
@@ -541,9 +542,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseOrder."Buy-from Vendor No.".Activate;
         PurchaseOrder.PurchLines.First;
 
-        // [THEN] Standard purchase code notification created
-        // Verify only notification ID due to test limitations
-        VerifyPurchStdCodesNotificationId;
+        // [THEN] Recurring purchase line created
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrder."No.".Value);
+        VerifyPurchaseLine(PurchaseHeader);
     end;
 
     [Test]
@@ -551,6 +552,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure AutoInsertStdPurchLinesWhenCreateNewPurchaseInvoiceFromVendorList()
     var
         Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
         VendorList: TestPage "Vendor List";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
@@ -572,9 +574,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [WHEN] Activate "Buy-from Vendor No." field
         PurchaseInvoice."Buy-from Vendor No.".Activate;
 
-        // [THEN] Standard purchase code notification created
-        // Verify only notification ID due to test limitations
-        VerifyPurchStdCodesNotificationId;
+        // [THEN] Recurring purchase line created
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value);
+        VerifyPurchaseLine(PurchaseHeader);
     end;
 
     [Test]
@@ -582,6 +584,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure AutoInsertStdPurchLinesWhenCreateNewPurchaseQuoteFromVendorList()
     var
         Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
         VendorList: TestPage "Vendor List";
         PurchaseQuote: TestPage "Purchase Quote";
     begin
@@ -603,9 +606,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [WHEN] Activate "Buy-from Vendor No." field
         PurchaseQuote."Buy-from Vendor No.".Activate;
 
-        // [THEN] Standard purchase code notification created
-        // Verify only notification ID due to test limitations
-        VerifyPurchStdCodesNotificationId;
+        // [THEN] Recurring purchase line created
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Quote, PurchaseQuote."No.".Value);
+        VerifyPurchaseLine(PurchaseHeader);
     end;
 
     [Test]
@@ -613,6 +616,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure AutoInsertStdPurchLinesWhenCreateNewPurchaseCreditMemoFromVendorList()
     var
         Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
         VendorList: TestPage "Vendor List";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
@@ -634,9 +638,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [WHEN] Activate "Buy-from Vendor No." field
         PurchaseCreditMemo."Buy-from Vendor No.".Activate;
 
-        // [THEN] Standard purchase code notification created
-        // Verify only notification ID due to test limitations
-        VerifyPurchStdCodesNotificationId;
+        // [THEN] Recurring purchase line created
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseCreditMemo."No.".Value);
+        VerifyPurchaseLine(PurchaseHeader);
     end;
 
     [Test]
@@ -849,6 +853,35 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [THEN] "Resource List" page opened (ResourceListPageHandler)
     end;
 
+    [Test]
+    [HandlerFunctions('VendorLookupModalHandler')]
+    [Scope('OnPrem')]
+    procedure BuyFromVendorNameLookupPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Order] [UT]
+        // [SCENARIO 348101] Recurring purchase line created on order lookup Buy-from Vendor Name when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Local currency Vendor "VEND" with standard purchase code "AA" where Insert Rec. Lines On Orders = Automatic
+        VendorNo := GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic);
+
+        // [GIVEN] Create new Purchase order
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.setfilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Vendor "VEND" is being selected from lookup of "Buy-from Vendor Name"
+        LibraryVariableStorage.Enqueue(VendorNo);
+        PurchaseOrder."Buy-from Vendor Name".Lookup();
+
+        // [THEN] Recurring purchase line created
+        VerifyPurchaseLine(PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -905,7 +938,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         exit(StandardPurchaseCode.Code);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
@@ -1166,6 +1199,14 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure ResourceListPageHandler(var ResourceList: TestPage "Resource List")
     begin
         ResourceList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorLookupModalHandler(var VendorLookupPage: TestPage "Vendor Lookup")
+    begin
+        VendorLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
+        VendorLookupPage.OK.Invoke;
     end;
 }
 

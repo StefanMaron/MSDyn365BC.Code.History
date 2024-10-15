@@ -131,33 +131,6 @@
       <Cmt Name="Dev"><![CDATA[Must be max. 10 chars and no spacing. (Send Invoice)]D;]A;(LookupHint=Codeunit Document Mailing Tests - NamedType MailingJobCategoryCodeTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3250438326 - NamedType 1207365956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Customer@consoto.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Address Selection - NamedType CustomerEmailTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3250438326 - NamedType 80484680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contact@consoto.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Address Selection - NamedType ContactEmailTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3250438326 - NamedType 2673868981" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SalesHeader@consoto.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Address Selection - NamedType SalesHeaderEmailTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2933273639 - NamedType 2542021117" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ACTIVITIEX]]></Val>

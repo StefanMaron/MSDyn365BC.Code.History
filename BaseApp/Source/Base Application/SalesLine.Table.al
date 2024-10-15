@@ -929,6 +929,9 @@ table 37 "Sales Line"
             trigger OnValidate()
             begin
                 TestStatusOpen();
+                if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and "Allow Invoice Disc." then
+                    Error(CannotAllowInvDiscountErr, FieldCaption("Allow Invoice Disc."));
+
                 if "Allow Invoice Disc." <> xRec."Allow Invoice Disc." then begin
                     if not "Allow Invoice Disc." then begin
                         "Inv. Discount Amount" := 0;
@@ -1387,6 +1390,8 @@ table 37 "Sales Line"
                 GetSalesHeader();
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+                    Validate("Allow Invoice Disc.", false);
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
                 "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
 
@@ -2173,15 +2178,9 @@ table 37 "Sales Line"
             end;
 
             trigger OnValidate()
-            var
-                WMSManagement: Codeunit "WMS Management";
             begin
-                if "Bin Code" <> '' then begin
-                    if not IsInbound and ("Quantity (Base)" <> 0) and ("Qty. to Asm. to Order (Base)" = 0) then
-                        WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
-                    else
-                        WMSManagement.FindBin("Location Code", "Bin Code", '');
-                end;
+                if "Bin Code" <> '' then
+                    CheckBinCodeRelation();
 
                 if "Drop Shipment" then
                     CheckAssocPurchOrder(FieldCaption("Bin Code"));
@@ -3323,6 +3322,7 @@ table 37 "Sales Line"
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.', Comment = '%1 = Type caption %2 = No.';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
+        CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
 
     procedure InitOutstanding()
     begin
@@ -3994,6 +3994,7 @@ table 37 "Sales Line"
         ResCost: Record "Resource Cost";
     begin
         ResCost.Init();
+        OnFindResUnitCostOnAfterInitResCost(Rec, ResCost);
         ResCost.Code := "No.";
         ResCost."Work Type Code" := "Work Type Code";
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -4225,6 +4226,7 @@ table 37 "Sales Line"
                         begin
                             Amount := 0;
                             "VAT Base Amount" := 0;
+                            "Amount Including VAT" := ROUND(CalcLineAmount(), Currency."Amount Rounding Precision");
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -4334,6 +4336,22 @@ table 37 "Sales Line"
             if not IsHandled then
                 CustCheckCreditLimit.SalesLineCheck(Rec);
         end;
+    end;
+
+    local procedure CheckBinCodeRelation()
+    var
+        WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBinCodeRelation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not IsInbound() and ("Quantity (Base)" <> 0) and ("Qty. to Asm. to Order (Base)" = 0) then
+            WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
+        else
+            WMSManagement.FindBin("Location Code", "Bin Code", '');
     end;
 
     local procedure CheckCreditLimitCondition(): Boolean
@@ -4916,7 +4934,13 @@ table 37 "Sales Line"
         ShareOfVAT: Decimal;
         TotalQtyToAssign: Decimal;
         TotalAmtToAssign: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemChargeAssgnt(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::"Blanket Order" then
             exit;
 
@@ -5391,7 +5415,7 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-        if Type = Type::Item then
+        if IsInventoriableItem() then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
                     if Location.RequireShipment("Location Code") then
@@ -5426,7 +5450,13 @@ table 37 "Sales Line"
         WhseSetup: Record "Warehouse Setup";
         ShowDialog: Option " ",Message,Error;
         DialogText: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         if "Location Code" = '' then begin
             WhseSetup.Get();
@@ -5733,6 +5763,7 @@ table 37 "Sales Line"
                         "Cross-Reference No." := ICGLAcc."No.";
                 end;
         end;
+        OnAfterCrossReferenceNoLookUp(Rec);
     end;
 
     local procedure ValidateCrossReferenceNo(ItemCrossReference: Record "Item Cross Reference"; SearchItem: Boolean)
@@ -5943,10 +5974,12 @@ table 37 "Sales Line"
 
         if "Prepmt Amt to Deduct" = 0 then
             LineAmount := Round(QtyToHandle * "Unit Price", Currency."Amount Rounding Precision")
-        else begin
-            LineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision");
-            LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
-        end;
+        else
+            if Quantity <> 0 then begin
+                LineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision");
+                LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
+            end else
+                LineAmount := 0;
 
         if QtyToHandle <> Quantity then
             LineDiscAmount := Round(LineAmount * "Line Discount %" / 100, Currency."Amount Rounding Precision")
@@ -5970,7 +6003,7 @@ table 37 "Sales Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then
             if SalesPostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
                 exit("Prepmt Amt to Deduct");
 
@@ -6010,7 +6043,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestJobPlanningLine(Rec, IsHandled);
+        OnBeforeTestJobPlanningLine(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -6156,8 +6189,15 @@ table 37 "Sales Line"
         "Prepmt Amt Deducted" := 0;
     end;
 
-    procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping): Boolean
+    procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeZeroAmountLine(Rec, QtyType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not HasTypeToFillMandatoryFields() then
             exit(true);
         if Quantity = 0 then
@@ -6459,6 +6499,7 @@ table 37 "Sales Line"
                         "IC Partner Reference" := Resource."IC Partner Purch. G/L Acc. No.";
                     end;
             end;
+        OnAfterUpdateICPartner(Rec, SalesHeader);
     end;
 
     procedure OutstandingInvoiceAmountFromShipment(SellToCustomerNo: Code[20]): Decimal
@@ -6662,7 +6703,7 @@ table 37 "Sales Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          SalesSetup.RecordId, "Gen. Bus. Posting Group",
+          SalesSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
@@ -6736,8 +6777,15 @@ table 37 "Sales Line"
             "VAT %" := 0;
     end;
 
-    procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
+    procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]) ReturnValue: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         exit(
             DeferralUtilities.OpenLineScheduleEdit(
                 "Deferral Code", DeferralUtilities.GetSalesDeferralDocType, '', '',
@@ -7317,6 +7365,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinCodeRelation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
@@ -7417,7 +7470,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CallingFieldNo: Integer)
     begin
     end;
 
@@ -7488,6 +7541,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReservedQty(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeZeroAmountLine(var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7633,6 +7691,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowItemSub(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateICPartner(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7807,6 +7870,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCrossReferenceNoLookUp(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBlanketOrderLookup(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7833,6 +7901,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemChargeAssgnt(var SalesLine: Record "Sales Line"; var InHandled: Boolean);
     begin
     end;
 
@@ -7897,6 +7970,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindResUnitCostOnAfterInitResCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATAmountsOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7951,10 +8029,20 @@ table 37 "Sales Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(SalesLine: Record "Sales Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
     procedure ShowDeferralSchedule()
     begin
         GetSalesHeader();
         ShowDeferrals(SalesHeader."Posting Date", SalesHeader."Currency Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouse(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 
